@@ -109,23 +109,6 @@ android {
     }
 }
 
-detekt {
-    toolVersion = libs.versions.detekt.get()
-    config.setFrom(file("config/detekt/detekt.yml"))
-    buildUponDefaultConfig = true
-}
-
-// Kotlin DSL
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-        txt.required.set(true)
-        sarif.required.set(true)
-        md.required.set(true)
-    }
-}
-
 afterEvaluate {
     // TODO find a better way to fix publishAllPublicationsToSonatypeRepository without below config
     tasks.withType<PublishToMavenRepository> {
@@ -141,8 +124,5 @@ afterEvaluate {
         platforms.forEach { platform ->
             dependsOn("sign${platform}Publication")
         }
-    }
-    tasks.withType<io.gitlab.arturbosch.detekt.Detekt> {
-        tasks.getByName("build").dependsOn(this)
     }
 }

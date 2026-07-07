@@ -52,11 +52,19 @@ Goal: current toolchain, regression baseline protected.
 - [x] Android: 64-bit ABIs only (arm64-v8a, x86_64) — generated JNI code assumes
       pointer-sized Vulkan handles; 32-bit uses uint64_t handles and never really worked
 - [x] Parked broken experimental GLFW↔Compose bridge in `awake-core/attic/` (see D6)
-- [ ] Introduce `gradle/libs.versions.toml` version catalog ← **next step**
-- [ ] Migrate `buildSrc` → `build-logic` convention plugins (optional but preferred)
+- [x] Introduce `gradle/libs.versions.toml` version catalog (lwjgl natives stay in buildSrc —
+      host-OS classifier logic isn't expressible in TOML)
+- [ ] Migrate `buildSrc` → `build-logic` convention plugins (optional — deferred, buildSrc
+      is small: lwjgl helper + signing/dokka convention)
 - [x] Android SDK: compile/target 33 → 35
-- [ ] Set up Ktlint + Detekt CI gates (reuse existing `config/detekt`)
-- [ ] GitHub Actions CI: build all targets on push
+- [x] Detekt CI gate: centralized in root build, all KMP source sets scanned,
+      per-module `detekt-baseline.xml` freezes legacy findings (new code must be clean)
+- [ ] Ktlint — deferred: legacy code predates formatting rules; enable with `ktlintFormat`
+      sweep as a standalone commit later
+- [x] GitHub Actions CI (`.github/workflows/ci.yml`): detekt + Android APK (JNI regression
+      gate) + desktop jar + generator on push/PR; uploads demo APK artifact
+- [ ] Old `build-and-publish.yml` is stale (JDK 11, Xcode 14) — refresh when publishing
+      resumes (Phase 0 out-of-scope; see D9 versioning)
 - [x] **Regression baseline:** Android Vulkan demo APK builds on new toolchain
       (device render check still recommended); desktop demo jar + generator also build
 - [ ] iOS targets not yet compile-verified (empty `actual object Vulkan` stub likely

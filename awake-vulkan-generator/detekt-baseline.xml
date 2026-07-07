@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:CreateVulkanAccessor.kt$fun CppFunctionBodyBuilder.processArrayAccessor( void: Boolean, clazz: Class&lt;*>, javaMember: Field, returnType: String, import: (dependency: String) -> Unit )</ID>
+    <ID>CyclomaticComplexMethod:CreateVulkanAccessor.kt$private fun CppClassBuilder.generateVulkanGetters( clazz: Class&lt;*>, declareMembers: Array&lt;Field> )</ID>
+    <ID>CyclomaticComplexMethod:CreateVulkanUtils.kt$fun createVulkanUtils(clazz: Class&lt;*>)</ID>
+    <ID>CyclomaticComplexMethod:CreateVulkanUtils.kt$private fun CppFunctionBodyBuilder.processParameters( method: Method, import: (dependency: String) -> Unit ): List&lt;String></ID>
+    <ID>CyclomaticComplexMethod:GenerateVulkanFromObject.kt$fun CppClassBuilder.generateVulkanFromObject( clazz: Class&lt;*>, declareMembers: Array&lt;Field>, hasArrayField: Boolean )</ID>
+    <ID>CyclomaticComplexMethod:fieldExt.kt$fun Class&lt;*>.toJavaType(includeArray: Boolean = false): JNIType</ID>
+    <ID>CyclomaticComplexMethod:fieldExt.kt$fun Class&lt;*>.toVulkanType(): String</ID>
+    <ID>CyclomaticComplexMethod:fieldExt.kt$fun Field.toJavaSignature(element: Boolean = false): String</ID>
+    <ID>LongMethod:CreateVulkanAccessor.kt$fun CppFunctionBodyBuilder.processObjectAccessor( void: Boolean, javaMember: Field, returnType: String, import: (dependency: String) -> Unit )</ID>
+    <ID>LongMethod:CreateVulkanAccessor.kt$fun createVulkanAccessor(clazz: Class&lt;*>)</ID>
+    <ID>LongMethod:CreateVulkanAccessor.kt$fun processCopy(clazzInfo: String, arrayVariable: String)</ID>
+    <ID>LongMethod:CreateVulkanAccessor.kt$fun processObjectElement(javaType: JNIType)</ID>
+    <ID>LongMethod:CreateVulkanUtils.kt$fun createVulkanUtils(clazz: Class&lt;*>)</ID>
+    <ID>LongMethod:CreateVulkanUtils.kt$private fun CppFunctionBodyBuilder.processVkGet( method: Method, methodName: String, methodParams: String, import: (dependency: String) -> Unit )</ID>
+    <ID>LongMethod:main.kt$fun main(args: Array&lt;String>)</ID>
+    <ID>MatchingDeclarationName:WriteFile.kt$FileWriter</ID>
+    <ID>MatchingDeclarationName:fieldExt.kt$JNIType</ID>
+    <ID>MaxLineLength:CreateVulkanAccessor.kt$(javaType == JNIType.JLong || javaType == JNIType.JLongArray) &amp;&amp; javaMember.isVkHandle() -> javaMember.getVkHandle().name</ID>
+    <ID>MaxLineLength:CreateVulkanAccessor.kt$child(" $arrayName.push_back(static_cast&lt;$enumName>(enum_utils::getEnumFromObject(env, element))); // type is enum")</ID>
+    <ID>MaxLineLength:CreateVulkanAccessor.kt$child(" jlong value = env->Call${javaMember.type.componentType.simpleName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}Method(element, getValueMethod);")</ID>
+    <ID>MaxLineLength:CreateVulkanAccessor.kt$child("return (${returnType}) (accessor.fromObject()); // Object is null, should be accessed by an accessor")</ID>
+    <ID>MaxLineLength:CreateVulkanAccessor.kt$child("std::copy(${arrayName}.begin(), ${arrayName}.end(), $clazzInfo.${arrayName}); // fixed array size")</ID>
+    <ID>MaxLineLength:CreateVulkanAccessor.kt$child("std::copy(${arrayName}.begin(), ${arrayName}.end(), $clazzInfo.${unionMember.alias}); // union member")</ID>
+    <ID>MaxLineLength:CreateVulkanMutator.kt$child("${javaMember.toJavaTypeArray()} $vulkanArrayName = env->NewObjectArray(source.${javaArray.sizeAlias}, ${javaMember.name}Clazz, nullptr);")</ID>
+    <ID>MaxLineLength:CreateVulkanMutator.kt$child("${javaMember.toJavaTypeArray()} ${javaMember.name} = env->New${javaMember.type.componentType.simpleName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}Array($arraySize);")</ID>
+    <ID>MaxLineLength:fieldExt.kt$// Object::class.javaPrimitiveType, java.lang.Object::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"</ID>
+    <ID>MaxLineLength:fieldExt.kt$// String::class.javaPrimitiveType, java.lang.String::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"</ID>
+    <ID>MaxLineLength:fieldExt.kt$Boolean::class.javaPrimitiveType, java.lang.Boolean::class.java -> "${prefix}BooleanArrayRegion$arrayRegionConstructor"</ID>
+    <ID>MaxLineLength:fieldExt.kt$Boolean::class.javaPrimitiveType, java.lang.Boolean::class.java -> "GetBooleanArrayRegion$arrayRegionConstructor"</ID>
+    <ID>MaxLineLength:fieldExt.kt$Char::class.javaPrimitiveType, java.lang.Character::class.java -> "${prefix}CharArrayRegion$arrayRegionConstructor"</ID>
+    <ID>MaxLineLength:fieldExt.kt$Double::class.javaPrimitiveType, java.lang.Double::class.java -> "${prefix}DoubleArrayRegion$arrayRegionConstructor"</ID>
+    <ID>MaxLineLength:fieldExt.kt$Float::class.javaPrimitiveType, java.lang.Float::class.java -> "${prefix}FloatArrayRegion$arrayRegionConstructor"</ID>
+    <ID>MaxLineLength:fieldExt.kt$Object::class.javaPrimitiveType, java.lang.Object::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"</ID>
+    <ID>MaxLineLength:fieldExt.kt$Short::class.javaPrimitiveType, java.lang.Short::class.java -> "${prefix}ShortArrayRegion$arrayRegionConstructor"</ID>
+    <ID>MaxLineLength:fieldExt.kt$String::class.javaPrimitiveType, java.lang.String::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"</ID>
+    <ID>NestedBlockDepth:CreateVulkanAccessor.kt$fun CppFunctionBodyBuilder.processArrayAccessor( void: Boolean, clazz: Class&lt;*>, javaMember: Field, returnType: String, import: (dependency: String) -> Unit )</ID>
+    <ID>NestedBlockDepth:CreateVulkanAccessor.kt$fun CppFunctionBodyBuilder.processObjectAccessor( void: Boolean, javaMember: Field, returnType: String, import: (dependency: String) -> Unit )</ID>
+    <ID>NestedBlockDepth:CreateVulkanAccessor.kt$private fun CppClassBuilder.generateVulkanGetters( clazz: Class&lt;*>, declareMembers: Array&lt;Field> )</ID>
+    <ID>NewLineAtEndOfFile:ClassMember.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.ClassMember.kt</ID>
+    <ID>NewLineAtEndOfFile:CppBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.CppBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:CppClassBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppClassBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:CppClassDSL.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.dsl.CppClassDSL.kt</ID>
+    <ID>NewLineAtEndOfFile:CppConstructorBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppConstructorBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:CppDestructorBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppDestructorBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:CppFunctionBodyBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppFunctionBodyBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:CppFunctionBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppFunctionBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:CppFunctionDSL.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.dsl.CppFunctionDSL.kt</ID>
+    <ID>NewLineAtEndOfFile:CreateVulkanAccessor.kt$io.github.ronjunevaldoz.awake.vulkan_generator.vulkan.CreateVulkanAccessor.kt</ID>
+    <ID>NewLineAtEndOfFile:CreateVulkanMutator.kt$io.github.ronjunevaldoz.awake.vulkan_generator.vulkan.CreateVulkanMutator.kt</ID>
+    <ID>NewLineAtEndOfFile:GenerateVulkanFromObject.kt$io.github.ronjunevaldoz.awake.vulkan_generator.vulkan.GenerateVulkanFromObject.kt</ID>
+    <ID>NewLineAtEndOfFile:VulkanCppBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.vulkan.VulkanCppBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:WriteFile.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.WriteFile.kt</ID>
+    <ID>NewLineAtEndOfFile:fieldExt.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.fieldExt.kt</ID>
+    <ID>NewLineAtEndOfFile:main.kt$io.github.ronjunevaldoz.awake.vulkan_generator.main.kt</ID>
+    <ID>PackageNaming:ClassMember.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool</ID>
+    <ID>PackageNaming:CppBuilder.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool</ID>
+    <ID>PackageNaming:CppClassBuilder.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder</ID>
+    <ID>PackageNaming:CppClassDSL.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool.dsl</ID>
+    <ID>PackageNaming:CppConstructorBuilder.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder</ID>
+    <ID>PackageNaming:CppDestructorBuilder.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder</ID>
+    <ID>PackageNaming:CppFunctionBodyBuilder.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder</ID>
+    <ID>PackageNaming:CppFunctionBuilder.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder</ID>
+    <ID>PackageNaming:CppFunctionDSL.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool.dsl</ID>
+    <ID>PackageNaming:CreateVulkanAccessor.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.vulkan</ID>
+    <ID>PackageNaming:CreateVulkanMutator.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.vulkan</ID>
+    <ID>PackageNaming:CreateVulkanUtils.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.vulkan</ID>
+    <ID>PackageNaming:GenerateVulkanFromObject.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.vulkan</ID>
+    <ID>PackageNaming:VulkanCppBuilder.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.vulkan</ID>
+    <ID>PackageNaming:WriteFile.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool</ID>
+    <ID>PackageNaming:fieldExt.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool</ID>
+    <ID>PackageNaming:main.kt$package io.github.ronjunevaldoz.awake.vulkan_generator</ID>
+    <ID>ReturnCount:fieldExt.kt$fun Field.toVulkanType(useVector: Boolean = true): String</ID>
+    <ID>TooGenericExceptionCaught:WriteFile.kt$FileWriter$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:CreateVulkanAccessor.kt$throw RuntimeException("Nested array not supported")</ID>
+    <ID>TooGenericExceptionThrown:fieldExt.kt$throw Exception("Not yet supported")</ID>
+    <ID>TooGenericExceptionThrown:fieldExt.kt$throw RuntimeException("getArrayElement not supported (use getArrayRegion instead) ${type.simpleName}")</ID>
+    <ID>TooGenericExceptionThrown:fieldExt.kt$throw RuntimeException("getArrayRegion not supported ${type.simpleName}")</ID>
+    <ID>TooManyFunctions:fieldExt.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.fieldExt.kt</ID>
+    <ID>UnusedPrivateMember:CreateVulkanAccessor.kt$private fun getMergedClassName(clazz: Class&lt;*>): String</ID>
+    <ID>UnusedPrivateMember:CreateVulkanUtils.kt$private fun CppFunctionBodyBuilder.processVkAllocate( method: Method, methodName: String, methodParams: String )</ID>
+  </CurrentIssues>
+</SmellBaseline>

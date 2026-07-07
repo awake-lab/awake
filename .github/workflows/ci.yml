@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main, vulkan]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: '17'
+  NDK_VERSION: '26.1.10909125'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle (with cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install NDK and CMake
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "ndk;${{ env.NDK_VERSION }}" "cmake;3.22.1" > /dev/null
+
+      - name: Detekt (all modules, baselined)
+        run: ./gradlew detekt
+
+      - name: Build Android demo (Vulkan JNI regression gate)
+        run: ./gradlew :awake-demo:androidApp:assembleDebug
+
+      - name: Build desktop demo
+        run: ./gradlew :awake-demo:desktopApp:jvmJar
+
+      - name: Build vulkan generator
+        run: ./gradlew :awake-vulkan-generator:assemble
+
+      - name: Upload demo APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: awake-demo-debug-apk
+          path: awake-demo/androidApp/build/outputs/apk/debug/*.apk
+          retention-days: 7
