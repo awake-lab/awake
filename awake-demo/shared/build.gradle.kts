@@ -43,10 +43,14 @@ plugins {
     kotlin("native.cocoapods")
     id("com.android.library")
     id("org.jetbrains.compose")
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("de.undercouch.download")
 }
 
 kotlin {
-    android()
+    jvmToolchain(17)
+
+    androidTarget()
 
     jvm("desktop")
 
@@ -74,7 +78,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
-                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
                 implementation(compose.components.resources)
                 implementation(project(":awake-vulkan"))
                 implementation(project(":awake-core"))
@@ -82,19 +86,10 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                api("androidx.activity:activity-compose:1.6.1")
-                api("androidx.appcompat:appcompat:1.6.1")
-                api("androidx.core:core-ktx:1.9.0")
+                api("androidx.activity:activity-compose:1.9.3")
+                api("androidx.appcompat:appcompat:1.7.0")
+                api("androidx.core:core-ktx:1.15.0")
             }
-        }
-        val iosX64Main by getting
-        val iosArm64Main by getting
-        val iosSimulatorArm64Main by getting
-        val iosMain by creating {
-            dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
         }
         val desktopMain by getting {
             dependencies {
@@ -105,7 +100,7 @@ kotlin {
 }
 
 android {
-    compileSdkVersion((findProperty("android.compileSdk") as String).toInt())
+    compileSdk = (findProperty("android.compileSdk") as String).toInt()
     namespace = "io.github.ronjunevaldoz.awake.demo.common"
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -114,14 +109,10 @@ android {
 
     defaultConfig {
         minSdk = (findProperty("android.minSdk") as String).toInt()
-        targetSdk = (findProperty("android.targetSdk") as String).toInt()
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlin {
-        jvmToolchain(11)
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 dependencies {
@@ -129,7 +120,7 @@ dependencies {
 }
 
 val glslangDownload =
-    tasks.register<org.jetbrains.kotlin.de.undercouch.gradle.tasks.download.Download>("glslangDownload") {
+    tasks.register<de.undercouch.gradle.tasks.download.Download>("glslangDownload") {
         val host: TargetMachine =
             gradle.serviceOf<org.gradle.nativeplatform.internal.DefaultTargetMachineFactory>()
                 .host()

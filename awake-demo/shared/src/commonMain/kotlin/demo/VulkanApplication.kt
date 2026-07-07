@@ -105,9 +105,7 @@ import io.github.ronjunevaldoz.awake.vulkan.utils.getAppExtProps
 import io.github.ronjunevaldoz.awake.vulkan.utils.getAppLayerProps
 import io.github.ronjunevaldoz.awake.vulkan.utils.isSwapChainSupported
 import io.github.ronjunevaldoz.awake.vulkan.utils.querySwapChainSupport
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.resource
+import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 
 
 class VulkanApplication : Application {
@@ -593,12 +591,11 @@ class VulkanApplication : Application {
         }
     }
 
-    @OptIn(ExperimentalResourceApi::class)
     private fun createGraphicsPipeline() {
-        runBlocking {
+        run {
             // WARNING: make sure the .spv vulkan version match, this might cause out of memory
-            val fragShaderCode = resource("assets/shader/vulkan/triangle.frag.spv").readBytes()
-            val vertShaderCode = resource("assets/shader/vulkan/triangle.vert.spv").readBytes()
+            val fragShaderCode = readResourceBytes("assets/shader/vulkan/triangle.frag.spv")
+            val vertShaderCode = readResourceBytes("assets/shader/vulkan/triangle.vert.spv")
 
             val fragShaderModule = createShaderModule(fragShaderCode.toIntArray())
             val vertShaderModule = createShaderModule(vertShaderCode.toIntArray())

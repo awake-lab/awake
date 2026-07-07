@@ -5,13 +5,14 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("org.jetbrains.compose")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("signing-publication-conventions")
 }
 
 kotlin {
-    targetHierarchy.default()
+    jvmToolchain(17)
 
-    android {
+    androidTarget {
         publishLibraryVariants("release", "debug")
     }
     val iosArm64 = iosArm64()
@@ -36,36 +37,12 @@ kotlin {
 
     jvm("desktop")
 
-    // all items included here will be uploaded once isMainHost=true
-    // ./gradlew publishAllPublicationsToSonatypeRepository -PisMainHost=true
-    val publicationsFromMainHost = listOf(
-        android(),
-        jvm("desktop"),
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64(),
-    ).map { it.name } + "kotlinMultiplatform"
-
-    publishing {
-        publications {
-            matching { it.name in publicationsFromMainHost }.all {
-                val targetPublication = this@all
-                tasks.withType<AbstractPublishToMaven>()
-                    .matching { it.publication == targetPublication }
-                    .configureEach {
-                        onlyIf { findProperty("isMainHost") == "true" }
-                    }
-            }
-        }
-    }
-
     sourceSets {
         val commonMain by getting {
             dependencies {
                 //put your multiplatform dependencies here
                 implementation(compose.runtime)
                 implementation(compose.foundation)
-                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
                 implementation(napier)
                 implementation(project(":awake-vulkan"))
@@ -94,19 +71,34 @@ kotlin {
 }
 
 
+// all items included here will be uploaded once isMainHost=true
+// ./gradlew publishAllPublicationsToSonatypeRepository -PisMainHost=true
+val publicationsFromMainHost =
+    listOf("android", "desktop", "iosX64", "iosArm64", "iosSimulatorArm64", "kotlinMultiplatform")
+
+publishing {
+    publications {
+        matching { it.name in publicationsFromMainHost }.all {
+            val targetPublication = this@all
+            tasks.withType<AbstractPublishToMaven>()
+                .matching { it.publication == targetPublication }
+                .configureEach {
+                    onlyIf { findProperty("isMainHost") == "true" }
+                }
+        }
+    }
+}
+
 android {
     namespace = "io.github.ronjunevaldoz.awake.core"
-    compileSdk = 33
+    compileSdk = (findProperty("android.compileSdk") as String).toInt()
     defaultConfig {
-        minSdk = 24
+        minSdk = (findProperty("android.minSdk") as String).toInt()
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlin {
-        jvmToolchain(11)
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     publishing {
@@ -119,7 +111,7 @@ android {
 }
 
 detekt {
-    toolVersion = "1.23.0"
+    toolVersion = Versions.detekt
     config.setFrom(file("config/detekt/detekt.yml"))
     buildUponDefaultConfig = true
 }

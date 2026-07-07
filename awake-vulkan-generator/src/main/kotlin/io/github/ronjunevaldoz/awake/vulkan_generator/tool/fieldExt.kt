@@ -55,7 +55,7 @@ enum class JNIType(val value: String) {
 }
 
 fun Field.javaTypeSuffix() = when {
-    type.isPrimitive -> type.simpleName.capitalize()
+    type.isPrimitive -> type.simpleName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
     type.isEnum -> "Enum"
     type.isArray -> "Array"
     else -> "Obj"
@@ -76,7 +76,7 @@ fun Class<*>.toVulkanType(): String {
     val isPrimitiveArray = isArray && componentType.isPrimitive
     val isArray = isArray && !isPrimitiveArray
     val elementType = if (isArray) componentType.simpleName else simpleName
-    val simpleName = elementType.toLowerCase()
+    val simpleName = elementType.lowercase()
 
     if (isAnnotationPresent(VkHandleRef::class.java)) {
         val handle = getDeclaredAnnotation(VkHandleRef::class.java)
@@ -112,7 +112,7 @@ fun Field.toVulkanType(useVector: Boolean = true): String {
     val isPrimitiveArray = type.isArray && type.componentType.isPrimitive
     val isArray = type.isArray && !isPrimitiveArray
     val elementType = if (isArray) type.componentType.simpleName else type.simpleName
-    val simpleName = elementType.toLowerCase()
+    val simpleName = elementType.lowercase()
     if (isAnnotationPresent(VkHandleRef::class.java)) {
         val handle = getDeclaredAnnotation(VkHandleRef::class.java)
         if (type.isArray && useVector) {
@@ -221,7 +221,7 @@ fun Class<*>.getObjectJavaValue(obj: String, sig: String): String {
     if (comType.isArray) {
         throw Exception("Not yet supported")
     }
-    return "env->GetMethodID(env->GetObjectClass($obj), \"${type.toLowerCase()}Value\", \"()$sig\")"
+    return "env->GetMethodID(env->GetObjectClass($obj), \"${type.lowercase()}Value\", \"()$sig\")"
 }
 
 fun Field.getArrayElement(list: String, index: String): String {
@@ -297,7 +297,7 @@ fun Field.getArrayRegion(
 
 fun Field.toJavaSignature(element: Boolean = false): String {
     return when (val javaTypeName =
-        if (element) type.componentType.simpleName.toLowerCase() else type.name) {
+        if (element) type.componentType.simpleName.lowercase() else type.name) {
         "boolean" -> "Z"
         "byte" -> "B"
         "char" -> "C"

@@ -3,20 +3,12 @@ package io.github.ronjunevaldoz.awake.core.utils
 import io.github.ronjunevaldoz.awake.core.graphics.Bitmap
 import io.github.ronjunevaldoz.awake.core.graphics.Disposable
 import io.github.ronjunevaldoz.awake.core.rendering.Texture
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.resource
 
 object TextureLoader {
     private val textures: MutableMap<String, Texture> = mutableMapOf()
 
-    @OptIn(ExperimentalResourceApi::class)
     fun load(textureName: String, texturePath: String) {
-        resource(texturePath).let {
-            runBlocking {
-                load(textureName, BitmapUtils.decode(it.readBytes()))
-            }
-        }
+        load(textureName, BitmapUtils.decode(readResourceBytes(texturePath)))
     }
 
     fun load(textureName: String, bitmap: Bitmap) {

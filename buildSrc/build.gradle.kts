@@ -7,5 +7,5 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.8.20")
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.9.20")
 }

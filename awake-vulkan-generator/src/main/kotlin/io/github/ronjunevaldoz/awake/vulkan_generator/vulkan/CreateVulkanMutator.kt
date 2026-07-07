@@ -195,7 +195,7 @@ fun CppFunctionBodyBuilder.processMutatorArray(
             javaMember.getVkConstArray()?.arraySize ?: "<NO ARRAY SIZE>"
         val buffer =
             "reinterpret_cast<${javaMember.getArrayElementJavaType()} *>(source.${javaMember.name} )"
-        child("${javaMember.toJavaTypeArray()}  ${javaMember.name} = env->New${javaMember.type.componentType.simpleName.capitalize()}Array($arraySize);")
+        child("${javaMember.toJavaTypeArray()}  ${javaMember.name} = env->New${javaMember.type.componentType.simpleName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}Array($arraySize);")
         child(
             "env->" + javaMember.setArrayRegion(
                 javaMember.name,

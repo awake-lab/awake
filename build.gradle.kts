@@ -29,7 +29,7 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-gradle-plugin:${Versions.kotlin}")
+        classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.9.20")
         classpath("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Versions.detekt}")
     }
 }

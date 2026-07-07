@@ -176,7 +176,7 @@ class CppClassBuilder(
             append(" *  Created by Ron June Valdoz")
             append(" */\n\n")
 
-            val header = "${className.toUpperCase()}_H"
+            val header = "${className.uppercase()}_H"
 
             append("#ifndef $header\n")
             append("#define $header\n\n")

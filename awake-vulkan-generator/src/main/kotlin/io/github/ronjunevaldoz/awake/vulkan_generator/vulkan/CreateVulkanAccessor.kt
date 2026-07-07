@@ -347,7 +347,7 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
             if (kotlinElement.isSealed) {
                 child("    // sealed class")
                 kotlinElement.sealedSubclasses.forEach { subClass ->
-                    val subClassName = "${subClass.simpleName?.decapitalize()}Class"
+                    val subClassName = "${subClass.simpleName?.replaceFirstChar { it.lowercase() }}Class"
                     child(
                         "   auto $subClassName = env->FindClass(\"${
                             subClass.qualifiedName?.replace(
@@ -415,7 +415,7 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
                 )
             };"
         )
-        child("   jlong value = env->Call${javaMember.type.componentType.simpleName.capitalize()}Method(element, getValueMethod);")
+        child("   jlong value = env->Call${javaMember.type.componentType.simpleName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}Method(element, getValueMethod);")
 
         child("   $arrayName.push_back(reinterpret_cast<${handle.name}>(value)); //vkhandle ")
         child("   env->DeleteLocalRef(element); // release element reference")

@@ -58,7 +58,7 @@ fun createVulkanUtils(clazz: Class<*>) {
                 function(
                     1,
                     returnType,
-                    method.name.removePrefix("vk").decapitalize(),
+                    method.name.removePrefix("vk").replaceFirstChar { it.lowercase() },
                     if (!method.name.startsWith("vkDestroy")) listOf(
                         Pair(
                             "env",
@@ -201,7 +201,7 @@ private fun CppFunctionBodyBuilder.processParameters(
         fun processPrimitive() {
             val handle = param.getDeclaredAnnotation(VkHandleRef::class.java)
             if (handle != null) {
-                val handleVar = handle.name.replace("Vk", "").decapitalize()
+                val handleVar = handle.name.replace("Vk", "").replaceFirstChar { it.lowercase() }
                 methodParams.add(handleVar)
                 child("auto $handleVar = reinterpret_cast<${handle.name}>(${param.name});")
             } else {

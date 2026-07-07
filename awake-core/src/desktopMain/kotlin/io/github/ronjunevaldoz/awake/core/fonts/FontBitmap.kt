@@ -18,7 +18,11 @@ class FontBitmap(private val font: Font, antiAlias: Boolean) {
     private val glyphs = mutableMapOf<Char, Glyph>()
 
     constructor(fontSize: Float, antiAlias: Boolean) : this(
-        Font(Typeface.makeDefault(), fontSize),
+        Font(
+            org.jetbrains.skia.FontMgr.default.matchFamilyStyle(null, org.jetbrains.skia.FontStyle.NORMAL)
+                ?: Typeface.makeEmpty(),
+            fontSize
+        ),
         antiAlias
     )
 

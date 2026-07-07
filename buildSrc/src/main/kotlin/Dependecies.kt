@@ -1,10 +1,10 @@
 object Versions {
 
-    const val atomicfu = "0.21.0"
-    const val kotlin = "1.8.20"
-    const val lwjgl = "3.3.3-SNAPSHOT"
-    const val napier = "2.6.1"
-    const val detekt = "1.23.0"
+    const val atomicfu = "0.26.1"
+    const val kotlin = "2.1.21"
+    const val lwjgl = "3.3.6"
+    const val napier = "2.7.1"
+    const val detekt = "1.23.8"
 
 }
 

@@ -22,17 +22,10 @@ plugins {
     id("com.android.library")
 }
 
-@OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    targetHierarchy.default()
+    jvmToolchain(17)
 
-    android {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
-    }
+    androidTarget()
 
     listOf(
         iosX64(),
@@ -71,8 +64,8 @@ kotlin {
 
 android {
     namespace = "io.github.ronjunevaldoz.awake.vulkan"
-    compileSdk = 33
-    ndkVersion = "25.2.9519653"
+    compileSdk = (findProperty("android.compileSdk") as String).toInt()
+    ndkVersion = "26.1.10909125"
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
     sourceSets["main"].jniLibs.srcDirs("src/main/jniLibs")
@@ -81,7 +74,9 @@ android {
         minSdk = 24
         externalNativeBuild {
             cmake {
-                abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+                // 64-bit only: the generated JNI marshalling code assumes pointer-sized
+                // Vulkan handles, which 32-bit ABIs (uint64_t handles) don't satisfy
+                abiFilters += listOf("arm64-v8a", "x86_64")
                 cppFlags += listOf("-DVK_USE_PLATFORM_ANDROID_KHR", "-lvulkan")
 //                "-DVKB_VALIDATION_LAYERS=OFF"
                 arguments += listOf("-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static")

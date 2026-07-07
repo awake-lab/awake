@@ -1,8 +1,6 @@
 package io.github.ronjunevaldoz.awake.core.shader
 
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.resource
+import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 
 /**
  * TODO move to separate library AwakeCompose
@@ -19,19 +17,13 @@ class SimpleShader(
     var modelViewMatrix by uniform
     var projectionViewMatrix by uniform
 
-    @OptIn(ExperimentalResourceApi::class)
     override fun getVertexSource(): String {
-        val vertString = resource("$shaderDir/$vertFile").let {
-            runBlocking { it.readBytes().decodeToString() }
-        }
+        val vertString = readResourceBytes("$shaderDir/$vertFile").decodeToString()
         return define + vertString
     }
 
-    @OptIn(ExperimentalResourceApi::class)
     override fun getFragmentSource(): String {
-        val fragString = resource("$shaderDir/$fragFile").let {
-            runBlocking { it.readBytes().decodeToString() }
-        }
+        val fragString = readResourceBytes("$shaderDir/$fragFile").decodeToString()
         return define + fragString
     }
 }

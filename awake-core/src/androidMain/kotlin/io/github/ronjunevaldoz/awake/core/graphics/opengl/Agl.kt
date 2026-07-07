@@ -507,8 +507,8 @@ internal actual object Agl : OpenGL {
         glCullFace(face)
     }
 
-    override fun frontFace(face: Int) {
-        glFrontFace(face)
+    override fun frontFace(mode: Int) {
+        glFrontFace(mode)
     }
 
     override fun enable(cap: Int) {

@@ -22,7 +22,6 @@ package io.github.ronjunevaldoz.awake.core.graphics.opengl
 import android.content.Context
 import android.opengl.GLSurfaceView
 import io.github.ronjunevaldoz.awake.core.AwakeContext
-import org.jetbrains.compose.components.resources.BuildConfig
 
 class OpenGLView(context: Context, private val renderer: AndroidRenderer) : GLSurfaceView(context) {
     init {
@@ -33,7 +32,7 @@ class OpenGLView(context: Context, private val renderer: AndroidRenderer) : GLSu
                 OpenGL.Version.ES3 -> 3
             }
         )
-        if (BuildConfig.DEBUG) {
+        if (AwakeContext.config.debug) {
             debugFlags = DEBUG_CHECK_GL_ERROR
         }
         setRenderer(renderer)
