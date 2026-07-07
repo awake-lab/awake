@@ -32,20 +32,10 @@ if (secretPropsFile.exists()) {
 }
 
 
-val dokkaOutputDir = "$buildDir/dokka"
-
-tasks.getByName<org.jetbrains.dokka.gradle.DokkaTask>("dokkaHtml") {
-    outputDirectory.set(file(dokkaOutputDir))
-}
-
-val deleteDokkaOutputDir by tasks.register<Delete>("deleteDokkaOutputDirectory") {
-    delete(dokkaOutputDir)
-}
-
+// Dokka 2.x: dokkaGeneratePublicationHtml replaces the old dokkaHtml task
 val javadocJar = tasks.register<Jar>("javadocJar") {
-    dependsOn(deleteDokkaOutputDir, tasks.dokkaHtml)
     archiveClassifier.set("javadoc")
-    from(dokkaOutputDir)
+    from(tasks.named("dokkaGeneratePublicationHtml"))
 }
 
 

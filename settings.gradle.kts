@@ -24,6 +24,7 @@ include(":awake-demo:shared")
 include(":awake-demo:desktopApp")
 include(":awake-core")
 include(":awake-vulkan")
+include(":awake-vulkan:android-native")
 include(":awake-vulkan-generator")
 
 

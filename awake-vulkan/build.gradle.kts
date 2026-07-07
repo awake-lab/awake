@@ -19,16 +19,21 @@
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.library.kmp)
 }
 
 kotlin {
     jvmToolchain(17)
 
-    androidTarget()
+    android {
+        namespace = "io.github.ronjunevaldoz.awake.vulkan"
+        compileSdk = (findProperty("android.compileSdk") as String).toInt()
+        minSdk = (findProperty("android.minSdk") as String).toInt()
+    }
 
+    // iosX64 (Intel simulator) dropped: Compose Multiplatform stopped publishing it
+    // after 1.11.0-alpha01 (Apple Silicon only going forward)
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach {
@@ -40,63 +45,14 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                //put your multiplatform dependencies here
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        androidMain.dependencies {
+            // CMake/NDK build + bundled validation layers (AGP 9 KMP plugin
+            // has no externalNativeBuild support, so a plain library owns it)
+            api(project(":awake-vulkan:android-native"))
+            implementation(libs.leakcanary.android)
         }
-        val androidMain by getting {
-            dependencies {
-                // this will ensure that all vulkan layer validation .so is included
-                implementation(fileTree("src/main/jniLibs") {
-                    include("**/*.so")
-                })
-                implementation(libs.leakcanary.android)
-            }
-        }
-    }
-}
-
-android {
-    namespace = "io.github.ronjunevaldoz.awake.vulkan"
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
-    ndkVersion = "26.1.10909125"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].jniLibs.srcDirs("src/main/jniLibs")
-
-    defaultConfig {
-        minSdk = 24
-        externalNativeBuild {
-            cmake {
-                // 64-bit only: the generated JNI marshalling code assumes pointer-sized
-                // Vulkan handles, which 32-bit ABIs (uint64_t handles) don't satisfy
-                abiFilters += listOf("arm64-v8a", "x86_64")
-                cppFlags += listOf("-DVK_USE_PLATFORM_ANDROID_KHR", "-lvulkan")
-//                "-DVKB_VALIDATION_LAYERS=OFF"
-                arguments += listOf("-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static")
-            }
-        }
-    }
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-            buildStagingDirectory("build-native")
-        }
-    }
-    buildTypes {
-        debug {
-            isJniDebuggable = true
-        }
-    }
-    buildFeatures {
-        viewBinding = true
-        prefab = true
     }
 }

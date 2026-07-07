@@ -17,30 +17,16 @@
  * limitations under the License.
  */
 
+// Plain Android app (AGP 9 built-in Kotlin) — AGP 9 forbids combining
+// com.android.application with the Kotlin Multiplatform plugin.
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.compose.compiler)
 }
 
-kotlin {
-    jvmToolchain(17)
-    androidTarget()
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                implementation(project(":awake-demo:shared"))
-            }
-        }
-    }
-}
-
 android {
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
     namespace = "com.myapplication"
-
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    compileSdk = (findProperty("android.compileSdk") as String).toInt()
 
     defaultConfig {
         applicationId = "com.myapplication.MyApplication"
@@ -53,4 +39,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    buildFeatures {
+        compose = true
+    }
+}
+
+dependencies {
+    implementation(project(":awake-demo:shared"))
 }

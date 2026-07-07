@@ -17,31 +17,10 @@
  * limitations under the License.
  */
 
-import org.gradle.kotlin.dsl.support.serviceOf
-
-/*
- * Awake
- * Awake.awake-demo.shared
- *
- * Copyright (c) ronjunevaldoz 2023.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.cocoapods)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.library.kmp)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.download)
@@ -50,11 +29,16 @@ plugins {
 kotlin {
     jvmToolchain(17)
 
-    androidTarget()
+    android {
+        namespace = "io.github.ronjunevaldoz.awake.demo.common"
+        compileSdk = (findProperty("android.compileSdk") as String).toInt()
+        minSdk = (findProperty("android.minSdk") as String).toInt()
+    }
 
     jvm("desktop")
 
-    iosX64()
+    // iosX64 (Intel simulator) dropped: Compose Multiplatform stopped publishing it
+    // after 1.11.0-alpha01 (Apple Silicon only going forward)
     iosArm64()
     iosSimulatorArm64()
 
@@ -73,84 +57,52 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(libs.compose.material.icons.core)
-                implementation(compose.components.resources)
-                implementation(project(":awake-vulkan"))
-                implementation(project(":awake-core"))
-            }
+        commonMain.dependencies {
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.material.icons.core)
+            implementation(libs.compose.components.resources)
+            implementation(project(":awake-vulkan"))
+            implementation(project(":awake-core"))
         }
-        val androidMain by getting {
-            dependencies {
-                api(libs.androidx.activity.compose)
-                api(libs.androidx.appcompat)
-                api(libs.androidx.core.ktx)
-            }
+        androidMain.dependencies {
+            api(libs.androidx.activity.compose)
+            api(libs.androidx.appcompat)
+            api(libs.androidx.core.ktx)
         }
-        val desktopMain by getting {
-            dependencies {
-                implementation(compose.desktop.common)
-            }
+        getByName("desktopMain").dependencies {
+            implementation(compose.desktop.common)
         }
     }
 }
 
-android {
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
-    namespace = "io.github.ronjunevaldoz.awake.demo.common"
-
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
-
-    defaultConfig {
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-dependencies {
-    implementation(project(mapOf("path" to ":awake-vulkan")))
-}
 
 val glslangDownload =
     tasks.register<de.undercouch.gradle.tasks.download.Download>("glslangDownload") {
-        val host: TargetMachine =
-            gradle.serviceOf<org.gradle.nativeplatform.internal.DefaultTargetMachineFactory>()
-                .host()
-        val os = host.operatingSystemFamily
+        val osName = System.getProperty("os.name").lowercase()
         val hostFile = when {
-            os.isMacOs -> "main-osx"
-            os.isWindows -> "master-windows"
-            os.isLinux -> "main-linux"
-            else -> throw Exception("${os.name} not supported")
+            osName.contains("mac") -> "main-osx"
+            osName.contains("win") -> "master-windows"
+            osName.contains("linux") -> "main-linux"
+            else -> throw Exception("$osName not supported")
         }
         src("https://github.com/KhronosGroup/glslang/releases/download/main-tot/glslang-$hostFile-Release.zip")
-        dest(file("${buildDir}/glslang.zip"))
+        dest(layout.buildDirectory.file("glslang.zip"))
     }
 
 val glslangDownloadCopy = tasks.register<Copy>("glslangDownloadCopy") {
     dependsOn(glslangDownload)
-    from(zipTree(file("$buildDir/glslang.zip")))
+    from(zipTree(layout.buildDirectory.file("glslang.zip")))
     into(layout.buildDirectory.dir("glslang"))
 }
 
-tasks.create<Exec>("glslValidator") {
+tasks.register<Exec>("glslValidator") {
     dependsOn(glslangDownloadCopy)
 
-    val commonResourceDir = android.sourceSets["main"].resources.srcDirs.first { srcDir ->
-        srcDir.toString().contains("common")
-    }
+    val bin = layout.buildDirectory.dir("glslang/bin").get().asFile.path
 
-    val bin = "$buildDir/glslang/bin"
-
-    val shadersDir = File(commonResourceDir, "assets/shader/vulkan")
+    val shadersDir = file("src/commonMain/resources/assets/shader/vulkan")
     val outputSpv = shadersDir.path
 
     val shaders = project.fileTree(shadersDir) {

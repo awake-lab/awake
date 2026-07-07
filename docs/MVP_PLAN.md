@@ -44,7 +44,21 @@ it requires MoltenVK via cinterop. Same common API, different `actual` backend.
 
 Goal: current toolchain, regression baseline protected.
 
-- [x] Upgrade Kotlin → 2.1.21, AGP → 8.7.3, Compose Multiplatform → 1.8.2, Gradle → 8.11.1 *(2026-07-07)*
+- [x] Upgrade to the current stable stack *(2026-07-07, superseded same day — see below)*:
+      Kotlin 2.4.0, AGP 9.2.1, Compose Multiplatform 1.11.1, Gradle 9.6.1, Dokka 2.0.0
+- [x] AGP 9 forces the new `com.android.kotlin.multiplatform.library` plugin for any KMP
+      module with an `androidTarget` — `com.android.library`/`com.android.application` can no
+      longer coexist with `kotlin("multiplatform")` in the same module. Migrated
+      `awake-core`, `awake-vulkan`, `awake-demo:shared` to `androidLibrary { }` DSL (which
+      itself is deprecated in favor of a plain `android { }` block inside `kotlin { }` —
+      used that instead). `awake-demo:androidApp` is a plain Android app module now
+      (`com.android.application` + built-in Kotlin), since it's not itself a KMP module
+- [x] **`externalNativeBuild`/CMake has no equivalent in the new KMP Android plugin.**
+      Split the CMake/NDK/jniLibs ownership into a new plain-Android-library module
+      `:awake-vulkan:android-native`; `awake-vulkan`'s `androidMain` depends on it via `api(...)`
+- [x] **Compose Multiplatform dropped `iosX64`** (Intel simulator) after 1.11.0-alpha01 —
+      Apple Silicon only going forward. Removed `iosX64()` from `awake-core`, `awake-vulkan`,
+      `awake-demo:shared`; kept `iosArm64`/`iosSimulatorArm64`
 - [x] Migrate deprecated `targetHierarchy.default()` / `android()` target to modern KMP DSL
 - [x] JDK 17 toolchain everywhere (was mixed 1.8/11)
 - [x] Replace removed Compose `resource()` API with own `readResourceBytes` expect/actual
@@ -65,10 +79,12 @@ Goal: current toolchain, regression baseline protected.
       gate) + desktop jar + generator on push/PR; uploads demo APK artifact
 - [ ] Old `build-and-publish.yml` is stale (JDK 11, Xcode 14) — refresh when publishing
       resumes (Phase 0 out-of-scope; see D9 versioning)
-- [x] **Regression baseline:** Android Vulkan demo APK builds on new toolchain
+- [x] **Regression baseline:** Android Vulkan demo APK builds on Kotlin 2.4/AGP 9.2/Gradle 9.6
       (device render check still recommended); desktop demo jar + generator also build
-- [ ] iOS targets not yet compile-verified (empty `actual object Vulkan` stub likely
-      never compiled — resolve in Phase 6, or stub-complete it earlier if publishing needs it)
+- [x] **Confirmed** (attempted `compileKotlinIosSimulatorArm64`): the empty `actual object
+      Vulkan {}` iOS stub does not compile — all 58 `expect fun` are unimplemented. This is
+      pre-existing, not caused by the migration. Resolving it is Phase 6 scope (MoltenVK
+      design), so iOS compilation is left red until then; not part of the CI gate
 - [x] Decide repo/agent tooling setup (D3: agents + skills installed 2026-07-07)
 
 ## Phase 1 — Vulkan Core on Desktop (3–5 weeks) ← critical path

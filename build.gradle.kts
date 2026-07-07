@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.kotlin.compose.compiler) apply false
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.library.kmp) apply false
     alias(libs.plugins.compose.multiplatform) apply false
     alias(libs.plugins.download) apply false
     // dokka comes from the buildSrc classpath (needed by signing-publication-conventions),
