@@ -5,12 +5,17 @@ Phase 1a of [MVP_PLAN.md](../MVP_PLAN.md) called for a week-one de-risk: run
 `VkGraphicsPipelineCreateInfo` (the nastiest nested Vulkan struct) before committing to it
 as the replacement for the bespoke `awake-vulkan-generator`. This documents what was found.
 
-**Status: still open after round 2 (v1.6.8, commit `615b04d`).** The requested fix (Part 1:
-stop silently guessing "enum" for unknown types; Part 2: add generic struct/data-class
-marshalling) landed and the core recursive-struct mechanism is genuinely solid. But
-re-verifying directly against the real `awake-vulkan` source turned up three more gaps —
-one of them (annotation stripping) severe enough that the tool still cannot be pointed at
-this codebase's real structs/functions without further work. See "Round 2" below.
+**Status: resolved as of round 3 (v1.6.9, commit `b19d555`, 2026-07-08).** Round 1 (v1.6.8)
+added struct marshalling and fixed the silent enum-guessing heuristic; round 2 re-verification
+found three further gaps (annotation stripping, enum-typed struct fields, array-of-struct
+fields). Round 3 fixed all three directly in the jni-binding-generator repo. Re-running the
+exact original de-risk repro now recovers **all 18 real fields** of
+`VkGraphicsPipelineCreateInfo` (previously 5), and all **58 real functions** in
+`androidMain/Vulkan.kt` parse correctly with annotations stripped and no truncation. The
+tool's own test suite (259 tests), the real JNI-header compile-check integration test, and
+drift checks against all 3 bundled examples all pass. See "Round 3" below for the fix
+details. **D10 is now closed: proceed with jni-binding-generator for Phase 1a**, option (a)
+from the original three (the gap turned out to be closeable, not a from-scratch rebuild).
 
 ## What the tool actually is
 
@@ -188,3 +193,51 @@ of the three struct shapes Vulkan needs most (enum fields, array-of-struct field
 doesn't change the three options above, but does inform them: option (a) "extend the tool"
 is now a *smaller* remaining gap than at round 1 (annotation stripping + two field-type
 extensions, not "add struct support from zero") — the calculus may be shifting.
+
+## Round 3 — fixed directly in jni-binding-generator (v1.6.9, commit `b19d555`, 2026-07-08)
+
+All three round-2 gaps were fixed in the jni-binding-generator repo itself (generically —
+no Vulkan-specific naming anywhere in the fix), verified there, and re-verified here against
+the real Awake source.
+
+**Root cause of the annotation bug was one level deeper than round 2's diagnosis.** The
+actual break wasn't (only) `_split_params`'s comma-handling — the whole-function matching
+regex (`_EXTERNAL_FUN_RE`) used a non-greedy `\((.*?)\)` to capture the parameter list, which
+truncates at the **first** `)` in the source. Any annotation with parenthesized args
+(`@VkHandleRef("VkDevice")`) appearing before the parameter list's real closing paren broke
+the capture — explaining the exact garbled error seen in round 2
+(`'@VkHandleRef("VkDevice"'`, missing its own closing paren). Fixed by locating
+`external fun NAME(` via regex, then finding the true closing paren via paren-balancing
+(the same technique the struct-constructor parser already used), before running comma-split
+and annotation-stripping on the correctly-bounded parameter text. A new shared
+`_strip_leading_annotations()` helper (handling `@Foo`, `@Foo(args)`, `@site:Foo(args)`,
+stacked, same-line or own-line) is now used by both the struct-property parser and the
+function-parameter parser, so this class of bug can't reappear in one path after being fixed
+in the other.
+
+Enum-typed struct fields and `Array<StructName>` fields were both wired into
+`_struct_gen.py`'s field-type resolution (previously each fell through to an "unsupported
+field type" stub). A new `enum_from_ordinal()` helper was added to `jni-utils.h`, mirroring
+the existing `values()`/`GetObjectArrayElement` pattern already used for enum function
+returns. Fixing this round also surfaced (via this round's own compile-check pass) and fixed
+one more pre-existing bug: non-nullable nested-struct fields in `make_<Struct>` called
+`.has_value()` on a plain (non-`std::optional`) value, which would not compile.
+
+**Re-verification against the real Awake source:**
+- `VkGraphicsPipelineCreateInfo` (18 real constructor properties): **all 18 recovered**
+  (was 5 in round 2).
+- `androidMain/Vulkan.kt` (58 real `actual external fun` declarations, most annotated):
+  **all 58 parse correctly**, no truncation, no crashes, no absorbed annotations.
+- jni-binding-generator's own suite: 259 tests pass (245 existing + 14 new covering exactly
+  these three gaps), zero regressions; the real compile-check integration test (against
+  actual JDK `jni.h` headers) and drift checks against all 3 bundled examples pass; `ruff
+  check`/`format --check` clean.
+- Additionally hand-verified: generated C++ covering a flat struct, nested struct, nullable
+  enum field, nullable nested-struct field, annotated array-of-struct field, and annotated
+  function params all compiled cleanly with `clang++ -std=c++17 -fsyntax-only` against real
+  JDK headers.
+
+**Decision: D10 is closed.** jni-binding-generator can now be pointed at this codebase's real
+Vulkan structs and functions. Next step is wiring it into the actual Phase 1a Gradle build
+(`jniGenerator { bindings { ... } }`) against the full `awake-vulkan` source set, per the
+remaining Phase 1a checklist in [MVP_PLAN.md](../MVP_PLAN.md).
