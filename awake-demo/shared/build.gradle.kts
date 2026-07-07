@@ -39,12 +39,12 @@ import org.gradle.kotlin.dsl.support.serviceOf
  */
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("native.cocoapods")
-    id("com.android.library")
-    id("org.jetbrains.compose")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("de.undercouch.download")
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.cocoapods)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.download)
 }
 
 kotlin {
@@ -78,7 +78,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
-                implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
+                implementation(libs.compose.material.icons.core)
                 implementation(compose.components.resources)
                 implementation(project(":awake-vulkan"))
                 implementation(project(":awake-core"))
@@ -86,9 +86,9 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                api("androidx.activity:activity-compose:1.9.3")
-                api("androidx.appcompat:appcompat:1.7.0")
-                api("androidx.core:core-ktx:1.15.0")
+                api(libs.androidx.activity.compose)
+                api(libs.androidx.appcompat)
+                api(libs.androidx.core.ktx)
             }
         }
         val desktopMain by getting {

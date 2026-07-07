@@ -1,11 +1,10 @@
 import Deps.lwjgl
-import Deps.napier
 
 plugins {
-    kotlin("multiplatform")
-    id("com.android.library")
-    id("org.jetbrains.compose")
-    id("org.jetbrains.kotlin.plugin.compose")
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.kotlin.compose.compiler)
     id("signing-publication-conventions")
 }
 
@@ -44,7 +43,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.components.resources)
-                implementation(napier)
+                implementation(libs.napier)
                 implementation(project(":awake-vulkan"))
             }
         }
@@ -111,7 +110,7 @@ android {
 }
 
 detekt {
-    toolVersion = Versions.detekt
+    toolVersion = libs.versions.detekt.get()
     config.setFrom(file("config/detekt/detekt.yml"))
     buildUponDefaultConfig = true
 }

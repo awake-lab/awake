@@ -18,8 +18,8 @@
  */
 
 plugins {
-    kotlin("multiplatform")
-    id("com.android.library")
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.library)
 }
 
 kotlin {
@@ -56,7 +56,7 @@ kotlin {
                 implementation(fileTree("src/main/jniLibs") {
                     include("**/*.so")
                 })
-                implementation("com.squareup.leakcanary:leakcanary-android:2.12")
+                implementation(libs.leakcanary.android)
             }
         }
     }
