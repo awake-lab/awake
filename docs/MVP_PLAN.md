@@ -92,13 +92,27 @@ Goal: current toolchain, regression baseline protected.
 Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
 
 ### 1a. Codegen migration
-- [ ] **Week-1 de-risk:** run jni-binding-generator against `VkGraphicsPipelineCreateInfo`
-      (nastiest nested struct) — identify gaps
-- [ ] Add nested data-class / struct mapping support to jni-binding-generator
-      (use its `jni-add-type` workflow; existing Accessor/Mutator C++ is the reference output)
-- [ ] Wire `jniGenerator { bindings { ... } }` Gradle plugin to `Vulkan.kt`
+
+- [x] **Week-1 de-risk (2026-07-07): run jni-binding-generator against real signatures — FAILED,
+      finding is severe enough to require a decision before proceeding.** Full analysis:
+      [docs/decisions/D10-codegen-derisk-findings.md](decisions/D10-codegen-derisk-findings.md).
+      Summary: jni-binding-generator has **zero concept of struct/data-class marshalling** —
+      its `TYPE_MAP` covers primitives/strings/collections/enums only, generating JNI
+      *function-call* bindings, not the bidirectional field-by-field struct marshalling
+      `awake-vulkan-generator`'s Accessor/Mutator classes already do. Worse: its "unknown type
+      → assume enum" heuristic (`^[A-Z][A-Za-z0-9_]*\$` regex, no real enum detection) means a
+      bare struct parameter like `VkShaderModuleCreateInfo` does **not** error — it silently
+      generates `int32_t x = enum_ordinal(env, x);`, compiling cleanly while being completely
+      wrong. Reproduced live against the actual `Vulkan.kt` signatures. Blast radius: 20/58
+      functions have a bare `Vk*` struct param (18 real structs would hit the silent bug; 2 are
+      genuine enums correctly handled), plus 4 more with `Array<Vk*>` params that at least fail
+      loudly today. **Decision needed — see D10.**
+- [ ] *(blocked on D10)* Add struct mapping to jni-binding-generator, OR keep/modernize
+      `awake-vulkan-generator` for structs and scope jni-binding-generator to non-struct future
+      JNI work (e.g. the Phase 8 physics facade, which is coarse-grained primitives only)
+- [ ] Wire chosen codegen path to `Vulkan.kt`
 - [ ] Generated output compiles and passes the Android triangle regression
-- [ ] Retire `awake-vulkan-generator` module
+- [ ] Retire `awake-vulkan-generator` module *(only if D10 replaces it — may instead be kept)*
 
 ### 1b. Desktop native build
 - [ ] CMake preset to build `vulkan-kotlin` C++ as `.dylib` / `.dll` / `.so` for host JVM
@@ -300,6 +314,20 @@ Recommendation: OpenAL Soft as Phase 9, after physics.
 **OPEN.** `awake-core`/`awake-vulkan` are published artifacts with users (snapshots).
 Recommendation: current `main`/1.x goes maintenance-only; engine rework publishes as
 **2.0.0-alpha** snapshots from day one (Phase 0), so breaking changes are free until 2.0.0.
+
+### D10 — Codegen path for Vulkan structs
+**OPEN — blocks Phase 1a.** jni-binding-generator de-risk (2026-07-07) found it has no
+struct/data-class marshalling concept and silently miscompiles bare struct params via a
+naive enum heuristic. Full findings: [decisions/D10-codegen-derisk-findings.md](decisions/D10-codegen-derisk-findings.md).
+Options to weigh: (a) extend jni-binding-generator with real struct support (multi-week,
+essentially re-building what `awake-vulkan-generator`'s Accessor/Mutator already does,
+but gains the tool's Gradle integration/drift-detection/test generation); (b) keep and
+lightly modernize `awake-vulkan-generator` for all struct-bearing Vulkan bindings, and
+use jni-binding-generator only where it fits its actual scope (simple function-signature
+bindings — e.g. the Phase 8 physics facade); (c) hybrid — jni-binding-generator for leaf
+struct fields it already supports (primitives/enums/arrays) composed by hand-written or
+lightly-templated outer struct marshalling. No recommendation defaulted — this determines
+weeks of Phase 1a engineering direction, decide before continuing.
 
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
