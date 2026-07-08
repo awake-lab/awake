@@ -966,10 +966,10 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
       `VulkanApplication` is now ~210 lines (down from ~800): `setupVulkan()` wires the
       collaborators, and `update()` is just computing the demo's model (spin) matrix and
       calling `renderer.draw(camera, listOf(DrawCall(mesh, material, model)))`.
-  - **Compiles clean** on desktop and Android. **Not yet confirmed on real hardware** — the
-    Galaxy S25 Ultra was in active use / unreachable over wireless ADB when this was ready to
-    verify. Verify on real hardware before treating this as done the same way every other
-    Phase 2 extraction was.
+  - **Confirmed on real hardware** (Galaxy S25 Ultra, connected via USB after several
+    wireless-ADB dropouts): no crash across the run, steady "Fps: 60" in logcat, two
+    screenshots 5 seconds apart show different cube orientations with the textured/colored
+    cube rendering identically to before the extraction.
 - [x] **Keep the layer API-agnostic — audited, not abstracted (2026-07-09):** checked
       `awake-core` for accidental Vulkan leakage: `Application` (the platform entry point) is
       already fully backend-agnostic (`create(surface: Any?)` — each platform supplies
