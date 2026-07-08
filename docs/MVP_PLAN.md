@@ -1034,16 +1034,17 @@ twice (once against whatever's there today, again once Phase 2 settles).
 - [x] `RenderSystem` — walks Transform+MeshRenderer entities, builds `DrawCall`s, and
       delegates submission to `Renderer.draw(camera, drawCalls)`
 - [x] Unit tests on plain JVM (no platform deps): entity generation/recycling,
-      component add/remove, query correctness, stale-handle cleanup, and hierarchy
+      component add/remove, query/cache correctness, stale-handle cleanup, and hierarchy
       propagation order. Verified with `./gradlew :awake-ecs:desktopTest`
-      (`5/5` passing).
+      (`7/7` passing).
 - [x] Benchmark harness isolated in `:awake-ecs-benchmark` (JVM-only): depends on
       `:awake-ecs` and Fleks 2.14, with Fleks absent from `awake-ecs`'s dependency graph.
       `kotlinx-benchmark` 0.4.17 was checked before wiring; it supports Kotlin 2.2.0+
       and resolved cleanly against this project's Kotlin 2.4.0. Scorecard:
-      [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md). Fleks is plainly
-      faster on the Transform+MeshRenderer query hot path at 10k/100k entities; keep this
-      in mind if Phase 4 scene sizes grow.
+      [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md). Awake now caches
+      untyped query results and exposes typed sparse-store iteration for systems; Fleks is
+      still faster on the Transform+MeshRenderer query hot path at 10k/100k entities, so
+      keep family-style indexes in mind if Phase 4 scene sizes grow.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 

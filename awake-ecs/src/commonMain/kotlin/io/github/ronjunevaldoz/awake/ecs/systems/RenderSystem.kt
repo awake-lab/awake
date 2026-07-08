@@ -31,19 +31,25 @@ class RenderSystem(
     private val renderer: Renderer
 ) : System {
     override fun update(world: World, delta: Float) {
-        val camera = world.query(Camera::class)
-            .mapNotNull { world.get<Camera>(it) }
-            .firstOrNull { it.isPrimary }
-            ?: return
-        val drawCalls = world.query(Transform::class, MeshRenderer::class).map { entity ->
-            val transform = world.get<Transform>(entity) ?: error("Missing Transform for $entity")
-            val meshRenderer = world.get<MeshRenderer>(entity) ?: error("Missing MeshRenderer for $entity")
-            DrawCall(
+        val camera = primaryCamera(world) ?: return
+        val drawCalls = mutableListOf<DrawCall>()
+        world.queryEach<Transform, MeshRenderer> { _, transform, meshRenderer ->
+            drawCalls += DrawCall(
                 mesh = meshRenderer.mesh,
                 material = meshRenderer.material,
                 model = transform.worldMatrix
             )
         }
         renderer.draw(camera.camera, drawCalls)
+    }
+
+    private fun primaryCamera(world: World): Camera? {
+        var primary: Camera? = null
+        world.queryEach<Camera> { _, camera ->
+            if (primary == null && camera.isPrimary) {
+                primary = camera
+            }
+        }
+        return primary
     }
 }

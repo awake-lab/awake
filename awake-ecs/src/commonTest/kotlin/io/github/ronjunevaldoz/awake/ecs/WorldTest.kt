@@ -56,6 +56,45 @@ class WorldTest {
     }
 
     @Test
+    fun cachedQueryUpdatesAfterComponentAndEntityChanges() {
+        val world = World()
+        val first = world.create()
+        val second = world.create()
+        world.add(first, Transform())
+
+        assertEquals(listOf(first), world.query(Transform::class))
+
+        world.add(second, Transform())
+        assertEquals(listOf(first, second), world.query(Transform::class))
+
+        world.remove<Transform>(first)
+        assertEquals(listOf(second), world.query(Transform::class))
+
+        world.destroy(second)
+        assertEquals(emptyList(), world.query(Transform::class))
+    }
+
+    @Test
+    fun queryEachSkipsDestroyedEntities() {
+        val world = World()
+        val destroyed = world.create()
+        val alive = world.create()
+        world.add(destroyed, Transform())
+        world.add(destroyed, Light())
+        world.add(alive, Transform())
+        world.add(alive, Light())
+
+        world.destroy(destroyed)
+
+        val visited = mutableListOf<Entity>()
+        world.queryEach<Transform, Light> { entity, _, _ ->
+            visited += entity
+        }
+
+        assertEquals(listOf(alive), visited)
+    }
+
+    @Test
     fun destroyingEntityRemovesComponentsAndRejectsStaleHandle() {
         val world = World()
         val entity = world.create()

@@ -108,9 +108,7 @@ open class EcsBenchmarks {
     @Benchmark
     fun awakeTransformMeshQuery(state: AwakeQueryState): Int {
         var count = 0
-        state.world.query(Transform::class, MeshRenderer::class).forEach { entity ->
-            state.world.get<Transform>(entity)
-            state.world.get<MeshRenderer>(entity)
+        state.world.queryEach<Transform, MeshRenderer> { _, _, _ ->
             count++
         }
         return count

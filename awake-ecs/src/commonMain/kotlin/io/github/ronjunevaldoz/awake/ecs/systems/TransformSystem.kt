@@ -28,8 +28,10 @@ import io.github.ronjunevaldoz.awake.ecs.components.Transform
 
 class TransformSystem : System {
     override fun update(world: World, delta: Float) {
-        val transforms = world.query(Transform::class)
-            .associateWith { entity -> world.get<Transform>(entity) ?: error("Missing Transform for $entity") }
+        val transforms = mutableMapOf<Entity, Transform>()
+        world.queryEach<Transform> { entity, transform ->
+            transforms[entity] = transform
+        }
         val visited = mutableSetOf<Entity>()
         val visiting = mutableSetOf<Entity>()
 
