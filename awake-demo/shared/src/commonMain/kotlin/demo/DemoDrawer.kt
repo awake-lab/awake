@@ -32,7 +32,9 @@ fun DemoDrawer(items: List<String>, content : @Composable () -> Unit) {
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     // icons to mimic drawer destinations
-    val selectedItem = remember { mutableStateOf(items[0]) }
+    // items can be empty (e.g. Vulkan is enabled -- these labels only select OpenGL demo
+    // scenes, see App.kt), so this can't assume items[0] exists.
+    val selectedItem = remember(items) { mutableStateOf(items.firstOrNull()) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,

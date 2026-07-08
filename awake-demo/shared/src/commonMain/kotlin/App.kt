@@ -57,7 +57,11 @@ fun App() {
         var greetingText by remember { mutableStateOf("Hello, World!") }
         var vulkan by remember { mutableStateOf(true) }
         var fpsText by remember { mutableStateOf("") }
-        val items = remember { mutableStateOf(DemoApplication.drawableLabels) }
+        // DemoApplication.drawableLabels only selects OpenGL demo scenes (DemoScene) --
+        // VulkanScene always renders the same cube regardless, so showing this catalog
+        // while Vulkan is enabled let you "select" items that silently did nothing. Empty
+        // it out instead of showing a catalog that doesn't apply to the active renderer.
+        val items = if (vulkan) emptyList() else DemoApplication.drawableLabels
         LaunchedEffect(Unit) {
             while (true) {
                 delay(16)
@@ -66,20 +70,21 @@ fun App() {
         }
         // init awake context
         AwakeContext.init()
-        DemoDrawer(items.value) {
+        DemoDrawer(items) {
             Button(onClick = {
                 greetingText = Greeting().greet()
             }) {
                 Text(greetingText)
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Swipe right to open drawer samples")
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = "Double Arrow",
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-
+            if (!vulkan) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Swipe right to open drawer samples")
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowRight,
+                        contentDescription = "Double Arrow",
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
             }
             SwitchGraphics(true) { isVulkan ->
                 vulkan = isVulkan

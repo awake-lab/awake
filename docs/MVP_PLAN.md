@@ -107,6 +107,19 @@ Goal: current toolchain, regression baseline protected.
       desktop, fighting `DemoDrawer`'s real click-to-select mechanism (`DemoApplication.
       drawableIndex = items.indexOf(item)`). Not Vulkan-related, just noise found while
       testing the desktop demo this round.
+- [x] **Fixed the demo catalog being inconsistent between renderers (2026-07-08):** `App.kt`
+      always passed `DemoApplication.drawableLabels` (Triangle/Texture/Colored/Transform/
+      Font Bitmap/Cube) to `DemoDrawer`, regardless of which renderer was active — but those
+      labels only ever select **OpenGL** demo scenes (`DemoScene`); `VulkanScene` always
+      renders the same hardcoded cube no matter what's selected. With Vulkan on, the drawer
+      still showed all six items, and tapping any of them silently did nothing. Fixed by
+      making the catalog empty while Vulkan is enabled (`DemoDrawer`'s `selectedItem` now
+      handles an empty list instead of assuming `items[0]` exists) and hiding the "Swipe
+      right to open drawer samples" hint in the same condition, so the UI doesn't advertise
+      a catalog that doesn't apply to the active renderer. **Confirmed on real hardware**
+      (Galaxy S25 Ultra) in both states: Vulkan on → no catalog/hint, cube renders
+      correctly; Vulkan off → catalog/hint visible, triangle demo selectable and running at
+      57 FPS.
 
 ### Testing policy for every new `vkXxx` function (in force from Phase 1d onward)
 
