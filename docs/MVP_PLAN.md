@@ -116,10 +116,17 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
       all 18 fields (was 5); all 58 real `androidMain` functions parse correctly.
       **Decision: proceed with jni-binding-generator** — `awake-vulkan-generator`
       retirement is back on the table.
-- [ ] Wire jni-binding-generator to `Vulkan.kt`'s full source set (Gradle
-      `jniGenerator { bindings { ... } }`)
-- [ ] Generated output compiles and passes the Android triangle regression
-- [ ] Retire `awake-vulkan-generator` module *(only if D10 replaces it — may instead be kept)*
+- [x] ~~Wire jni-binding-generator to `Vulkan.kt`'s full source set~~ — done differently:
+      wired to a new dedicated `...vulkan.gen` package (`generateJniBindings` raw `Exec`
+      task, Option A per the tool's own docs — no `jniGenerator {}` plugin DSL needed for
+      one binding), not the legacy `Vulkan` object's full source set (see the
+      `vkCreateBuffer` entry above for why). Generated output compiles; Android demo
+      regression gate builds clean with it linked in.
+- [ ] Keep using this path for the remaining Phase 1d functions below
+- [ ] Retire `awake-vulkan-generator` module — **decided against for now**: the 58 existing
+      functions work and are regression-tested; rewriting them is a real-Vulkan-semantics
+      risk with no working device render to verify against. Revisit once Phase 1d functions
+      prove the new path at scale, or once a device-testable milestone exists.
 
 ### 1b. Desktop native build
 - [ ] CMake preset to build `vulkan-kotlin` C++ as `.dylib` / `.dll` / `.so` for host JVM
