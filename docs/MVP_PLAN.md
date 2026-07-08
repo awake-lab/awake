@@ -344,9 +344,18 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
 - [x] GLFW window creation + Vulkan surface creation on desktop, wired into the real demo
       app (see 1b above) — done via a lightweight `window is Long` branch in
       `VulkanApplication.createSurface()`, not yet the full abstraction below.
-- [ ] Replace `vkCreateAndroidSurfaceKHR` in common API with a proper
-      `expect fun createSurface(window: NativeWindow): Long` unifying both platforms behind
-      one common API (currently a pragmatic `is Long` type-check, not a real expect/actual).
+- [x] **Real `expect fun createSurface`/`destroySurfaceWindow` (2026-07-08):** replaced the
+      `window is Long` runtime check with a proper expect/actual pair in `awake-vulkan`
+      (`VulkanSurface.kt`, one file per source set — commonMain declares the `expect fun`s,
+      androidMain/desktopMain/iosMain each provide the `actual`). `window: Any` rather than a
+      shared `NativeWindow` type, since Android's `Surface` and desktop's GLFW `Long` handle
+      have no common supertype worth inventing — same practical tradeoff most KMP graphics
+      libraries make. `VulkanApplication.createSurface()` now just calls the top-level
+      function instead of branching itself; `destroy()` calls `destroySurfaceWindow()`
+      unconditionally (a true no-op on Android, so the old `glfwWindowHandle != 0L` guard is
+      gone along with the field). Verified: `awake-vulkan` and `awake-demo:shared` both
+      compile clean on Android and desktop (iOS remains the pre-existing red `TODO()` stub,
+      unrelated to this change — Phase 6 scope).
 - [x] Android actual → `ANativeWindow`
 - [x] Desktop actual → `glfwCreateWindowSurface`
 

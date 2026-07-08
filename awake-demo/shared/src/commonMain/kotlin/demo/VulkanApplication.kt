@@ -71,7 +71,6 @@ import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceCapabilitiesKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceFormatKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkAndroidSurfaceCreateInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkApplicationInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
@@ -180,9 +179,9 @@ class VulkanApplication : Application {
     var depthImageMemory: Long = 0
     var depthImageView: Long = 0
     var frameCount = 0
-    /** Non-zero only on desktop -- see [createSurface]. Used by [destroy] to know whether
-     * to tear down the GLFW window/terminate GLFW (Android has no equivalent). */
-    var glfwWindowHandle: Long = 0
+    /** Set by [createSurface]; used by [destroy] to tear down platform window resources via
+     * [destroySurfaceWindow] (a no-op on Android, which owns its own window lifecycle). */
+    private var nativeWindow: Any? = null
 
     companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
@@ -1301,18 +1300,11 @@ class VulkanApplication : Application {
     }
 
     /** [window] is an `android.view.Surface` on Android, or a GLFW window handle (`Long`,
-     * from [VulkanWindow.glfwCreateWindow]) on desktop -- see [glfwWindowHandle]. Real
-     * cross-platform surface creation (Phase 1c) would replace this `is Long` check with
-     * a proper `expect fun createSurface`; deferred since this is the only two-platform
-     * call site so far. */
+     * from [VulkanWindow.glfwCreateWindow]) on desktop -- see [io.github.ronjunevaldoz.awake.
+     * vulkan.createSurface] for the real per-platform expect/actual. */
     private fun createSurface(window: Any): VkSurfaceKHR {
-        surface = if (window is Long) {
-            glfwWindowHandle = window
-            VulkanWindow.glfwCreateWindowSurface(instance, window)
-        } else {
-            val surfaceInfo = VkAndroidSurfaceCreateInfoKHR(window = window)
-            Vulkan.vkCreateAndroidSurfaceKHR(instance, surfaceInfo)
-        }
+        nativeWindow = window
+        surface = io.github.ronjunevaldoz.awake.vulkan.createSurface(instance, window)
         return VkSurfaceKHR(
             instance = instance,
             surface = surface
@@ -1369,9 +1361,6 @@ class VulkanApplication : Application {
         Vulkan.vkDestroyDebugUtilsMessengerEXT(instance, debugUtilsMessenger)
         Vulkan.vkDestroyInstance(instance)
 
-        if (glfwWindowHandle != 0L) {
-            VulkanWindow.glfwDestroyWindow(glfwWindowHandle)
-            VulkanWindow.glfwTerminate()
-        }
+        nativeWindow?.let { io.github.ronjunevaldoz.awake.vulkan.destroySurfaceWindow(it) }
     }
 }
