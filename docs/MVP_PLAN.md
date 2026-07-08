@@ -7,6 +7,8 @@
 Awake becomes the first **Kotlin Multiplatform game engine** with:
 
 - A **Vulkan core** that runs on Android, Desktop (macOS/Windows/Linux), and iOS (MoltenVK)
+- A **WebGPU backend** for Web/Wasm (see [Decision D7](#d7--web-target-wasmjs)), behind the
+  same renderer abstraction as Vulkan — post-Phase-2, not part of the MVP definition below
 - A shared **ECS runtime** in `commonMain`
 - A **declarative, Compose-style scene API** (see [Decision D2](#d2--compose-style-scene-api))
 - A **desktop editor** based on [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor)
@@ -708,6 +710,27 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
 - [ ] Keep the layer API-agnostic (future Metal/WebGPU seam)
 - [ ] Demo rewritten on the abstraction (~50 lines instead of ~800)
 
+## Phase 2.5 — Web/WebGPU backend (see D7; after Phase 2's core abstraction exists)
+
+Goal: the same `Renderer.draw(camera, List<DrawCall>)` entry point runs in a browser.
+Deliberately sequenced after `GraphicsDevice`/`SwapchainManager`/`Mesh`/`Material` exist to
+implement against — writing a WebGPU backend before that seam is real would mean writing it
+twice (once against whatever's there today, again once Phase 2 settles).
+
+- [ ] Add a `wasmJs` Kotlin target to `awake-core`, `awake-vulkan` (or a new sibling module
+      if Vulkan-specific types don't make sense to expose on web — TBD once Phase 2's
+      abstraction boundary is concrete), and `awake-demo:shared`
+- [ ] WebGPU backend implementing the same `GraphicsDevice`/`Mesh`/`Material` seam Vulkan
+      implements — kotlinx-browser or a WebGPU Kotlin/Wasm binding for the actual API calls
+- [ ] Wasm ECS/runtime: Fleks and the kotlinx libraries already used elsewhere in this
+      project (coroutines, datetime, serialization) already support Wasm — confirm no
+      Vulkan-only assumption leaked into `awake-core`'s non-rendering code paths
+- [ ] Demo runs in-browser via the exact same `Renderer.draw()` call the other three
+      platforms use — no web-specific demo code beyond the WebGPU backend itself
+- [ ] CI: headless browser (e.g. Chrome via Karma/Playwright) smoke test, analogous to the
+      desktop-vulkan-smoke lavapipe job — WebGPU needs a real (even if software/SwiftShader-
+      backed) implementation to test against, same "no stub ICDs" principle as Vulkan
+
 ## Phase 3 — ECS (1–2 weeks)
 
 - [ ] Adopt **Fleks** behind a thin `awake-ecs` facade (`World`, `Component`, `System`)
@@ -795,11 +818,12 @@ cinterop static lib (iOS). 2D via **kbox2d** (pure Kotlin) as a separate artifac
 | 0 Foundation | 1–2 wk | — |
 | 1 Vulkan desktop | 3–5 wk | 0 |
 | 2 Renderer | 2–3 wk | 1 |
+| 2.5 Web/WebGPU (D7) | 2–3 wk | 2 |
 | 3 ECS | 1–2 wk | 0 (parallel with 1–2) |
 | 4 Runtime | 2–3 wk | 2, 3 |
 | 5 Editor | parallel | 3 |
 | 6 iOS | 2–3 wk | 2 |
-| **MVP total** | **10–14 wk** | |
+| **MVP total** | **10–14 wk** (2.5 additive, see D7) | |
 | 7 Compose scene API | post-MVP | 3, 4, D2 |
 | 8 Physics (Jolt) | post-MVP, 2–3 wk | 3, D5 |
 | 9 Audio (OpenAL Soft) | post-MVP, 1–2 wk | 4, D8 |
@@ -845,10 +869,13 @@ backend behind the Phase 2 renderer abstraction (real cost: every renderer featu
 Maintaining two backends during the rewrite would roughly double Phase 2.
 
 ### D7 — Web target (Wasm/JS)
-**OPEN.** Vulkan does not exist in browsers — web means a **WebGPU** backend behind the
-Phase 2 abstraction, plus a Wasm ECS/runtime (Fleks and kotlinx libs already support Wasm).
-Recommendation: **explicitly out of scope for MVP**, but Phase 2's API-agnostic rule exists
-precisely so this stays possible. Revisit after iOS ships.
+**DECIDED (2026-07-08): in scope — see Phase 2.5.** Vulkan does not exist in browsers, so
+this means a real **WebGPU** backend behind the Phase 2 renderer abstraction seam, plus a
+`wasmJs` Kotlin target (Fleks and the kotlinx libraries already used elsewhere in this
+project already support Wasm). Deliberately sequenced *after* Phase 2's core abstraction
+(`GraphicsDevice`/`SwapchainManager`/`Mesh`/`Material`) exists, not in parallel with it —
+writing a WebGPU backend against an abstraction that's still being designed would mean
+writing it twice.
 
 ### D8 — Audio
 **OPEN (post-MVP phase, needs a slot).** No audio anywhere in the plan. Candidate:
