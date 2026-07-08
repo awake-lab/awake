@@ -96,9 +96,52 @@ tasks.register<Exec>("buildDesktopNative") {
     }
 }
 
+// On macOS, the Vulkan loader (linked in desktop-native/CMakeLists.txt instead of MoltenVK
+// directly -- see that file's comment for why) needs VK_ICD_FILENAMES to find MoltenVK's
+// ICD manifest at run time. Located via a filesystem glob since the exact MoltenVK version
+// (part of the Cellar path) varies by machine/install.
+val moltenVkIcdPath = fileTree("/opt/homebrew/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") }
+    .plus(fileTree("/usr/local/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") })
+    .files.firstOrNull()?.absolutePath
+// GLFW's macOS Vulkan support check dlopen()s "libvulkan.1.dylib" by bare name at run
+// time (confirmed via `strings`/`otool -L` -- its install name is the absolute Homebrew
+// path, not a bare name, so a plain dlopen() only succeeds if a directory containing it is
+// on DYLD_FALLBACK_LIBRARY_PATH). Without this, glfwGetRequiredInstanceExtensions/
+// glfwVulkanSupported silently fail even though a direct vkCreateInstance call (which
+// doesn't go through GLFW's own loader-finding logic) works fine.
+val desktopVulkanEnv = buildMap {
+    if (moltenVkIcdPath != null) put("VK_ICD_FILENAMES", moltenVkIcdPath)
+    put("DYLD_FALLBACK_LIBRARY_PATH", "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew/lib:/usr/local/lib")
+}
+
 // Always points java.library.path at desktop-native-libs for desktop tests -- a no-op if
 // buildDesktopNative hasn't been run (System.loadLibrary just fails with its usual
 // UnsatisfiedLinkError in that case, same as if this weren't set at all).
 tasks.named<Test>("desktopTest") {
     jvmArgs("-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
+    environment(desktopVulkanEnv)
+}
+
+val startOnFirstThread = if (System.getProperty("os.name").lowercase().contains("mac")) {
+    listOf("-XstartOnFirstThread")
+} else {
+    emptyList()
+}
+
+// Manual diagnostic task (same convention as checkJniBindings) -- proves GLFW window +
+// Vulkan surface creation actually works, which desktopTest itself cannot safely check
+// (see GlfwManualVerify.kt's doc comment for the macOS main-thread reason). Run via
+// `./gradlew :awake-vulkan:verifyGlfwMain` after buildDesktopNative.
+tasks.register<JavaExec>("verifyGlfwMain") {
+    group = "native"
+    description = "Manually verify GLFW window + Vulkan surface creation on the real OS main " +
+        "thread (see GlfwManualVerify.kt) -- run after buildDesktopNative."
+    dependsOn("compileTestKotlinDesktop")
+    mainClass.set("GlfwManualVerifyKt")
+    classpath = files(
+        layout.buildDirectory.dir("classes/kotlin/desktop/test"),
+        kotlin.jvm("desktop").compilations.getByName("test").runtimeDependencyFiles
+    )
+    jvmArgs(startOnFirstThread + "-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
+    environment(desktopVulkanEnv)
 }

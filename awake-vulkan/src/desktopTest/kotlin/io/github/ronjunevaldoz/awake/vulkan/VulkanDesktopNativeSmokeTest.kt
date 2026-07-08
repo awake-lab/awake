@@ -32,6 +32,14 @@ import kotlin.test.assertNotEquals
  * that the JNI symbols resolve. Requires `-Djava.library.path` to include
  * `build/desktop-native-libs` (wired via this module's `desktopTest` task in
  * build.gradle.kts) and `buildDesktopNative` to have already run at least once.
+ *
+ * GLFW window/surface creation ([io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow])
+ * is deliberately NOT exercised here: on macOS, Cocoa requires all window creation to
+ * happen on the process's real OS main thread, which a Gradle test worker process does
+ * not run on -- `glfwCreateWindow` from this test process crashed with SIGTRAP (confirmed
+ * empirically, not just AppKit documentation). Verified instead via a real `fun main()`
+ * entry point, which the JVM does run on the OS main thread -- see
+ * docs/decisions/D10-codegen-derisk-findings.md for that verification.
  */
 class VulkanDesktopNativeSmokeTest {
     @Test
@@ -40,7 +48,15 @@ class VulkanDesktopNativeSmokeTest {
             pApplicationName = "Awake Desktop Smoke Test",
             pEngineName = "Awake Vulkan - Engine"
         )
-        val createInfo = VkInstanceCreateInfo(pApplicationInfo = arrayOf(appInfo))
+        // MoltenVK conforms to the Vulkan Portability spec: vkCreateInstance requires both
+        // VK_KHR_portability_enumeration and VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
+        // or it fails with VK_ERROR_INCOMPATIBLE_DRIVER (confirmed empirically once this
+        // module switched from linking MoltenVK directly to the real Vulkan loader).
+        val createInfo = VkInstanceCreateInfo(
+            flags = 0x00000001, // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
+            pApplicationInfo = arrayOf(appInfo),
+            ppEnabledExtensionNames = arrayOf("VK_KHR_portability_enumeration")
+        )
         val instance = Vulkan.vkCreateInstance(createInfo)
         assertNotEquals(0L, instance, "vkCreateInstance returned a null handle")
         Vulkan.vkDestroyInstance(instance)

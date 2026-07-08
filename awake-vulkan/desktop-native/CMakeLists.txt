@@ -3,10 +3,17 @@
 # .so, loaded via System.loadLibrary from awake-vulkan's desktopMain Vulkan.kt.
 #
 # Vulkan SDK detection per host OS:
-#   - macOS has no native Vulkan; MoltenVK (a Vulkan-on-Metal translation layer) is
-#     linked directly rather than going through the Vulkan loader, so no ICD/loader
-#     environment configuration is needed at run time. Install via `brew install
-#     molten-vk` (also provides vulkan/vulkan.h via its bundled headers).
+#   - macOS has no native Vulkan; MoltenVK (`brew install molten-vk`) provides the ICD.
+#     Originally linked directly against libMoltenVK.dylib (bypassing the loader) --
+#     that's enough for a bare vkCreateInstance, but GLFW's own Vulkan support detection
+#     (glfwVulkanSupported/glfwGetRequiredInstanceExtensions) specifically dlopen()s the
+#     standard Vulkan *loader* library by name and fails to find "vulkan support" if only
+#     MoltenVK is linked directly (confirmed empirically -- glfwGetRequiredInstanceExtensions
+#     returned null even though vkCreateInstance via direct-linked MoltenVK worked fine).
+#     Fixed by linking the real loader (`brew install vulkan-loader`) instead, with
+#     VK_ICD_FILENAMES pointing the loader at MoltenVK's ICD manifest at run time (set in
+#     awake-vulkan/build.gradle.kts's desktopTest/verifyGlfwMain tasks) -- the standard
+#     Vulkan loader/ICD mechanism, not a workaround.
 #   - Windows/Linux go through the standard `find_package(Vulkan)` / Vulkan SDK path,
 #     since both have a real native Vulkan driver + loader.
 #
@@ -29,30 +36,58 @@ find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})
 
 if(APPLE)
-    find_library(MOLTENVK_LIBRARY MoltenVK
-            PATHS /opt/homebrew/opt/molten-vk/lib /usr/local/opt/molten-vk/lib)
-    if(NOT MOLTENVK_LIBRARY)
-        message(FATAL_ERROR "MoltenVK not found -- install via 'brew install molten-vk'")
+    find_library(VULKAN_LOADER_LIBRARY NAMES vulkan vulkan.1
+            PATHS /opt/homebrew/opt/vulkan-loader/lib /usr/local/opt/vulkan-loader/lib
+                  /opt/homebrew/lib /usr/local/lib)
+    if(NOT VULKAN_LOADER_LIBRARY)
+        message(FATAL_ERROR "Vulkan loader not found -- install via 'brew install vulkan-loader'")
     endif()
-    set(VULKAN_LINK_TARGET ${MOLTENVK_LIBRARY})
+    # MoltenVK itself only needs to be present on disk for the loader to find via its ICD
+    # manifest (VK_ICD_FILENAMES, set at run time) -- not linked here.
+    find_path(MOLTENVK_ICD_DIR MoltenVK_icd.json
+            PATHS /opt/homebrew/Cellar/molten-vk/*/etc/vulkan/icd.d
+                  /usr/local/Cellar/molten-vk/*/etc/vulkan/icd.d)
+    if(NOT MOLTENVK_ICD_DIR)
+        message(FATAL_ERROR "MoltenVK ICD manifest not found -- install via 'brew install molten-vk'")
+    endif()
+    message(STATUS "MoltenVK ICD manifest: ${MOLTENVK_ICD_DIR}/MoltenVK_icd.json (set VK_ICD_FILENAMES to this at run time)")
+    set(VULKAN_LINK_TARGET ${VULKAN_LOADER_LIBRARY})
     include_directories(/opt/homebrew/include /usr/local/include)
 else()
     find_package(Vulkan REQUIRED)
     set(VULKAN_LINK_TARGET Vulkan::Vulkan)
 endif()
 
+# GLFW (`brew install glfw`) provides windowing + Vulkan surface creation
+# (VulkanWindow_jni.gen.cpp / glfwCreateWindowSurface) for the desktop demo.
+find_library(GLFW_LIBRARY glfw PATHS /opt/homebrew/opt/glfw/lib /usr/local/opt/glfw/lib)
+find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h PATHS /opt/homebrew/opt/glfw/include /usr/local/opt/glfw/include)
+if(NOT GLFW_LIBRARY OR NOT GLFW_INCLUDE_DIR)
+    message(FATAL_ERROR "GLFW not found -- install via 'brew install glfw'")
+endif()
+include_directories(${GLFW_INCLUDE_DIR})
+
 add_subdirectory(../src/main/cpp/vulkan-kotlin vulkan-kotlin-desktop-build)
 
+# io_github_..._VulkanBuffers/Descriptors/Images -- fully-qualified filenames because
+# jni-binding-generator qualifies output whenever more than one Kotlin source file shares
+# a class name (androidMain and desktopMain both declare real `actual external fun` for
+# these). See that file's own header comment. This is the SAME file android-native
+# compiles, unmodified -- these Vulkan calls are identical on both platforms.
 add_library(awake-vulkan SHARED
         ../src/main/cpp/awake-vulkan.cpp
-        ../src/main/cpp/generated/VulkanBuffers_jni.gen.cpp
-        ../src/main/cpp/generated/VulkanDescriptors_jni.gen.cpp
-        ../src/main/cpp/generated/VulkanImages_jni.gen.cpp)
+        ../src/main/cpp/generated/io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_jni.gen.cpp
+        ../src/main/cpp/generated/io_github_ronjunevaldoz_awake_vulkan_gen_VulkanDescriptors_jni.gen.cpp
+        ../src/main/cpp/generated/io_github_ronjunevaldoz_awake_vulkan_gen_VulkanImages_jni.gen.cpp
+        ../src/main/cpp/generated/VulkanWindow_jni.gen.cpp)
 
 target_include_directories(awake-vulkan PRIVATE
         ${JNI_INCLUDE_DIRS}
         ${CMAKE_CURRENT_SOURCE_DIR}/../../tools/jni-binding-generator/scripts)
 
+target_compile_definitions(awake-vulkan PRIVATE GLFW_INCLUDE_VULKAN)
+
 target_link_libraries(awake-vulkan
         vulkan_kotlin
-        ${VULKAN_LINK_TARGET})
+        ${VULKAN_LINK_TARGET}
+        ${GLFW_LIBRARY})

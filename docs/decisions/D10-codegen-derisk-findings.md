@@ -645,3 +645,70 @@ D10 Round 5's real-device confirmation for Android.
 desktop demo can render anything visible) and platform-neutral surface creation (Phase 1c,
 replacing `vkCreateAndroidSurfaceKHR` with a real cross-platform `expect fun
 createSurface(...)`, not started). Windows/Linux Vulkan SDK detection path is untested.
+
+## Round 11 — GLFW windowing + Vulkan surface creation on desktop (2026-07-08)
+
+Added `VulkanWindow` (new jni-binding-generator object, desktop-only): `glfwInit`,
+`glfwTerminate`, `glfwWindowHint`, `glfwCreateWindow`, `glfwDestroyWindow`,
+`glfwWindowShouldClose`, `glfwPollEvents`, `glfwGetFramebufferWidth`/`Height`,
+`glfwCreateWindowSurface` (desktop's equivalent of `Vulkan.vkCreateAndroidSurfaceKHR`),
+`glfwGetRequiredInstanceExtensions`. GLFW (`brew install glfw`) linked into
+`desktop-native/CMakeLists.txt`.
+
+**First regeneration collision, and how it was resolved.** Once `desktopMain`'s
+`VulkanBuffers`/`VulkanDescriptors`/`VulkanImages` became real (Round 10), regenerating
+picked up TWO real Kotlin sources per class name (android + desktop), and
+jni-binding-generator's existing duplicate-name-detection kicked in — output filenames
+became fully-qualified (`io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_jni.gen.cpp`
+instead of `VulkanBuffers_jni.gen.cpp`) to avoid one platform's generation silently
+overwriting the other's. This is correct, intentional tool behavior for a genuine
+two-source situation, not a bug — embraced it rather than fighting it: renamed the
+hand-edited files, updated both `CMakeLists.txt`s, and documented the convention in each
+file's own header comment (so a future contributor isn't confused by the verbose
+filename). `VulkanWindow` itself, with only one real source (desktop), kept its plain
+name — the qualification is genuinely conditional on the actual duplicate-name situation,
+confirmed by observing it disappear/reappear as expected.
+
+**Switched the Vulkan link target from MoltenVK (linked directly, Round 10) to the real
+Vulkan loader** (`brew install vulkan-loader`, `VK_ICD_FILENAMES` pointed at MoltenVK's
+ICD manifest at run time via `build.gradle.kts`). Direct-linking MoltenVK is enough for a
+bare `vkCreateInstance` call, but GLFW's own Vulkan-support detection
+(`glfwVulkanSupported`/`glfwGetRequiredInstanceExtensions`) specifically `dlopen()`s the
+standard loader by bare name (`libvulkan.1.dylib` — confirmed via `strings` on GLFW's own
+`.dylib`, which literally contains that string, and `otool -L` showing the loader's
+install name is the absolute Homebrew path, not a bare name) and silently reports "no
+Vulkan support" if only MoltenVK is linked directly, with no error message pointing at the
+actual cause. This is the standard Vulkan loader/ICD indirection every real Vulkan SDK
+uses — the earlier direct-MoltenVK-link approach was itself the shortcut, not this.
+
+**Three more macOS/GLFW/MoltenVK requirements found empirically, undocumented anywhere
+obvious, while getting the GLFW-to-Vulkan-surface pipeline working end-to-end:**
+1. `DYLD_FALLBACK_LIBRARY_PATH` must include the loader's directory
+   (`/opt/homebrew/opt/vulkan-loader/lib`, `/opt/homebrew/lib`) for GLFW's bare-name
+   `dlopen` to succeed — Homebrew's install location isn't a default dylib search path.
+   Wired via `environment(...)` on the relevant Gradle tasks.
+2. MoltenVK requires both the `VK_KHR_portability_enumeration` extension AND the
+   `VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR` instance-create flag, or
+   `vkCreateInstance` fails with `VK_ERROR_INCOMPATIBLE_DRIVER` — a Vulkan-Portability-spec
+   requirement that only surfaced once switching from direct-MoltenVK-linking to the real
+   loader (the existing `VulkanDesktopNativeSmokeTest.vkCreateInstance_returnsRealHandle`
+   test, previously passing, started failing for exactly this reason — fixed by adding
+   both to that test too, not just the new GLFW verification).
+3. **Real macOS threading constraint, not a bug to route around but a genuine platform
+   requirement:** `glfwCreateWindow` from a Gradle test worker process crashed with
+   `SIGTRAP` — Cocoa requires all window creation on the process's actual OS main thread,
+   which JUnit test workers (and even a plain `JavaExec`-launched JVM without
+   `-XstartOnFirstThread`) don't satisfy. Confirmed the fix is the standard
+   LWJGL/GLFW-on-macOS one: launch the JVM with `-XstartOnFirstThread`. Rather than force
+   unsafe window creation into `desktopTest`, added a separate manual verification entry
+   point (`GlfwManualVerify.kt`, run via `./gradlew :awake-vulkan:verifyGlfwMain`, a
+   `JavaExec` with `-XstartOnFirstThread` set only on macOS) — same manual-diagnostic-task
+   convention as `checkJniBindings`.
+
+**Confirmed end-to-end, exactly per the testing policy:** a real 64x64 GLFW window (reported
+128x128 framebuffer size — expected Retina/HiDPI 2x scaling, not a bug), a real
+`vkCreateInstance` with the required extensions, and a real `VkSurfaceKHR` from
+`glfwCreateWindowSurface` — all obtained, used, and cleanly destroyed without throwing.
+This is the full desktop windowing + Vulkan surface creation pipeline working, the
+remaining missing piece before Phase 1c (platform-neutral surface abstraction) and
+wiring an actual visible render loop into `awake-demo`'s desktop app.

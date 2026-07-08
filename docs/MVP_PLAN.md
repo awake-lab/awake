@@ -199,14 +199,58 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     genuine confirmation the whole desktop JNI chain (Kotlin `external fun` → compiled
     `.dylib` → MoltenVK → a real, though software/translated, Vulkan device) works, not
     just that the native library builds.
-- [ ] GLFW window creation on desktop (replaces Compose/AWT canvas for the runtime) —
-      not started; needed before the desktop demo can actually render anything, since
-      `vkCreateAndroidSurfaceKHR`/surface creation is still a TODO stub on desktop (see
-      Phase 1c below, also not started)
+- [x] **GLFW window creation + Vulkan surface creation on desktop (2026-07-08, macOS/
+      arm64 confirmed):** new `VulkanWindow` object (jni-binding-generator, desktop-only —
+      android/iOS actuals are `TODO()` stubs since they get their window/layer from the
+      platform, not GLFW): `glfwInit`, `glfwTerminate`, `glfwWindowHint`,
+      `glfwCreateWindow`, `glfwDestroyWindow`, `glfwWindowShouldClose`, `glfwPollEvents`,
+      `glfwGetFramebufferWidth`/`Height`, `glfwCreateWindowSurface` (the desktop
+      equivalent of `Vulkan.vkCreateAndroidSurfaceKHR`), `glfwGetRequiredInstanceExtensions`.
+      GLFW (`brew install glfw`) linked into `desktop-native/CMakeLists.txt`.
+  - **Switched the Vulkan link target from MoltenVK directly to the real Vulkan loader**
+    (`brew install vulkan-loader`, `find_library`, `VK_ICD_FILENAMES` pointed at
+    MoltenVK's ICD manifest at run time). Round 10 had linked MoltenVK directly since
+    that's enough for a bare `vkCreateInstance` — but GLFW's own Vulkan-support detection
+    (`glfwVulkanSupported`/`glfwGetRequiredInstanceExtensions`) specifically `dlopen()`s
+    the standard loader library by bare name (`libvulkan.1.dylib`, confirmed via
+    `strings`/`otool -L` on GLFW's own `.dylib`) and silently reports "no Vulkan support"
+    if only MoltenVK is linked directly. This is the standard Vulkan loader/ICD mechanism
+    every real Vulkan SDK install uses — not a workaround.
+  - **Found two more real, empirically-discovered macOS/GLFW/MoltenVK requirements while
+    getting this to work, none of them documented anywhere obvious in advance:**
+    1. **`DYLD_FALLBACK_LIBRARY_PATH` must include the loader's directory.** GLFW's bare
+       `dlopen("libvulkan.1.dylib")` only succeeds if a directory containing that file is
+       on the fallback library path — Homebrew's `/opt/homebrew/lib` isn't a default
+       search location. Wired into `build.gradle.kts`'s `desktopTest`/`verifyGlfwMain`
+       tasks via `environment(...)`.
+    2. **MoltenVK requires `VK_KHR_portability_enumeration` + the
+       `VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR` instance-create flag**, or
+       `vkCreateInstance` fails with `VK_ERROR_INCOMPATIBLE_DRIVER` — a known modern-
+       MoltenVK/Vulkan-Portability-spec requirement, confirmed empirically when the
+       existing `vkCreateInstance` smoke test started failing after switching to the real
+       loader (it hadn't needed this while linking MoltenVK directly). Both the existing
+       `VulkanDesktopNativeSmokeTest` and the new GLFW verification now request this.
+  - **Real macOS threading constraint found and worked around:** `glfwCreateWindow` from
+    a Gradle test worker process crashed with `SIGTRAP` — Cocoa requires window creation
+    on the process's actual OS main thread, which JUnit test workers don't run on. Rather
+    than force this into `desktopTest` (unsafe), added a manual verification entry point
+    (`GlfwManualVerify.kt` + `./gradlew :awake-vulkan:verifyGlfwMain`, a `JavaExec` with
+    `-XstartOnFirstThread` on macOS) — same manual-diagnostic-task convention as
+    `checkJniBindings`. **Confirmed end-to-end**: real window created (128x128 framebuffer
+    on this Retina display for a requested 64x64 — expected HiDPI scaling), real
+    `VkInstance` and `VkSurfaceKHR` handles obtained via `glfwCreateWindowSurface`, full
+    cleanup completed without throwing.
+- [ ] Phase 1c below still needed before the demo app itself can use any of this to
+      actually render something visible (currently only proven via the standalone
+      `GlfwManualVerify` entry point, not wired into `awake-demo`)
 
 ### 1c. Platform-neutral surface
 - [ ] Replace `vkCreateAndroidSurfaceKHR` in common API with
-      `expect fun createSurface(window: NativeWindow): Long`
+      `expect fun createSurface(window: NativeWindow): Long` -- `VulkanWindow.
+      glfwCreateWindowSurface` (done above) is the desktop half of this; still needs
+      unifying with Android's `vkCreateAndroidSurfaceKHR` behind one common API and
+      wiring into `awake-demo`'s actual render setup (currently only exercised via the
+      standalone `GlfwManualVerify` verification entry point).
 - [ ] Android actual → `ANativeWindow`
 - [ ] Desktop actual → `glfwCreateWindowSurface`
 
