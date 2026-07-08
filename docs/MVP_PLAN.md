@@ -683,7 +683,23 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
 
 Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
 
-- [ ] `GraphicsDevice` — instance/device/queue lifecycle
+- [x] **`GraphicsDevice` — instance/device/queue lifecycle (2026-07-08):** new
+      `io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice` (awake-vulkan, not the
+      demo — this is genuinely reusable engine infra), extracted verbatim from
+      `VulkanApplication`'s four private functions (`createInstance`/`setupDebugMessenger`/
+      `pickPhysicalDevice`/`createLogicalDevice`) plus the `instance`/`debugUtilsMessenger`/
+      `surface`/`physicalDevice`/`device`/`graphicsQueue`/`presentQueue` fields — same calls,
+      same order, same already-documented hazards (MoltenVK Portability detection, queue-
+      family completeness check), so this is a structural move, not a behavior change.
+      `VulkanApplication` now holds a single `graphicsDevice` instance and exposes the same
+      field names as delegating `get()` properties, so none of its other ~15 functions
+      (swapchain, pipeline, buffers, etc. — still not yet extracted) needed to change.
+      Two genuinely dead pieces of the original code were dropped in the move (not moved):
+      an unused `val queueFamilyProperties = ...` (assigned, never read) and a
+      `isSwapChainSupported(...)` check whose only body was a commented-out log line.
+      **Confirmed on real hardware** (Galaxy S25 Ultra): screenshot after the refactor is
+      pixel-identical to before it — same cube, same colors, same depth occlusion — proving
+      the extraction changed structure without changing behavior.
 - [ ] `SwapchainManager` — resize/recreate, frames-in-flight
 - [ ] `Mesh` — vertex/index buffer upload from common code
 - [ ] `Texture` — image upload, sampler, mipmaps (post-MVP ok)
