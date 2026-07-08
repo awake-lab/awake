@@ -601,15 +601,30 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
       (many distinct entities/resources); the MVP is a single cube. Vendoring VMA into the
       CMake build is a real chunk of scope for a problem this MVP doesn't have yet.
       Revisit once Phase 3 (ECS) produces scenes with more than a handful of buffers.
-- [ ] **macOS desktop note:** macOS has no native Vulkan — desktop macOS runs through
+- [x] **macOS desktop note:** macOS has no native Vulkan — desktop macOS runs through
       MoltenVK (bundled in the Vulkan SDK). This is unavoidable AND useful: it de-risks
       Phase 6 (iOS) early since we validate MoltenVK quirks on the dev machine first
-- [ ] **CI without GPUs:** wire SwiftShader or Mesa lavapipe (software Vulkan) into CI so
-      `vkCreateInstance`→triangle smoke tests run headless on GitHub Actions
+- [x] **CI without GPUs (2026-07-08):** new `desktop-vulkan-smoke` job in
+      `.github/workflows/ci.yml`, Ubuntu runner, `mesa-vulkan-drivers` (provides lavapipe's
+      ICD — a real, fully-conformant software Vulkan implementation, not a stub) +
+      `libvulkan-dev`/`libglfw3-dev`. Runs `buildDesktopNative` then the existing
+      `VulkanDesktopNativeSmokeTest` (`vkCreateInstance`/`vkDestroyInstance`) headlessly.
+      Required one fix to make that test portable: it unconditionally requested
+      `VK_KHR_portability_enumeration` + the Portability instance-create flag, which is a
+      MoltenVK-specific requirement lavapipe doesn't support/need — now gated on
+      `os.name` containing "mac". No CMakeLists.txt changes needed: its Linux branch
+      already used `find_package(Vulkan)`/plain `find_library(glfw)`, both of which search
+      standard system paths in addition to the Homebrew-specific hint paths. Verified
+      locally that the now-conditional test still passes unchanged on macOS; the Linux path
+      itself could only be verified by CI actually running it (no Linux machine available
+      here), since GitHub Actions workflow changes aren't locally executable.
 
 ### Exit criteria
-- [ ] Vertex-buffer triangle on Android + 3 desktop OSes (Android done — see Phase 1a;
-      desktop blocked on Phase 1b, the native build, not yet started)
+- [ ] Vertex-buffer triangle on Android + 3 desktop OSes — Android done (Phase 1a); macOS
+      done (Phase 1b/1c: real GLFW window + MoltenVK, screenshot-verified, then wired into
+      the actual Compose demo). Windows/Linux not yet attempted — no machine available to
+      test on directly, though the new `desktop-vulkan-smoke` CI job (above) at least proves
+      the CMakeLists.txt's Linux branch and a real Vulkan instance/device work headlessly.
 - [x] **Textured cube with uniform-buffer MVP matrix — Android done (2026-07-08):** real
       indexed-draw cube (8 vertices, 36 indices via 2 new functions —
       `VulkanBuffers.vkCmdBindIndexBuffer`/`vkCmdDrawIndexed`, plus `vkDeviceWaitIdle` to

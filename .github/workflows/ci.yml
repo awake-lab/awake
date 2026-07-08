@@ -54,3 +54,42 @@ jobs:
           name: awake-demo-debug-apk
           path: awake-demo/androidApp/build/outputs/apk/debug/*.apk
           retention-days: 7
+
+  # Runner GPUs aren't available on GitHub-hosted runners, so this uses Mesa's lavapipe
+  # (a real, fully-conformant software Vulkan implementation -- not a stub) to run the
+  # actual vkCreateInstance/vkDestroyInstance smoke test (VulkanDesktopNativeSmokeTest)
+  # headlessly. Separate job (not steps in `build` above) since it needs its own apt
+  # packages and is the only job that builds awake-vulkan's desktop-native C++ library.
+  desktop-vulkan-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle (with cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      # libvulkan-dev: Vulkan headers + loader, for CMake's find_package(Vulkan) and
+      # desktopMain's System.loadLibrary("awake-vulkan") to link/load against at run time.
+      # libglfw3-dev: desktop-native/CMakeLists.txt's GLFW dependency (VulkanWindow).
+      # mesa-vulkan-drivers: provides lavapipe's ICD (/usr/share/vulkan/icd.d/lvp_icd.*.json)
+      # -- with no real GPU on the runner, this becomes the only Vulkan implementation the
+      # loader can find, exactly what a headless CI smoke test needs.
+      - name: Install desktop Vulkan/GLFW build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvulkan-dev libglfw3-dev mesa-vulkan-drivers
+
+      - name: Build desktop native Vulkan library
+        run: ./gradlew :awake-vulkan:buildDesktopNative
+
+      - name: Desktop Vulkan smoke test (real vkCreateInstance via lavapipe)
+        run: ./gradlew :awake-vulkan:desktopTest

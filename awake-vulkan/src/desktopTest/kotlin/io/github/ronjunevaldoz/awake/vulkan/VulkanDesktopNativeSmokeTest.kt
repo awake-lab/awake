@@ -40,6 +40,11 @@ import kotlin.test.assertNotEquals
  * empirically, not just AppKit documentation). Verified instead via a real `fun main()`
  * entry point, which the JVM does run on the OS main thread -- see
  * docs/decisions/D10-codegen-derisk-findings.md for that verification.
+ *
+ * Also the CI smoke test on Linux (see .github/workflows/ci.yml's desktop-vulkan-smoke
+ * job): a plain `libvulkan.so` + Mesa's lavapipe (`mesa-vulkan-drivers`) is a real,
+ * fully-conformant Vulkan implementation, not a Portability-subset one like MoltenVK, so
+ * this test only requests the Portability bits on macOS.
  */
 class VulkanDesktopNativeSmokeTest {
     @Test
@@ -51,11 +56,13 @@ class VulkanDesktopNativeSmokeTest {
         // MoltenVK conforms to the Vulkan Portability spec: vkCreateInstance requires both
         // VK_KHR_portability_enumeration and VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
         // or it fails with VK_ERROR_INCOMPATIBLE_DRIVER (confirmed empirically once this
-        // module switched from linking MoltenVK directly to the real Vulkan loader).
+        // module switched from linking MoltenVK directly to the real Vulkan loader). Linux's
+        // Vulkan loader + lavapipe doesn't support (or need) this KHR_portability extension.
+        val isMac = System.getProperty("os.name").lowercase().contains("mac")
         val createInfo = VkInstanceCreateInfo(
-            flags = 0x00000001, // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
+            flags = if (isMac) 0x00000001 else 0, // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
             pApplicationInfo = arrayOf(appInfo),
-            ppEnabledExtensionNames = arrayOf("VK_KHR_portability_enumeration")
+            ppEnabledExtensionNames = if (isMac) arrayOf("VK_KHR_portability_enumeration") else emptyArray()
         )
         val instance = Vulkan.vkCreateInstance(createInfo)
         assertNotEquals(0L, instance, "vkCreateInstance returned a null handle")
