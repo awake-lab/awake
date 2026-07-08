@@ -45,11 +45,13 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkResult
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkShaderStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSharingMode
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkVertexInputRate
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkAccessFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandPoolCreateFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkFenceCreateFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
+import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.has
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
@@ -84,6 +86,10 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSwapchainCreateInfoKHR
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.DebugUtilsFormattedCallback
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCreateInfoEXT
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
@@ -97,6 +103,8 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineMulti
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineRasterizationStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineShaderStageCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineVertexInputStateCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAttributeDescription
+import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineViewportStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDevice
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
@@ -131,10 +139,21 @@ class VulkanApplication : Application {
     var renderFinishedSemaphores: LongArray = LongArray(MAX_FRAMES_IN_FLIGHT)
     var inFlightFences: LongArray = LongArray(MAX_FRAMES_IN_FLIGHT)
     var currentFrame = 0
+    var vertexBuffer: Long = 0
+    var vertexBufferMemory: Long = 0
 
     companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
         val clearColorValue = VkClearColorValue.rgba(0f, 0f, 0f, 1f)
+
+        // interleaved position(vec2) + color(vec3), matching triangle.vert's
+        // location 0 / location 1 inputs.
+        val triangleVertices = floatArrayOf(
+            0.0f, -0.5f, 1.0f, 0.0f, 0.0f,
+            0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        )
+        const val VERTEX_STRIDE = 5 * Float.SIZE_BYTES
     }
 
     override fun create(surface: Any?) {
@@ -175,8 +194,36 @@ class VulkanApplication : Application {
         createGraphicsPipeline()
         createFramebuffers()
         createCommandPool()
+        createVertexBuffer()
         createCommandBuffer()
         createSyncObjects()
+    }
+
+    private fun createVertexBuffer() {
+        val bufferSize = (triangleVertices.size * Float.SIZE_BYTES).toLong()
+        vertexBuffer = VulkanBuffers.vkCreateBuffer(
+            device,
+            VkBufferCreateInfo(
+                size = bufferSize,
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            )
+        )
+        val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, vertexBuffer)
+        val memoryTypeIndex = VulkanBuffers.findMemoryType(
+            physicalDevice,
+            memRequirements.memoryTypeBits,
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        )
+        vertexBufferMemory = VulkanBuffers.vkAllocateMemory(
+            device,
+            VkMemoryAllocateInfo(
+                allocationSize = memRequirements.size,
+                memoryTypeIndex = memoryTypeIndex
+            )
+        )
+        VulkanBuffers.vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0)
+        VulkanBuffers.writeBufferMemoryFloats(device, vertexBufferMemory, 0, triangleVertices)
     }
 
     private fun drawFrame() {
@@ -286,6 +333,12 @@ class VulkanApplication : Application {
             extent = swapChainExtent
         )
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+        VulkanBuffers.vkCmdBindVertexBuffers(
+            commandBuffer,
+            0,
+            longArrayOf(vertexBuffer),
+            longArrayOf(0L)
+        )
         Vulkan.vkCmdDraw(commandBuffer, 3, 1, 0, 0)
         Vulkan.vkCmdEndRenderPass(commandBuffer)
         Vulkan.vkEndCommandBuffer(commandBuffer)
@@ -614,7 +667,29 @@ class VulkanApplication : Application {
             val shaderStages = arrayOf(fragShaderStageInfo, vertShaderStageInfo)
 
             val vertexInputInfo = arrayOf(
-                VkPipelineVertexInputStateCreateInfo()
+                VkPipelineVertexInputStateCreateInfo(
+                    pVertexBindingDescriptions = arrayOf(
+                        VkVertexInputBindingDescription(
+                            binding = 0,
+                            stride = VERTEX_STRIDE,
+                            inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX
+                        )
+                    ),
+                    pVertexAttributeDescriptions = arrayOf(
+                        VkVertexInputAttributeDescription(
+                            location = 0,
+                            binding = 0,
+                            format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
+                            offset = 0
+                        ),
+                        VkVertexInputAttributeDescription(
+                            location = 1,
+                            binding = 0,
+                            format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
+                            offset = 2 * Float.SIZE_BYTES
+                        )
+                    )
+                )
             )
 
             val dynamicInfo = arrayOf(
@@ -776,6 +851,9 @@ class VulkanApplication : Application {
         }
 //      Vulkan.vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
         Vulkan.vkDestroyCommandPool(device, commandPool)
+
+        VulkanBuffers.vkDestroyBuffer(device, vertexBuffer)
+        VulkanBuffers.vkFreeMemory(device, vertexBufferMemory)
 
         graphicsPipeline.forEach { pipeline ->
             Vulkan.vkDestroyPipeline(device, pipeline)

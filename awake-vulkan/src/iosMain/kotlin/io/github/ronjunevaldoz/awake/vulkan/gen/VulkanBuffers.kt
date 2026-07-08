@@ -56,4 +56,13 @@ actual object VulkanBuffers {
     actual fun writeBufferMemoryFloats(device: Long, memory: Long, offset: Long, data: FloatArray) {
         TODO("Not yet implemented")
     }
+
+    actual fun vkCmdBindVertexBuffers(
+        commandBuffer: Long,
+        firstBinding: Int,
+        buffers: LongArray,
+        offsets: LongArray
+    ) {
+        TODO("Not yet implemented")
+    }
 }

@@ -223,7 +223,31 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
 - [ ] Descriptors: `vkCreateDescriptorSetLayout`, `vkCreateDescriptorPool`,
       `vkAllocateDescriptorSets`, `vkUpdateDescriptorSets`, `vkCmdBindDescriptorSets`
 - [ ] Images: `vkCreateImage`, `vkBindImageMemory`, `vkCreateSampler`
-- [ ] Vertex input: `vkCmdBindVertexBuffers`, `vkCmdBindIndexBuffer`, `vkCmdDrawIndexed`
+- [x] **Vertex input — `vkCmdBindVertexBuffers` wired end-to-end (2026-07-08):** added to
+      `VulkanBuffers` (jni-binding-generator, `binding.size`-driven, no separate
+      `bindingCount` param needed). Demo (`awake-demo`'s `VulkanApplication.kt`) rewired to
+      prove the real exit criteria — a vertex-buffer-driven triangle, not the old
+      hardcoded-in-shader one: `triangle.vert` now takes `layout(location=0) in vec2
+      inPosition` / `layout(location=1) in vec3 inColor` instead of two hardcoded arrays;
+      the pipeline's `VkPipelineVertexInputStateCreateInfo` now describes a real binding
+      (stride 20 bytes) and two attributes (`VK_FORMAT_R32G32_SFLOAT` @ offset 0,
+      `VK_FORMAT_R32G32B32_SFLOAT` @ offset 8); a real vertex buffer is created once at
+      setup via `VulkanBuffers.vkCreateBuffer` → `vkGetBufferMemoryRequirements` →
+      `findMemoryType` → `vkAllocateMemory` → `vkBindBufferMemory` →
+      `writeBufferMemoryFloats`, and `vkCmdBindVertexBuffers` runs every frame in
+      `recordCommandBuffer` right before the existing `vkCmdDraw`. **Confirmed on real
+      hardware** (Galaxy S25 Ultra, Adreno GPU): same RGB triangle renders correctly,
+      screenshot-verified via `adb exec-out screencap`, confirming the vertex data now
+      genuinely flows GPU-buffer → shader rather than being baked into the shader source.
+      `vkCmdBindIndexBuffer`/`vkCmdDrawIndexed` deferred — no indexed geometry yet.
+  - **Found and fixed a third real generator/merge pitfall:** the Python regex-based
+    body-merge script used to re-apply hand-written function bodies after regenerating
+    (see the buffers+memory entry above) only replaces function *bodies* — it does not
+    preserve include lines. Regenerating dropped `#include <vulkan/vulkan.h>`,
+    `#include <cstring>`, and `#include "exception_utils.h"` from the top of the file,
+    which only surfaced as a C++ compile error (`unknown type name 'VkBuffer'`, etc.), not
+    a silent runtime bug — but still worth calling out: **any regenerate-then-remerge
+    pass must re-diff the include block too, not just the function bodies.**
 - [ ] Depth buffer support in render pass
 - [x] **VMA decision (2026-07-08): deferred, not adopted for MVP.** Raw `vkAllocateMemory`
       shipped instead. The driver allocation cap (~4096) only bites at real scene scale

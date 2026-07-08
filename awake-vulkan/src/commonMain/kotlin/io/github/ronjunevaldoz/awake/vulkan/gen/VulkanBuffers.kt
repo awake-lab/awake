@@ -51,4 +51,12 @@ expect object VulkanBuffers {
     fun vkFreeMemory(device: Long, memory: Long)
     fun vkBindBufferMemory(device: Long, buffer: Long, memory: Long, memoryOffset: Long)
     fun writeBufferMemoryFloats(device: Long, memory: Long, offset: Long, data: FloatArray)
+
+    /** `bindingCount` is implicit (`buffers.size`); `offsets` must be the same size. */
+    fun vkCmdBindVertexBuffers(
+        commandBuffer: Long,
+        firstBinding: Int,
+        buffers: LongArray,
+        offsets: LongArray
+    )
 }

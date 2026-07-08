@@ -47,4 +47,11 @@ actual object VulkanBuffers {
         offset: Long,
         data: FloatArray
     )
+
+    actual external fun vkCmdBindVertexBuffers(
+        commandBuffer: Long,
+        firstBinding: Int,
+        buffers: LongArray,
+        offsets: LongArray
+    )
 }

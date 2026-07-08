@@ -353,3 +353,52 @@ VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sharingMode = VK_SHARING_MODE_EXCLUSIVE))`, f
 
 **D10 and the Phase 1a `vkCreateBuffer` proof-of-concept are now fully closed** — both at
 the generator level (rounds 1–4) and at the real-device runtime level (round 5).
+
+## Round 6 — vertex-buffer-driven triangle, Phase 1 exit criteria (2026-07-08)
+
+Extended `VulkanBuffers` with `vkCmdBindVertexBuffers(commandBuffer, firstBinding, buffers:
+LongArray, offsets: LongArray)` — `bindingCount` is implicit from `buffers.size`, so no
+separate count param is exposed. Regenerating for this addition reproduced the
+previously-documented "regeneration wipes hand-written bodies" risk (Round 4/5 lesson);
+this time the re-merge was done with a small Python script that extracts each `extern "C"
+JNIEXPORT ... Java_...` function block by regex from a pre-regeneration backup and splices
+it back into the freshly generated file, rather than hand re-typing all 8 previous bodies.
+It correctly matched and restored all 8.
+
+**New pitfall found by this round:** that merge script only replaces function *bodies* — it
+does not diff or restore the file's top-of-file `#include` block. Regeneration had also
+dropped `#include <vulkan/vulkan.h>`, `#include <cstring>`, and `#include
+"exception_utils.h"` (present in the hand-edited version, absent from the tool's raw
+per-function template, which only assumes `jni.h`/STL headers). This surfaced immediately
+and loudly as a C++ compile error (`unknown type name 'VkBuffer'`, `undeclared identifier
+'exception_utils'`, etc.) rather than silently — so it's a build-time-caught issue, not a
+runtime-hazard one, but still worth the process note: **a regenerate-then-remerge pass must
+re-diff the include block, not just function bodies.**
+
+**Proved the actual Phase 1 exit criteria — a real vertex-buffer-driven triangle, not just
+an isolated function call.** Previously, `vkCreateBuffer` etc. were verified with a
+throwaway buffer never actually used for rendering. This round rewired the demo's real
+triangle pipeline end-to-end:
+- `triangle.vert` changed from two hardcoded `vec2[3]`/`vec3[3]` arrays indexed by
+  `gl_VertexIndex` to `layout(location=0) in vec2 inPosition` / `layout(location=1) in vec3
+  inColor`.
+- `VulkanApplication.kt`'s `VkPipelineVertexInputStateCreateInfo` (previously all defaults —
+  no bindings/attributes at all, only possible because the shader ignored them) now
+  describes one binding (stride 20 bytes = 5 floats) and two attributes
+  (`VK_FORMAT_R32G32_SFLOAT` @ offset 0 for position, `VK_FORMAT_R32G32B32_SFLOAT` @ offset
+  8 for color).
+- A real vertex buffer (3 interleaved position+color vertices) is created once in
+  `createVertexBuffer()` at setup time via the full `VulkanBuffers` chain
+  (`vkCreateBuffer` → `vkGetBufferMemoryRequirements` → `findMemoryType` →
+  `vkAllocateMemory` → `vkBindBufferMemory` → `writeBufferMemoryFloats`), and destroyed in
+  `destroy()` via `vkDestroyBuffer`/`vkFreeMemory`.
+- `recordCommandBuffer()` now calls `VulkanBuffers.vkCmdBindVertexBuffers(commandBuffer, 0,
+  longArrayOf(vertexBuffer), longArrayOf(0L))` every frame, immediately before the existing
+  `Vulkan.vkCmdDraw(commandBuffer, 3, 1, 0, 0)`.
+
+**Confirmed on real hardware** (Samsung Galaxy S25 Ultra, Adreno GPU): installed and
+launched the rebuilt APK, no crash in logcat, and a device screenshot
+(`adb exec-out screencap -p`) shows the same red/green/blue triangle rendering correctly —
+now genuinely sourced from a GPU-resident vertex buffer rather than baked into the shader.
+This closes Phase 1a/1d's `vkCmdBindVertexBuffers` item and the "vertex-buffer triangle on
+Android" milestone from the Phase 1 exit criteria.
