@@ -970,8 +970,34 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
     Galaxy S25 Ultra was in active use / unreachable over wireless ADB when this was ready to
     verify. Verify on real hardware before treating this as done the same way every other
     Phase 2 extraction was.
-- [ ] Keep the layer API-agnostic (future Metal/WebGPU seam)
-- [ ] Demo rewritten on the abstraction (~50 lines instead of ~800)
+- [x] **Keep the layer API-agnostic — audited, not abstracted (2026-07-09):** checked
+      `awake-core` for accidental Vulkan leakage: `Application` (the platform entry point) is
+      already fully backend-agnostic (`create(surface: Any?)` — each platform supplies
+      whatever native surface type it has). The only place `awake-core` imports
+      `awake-vulkan` at all is the new `renderer/` package (`Renderer`, `DrawCall`) — nothing
+      else (math, `Application`, utils) references Vulkan. Deliberately did **not** introduce
+      speculative `GpuMesh`/`GpuMaterial` interfaces to make `Renderer`/`DrawCall`
+      backend-generic: a command-buffer-recording abstraction that actually works across
+      Vulkan/Metal/WebGPU can't be designed correctly against one backend alone (Vulkan's
+      opaque `Long` command buffer, Metal's `MTLRenderCommandEncoder`, and WebGPU's
+      `GPURenderPassEncoder` are shaped too differently to fake a shared interface today
+      without guessing wrong) — this is exactly the trap Phase 2.5's own sequencing note
+      already warns against ("writing a WebGPU backend before the seam is real would mean
+      writing it twice"). The real seam: `Renderer.draw(camera, drawCalls)` as a *call
+      pattern* (batch draw calls, hand them to one entry point) is already
+      backend-agnostic and is what a future backend's equivalent `Renderer` would mirror;
+      the concrete `Mesh`/`Material`/`GraphicsDevice`/`RenderPipeline` types plugged into it
+      are Vulkan-specific by necessity today and will get backend-specific siblings (not a
+      shared base type) once Phase 2.5 actually starts.
+- [x] **Demo rewritten on the abstraction (2026-07-09):** `VulkanApplication` is ~210 lines
+      (down from ~800) after the `Mesh`/`Texture`/`Material`/`RenderPipeline`/`Renderer`
+      extractions — `setupVulkan()` wires the collaborators, `update()` computes the demo's
+      model (spin) matrix and calls `renderer.draw(camera, listOf(DrawCall(mesh, material,
+      model)))`, `destroy()` tears everything down in the same order it always did. Short of
+      the roadmap's illustrative "~50 lines," but the remaining ~200 is mostly doc comments
+      explaining the Phase 2 extraction history plus the demo's own cube geometry/texture
+      data (`cubeVertices`/`cubeIndices`/`textureData`) — both genuinely belong in the demo,
+      not the engine.
 
 ## Phase 2.5 — Web/WebGPU backend (see D7; after Phase 2's core abstraction exists)
 
