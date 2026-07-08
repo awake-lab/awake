@@ -87,6 +87,31 @@ Goal: current toolchain, regression baseline protected.
       design), so iOS compilation is left red until then; not part of the CI gate
 - [x] Decide repo/agent tooling setup (D3: agents + skills installed 2026-07-07)
 
+### Testing policy for every new `vkXxx` function (in force from Phase 1d onward)
+
+Compile/link success is not proof a generated binding is correct — the D10 rounds already
+found silent-but-wrong marshalling (enum-via-ordinal) that compiled cleanly. So every new
+Vulkan function wired through jni-binding-generator (or hand-written) must clear all of the
+following before being marked done in this doc, not just the ones convenient to check:
+
+1. **Compiles** — Android demo APK builds clean with the function linked in.
+2. **Exercised on real hardware**, not just called in isolation with throwaway arguments.
+   A call that never feeds a real render/compute path (e.g. a buffer created then
+   immediately destroyed) only proves the call doesn't crash — it does not prove the
+   marshalled values are semantically correct end-to-end. Prefer wiring the function into
+   an actual demo path (as done for `vkCmdBindVertexBuffers` — round 6) over a standalone
+   verification snippet.
+3. **Observable result checked**, not just "didn't throw": a real non-null/non-zero handle,
+   a visually-verified render (screenshot), or a returned value cross-checked against an
+   expected constant — whichever applies to that function.
+4. **Enum-typed params/fields checked against the ordinal-vs-value hazard** (see the Phase
+   1d hazard note below) before being exposed to jni-binding-generator's enum marshalling.
+5. **Regression gate still green**: Android demo APK + desktop jar + `checkJniBindings`
+   (manual diagnostic) + generator's own test suite, as applicable to what changed.
+6. Findings recorded in `docs/decisions/D10-codegen-derisk-findings.md` (or a new decision
+   doc, if a future dependency deserves its own) — not just "works" but *what specifically
+   was verified and how*, so this doesn't degrade into an unverified checklist over time.
+
 ## Phase 1 — Vulkan Core on Desktop (3–5 weeks) ← critical path
 
 Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
