@@ -32,6 +32,7 @@ plugins {
     // dokka comes from the buildSrc classpath (needed by signing-publication-conventions),
     // so it must not be re-requested here with a version
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.vanniktech.publish) apply false
 }
 
 allprojects {
