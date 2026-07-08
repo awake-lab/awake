@@ -1,0 +1,150 @@
+/*
+ * Awake
+ * Awake.awake-ecs.commonMain
+ *
+ * Copyright (c) ronjunevaldoz 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.ronjunevaldoz.awake.ecs
+
+import kotlin.reflect.KClass
+
+@Suppress("TooManyFunctions")
+class World {
+    private val slots = mutableListOf<EntitySlot>()
+    private val freeIds = mutableListOf<Int>()
+    private val stores = mutableMapOf<KClass<out Any>, ComponentStore<Any>>()
+
+    fun create(): Entity {
+        val id = freeIds.removeLastOrNull()
+        if (id != null) {
+            val slot = slots[id]
+            slot.alive = true
+            return Entity.of(id, slot.generation)
+        }
+
+        val nextId = slots.size
+        slots += EntitySlot(generation = 0, alive = true)
+        return Entity.of(nextId, 0)
+    }
+
+    fun destroy(entity: Entity): Boolean {
+        if (!isAlive(entity)) {
+            return false
+        }
+
+        stores.values.forEach { it.remove(entity) }
+        val slot = slots[entity.id]
+        slot.alive = false
+        slot.generation += 1
+        freeIds += entity.id
+        return true
+    }
+
+    fun isAlive(entity: Entity): Boolean {
+        val slot = slots.getOrNull(entity.id) ?: return false
+        return slot.alive && slot.generation == entity.generation
+    }
+
+    inline fun <reified T : Any> add(entity: Entity, component: T): T? {
+        return add(entity, T::class, component)
+    }
+
+    fun <T : Any> add(entity: Entity, type: KClass<T>, component: T): T? {
+        requireAlive(entity)
+        return store(type).add(entity, component)
+    }
+
+    inline fun <reified T : Any> get(entity: Entity): T? {
+        return get(entity, T::class)
+    }
+
+    fun <T : Any> get(entity: Entity, type: KClass<T>): T? {
+        if (!isAlive(entity)) {
+            return null
+        }
+        return storeOrNull(type)?.get(entity)
+    }
+
+    inline fun <reified T : Any> remove(entity: Entity): T? {
+        return remove(entity, T::class)
+    }
+
+    fun <T : Any> remove(entity: Entity, type: KClass<T>): T? {
+        if (!isAlive(entity)) {
+            return null
+        }
+        return storeOrNull(type)?.remove(entity)
+    }
+
+    inline fun <reified T : Any> has(entity: Entity): Boolean {
+        return has(entity, T::class)
+    }
+
+    fun has(entity: Entity, type: KClass<out Any>): Boolean {
+        return isAlive(entity) && (stores[type]?.contains(entity) == true)
+    }
+
+    fun query(vararg types: KClass<out Any>): List<Entity> {
+        return if (types.isEmpty()) {
+            slots.indices
+                .map { Entity.of(it, slots[it].generation) }
+                .filter(::isAlive)
+        } else {
+            val queryStores = types.mapNotNull(stores::get)
+            if (queryStores.size != types.size) {
+                emptyList()
+            } else {
+                val smallestStore = queryStores.minBy { it.size }
+                smallestStore.entities.filter { entity ->
+                    isAlive(entity) && queryStores.all { it.contains(entity) }
+                }
+            }
+        }
+    }
+
+    inline fun <reified T : Any> query(): List<Entity> {
+        return query(T::class)
+    }
+
+    fun clear() {
+        slots.clear()
+        freeIds.clear()
+        stores.clear()
+    }
+
+    fun componentCount(type: KClass<out Any>): Int {
+        return stores[type]?.size ?: 0
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> store(type: KClass<T>): ComponentStore<T> {
+        return stores.getOrPut(type) { ComponentStore() } as ComponentStore<T>
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Any> storeOrNull(type: KClass<T>): ComponentStore<T>? {
+        return stores[type] as? ComponentStore<T>
+    }
+
+    private fun requireAlive(entity: Entity) {
+        require(isAlive(entity)) { "Entity is not alive: $entity" }
+    }
+
+    private data class EntitySlot(
+        var generation: Int,
+        var alive: Boolean
+    )
+}

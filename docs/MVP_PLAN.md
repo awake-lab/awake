@@ -32,7 +32,7 @@ minimal desktop editor. iOS follows as a fast-follow via MoltenVK cinterop.
 | iOS backend | ❌ Empty stub (needs MoltenVK cinterop, not JNI) |
 | Buffers / device memory API | ❌ Missing (`vkCreateBuffer`, `vkAllocateMemory`, …) |
 | Descriptor sets / uniforms / textures | ❌ Missing |
-| ECS | ❌ None |
+| ECS | ✅ `awake-ecs` sparse-set runtime introduced; benchmark follow-up captured |
 | Editor | ❌ None ([graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) available as base) |
 | Toolchain | ⚠️ Stale — Kotlin 1.8.20, AGP 7.4.2, Compose 1.4.1 |
 | Codegen | ⚠️ Bespoke `awake-vulkan-generator` — to be replaced by jni-binding-generator |
@@ -1022,12 +1022,28 @@ twice (once against whatever's there today, again once Phase 2 settles).
 
 ## Phase 3 — ECS (1–2 weeks)
 
-- [ ] Adopt **Fleks** behind a thin `awake-ecs` facade (`World`, `Component`, `System`)
-      so it can be swapped post-MVP
-- [ ] Core components: `Transform` (with parent/child hierarchy), `MeshRenderer`, `Camera`, `Light`
-- [ ] `TransformSystem` — world-matrix propagation
-- [ ] `RenderSystem` — walks ECS, emits draw calls to Phase 2 renderer
-- [ ] Unit tests on plain JVM (no platform deps)
+- [x] **Custom sparse-set `awake-ecs` module (2026-07-09):** decided against Fleks as a
+      runtime dependency for the engine layer; implemented owned `Entity` handles with id +
+      generation packing, `ComponentStore<T>` sparse sets, `World` allocation/recycling and
+      KClass-backed queries, and `System.update(world, delta)`. `awake-ecs` depends on
+      `awake-core` and `awake-vulkan`; no dependency points back into ECS.
+- [x] Core components: `Transform` (position/rotation/scale + parent hierarchy +
+      world matrix), `MeshRenderer` (Mesh + Material), `Camera`, `Light`
+- [x] `TransformSystem` — world-matrix propagation with parent-before-child DFS, including
+      cycle detection instead of unordered stale-parent iteration
+- [x] `RenderSystem` — walks Transform+MeshRenderer entities, builds `DrawCall`s, and
+      delegates submission to `Renderer.draw(camera, drawCalls)`
+- [x] Unit tests on plain JVM (no platform deps): entity generation/recycling,
+      component add/remove, query correctness, stale-handle cleanup, and hierarchy
+      propagation order. Verified with `./gradlew :awake-ecs:desktopTest`
+      (`5/5` passing).
+- [x] Benchmark harness isolated in `:awake-ecs-benchmark` (JVM-only): depends on
+      `:awake-ecs` and Fleks 2.14, with Fleks absent from `awake-ecs`'s dependency graph.
+      `kotlinx-benchmark` 0.4.17 was checked before wiring; it supports Kotlin 2.2.0+
+      and resolved cleanly against this project's Kotlin 2.4.0. Scorecard:
+      [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md). Fleks is plainly
+      faster on the Transform+MeshRenderer query hot path at 10k/100k entities; keep this
+      in mind if Phase 4 scene sizes grow.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 
@@ -1155,8 +1171,13 @@ cinterop static lib (iOS). 2D via **kbox2d** (pure Kotlin) as a separate artifac
 ## Decision Log
 
 ### D1 — ECS: Fleks vs. custom
-**Decided: Fleks for MVP**, wrapped in a thin facade. Custom ECS is a post-MVP option
-if profiling or API needs justify it.
+**Decided: custom sparse-set ECS for MVP** (revised 2026-07-09). Fleks was considered and
+kept only as a benchmark dependency in `:awake-ecs-benchmark`; the engine runtime owns its
+ECS layer for the same reason it owns Vulkan bindings, JNI generation, and math. The chosen
+architecture is one sparse-set per component type, not archetype tables. If future tasks
+need library-grade features such as complex boolean family queries, archetype migration, or
+multi-threaded scheduling, treat that as scope growth and revisit the decision instead of
+silently adding a general-purpose ECS library.
 
 ### D2 — Compose-style scene API
 **OPEN — under discussion.** Options:

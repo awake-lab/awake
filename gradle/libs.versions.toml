@@ -6,6 +6,8 @@ compose-material3 = "1.9.0"
 detekt = "1.23.8"
 dokka = "2.0.0"
 download = "5.6.0"
+fleks = "2.14"
+kotlinx-benchmark = "0.4.17"
 napier = "2.7.1"
 androidx-activity-compose = "1.9.3"
 androidx-appcompat = "1.7.0"
@@ -30,6 +32,8 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core-ktx" }
 compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "material-icons" }
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
+fleks = { module = "io.github.quillraven.fleks:Fleks", version.ref = "fleks" }
+kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -43,3 +47,4 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 download = { id = "de.undercouch.download", version.ref = "download" }
 vanniktech-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-publish" }
+kotlinx-benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kotlinx-benchmark" }
