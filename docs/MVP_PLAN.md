@@ -169,6 +169,13 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
       `vkCreateBuffer`/`vkDestroyBuffer` Vulkan API. Android demo APK builds clean
       (regression gate holds) — CMake compiles and links the generated file
       alongside the legacy 58-function native code with zero conflicts.
+  - **Confirmed at runtime on real hardware (2026-07-08, round 5):** a temporary
+    verification call on a Samsung Galaxy S25 Ultra (Adreno GPU) returned a genuine
+    non-zero `VkBuffer` handle from `vkCreateBuffer` and completed `vkDestroyBuffer`
+    without throwing — real driver, not just compile/link success. An Android emulator
+    attempt first hit a pre-existing, unrelated environment limitation (no Vulkan-capable
+    GPU registered — the original triangle demo fails identically at the same line,
+    regardless of this work). See D10 Round 5 for the full account.
   - **New dedicated package, not the legacy `Vulkan` object:** jni-binding-generator's
     `--package-filter` scopes *generation* to `...vulkan.gen` while `--kotlin-source`
     still points at the whole module (so the struct/enum pre-pass sees everything).

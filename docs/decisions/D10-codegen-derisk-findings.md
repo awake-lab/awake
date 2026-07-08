@@ -321,3 +321,35 @@ jni-binding-generator's own CHANGELOG v1.6.10 for the fix in isolation.
 **Verification:** Android demo APK builds clean (generated file compiles for both
 arm64-v8a/x86_64, links against the legacy 58-function native code with no symbol
 conflicts); desktop jar, legacy generator module, and detekt all still pass.
+
+## Round 5 — real-device runtime confirmation (2026-07-08)
+
+Compile/link success isn't proof the generated marshalling is semantically correct at
+runtime. Verified with a temporary call inserted right after `vkCreateDevice` in the demo
+app (`VulkanBuffers.vkCreateBuffer(device, VkBufferCreateInfo(size = 256L, usage =
+VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sharingMode = VK_SHARING_MODE_EXCLUSIVE))`, followed by
+`vkDestroyBuffer`), run on two targets:
+
+- **Android emulator (`Medium_Phone_API_36.1`):** blocked before reaching the call at all —
+  `pickPhysicalDevice` throws `"Cannot find suitable gpu!"` (`vkEnumeratePhysicalDevices`
+  finds zero devices). Confirmed this is a **pre-existing environment limitation, not
+  related to this work** — the original triangle demo fails at the identical line
+  regardless of any of these changes; this specific emulator instance has no working
+  Vulkan ICD/software fallback registered.
+- **Real device (Samsung Galaxy S25 Ultra, `SM-S938B`, Adreno GPU, wireless-debugging-
+  enabled, `adb`-connected):** succeeded completely. Logcat:
+  ```
+  AdrenoVK-0: Application Name    : Awake Vulkan - Application
+  System.out: AWAKE_VERIFY vkCreateBuffer -> -422876570089160701 (nonzero = success)
+  System.out: AWAKE_VERIFY vkDestroyBuffer completed without throwing
+  ```
+  A genuine non-zero `VkBuffer` handle from a real Adreno driver, cleanly destroyed. This
+  is definitive confirmation — not just compile/link success — that the
+  jni-binding-generator-generated marshalling (struct field extraction, the
+  `VkSharingMode` enum-via-ordinal path, the generated JNI entry point) and the
+  hand-written native `vkCreateBuffer`/`vkDestroyBuffer` calls are correct end-to-end
+  against a real Vulkan driver. The verification snippet was removed after confirming
+  (temporary, never committed).
+
+**D10 and the Phase 1a `vkCreateBuffer` proof-of-concept are now fully closed** — both at
+the generator level (rounds 1–4) and at the real-device runtime level (round 5).
