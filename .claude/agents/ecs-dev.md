@@ -57,16 +57,86 @@ Core pieces:
 
 - `Transform` (position/rotation/scale + parent `Entity?` for hierarchy)
 - `MeshRenderer` (wraps a `Mesh` + `Material` pair from `awake-vulkan` — feeds directly into
-  the existing `DrawCall` type in `awake-core/.../renderer/DrawCall.kt`)
+  the existing `DrawCall` type in
+  `awake-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/core/renderer/DrawCall.kt`)
 - `Camera`, `Light`
 - `TransformSystem` — propagates world matrices; **must** process parents before children
   (a naive single-pass iteration over an unordered entity list will use stale parent
   matrices for deep hierarchies — either sort by depth first or do a proper recursive/
   topological walk)
 - `RenderSystem` — walks `Transform`+`MeshRenderer` entities, emits `DrawCall`s to the
-  existing `Renderer.draw(camera, drawCalls)` (in `awake-core/.../renderer/Renderer.kt`) —
-  don't reimplement draw submission here, this system's only job is building the
+  existing `Renderer.draw(camera, drawCalls)` (in
+  `awake-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/core/renderer/Renderer.kt`)
+  — don't reimplement draw submission here, this system's only job is building the
   `List<DrawCall>`.
+
+## Reference files (exact paths — read these before writing `MeshRenderer`/`RenderSystem`)
+
+- `awake-vulkan/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/vulkan/mesh/Mesh.kt`
+- `awake-vulkan/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/vulkan/material/Material.kt`
+- `awake-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/core/renderer/DrawCall.kt`
+- `awake-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/core/renderer/Renderer.kt`
+- `awake-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/core/math/Camera.kt` (and
+  `Mat4`/`Vec3` in the same `math` package, for `Transform`'s own matrix math)
+
+## Module scaffolding
+
+There's no existing "pure logic, no native code" KMP module to copy verbatim, but
+`awake-vulkan/build.gradle.kts` is the closest clean template (multiplatform, no
+publishing/Compose noise) — mirror its target list, drop everything native-build-specific
+(no CMake tasks, no `android-native` dependency, no JNI):
+
+```kotlin
+plugins {
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.library.kmp)
+}
+
+kotlin {
+    jvmToolchain(17)
+
+    android {
+        namespace = "io.github.ronjunevaldoz.awake.ecs"
+        compileSdk = (findProperty("android.compileSdk") as String).toInt()
+        minSdk = (findProperty("android.minSdk") as String).toInt()
+    }
+
+    listOf(iosArm64(), iosSimulatorArm64()).forEach {
+        it.binaries.framework { baseName = "awake-ecs" }
+    }
+
+    jvm("desktop")
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":awake-core"))   // Mat4/Vec3/Camera, Renderer/DrawCall
+            implementation(project(":awake-vulkan")) // Mesh/Material (MeshRenderer only)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+    }
+}
+```
+
+Register it in root `settings.gradle.kts` next to the other `include(...)` lines:
+`include(":awake-ecs")`.
+
+**Dependency direction check**: `awake-ecs` depends on `awake-core` (for `Renderer`/
+`DrawCall`/math) and `awake-vulkan` (for `Mesh`/`Material`) — same direction `awake-core`
+already depends on `awake-vulkan`, so no cycle. Don't add an `awake-ecs` dependency back
+into `awake-core` or `awake-vulkan`.
+
+## Benchmark module
+
+Put the benchmark harness in its own module, `awake-ecs-benchmark` (JVM-only — no need for
+`android`/`ios` targets; benchmarks run on desktop JVM), depending on `awake-ecs` plus Fleks
+as a benchmark-only dependency. Keeps Fleks completely out of `awake-ecs`'s own
+dependency graph (and out of anything that ships), while still giving a real, runnable
+comparison. Add the `kotlinx-benchmark` Gradle plugin and check its listed compatible
+Kotlin version against this project's `kotlin = "2.4.0"` in `gradle/libs.versions.toml`
+*before* wiring it in — if the plugin doesn't yet support this Kotlin version, stop and
+report that rather than forcing a downgrade or a broken setup.
 
 ## Module boundaries
 
@@ -110,11 +180,14 @@ confirm the decision already made.
    (once `TransformSystem` exists) hierarchy propagation order are all real, non-obvious
    correctness properties worth a test each, not just a manual smoke check.
 3. Compile-check: `./gradlew :awake-ecs:compileKotlinDesktop` (or the equivalent JVM/common
-   target task) plus `./gradlew :awake-ecs:desktopTest` (or wherever `commonTest` runs) for
-   this module specifically before touching anything downstream.
+   target task), then **actually run** `./gradlew :awake-ecs:desktopTest` and read the
+   result — report the pass count (e.g. "5/5 passing"), don't just claim tests exist. A
+   test file that doesn't compile or fails silently is worse than no test.
 4. When wiring `RenderSystem` into the existing `Renderer`/`DrawCall` in `awake-core`,
    compile-check `awake-demo:shared` too (`compileKotlinDesktop`/`compileAndroidMain`) to
-   catch integration breaks early, same as `game-framework-dev`'s methodology.
+   catch integration breaks early, same as `game-framework-dev`'s methodology. **No APK
+   build or device/hardware verification is needed for this module** — `awake-ecs` is pure
+   JVM/commonTest logic with no GPU-facing code, unlike the Vulkan extraction work.
 5. Document in `docs/MVP_PLAN.md`'s Phase 3 checklist what was built and why, same
    convention as the Phase 2 entries — include the benchmark scorecard once it exists.
 6. Commit with a descriptive message. **No `Co-Authored-By` trailer** — this project's
