@@ -26,6 +26,7 @@ import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkAttachmentStoreOp
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorComponentFlagBits
@@ -93,7 +94,6 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageUsageFlagBits2
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSharingMode2
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkIndexType
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
@@ -148,10 +148,11 @@ class VulkanApplication : Application {
     var swapChainFrameBuffers: List<Long> = emptyList()
     var commandPool: Long = 0
     var commandBuffers: LongArray = LongArray(MAX_FRAMES_IN_FLIGHT)
-    var vertexBuffer: Long = 0
-    var vertexBufferMemory: Long = 0
-    var indexBuffer: Long = 0
-    var indexBufferMemory: Long = 0
+    /** Phase 2: vertex/index buffer upload, extracted into a reusable class -- see
+     * [Mesh]'s doc comment. Constructed lazily in [setupVulkan] (needs [commandPool] and
+     * [graphicsQueue] to already exist for its one-time upload commands), not eagerly like
+     * [graphicsDevice]/[swapchainManager]. */
+    private lateinit var mesh: Mesh
     var descriptorSetLayout: Long = 0
     var descriptorPool: Long = 0
     var descriptorSet: Long = 0
@@ -214,17 +215,6 @@ class VulkanApplication : Application {
         )
     }
 
-    private fun IntArray.toByteArrayLE(): ByteArray {
-        val out = ByteArray(size * 4)
-        for (i in indices) {
-            val v = this[i]
-            out[i * 4] = (v and 0xFF).toByte()
-            out[i * 4 + 1] = ((v shr 8) and 0xFF).toByte()
-            out[i * 4 + 2] = ((v shr 16) and 0xFF).toByte()
-            out[i * 4 + 3] = ((v shr 24) and 0xFF).toByte()
-        }
-        return out
-    }
 
     override fun create(surface: Any?) {
         surface?.let { setupVulkan(it) }
@@ -260,8 +250,7 @@ class VulkanApplication : Application {
         createDepthResources()
         createFramebuffers()
         createCommandPool()
-        createVertexBuffer()
-        createIndexBuffer()
+        mesh = Mesh(graphicsDevice, ::runOneTimeCommands, cubeVertices, cubeIndices)
         createUniformBuffer()
         createTextureImage()
         createTextureImageView()
@@ -571,99 +560,6 @@ class VulkanApplication : Application {
         textureSampler = VulkanImages.vkCreateSampler(device, VkSamplerCreateInfo())
     }
 
-    /** Allocates a HOST_VISIBLE staging buffer, writes into it via [write], copies it into a
-     * new DEVICE_LOCAL buffer (usage = [usage] or TRANSFER_DST) using a one-time command
-     * buffer + [VulkanBuffers.vkCmdCopyBuffer], then frees the staging buffer. DEVICE_LOCAL
-     * memory is the whole reason this is worth the extra buffer/copy: it's not necessarily
-     * CPU-mappable, but it's the memory type the GPU can read fastest. */
-    private fun createDeviceLocalBuffer(
-        byteSize: Long,
-        usage: Int,
-        write: (memory: Long) -> Unit
-    ): Pair<Long, Long> {
-        val stagingBuffer = VulkanBuffers.vkCreateBuffer(
-            device,
-            VkBufferCreateInfo(
-                size = byteSize,
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            )
-        )
-        val stagingRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, stagingBuffer)
-        val stagingMemoryTypeIndex = VulkanBuffers.findMemoryType(
-            physicalDevice,
-            stagingRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-        )
-        val stagingMemory = VulkanBuffers.vkAllocateMemory(
-            device,
-            VkMemoryAllocateInfo(
-                allocationSize = stagingRequirements.size,
-                memoryTypeIndex = stagingMemoryTypeIndex
-            )
-        )
-        VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
-        write(stagingMemory)
-
-        val destBuffer = VulkanBuffers.vkCreateBuffer(
-            device,
-            VkBufferCreateInfo(
-                size = byteSize,
-                usage = usage or VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            )
-        )
-        val destRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, destBuffer)
-        val destMemoryTypeIndex = VulkanBuffers.findMemoryType(
-            physicalDevice,
-            destRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-        )
-        val destMemory = VulkanBuffers.vkAllocateMemory(
-            device,
-            VkMemoryAllocateInfo(
-                allocationSize = destRequirements.size,
-                memoryTypeIndex = destMemoryTypeIndex
-            )
-        )
-        VulkanBuffers.vkBindBufferMemory(device, destBuffer, destMemory, 0)
-
-        runOneTimeCommands { commandBuffer ->
-            VulkanBuffers.vkCmdCopyBuffer(commandBuffer, stagingBuffer, destBuffer, byteSize)
-        }
-
-        VulkanBuffers.vkDestroyBuffer(device, stagingBuffer)
-        VulkanBuffers.vkFreeMemory(device, stagingMemory)
-
-        return destBuffer to destMemory
-    }
-
-    private fun createVertexBuffer() {
-        val bufferSize = (cubeVertices.size * Float.SIZE_BYTES).toLong()
-        val (buffer, memory) = createDeviceLocalBuffer(
-            byteSize = bufferSize,
-            usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-            write = { stagingMemory ->
-                VulkanBuffers.writeBufferMemoryFloats(device, stagingMemory, 0, cubeVertices)
-            }
-        )
-        vertexBuffer = buffer
-        vertexBufferMemory = memory
-    }
-
-    private fun createIndexBuffer() {
-        val indexBytes = cubeIndices.toByteArrayLE()
-        val bufferSize = indexBytes.size.toLong()
-        val (buffer, memory) = createDeviceLocalBuffer(
-            byteSize = bufferSize,
-            usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-            write = { stagingMemory ->
-                VulkanBuffers.writeBufferMemoryBytes(device, stagingMemory, 0, indexBytes)
-            }
-        )
-        indexBuffer = buffer
-        indexBufferMemory = memory
-    }
-
     private fun drawFrame() {
         Vulkan.vkWaitForFences(
             device,
@@ -767,20 +663,9 @@ class VulkanApplication : Application {
             extent = swapChainExtent
         )
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
-        VulkanBuffers.vkCmdBindVertexBuffers(
-            commandBuffer,
-            0,
-            longArrayOf(vertexBuffer),
-            longArrayOf(0L)
-        )
-        VulkanBuffers.vkCmdBindIndexBuffer(
-            commandBuffer,
-            indexBuffer,
-            0,
-            VkIndexType.VK_INDEX_TYPE_UINT32
-        )
+        mesh.bind(commandBuffer)
         VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet)
-        VulkanBuffers.vkCmdDrawIndexed(commandBuffer, cubeIndices.size, 1, 0, 0, 0)
+        mesh.draw(commandBuffer)
         Vulkan.vkCmdEndRenderPass(commandBuffer)
         Vulkan.vkEndCommandBuffer(commandBuffer)
     }
@@ -1060,10 +945,7 @@ class VulkanApplication : Application {
 //      Vulkan.vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
         Vulkan.vkDestroyCommandPool(device, commandPool)
 
-        VulkanBuffers.vkDestroyBuffer(device, vertexBuffer)
-        VulkanBuffers.vkFreeMemory(device, vertexBufferMemory)
-        VulkanBuffers.vkDestroyBuffer(device, indexBuffer)
-        VulkanBuffers.vkFreeMemory(device, indexBufferMemory)
+        mesh.destroy()
         VulkanBuffers.vkDestroyBuffer(device, uniformBuffer)
         VulkanBuffers.vkFreeMemory(device, uniformBufferMemory)
         VulkanImages.vkDestroySampler(device, textureSampler)

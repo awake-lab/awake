@@ -811,7 +811,33 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
       not-yet-done work.
       **Confirmed on real hardware** (Galaxy S25 Ultra): screenshot after the extraction is
       pixel-identical to before it.
-- [ ] `Mesh` — vertex/index buffer upload from common code
+- [x] **`Mesh` — vertex/index buffer upload from common code (2026-07-08):** new
+      `io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh` (awake-vulkan), extracted verbatim
+      from `VulkanApplication`'s `createDeviceLocalBuffer`/`createVertexBuffer`/
+      `createIndexBuffer` functions and their backing fields — same staging-buffer pattern
+      (Phase 1d), same `vkCmdCopyBuffer` upload. Takes `vertices`/`indices` directly in its
+      constructor (no longer hardcoded to the demo cube specifically) and a
+      `runOneTimeCommands` lambda rather than owning that mechanism itself — it needs a
+      command pool + graphics queue, neither extracted into a dedicated class yet (still
+      pipeline/render-pass-adjacent state on `VulkanApplication`), so injecting the
+      mechanism avoided taking on that scope here. Exposes `bind(commandBuffer)` and
+      `draw(commandBuffer)` separately (not combined) since descriptor-set binding — a
+      Material/Shader concern — has to happen in between them; `VulkanApplication` still
+      does that part itself.
+  - **Confirmed on real hardware** (Galaxy S25 Ultra), with an unrelated speed bump along
+    the way: hit a genuine `JNI ERROR (app bug): jobject is an invalid global reference`
+    native `SIGABRT` on one relaunch — did not reproduce after a clean uninstall+reinstall,
+    consistent with stale JNI global-ref state accumulated from an unusually high number of
+    rapid `force-stop`/relaunch cycles run today (this session force-stopped and relaunched
+    the app dozens of times across several rounds of testing) rather than a real regression
+    from this extraction. Not root-caused further; flagged here in case it recurs under
+    normal (non-automated-testing) use. Two screenshots 5 seconds apart post-reinstall show
+    different cube orientations at a steady 60 FPS with no crash.
+  - **Also seen once on this same clean install**: Android's own "app compatibility"
+    warning dialog — `libawake-vulkan.so`/`libVkLayer_khronos_validation.so` aren't 16KB-
+    page-size-aligned (developer.android.com/16kb-page-size). Real, unrelated to Vulkan
+    correctness, but a genuine future compatibility item for devices that enforce 16KB
+    pages — not addressed here, just noted.
 - [ ] `Texture` — image upload, sampler, mipmaps (post-MVP ok)
 - [ ] `Material` / `Shader` — pipeline + descriptor set ownership
 - [ ] `Renderer.draw(camera, List<DrawCall>)` entry point
