@@ -17,9 +17,10 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotlin.cocoapods)
     alias(libs.plugins.android.library.kmp)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.compose.compiler)
@@ -39,21 +40,23 @@ kotlin {
 
     // iosX64 (Intel simulator) dropped: Compose Multiplatform stopped publishing it
     // after 1.11.0-alpha01 (Apple Silicon only going forward)
-    iosArm64()
-    iosSimulatorArm64()
-
-    cocoapods {
-        version = "1.0.0"
-        summary = "Awake Demo Compose"
-        homepage = "io.github.ronjunevaldoz/awake-demo"
-        ios.deploymentTarget = "14.1"
-        podfile = project.file("../iosApp/Podfile")
-        framework {
-            baseName = "shared"
+    // Distributed as an XCFramework via SPM (kotlin-multiplatform-xcframework-spm skill),
+    // not CocoaPods -- SPM binary targets don't need Kotlin/Gradle/CocoaPods installed
+    // on the iOS-only-consumer's machine, and Xcode resolves them natively.
+    val xcf = XCFramework("Shared")
+    iosArm64 {
+        binaries.framework {
+            baseName = "Shared"
             isStatic = true
+            xcf.add(this)
         }
-        extraSpecAttributes["resources"] =
-            "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
+    }
+    iosSimulatorArm64 {
+        binaries.framework {
+            baseName = "Shared"
+            isStatic = true
+            xcf.add(this)
+        }
     }
 
     sourceSets {

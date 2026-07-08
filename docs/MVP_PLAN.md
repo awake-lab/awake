@@ -1015,6 +1015,29 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
 
 ## Phase 6 — iOS via MoltenVK (post-desktop, 2–3 weeks)
 
+- [x] **`awake-demo:shared` switched from CocoaPods to XCFramework + SPM (2026-07-09):**
+      removed the `kotlin.cocoapods` plugin, its `cocoapods {}` block, the tracked
+      `Podfile`/`shared.podspec`, and the empty `Pods/` dir; replaced with an
+      `XCFramework("Shared")` registration (`assembleSharedDebugXCFramework`/
+      `assembleSharedReleaseXCFramework` tasks) plus a local SPM package at
+      `awake-demo/iosApp/Packages/Shared/Package.swift` pointing at the debug XCFramework
+      output, per the `kotlin-multiplatform-xcframework-spm` skill's own recommendation
+      ("default to XCFramework + SPM binary target... use CocoaPods only if an iOS project
+      already uses it and migrating isn't feasible" — nothing here depended on CocoaPods
+      actually working, since `pod` isn't even installed on this dev machine). SPM binary
+      targets don't require CocoaPods/Kotlin/Gradle on a pure-iOS consumer's machine, unlike
+      the old Pod-based setup.
+  - **Still needs a manual, one-time Xcode step** (not automatable from a script without
+    risking corrupting `project.pbxproj`): open `iosApp.xcodeproj`, remove the old Pods
+    build-phase/xcconfig references (File → Project Settings, or the existing
+    `Pods-iosApp.*.xcconfig` includes), then File → Add Package Dependencies → Add Local...
+    → select `awake-demo/iosApp/Packages/Shared`.
+  - **Confirmed this migration is not what's blocking iOS**: attempting
+    `assembleSharedDebugXCFramework` surfaces the *pre-existing* gap already noted above —
+    `awake-vulkan` doesn't compile for `iosArm64` at all yet (JVM-only annotations
+    `@JvmOverloads`/`@JvmInline` are unresolved on this project's Kotlin/Native source set,
+    on top of the already-documented all-`expect`-fun-unimplemented stub). Unrelated to
+    CocoaPods vs. SPM; still Phase 6 scope.
 - [ ] MoltenVK cinterop def + framework linking
 - [ ] `CAMetalLayer`-backed surface actual
 - [ ] iOS `actual object Vulkan` — evaluate extending jni-binding-generator to emit

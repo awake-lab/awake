@@ -30,8 +30,13 @@ package io.github.ronjunevaldoz.awake.vulkan.handles
  * `Vulkan*`/`gen` JNI layer itself is out of scope here (that's the generator's contract,
  * not this module's).
  *
- * `@JvmInline` keeps these zero-cost on the JVM targets (desktop/Android); on non-JVM
- * targets a `value class` already compiles to the underlying type with no wrapper overhead.
+ * `@JvmInline` keeps these zero-cost on the JVM targets (desktop/Android) -- it's required
+ * there ("Value classes without '@JvmInline' annotation are not yet supported" on the JVM
+ * backend). This project's Kotlin/Native (iOS) source sets currently can't resolve
+ * `@JvmInline`/`@JvmOverloads` at all (see the pre-existing `@JvmOverloads` usages under
+ * `models/` -- iosArm64 doesn't compile for this module yet regardless of this file; iOS
+ * Vulkan support is still "planned," not implemented, per AGENTS.md). Not worked around here
+ * since fixing the iOS toolchain/commonizer setup is a separate, much larger task.
  */
 @JvmInline
 value class BufferHandle(val handle: Long)
