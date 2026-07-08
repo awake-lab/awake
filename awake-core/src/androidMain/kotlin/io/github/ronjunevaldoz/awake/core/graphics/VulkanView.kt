@@ -31,6 +31,10 @@ class VulkanView(
     private val application: Application
 ) : SurfaceView(context), SurfaceHolder.Callback2 {
 
+    @Volatile
+    private var running = false
+    private var renderThread: Thread? = null
+
     init {
         holder.addCallback(this)
     }
@@ -39,9 +43,23 @@ class VulkanView(
         Frame.width = width
         Frame.height = height
         application.create(holder.surface)
-        AndroidGameLoop.startLoop { deltaTime ->
-            application.update(deltaTime.toFloat())
-        }
+        // AndroidGameLoop.startLoop runs a single tick (delta/FPS bookkeeping + frame-rate
+        // throttling) per call -- the caller owns the actual repetition, same contract
+        // desktop's createFrame() uses via its own `while (!window.shouldClose())` loop.
+        // This used to call startLoop exactly once here with no surrounding loop at all, so
+        // frameCount (and therefore the demo cube's rotation) only ever advanced by a
+        // single frame before rendering stopped. A dedicated thread is required rather than
+        // looping on the calling (UI) thread: drawFrame()'s vkWaitForFences/
+        // vkQueuePresentKHR block, and SurfaceView (unlike GLSurfaceView) has no built-in
+        // render thread of its own.
+        running = true
+        renderThread = Thread({
+            while (running) {
+                AndroidGameLoop.startLoop { deltaTime ->
+                    application.update(deltaTime.toFloat())
+                }
+            }
+        }, "VulkanView-Render").apply { start() }
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
@@ -49,6 +67,9 @@ class VulkanView(
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
+        running = false
+        renderThread?.join()
+        renderThread = null
         application.dispose()
     }
 

@@ -11,7 +11,7 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
     }
 
     override fun dispose() {
-        TODO("Not yet implemented")
+        texture.delete()
     }
 
     init {

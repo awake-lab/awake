@@ -747,6 +747,31 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     disconnected, immune to the USB-transport hiccup noted in the images/samplers round.
     Re-pairing (`adb tcpip`/`adb connect`) is needed again after the device reboots or
     leaves the network.
+- [x] **Fixed: the cube never actually rotated on Android (2026-07-08).** Every Android
+      screenshot taken this whole session showed a static cube and "Fps: 0" — assumed to be
+      a rendering/timing quirk, but the real cause was `VulkanView.surfaceCreated()` calling
+      `AndroidGameLoop.startLoop { application.update(...) }` **exactly once**, with no
+      surrounding loop. `GameLoop.startLoop`'s real contract (confirmed by how desktop's
+      `createFrame()` uses the equivalent `DesktopGameLoop`) is "run one tick" — the caller
+      owns the actual repetition via its own `while` loop. Desktop's `createFrame()` has
+      that loop; `VulkanView` never did. Fixed by giving `VulkanView` a dedicated background
+      thread that calls `startLoop` continuously until the surface is destroyed (not the UI
+      thread: `drawFrame()`'s `vkWaitForFences`/`vkQueuePresentKHR` block, and `SurfaceView`
+      — unlike `GLSurfaceView` — has no built-in render thread of its own).
+  - **Found and fixed a second, unrelated real bug while verifying this**: once frames
+    actually started advancing, the app crashed with `kotlin.NotImplementedError` from
+    `NativeTrueType.dispose()` (a `TODO()` stub, hit when Compose's `OpenGLView` briefly
+    got detached). Fixed by implementing it (`texture.delete()`, matching what
+    desktop's `NativeTrueType.dispose()` already did) on both Android and iOS, where it was
+    the same `TODO()` stub. The underlying question of *why* composition transiently
+    reaches the OpenGL branch at all when Vulkan is the active switch position — the same
+    symptom hit on desktop earlier the same day, crashing in `Agl.createShader` there
+    instead — is still open and not root-caused; this fix just stops it from crashing
+    either platform.
+  - **Confirmed on real hardware** (Galaxy S25 Ultra): two screenshots taken 5 seconds apart
+    show completely different cube orientations at a steady "Fps: 60", with no crash across
+    a 10-second run — genuine continuous rotation, matching desktop's behavior for the
+    first time this session.
 
 ## Phase 2 — Renderer Abstraction (2–3 weeks)
 
