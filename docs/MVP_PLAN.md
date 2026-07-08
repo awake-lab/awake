@@ -146,6 +146,30 @@ following before being marked done in this doc, not just the ones convenient to 
    doc, if a future dependency deserves its own) — not just "works" but *what specifically
    was verified and how*, so this doesn't degrade into an unverified checklist over time.
 
+**Extended (2026-07-08): cross-platform demo parity.** "Exercised on real hardware" above
+has, in practice, meant *Android* hardware for nearly all of Phase 1d — the textured cube
+(buffers, descriptors, images, staging-buffer copies, the full MVP-matrix uniform) is fully
+verified there, but not equivalently proven on every other target. Going forward, every
+`vkXxx` function this project supports should have the same kind of real, observable demo
+on *every platform that function is expected to run on* — not just Android — before it's
+considered done for that platform. This is a genuine, currently-open gap, not a solved
+policy:
+
+- **Android**: full parity — every Phase 1d function is wired into the real demo and
+  confirmed on a Galaxy S25 Ultra.
+- **Desktop (macOS)**: the underlying GLFW+MoltenVK plumbing is real and wired into the
+  actual `VulkanApplication` demo (see Phase 1b/1c) via both a standalone entry point
+  (`VulkanDesktopMain.kt`) and a Compose-embedded companion window, but neither has an
+  actual confirmed screenshot of the full textured cube rendering through them yet — the
+  attempts so far were blocked by the desktop's screen being locked/unavailable, not by a
+  code problem. This is the nearest achievable next parity milestone.
+- **Desktop (Windows/Linux)**: no real-hardware demo at all — only the headless
+  `desktop-vulkan-smoke` CI job (`vkCreateInstance`/`vkDestroyInstance` via Mesa lavapipe),
+  which proves the loader/CMake path works, not that the actual cube demo renders. No
+  Windows/Linux machine has been available to test on directly.
+- **iOS**: not started — every function is still an empty `TODO()` stub (Phase 6, MoltenVK
+  cinterop, not begun).
+
 ## Phase 1 — Vulkan Core on Desktop (3–5 weeks) ← critical path
 
 Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
