@@ -245,8 +245,70 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     offset (`memoryOffset`/`offset` — 0 is valid and common). Removed the bogus checks by
     hand for both new functions that take an offset.
 - [ ] Copy/staging: `vkCmdCopyBuffer`, `vkCmdCopyBufferToImage`, `vkCmdPipelineBarrier`
-- [ ] Descriptors: `vkCreateDescriptorSetLayout`, `vkCreateDescriptorPool`,
-      `vkAllocateDescriptorSets`, `vkUpdateDescriptorSets`, `vkCmdBindDescriptorSets`
+- [x] **Descriptors — uniform buffer wired end-to-end (2026-07-08):** new `VulkanDescriptors`
+      object (jni-binding-generator, same `.gen` package as `VulkanBuffers`) with
+      `vkCreateDescriptorSetLayout`, `vkDestroyDescriptorSetLayout`,
+      `vkCreateDescriptorPool`, `vkDestroyDescriptorPool`, `vkAllocateDescriptorSet`
+      (single set, not an array — see the object's own doc comment for why),
+      `vkUpdateDescriptorSetBuffer` (single buffer-type write), `vkCmdBindDescriptorSet`.
+      This was the first real end-to-end exercise of jni-binding-generator's
+      array-of-struct-*field* support in Awake itself (`VkDescriptorSetLayoutCreateInfo.
+      pBindings: Array<VkDescriptorSetLayoutBinding>`, `VkDescriptorPoolCreateInfo.
+      pPoolSizes: Array<VkDescriptorPoolSize>`) — the Phase 1a fix that added this was
+      previously verified only against the tool's own test suite, never against a real
+      generated-and-compiled Awake struct. Generated correctly on the first try.
+      `descriptorType`/`stageFlags` modeled as plain `Int` (new `VkDescriptorType` object,
+      reusing existing `VkShaderStageFlagBits.value`), not jni-binding-generator enum
+      fields — same ordinal-vs-value hazard rule as the rest of Phase 1d.
+  - **Proved with a real uniform buffer, not a throwaway call:** the demo's triangle
+    fragment shader (`triangle.frag`) now reads a `layout(binding=0) uniform UBO { vec4
+    tint; }` and multiplies it into `fragColor`. The demo creates a real uniform buffer
+    (`VulkanBuffers.vkCreateBuffer` with `VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT`), a
+    descriptor set layout/pool/set, writes `tint = (0.5, 0.5, 1.0, 0.0)` into it, and binds
+    the descriptor set every frame via `vkCmdBindDescriptorSet` right after
+    `vkCmdBindPipeline`/`vkCmdBindVertexBuffers` and before `vkCmdDraw`. The pipeline
+    layout (`VkPipelineLayoutCreateInfo.pSetLayouts`) now references the real descriptor
+    set layout instead of an empty default.
+  - **Confirmed on real hardware, but not by eye** — the expected dimming (R/G channels
+    halved, B unchanged) turned out to be visually indistinguishable from the untinted
+    triangle at a glance because of sRGB gamma: a linear ×0.5 displays as ×0.5^(1/2.2) ≈
+    ×0.73, a subtle shift the human eye reads as "the same picture." Confirmed instead by
+    comparing exact pixel RGB values (via PIL) between screenshots taken before/after the
+    UBO change, at the same triangle-interior coordinates: R and G channels scaled by
+    ~0.72–0.73× (matches the expected gamma-corrected 0.5×), B unchanged (matches
+    `tint.b = 1.0`) — precise, reproducible confirmation the uniform buffer data is really
+    reaching the shader through the full descriptor-set pipeline, not a coincidence of
+    looking similar. **Lesson: screenshot-only visual verification is not reliable for
+    subtle shader effects — sample actual pixel values when the expected change is a
+    scaling/tint rather than a structural difference (e.g. "is anything drawn at all").**
+  - **Found and fixed two real, pre-existing (not caused by this work) build/runtime bugs
+    while trying to verify this visually:**
+    1. `awake-demo/shared/build.gradle.kts`'s `glslValidator` task called `commandLine(...)`
+       once per shader file inside a loop on a plain `Exec` task — but `Exec.commandLine`
+       is a single mutable property; each call overwrites the last, so only ONE shader
+       (whichever the filesystem enumeration happened to return last) was ever actually
+       compiled per run. Worse, the task was wired via
+       `tasks.withType(JavaCompile::class.java) { dependsOn(...) }` — this KMP module
+       (Kotlin/Android/desktop only) has no `JavaCompile` tasks at all, so the dependency
+       never activated and the task never ran automatically either way. Net effect: the
+       committed `.spv` files could silently go stale relative to their `.frag`/`.vert`
+       sources with no build failure to catch it — exactly what happened to
+       `triangle.frag.spv` after this session's earlier shader edit. Fixed the task to run
+       one real subprocess per shader (`ProcessBuilder`, matching the already-correct
+       unused `buildSrc/glslangvalidator-conventions.gradle.kts` convention script), and
+       removed the dead `JavaCompile` wiring — `glslValidator` is now a manual step,
+       explicitly required after editing any shader, same convention as
+       `generateJniBindings`.
+    2. `VulkanApplication.kt`'s `setupDebugMessenger()` had every line of its Vulkan
+       validation-layer log callback commented out (it called `android.util.Log`, which
+       doesn't exist in `commonMain` — presumably commented out to make the file compile,
+       silently disabling all validation output in the process). This meant genuine
+       validation-layer errors/warnings would never have surfaced in logcat during any
+       prior verification round. Replaced with a plain `println(...)` (works across every
+       KMP target, already proven to reach logcat as `System.out` in D10 round 5) so
+       validation output is actually visible going forward — kept permanently, not reverted
+       as a temporary snippet, since it's diagnostic infrastructure the testing policy
+       above depends on.
 - [ ] Images: `vkCreateImage`, `vkBindImageMemory`, `vkCreateSampler`
 - [x] **Vertex input — `vkCmdBindVertexBuffers` wired end-to-end (2026-07-08):** added to
       `VulkanBuffers` (jni-binding-generator, `binding.size`-driven, no separate

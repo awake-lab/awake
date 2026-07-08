@@ -97,30 +97,32 @@ val glslangDownloadCopy = tasks.register<Copy>("glslangDownloadCopy") {
     into(layout.buildDirectory.dir("glslang"))
 }
 
-tasks.register<Exec>("glslValidator") {
+// A plain Exec task only ever runs the LAST commandLine(...) call configured on it --
+// calling commandLine(...) once per shader inside a loop silently discards every prior
+// call, so only one shader (whichever the filesystem happens to enumerate last) was ever
+// actually compiled. Runs each glslangValidator invocation directly instead, so every
+// .frag/.vert under shaderDir gets a fresh .spv.
+tasks.register("glslValidator") {
     dependsOn(glslangDownloadCopy)
 
     val bin = layout.buildDirectory.dir("glslang/bin").get().asFile.path
-
     val shadersDir = file("src/commonMain/resources/assets/shader/vulkan")
-    val outputSpv = shadersDir.path
-
     val shaders = project.fileTree(shadersDir) {
         include("**/*.frag", "**/*.vert")
     }
 
-    shaders.forEach { shaderFile ->
-        val shaderExt = shaderFile.extension
-        val shaderName =
-            if (shaderExt == "frag" || shaderExt == "vert") shaderFile.name else shaderFile.nameWithoutExtension
-        val spvFile = File(outputSpv, "$shaderName.spv")
-        commandLine(
-            "$bin/glslangValidator",
-            "-V",
-            shaderFile.absolutePath,
-            "-o",
-            spvFile.absolutePath
-        )
+    doLast {
+        shaders.forEach { shaderFile ->
+            val spvFile = File(shadersDir, "${shaderFile.name}.spv")
+            val process = ProcessBuilder(
+                "$bin/glslangValidator", "-V", shaderFile.absolutePath, "-o", spvFile.absolutePath
+            ).redirectErrorStream(true).start()
+            val output = process.inputStream.bufferedReader().readText()
+            val exitCode = process.waitFor()
+            if (exitCode != 0) {
+                throw RuntimeException("glslangValidator failed for ${shaderFile.name} (exit $exitCode):\n$output")
+            }
+        }
     }
 }
 
@@ -129,11 +131,10 @@ tasks.register<JavaExec>("runVulkanCpp") {
     classpath = project(":awake-vulkan-generator").sourceSets["main"].runtimeClasspath
     args(project(":awake-vulkan-generator").rootDir.path)
 }
-// After evaluating the project configuration
-afterEvaluate {
-    // Access the preCompileShaders task and make it run before Java compilation tasks
-    tasks.withType(JavaCompile::class.java) {
-//        dependsOn(tasks.named("runVulkanCpp"))
-        dependsOn(tasks.named("glslValidator"))
-    }
-}
+// glslValidator is a manual step, run explicitly after changing any .vert/.frag under
+// src/commonMain/resources/assets/shader/vulkan -- NOT wired as an automatic dependency
+// of any compile task. It used to (incorrectly) target `JavaCompile`, a task type this
+// KMP module (Kotlin/Android/desktop only, no java sources) never has, so it silently
+// never ran and shader edits could go uncompiled without any build failure to catch it
+// (see docs/decisions/D10-codegen-derisk-findings.md, Round 6, for how this surfaced).
+// Same manual convention as :awake-vulkan:android-native's generateJniBindings.

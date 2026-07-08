@@ -52,6 +52,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandPoolCreateFlagB
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkFenceCreateFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
+import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.has
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
@@ -89,6 +90,12 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSwapchainCreateInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorBufferInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorPoolCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorPoolSize
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutBinding
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorType
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.DebugUtilsFormattedCallback
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCreateInfoEXT
@@ -141,6 +148,11 @@ class VulkanApplication : Application {
     var currentFrame = 0
     var vertexBuffer: Long = 0
     var vertexBufferMemory: Long = 0
+    var descriptorSetLayout: Long = 0
+    var descriptorPool: Long = 0
+    var descriptorSet: Long = 0
+    var uniformBuffer: Long = 0
+    var uniformBufferMemory: Long = 0
 
     companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
@@ -154,6 +166,12 @@ class VulkanApplication : Application {
             -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
         )
         const val VERTEX_STRIDE = 5 * Float.SIZE_BYTES
+
+        // std140 vec4 (matches triangle.frag's `UBO { vec4 tint; }`) -- a visibly distinct
+        // bluish dim applied to the vertex-buffer-driven triangle color, so the effect is
+        // observable in a screenshot as proof the uniform buffer/descriptor set path is
+        // really feeding the shader, not just compiling.
+        val uboTint = floatArrayOf(0.5f, 0.5f, 1.0f, 0.0f)
     }
 
     override fun create(surface: Any?) {
@@ -191,12 +209,91 @@ class VulkanApplication : Application {
         // create swap chain
         swapChain()
         createRenderPass()
+        createDescriptorSetLayout()
         createGraphicsPipeline()
         createFramebuffers()
         createCommandPool()
         createVertexBuffer()
+        createUniformBuffer()
+        createDescriptorPool()
+        createDescriptorSet()
         createCommandBuffer()
         createSyncObjects()
+    }
+
+    private fun createDescriptorSetLayout() {
+        descriptorSetLayout = VulkanDescriptors.vkCreateDescriptorSetLayout(
+            device,
+            VkDescriptorSetLayoutCreateInfo(
+                pBindings = arrayOf(
+                    VkDescriptorSetLayoutBinding(
+                        binding = 0,
+                        descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                        stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+                    )
+                )
+            )
+        )
+    }
+
+    private fun createUniformBuffer() {
+        val bufferSize = (uboTint.size * Float.SIZE_BYTES).toLong()
+        uniformBuffer = VulkanBuffers.vkCreateBuffer(
+            device,
+            VkBufferCreateInfo(
+                size = bufferSize,
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            )
+        )
+        val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, uniformBuffer)
+        val memoryTypeIndex = VulkanBuffers.findMemoryType(
+            physicalDevice,
+            memRequirements.memoryTypeBits,
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        )
+        uniformBufferMemory = VulkanBuffers.vkAllocateMemory(
+            device,
+            VkMemoryAllocateInfo(
+                allocationSize = memRequirements.size,
+                memoryTypeIndex = memoryTypeIndex
+            )
+        )
+        VulkanBuffers.vkBindBufferMemory(device, uniformBuffer, uniformBufferMemory, 0)
+        VulkanBuffers.writeBufferMemoryFloats(device, uniformBufferMemory, 0, uboTint)
+    }
+
+    private fun createDescriptorPool() {
+        descriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
+            device,
+            VkDescriptorPoolCreateInfo(
+                maxSets = 1,
+                pPoolSizes = arrayOf(
+                    VkDescriptorPoolSize(
+                        type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                        descriptorCount = 1
+                    )
+                )
+            )
+        )
+    }
+
+    private fun createDescriptorSet() {
+        descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(
+            device,
+            descriptorPool,
+            descriptorSetLayout
+        )
+        VulkanDescriptors.vkUpdateDescriptorSetBuffer(
+            device,
+            descriptorSet,
+            0,
+            VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            VkDescriptorBufferInfo(
+                buffer = uniformBuffer,
+                range = (uboTint.size * Float.SIZE_BYTES).toLong()
+            )
+        )
     }
 
     private fun createVertexBuffer() {
@@ -339,6 +436,7 @@ class VulkanApplication : Application {
             longArrayOf(vertexBuffer),
             longArrayOf(0L)
         )
+        VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet)
         Vulkan.vkCmdDraw(commandBuffer, 3, 1, 0, 0)
         Vulkan.vkCmdEndRenderPass(commandBuffer)
         Vulkan.vkEndCommandBuffer(commandBuffer)
@@ -518,13 +616,7 @@ class VulkanApplication : Application {
 
     private fun setupDebugMessenger() {
         val androidLogCallback: (String, String) -> Unit = { severity, message ->
-//            when (severity) {
-//                "Warning" -> Log.w("AwakeVk", message)
-//                "Info" -> Log.i("AwakeVk", message)
-//                "Error" -> Log.e("AwakeVk", message)
-//                "Verbose" -> Log.v("AwakeVk", message)
-//                else -> Log.d("AwakeVk", message)
-//            }
+            println("AWAKE_VERIFY_VALIDATION [$severity] $message")
         }
         val createInfo = VkDebugUtilsMessengerCreateInfoEXT(
             pfnUserCallback = { severity, messageType, callbackData, userData ->
@@ -752,7 +844,10 @@ class VulkanApplication : Application {
                 )
             )
 
-            pipelineLayout = Vulkan.vkCreatePipelineLayout(device, VkPipelineLayoutCreateInfo())
+            pipelineLayout = Vulkan.vkCreatePipelineLayout(
+                device,
+                VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout))
+            )
 
             val createInfos = arrayOf(
                 VkGraphicsPipelineCreateInfo(
@@ -854,6 +949,10 @@ class VulkanApplication : Application {
 
         VulkanBuffers.vkDestroyBuffer(device, vertexBuffer)
         VulkanBuffers.vkFreeMemory(device, vertexBufferMemory)
+        VulkanBuffers.vkDestroyBuffer(device, uniformBuffer)
+        VulkanBuffers.vkFreeMemory(device, uniformBufferMemory)
+        VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool)
+        VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout)
 
         graphicsPipeline.forEach { pipeline ->
             Vulkan.vkDestroyPipeline(device, pipeline)

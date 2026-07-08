@@ -402,3 +402,74 @@ launched the rebuilt APK, no crash in logcat, and a device screenshot
 now genuinely sourced from a GPU-resident vertex buffer rather than baked into the shader.
 This closes Phase 1a/1d's `vkCmdBindVertexBuffers` item and the "vertex-buffer triangle on
 Android" milestone from the Phase 1 exit criteria.
+
+## Round 7 — descriptor sets / uniform buffer, and two build-hygiene bugs found while verifying (2026-07-08)
+
+Added `VulkanDescriptors` (new object, same `.gen` package/generator pipeline as
+`VulkanBuffers`): `vkCreateDescriptorSetLayout`, `vkDestroyDescriptorSetLayout`,
+`vkCreateDescriptorPool`, `vkDestroyDescriptorPool`, `vkAllocateDescriptorSet` (single set),
+`vkUpdateDescriptorSetBuffer` (single buffer-type write), `vkCmdBindDescriptorSet`. New
+structs: `VkDescriptorSetLayoutBinding`, `VkDescriptorSetLayoutCreateInfo` (with
+`pBindings: Array<VkDescriptorSetLayoutBinding>`), `VkDescriptorPoolSize`,
+`VkDescriptorPoolCreateInfo` (with `pPoolSizes: Array<VkDescriptorPoolSize>`),
+`VkDescriptorBufferInfo`. `descriptorType`/`stageFlags` modeled as plain `Int` (new
+`VkDescriptorType` object), not jni-binding-generator enum fields, per the established
+ordinal-vs-value hazard rule.
+
+**First real exercise of array-of-struct-field marshalling against actual Awake structs.**
+Rounds 3/4 added and unit-tested this capability in the generator itself, but no function
+wired into Awake so far had actually used it (`VkBufferCreateInfo`/`VkMemoryAllocateInfo`
+have no array fields). `VkDescriptorSetLayoutCreateInfo.pBindings` and
+`VkDescriptorPoolCreateInfo.pPoolSizes` are both `Array<Struct>` fields — the generated
+`extract_*`/`make_*` functions built a real `std::vector<JNI_VkDescriptorSetLayoutBinding>`
+etc. and round-tripped correctly on the first generation, no hand-fixing needed beyond the
+usual native-body fill-in.
+
+**Regeneration re-merge, round 3:** same procedure as Round 6 (backup before regenerating,
+regex-based function-body splice back in), plus this time explicitly re-diffed and restored
+the `#include` block per the Round 6 lesson — confirmed that pitfall doesn't recur when
+deliberately checked for.
+
+**Verified end-to-end with a real uniform buffer wired into the actual triangle shader,
+not an isolated call** — per the testing policy now in MVP_PLAN.md. `triangle.frag` reads
+`layout(binding=0) uniform UBO { vec4 tint; }`; the demo creates a real uniform buffer,
+descriptor set layout/pool/set, writes `tint = (0.5, 0.5, 1.0, 0.0)`, and binds the
+descriptor set every frame before `vkCmdDraw`.
+
+**On real hardware (Galaxy S25 Ultra), the expected effect was invisible to the eye** — a
+linear ×0.5 tint displays as ×0.5^(1/2.2) ≈ ×0.73 through the framebuffer's sRGB gamma
+curve, which reads as "looks the same" at a glance. Confirmed instead by sampling exact
+pixel RGB values (Python/PIL) at matching triangle-interior coordinates across two
+screenshots (before/after the UBO change): R and G channels scaled ~0.72–0.73× (matches the
+gamma-corrected expectation for a linear 0.5×), B unchanged (matches `tint.b = 1.0`) —
+precise numeric confirmation the uniform buffer data reaches the shader through the real
+descriptor-set pipeline. **Lesson for the testing policy: a screenshot alone isn't proof for
+a subtle shader effect (tint/scale) the way it is for a structural one (triangle present vs.
+absent, right vs. wrong shape) — sample actual pixel values in that case.**
+
+**Two pre-existing, unrelated bugs found and fixed while trying to get this visual
+verification to work at all:**
+1. `awake-demo/shared/build.gradle.kts`'s `glslValidator` `Exec` task called
+   `commandLine(...)` once per shader file inside a `forEach` loop — `Exec.commandLine` is a
+   single mutable property, so every call overwrites the previous one, and only the last
+   shader iterated (filesystem-order-dependent, not deterministic) was ever actually
+   compiled. It was also wired via `tasks.withType(JavaCompile::class.java) { dependsOn(...)
+   }`, but this Kotlin-Multiplatform module (Android/desktop/iOS targets only) has no
+   `JavaCompile` tasks, so that dependency silently never activated either — the task never
+   ran automatically at all. Net effect: committed `.spv` files could go stale relative to
+   their `.frag`/`.vert` source with no build failure surfacing it, which is exactly what
+   had happened to `triangle.frag.spv` after this session's shader edit (the packaged APK
+   was still shipping the pre-UBO shader, confirmed via `spirv-dis` showing no `UBO`
+   in the disassembly). Fixed by running one real `ProcessBuilder` subprocess per shader
+   (matching the logic the already-correct, but entirely unused,
+   `buildSrc/glslangvalidator-conventions.gradle.kts` convention script had all along), and
+   removed the dead `JavaCompile` wiring — `glslValidator` is now an explicitly manual step,
+   same convention as `generateJniBindings`/`checkJniBindings`.
+2. `VulkanApplication.kt`'s `setupDebugMessenger()` had its entire Vulkan validation-layer
+   callback body commented out (it called `android.util.Log`, unavailable in `commonMain` —
+   likely commented out just to get the file compiling, with the side effect of silently
+   disabling all validation-layer log output). Every previous round's "no validation errors
+   seen" claim was therefore unverifiable — there was no path for validation output to reach
+   logcat at all. Replaced with `println(...)` (proven to surface as `System.out` in logcat
+   per Round 5) so validation messages are actually visible going forward. This is kept
+   permanently as diagnostic infrastructure, not reverted as a temporary snippet.
