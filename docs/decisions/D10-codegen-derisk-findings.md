@@ -584,3 +584,64 @@ session was also the first to use **wireless adb** (`adb tcpip 5555` + `adb conn
 because the USB transport had hiccupped earlier in this session (Round 8), and immune to
 that class of problem going forward. Re-pairing is required again after the device reboots
 or leaves the Wi-Fi network.
+
+## Round 10 — Phase 1b: desktop native build, real vkCreateInstance via MoltenVK (2026-07-08)
+
+First real progress on Phase 1b (desktop native build), previously 0%. Added
+`awake-vulkan/desktop-native/CMakeLists.txt`, compiling the *same* `../src/main/cpp`
+sources `android-native` already builds — not a fork — as a host shared library
+(confirmed on macOS/arm64; Windows/Linux untested, no such machine available this
+session). New Gradle tasks `configureDesktopNative`/`buildDesktopNative`, manual/on-demand
+like `generateJniBindings` (CMake configure+build is too slow to run on every Kotlin edit,
+and this native lib only changes when the C++ itself changes).
+
+**Vulkan SDK detection, resolved differently per OS family (as the original Phase 1b
+checklist item anticipated):** macOS has no native Vulkan at all. Rather than configuring
+the standard Vulkan loader + an `VK_ICD_FILENAMES`-pointed ICD manifest, MoltenVK's own
+`.dylib` (`brew install molten-vk`) is linked **directly** — it already implements the
+standard Vulkan entry points itself (that's its entire purpose as a Vulkan-on-Metal
+translation layer), so no loader/ICD indirection is needed for local development. Windows/
+Linux use the conventional `find_package(Vulkan)` (CMake's built-in Vulkan SDK detection),
+since both have a real native Vulkan driver + loader — this path is unverified so far.
+
+**Mechanical Kotlin-side conversion:** `desktopMain`'s `Vulkan.kt` (58 functions),
+`VulkanBuffers.kt` (13), `VulkanDescriptors.kt` (8), `VulkanImages.kt` (8) — 87 functions
+total — were all `TODO()`-stub `actual fun`s; converted to real `actual external fun`
+(script-driven brace-matching transform, not hand-edited one at a time) since JNI itself
+doesn't distinguish Android from a desktop JVM: the exact same signatures that work for
+`androidMain` work unchanged here. `vkCreateAndroidSurfaceKHR` deliberately excluded from
+the conversion — real surface creation for desktop is Phase 1c (GLFW-based), not started,
+so this one function stays a `TODO()` stub, matching that its native counterpart is also
+excluded from the desktop build (see below).
+
+**Found real Android-only code paths inside the *shared* C++** that both `android-native`
+and this new desktop build now compile from the same source tree —
+`VkAndroidSurfaceCreateInfoKHRAccessor.{cpp,h}` (`#include <android/native_window_jni.h>`,
+Android-NDK-only) and a dead, unused `#include <android/log.h>` in
+`VkDebugUtilsMessengerCreateInfoEXTAccessor.cpp` (no `__android_log_*` call anywhere in
+that file — just an orphaned include). Fixed with `#ifdef __ANDROID__` guards at every
+call site: `VulkanUtils.h`/`.cpp`'s `createAndroidSurfaceKHR` declaration+definition,
+`awake-vulkan.cpp`'s corresponding JNI export, and the dead include. Additionally excluded
+`VkAndroidSurfaceCreateInfoKHRAccessor.cpp` from the source list entirely on non-Android
+builds via `if(ANDROID) list(APPEND VULKAN_KOTLIN_SOURCES ...)` in
+`vulkan-kotlin/CMakeLists.txt` (CMake sets the `ANDROID` variable automatically when
+configured through the NDK toolchain file) — safe specifically because its only caller is
+itself guarded out, and desktopMain's Kotlin never declares `vkCreateAndroidSurfaceKHR` as
+`external`, so no JNI symbol lookup for it happens on desktop regardless. **Re-verified the
+Android build still compiles clean** after every one of these edits, since this is shared
+code, not a fork — each `#ifdef`/`if(ANDROID)` was checked to preserve exactly the prior
+Android behavior.
+
+**Verified end-to-end with a real Vulkan call, per the testing policy — not just that the
+library links.** A new `awake-vulkan/src/desktopTest/.../VulkanDesktopNativeSmokeTest`
+calls the real `Vulkan.vkCreateInstance`/`vkDestroyInstance` through the built `.dylib` and
+MoltenVK (`desktopTest`'s `java.library.path` wired to `build/desktop-native-libs` in
+`build.gradle.kts`). **Passed**: `tests="1" failures="0" errors="0"` in the JUnit XML
+report — genuine confirmation the full desktop JNI chain (Kotlin `external fun` → compiled
+`.dylib` → MoltenVK → a real Vulkan instance) works end-to-end, the desktop equivalent of
+D10 Round 5's real-device confirmation for Android.
+
+**Remaining for Phase 1b/1c:** GLFW window creation (not started — needed before the
+desktop demo can render anything visible) and platform-neutral surface creation (Phase 1c,
+replacing `vkCreateAndroidSurfaceKHR` with a real cross-platform `expect fun
+createSurface(...)`, not started). Windows/Linux Vulkan SDK detection path is untested.

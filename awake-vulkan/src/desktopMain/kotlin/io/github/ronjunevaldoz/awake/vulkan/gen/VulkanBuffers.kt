@@ -25,67 +25,41 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 
 // Phase 1b (desktop native build) has not landed yet — see docs/MVP_PLAN.md.
 actual object VulkanBuffers {
-    actual fun vkCreateBuffer(device: Long, createInfo: VkBufferCreateInfo): Long {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkCreateBuffer(device: Long, createInfo: VkBufferCreateInfo): Long
 
-    actual fun vkDestroyBuffer(device: Long, buffer: Long) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkDestroyBuffer(device: Long, buffer: Long)
 
-    actual fun vkGetBufferMemoryRequirements(device: Long, buffer: Long): VkMemoryRequirements {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkGetBufferMemoryRequirements(device: Long, buffer: Long): VkMemoryRequirements
 
-    actual fun findMemoryType(physicalDevice: Long, typeFilter: Int, properties: Int): Int {
-        TODO("Not yet implemented")
-    }
+    actual external fun findMemoryType(physicalDevice: Long, typeFilter: Int, properties: Int): Int
 
-    actual fun vkAllocateMemory(device: Long, allocateInfo: VkMemoryAllocateInfo): Long {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkAllocateMemory(device: Long, allocateInfo: VkMemoryAllocateInfo): Long
 
-    actual fun vkFreeMemory(device: Long, memory: Long) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkFreeMemory(device: Long, memory: Long)
 
-    actual fun vkBindBufferMemory(device: Long, buffer: Long, memory: Long, memoryOffset: Long) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkBindBufferMemory(device: Long, buffer: Long, memory: Long, memoryOffset: Long)
 
-    actual fun writeBufferMemoryFloats(device: Long, memory: Long, offset: Long, data: FloatArray) {
-        TODO("Not yet implemented")
-    }
+    actual external fun writeBufferMemoryFloats(device: Long, memory: Long, offset: Long, data: FloatArray)
 
-    actual fun writeBufferMemoryBytes(device: Long, memory: Long, offset: Long, data: ByteArray) {
-        TODO("Not yet implemented")
-    }
+    actual external fun writeBufferMemoryBytes(device: Long, memory: Long, offset: Long, data: ByteArray)
 
-    actual fun vkCmdBindVertexBuffers(
+    actual external fun vkCmdBindVertexBuffers(
         commandBuffer: Long,
         firstBinding: Int,
         buffers: LongArray,
         offsets: LongArray
-    ) {
-        TODO("Not yet implemented")
-    }
+    )
 
-    actual fun vkCmdBindIndexBuffer(commandBuffer: Long, buffer: Long, offset: Long, indexType: Int) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkCmdBindIndexBuffer(commandBuffer: Long, buffer: Long, offset: Long, indexType: Int)
 
-    actual fun vkCmdDrawIndexed(
+    actual external fun vkCmdDrawIndexed(
         commandBuffer: Long,
         indexCount: Int,
         instanceCount: Int,
         firstIndex: Int,
         vertexOffset: Int,
         firstInstance: Int
-    ) {
-        TODO("Not yet implemented")
-    }
+    )
 
-    actual fun vkDeviceWaitIdle(device: Long) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkDeviceWaitIdle(device: Long)
 }

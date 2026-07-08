@@ -613,6 +613,7 @@ getPhysicalDeviceQueueFamilyProperties(JNIEnv *env, jlong arg0) {
         return reinterpret_cast<jlong>(handle);
     }
 
+#ifdef __ANDROID__
     jlong
     createAndroidSurfaceKHR(JNIEnv *env, jlong arg0, jobject arg1) {
         // process parameter??
@@ -630,6 +631,7 @@ getPhysicalDeviceQueueFamilyProperties(JNIEnv *env, jlong arg0) {
         }
         return reinterpret_cast<jlong>(handle);
     }
+#endif // __ANDROID__
 
     jobjectArray
     enumerateInstanceLayerProperties(JNIEnv *env) {

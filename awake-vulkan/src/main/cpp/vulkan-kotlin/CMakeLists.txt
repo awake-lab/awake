@@ -6,7 +6,6 @@ set(VULKAN_KOTLIN_SOURCES
         Float32Accessor.cpp
         Int32Accessor.cpp
         UInt32Accessor.cpp
-        VkAndroidSurfaceCreateInfoKHRAccessor.cpp
         VkApplicationInfoAccessor.cpp
         VkAttachmentDescriptionAccessor.cpp
         VkAttachmentReferenceAccessor.cpp
@@ -87,6 +86,14 @@ set(VULKAN_KOTLIN_SOURCES
         VkViewportAccessor.cpp
         VulkanUtils.cpp
         )
+
+# VkAndroidSurfaceCreateInfoKHRAccessor.{cpp,h} includes <android/native_window_jni.h>,
+# unavailable outside the Android NDK -- excluded from non-Android builds (its only
+# caller, VulkanUtils.cpp's createAndroidSurfaceKHR, is itself `#ifdef __ANDROID__`
+# guarded, so nothing references this file when it's left out).
+if(ANDROID)
+    list(APPEND VULKAN_KOTLIN_SOURCES VkAndroidSurfaceCreateInfoKHRAccessor.cpp)
+endif()
 
 # Set the path to your header file directory
 include_directories(includes)

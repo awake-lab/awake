@@ -56,3 +56,49 @@ kotlin {
         }
     }
 }
+
+// Phase 1b: desktop native build (see awake-vulkan/desktop-native/CMakeLists.txt for the
+// Vulkan-SDK-per-host-OS rationale). Manual/on-demand, like android-native's
+// generateJniBindings -- NOT wired as an automatic dependency of compileKotlinDesktop or
+// desktopTest, because CMake configure+build is slow and this native lib only changes when
+// the C++ sources themselves change, not on every Kotlin edit. Run explicitly:
+//   ./gradlew :awake-vulkan:configureDesktopNative :awake-vulkan:buildDesktopNative
+val desktopNativeBuildDir = layout.buildDirectory.dir("desktop-native")
+val desktopNativeLibDir = layout.buildDirectory.dir("desktop-native-libs")
+
+tasks.register<Exec>("configureDesktopNative") {
+    group = "native"
+    description = "Configure the desktop native build (CMake) -- run after any C++ source change."
+    workingDir = desktopNativeBuildDir.get().asFile.also { it.mkdirs() }
+    commandLine(
+        "cmake",
+        "-S", layout.projectDirectory.dir("desktop-native").asFile.absolutePath,
+        "-B", desktopNativeBuildDir.get().asFile.absolutePath,
+        "-DCMAKE_BUILD_TYPE=Debug"
+    )
+}
+
+tasks.register<Exec>("buildDesktopNative") {
+    group = "native"
+    description = "Build the desktop native library (.dylib/.so/.dll) and copy it where the " +
+        "desktop JVM's System.loadLibrary(\"awake-vulkan\") can find it (-Djava.library.path)."
+    dependsOn("configureDesktopNative")
+    workingDir = desktopNativeBuildDir.get().asFile
+    commandLine("cmake", "--build", desktopNativeBuildDir.get().asFile.absolutePath)
+    doLast {
+        val libDir = desktopNativeLibDir.get().asFile.also { it.mkdirs() }
+        val built = desktopNativeBuildDir.get().asFile.walkTopDown()
+            .filter { it.isFile && it.name.matches(Regex("lib?awake-vulkan\\.(dylib|so|dll)")) }
+            .firstOrNull()
+            ?: throw GradleException("Built awake-vulkan native library not found under $desktopNativeBuildDir")
+        built.copyTo(File(libDir, built.name), overwrite = true)
+        println("Desktop native library copied to: ${File(libDir, built.name)}")
+    }
+}
+
+// Always points java.library.path at desktop-native-libs for desktop tests -- a no-op if
+// buildDesktopNative hasn't been run (System.loadLibrary just fails with its usual
+// UnsatisfiedLinkError in that case, same as if this weren't set at all).
+tasks.named<Test>("desktopTest") {
+    jvmArgs("-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
+}

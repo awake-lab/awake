@@ -26,45 +26,29 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerCreateInfo
 
 // Phase 1b (desktop native build) has not landed yet — see docs/MVP_PLAN.md.
 actual object VulkanImages {
-    actual fun vkCreateImage(device: Long, createInfo: VkImageCreateInfo): Long {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkCreateImage(device: Long, createInfo: VkImageCreateInfo): Long
 
-    actual fun vkDestroyImage(device: Long, image: Long) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkDestroyImage(device: Long, image: Long)
 
-    actual fun vkGetImageMemoryRequirements(device: Long, image: Long): VkMemoryRequirements {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkGetImageMemoryRequirements(device: Long, image: Long): VkMemoryRequirements
 
-    actual fun vkBindImageMemory(device: Long, image: Long, memory: Long, memoryOffset: Long) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkBindImageMemory(device: Long, image: Long, memory: Long, memoryOffset: Long)
 
-    actual fun vkCreateSampler(device: Long, createInfo: VkSamplerCreateInfo): Long {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkCreateSampler(device: Long, createInfo: VkSamplerCreateInfo): Long
 
-    actual fun vkDestroySampler(device: Long, sampler: Long) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkDestroySampler(device: Long, sampler: Long)
 
-    actual fun vkTransitionImageLayout(
+    actual external fun vkTransitionImageLayout(
         commandBuffer: Long,
         image: Long,
         oldLayout: Int,
         newLayout: Int
-    ) {
-        TODO("Not yet implemented")
-    }
+    )
 
-    actual fun vkCmdCopyBufferToImage(
+    actual external fun vkCmdCopyBufferToImage(
         commandBuffer: Long,
         srcBuffer: Long,
         dstImage: Long,
         copy: VkBufferImageCopy
-    ) {
-        TODO("Not yet implemented")
-    }
+    )
 }

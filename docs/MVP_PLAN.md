@@ -154,10 +154,55 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
       prove the new path at scale, or once a device-testable milestone exists.
 
 ### 1b. Desktop native build
-- [ ] CMake preset to build `vulkan-kotlin` C++ as `.dylib` / `.dll` / `.so` for host JVM
-- [ ] Vulkan SDK detection per host OS
-- [ ] `System.loadLibrary` loading path + packaged natives in the desktop artifact
-- [ ] GLFW window creation on desktop (replaces Compose/AWT canvas for the runtime)
+- [x] **CMake preset + Vulkan SDK detection + `System.loadLibrary` wiring (2026-07-08,
+      macOS/arm64 confirmed; Windows/Linux untested):** new
+      `awake-vulkan/desktop-native/CMakeLists.txt`, reusing the *same* `../src/main/cpp`
+      sources android-native builds (not a fork) — compiled as a host shared library
+      (`.dylib` on macOS) instead of an Android `.so`. New Gradle tasks
+      `configureDesktopNative`/`buildDesktopNative` (manual, same on-demand convention as
+      `generateJniBindings` — CMake configure/build is too slow to run on every Kotlin
+      edit). `desktopMain`'s `Vulkan.kt`/`VulkanBuffers.kt`/`VulkanDescriptors.kt`/
+      `VulkanImages.kt` converted from `TODO()` stubs to real `actual external fun`
+      (mechanical, script-driven — 86 functions across 4 files, all matching their
+      `androidMain` signatures exactly since JNI itself doesn't distinguish Android from
+      desktop JVM) plus a `System.loadLibrary("awake-vulkan")` init block, mirroring
+      `androidMain` exactly.
+  - **Vulkan SDK detection per host OS:** macOS has no native Vulkan at all — MoltenVK
+    (installed via `brew install molten-vk`) is linked **directly** rather than through
+    the Vulkan loader/ICD mechanism, since MoltenVK's own `.dylib` already implements the
+    standard `vkCreateInstance` etc. entry points; this sidesteps needing
+    `VK_ICD_FILENAMES` or loader configuration entirely for the local dev case. Windows/
+    Linux go through the standard `find_package(Vulkan)` (CMake's own Vulkan SDK
+    detection), since both have a conventional native driver + loader — untested so far,
+    no Windows/Linux dev machine available this session.
+  - **Found, and had to portability-fix, real Android-only code paths in the *shared*
+    C++ that both android-native and this new desktop build now compile from:**
+    `VkAndroidSurfaceCreateInfoKHRAccessor.{cpp,h}` (`#include <android/native_window_jni.h>`)
+    and one dead, unused `#include <android/log.h>` in
+    `VkDebugUtilsMessengerCreateInfoEXTAccessor.cpp`. Fixed with `#ifdef __ANDROID__`
+    guards at every call site (`VulkanUtils.h`/`.cpp`, `awake-vulkan.cpp`'s
+    `vkCreateAndroidSurfaceKHR` JNI export) plus excluding
+    `VkAndroidSurfaceCreateInfoKHRAccessor.cpp` from the source list entirely on
+    non-Android builds (`if(ANDROID) list(APPEND ...)` in `vulkan-kotlin/CMakeLists.txt`,
+    which CMake sets automatically when configured through the Android NDK toolchain) —
+    safe because desktopMain's `vkCreateAndroidSurfaceKHR` is deliberately left as a
+    non-`external` `TODO()` stub (real cross-platform surface creation is Phase 1c,
+    not started), so no JNI symbol for it is ever looked up on desktop, and nothing
+    references the excluded accessor once its only caller is itself guarded out.
+    **Verified the Android build still compiles clean after these edits** (this is
+    shared, not forked, code).
+  - **Confirmed end-to-end with a real Vulkan call, not just a successful link:** a new
+    `awake-vulkan/src/desktopTest` smoke test (`VulkanDesktopNativeSmokeTest`) calls the
+    real `Vulkan.vkCreateInstance`/`vkDestroyInstance` through the built `.dylib` and
+    MoltenVK, wired via `desktopTest`'s `java.library.path` pointing at
+    `build/desktop-native-libs`. **Passed** (`tests="1" failures="0" errors="0"`) —
+    genuine confirmation the whole desktop JNI chain (Kotlin `external fun` → compiled
+    `.dylib` → MoltenVK → a real, though software/translated, Vulkan device) works, not
+    just that the native library builds.
+- [ ] GLFW window creation on desktop (replaces Compose/AWT canvas for the runtime) —
+      not started; needed before the desktop demo can actually render anything, since
+      `vkCreateAndroidSurfaceKHR`/surface creation is still a TODO stub on desktop (see
+      Phase 1c below, also not started)
 
 ### 1c. Platform-neutral surface
 - [ ] Replace `vkCreateAndroidSurfaceKHR` in common API with

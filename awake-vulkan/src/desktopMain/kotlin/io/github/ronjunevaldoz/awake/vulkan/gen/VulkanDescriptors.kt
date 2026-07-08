@@ -26,55 +26,39 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCre
 
 // Phase 1b (desktop native build) has not landed yet — see docs/MVP_PLAN.md.
 actual object VulkanDescriptors {
-    actual fun vkCreateDescriptorSetLayout(
+    actual external fun vkCreateDescriptorSetLayout(
         device: Long,
         createInfo: VkDescriptorSetLayoutCreateInfo
-    ): Long {
-        TODO("Not yet implemented")
-    }
+    ): Long
 
-    actual fun vkDestroyDescriptorSetLayout(device: Long, layout: Long) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkDestroyDescriptorSetLayout(device: Long, layout: Long)
 
-    actual fun vkCreateDescriptorPool(device: Long, createInfo: VkDescriptorPoolCreateInfo): Long {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkCreateDescriptorPool(device: Long, createInfo: VkDescriptorPoolCreateInfo): Long
 
-    actual fun vkDestroyDescriptorPool(device: Long, pool: Long) {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkDestroyDescriptorPool(device: Long, pool: Long)
 
-    actual fun vkAllocateDescriptorSet(device: Long, pool: Long, layout: Long): Long {
-        TODO("Not yet implemented")
-    }
+    actual external fun vkAllocateDescriptorSet(device: Long, pool: Long, layout: Long): Long
 
-    actual fun vkUpdateDescriptorSetBuffer(
+    actual external fun vkUpdateDescriptorSetBuffer(
         device: Long,
         dstSet: Long,
         dstBinding: Int,
         descriptorType: Int,
         bufferInfo: VkDescriptorBufferInfo
-    ) {
-        TODO("Not yet implemented")
-    }
+    )
 
-    actual fun vkUpdateDescriptorSetImage(
+    actual external fun vkUpdateDescriptorSetImage(
         device: Long,
         dstSet: Long,
         dstBinding: Int,
         descriptorType: Int,
         imageInfo: VkDescriptorImageInfo
-    ) {
-        TODO("Not yet implemented")
-    }
+    )
 
-    actual fun vkCmdBindDescriptorSet(
+    actual external fun vkCmdBindDescriptorSet(
         commandBuffer: Long,
         pipelineLayout: Long,
         firstSet: Int,
         descriptorSet: Long
-    ) {
-        TODO("Not yet implemented")
-    }
+    )
 }

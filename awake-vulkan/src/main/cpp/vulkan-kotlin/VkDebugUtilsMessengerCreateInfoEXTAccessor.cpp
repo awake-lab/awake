@@ -4,7 +4,12 @@
  *  Created by Ron June Valdoz */
 
 #include  <includes/VkDebugUtilsMessengerCreateInfoEXTAccessor.h>
+// android/log.h isn't actually used in this file (no __android_log_* calls) --
+// guarded rather than removed outright since it's generated/vendored code, and
+// android/log.h doesn't exist on non-Android hosts.
+#ifdef __ANDROID__
 #include <android/log.h>
+#endif // __ANDROID__
 #include "VkDebugUtilsMessengerCallbackDataEXTAccessor.h"
 #include "VkDebugUtilsMessengerCallbackDataEXTMutator.h"
 

@@ -20,7 +20,9 @@
 #include <includes/VkPhysicalDevicePropertiesMutator.h>
 #include <includes/VkGraphicsPipelineCreateInfoAccessor.h>
 #include <includes/VkShaderModuleCreateInfoAccessor.h>
+#ifdef __ANDROID__
 #include <includes/VkAndroidSurfaceCreateInfoKHRAccessor.h>
+#endif // __ANDROID__
 #include <includes/VkCommandBufferBeginInfoAccessor.h>
 #include <includes/VkDebugUtilsMessengerCreateInfoEXTAccessor.h>
 #include <includes/VkLayerPropertiesMutator.h>
@@ -121,7 +123,9 @@ namespace awake {
 
     jlong createFence(JNIEnv *env, jlong arg0, jobject arg1);
 
+#ifdef __ANDROID__
     jlong createAndroidSurfaceKHR(JNIEnv *env, jlong arg0, jobject arg1);
+#endif // __ANDROID__
 
     jobjectArray enumerateInstanceLayerProperties(JNIEnv *env);
 

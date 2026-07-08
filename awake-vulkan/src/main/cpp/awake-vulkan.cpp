@@ -81,6 +81,7 @@ Java_io_github_ronjunevaldoz_awake_vulkan_Vulkan_vkCreateDevice(JNIEnv *env, job
     return awake::createDevice(env, physical_device, device_info);
 }
 
+#ifdef __ANDROID__
 JNIEXPORT jlong JNICALL
 Java_io_github_ronjunevaldoz_awake_vulkan_Vulkan_vkCreateAndroidSurfaceKHR(JNIEnv *env,
                                                                            jobject thiz,
@@ -88,6 +89,7 @@ Java_io_github_ronjunevaldoz_awake_vulkan_Vulkan_vkCreateAndroidSurfaceKHR(JNIEn
                                                                            jobject surface_info) {
     return awake::createAndroidSurfaceKHR(env, pInstance, surface_info);
 }
+#endif // __ANDROID__
 
 JNIEXPORT jboolean JNICALL
 Java_io_github_ronjunevaldoz_awake_vulkan_Vulkan_vkGetPhysicalDeviceSurfaceSupportKHR(JNIEnv *env,
