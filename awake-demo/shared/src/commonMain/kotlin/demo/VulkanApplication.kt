@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
+import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkAttachmentStoreOp
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorComponentFlagBits
@@ -86,14 +87,8 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorPoolSize
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutBinding
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorType
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferImageCopy
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageLayout2
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageTiling
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageUsageFlagBits2
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSharingMode2
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
@@ -158,10 +153,7 @@ class VulkanApplication : Application {
     var descriptorSet: Long = 0
     var uniformBuffer: Long = 0
     var uniformBufferMemory: Long = 0
-    var textureImage: Long = 0
-    var textureImageMemory: Long = 0
-    var textureImageView: Long = 0
-    var textureSampler: Long = 0
+    private lateinit var texture: Texture
     var depthImage: Long = 0
     var depthImageMemory: Long = 0
     var depthImageView: Long = 0
@@ -252,9 +244,7 @@ class VulkanApplication : Application {
         createCommandPool()
         mesh = Mesh(graphicsDevice, ::runOneTimeCommands, cubeVertices, cubeIndices)
         createUniformBuffer()
-        createTextureImage()
-        createTextureImageView()
-        createTextureSampler()
+        texture = Texture(graphicsDevice, ::runOneTimeCommands, textureData, TEXTURE_WIDTH, TEXTURE_HEIGHT)
         createDescriptorPool()
         createDescriptorSet()
         createCommandBuffer()
@@ -423,8 +413,8 @@ class VulkanApplication : Application {
             1,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             VkDescriptorImageInfo(
-                sampler = textureSampler,
-                imageView = textureImageView
+                sampler = texture.sampler,
+                imageView = texture.imageView
             )
         )
     }
@@ -456,108 +446,6 @@ class VulkanApplication : Application {
         )
         Vulkan.vkWaitForFences(device, longArrayOf(fence), true, Long.MAX_VALUE)
         Vulkan.vkDestroyFence(device, fence)
-    }
-
-    private fun createTextureImage() {
-        val imageSize = textureData.size.toLong()
-        val stagingBuffer = VulkanBuffers.vkCreateBuffer(
-            device,
-            VkBufferCreateInfo(
-                size = imageSize,
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            )
-        )
-        val stagingRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, stagingBuffer)
-        val stagingMemoryTypeIndex = VulkanBuffers.findMemoryType(
-            physicalDevice,
-            stagingRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-        )
-        val stagingMemory = VulkanBuffers.vkAllocateMemory(
-            device,
-            VkMemoryAllocateInfo(
-                allocationSize = stagingRequirements.size,
-                memoryTypeIndex = stagingMemoryTypeIndex
-            )
-        )
-        VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
-        VulkanBuffers.writeBufferMemoryBytes(device, stagingMemory, 0, textureData)
-
-        textureImage = VulkanImages.vkCreateImage(
-            device,
-            VkImageCreateInfo(
-                width = TEXTURE_WIDTH,
-                height = TEXTURE_HEIGHT,
-                format = VkFormat.VK_FORMAT_R8G8B8A8_UNORM.value,
-                usage = VkImageUsageFlagBits2.VK_IMAGE_USAGE_TRANSFER_DST_BIT or
-                    VkImageUsageFlagBits2.VK_IMAGE_USAGE_SAMPLED_BIT,
-                imageType = VkImageType.VK_IMAGE_TYPE_2D,
-                tiling = VkImageTiling.VK_IMAGE_TILING_OPTIMAL,
-                initialLayout = VkImageLayout2.VK_IMAGE_LAYOUT_UNDEFINED,
-                sharingMode = VkSharingMode2.VK_SHARING_MODE_EXCLUSIVE,
-            )
-        )
-        val imageRequirements = VulkanImages.vkGetImageMemoryRequirements(device, textureImage)
-        val imageMemoryTypeIndex = VulkanBuffers.findMemoryType(
-            physicalDevice,
-            imageRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-        )
-        textureImageMemory = VulkanBuffers.vkAllocateMemory(
-            device,
-            VkMemoryAllocateInfo(
-                allocationSize = imageRequirements.size,
-                memoryTypeIndex = imageMemoryTypeIndex
-            )
-        )
-        VulkanImages.vkBindImageMemory(device, textureImage, textureImageMemory, 0)
-
-        runOneTimeCommands { commandBuffer ->
-            VulkanImages.vkTransitionImageLayout(
-                commandBuffer,
-                textureImage,
-                VkImageLayout2.VK_IMAGE_LAYOUT_UNDEFINED,
-                VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-            )
-            VulkanImages.vkCmdCopyBufferToImage(
-                commandBuffer,
-                stagingBuffer,
-                textureImage,
-                VkBufferImageCopy(imageWidth = TEXTURE_WIDTH, imageHeight = TEXTURE_HEIGHT)
-            )
-            VulkanImages.vkTransitionImageLayout(
-                commandBuffer,
-                textureImage,
-                VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-            )
-        }
-
-        VulkanBuffers.vkDestroyBuffer(device, stagingBuffer)
-        VulkanBuffers.vkFreeMemory(device, stagingMemory)
-    }
-
-    private fun createTextureImageView() {
-        textureImageView = Vulkan.vkCreateImageView(
-            device,
-            VkImageViewCreateInfo(
-                image = textureImage,
-                viewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_2D,
-                format = VkFormat.VK_FORMAT_R8G8B8A8_UNORM,
-                subresourceRange = VkImageSubresourceRange(
-                    aspectMask = VkImageAspectFlagBits.VK_IMAGE_ASPECT_COLOR_BIT.value,
-                    baseMipLevel = 0,
-                    levelCount = 1,
-                    baseArrayLayer = 0,
-                    layerCount = 1
-                )
-            )
-        )
-    }
-
-    private fun createTextureSampler() {
-        textureSampler = VulkanImages.vkCreateSampler(device, VkSamplerCreateInfo())
     }
 
     private fun drawFrame() {
@@ -948,10 +836,7 @@ class VulkanApplication : Application {
         mesh.destroy()
         VulkanBuffers.vkDestroyBuffer(device, uniformBuffer)
         VulkanBuffers.vkFreeMemory(device, uniformBufferMemory)
-        VulkanImages.vkDestroySampler(device, textureSampler)
-        Vulkan.vkDestroyImageView(device, textureImageView)
-        VulkanImages.vkDestroyImage(device, textureImage)
-        VulkanBuffers.vkFreeMemory(device, textureImageMemory)
+        texture.destroy()
         Vulkan.vkDestroyImageView(device, depthImageView)
         VulkanImages.vkDestroyImage(device, depthImage)
         VulkanBuffers.vkFreeMemory(device, depthImageMemory)

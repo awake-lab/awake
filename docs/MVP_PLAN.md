@@ -838,7 +838,24 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
     page-size-aligned (developer.android.com/16kb-page-size). Real, unrelated to Vulkan
     correctness, but a genuine future compatibility item for devices that enforce 16KB
     pages — not addressed here, just noted.
-- [ ] `Texture` — image upload, sampler, mipmaps (post-MVP ok)
+- [x] **`Texture` — image upload, sampler, mipmaps (2026-07-08):** new
+      `io.github.ronjunevaldoz.awake.vulkan.texture.Texture` (awake-vulkan), extracted
+      verbatim from `VulkanApplication`'s `createTextureImage`/`createTextureImageView`/
+      `createTextureSampler` functions and their four backing fields (`textureImage`,
+      `textureImageMemory`, `textureImageView`, `textureSampler`). Same staging-buffer ->
+      `vkCmdCopyBufferToImage` -> layout-transition pattern as before, just moved as-is; no
+      mipmap generation was added (the original didn't have any either — still a single
+      mip level). Takes `data`/`width`/`height` directly (no longer hardcoded to the demo's
+      2x2 checkerboard) and the same `runOneTimeCommands` lambda injection used by `Mesh`,
+      for the same reason (command pool + graphics queue aren't extracted yet). Exposes
+      `imageView`/`sampler` as read-only properties for the caller to build its own
+      `VkDescriptorImageInfo` — descriptor-set binding stays a Material/Shader concern, not
+      this class's, same boundary `Mesh` draws around `bind`/`draw`.
+  - **Confirmed on real hardware** (Galaxy S25 Ultra): no crash across the run, steady
+    "Fps: 60" in logcat, two screenshots 5 seconds apart show different cube orientations
+    with the checkerboard texture still visibly sampled on the top face (the dark banding
+    blended with the per-vertex RGB colors) in both — same visual result as before the
+    extraction, confirming it changed structure without changing behavior.
 - [ ] `Material` / `Shader` — pipeline + descriptor set ownership
 - [ ] `Renderer.draw(camera, List<DrawCall>)` entry point
 - [ ] Keep the layer API-agnostic (future Metal/WebGPU seam)
