@@ -67,6 +67,12 @@ expect object VulkanBuffers {
     /** `indexType` uses the plain-`Int` [io.github.ronjunevaldoz.awake.vulkan.models.info.VkIndexType] values. */
     fun vkCmdBindIndexBuffer(commandBuffer: Long, buffer: Long, offset: Long, indexType: Int)
 
+    /** Single-region copy (`srcOffset`/`dstOffset` both 0) -- the staging-buffer upload
+     * pattern (a HOST_VISIBLE staging buffer written via [writeBufferMemoryFloats]/
+     * [writeBufferMemoryBytes], then copied into a DEVICE_LOCAL destination buffer) never
+     * needs more than one region, same simplification as [VulkanImages.vkTransitionImageLayout]. */
+    fun vkCmdCopyBuffer(commandBuffer: Long, srcBuffer: Long, dstBuffer: Long, size: Long)
+
     fun vkCmdDrawIndexed(
         commandBuffer: Long,
         indexCount: Int,

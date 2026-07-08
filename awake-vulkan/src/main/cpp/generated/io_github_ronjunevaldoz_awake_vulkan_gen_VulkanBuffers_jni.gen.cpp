@@ -567,6 +567,50 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkCmdBindIndexBuffer
 
 
 extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkCmdCopyBuffer(
+        JNIEnv* env,
+        jclass clazz,
+        jlong commandBuffer,
+        jlong srcBuffer,
+        jlong dstBuffer,
+        jlong size) {
+    // --- Marshalling ---
+    void* commandBuffer_ptr = reinterpret_cast<void*>(commandBuffer);
+    void* srcBuffer_ptr = reinterpret_cast<void*>(srcBuffer);
+    void* dstBuffer_ptr = reinterpret_cast<void*>(dstBuffer);
+    // size is a plain byte count, not a handle -- 0 would be a legal (if useless) copy.
+
+    // --- Error handling ---
+    if (!commandBuffer_ptr) {
+        throw_illegal_state(env, "vkCmdCopyBuffer: commandBuffer not initialized");
+        return;
+    }
+    if (!srcBuffer_ptr) {
+        throw_illegal_state(env, "vkCmdCopyBuffer: srcBuffer not initialized");
+        return;
+    }
+    if (!dstBuffer_ptr) {
+        throw_illegal_state(env, "vkCmdCopyBuffer: dstBuffer not initialized");
+        return;
+    }
+
+    // Single-region copy -- srcOffset/dstOffset are always 0 for the staging-buffer upload
+    // pattern this exists for (see VulkanBuffers.kt's doc comment on the Kotlin side).
+    VkBufferCopy copyRegion{};
+    copyRegion.srcOffset = 0;
+    copyRegion.dstOffset = 0;
+    copyRegion.size = static_cast<VkDeviceSize>(size);
+
+    vkCmdCopyBuffer(
+        reinterpret_cast<VkCommandBuffer>(commandBuffer_ptr),
+        reinterpret_cast<VkBuffer>(srcBuffer_ptr),
+        reinterpret_cast<VkBuffer>(dstBuffer_ptr),
+        1,
+        &copyRegion);
+}
+
+
+extern "C" JNIEXPORT void JNICALL
 Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkCmdDrawIndexed(
         JNIEnv* env,
         jclass clazz,

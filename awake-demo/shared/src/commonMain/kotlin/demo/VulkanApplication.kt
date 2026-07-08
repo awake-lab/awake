@@ -594,59 +594,97 @@ class VulkanApplication : Application {
         textureSampler = VulkanImages.vkCreateSampler(device, VkSamplerCreateInfo())
     }
 
-    private fun createVertexBuffer() {
-        val bufferSize = (cubeVertices.size * Float.SIZE_BYTES).toLong()
-        vertexBuffer = VulkanBuffers.vkCreateBuffer(
+    /** Allocates a HOST_VISIBLE staging buffer, writes into it via [write], copies it into a
+     * new DEVICE_LOCAL buffer (usage = [usage] or TRANSFER_DST) using a one-time command
+     * buffer + [VulkanBuffers.vkCmdCopyBuffer], then frees the staging buffer. DEVICE_LOCAL
+     * memory is the whole reason this is worth the extra buffer/copy: it's not necessarily
+     * CPU-mappable, but it's the memory type the GPU can read fastest. */
+    private fun createDeviceLocalBuffer(
+        byteSize: Long,
+        usage: Int,
+        write: (memory: Long) -> Unit
+    ): Pair<Long, Long> {
+        val stagingBuffer = VulkanBuffers.vkCreateBuffer(
             device,
             VkBufferCreateInfo(
-                size = bufferSize,
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                size = byteSize,
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             )
         )
-        val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, vertexBuffer)
-        val memoryTypeIndex = VulkanBuffers.findMemoryType(
+        val stagingRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, stagingBuffer)
+        val stagingMemoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
-            memRequirements.memoryTypeBits,
+            stagingRequirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
                 VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
         )
-        vertexBufferMemory = VulkanBuffers.vkAllocateMemory(
+        val stagingMemory = VulkanBuffers.vkAllocateMemory(
             device,
             VkMemoryAllocateInfo(
-                allocationSize = memRequirements.size,
-                memoryTypeIndex = memoryTypeIndex
+                allocationSize = stagingRequirements.size,
+                memoryTypeIndex = stagingMemoryTypeIndex
             )
         )
-        VulkanBuffers.vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0)
-        VulkanBuffers.writeBufferMemoryFloats(device, vertexBufferMemory, 0, cubeVertices)
+        VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
+        write(stagingMemory)
+
+        val destBuffer = VulkanBuffers.vkCreateBuffer(
+            device,
+            VkBufferCreateInfo(
+                size = byteSize,
+                usage = usage or VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            )
+        )
+        val destRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, destBuffer)
+        val destMemoryTypeIndex = VulkanBuffers.findMemoryType(
+            physicalDevice,
+            destRequirements.memoryTypeBits,
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        )
+        val destMemory = VulkanBuffers.vkAllocateMemory(
+            device,
+            VkMemoryAllocateInfo(
+                allocationSize = destRequirements.size,
+                memoryTypeIndex = destMemoryTypeIndex
+            )
+        )
+        VulkanBuffers.vkBindBufferMemory(device, destBuffer, destMemory, 0)
+
+        runOneTimeCommands { commandBuffer ->
+            VulkanBuffers.vkCmdCopyBuffer(commandBuffer, stagingBuffer, destBuffer, byteSize)
+        }
+
+        VulkanBuffers.vkDestroyBuffer(device, stagingBuffer)
+        VulkanBuffers.vkFreeMemory(device, stagingMemory)
+
+        return destBuffer to destMemory
+    }
+
+    private fun createVertexBuffer() {
+        val bufferSize = (cubeVertices.size * Float.SIZE_BYTES).toLong()
+        val (buffer, memory) = createDeviceLocalBuffer(
+            byteSize = bufferSize,
+            usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            write = { stagingMemory ->
+                VulkanBuffers.writeBufferMemoryFloats(device, stagingMemory, 0, cubeVertices)
+            }
+        )
+        vertexBuffer = buffer
+        vertexBufferMemory = memory
     }
 
     private fun createIndexBuffer() {
         val indexBytes = cubeIndices.toByteArrayLE()
         val bufferSize = indexBytes.size.toLong()
-        indexBuffer = VulkanBuffers.vkCreateBuffer(
-            device,
-            VkBufferCreateInfo(
-                size = bufferSize,
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-            )
+        val (buffer, memory) = createDeviceLocalBuffer(
+            byteSize = bufferSize,
+            usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            write = { stagingMemory ->
+                VulkanBuffers.writeBufferMemoryBytes(device, stagingMemory, 0, indexBytes)
+            }
         )
-        val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, indexBuffer)
-        val memoryTypeIndex = VulkanBuffers.findMemoryType(
-            physicalDevice,
-            memRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-        )
-        indexBufferMemory = VulkanBuffers.vkAllocateMemory(
-            device,
-            VkMemoryAllocateInfo(
-                allocationSize = memRequirements.size,
-                memoryTypeIndex = memoryTypeIndex
-            )
-        )
-        VulkanBuffers.vkBindBufferMemory(device, indexBuffer, indexBufferMemory, 0)
-        VulkanBuffers.writeBufferMemoryBytes(device, indexBufferMemory, 0, indexBytes)
+        indexBuffer = buffer
+        indexBufferMemory = memory
     }
 
     private fun drawFrame() {

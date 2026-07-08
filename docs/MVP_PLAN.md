@@ -438,7 +438,25 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     a "not initialized" null-check, correct for real handles but wrong for a plain numeric
     offset (`memoryOffset`/`offset` — 0 is valid and common). Removed the bogus checks by
     hand for both new functions that take an offset.
-- [ ] Copy/staging: `vkCmdCopyBuffer`, `vkCmdCopyBufferToImage`, `vkCmdPipelineBarrier`
+- [x] **`vkCmdCopyBuffer` — real staging-buffer vertex/index upload (2026-07-08):** added to
+      `VulkanBuffers` (jni-binding-generator, hand-written native body — single-region copy,
+      `srcOffset`/`dstOffset` always 0, same simplification as `vkTransitionImageLayout`).
+      `vkCmdCopyBufferToImage` and the two narrow layout transitions already covered
+      `vkCmdPipelineBarrier`'s only real use here (see Images/samplers above); a fully
+      generic `VkImageMemoryBarrier` wasn't needed. Not proved with a throwaway call — the
+      demo's `createVertexBuffer()`/`createIndexBuffer()` were rewritten to the standard
+      Vulkan staging-buffer pattern (new shared `createDeviceLocalBuffer()` helper): a
+      HOST_VISIBLE staging buffer is written via the existing `writeBufferMemoryFloats`/
+      `writeBufferMemoryBytes`, then copied into a real DEVICE_LOCAL buffer via
+      `vkCmdCopyBuffer` inside a one-time command buffer (`runOneTimeCommands`, already used
+      for the texture upload), matching the actual vertex/index buffers real Vulkan apps use
+      (mappable memory is not guaranteed to be the GPU's fastest-to-read memory type).
+      **Confirmed on real hardware** (Galaxy S25 Ultra, reconnected over wireless ADB via
+      mDNS discovery — `adb connect <ip>:<port>` from the `_adb-tls-connect._tcp` service):
+      app builds and installs clean, no crash/Vulkan error in logcat, and a fresh screenshot
+      shows the same textured RGB cube with correct depth occlusion as before the change —
+      proof the new DEVICE_LOCAL buffer + copy path renders identically to the old direct
+      HOST_VISIBLE write, not just that it doesn't crash.
 - [x] **Descriptors — uniform buffer wired end-to-end (2026-07-08):** new `VulkanDescriptors`
       object (jni-binding-generator, same `.gen` package as `VulkanBuffers`) with
       `vkCreateDescriptorSetLayout`, `vkDestroyDescriptorSetLayout`,

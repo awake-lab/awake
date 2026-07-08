@@ -74,6 +74,10 @@ actual object VulkanBuffers {
         TODO("Not yet implemented")
     }
 
+    actual fun vkCmdCopyBuffer(commandBuffer: Long, srcBuffer: Long, dstBuffer: Long, size: Long) {
+        TODO("Not yet implemented")
+    }
+
     actual fun vkCmdDrawIndexed(
         commandBuffer: Long,
         indexCount: Int,

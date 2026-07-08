@@ -63,6 +63,7 @@ actual object VulkanBuffers {
     )
 
     actual external fun vkCmdBindIndexBuffer(commandBuffer: Long, buffer: Long, offset: Long, indexType: Int)
+    actual external fun vkCmdCopyBuffer(commandBuffer: Long, srcBuffer: Long, dstBuffer: Long, size: Long)
     actual external fun vkCmdDrawIndexed(
         commandBuffer: Long,
         indexCount: Int,
