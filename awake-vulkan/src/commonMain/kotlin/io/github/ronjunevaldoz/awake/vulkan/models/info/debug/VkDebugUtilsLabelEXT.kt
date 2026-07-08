@@ -24,7 +24,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkStructureType
 
 @VkMutator
-class VkDebugUtilsLabelEXT(
+class VkDebugUtilsLabelEXT @JvmOverloads constructor(
     val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
     val pNext: Any? = null,
     val pLabelName: String? = null,

@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkQueueFlags
 
 @VkMutator
-data class VkQueueFamilyProperties(
+data class VkQueueFamilyProperties @JvmOverloads constructor(
     val queueFlags: VkQueueFlags = 0,
     val queueCount: UInt = 0u,
     val timestampValidBits: UInt = 0u,

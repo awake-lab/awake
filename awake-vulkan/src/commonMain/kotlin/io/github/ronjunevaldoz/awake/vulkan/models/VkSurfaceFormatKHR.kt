@@ -24,7 +24,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorSpaceKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
 
 @VkMutator
-data class VkSurfaceFormatKHR(
+data class VkSurfaceFormatKHR @JvmOverloads constructor(
     val format: VkFormat = VkFormat.VK_FORMAT_UNDEFINED,
     val colorSpace: VkColorSpaceKHR = VkColorSpaceKHR.VK_COLORSPACE_SRGB_NONLINEAR_KHR
 )

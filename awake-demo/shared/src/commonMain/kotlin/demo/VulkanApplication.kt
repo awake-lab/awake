@@ -58,6 +58,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
+import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
 import io.github.ronjunevaldoz.awake.vulkan.has
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
@@ -179,6 +180,9 @@ class VulkanApplication : Application {
     var depthImageMemory: Long = 0
     var depthImageView: Long = 0
     var frameCount = 0
+    /** Non-zero only on desktop -- see [createSurface]. Used by [destroy] to know whether
+     * to tear down the GLFW window/terminate GLFW (Android has no equivalent). */
+    var glfwWindowHandle: Long = 0
 
     companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
@@ -881,9 +885,23 @@ class VulkanApplication : Application {
             getAppExtProps(layer)
         }.flatten()
 
-        val extProperties = (getAppExtProps() + layerExtProps).distinct()
+        // glfwGetRequiredInstanceExtensions() is a safe no-op returning emptyArray() on
+        // every non-GLFW platform (Android/iOS) -- see VulkanWindow.kt's actuals.
+        val glfwExtensions = VulkanWindow.glfwGetRequiredInstanceExtensions().toList()
+        // MoltenVK (desktop macOS) conforms to the Vulkan Portability spec: vkCreateInstance
+        // requires both VK_KHR_portability_enumeration enabled AND
+        // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR set, or it fails with
+        // VK_ERROR_INCOMPATIBLE_DRIVER. GLFW reporting VK_EXT_metal_surface as required is
+        // the reliable signal we're really running on MoltenVK (as opposed to Android or a
+        // real-native-Vulkan desktop driver, neither of which ever reports that extension).
+        val onMoltenVk = "VK_EXT_metal_surface" in glfwExtensions
+        val portabilityExtension = if (onMoltenVk) listOf("VK_KHR_portability_enumeration") else emptyList()
+        val instanceFlags = if (onMoltenVk) 0x00000001 else 0 // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
+
+        val extProperties = (getAppExtProps() + layerExtProps + glfwExtensions + portabilityExtension).distinct()
 
         val createInfo = VkInstanceCreateInfo(
+            flags = instanceFlags,
             pApplicationInfo = arrayOf(appInfo),
             ppEnabledLayerNames = layerProperties.toTypedArray(),
             ppEnabledExtensionNames = extProperties.toTypedArray()
@@ -1282,12 +1300,19 @@ class VulkanApplication : Application {
         return VkExtent2D(actualWidth, actualHeight)
     }
 
+    /** [window] is an `android.view.Surface` on Android, or a GLFW window handle (`Long`,
+     * from [VulkanWindow.glfwCreateWindow]) on desktop -- see [glfwWindowHandle]. Real
+     * cross-platform surface creation (Phase 1c) would replace this `is Long` check with
+     * a proper `expect fun createSurface`; deferred since this is the only two-platform
+     * call site so far. */
     private fun createSurface(window: Any): VkSurfaceKHR {
-        // Presentation
-        val surfaceInfo = VkAndroidSurfaceCreateInfoKHR(
-            window = window
-        )
-        surface = Vulkan.vkCreateAndroidSurfaceKHR(instance, surfaceInfo)
+        surface = if (window is Long) {
+            glfwWindowHandle = window
+            VulkanWindow.glfwCreateWindowSurface(instance, window)
+        } else {
+            val surfaceInfo = VkAndroidSurfaceCreateInfoKHR(window = window)
+            Vulkan.vkCreateAndroidSurfaceKHR(instance, surfaceInfo)
+        }
         return VkSurfaceKHR(
             instance = instance,
             surface = surface
@@ -1343,5 +1368,10 @@ class VulkanApplication : Application {
         Vulkan.vkDestroyDevice(device)
         Vulkan.vkDestroyDebugUtilsMessengerEXT(instance, debugUtilsMessenger)
         Vulkan.vkDestroyInstance(instance)
+
+        if (glfwWindowHandle != 0L) {
+            VulkanWindow.glfwDestroyWindow(glfwWindowHandle)
+            VulkanWindow.glfwTerminate()
+        }
     }
 }

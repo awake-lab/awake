@@ -26,7 +26,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagBitsKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagsKHR
 
 @VkMutator
-data class VkSurfaceCapabilitiesKHR(
+data class VkSurfaceCapabilitiesKHR @JvmOverloads constructor(
     val minImageCount: Int = 0,
     val maxImageCount: Int = 0,
     val currentExtent: VkExtent2D = VkExtent2D(),

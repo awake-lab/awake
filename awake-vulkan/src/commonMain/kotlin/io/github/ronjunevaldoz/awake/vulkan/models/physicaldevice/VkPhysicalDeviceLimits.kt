@@ -26,7 +26,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSampleCountFlags
 
 @VkMutator
-class VkPhysicalDeviceLimits(
+class VkPhysicalDeviceLimits @JvmOverloads constructor(
     val maxImageDimension1D: UInt = 0u,
     val maxImageDimension2D: UInt = 0u,
     val maxImageDimension3D: UInt = 0u,

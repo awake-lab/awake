@@ -62,7 +62,8 @@ actual object VulkanWindow {
         TODO("Not applicable on iOS -- see VulkanWindow.kt's doc comment.")
     }
 
-    actual fun glfwGetRequiredInstanceExtensions(): Array<String> {
-        TODO("Not applicable on iOS -- see VulkanWindow.kt's doc comment.")
-    }
+    // See the Android actual's identical override for why this one is a safe no-op
+    // rather than a TODO -- "no GLFW-required extensions" is true on every non-GLFW
+    // platform, letting cross-platform code call this unconditionally.
+    actual fun glfwGetRequiredInstanceExtensions(): Array<String> = emptyArray()
 }

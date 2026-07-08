@@ -63,7 +63,10 @@ actual object VulkanWindow {
         TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
     }
 
-    actual fun glfwGetRequiredInstanceExtensions(): Array<String> {
-        TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
-    }
+    // A genuinely safe no-op (unlike the other glfw* functions above, which are real
+    // programming errors if ever called on Android): "no GLFW-required extensions" is a
+    // true statement on every non-GLFW platform, letting cross-platform instance-creation
+    // code call this unconditionally without a platform check -- see VulkanApplication's
+    // createInstance() in awake-demo.
+    actual fun glfwGetRequiredInstanceExtensions(): Array<String> = emptyArray()
 }

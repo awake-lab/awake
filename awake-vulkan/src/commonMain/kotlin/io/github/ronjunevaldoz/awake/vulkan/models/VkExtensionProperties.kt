@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VkConstArray
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 
 @VkMutator
-data class VkExtensionProperties(
+data class VkExtensionProperties @JvmOverloads constructor(
     @VkConstArray("VK_MAX_EXTENSION_NAME_SIZE")
     val extensionName: String = "",
     val specVersion: Int = 0

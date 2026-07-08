@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkStructureType
 
 
 @VkMutator
-data class VkDebugUtilsObjectNameInfoEXT(
+data class VkDebugUtilsObjectNameInfoEXT @JvmOverloads constructor(
     val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
     val pNext: Any? = null,
     val objectType: VkObjectType = VkObjectType.VK_OBJECT_TYPE_UNKNOWN,

@@ -240,19 +240,46 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     on this Retina display for a requested 64x64 — expected HiDPI scaling), real
     `VkInstance` and `VkSurfaceKHR` handles obtained via `glfwCreateWindowSurface`, full
     cleanup completed without throwing.
-- [ ] Phase 1c below still needed before the demo app itself can use any of this to
-      actually render something visible (currently only proven via the standalone
-      `GlfwManualVerify` entry point, not wired into `awake-demo`)
+- [x] **Wired into the real demo app and visually confirmed rendering on desktop
+      (2026-07-08, macOS/arm64):** `VulkanDesktopMain.kt` (new, `awake-demo/desktopApp`) opens
+      a real GLFW window and drives the same `VulkanApplication` already proven on Android,
+      via `./gradlew :awake-demo:desktopApp:runVulkanDesktop`. Screenshot-verified (not just
+      "process didn't crash"): the "Awake Vulkan - Desktop" window shows a real rotating
+      gradient-shaded cube on MoltenVK. `VulkanApplication.createInstance()` now calls
+      `VulkanWindow.glfwGetRequiredInstanceExtensions()` unconditionally (safe `emptyArray()`
+      no-op on Android/iOS, real GLFW query on desktop), detects MoltenVK via
+      `"VK_EXT_metal_surface"` in the returned extensions, and enables
+      `VK_KHR_portability_enumeration` + the portability instance-create flag only in that
+      case. `createSurface()` branches on `window is Long` (GLFW handle) vs the existing
+      Android `Surface` path — a lightweight branch, not the full `expect fun createSurface`
+      abstraction described below, which is still open.
+  - **Real, previously fully-latent JNI bug found and fixed while getting this first real
+    run to complete:** desktop JVM (HotSpot) SIGSEGV'd inside
+    `VkPhysicalDeviceLimitsMutator::toObject`/`VkPhysicalDevicePropertiesMutator::toObject`
+    on the very first `vkGetPhysicalDeviceProperties` call. Root cause: these legacy
+    hand-written C++ Mutators call `env->GetMethodID(clazz, "<init>", "()V")` assuming every
+    mirrored Kotlin struct class has a true no-arg JVM constructor, but Kotlin only emits
+    that overload when `@JvmOverloads` is present on an all-default-valued constructor —
+    without it, `GetMethodID` silently returns null and `NewObject` with a null method ID
+    crashes. **ART tolerates this; HotSpot does not**, which is why 14 affected classes
+    (`VkExtensionProperties`, `VkExtent2D`/`3D`, `VkLayerProperties`,
+    `VkQueueFamilyProperties`, `VkSurfaceFormatKHR`, `VkSurfaceCapabilitiesKHR`,
+    `VkPhysicalDeviceFeatures`/`Limits`/`Properties`/`SparseProperties`, and the three
+    `VkDebugUtils*EXT` info structs) had this bug sitting completely unnoticed through every
+    round of Android testing this whole session — it only surfaced the moment the desktop
+    JVM path was actually exercised. Fixed by adding `@JvmOverloads constructor(...)` to all
+    14 Kotlin classes; the C++ Mutators were left untouched since the fix makes their
+    existing `GetMethodID(..., "()V")` assumption true instead of false.
 
 ### 1c. Platform-neutral surface
-- [ ] Replace `vkCreateAndroidSurfaceKHR` in common API with
-      `expect fun createSurface(window: NativeWindow): Long` -- `VulkanWindow.
-      glfwCreateWindowSurface` (done above) is the desktop half of this; still needs
-      unifying with Android's `vkCreateAndroidSurfaceKHR` behind one common API and
-      wiring into `awake-demo`'s actual render setup (currently only exercised via the
-      standalone `GlfwManualVerify` verification entry point).
-- [ ] Android actual → `ANativeWindow`
-- [ ] Desktop actual → `glfwCreateWindowSurface`
+- [x] GLFW window creation + Vulkan surface creation on desktop, wired into the real demo
+      app (see 1b above) — done via a lightweight `window is Long` branch in
+      `VulkanApplication.createSurface()`, not yet the full abstraction below.
+- [ ] Replace `vkCreateAndroidSurfaceKHR` in common API with a proper
+      `expect fun createSurface(window: NativeWindow): Long` unifying both platforms behind
+      one common API (currently a pragmatic `is Long` type-check, not a real expect/actual).
+- [x] Android actual → `ANativeWindow`
+- [x] Desktop actual → `glfwCreateWindowSurface`
 
 ### 1d. API gap fill (~25–30 functions, cheap once codegen works)
 

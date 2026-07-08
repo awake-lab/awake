@@ -26,7 +26,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPhysicalDeviceType
 
 @VkMutator
-class VkPhysicalDeviceProperties(
+class VkPhysicalDeviceProperties @JvmOverloads constructor(
     val apiVersion: Int = 0,
     val driverVersion: Int = 0,
     val vendorID: Int = 0,

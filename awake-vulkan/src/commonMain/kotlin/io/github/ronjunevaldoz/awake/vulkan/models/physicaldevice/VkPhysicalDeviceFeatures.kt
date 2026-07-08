@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VkBool32
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 
 @VkMutator
-data class VkPhysicalDeviceFeatures(
+data class VkPhysicalDeviceFeatures @JvmOverloads constructor(
     val robustBufferAccess: VkBool32 = false,
     val fullDrawIndexUint32: VkBool32 = false,
     val imageCubeArray: VkBool32 = false,
