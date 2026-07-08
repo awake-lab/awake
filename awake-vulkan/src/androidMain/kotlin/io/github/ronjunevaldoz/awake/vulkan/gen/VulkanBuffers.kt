@@ -48,6 +48,13 @@ actual object VulkanBuffers {
         data: FloatArray
     )
 
+    actual external fun writeBufferMemoryBytes(
+        device: Long,
+        memory: Long,
+        offset: Long,
+        data: ByteArray
+    )
+
     actual external fun vkCmdBindVertexBuffers(
         commandBuffer: Long,
         firstBinding: Int,

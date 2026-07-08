@@ -473,3 +473,54 @@ verification to work at all:**
    logcat at all. Replaced with `println(...)` (proven to surface as `System.out` in logcat
    per Round 5) so validation messages are actually visible going forward. This is kept
    permanently as diagnostic infrastructure, not reverted as a temporary snippet.
+
+## Round 8 — images/samplers, a real bug caught by an intentional throw (2026-07-08)
+
+Added `VulkanImages` (new object, same `.gen` package/pipeline): `vkCreateImage`,
+`vkDestroyImage`, `vkGetImageMemoryRequirements`, `vkBindImageMemory`, `vkCreateSampler`,
+`vkDestroySampler`, `vkTransitionImageLayout`, `vkCmdCopyBufferToImage`. Plus
+`VulkanDescriptors.vkUpdateDescriptorSetImage` (combined-image-sampler write) and
+`VulkanBuffers.writeBufferMemoryBytes` (byte-array sibling of `writeBufferMemoryFloats`).
+New structs: `VkImageCreateInfo`, `VkSamplerCreateInfo`, `VkDescriptorImageInfo`,
+`VkBufferImageCopy`, plus a new `VkImageLayout2` plain-`Int` object (deliberately separate
+from the existing enum-typed `VkImageLayout` used by swapchain/render-pass code, per the
+ordinal-vs-value hazard rule).
+
+`vkTransitionImageLayout`'s native body is deliberately narrow — it only implements the two
+layout transitions a texture upload actually needs (`UNDEFINED -> TRANSFER_DST_OPTIMAL`,
+`TRANSFER_DST_OPTIMAL -> SHADER_READ_ONLY_OPTIMAL`), the same simplification
+vulkan-tutorial.com's own reference implementation uses, rather than a fully generic
+`VkImageMemoryBarrier` with a complete access-mask/pipeline-stage lookup table this MVP
+doesn't need yet. Any other transition throws `IllegalArgumentException("...unsupported
+layout transition")` instead of silently doing something wrong.
+
+**That throw caught a real bug on the very first on-device run.** `VkImageLayout2.
+VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL` was hand-written as `6` (a copy/paste-adjacent typo
+next to `SHADER_READ_ONLY_OPTIMAL = 5`) — the real Vulkan value is `7`; `6` is actually
+`VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL`. The demo's `createTextureImage()` requested a
+transition to what it thought was `TRANSFER_DST_OPTIMAL` (really `TRANSFER_SRC_OPTIMAL`),
+which the native function's two-case check didn't recognize, so it threw immediately with
+the bad value visible in the Java stack trace (`SurfaceView: Exception configuring
+surface`, `IllegalArgumentException: vkTransitionImageLayout: unsupported layout
+transition`), rather than rendering a blank/corrupted texture with no diagnostic at all.
+**This is the concrete payoff of the plain-`Int`-with-explicit-error-path pattern**: an
+enum-ordinal version of this same typo would have silently picked a different
+*valid-looking* layout and produced wrong pixels with zero errors — much harder to catch
+than a same-session crash with the exact bad constant in the stack trace.
+
+**Verified with a real 2x2 RGBA8 checkerboard texture**, uploaded via a staging buffer
+(`writeBufferMemoryBytes` -> `vkCmdCopyBufferToImage` after an
+`UNDEFINED->TRANSFER_DST_OPTIMAL` transition, then `->SHADER_READ_ONLY_OPTIMAL` before first
+use), sampled in `triangle.frag` via a new `layout(binding=1) uniform sampler2D texSampler`
+combined multiplicatively with the existing UBO tint and per-vertex color. The vertex
+format grew a third attribute (`fragUV`, `vec2`), stride 5->7 floats. **Confirmed on real
+hardware** (Galaxy S25 Ultra) after fixing the layout-value bug: a grid of pixel samples
+across the rendered triangle (Python/PIL) shows a smooth darkening gradient toward the
+corner whose UV coordinate (~(0,1)) samples the checkerboard's black texel, and a
+correspondingly lighter gradient toward the corner sampling its white texel — matching
+bilinear filtering of a real 2x2 texture, not a coincidental lighting difference.
+
+This closes the "textured" half of Phase 1's textured-cube exit criteria. Remaining for
+that milestone: actual cube geometry (indexed draw) and an MVP-matrix uniform buffer
+(replacing today's flat tint vector) — everything else (buffers, vertex input, descriptors,
+uniform buffers, images/samplers) is now proven end-to-end on real hardware.

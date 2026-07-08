@@ -52,6 +52,10 @@ expect object VulkanBuffers {
     fun vkBindBufferMemory(device: Long, buffer: Long, memory: Long, memoryOffset: Long)
     fun writeBufferMemoryFloats(device: Long, memory: Long, offset: Long, data: FloatArray)
 
+    /** Same map->memcpy->unmap pattern as [writeBufferMemoryFloats], for raw byte data
+     * (e.g. texture pixels) instead of float uniform/vertex data. */
+    fun writeBufferMemoryBytes(device: Long, memory: Long, offset: Long, data: ByteArray)
+
     /** `bindingCount` is implicit (`buffers.size`); `offsets` must be the same size. */
     fun vkCmdBindVertexBuffers(
         commandBuffer: Long,

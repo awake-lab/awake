@@ -309,7 +309,54 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
        validation output is actually visible going forward — kept permanently, not reverted
        as a temporary snippet, since it's diagnostic infrastructure the testing policy
        above depends on.
-- [ ] Images: `vkCreateImage`, `vkBindImageMemory`, `vkCreateSampler`
+- [x] **Images/samplers — combined-image-sampler texture wired end-to-end (2026-07-08):**
+      new `VulkanImages` object (jni-binding-generator, same `.gen` package): `vkCreateImage`,
+      `vkDestroyImage`, `vkGetImageMemoryRequirements`, `vkBindImageMemory`, `vkCreateSampler`,
+      `vkDestroySampler`, `vkTransitionImageLayout` (narrow — only the two transitions a
+      texture upload needs: UNDEFINED->TRANSFER_DST_OPTIMAL and
+      TRANSFER_DST_OPTIMAL->SHADER_READ_ONLY_OPTIMAL, same simplification
+      vulkan-tutorial.com's reference code uses, rather than a fully generic
+      `VkImageMemoryBarrier`), `vkCmdCopyBufferToImage`. Added
+      `VulkanDescriptors.vkUpdateDescriptorSetImage` (combined-image-sampler descriptor
+      write) and `VulkanBuffers.writeBufferMemoryBytes` (byte-array sibling of
+      `writeBufferMemoryFloats`, for uploading raw texture pixels via a staging buffer).
+      New structs: `VkImageCreateInfo`, `VkSamplerCreateInfo`, `VkDescriptorImageInfo`,
+      `VkBufferImageCopy`. `imageType`/`format`/`tiling`/`initialLayout`/`usage`/
+      `sharingMode`/filter/address-mode/border-color fields all plain `Int`, per the
+      ordinal-vs-value hazard rule — including a **new** `VkImageLayout2` (deliberately not
+      reusing the existing enum-typed `VkImageLayout`, to keep the legacy generator's
+      swapchain/render-pass usage untouched).
+  - **Real bug caught by the testing policy's own safety net:** `vkTransitionImageLayout`'s
+    narrow two-case native body throws `IllegalArgumentException` for any layout pair it
+    doesn't recognize (`vkTransitionImageLayout: unsupported layout transition`) rather than
+    silently doing nothing — and it did throw, on the very first on-device run. Root cause:
+    `VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL` was hand-typed as `6` (copy/paste
+    proximity to `SHADER_READ_ONLY_OPTIMAL = 5`), but the real Vulkan value is `7` — `6` is
+    `VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL`. A silent version of this bug (e.g. an enum
+    ordinal picking the wrong-but-valid layout) would have produced a wrong render with no
+    error at all; the explicit unsupported-transition throw turned a hard-to-diagnose
+    wrong-pixels bug into an immediate, loud, unambiguous crash with the exact bad value in
+    the stack trace. **Reinforces the plain-`Int`-with-explicit-error-path pattern over
+    "silently pick something and hope"** for every hazard-prone value in this package.
+  - **Verified with a real 2x2 checkerboard texture** (not a throwaway image), sampled by
+    the triangle's fragment shader (`triangle.frag`: `layout(binding=1) uniform
+    sampler2D texSampler`, `outColor = vec4(fragColor * ubo.tint.rgb, 1.0) *
+    texture(texSampler, fragUV)`) and a new `fragUV` vertex attribute (`triangle.vert`
+    gained `layout(location=2) in vec2 inUV`; the vertex buffer's stride grew from 5 to 7
+    floats: position(2) + color(3) + uv(2)). **Confirmed on real hardware** (Galaxy S25
+    Ultra): after fixing the layout-value bug above, screenshot pixel-sampled across a grid
+    inside the triangle shows a smooth darkening gradient toward the corner whose UV
+    (≈(0,1)) maps to the checkerboard's black texel, and a lighter gradient toward the
+    corner whose UV (≈(1,1)) maps to its white texel — exactly the bilinearly-filtered 2x2
+    checkerboard pattern, not a coincidental brightness difference. This is the "textured"
+    half of the Phase 1 exit criteria's textured-cube milestone; only the cube geometry +
+    MVP-matrix uniform buffer (replacing the flat tint) remain.
+  - **Device-testing note:** the real device (USB-connected Galaxy S25 Ultra) transiently
+    dropped off `adb devices` mid-session and reappeared ~30s later on its own — a cable/USB
+    hiccup, not a build or code issue. Also, after reconnecting, one `am start` landed on the
+    device's Clock app instead of the demo (stray input from the reconnect), resolved by
+    `KEYCODE_HOME` + force-stop + relaunch. Neither is a code defect; noted here only because
+    it cost real debugging time before the actual native-code bug was found.
 - [x] **Vertex input — `vkCmdBindVertexBuffers` wired end-to-end (2026-07-08):** added to
       `VulkanBuffers` (jni-binding-generator, `binding.size`-driven, no separate
       `bindingCount` param needed). Demo (`awake-demo`'s `VulkanApplication.kt`) rewired to

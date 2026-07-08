@@ -20,6 +20,7 @@
 package io.github.ronjunevaldoz.awake.vulkan.gen
 
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorBufferInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorImageInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorPoolCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCreateInfo
 
@@ -54,6 +55,16 @@ actual object VulkanDescriptors {
         dstBinding: Int,
         descriptorType: Int,
         bufferInfo: VkDescriptorBufferInfo
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    actual fun vkUpdateDescriptorSetImage(
+        device: Long,
+        dstSet: Long,
+        dstBinding: Int,
+        descriptorType: Int,
+        imageInfo: VkDescriptorImageInfo
     ) {
         TODO("Not yet implemented")
     }

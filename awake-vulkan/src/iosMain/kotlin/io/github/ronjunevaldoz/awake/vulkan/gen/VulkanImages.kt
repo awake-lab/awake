@@ -20,52 +20,50 @@
 package io.github.ronjunevaldoz.awake.vulkan.gen
 
 import io.github.ronjunevaldoz.awake.vulkan.models.VkMemoryRequirements
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferImageCopy
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerCreateInfo
 
 // Phase 6 (MoltenVK cinterop) has not landed yet — see docs/MVP_PLAN.md.
-actual object VulkanBuffers {
-    actual fun vkCreateBuffer(device: Long, createInfo: VkBufferCreateInfo): Long {
+actual object VulkanImages {
+    actual fun vkCreateImage(device: Long, createInfo: VkImageCreateInfo): Long {
         TODO("Not yet implemented")
     }
 
-    actual fun vkDestroyBuffer(device: Long, buffer: Long) {
+    actual fun vkDestroyImage(device: Long, image: Long) {
         TODO("Not yet implemented")
     }
 
-    actual fun vkGetBufferMemoryRequirements(device: Long, buffer: Long): VkMemoryRequirements {
+    actual fun vkGetImageMemoryRequirements(device: Long, image: Long): VkMemoryRequirements {
         TODO("Not yet implemented")
     }
 
-    actual fun findMemoryType(physicalDevice: Long, typeFilter: Int, properties: Int): Int {
+    actual fun vkBindImageMemory(device: Long, image: Long, memory: Long, memoryOffset: Long) {
         TODO("Not yet implemented")
     }
 
-    actual fun vkAllocateMemory(device: Long, allocateInfo: VkMemoryAllocateInfo): Long {
+    actual fun vkCreateSampler(device: Long, createInfo: VkSamplerCreateInfo): Long {
         TODO("Not yet implemented")
     }
 
-    actual fun vkFreeMemory(device: Long, memory: Long) {
+    actual fun vkDestroySampler(device: Long, sampler: Long) {
         TODO("Not yet implemented")
     }
 
-    actual fun vkBindBufferMemory(device: Long, buffer: Long, memory: Long, memoryOffset: Long) {
-        TODO("Not yet implemented")
-    }
-
-    actual fun writeBufferMemoryFloats(device: Long, memory: Long, offset: Long, data: FloatArray) {
-        TODO("Not yet implemented")
-    }
-
-    actual fun writeBufferMemoryBytes(device: Long, memory: Long, offset: Long, data: ByteArray) {
-        TODO("Not yet implemented")
-    }
-
-    actual fun vkCmdBindVertexBuffers(
+    actual fun vkTransitionImageLayout(
         commandBuffer: Long,
-        firstBinding: Int,
-        buffers: LongArray,
-        offsets: LongArray
+        image: Long,
+        oldLayout: Int,
+        newLayout: Int
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    actual fun vkCmdCopyBufferToImage(
+        commandBuffer: Long,
+        srcBuffer: Long,
+        dstImage: Long,
+        copy: VkBufferImageCopy
     ) {
         TODO("Not yet implemented")
     }

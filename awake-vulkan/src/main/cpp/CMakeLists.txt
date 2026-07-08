@@ -34,7 +34,8 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         # legacy awake-vulkan-generator that backs the rest of this target's sources.
         # See that file's own header comment for the hand-edit workflow.
         generated/VulkanBuffers_jni.gen.cpp
-        generated/VulkanDescriptors_jni.gen.cpp)
+        generated/VulkanDescriptors_jni.gen.cpp
+        generated/VulkanImages_jni.gen.cpp)
 
 # jni-utils.h (vendored jni-binding-generator helper header the generated file needs).
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
