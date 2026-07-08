@@ -951,7 +951,25 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
     "Fps: 60" in logcat, two screenshots 5 seconds apart show different cube orientations
     with the textured/colored cube and depth occlusion rendering identically to before the
     extraction.
-- [ ] `Renderer.draw(camera, List<DrawCall>)` entry point
+- [x] **`Renderer.draw(camera, List<DrawCall>)` entry point (2026-07-09):** new
+      `io.github.ronjunevaldoz.awake.core.renderer.Renderer` + `DrawCall` (in **`awake-core`**,
+      not `awake-vulkan` — it needs `Camera`/`Mat4` (backend-agnostic math) to combine a
+      camera's view/projection with each draw call's model matrix, and `awake-core` already
+      depends on `awake-vulkan`, so putting it here avoids a circular module dependency).
+      Extracted verbatim from `VulkanApplication`'s `createDepthResources`/
+      `createFramebuffers`/`createCommandBuffer`/`drawFrame`/`recordCommandBuffer` — owns the
+      depth buffer, framebuffers, and per-frame command buffers, and orchestrates a whole
+      frame (wait/acquire → write each `DrawCall`'s MVP into its own material's uniform
+      buffer → record → submit → present) behind one `draw(camera, drawCalls)` call. Takes a
+      raw command-pool `Long` rather than a `TransferContext` instance — it only needs *a*
+      pool to allocate per-frame command buffers from, not the one-time-upload machinery.
+      `VulkanApplication` is now ~210 lines (down from ~800): `setupVulkan()` wires the
+      collaborators, and `update()` is just computing the demo's model (spin) matrix and
+      calling `renderer.draw(camera, listOf(DrawCall(mesh, material, model)))`.
+  - **Compiles clean** on desktop and Android. **Not yet confirmed on real hardware** — the
+    Galaxy S25 Ultra was in active use / unreachable over wireless ADB when this was ready to
+    verify. Verify on real hardware before treating this as done the same way every other
+    Phase 2 extraction was.
 - [ ] Keep the layer API-agnostic (future Metal/WebGPU seam)
 - [ ] Demo rewritten on the abstraction (~50 lines instead of ~800)
 
