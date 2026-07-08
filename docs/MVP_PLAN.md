@@ -134,7 +134,57 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
 - [ ] Desktop actual → `glfwCreateWindowSurface`
 
 ### 1d. API gap fill (~25–30 functions, cheap once codegen works)
-- [ ] Buffers: `vkCreateBuffer`, `vkDestroyBuffer`, `vkGetBufferMemoryRequirements`
+
+> ⚠️ **Enum-marshalling hazard (found 2026-07-08, wiring the first real function through
+> jni-binding-generator):** the tool marshals enum-typed fields/params via **ordinal
+> position**, not the enum's own backing value. This codebase's enums carry an explicit
+> `.value: Int` (the real Vulkan numeric constant) precisely *because* ordinal and value
+> diverge for many of them. Confirmed: `VkStructureType`'s ordinal matches `.value` only up
+> to entry 48 — `VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES` (ordinal 49) has
+> value `1000094000`. Auto-marshalling `VkStructureType` (or any enum with extension-range
+> gaps — `VkFormat`, most `*EXT`/`*KHR`-suffixed enums) via jni-binding-generator would
+> silently write/read the **wrong** structure type past that point — compiles clean, no
+> generator error, wrong at runtime. **Rule: never expose a `sType`-style or
+> extension-bearing enum as an enum-typed field to jni-binding-generator.** Model it as a
+> plain `Int` holding the pre-resolved `.value` instead (e.g.
+> `val sType: Int = VkStructureType.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO.value`). Only use
+> jni-binding-generator's enum feature for small, closed, never-extended enums verified to
+> have ordinal == value for every entry (e.g. `VkSharingMode`: 0/1, matches). When in doubt,
+> use the plain-`Int` escape hatch — it's always safe and jni-binding-generator already
+> supports `Int` fields trivially.
+
+- [x] **First real function wired end-to-end (2026-07-08):** `vkCreateBuffer`/
+      `vkDestroyBuffer`, in a new dedicated `io.github.ronjunevaldoz.awake.vulkan.gen`
+      package/`VulkanBuffers` object (not the legacy `Vulkan` object — see below),
+      generated via the vendored jni-binding-generator
+      (`tools/jni-binding-generator/`) into `awake-vulkan/src/main/cpp/generated/`,
+      wired into `CMakeLists.txt`, hand-written native bodies added calling the real
+      `vkCreateBuffer`/`vkDestroyBuffer` Vulkan API. Android demo APK builds clean
+      (regression gate holds) — CMake compiles and links the generated file
+      alongside the legacy 58-function native code with zero conflicts.
+  - **New dedicated package, not the legacy `Vulkan` object:** jni-binding-generator's
+    `--package-filter` scopes *generation* to `...vulkan.gen` while `--kotlin-source`
+    still points at the whole module (so the struct/enum pre-pass sees everything).
+    Necessary because several of the legacy object's 58 signatures use shapes the
+    tool doesn't support *as a function-level type* (only as a struct field) —
+    e.g. `Array<VkLayerProperties>` as a return type.
+  - **Two more real generator gaps found and fixed** (in the vendored tool itself,
+    generically — see D10 round 4/5 history): `typealias` declarations weren't
+    resolved at all (`VkDeviceSize`/`VkFlags`-style aliases fell through as
+    "unsupported"), and enum-typed struct fields assumed the enum lives in the same
+    package as the struct referencing it — wrong in the common case here (enums in
+    `enums/`, structs in `models/info/`), silently pointing at the wrong class path.
+  - **`expect object` needs an `actual` in every source set**, not just the one being
+    worked on — added stub `TODO()` actuals for `desktopMain`/`iosMain` alongside the
+    real `androidMain` implementation.
+  - **Generation is not wired to run automatically before the native build.** The
+    generated file's JNI bodies are meant to be hand-edited with the real Vulkan
+    calls (matching jni-binding-generator's own bundled examples — none show a
+    filled-in body either). Auto-regenerating would silently clobber those edits.
+    `generateJniBindings`/`checkJniBindings` Gradle tasks exist but are manual/
+    diagnostic only; the real safety net for signature drift is the C++ compiler
+    itself (a changed struct shape fails to compile against the old hand-written body).
+- [ ] Buffers: `vkGetBufferMemoryRequirements` (remaining)
 - [ ] Memory: `vkAllocateMemory`, `vkFreeMemory`, `vkBindBufferMemory`, `vkMapMemory`, `vkUnmapMemory`
 - [ ] Copy/staging: `vkCmdCopyBuffer`, `vkCmdCopyBufferToImage`, `vkCmdPipelineBarrier`
 - [ ] Descriptors: `vkCreateDescriptorSetLayout`, `vkCreateDescriptorPool`,

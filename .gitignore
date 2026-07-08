@@ -1,5 +1,8 @@
 *.iml
 .gradle
+.kotlin
+__pycache__/
+/gradle/gradle-daemon-jvm.properties
 /local.properties
 /.idea
 .DS_Store

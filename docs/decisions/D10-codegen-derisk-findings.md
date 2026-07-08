@@ -5,14 +5,18 @@ Phase 1a of [MVP_PLAN.md](../MVP_PLAN.md) called for a week-one de-risk: run
 `VkGraphicsPipelineCreateInfo` (the nastiest nested Vulkan struct) before committing to it
 as the replacement for the bespoke `awake-vulkan-generator`. This documents what was found.
 
-**Status: resolved as of round 3 (v1.6.9, commit `b19d555`, 2026-07-08).** Round 1 (v1.6.8)
-added struct marshalling and fixed the silent enum-guessing heuristic; round 2 re-verification
-found three further gaps (annotation stripping, enum-typed struct fields, array-of-struct
-fields). Round 3 fixed all three directly in the jni-binding-generator repo. Re-running the
-exact original de-risk repro now recovers **all 18 real fields** of
-`VkGraphicsPipelineCreateInfo` (previously 5), and all **58 real functions** in
+**Status: resolved and wired into the real build (round 4, v1.6.10, 2026-07-08).** Round 1
+(v1.6.8) added struct marshalling and fixed the silent enum-guessing heuristic; round 2
+re-verification found three further gaps (annotation stripping, enum-typed struct fields,
+array-of-struct fields), fixed in round 3 (v1.6.9). Round 4 actually wired the tool into the
+Gradle/CMake build for a genuinely new function (`vkCreateBuffer`/`vkDestroyBuffer`), which
+found two more generator gaps (`typealias` resolution, enum-field package correctness — both
+fixed in v1.6.10) plus several Awake-side wiring issues (CMake path scoping, the
+`--check`-vs-hand-edit incompatibility, `expect`/`actual` completeness). See "Round 4" below
+for the full account. Re-running the original de-risk repro recovers **all 18 real fields**
+of `VkGraphicsPipelineCreateInfo` (previously 5), and all **58 real functions** in
 `androidMain/Vulkan.kt` parse correctly with annotations stripped and no truncation. The
-tool's own test suite (259 tests), the real JNI-header compile-check integration test, and
+tool's own test suite (267 tests), the real JNI-header compile-check integration test, and
 drift checks against all 3 bundled examples all pass. See "Round 3" below for the fix
 details. **D10 is now closed: proceed with jni-binding-generator for Phase 1a**, option (a)
 from the original three (the gap turned out to be closeable, not a from-scratch rebuild).
@@ -238,6 +242,82 @@ one more pre-existing bug: non-nullable nested-struct fields in `make_<Struct>` 
   JDK headers.
 
 **Decision: D10 is closed.** jni-binding-generator can now be pointed at this codebase's real
-Vulkan structs and functions. Next step is wiring it into the actual Phase 1a Gradle build
-(`jniGenerator { bindings { ... } }`) against the full `awake-vulkan` source set, per the
-remaining Phase 1a checklist in [MVP_PLAN.md](../MVP_PLAN.md).
+Vulkan structs and functions.
+
+## Round 4 — actually wiring it into the Gradle/CMake build (2026-07-08)
+
+Re-verifying against copied-out source is not the same as wiring the tool into the real
+build for a genuinely new function. Doing that (`vkCreateBuffer`/`vkDestroyBuffer`, backed
+by a new `VkBufferCreateInfo` struct) surfaced several more real issues — two of them new
+generator gaps, fixed the same way as rounds 2–3 (directly in the vendored tool, generically).
+
+**Structural decision: new functions go in a separate `...vulkan.gen` package, not the
+legacy `Vulkan` object.** `--kotlin-source` must point at the whole module (the struct/enum
+pre-pass needs full visibility), but the legacy object's 58 functions include shapes
+jni-binding-generator can't generate at the *function* level yet (e.g.
+`Array<VkLayerProperties>` as a return type — only supported as a struct *field*, which is
+what rounds 2–3 actually added). `--package-filter` scopes generation to the new package
+while the pre-pass still sees everything, so the legacy object is left alone entirely.
+
+**Gap 4 — `typealias` was never resolved.** `VkBufferCreateInfo.size: VkDeviceSize` (where
+`typealias VkDeviceSize = Long`) fell through to "unsupported field type", identically for
+`VkBufferUsageFlags`/`VkBufferCreateFlags` (aliases of `VkFlags = Int`). The generator
+worked purely off the literal type name as written, with no concept of `typealias` at all.
+Fixed generically in the vendored tool: `collect_typealiases()` (driver pre-pass) +
+`resolve_typealias()` (chain-following: `VkBufferUsageFlags -> VkFlags -> Int`), applied
+before every type lookup for both function params/returns and struct fields.
+
+**Gap 5 — enum struct fields assumed the wrong package.** Round 3 documented this as a
+known limitation ("assumed to be in the same package as the struct that contains it");
+wiring against the real codebase showed it's not an edge case here — it's the norm (enums
+live in `enums/`, structs in `models/info/`). `VkBufferCreateInfo.sharingMode: VkSharingMode`
+was marshalled with `Lio/github/ronjunevaldoz/awake/vulkan/models/info/VkSharingMode;` — the
+struct's package, not the enum's real one
+(`io/github/ronjunevaldoz/awake/vulkan/enums/VkSharingMode`). Fixed generically:
+`collect_enum_packages()` tracks each enum's actual declaring package (mirroring how
+`KotlinStruct.package` already works); the struct generator uses it, falling back to the
+referencing struct's package only if genuinely unknown. Both gaps fixed and verified
+end-to-end (267 tests, compile-check, all example drift checks) before re-vendoring; see
+jni-binding-generator's own CHANGELOG v1.6.10 for the fix in isolation.
+
+**Non-generator issues found while wiring (Awake-side, not the tool's):**
+
+- **CMake path mismatch.** `:awake-vulkan:android-native`'s `externalNativeBuild.cmake.path`
+  points at `../src/main/cpp/CMakeLists.txt` (i.e. the *sibling* `awake-vulkan/src/`
+  directory, not a subdirectory of `android-native/`) — a consequence of the AGP 9 module
+  split done in the toolchain migration (see the AGP9/Kotlin2.4 migration lessons file).
+  The Gradle output directory for generated JNI code must match that same root
+  (`awake-vulkan/src/main/cpp/generated/`), not `android-native/src/main/cpp/generated/` —
+  the latter is a path CMake never looks at. Easy to get wrong since both look plausible.
+- **`--check` cannot be an automatic build gate once hand-edited.** The generated file's
+  JNI bodies are meant to be hand-filled with real Vulkan calls (matching
+  jni-binding-generator's own bundled examples, none of which show a filled-in body
+  either — this is intended usage, not a workaround). But `--check` is a byte-for-byte
+  diff against a fresh generation, so once any hand-edit exists it fails forever, with no
+  way to distinguish "the Kotlin signature actually changed" from "the TODO body was
+  intentionally filled in". Resolution: `checkJniBindings` is kept as a manual diagnostic
+  task only, not wired to `dependsOn` the native build; the real safety net for signature
+  drift is the C++ compiler itself — an incompatible struct-shape change fails to compile
+  against the stale hand-written body, pointing at the exact mismatch.
+- **`expect object` needs an `actual` in every source set.** Adding `VulkanBuffers` as
+  `expect object` in `commonMain` immediately broke `compileKotlinDesktop` (missing
+  actual) even though only `androidMain` had real work to do. Added `TODO()`-stub actuals
+  for `desktopMain`/`iosMain` matching the legacy `Vulkan` object's own convention for
+  not-yet-implemented platforms.
+- **Enum-marshalling ordinal-vs-value hazard (Awake-specific, not a generator bug):**
+  jni-binding-generator marshals confirmed enums via **ordinal position** — correct
+  behavior for the tool, since it has no way to know an enum carries a separate
+  `.value: Int`. But this codebase's `VkStructureType` has ordinal == value only up to
+  entry 48 (`VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES`, ordinal 49, has value
+  `1000094000`) — extension types break the correspondence. Auto-marshalling
+  `VkStructureType` (or `VkFormat`, most `*EXT`/`*KHR` enums) this way would silently write
+  the wrong structure-type tag. `VkBufferCreateInfo` was deliberately designed without an
+  `sType`/`pNext` field (hardcoded in the hand-written native body instead — it's a
+  compile-time constant per struct type anyway) and uses `VkSharingMode` (verified
+  ordinal == value for both its entries, and the Vulkan spec has never extended it) as the
+  only real enum field. See the Phase 1d hazard note in [MVP_PLAN.md](../MVP_PLAN.md) for
+  the concrete rule going forward.
+
+**Verification:** Android demo APK builds clean (generated file compiles for both
+arm64-v8a/x86_64, links against the legacy 58-function native code with no symbol
+conflicts); desktop jar, legacy generator module, and detekt all still pass.

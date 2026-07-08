@@ -29,7 +29,15 @@ add_subdirectory(vulkan-kotlin)
 # used in the AndroidManifest.xml file.
 add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
-        awake-vulkan.cpp)
+        awake-vulkan.cpp
+        # Generated via jni-binding-generator (see D10 in docs/decisions/), not the
+        # legacy awake-vulkan-generator that backs the rest of this target's sources.
+        # See that file's own header comment for the hand-edit workflow.
+        generated/VulkanBuffers_jni.gen.cpp)
+
+# jni-utils.h (vendored jni-binding-generator helper header the generated file needs).
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../tools/jni-binding-generator/scripts)
 
 find_library(log-lib log)
 
