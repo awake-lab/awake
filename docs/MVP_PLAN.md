@@ -77,8 +77,22 @@ Goal: current toolchain, regression baseline protected.
       sweep as a standalone commit later
 - [x] GitHub Actions CI (`.github/workflows/ci.yml`): detekt + Android APK (JNI regression
       gate) + desktop jar + generator on push/PR; uploads demo APK artifact
-- [ ] Old `build-and-publish.yml` is stale (JDK 11, Xcode 14) — refresh when publishing
-      resumes (Phase 0 out-of-scope; see D9 versioning)
+- [x] **`build-and-publish.yml` refreshed (2026-07-08):** was targeting Sonatype's legacy
+      OSSRH staging API (`s01.oss.sonatype.org`), sunset June 2025 — publishing would have
+      failed outright. Migrated `awake-core` to the vanniktech `maven-publish` plugin
+      targeting the current Central Portal; JDK bumped 11 → 17 to match the project's
+      `jvmToolchain(17)`. Applied directly in `awake-core/build.gradle.kts`'s own
+      `plugins {}` block rather than through a `buildSrc` precompiled convention plugin —
+      the convention-plugin route hit a real classloader conflict (vanniktech's KMP
+      detection needs to see the *same* Kotlin Gradle Plugin classes the consuming project
+      loaded, which a buildSrc-applied plugin doesn't share) for zero benefit, since
+      `awake-core` is the only publisher. Verified end-to-end via a local
+      `publishAndroidPublicationToMavenLocal`/`publishDesktopPublicationToMavenLocal` dry
+      run — jar/sources/javadoc/pom all land correctly; the existing `isMainHost` iOS-gating
+      mechanism (see D9) carried over unchanged. **Still open:** whoever owns the Maven
+      Central account needs to generate a Central Portal user token
+      (central.sonatype.com/account) to replace the `CI_MAVEN_USERNAME`/`CI_MAVEN_PASSWORD`
+      GitHub secrets — an account action, not something fixable from code.
 - [x] **Regression baseline:** Android Vulkan demo APK builds on Kotlin 2.4/AGP 9.2/Gradle 9.6
       (device render check still recommended); desktop demo jar + generator also build
 - [x] **Confirmed** (attempted `compileKotlinIosSimulatorArm64`): the empty `actual object
@@ -86,6 +100,11 @@ Goal: current toolchain, regression baseline protected.
       pre-existing, not caused by the migration. Resolving it is Phase 6 scope (MoltenVK
       design), so iOS compilation is left red until then; not part of the CI gate
 - [x] Decide repo/agent tooling setup (D3: agents + skills installed 2026-07-07)
+- [x] **Removed leftover debug code in the OpenGL demo (2026-07-08):** `DemoApplication.update()`
+      was overriding the drawer's actual selection with `Random.nextInt` every second on
+      desktop, fighting `DemoDrawer`'s real click-to-select mechanism (`DemoApplication.
+      drawableIndex = items.indexOf(item)`). Not Vulkan-related, just noise found while
+      testing the desktop demo this round.
 
 ### Testing policy for every new `vkXxx` function (in force from Phase 1d onward)
 
@@ -313,6 +332,13 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     AWT's native macOS graphics-device enumeration block. **Next step**: re-run
     `:awake-demo:desktopApp:run` with the screen unlocked and confirm the companion window
     actually appears and the switch toggles it.
+  - **Retried same-day, same result:** re-ran on Temurin 17 again; hit the identical
+    `CGraphicsDevice.getCGLConfigInfo` native hang and `screencapture`/System-Events failures,
+    ruling out "wrong JDK" as the sole cause — this machine's display session was still
+    unavailable (not just idle-locked once). Verification of the actual companion-window
+    launch remains open; everything short of that (compiles clean, `MainKt` launches the real
+    Compose UI, `DesktopVulkanCompanionWindow`'s process-spawn logic reviewed line-by-line) is
+    done.
 
 ### 1c. Platform-neutral surface
 - [x] GLFW window creation + Vulkan surface creation on desktop, wired into the real demo
