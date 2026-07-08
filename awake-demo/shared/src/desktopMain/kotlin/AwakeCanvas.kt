@@ -18,8 +18,11 @@
  */
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -43,6 +47,23 @@ actual fun AwakeCanvas(
     renderer: Application,
     vulkan: Boolean
 ) {
+    if (vulkan) {
+        // Compose Desktop's own Skia/AWT event loop and GLFW's event loop both need to own
+        // "the main thread" on macOS -- rather than fight that, Vulkan runs in a companion
+        // JVM process with its own real GLFW window (see DesktopVulkanCompanionWindow).
+        DisposableEffect(Unit) {
+            DesktopVulkanCompanionWindow.launch()
+            onDispose { DesktopVulkanCompanionWindow.close() }
+        }
+        Box(modifier.fillMaxSize()) {
+            Text(
+                text = "Vulkan is rendering in the \"Awake Vulkan - Desktop\" companion window (MoltenVK).",
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+        return
+    }
+
     val scope = rememberCoroutineScope()
     renderer.create()
     LaunchedEffect(Unit) {

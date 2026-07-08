@@ -271,6 +271,49 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     14 Kotlin classes; the C++ Mutators were left untouched since the fix makes their
     existing `GetMethodID(..., "()V")` assumption true instead of false.
 
+- [x] **Compose demo wired for Vulkan on both platforms (2026-07-08):** answering "does the
+      *Compose* demo (the one with the Enable-Vulkan switch/buttons/FPS text, not the
+      standalone GLFW window) run Vulkan on both platforms?" — Android: yes, already did
+      (`VulkanScene()` → `AwakeCanvas` → `VulkanView` `AndroidView`). Desktop: **no**, for two
+      separate reasons, both fixed this round:
+  1. `awake-demo/desktopApp/src/jvmMain/kotlin/main.kt`'s `fun main()` — the actual entry
+     point `:awake-demo:desktopApp:run` launches — had its Compose application block
+     (`application { Window { MainView() } }`) commented out, replaced by a raw OpenGL/AWT
+     `createFrame` loop (`DemoApplication`, not even Compose). So the Compose UI containing
+     the switch was never reachable via the normal run task at all, on any renderer. Restored
+     `fun main() = application { Window(...) { MainView() } }`; the old loop is preserved as
+     `runOpenGlFrameDemo()` (a plain function, not currently wired to a task) since it's still
+     a legitimate manual smoke test, just not what `run` should launch.
+  2. Desktop's `AwakeCanvas` actual was a stub — `vulkan: Boolean` was never even read, and
+     the per-frame draw code was commented out (dead FBO-to-`ImageBitmap` blit path). Flipping
+     the switch did nothing visible. Fixed via **`DesktopVulkanCompanionWindow`** (new,
+     `awake-demo/shared/src/desktopMain`): when `vulkan == true`, spawns `VulkanDesktopMainKt`
+     (the real GLFW+MoltenVK window from 1b, unmodified) as a **separate companion JVM
+     process** rather than trying to drive GLFW's event loop from inside Compose Desktop's own
+     process — both GLFW and AWT/Skiko need to own "the main thread" on macOS Cocoa, and
+     interleaving those two event loops in one process is real, undone work; a companion
+     process sidesteps the conflict entirely. Reuses the running process's own classpath
+     (`VulkanDesktopMainKt` is already loaded, same module) and gets
+     `java.library.path`/`VK_ICD_FILENAMES`/`DYLD_FALLBACK_LIBRARY_PATH` via system properties
+     set on the Compose app's own `jvmArgs` (`awake.vulkan.nativeLibsDir`/`icdFilenames`/
+     `dyldFallbackLibraryPath`), explicitly copied into the child process's environment map
+     (system properties don't propagate to child *OS* environments the way real env vars do).
+  - **Verification blocked, not yet confirmed working end-to-end:** got as far as confirming
+    (a) both modules compile cleanly with this wiring, (b) `MainKt` correctly launches the
+    real Compose UI now (no more OpenGL VBO/VAO log spam confirming the old path is gone), but
+    hit two environment obstacles verifying the actual companion-window launch on this
+    machine: the Gradle daemon's own JDK (Homebrew OpenJDK 25, inherited by the
+    `compose.desktop.application` `run` task instead of the project's declared
+    `jvmToolchain(17)`) caused Compose Desktop's first `GraphicsEnvironment` initialization to
+    hang indefinitely inside native `CGraphicsDevice`/`getCGLConfigInfo` calls; forcing the
+    Gradle daemon onto Temurin 17 via `-Dorg.gradle.java.home` got past compilation but hit the
+    same native hang, which combined with `screencapture`/System-Events automation also
+    failing at the same time (root cause: the display session had gone idle/locked partway
+    through this session — confirmed via `ioreg`'s `HIDIdleTime`) — a locked screen can make
+    AWT's native macOS graphics-device enumeration block. **Next step**: re-run
+    `:awake-demo:desktopApp:run` with the screen unlocked and confirm the companion window
+    actually appears and the switch toggles it.
+
 ### 1c. Platform-neutral surface
 - [x] GLFW window creation + Vulkan surface creation on desktop, wired into the real demo
       app (see 1b above) — done via a lightweight `window is Long` branch in
