@@ -524,3 +524,63 @@ This closes the "textured" half of Phase 1's textured-cube exit criteria. Remain
 that milestone: actual cube geometry (indexed draw) and an MVP-matrix uniform buffer
 (replacing today's flat tint vector) — everything else (buffers, vertex input, descriptors,
 uniform buffers, images/samplers) is now proven end-to-end on real hardware.
+
+## Round 9 — textured cube: indexed drawing, depth buffer, real MVP matrix (2026-07-08)
+
+Added `vkCmdBindIndexBuffer`/`vkCmdDrawIndexed` (to `VulkanBuffers`, same jni-binding-
+generator pipeline) and `vkDeviceWaitIdle` (needed to safely serialize frames around a
+single, not per-frame-in-flight, uniform buffer that now gets rewritten every frame with a
+fresh MVP matrix -- a deliberate MVP-scope simplification over double-buffering the UBO,
+noted as Phase 2 renderer-abstraction follow-up). Wired a real depth buffer: a new
+`VkFormat.VK_FORMAT_D32_SFLOAT` image (via `VulkanImages`), a second render-pass attachment
+with `pDepthStencilAttachment` (a field that already existed on `VkSubpassDescription` but
+had never been used), and `VkPipelineDepthStencilStateCreateInfo` — which already existed,
+fully modeled, defaulting to depth-test/write enabled — finally wired into
+`VkGraphicsPipelineCreateInfo.pDepthStencilState` instead of sitting commented out. The
+demo's flat `tint` uniform was replaced with a real per-frame `model * view * projection`
+matrix (4x4, `mat4` in the shader), computed via `awake-core`'s existing `Mat4`/`Vec3` math
+types — not a demo-local reimplementation.
+
+**First real multi-matrix-multiply caller of `awake-core`'s `Mat4`, and it exposed a real,
+previously-invisible bug in that code.** `Mat4.data` is column-major (`data[col*4+row] =
+M[row][col]`), matching GLSL's own `mat4` layout — this part is correct and necessary.
+But the `times` operator's inner loops (`sum += data[i*4+k] * other.data[k*4+j]`) index the
+array as if it were row-major. Working through the index algebra: for any two matrices A
+and B, the Kotlin expression `A * B` evaluates to the *conventional* matrix product `B * A`
+— operand order is silently reversed. This had apparently never been caught before because
+no prior caller multiplied two non-trivial (non-identity, non-commuting) `Mat4`s together
+and visually verified the result — every existing use was presumably single-matrix
+transforms or commutative-enough cases that masked it.
+
+**Symptom was a distinct failure signature worth naming for the testing policy:** the first
+on-device attempt rendered a **completely blank Vulkan surface** — not a wrong shape, wrong
+color, or wrong position, just nothing at all, every frame, with zero validation-layer
+errors and zero crashes. Computing the MVP as `projection * view * model` (the natural,
+*wrong*, Kotlin-side expression given the bug) silently produces the reverse conventional
+product `model * view * projection`, which sends every vertex somewhere degenerate relative
+to the clip-space frustum — Vulkan happily rasterizes nothing, because there's nothing valid
+to rasterize. **"Nothing renders, no error" reliably means a transform/frustum problem, not
+a broken draw call** — worth checking the math before re-auditing the Vulkan API surface
+when a previously-working render goes fully blank.
+
+**Fixed at the call site** (`model * view * projection` in Kotlin, to get the conventional
+`projection * view * model` this bug's reversal actually produces), not inside `Mat4.times`
+itself — an unknown number of other `awake-core` callers may already depend on (or
+accidentally tolerate) the current reversed behavior, so fixing the operator is a separate,
+deliberate cleanup task, not something to fold into a rendering milestone.
+
+**Second, unrelated, expected issue:** `Mat4.perspective` follows the OpenGL NDC convention
+(`+Y` up); Vulkan's NDC has `+Y` down. `projection.m11 *= -1f` at the call site corrects
+this — a well-known Vulkan/OpenGL difference every Vulkan renderer built on OpenGL-style
+math utilities has to apply itself, not a bug in the math library.
+
+**Confirmed on real hardware** (Galaxy S25 Ultra) after both fixes: a proper 3D perspective
+cube renders with correct depth-tested face occlusion (only the nearer of any two
+overlapping faces visible, no z-fighting), smooth per-vertex color interpolation across
+each face, and the checkerboard texture visibly darkening each face's shading — the actual
+Phase 1 "textured cube with uniform-buffer MVP matrix" milestone, on Android. This device
+session was also the first to use **wireless adb** (`adb tcpip 5555` + `adb connect
+<ip>:5555`), confirmed working with the USB cable fully disconnected — set up specifically
+because the USB transport had hiccupped earlier in this session (Round 8), and immune to
+that class of problem going forward. Re-pairing is required again after the device reboots
+or leaves the Wi-Fi network.

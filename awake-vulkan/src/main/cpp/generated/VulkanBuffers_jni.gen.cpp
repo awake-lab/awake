@@ -525,3 +525,87 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkCmdBindVertexBuffe
         vkBuffers.data(),
         vkOffsets.data());
 }
+
+
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkCmdBindIndexBuffer(
+        JNIEnv* env,
+        jclass clazz,
+        jlong commandBuffer,
+        jlong buffer,
+        jlong offset,
+        jint indexType) {
+    // --- Marshalling ---
+    void* commandBuffer_ptr = reinterpret_cast<void*>(commandBuffer);
+    void* buffer_ptr = reinterpret_cast<void*>(buffer);
+    // offset is a plain byte offset, not a handle -- 0 is valid and common.
+    int32_t indexType_val = static_cast<int32_t>(indexType);
+
+    // --- Error handling ---
+    if (!commandBuffer_ptr) {
+        throw_illegal_state(env, "vkCmdBindIndexBuffer: commandBuffer not initialized");
+        return;
+    }
+    if (!buffer_ptr) {
+        throw_illegal_state(env, "vkCmdBindIndexBuffer: buffer not initialized");
+        return;
+    }
+
+    vkCmdBindIndexBuffer(
+        reinterpret_cast<VkCommandBuffer>(commandBuffer_ptr),
+        reinterpret_cast<VkBuffer>(buffer_ptr),
+        static_cast<VkDeviceSize>(offset),
+        static_cast<VkIndexType>(indexType_val));
+}
+
+
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkCmdDrawIndexed(
+        JNIEnv* env,
+        jclass clazz,
+        jlong commandBuffer,
+        jint indexCount,
+        jint instanceCount,
+        jint firstIndex,
+        jint vertexOffset,
+        jint firstInstance) {
+    // --- Marshalling ---
+    void* commandBuffer_ptr = reinterpret_cast<void*>(commandBuffer);
+    int32_t indexCount_val = static_cast<int32_t>(indexCount);
+    int32_t instanceCount_val = static_cast<int32_t>(instanceCount);
+    int32_t firstIndex_val = static_cast<int32_t>(firstIndex);
+    int32_t vertexOffset_val = static_cast<int32_t>(vertexOffset);
+    int32_t firstInstance_val = static_cast<int32_t>(firstInstance);
+
+    // --- Error handling ---
+    if (!commandBuffer_ptr) {
+        throw_illegal_state(env, "vkCmdDrawIndexed: commandBuffer not initialized");
+        return;
+    }
+
+    vkCmdDrawIndexed(
+        reinterpret_cast<VkCommandBuffer>(commandBuffer_ptr),
+        static_cast<uint32_t>(indexCount_val),
+        static_cast<uint32_t>(instanceCount_val),
+        static_cast<uint32_t>(firstIndex_val),
+        vertexOffset_val,
+        static_cast<uint32_t>(firstInstance_val));
+}
+
+
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkDeviceWaitIdle(
+        JNIEnv* env,
+        jclass clazz,
+        jlong device) {
+    // --- Marshalling ---
+    void* device_ptr = reinterpret_cast<void*>(device);
+
+    // --- Error handling ---
+    if (!device_ptr) {
+        throw_illegal_state(env, "vkDeviceWaitIdle: device not initialized");
+        return;
+    }
+
+    vkDeviceWaitIdle(reinterpret_cast<VkDevice>(device_ptr));
+}

@@ -61,4 +61,16 @@ actual object VulkanBuffers {
         buffers: LongArray,
         offsets: LongArray
     )
+
+    actual external fun vkCmdBindIndexBuffer(commandBuffer: Long, buffer: Long, offset: Long, indexType: Int)
+    actual external fun vkCmdDrawIndexed(
+        commandBuffer: Long,
+        indexCount: Int,
+        instanceCount: Int,
+        firstIndex: Int,
+        vertexOffset: Int,
+        firstInstance: Int
+    )
+
+    actual external fun vkDeviceWaitIdle(device: Long)
 }

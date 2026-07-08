@@ -72,6 +72,7 @@ object VkSharingMode2 {
 object VkImageUsageFlagBits2 {
     const val VK_IMAGE_USAGE_TRANSFER_DST_BIT = 0x00000002
     const val VK_IMAGE_USAGE_SAMPLED_BIT = 0x00000004
+    const val VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT = 0x00000020
 }
 
 class VkSamplerCreateInfo(
@@ -123,3 +124,8 @@ class VkBufferImageCopy(
     val baseArrayLayer: Int = 0,
     val layerCount: Int = 1,
 )
+
+object VkIndexType {
+    const val VK_INDEX_TYPE_UINT16 = 0
+    const val VK_INDEX_TYPE_UINT32 = 1
+}

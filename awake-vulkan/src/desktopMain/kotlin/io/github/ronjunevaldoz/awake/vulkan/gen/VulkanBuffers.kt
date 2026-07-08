@@ -69,4 +69,23 @@ actual object VulkanBuffers {
     ) {
         TODO("Not yet implemented")
     }
+
+    actual fun vkCmdBindIndexBuffer(commandBuffer: Long, buffer: Long, offset: Long, indexType: Int) {
+        TODO("Not yet implemented")
+    }
+
+    actual fun vkCmdDrawIndexed(
+        commandBuffer: Long,
+        indexCount: Int,
+        instanceCount: Int,
+        firstIndex: Int,
+        vertexOffset: Int,
+        firstInstance: Int
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    actual fun vkDeviceWaitIdle(device: Long) {
+        TODO("Not yet implemented")
+    }
 }

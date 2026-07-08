@@ -382,7 +382,8 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     which only surfaced as a C++ compile error (`unknown type name 'VkBuffer'`, etc.), not
     a silent runtime bug — but still worth calling out: **any regenerate-then-remerge
     pass must re-diff the include block too, not just the function bodies.**
-- [ ] Depth buffer support in render pass
+- [x] **Depth buffer support in render pass (2026-07-08):** added as part of the textured-
+      cube milestone below, not standalone — see that entry.
 - [x] **VMA decision (2026-07-08): deferred, not adopted for MVP.** Raw `vkAllocateMemory`
       shipped instead. The driver allocation cap (~4096) only bites at real scene scale
       (many distinct entities/resources); the MVP is a single cube. Vendoring VMA into the
@@ -395,8 +396,61 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
       `vkCreateInstance`→triangle smoke tests run headless on GitHub Actions
 
 ### Exit criteria
-- [ ] Vertex-buffer triangle on Android + 3 desktop OSes
-- [ ] Textured cube with uniform-buffer MVP matrix on Android + desktop
+- [ ] Vertex-buffer triangle on Android + 3 desktop OSes (Android done — see Phase 1a;
+      desktop blocked on Phase 1b, the native build, not yet started)
+- [x] **Textured cube with uniform-buffer MVP matrix — Android done (2026-07-08):** real
+      indexed-draw cube (8 vertices, 36 indices via 2 new functions —
+      `VulkanBuffers.vkCmdBindIndexBuffer`/`vkCmdDrawIndexed`, plus `vkDeviceWaitIdle` to
+      safely serialize frames around a single shared uniform buffer — see below), a real
+      depth buffer (`VulkanImages` + a new render-pass depth attachment +
+      `VkPipelineDepthStencilStateCreateInfo` finally wired into the pipeline instead of
+      commented out), and a genuine per-frame model\*view\*projection matrix (reusing
+      `awake-core`'s existing `Mat4`/`Vec3`, not a hand-rolled demo-only math type) replacing
+      the earlier flat tint vector in the uniform buffer. **Confirmed on real hardware**
+      (Galaxy S25 Ultra, this time over **wireless adb** — `adb tcpip 5555` +
+      `adb connect <ip>:5555`, verified independent of the USB cable by disconnecting USB
+      entirely mid-session): a real 3-face perspective cube renders with correct depth
+      occlusion, per-vertex color blending, and the checkerboard texture visibly darkening
+      each face — the actual Phase 1 textured-cube milestone, on Android. Desktop still
+      blocked on Phase 1b.
+  - **Two real bugs found and fixed while getting this on screen, both in pre-existing
+    `awake-core` math code this was the first real caller of:**
+    1. **`Mat4.times` computes the operands in reverse order.** `Mat4.data` is column-major
+       (`data[col*4+row] = M[row][col]`, matching GLSL's own `mat4` layout — correct), but
+       the `times` operator's inner loops index `data[i*4+k]`/`data[k*4+j]` as if the array
+       were row-major. Working through the algebra: for matrices A, B, the Kotlin expression
+       `A * B` actually evaluates to the conventional matrix product `B * A`. This had
+       apparently never been exercised by a real multi-matrix transform chain before (no
+       prior caller multiplied two non-identity, non-commuting `Mat4`s together and checked
+       the result visually). **Symptom:** the cube's first render attempt was **completely
+       blank** (not "wrong colors" or "wrong shape" — nothing at all, at any frame), because
+       `model*view*projection` (the wrong, reversed order) sends every vertex somewhere
+       degenerate relative to the clip-space frustum. No validation-layer error, no crash —
+       just nothing drawn. **Fixed at the call site, not in `awake-core` itself**: written
+       the MVP computation as `model * view * projection` (Kotlin syntax) to get the
+       conventional `projection * view * model` this bug's reversal actually produces,
+       with an inline comment explaining why. Fixing `Mat4.times` itself is out of scope
+       here — an unknown number of other callers may already depend on (or accidentally
+       rely on) the current reversed behavior; that's a separate, deliberate cleanup task,
+       not a fix to bundle into a rendering milestone.
+    2. **Vulkan/OpenGL NDC Y-axis mismatch.** `Mat4.perspective` follows the OpenGL
+       convention (`+Y` up in NDC); Vulkan's NDC has `+Y` down. Without correcting for this
+       (`projection.m11 *= -1f`), the cube renders upside-down/mirrored. This is a
+       well-known, expected Vulkan/OpenGL difference (not a bug in `awake-core`), called out
+       here because it's exactly the kind of platform-convention mismatch a generic
+       cross-API math library can't bake in — it has to be applied at the Vulkan call site.
+  - **Lesson for the testing policy:** "nothing renders, no error" is its own distinct
+    failure signature worth checking for explicitly — it usually means geometry is
+    landing outside the clip-space frustum (wrong transform order, wrong handedness,
+    wrong Y-axis convention), not that the draw call itself failed. Check the transform
+    math before suspecting the Vulkan API surface when a screen goes from "something wrong"
+    to "completely blank."
+  - **Wireless debugging set up and confirmed as a side effect of this round's device
+    testing** (asked for separately, not part of the cube work itself): `adb tcpip 5555`
+    then `adb connect <device-ip>:5555` — verified working with the USB cable fully
+    disconnected, immune to the USB-transport hiccup noted in the images/samplers round.
+    Re-pairing (`adb tcpip`/`adb connect`) is needed again after the device reboots or
+    leaves the network.
 
 ## Phase 2 — Renderer Abstraction (2–3 weeks)
 

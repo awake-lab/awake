@@ -63,4 +63,22 @@ expect object VulkanBuffers {
         buffers: LongArray,
         offsets: LongArray
     )
+
+    /** `indexType` uses the plain-`Int` [io.github.ronjunevaldoz.awake.vulkan.models.info.VkIndexType] values. */
+    fun vkCmdBindIndexBuffer(commandBuffer: Long, buffer: Long, offset: Long, indexType: Int)
+
+    fun vkCmdDrawIndexed(
+        commandBuffer: Long,
+        indexCount: Int,
+        instanceCount: Int,
+        firstIndex: Int,
+        vertexOffset: Int,
+        firstInstance: Int
+    )
+
+    /** Blocks until all queues on [device] are idle. Used to fully serialize frames so a
+     * single (not per-frame-in-flight) uniform buffer can be safely rewritten every frame
+     * without racing the GPU's read of the previous frame -- a deliberate simplification;
+     * see the MVP-matrix uniform buffer usage in the demo for the full rationale. */
+    fun vkDeviceWaitIdle(device: Long)
 }

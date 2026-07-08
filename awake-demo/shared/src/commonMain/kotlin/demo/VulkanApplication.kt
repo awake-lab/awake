@@ -20,10 +20,14 @@
 package demo
 
 import io.github.ronjunevaldoz.awake.core.graphics.Application
+import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.vulkan.Version
 import io.github.ronjunevaldoz.awake.vulkan.Version.Companion.vkVersion
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkAttachmentStoreOp
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorComponentFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorSpaceKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCommandBufferLevel
@@ -106,6 +110,8 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageUsageFlagBits2
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSharingMode2
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkIndexType
+import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.DebugUtilsFormattedCallback
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCreateInfoEXT
@@ -158,6 +164,8 @@ class VulkanApplication : Application {
     var currentFrame = 0
     var vertexBuffer: Long = 0
     var vertexBufferMemory: Long = 0
+    var indexBuffer: Long = 0
+    var indexBufferMemory: Long = 0
     var descriptorSetLayout: Long = 0
     var descriptorPool: Long = 0
     var descriptorSet: Long = 0
@@ -167,25 +175,46 @@ class VulkanApplication : Application {
     var textureImageMemory: Long = 0
     var textureImageView: Long = 0
     var textureSampler: Long = 0
+    var depthImage: Long = 0
+    var depthImageMemory: Long = 0
+    var depthImageView: Long = 0
+    var frameCount = 0
 
     companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
         val clearColorValue = VkClearColorValue.rgba(0f, 0f, 0f, 1f)
+        val clearDepthValue = VkClearDepthStencilValue(depth = 1f, stencil = 0)
+        const val DEPTH_FORMAT = 126 // VkFormat.VK_FORMAT_D32_SFLOAT.value
 
-        // interleaved position(vec2) + color(vec3) + uv(vec2), matching triangle.vert's
-        // location 0 / location 1 / location 2 inputs.
-        val triangleVertices = floatArrayOf(
-            0.0f, -0.5f, 1.0f, 0.0f, 0.0f, 0.5f, 0.0f,
-            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+        // interleaved position(vec3) + color(vec3) + uv(vec2), matching triangle.vert's
+        // location 0 / location 1 / location 2 inputs. 8 unique corners of a unit cube,
+        // colored with the classic RGB-cube palette (black/red/yellow/green/blue/magenta/
+        // white/cyan) so every face is visually distinguishable; UVs are approximate
+        // (shared corners can't have per-face-correct UVs without duplicating vertices,
+        // out of scope for this MVP proof of indexed drawing + a real MVP matrix).
+        val cubeVertices = floatArrayOf(
+            -0.5f, -0.5f, -0.5f, 0f, 0f, 0f, 0f, 0f, // v0
+            0.5f, -0.5f, -0.5f, 1f, 0f, 0f, 1f, 0f, // v1
+            0.5f, 0.5f, -0.5f, 1f, 1f, 0f, 1f, 1f, // v2
+            -0.5f, 0.5f, -0.5f, 0f, 1f, 0f, 0f, 1f, // v3
+            -0.5f, -0.5f, 0.5f, 0f, 0f, 1f, 0f, 0f, // v4
+            0.5f, -0.5f, 0.5f, 1f, 0f, 1f, 1f, 0f, // v5
+            0.5f, 0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f, // v6
+            -0.5f, 0.5f, 0.5f, 0f, 1f, 1f, 0f, 1f, // v7
         )
-        const val VERTEX_STRIDE = 7 * Float.SIZE_BYTES
+        const val VERTEX_STRIDE = 8 * Float.SIZE_BYTES
 
-        // std140 vec4 (matches triangle.frag's `UBO { vec4 tint; }`) -- a visibly distinct
-        // bluish dim applied to the vertex-buffer-driven triangle color, so the effect is
-        // observable in a screenshot as proof the uniform buffer/descriptor set path is
-        // really feeding the shader, not just compiling.
-        val uboTint = floatArrayOf(0.5f, 0.5f, 1.0f, 0.0f)
+        // 12 triangles, 2 per face. cullMode is set to NONE in the pipeline (see
+        // createGraphicsPipeline) specifically so this winding order doesn't need to be
+        // outward-consistent per face -- depth testing alone resolves correct occlusion.
+        val cubeIndices = intArrayOf(
+            0, 1, 2, 2, 3, 0, // back
+            4, 5, 6, 6, 7, 4, // front
+            0, 3, 7, 7, 4, 0, // left
+            1, 5, 6, 6, 2, 1, // right
+            0, 4, 5, 5, 1, 0, // bottom
+            3, 2, 6, 6, 7, 3, // top
+        )
 
         // A tiny 2x2 RGBA8 checkerboard (white/black) -- proves real texture sampling
         // without needing an image file loader (out of scope for this MVP phase).
@@ -197,6 +226,18 @@ class VulkanApplication : Application {
             // black, white
             0, 0, 0, -1, -1, -1, -1, -1,
         )
+    }
+
+    private fun IntArray.toByteArrayLE(): ByteArray {
+        val out = ByteArray(size * 4)
+        for (i in indices) {
+            val v = this[i]
+            out[i * 4] = (v and 0xFF).toByte()
+            out[i * 4 + 1] = ((v shr 8) and 0xFF).toByte()
+            out[i * 4 + 2] = ((v shr 16) and 0xFF).toByte()
+            out[i * 4 + 3] = ((v shr 24) and 0xFF).toByte()
+        }
+        return out
     }
 
     override fun create(surface: Any?) {
@@ -236,9 +277,11 @@ class VulkanApplication : Application {
         createRenderPass()
         createDescriptorSetLayout()
         createGraphicsPipeline()
+        createDepthResources()
         createFramebuffers()
         createCommandPool()
         createVertexBuffer()
+        createIndexBuffer()
         createUniformBuffer()
         createTextureImage()
         createTextureImageView()
@@ -257,7 +300,8 @@ class VulkanApplication : Application {
                     VkDescriptorSetLayoutBinding(
                         binding = 0,
                         descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                        stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+                        // MVP matrix is only ever read in the vertex shader now.
+                        stageFlags = VkShaderStageFlagBits.VERTEX.value
                     ),
                     VkDescriptorSetLayoutBinding(
                         binding = 1,
@@ -269,8 +313,51 @@ class VulkanApplication : Application {
         )
     }
 
+    private fun createDepthResources() {
+        depthImage = VulkanImages.vkCreateImage(
+            device,
+            VkImageCreateInfo(
+                width = swapChainExtent.width,
+                height = swapChainExtent.height,
+                format = DEPTH_FORMAT,
+                usage = VkImageUsageFlagBits2.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            )
+        )
+        val requirements = VulkanImages.vkGetImageMemoryRequirements(device, depthImage)
+        val memoryTypeIndex = VulkanBuffers.findMemoryType(
+            physicalDevice,
+            requirements.memoryTypeBits,
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        )
+        depthImageMemory = VulkanBuffers.vkAllocateMemory(
+            device,
+            VkMemoryAllocateInfo(
+                allocationSize = requirements.size,
+                memoryTypeIndex = memoryTypeIndex
+            )
+        )
+        VulkanImages.vkBindImageMemory(device, depthImage, depthImageMemory, 0)
+        depthImageView = Vulkan.vkCreateImageView(
+            device,
+            VkImageViewCreateInfo(
+                image = depthImage,
+                viewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_2D,
+                format = VkFormat.VK_FORMAT_D32_SFLOAT,
+                subresourceRange = VkImageSubresourceRange(
+                    aspectMask = VkImageAspectFlagBits.VK_IMAGE_ASPECT_DEPTH_BIT.value,
+                    baseMipLevel = 0,
+                    levelCount = 1,
+                    baseArrayLayer = 0,
+                    layerCount = 1
+                )
+            )
+        )
+    }
+
+    /** MVP-matrix uniform buffer (64 bytes, mat4) -- initial contents don't matter since
+     * [updateUniformBuffer] overwrites it every frame before the first draw. */
     private fun createUniformBuffer() {
-        val bufferSize = (uboTint.size * Float.SIZE_BYTES).toLong()
+        val bufferSize = (16 * Float.SIZE_BYTES).toLong()
         uniformBuffer = VulkanBuffers.vkCreateBuffer(
             device,
             VkBufferCreateInfo(
@@ -293,7 +380,37 @@ class VulkanApplication : Application {
             )
         )
         VulkanBuffers.vkBindBufferMemory(device, uniformBuffer, uniformBufferMemory, 0)
-        VulkanBuffers.writeBufferMemoryFloats(device, uniformBufferMemory, 0, uboTint)
+    }
+
+    /** Rebuilds model*view*projection every frame (a simple Y-axis spin) and rewrites the
+     * whole uniform buffer. Only safe because [drawFrame] calls `vkDeviceWaitIdle` after
+     * every submit -- see that function's comment for why a single shared (not
+     * per-frame-in-flight) uniform buffer needs that serialization. */
+    private fun updateUniformBuffer() {
+        val angle = frameCount * 0.02f
+        val model = Mat4().rotateY(angle).rotateX(angle * 0.5f)
+        val view = Mat4.setLookAt(
+            eye = Vec3(2f, 2f, 2f),
+            center = Vec3(0f, 0f, 0f),
+            up = Vec3(0f, 1f, 0f)
+        )
+        val aspect = swapChainExtent.width.toFloat() / swapChainExtent.height.toFloat()
+        val projection = Mat4.perspective(
+            fovY = (45.0 * kotlin.math.PI / 180.0).toFloat(),
+            aspect = aspect,
+            near = 0.1f,
+            far = 10f
+        )
+        // Mat4.perspective follows the OpenGL convention (NDC +Y up); Vulkan's NDC has +Y
+        // down, so the projection's Y scale must be flipped or the cube renders upside down.
+        projection.m11 *= -1f
+        // Mat4's `data` array is column-major (matches GLSL's mat4 layout) but its `times`
+        // operator's inner loops index it as if row-major, so `A * B` (Kotlin) actually
+        // computes the conventional `B * A`. To get the conventional projection*view*model
+        // (the standard vertex-transform order: model space -> view space -> clip space),
+        // the Kotlin expression has to be written in the opposite order.
+        val mvp = model * view * projection
+        VulkanBuffers.writeBufferMemoryFloats(device, uniformBufferMemory, 0, mvp.data)
     }
 
     private fun createDescriptorPool() {
@@ -328,7 +445,7 @@ class VulkanApplication : Application {
             VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             VkDescriptorBufferInfo(
                 buffer = uniformBuffer,
-                range = (uboTint.size * Float.SIZE_BYTES).toLong()
+                range = (16 * Float.SIZE_BYTES).toLong()
             )
         )
         VulkanDescriptors.vkUpdateDescriptorSetImage(
@@ -475,7 +592,7 @@ class VulkanApplication : Application {
     }
 
     private fun createVertexBuffer() {
-        val bufferSize = (triangleVertices.size * Float.SIZE_BYTES).toLong()
+        val bufferSize = (cubeVertices.size * Float.SIZE_BYTES).toLong()
         vertexBuffer = VulkanBuffers.vkCreateBuffer(
             device,
             VkBufferCreateInfo(
@@ -498,7 +615,35 @@ class VulkanApplication : Application {
             )
         )
         VulkanBuffers.vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0)
-        VulkanBuffers.writeBufferMemoryFloats(device, vertexBufferMemory, 0, triangleVertices)
+        VulkanBuffers.writeBufferMemoryFloats(device, vertexBufferMemory, 0, cubeVertices)
+    }
+
+    private fun createIndexBuffer() {
+        val indexBytes = cubeIndices.toByteArrayLE()
+        val bufferSize = indexBytes.size.toLong()
+        indexBuffer = VulkanBuffers.vkCreateBuffer(
+            device,
+            VkBufferCreateInfo(
+                size = bufferSize,
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            )
+        )
+        val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, indexBuffer)
+        val memoryTypeIndex = VulkanBuffers.findMemoryType(
+            physicalDevice,
+            memRequirements.memoryTypeBits,
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        )
+        indexBufferMemory = VulkanBuffers.vkAllocateMemory(
+            device,
+            VkMemoryAllocateInfo(
+                allocationSize = memRequirements.size,
+                memoryTypeIndex = memoryTypeIndex
+            )
+        )
+        VulkanBuffers.vkBindBufferMemory(device, indexBuffer, indexBufferMemory, 0)
+        VulkanBuffers.writeBufferMemoryBytes(device, indexBufferMemory, 0, indexBytes)
     }
 
     private fun drawFrame() {
@@ -517,6 +662,9 @@ class VulkanApplication : Application {
             imageAvailableSemaphores[currentFrame],
             0
         )
+
+        updateUniformBuffer()
+        frameCount++
 
         Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
         recordCommandBuffer(commandBuffers[currentFrame], imageIndex)
@@ -552,6 +700,12 @@ class VulkanApplication : Application {
         }
 
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT
+
+        // Fully serializes frames so the single (not per-frame-in-flight) uniform buffer
+        // above can be safely rewritten every frame -- see updateUniformBuffer's comment.
+        // A real engine would double-buffer the UBO per frame-in-flight instead of paying
+        // this full-pipeline stall; deferred as a Phase 2 (renderer abstraction) concern.
+        VulkanBuffers.vkDeviceWaitIdle(device)
     }
 
     private fun recreateSwapChain() {
@@ -586,7 +740,7 @@ class VulkanApplication : Application {
             renderArea = VkRect2D(
                 extent = swapChainExtent
             ),
-            pClearValues = arrayOf(clearColorValue)
+            pClearValues = arrayOf(clearColorValue, clearDepthValue)
         )
         Vulkan.vkCmdBeginRenderPass(
             commandBuffer,
@@ -614,8 +768,14 @@ class VulkanApplication : Application {
             longArrayOf(vertexBuffer),
             longArrayOf(0L)
         )
+        VulkanBuffers.vkCmdBindIndexBuffer(
+            commandBuffer,
+            indexBuffer,
+            0,
+            VkIndexType.VK_INDEX_TYPE_UINT32
+        )
         VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet)
-        Vulkan.vkCmdDraw(commandBuffer, 3, 1, 0, 0)
+        VulkanBuffers.vkCmdDrawIndexed(commandBuffer, cubeIndices.size, 1, 0, 0, 0)
         Vulkan.vkCmdEndRenderPass(commandBuffer)
         Vulkan.vkEndCommandBuffer(commandBuffer)
     }
@@ -646,7 +806,11 @@ class VulkanApplication : Application {
         swapChainFrameBuffers = swapChainImageViews.map { imageView ->
             val frameBufferInfo = VkFramebufferCreateInfo(
                 renderPass = renderPass,
-                pAttachments = arrayOf(imageView),
+                // depthImageView is shared across every framebuffer -- only one frame is
+                // ever actually in the depth-write phase at a time given drawFrame's
+                // vkDeviceWaitIdle serialization, so this is safe (a "real" per-frame-in-
+                // flight setup would need one depth image per frame-in-flight instead).
+                pAttachments = arrayOf(imageView, depthImageView),
                 width = swapChainExtent.width,
                 height = swapChainExtent.height,
                 layers = 1
@@ -663,6 +827,12 @@ class VulkanApplication : Application {
                         format = swapChainImageFormat,
                         initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
                         finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+                    ),
+                    VkAttachmentDescription(
+                        format = VkFormat.VK_FORMAT_D32_SFLOAT,
+                        storeOp = VkAttachmentStoreOp.DONT_CARE,
+                        initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
+                        finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
                     )
                 ),
                 pSubpasses = arrayOf(
@@ -673,6 +843,12 @@ class VulkanApplication : Application {
                                 attachment = 0,
                                 layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
                             )
+                        ),
+                        pDepthStencilAttachment = arrayOf(
+                            VkAttachmentReference(
+                                attachment = 1,
+                                layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+                            )
                         )
                     )
                 ),
@@ -680,10 +856,14 @@ class VulkanApplication : Application {
                     VkSubpassDependency(
                         srcSubpass = VK_SUBPASS_EXTERNAL,
                         dstSubpass = 0,
-                        srcStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
+                        srcStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value or
+                            VkPipelineStageFlagBits.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT.value,
                         srcAccessMask = 0,
-                        dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
-                        dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value,
+                        dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value or
+                            VkPipelineStageFlagBits.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT.value,
+                        dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or
+                            VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value or
+                            VkAccessFlagBits.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT.value,
                     )
                 )
             )
@@ -949,20 +1129,20 @@ class VulkanApplication : Application {
                         VkVertexInputAttributeDescription(
                             location = 0,
                             binding = 0,
-                            format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
+                            format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
                             offset = 0
                         ),
                         VkVertexInputAttributeDescription(
                             location = 1,
                             binding = 0,
                             format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
-                            offset = 2 * Float.SIZE_BYTES
+                            offset = 3 * Float.SIZE_BYTES
                         ),
                         VkVertexInputAttributeDescription(
                             location = 2,
                             binding = 0,
                             format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
-                            offset = 5 * Float.SIZE_BYTES
+                            offset = 6 * Float.SIZE_BYTES
                         )
                     )
                 )
@@ -1011,7 +1191,11 @@ class VulkanApplication : Application {
             // Specify rasterization state.
             val rasterizationInfo = arrayOf(
                 VkPipelineRasterizationStateCreateInfo(
-                    cullMode = VkCullModeFlagBits.VK_CULL_MODE_BACK_BIT.value,
+                    // NONE, deliberately: cubeIndices' winding isn't guaranteed
+                    // outward-consistent per face (see its comment) -- depth testing alone
+                    // resolves correct occlusion regardless of triangle winding. Revisit
+                    // once per-face vertex duplication makes winding order meaningful.
+                    cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
                     frontFace = VkFrontFace.VK_FRONT_FACE_CLOCKWISE,
                     lineWidth = 1f
                 )
@@ -1042,7 +1226,7 @@ class VulkanApplication : Application {
                     pRasterizationState = rasterizationInfo,
                     pMultisampleState = multisamplingInfo,
                     pColorBlendState = colorBlendInfo,
-//                    pDepthStencilState = depthStencil,
+                    pDepthStencilState = depthStencil,
                     pDynamicState = dynamicInfo,
                     layout = pipelineLayout,
                     renderPass = renderPass,
@@ -1133,12 +1317,17 @@ class VulkanApplication : Application {
 
         VulkanBuffers.vkDestroyBuffer(device, vertexBuffer)
         VulkanBuffers.vkFreeMemory(device, vertexBufferMemory)
+        VulkanBuffers.vkDestroyBuffer(device, indexBuffer)
+        VulkanBuffers.vkFreeMemory(device, indexBufferMemory)
         VulkanBuffers.vkDestroyBuffer(device, uniformBuffer)
         VulkanBuffers.vkFreeMemory(device, uniformBufferMemory)
         VulkanImages.vkDestroySampler(device, textureSampler)
         Vulkan.vkDestroyImageView(device, textureImageView)
         VulkanImages.vkDestroyImage(device, textureImage)
         VulkanBuffers.vkFreeMemory(device, textureImageMemory)
+        Vulkan.vkDestroyImageView(device, depthImageView)
+        VulkanImages.vkDestroyImage(device, depthImage)
+        VulkanBuffers.vkFreeMemory(device, depthImageMemory)
         VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool)
         VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout)
 
