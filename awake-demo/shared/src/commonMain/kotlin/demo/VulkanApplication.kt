@@ -26,6 +26,7 @@ import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
@@ -53,7 +54,6 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandPoolCreateFlagB
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkFenceCreateFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
-import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
@@ -77,16 +77,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorBufferInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorImageInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorPoolCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorPoolSize
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutBinding
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageUsageFlagBits2
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
@@ -148,11 +139,9 @@ class VulkanApplication : Application {
      * [graphicsQueue] to already exist for its one-time upload commands), not eagerly like
      * [graphicsDevice]/[swapchainManager]. */
     private lateinit var mesh: Mesh
-    var descriptorSetLayout: Long = 0
-    var descriptorPool: Long = 0
-    var descriptorSet: Long = 0
-    var uniformBuffer: Long = 0
-    var uniformBufferMemory: Long = 0
+    /** Phase 2: uniform buffer + descriptor set/pool/layout, extracted into a reusable
+     * class -- see [Material]'s doc comment for why it's constructed in two phases. */
+    private lateinit var material: Material
     private lateinit var texture: Texture
     var depthImage: Long = 0
     var depthImageMemory: Long = 0
@@ -237,39 +226,16 @@ class VulkanApplication : Application {
         // create swap chain
         swapchainManager.create()
         createRenderPass()
-        createDescriptorSetLayout()
+        material = Material(graphicsDevice)
         createGraphicsPipeline()
         createDepthResources()
         createFramebuffers()
         createCommandPool()
         mesh = Mesh(graphicsDevice, ::runOneTimeCommands, cubeVertices, cubeIndices)
-        createUniformBuffer()
         texture = Texture(graphicsDevice, ::runOneTimeCommands, textureData, TEXTURE_WIDTH, TEXTURE_HEIGHT)
-        createDescriptorPool()
-        createDescriptorSet()
+        material.createResources(texture)
         createCommandBuffer()
         swapchainManager.createSyncObjects()
-    }
-
-    private fun createDescriptorSetLayout() {
-        descriptorSetLayout = VulkanDescriptors.vkCreateDescriptorSetLayout(
-            device,
-            VkDescriptorSetLayoutCreateInfo(
-                pBindings = arrayOf(
-                    VkDescriptorSetLayoutBinding(
-                        binding = 0,
-                        descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                        // MVP matrix is only ever read in the vertex shader now.
-                        stageFlags = VkShaderStageFlagBits.VERTEX.value
-                    ),
-                    VkDescriptorSetLayoutBinding(
-                        binding = 1,
-                        descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                        stageFlags = VkShaderStageFlagBits.FRAGMENT.value
-                    )
-                )
-            )
-        )
     }
 
     private fun createDepthResources() {
@@ -313,34 +279,6 @@ class VulkanApplication : Application {
         )
     }
 
-    /** MVP-matrix uniform buffer (64 bytes, mat4) -- initial contents don't matter since
-     * [updateUniformBuffer] overwrites it every frame before the first draw. */
-    private fun createUniformBuffer() {
-        val bufferSize = (16 * Float.SIZE_BYTES).toLong()
-        uniformBuffer = VulkanBuffers.vkCreateBuffer(
-            device,
-            VkBufferCreateInfo(
-                size = bufferSize,
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            )
-        )
-        val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, uniformBuffer)
-        val memoryTypeIndex = VulkanBuffers.findMemoryType(
-            physicalDevice,
-            memRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-        )
-        uniformBufferMemory = VulkanBuffers.vkAllocateMemory(
-            device,
-            VkMemoryAllocateInfo(
-                allocationSize = memRequirements.size,
-                memoryTypeIndex = memoryTypeIndex
-            )
-        )
-        VulkanBuffers.vkBindBufferMemory(device, uniformBuffer, uniformBufferMemory, 0)
-    }
-
     /** Rebuilds model*view*projection every frame (a simple Y-axis spin) and rewrites the
      * whole uniform buffer. Only safe because [drawFrame] calls `vkDeviceWaitIdle` after
      * every submit -- see that function's comment for why a single shared (not
@@ -369,54 +307,7 @@ class VulkanApplication : Application {
         // (the standard vertex-transform order: model space -> view space -> clip space),
         // the Kotlin expression has to be written in the opposite order.
         val mvp = model * view * projection
-        VulkanBuffers.writeBufferMemoryFloats(device, uniformBufferMemory, 0, mvp.data)
-    }
-
-    private fun createDescriptorPool() {
-        descriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
-            device,
-            VkDescriptorPoolCreateInfo(
-                maxSets = 1,
-                pPoolSizes = arrayOf(
-                    VkDescriptorPoolSize(
-                        type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                        descriptorCount = 1
-                    ),
-                    VkDescriptorPoolSize(
-                        type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                        descriptorCount = 1
-                    )
-                )
-            )
-        )
-    }
-
-    private fun createDescriptorSet() {
-        descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(
-            device,
-            descriptorPool,
-            descriptorSetLayout
-        )
-        VulkanDescriptors.vkUpdateDescriptorSetBuffer(
-            device,
-            descriptorSet,
-            0,
-            VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            VkDescriptorBufferInfo(
-                buffer = uniformBuffer,
-                range = (16 * Float.SIZE_BYTES).toLong()
-            )
-        )
-        VulkanDescriptors.vkUpdateDescriptorSetImage(
-            device,
-            descriptorSet,
-            1,
-            VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            VkDescriptorImageInfo(
-                sampler = texture.sampler,
-                imageView = texture.imageView
-            )
-        )
+        material.updateUniformBuffer(mvp.data)
     }
 
     /** Runs [block] on a fresh one-time command buffer, submitted and waited-on via a
@@ -552,7 +443,7 @@ class VulkanApplication : Application {
         )
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
         mesh.bind(commandBuffer)
-        VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet)
+        material.bind(commandBuffer, pipelineLayout)
         mesh.draw(commandBuffer)
         Vulkan.vkCmdEndRenderPass(commandBuffer)
         Vulkan.vkEndCommandBuffer(commandBuffer)
@@ -788,7 +679,7 @@ class VulkanApplication : Application {
 
             pipelineLayout = Vulkan.vkCreatePipelineLayout(
                 device,
-                VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout))
+                VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(material.descriptorSetLayout))
             )
 
             val createInfos = arrayOf(
@@ -834,14 +725,11 @@ class VulkanApplication : Application {
         Vulkan.vkDestroyCommandPool(device, commandPool)
 
         mesh.destroy()
-        VulkanBuffers.vkDestroyBuffer(device, uniformBuffer)
-        VulkanBuffers.vkFreeMemory(device, uniformBufferMemory)
         texture.destroy()
+        material.destroy()
         Vulkan.vkDestroyImageView(device, depthImageView)
         VulkanImages.vkDestroyImage(device, depthImage)
         VulkanBuffers.vkFreeMemory(device, depthImageMemory)
-        VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool)
-        VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout)
 
         graphicsPipeline.forEach { pipeline ->
             Vulkan.vkDestroyPipeline(device, pipeline)

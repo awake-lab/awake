@@ -856,7 +856,25 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
     with the checkerboard texture still visibly sampled on the top face (the dark banding
     blended with the per-vertex RGB colors) in both — same visual result as before the
     extraction, confirming it changed structure without changing behavior.
-- [ ] `Material` / `Shader` — pipeline + descriptor set ownership
+- [x] **`Material` — uniform buffer + descriptor set/pool/layout (2026-07-08):** new
+      `io.github.ronjunevaldoz.awake.vulkan.material.Material` (awake-vulkan), extracted
+      verbatim from `VulkanApplication`'s `createDescriptorSetLayout`/`createUniformBuffer`/
+      `createDescriptorPool`/`createDescriptorSet`/`updateUniformBuffer` functions and their
+      five backing fields. Unlike `Mesh`/`Texture` (single lazy construction point),
+      `Material` is built in two phases: the constructor creates only
+      `descriptorSetLayout` (needed early — the pipeline layout references it before a
+      `Texture` exists), and a separate `createResources(texture)` call (made once the demo's
+      `Texture` is ready) creates the uniform buffer, descriptor pool, and descriptor set,
+      writing both the buffer and the texture's sampler/view into it. Exposes
+      `updateUniformBuffer(mvp)` (called every frame from the demo's own
+      `updateUniformBuffer()`, unchanged otherwise) and `bind(commandBuffer, pipelineLayout)`
+      for `recordCommandBuffer` to call in place of the old inline
+      `vkCmdBindDescriptorSet`. Pipeline/shader ownership (`createGraphicsPipeline`,
+      `createRenderPass`, `pipelineLayout`/`graphicsPipeline`/`renderPass` fields) stays on
+      `VulkanApplication` for now — deliberately out of scope here, next up.
+  - **Confirmed on real hardware** (Galaxy S25 Ultra): no crash across the run, steady
+    "Fps: 60" in logcat, two screenshots 5 seconds apart show different cube orientations
+    with the textured/colored cube rendering identically to before the extraction.
 - [ ] `Renderer.draw(camera, List<DrawCall>)` entry point
 - [ ] Keep the layer API-agnostic (future Metal/WebGPU seam)
 - [ ] Demo rewritten on the abstraction (~50 lines instead of ~800)
