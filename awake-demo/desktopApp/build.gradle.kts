@@ -42,15 +42,20 @@ compose.desktop {
             packageName = "KotlinMultiplatformComposeDesktopApplication"
             packageVersion = "1.0.0"
         }
+        // Deliberately NOT setting -XstartOnFirstThread here (see the same flag on
+        // runVulkanDesktop below for the case where it IS needed): empirically, forcing it
+        // on THIS process makes Compose Desktop's first GraphicsEnvironment init hang
+        // forever inside native CGLGraphicsConfig.getCGLConfigInfo on this JDK/Skiko
+        // combination (confirmed via jstack -- reproducible, unrelated to screen lock,
+        // which an earlier round wrongly blamed). The companion GLFW window
+        // (DesktopVulkanCompanionWindow) runs in its own child process with its own
+        // -XstartOnFirstThread, so this process doesn't need it for GLFW's sake either.
         val jvmArgsList = mutableListOf(
             "-Dawake.vulkan.nativeLibsDir=${desktopNativeLibDir.get().asFile.absolutePath}",
             "-Dawake.vulkan.dyldFallbackLibraryPath=$dyldFallbackLibraryPath"
         )
         if (moltenVkIcdPath != null) {
             jvmArgsList += "-Dawake.vulkan.icdFilenames=$moltenVkIcdPath"
-        }
-        if (System.getProperty("os.name").lowercase().contains("mac")) {
-            jvmArgsList += "-XstartOnFirstThread"
         }
         jvmArgs(*jvmArgsList.toTypedArray())
     }

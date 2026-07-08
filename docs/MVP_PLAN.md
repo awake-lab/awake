@@ -157,12 +157,12 @@ policy:
 
 - **Android**: full parity — every Phase 1d function is wired into the real demo and
   confirmed on a Galaxy S25 Ultra.
-- **Desktop (macOS)**: the underlying GLFW+MoltenVK plumbing is real and wired into the
-  actual `VulkanApplication` demo (see Phase 1b/1c) via both a standalone entry point
-  (`VulkanDesktopMain.kt`) and a Compose-embedded companion window, but neither has an
-  actual confirmed screenshot of the full textured cube rendering through them yet — the
-  attempts so far were blocked by the desktop's screen being locked/unavailable, not by a
-  code problem. This is the nearest achievable next parity milestone.
+- **Desktop (macOS)**: confirmed — the Compose-embedded companion window
+  (`DesktopVulkanCompanionWindow` → `VulkanDesktopMain.kt`, same `VulkanApplication` class
+  Android uses) renders the real cube, screenshot-verified (see Phase 1b). Root cause of
+  the earlier repeated hang was `-XstartOnFirstThread` on the parent Compose process, not
+  screen lock as previously assumed — fixed. A separate, unrelated OpenGL-backend crash was
+  found in the process (see Phase 1b) but doesn't block the Vulkan path.
 - **Desktop (Windows/Linux)**: no real-hardware demo at all — only the headless
   `desktop-vulkan-smoke` CI job (`vkCreateInstance`/`vkDestroyInstance` via Mesa lavapipe),
   which proves the loader/CMake path works, not that the actual cube demo renders. No
@@ -378,6 +378,36 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     launch remains open; everything short of that (compiles clean, `MainKt` launches the real
     Compose UI, `DesktopVulkanCompanionWindow`'s process-spawn logic reviewed line-by-line) is
     done.
+  - **Resolved (2026-07-08, later the same day): the "locked screen" theory was wrong.**
+    Retried once more with the display session confirmed unlocked and interactive
+    (`screencapture`/System-Events both worked on other apps) — hit the *exact same*
+    `CGraphicsDevice.getCGLConfigInfo` hang regardless. Root cause was actually
+    **`-XstartOnFirstThread` on the Compose Desktop process itself**: `jstack` showed
+    `AWT-EventQueue-0` permanently stuck inside that native call whenever the flag was set,
+    and cleanly idle/pumping events the moment it was removed (confirmed via a manual `java`
+    invocation with the exact same classpath, flag toggled off). Fixed by no longer passing
+    `-XstartOnFirstThread` to `awake-demo:desktopApp`'s `compose.desktop.application` block —
+    it's only genuinely needed by processes that call GLFW directly (`runVulkanDesktop`, and
+    the companion window's own child-process args in `DesktopVulkanCompanionWindow.kt`,
+    unchanged), not by the parent Compose process, which never touches GLFW itself.
+    **Confirmed on real hardware (this machine) via screenshot**: the "Awake Vulkan -
+    Desktop" companion window is visible and rendering a real, correctly-colored,
+    correctly-occluded cube — the actual desktop companion-window milestone this whole
+    thread has been chasing.
+  - **New, separate, real bug found once the above got far enough to hit it**: after ~50s,
+    the main Compose window (`MainKt`) itself crashed (`SIGABRT`) with `FATAL ERROR in
+    native method: No context is current` from `org.lwjgl.opengl.GL20C.glCreateShader`, via
+    `Agl.createShader` → `BaseShader.compile` → `DemoTriangle.<init>` → `DemoApplication.
+    create()` → `DemoScene`. The stack trace shows the composition genuinely reached the
+    **OpenGL** demo branch (`DemoScene`, not `VulkanScene`) at that point, even though the
+    switch defaults to Vulkan and wasn't touched during this run — the exact trigger for
+    that branch flip is not yet root-caused. Once reached, the crash itself makes sense:
+    Compose Desktop's own Skiko/Metal renderer never creates an LWJGL-managed OpenGL
+    context, so `Agl`'s raw LWJGL GL calls (`glCreateShader` etc.) have nothing to bind to.
+    This is squarely in the OpenGL backend's frozen zone (see D6: freeze, bugfixes only,
+    Vulkan is the future) and doesn't block anything Vulkan-related — the default,
+    intended-for-Vulkan path works and is now proven. Tracked here as a known issue, not
+    fixed this round.
 
 ### 1c. Platform-neutral surface
 - [x] GLFW window creation + Vulkan surface creation on desktop, wired into the real demo
