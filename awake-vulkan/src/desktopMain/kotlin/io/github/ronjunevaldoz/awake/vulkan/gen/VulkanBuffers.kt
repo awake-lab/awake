@@ -19,7 +19,9 @@
 
 package io.github.ronjunevaldoz.awake.vulkan.gen
 
+import io.github.ronjunevaldoz.awake.vulkan.models.VkMemoryRequirements
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 
 // Phase 1b (desktop native build) has not landed yet — see docs/MVP_PLAN.md.
 actual object VulkanBuffers {
@@ -28,6 +30,30 @@ actual object VulkanBuffers {
     }
 
     actual fun vkDestroyBuffer(device: Long, buffer: Long) {
+        TODO("Not yet implemented")
+    }
+
+    actual fun vkGetBufferMemoryRequirements(device: Long, buffer: Long): VkMemoryRequirements {
+        TODO("Not yet implemented")
+    }
+
+    actual fun findMemoryType(physicalDevice: Long, typeFilter: Int, properties: Int): Int {
+        TODO("Not yet implemented")
+    }
+
+    actual fun vkAllocateMemory(device: Long, allocateInfo: VkMemoryAllocateInfo): Long {
+        TODO("Not yet implemented")
+    }
+
+    actual fun vkFreeMemory(device: Long, memory: Long) {
+        TODO("Not yet implemented")
+    }
+
+    actual fun vkBindBufferMemory(device: Long, buffer: Long, memory: Long, memoryOffset: Long) {
+        TODO("Not yet implemented")
+    }
+
+    actual fun writeBufferMemoryFloats(device: Long, memory: Long, offset: Long, data: FloatArray) {
         TODO("Not yet implemented")
     }
 }

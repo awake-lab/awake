@@ -5,6 +5,12 @@
 // here, so a forgotten re-apply of these edits can't go unnoticed. See the
 // generateJniBindings/checkJniBindings task comments in
 // awake-vulkan/android-native/build.gradle.kts.
+//
+// NOTE on offset/memoryOffset params below: jni-binding-generator treats every
+// function-level `Long` parameter as an opaque handle (adds a "not initialized"
+// null-check), which is correct for real handles (device/buffer/memory) but wrong for
+// a plain numeric byte offset — offset 0 is completely valid and common. The bogus
+// null-checks for `memoryOffset`/`offset` have been removed below.
 // Source: VulkanBuffers.kt
 
 #include <jni.h>
@@ -14,6 +20,7 @@
 #include <unordered_set>
 #include <vector>
 #include <cstdint>
+#include <cstring>
 #include <vulkan/vulkan.h>
 
 #include "jni-utils.h"
@@ -87,6 +94,67 @@ inline jobject make_VkBufferCreateInfo(JNIEnv* env, const JNI_VkBufferCreateInfo
     return result;
 }
 
+// --- Struct marshalling: VkMemoryAllocateInfo ---
+struct JNI_VkMemoryAllocateInfo {
+    int64_t allocationSize;
+    int32_t memoryTypeIndex;
+};
+
+inline JNI_VkMemoryAllocateInfo extract_VkMemoryAllocateInfo(JNIEnv* env, jobject obj) {
+    JNI_VkMemoryAllocateInfo out{};
+    if (!obj) return out;
+    jclass cls = env->GetObjectClass(obj);
+    jfieldID fid_allocationSize = env->GetFieldID(cls, "allocationSize", "J");
+    jfieldID fid_memoryTypeIndex = env->GetFieldID(cls, "memoryTypeIndex", "I");
+    env->DeleteLocalRef(cls);
+    out.allocationSize = static_cast<int64_t>(env->GetLongField(obj, fid_allocationSize));
+    out.memoryTypeIndex = static_cast<int32_t>(env->GetIntField(obj, fid_memoryTypeIndex));
+    return out;
+}
+
+inline jobject make_VkMemoryAllocateInfo(JNIEnv* env, const JNI_VkMemoryAllocateInfo& val) {
+    jclass cls = env->FindClass("io/github/ronjunevaldoz/awake/vulkan/models/info/VkMemoryAllocateInfo");
+    if (!cls) return nullptr;
+    jmethodID ctor = env->GetMethodID(cls, "<init>", "(JI)V");
+    if (!ctor) { env->DeleteLocalRef(cls); return nullptr; }
+    jobject result = env->NewObject(cls, ctor, val.allocationSize, val.memoryTypeIndex);
+    if (!result) { env->DeleteLocalRef(cls); return nullptr; }
+    env->DeleteLocalRef(cls);
+    return result;
+}
+
+// --- Struct marshalling: VkMemoryRequirements ---
+struct JNI_VkMemoryRequirements {
+    int64_t size;
+    int64_t alignment;
+    int32_t memoryTypeBits;
+};
+
+inline JNI_VkMemoryRequirements extract_VkMemoryRequirements(JNIEnv* env, jobject obj) {
+    JNI_VkMemoryRequirements out{};
+    if (!obj) return out;
+    jclass cls = env->GetObjectClass(obj);
+    jfieldID fid_size = env->GetFieldID(cls, "size", "J");
+    jfieldID fid_alignment = env->GetFieldID(cls, "alignment", "J");
+    jfieldID fid_memoryTypeBits = env->GetFieldID(cls, "memoryTypeBits", "I");
+    env->DeleteLocalRef(cls);
+    out.size = static_cast<int64_t>(env->GetLongField(obj, fid_size));
+    out.alignment = static_cast<int64_t>(env->GetLongField(obj, fid_alignment));
+    out.memoryTypeBits = static_cast<int32_t>(env->GetIntField(obj, fid_memoryTypeBits));
+    return out;
+}
+
+inline jobject make_VkMemoryRequirements(JNIEnv* env, const JNI_VkMemoryRequirements& val) {
+    jclass cls = env->FindClass("io/github/ronjunevaldoz/awake/vulkan/models/VkMemoryRequirements");
+    if (!cls) return nullptr;
+    jmethodID ctor = env->GetMethodID(cls, "<init>", "(JJI)V");
+    if (!ctor) { env->DeleteLocalRef(cls); return nullptr; }
+    jobject result = env->NewObject(cls, ctor, val.size, val.alignment, val.memoryTypeBits);
+    if (!result) { env->DeleteLocalRef(cls); return nullptr; }
+    env->DeleteLocalRef(cls);
+    return result;
+}
+
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkCreateBuffer(
@@ -154,4 +222,223 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkDestroyBuffer(
         reinterpret_cast<VkDevice>(device_ptr),
         reinterpret_cast<VkBuffer>(buffer_ptr),
         nullptr);
+}
+
+
+extern "C" JNIEXPORT jobject JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkGetBufferMemoryRequirements(
+        JNIEnv* env,
+        jclass clazz,
+        jlong device,
+        jlong buffer) {
+    // --- Marshalling ---
+    void* device_ptr = reinterpret_cast<void*>(device);
+    void* buffer_ptr = reinterpret_cast<void*>(buffer);
+
+    // --- Error handling ---
+    if (!device_ptr) {
+        throw_illegal_state(env, "vkGetBufferMemoryRequirements: device not initialized");
+        return nullptr;
+    }
+    if (!buffer_ptr) {
+        throw_illegal_state(env, "vkGetBufferMemoryRequirements: buffer not initialized");
+        return nullptr;
+    }
+
+    VkMemoryRequirements requirements{};
+    vkGetBufferMemoryRequirements(
+        reinterpret_cast<VkDevice>(device_ptr),
+        reinterpret_cast<VkBuffer>(buffer_ptr),
+        &requirements);
+
+    JNI_VkMemoryRequirements result{};
+    result.size = static_cast<int64_t>(requirements.size);
+    result.alignment = static_cast<int64_t>(requirements.alignment);
+    result.memoryTypeBits = static_cast<int32_t>(requirements.memoryTypeBits);
+    return make_VkMemoryRequirements(env, result);
+}
+
+
+extern "C" JNIEXPORT jint JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_findMemoryType(
+        JNIEnv* env,
+        jclass clazz,
+        jlong physicalDevice,
+        jint typeFilter,
+        jint properties) {
+    // --- Marshalling ---
+    void* physicalDevice_ptr = reinterpret_cast<void*>(physicalDevice);
+    int32_t typeFilter_val = static_cast<int32_t>(typeFilter);
+    int32_t properties_val = static_cast<int32_t>(properties);
+
+    // --- Error handling ---
+    if (!physicalDevice_ptr) {
+        throw_illegal_state(env, "findMemoryType: physicalDevice not initialized");
+        return 0;
+    }
+
+    VkPhysicalDeviceMemoryProperties memProperties{};
+    vkGetPhysicalDeviceMemoryProperties(
+        reinterpret_cast<VkPhysicalDevice>(physicalDevice_ptr), &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i) {
+        bool typeAllowed = (static_cast<uint32_t>(typeFilter_val) & (1u << i)) != 0;
+        bool hasProperties = (memProperties.memoryTypes[i].propertyFlags
+            & static_cast<VkMemoryPropertyFlags>(properties_val)) == static_cast<VkMemoryPropertyFlags>(properties_val);
+        if (typeAllowed && hasProperties) {
+            return static_cast<jint>(i);
+        }
+    }
+    return -1;
+}
+
+
+extern "C" JNIEXPORT jlong JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkAllocateMemory(
+        JNIEnv* env,
+        jclass clazz,
+        jlong device,
+        jobject allocateInfo) {
+    // --- Marshalling ---
+    void* device_ptr = reinterpret_cast<void*>(device);
+    JNI_VkMemoryAllocateInfo allocateInfo_val = extract_VkMemoryAllocateInfo(env, allocateInfo);
+
+    // --- Error handling ---
+    if (!device_ptr) {
+        throw_illegal_state(env, "vkAllocateMemory: device not initialized");
+        return 0;
+    }
+    if (!allocateInfo) {
+        throw_illegal_argument(env, "vkAllocateMemory: allocateInfo must not be null");
+        return 0;
+    }
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = static_cast<VkDeviceSize>(allocateInfo_val.allocationSize);
+    allocInfo.memoryTypeIndex = static_cast<uint32_t>(allocateInfo_val.memoryTypeIndex);
+
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+    VkResult result = vkAllocateMemory(
+        reinterpret_cast<VkDevice>(device_ptr), &allocInfo, nullptr, &memory);
+    if (result != VK_SUCCESS) {
+        exception_utils::resultException(env, result,
+            "There was a problem executing vkAllocateMemory");
+        return 0;
+    }
+    return reinterpret_cast<jlong>(memory);
+}
+
+
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkFreeMemory(
+        JNIEnv* env,
+        jclass clazz,
+        jlong device,
+        jlong memory) {
+    // --- Marshalling ---
+    void* device_ptr = reinterpret_cast<void*>(device);
+    void* memory_ptr = reinterpret_cast<void*>(memory);
+
+    // --- Error handling ---
+    if (!device_ptr) {
+        throw_illegal_state(env, "vkFreeMemory: device not initialized");
+        return;
+    }
+    if (!memory_ptr) {
+        throw_illegal_state(env, "vkFreeMemory: memory not initialized");
+        return;
+    }
+
+    vkFreeMemory(
+        reinterpret_cast<VkDevice>(device_ptr),
+        reinterpret_cast<VkDeviceMemory>(memory_ptr),
+        nullptr);
+}
+
+
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkBindBufferMemory(
+        JNIEnv* env,
+        jclass clazz,
+        jlong device,
+        jlong buffer,
+        jlong memory,
+        jlong memoryOffset) {
+    // --- Marshalling ---
+    void* device_ptr = reinterpret_cast<void*>(device);
+    void* buffer_ptr = reinterpret_cast<void*>(buffer);
+    void* memory_ptr = reinterpret_cast<void*>(memory);
+    // memoryOffset is a plain byte offset, not a handle -- 0 is valid and common.
+    // (jni-binding-generator treats every function-level Long as a handle by
+    // convention; the bogus null-check it would add here has been omitted.)
+
+    // --- Error handling ---
+    if (!device_ptr) {
+        throw_illegal_state(env, "vkBindBufferMemory: device not initialized");
+        return;
+    }
+    if (!buffer_ptr) {
+        throw_illegal_state(env, "vkBindBufferMemory: buffer not initialized");
+        return;
+    }
+    if (!memory_ptr) {
+        throw_illegal_state(env, "vkBindBufferMemory: memory not initialized");
+        return;
+    }
+
+    VkResult result = vkBindBufferMemory(
+        reinterpret_cast<VkDevice>(device_ptr),
+        reinterpret_cast<VkBuffer>(buffer_ptr),
+        reinterpret_cast<VkDeviceMemory>(memory_ptr),
+        static_cast<VkDeviceSize>(memoryOffset));
+    if (result != VK_SUCCESS) {
+        exception_utils::resultException(env, result,
+            "There was a problem executing vkBindBufferMemory");
+    }
+}
+
+
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_writeBufferMemoryFloats(
+        JNIEnv* env,
+        jclass clazz,
+        jlong device,
+        jlong memory,
+        jlong offset,
+        jfloatArray data) {
+    // --- Marshalling ---
+    void* device_ptr = reinterpret_cast<void*>(device);
+    void* memory_ptr = reinterpret_cast<void*>(memory);
+    // offset is a plain byte offset, not a handle -- 0 is valid and common (see the
+    // memoryOffset note in vkBindBufferMemory above).
+    std::vector<float> data_val = extract_float_array(env, data);
+    if (env->ExceptionCheck()) return;
+
+    // --- Error handling ---
+    if (!device_ptr) {
+        throw_illegal_state(env, "writeBufferMemoryFloats: device not initialized");
+        return;
+    }
+    if (!memory_ptr) {
+        throw_illegal_state(env, "writeBufferMemoryFloats: memory not initialized");
+        return;
+    }
+
+    void* mapped = nullptr;
+    VkDeviceSize sizeBytes = static_cast<VkDeviceSize>(data_val.size() * sizeof(float));
+    VkResult result = vkMapMemory(
+        reinterpret_cast<VkDevice>(device_ptr),
+        reinterpret_cast<VkDeviceMemory>(memory_ptr),
+        static_cast<VkDeviceSize>(offset),
+        sizeBytes,
+        0,
+        &mapped);
+    if (result != VK_SUCCESS) {
+        exception_utils::resultException(env, result,
+            "There was a problem executing vkMapMemory");
+        return;
+    }
+    std::memcpy(mapped, data_val.data(), static_cast<size_t>(sizeBytes));
+    vkUnmapMemory(reinterpret_cast<VkDevice>(device_ptr), reinterpret_cast<VkDeviceMemory>(memory_ptr));
 }

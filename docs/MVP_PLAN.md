@@ -198,17 +198,38 @@ Goal: same `commonMain` demo renders on Android + macOS/Windows/Linux.
     `generateJniBindings`/`checkJniBindings` Gradle tasks exist but are manual/
     diagnostic only; the real safety net for signature drift is the C++ compiler
     itself (a changed struct shape fails to compile against the old hand-written body).
-- [ ] Buffers: `vkGetBufferMemoryRequirements` (remaining)
-- [ ] Memory: `vkAllocateMemory`, `vkFreeMemory`, `vkBindBufferMemory`, `vkMapMemory`, `vkUnmapMemory`
+- [x] **Buffers + memory (2026-07-08):** `vkGetBufferMemoryRequirements`, `vkAllocateMemory`,
+      `vkFreeMemory`, `vkBindBufferMemory` (all through jni-binding-generator, `VulkanBuffers`
+      object) plus `findMemoryType` (hand-written body, standard
+      `vkGetPhysicalDeviceMemoryProperties` scan — the fixed-size C array struct isn't worth
+      marshalling across JNI when only the matching index is ever needed) and
+      `writeBufferMemoryFloats` (map→`memcpy`→unmap as one call taking a `FloatArray` —
+      `vkMapMemory`'s natural `java.nio.ByteBuffer`/pointer return can't be a commonMain
+      `expect` type since `java.nio` doesn't exist on Kotlin/Native; this also removes the
+      manual-unmap-forgetting footgun). Full alloc→bind→write→free→destroy round trip
+      **confirmed on real hardware** (Galaxy S25 Ultra): non-null memory type found, real
+      `VkDeviceMemory` handle allocated, bind/write/cleanup all completed without throwing.
+  - **Found and fixed a second real generator quirk while regenerating for these:**
+    running `generateJniBindings` again silently reverted the earlier hand-written
+    `vkCreateBuffer`/`vkDestroyBuffer` bodies back to TODO stubs (exactly the risk already
+    documented — regeneration always overwrites the whole file). Re-applied those bodies
+    alongside the new ones. **Any time new functions are added to an already-hand-edited
+    `.gen` file, re-diff and re-apply every existing hand-written body, not just the new one.**
+  - **Also found:** jni-binding-generator's function-level `Long` param handling always adds
+    a "not initialized" null-check, correct for real handles but wrong for a plain numeric
+    offset (`memoryOffset`/`offset` — 0 is valid and common). Removed the bogus checks by
+    hand for both new functions that take an offset.
 - [ ] Copy/staging: `vkCmdCopyBuffer`, `vkCmdCopyBufferToImage`, `vkCmdPipelineBarrier`
 - [ ] Descriptors: `vkCreateDescriptorSetLayout`, `vkCreateDescriptorPool`,
       `vkAllocateDescriptorSets`, `vkUpdateDescriptorSets`, `vkCmdBindDescriptorSets`
 - [ ] Images: `vkCreateImage`, `vkBindImageMemory`, `vkCreateSampler`
 - [ ] Vertex input: `vkCmdBindVertexBuffers`, `vkCmdBindIndexBuffer`, `vkCmdDrawIndexed`
 - [ ] Depth buffer support in render pass
-- [ ] Evaluate **VMA (Vulkan Memory Allocator)** in the C++ layer instead of exposing raw
-      `vkAllocateMemory` — drivers cap total allocations (~4096); real scenes need sub-allocation.
-      If adopted, common API exposes `allocateBuffer/allocateImage`, not raw memory calls
+- [x] **VMA decision (2026-07-08): deferred, not adopted for MVP.** Raw `vkAllocateMemory`
+      shipped instead. The driver allocation cap (~4096) only bites at real scene scale
+      (many distinct entities/resources); the MVP is a single cube. Vendoring VMA into the
+      CMake build is a real chunk of scope for a problem this MVP doesn't have yet.
+      Revisit once Phase 3 (ECS) produces scenes with more than a handful of buffers.
 - [ ] **macOS desktop note:** macOS has no native Vulkan — desktop macOS runs through
       MoltenVK (bundled in the Vulkan SDK). This is unavoidable AND useful: it de-risks
       Phase 6 (iOS) early since we validate MoltenVK quirks on the dev machine first

@@ -19,9 +19,32 @@
 
 package io.github.ronjunevaldoz.awake.vulkan.gen
 
+import io.github.ronjunevaldoz.awake.vulkan.models.VkMemoryRequirements
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 
 actual object VulkanBuffers {
     actual external fun vkCreateBuffer(device: Long, createInfo: VkBufferCreateInfo): Long
     actual external fun vkDestroyBuffer(device: Long, buffer: Long)
+    actual external fun vkGetBufferMemoryRequirements(
+        device: Long,
+        buffer: Long
+    ): VkMemoryRequirements
+
+    actual external fun findMemoryType(physicalDevice: Long, typeFilter: Int, properties: Int): Int
+    actual external fun vkAllocateMemory(device: Long, allocateInfo: VkMemoryAllocateInfo): Long
+    actual external fun vkFreeMemory(device: Long, memory: Long)
+    actual external fun vkBindBufferMemory(
+        device: Long,
+        buffer: Long,
+        memory: Long,
+        memoryOffset: Long
+    )
+
+    actual external fun writeBufferMemoryFloats(
+        device: Long,
+        memory: Long,
+        offset: Long,
+        data: FloatArray
+    )
 }
