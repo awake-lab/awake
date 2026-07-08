@@ -24,77 +24,44 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
-import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkAttachmentStoreOp
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorComponentFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCommandBufferLevel
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkCullModeFlagBits
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkDynamicState
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkFrontFace
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageAspectFlagBits
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageLayout
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageViewType
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkPrimitiveTopology
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkResult
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkShaderStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSharingMode
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkVertexInputRate
-import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkAccessFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkFenceCreateFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
-import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
-import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
-import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
-import io.github.ronjunevaldoz.awake.vulkan.models.VkSubpassDependency
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFramebufferCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkGraphicsPipelineCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageSubresourceRange
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageViewCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkPresentInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageUsageFlagBits2
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendAttachmentState
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendStateCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineDepthStencilStateCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineDynamicStateCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineInputAssemblyStateCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineMultisampleStateCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineRasterizationStateCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineShaderStageCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineVertexInputStateCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAttributeDescription
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineViewportStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 
@@ -123,10 +90,11 @@ class VulkanApplication : Application {
         set(value) {
             swapchainManager.currentFrame = value
         }
-    private var renderPass: Long = 0
-    private var pipelineCache: Long = 0
-    private var pipelineLayout: Long = 0
-    private var graphicsPipeline: LongArray = longArrayOf()
+    /** Phase 2: render pass + graphics pipeline, extracted into a reusable class -- see
+     * [RenderPipeline]'s doc comment. Constructed lazily in [setupVulkan] for the same
+     * reason as [mesh]/[texture]/[material]: it needs [graphicsDevice] to already be
+     * `.create()`-d, plus [material]'s descriptor set layout to exist first. */
+    private lateinit var renderPipeline: RenderPipeline
     private var swapChainFrameBuffers: List<Long> = emptyList()
     /** Phase 2: command pool + one-time (upload) command submission, extracted into a
      * reusable class -- see [TransferContext]'s doc comment. Constructed lazily in
@@ -226,9 +194,15 @@ class VulkanApplication : Application {
         graphicsDevice.create(window)
         // create swap chain
         swapchainManager.create()
-        createRenderPass()
         material = Material(graphicsDevice)
-        createGraphicsPipeline()
+        renderPipeline = RenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            material.descriptorSetLayout,
+            readResourceBytes("assets/shader/vulkan/triangle.vert.spv"),
+            readResourceBytes("assets/shader/vulkan/triangle.frag.spv"),
+            VERTEX_STRIDE
+        )
         createDepthResources()
         createFramebuffers()
         transferContext = TransferContext(graphicsDevice)
@@ -392,7 +366,7 @@ class VulkanApplication : Application {
 
         // start render pass
         val renderPassInfo = VkRenderPassBeginInfo(
-            renderPass = renderPass,
+            renderPass = renderPipeline.renderPass,
             framebuffer = swapChainFrameBuffers[aquiredImageIndex],
             renderArea = VkRect2D(
                 extent = swapChainExtent
@@ -406,10 +380,7 @@ class VulkanApplication : Application {
         )
 
         // basic drawing
-        Vulkan.vkCmdBindPipeline(
-            commandBuffer,
-            VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline[0]
-        )
+        renderPipeline.bind(commandBuffer)
         val viewport = VkViewport(
             width = swapChainExtent.width.toFloat(),
             height = swapChainExtent.height.toFloat(),
@@ -420,7 +391,7 @@ class VulkanApplication : Application {
         )
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
         mesh.bind(commandBuffer)
-        material.bind(commandBuffer, pipelineLayout)
+        material.bind(commandBuffer, renderPipeline.pipelineLayout)
         mesh.draw(commandBuffer)
         Vulkan.vkCmdEndRenderPass(commandBuffer)
         Vulkan.vkEndCommandBuffer(commandBuffer)
@@ -440,7 +411,7 @@ class VulkanApplication : Application {
     private fun createFramebuffers() {
         swapChainFrameBuffers = swapChainImageViews.map { imageView ->
             val frameBufferInfo = VkFramebufferCreateInfo(
-                renderPass = renderPass,
+                renderPass = renderPipeline.renderPass,
                 // depthImageView is shared across every framebuffer -- only one frame is
                 // ever actually in the depth-write phase at a time given drawFrame's
                 // vkDeviceWaitIdle serialization, so this is safe (a "real" per-frame-in-
@@ -452,228 +423,6 @@ class VulkanApplication : Application {
             )
             Vulkan.vkCreateFramebuffer(device, frameBufferInfo)
         }.toList()
-    }
-
-    private fun createRenderPass() {
-        renderPass = Vulkan.vkCreateRenderPass(
-            device, VkRenderPassCreateInfo(
-                pAttachments = arrayOf(
-                    VkAttachmentDescription(
-                        format = swapChainImageFormat,
-                        initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
-                        finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-                    ),
-                    VkAttachmentDescription(
-                        format = VkFormat.VK_FORMAT_D32_SFLOAT,
-                        storeOp = VkAttachmentStoreOp.DONT_CARE,
-                        initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
-                        finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-                    )
-                ),
-                pSubpasses = arrayOf(
-                    VkSubpassDescription(
-                        pipelineBindPoint = VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS,
-                        pColorAttachments = arrayOf(
-                            VkAttachmentReference(
-                                attachment = 0,
-                                layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-                            )
-                        ),
-                        pDepthStencilAttachment = arrayOf(
-                            VkAttachmentReference(
-                                attachment = 1,
-                                layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-                            )
-                        )
-                    )
-                ),
-                pDependencies = arrayOf(
-                    VkSubpassDependency(
-                        srcSubpass = VK_SUBPASS_EXTERNAL,
-                        dstSubpass = 0,
-                        srcStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value or
-                            VkPipelineStageFlagBits.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT.value,
-                        srcAccessMask = 0,
-                        dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value or
-                            VkPipelineStageFlagBits.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT.value,
-                        dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or
-                            VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value or
-                            VkAccessFlagBits.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT.value,
-                    )
-                )
-            )
-        )
-    }
-
-
-    fun createShaderModule(code: IntArray): Long {
-        val createInfo = VkShaderModuleCreateInfo(
-            pCode = code
-        )
-        return Vulkan.vkCreateShaderModule(device, createInfo)
-    }
-
-    fun ByteArray.toIntArray(): IntArray {
-//        val byteBuffer = ByteBuffer.wrap(this).order(ByteOrder.nativeOrder()).asIntBuffer()
-//        val unsignedByteArray = IntArray(byteBuffer.remaining())
-//        byteBuffer.get(unsignedByteArray)
-        return IntArray(this.size / 4) { i ->
-            (this[i * 4].toInt() and 0xFF) or
-                    ((this[i * 4 + 1].toInt() and 0xFF) shl 8) or
-                    ((this[i * 4 + 2].toInt() and 0xFF) shl 16) or
-                    ((this[i * 4 + 3].toInt() and 0xFF) shl 24)
-        }
-    }
-
-    private fun createGraphicsPipeline() {
-        run {
-            // WARNING: make sure the .spv vulkan version match, this might cause out of memory
-            val fragShaderCode = readResourceBytes("assets/shader/vulkan/triangle.frag.spv")
-            val vertShaderCode = readResourceBytes("assets/shader/vulkan/triangle.vert.spv")
-
-            val fragShaderModule = createShaderModule(fragShaderCode.toIntArray())
-            val vertShaderModule = createShaderModule(vertShaderCode.toIntArray())
-
-            // process shader
-            val fragShaderStageInfo = VkPipelineShaderStageCreateInfo(
-                stage = VkShaderStageFlagBits.FRAGMENT,
-                module = fragShaderModule,
-                pName = "main"
-            )
-            val vertShaderStageInfo = VkPipelineShaderStageCreateInfo(
-                stage = VkShaderStageFlagBits.VERTEX,
-                module = vertShaderModule,
-                pName = "main"
-            )
-            val shaderStages = arrayOf(fragShaderStageInfo, vertShaderStageInfo)
-
-            val vertexInputInfo = arrayOf(
-                VkPipelineVertexInputStateCreateInfo(
-                    pVertexBindingDescriptions = arrayOf(
-                        VkVertexInputBindingDescription(
-                            binding = 0,
-                            stride = VERTEX_STRIDE,
-                            inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX
-                        )
-                    ),
-                    pVertexAttributeDescriptions = arrayOf(
-                        VkVertexInputAttributeDescription(
-                            location = 0,
-                            binding = 0,
-                            format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
-                            offset = 0
-                        ),
-                        VkVertexInputAttributeDescription(
-                            location = 1,
-                            binding = 0,
-                            format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
-                            offset = 3 * Float.SIZE_BYTES
-                        ),
-                        VkVertexInputAttributeDescription(
-                            location = 2,
-                            binding = 0,
-                            format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
-                            offset = 6 * Float.SIZE_BYTES
-                        )
-                    )
-                )
-            )
-
-            val dynamicInfo = arrayOf(
-                VkPipelineDynamicStateCreateInfo(
-                    pDynamicStates = arrayOf(
-                        VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT,
-                        VkDynamicState.VK_DYNAMIC_STATE_SCISSOR,
-                    )
-                )
-            )
-
-            val viewportInfo = arrayOf(
-                VkPipelineViewportStateCreateInfo(
-                    pViewports = arrayOf(
-                        VkViewport(
-                            width = swapChainExtent.width.toFloat(),
-                            height = swapChainExtent.height.toFloat(),
-                        )
-                    ),
-                    pScissors = arrayOf(
-                        VkRect2D(
-                            offset = VkOffset2D(),
-                            extent = swapChainExtent
-                        )
-                    )
-                )
-            )
-
-            val depthStencil = arrayOf(
-                VkPipelineDepthStencilStateCreateInfo()
-            )
-
-            val multisamplingInfo = arrayOf(
-                VkPipelineMultisampleStateCreateInfo()
-            )
-            // Specify we will use triangle lists to draw geometry.
-            val inputAssemblyInfo = arrayOf(
-                VkPipelineInputAssemblyStateCreateInfo(
-                    topology = VkPrimitiveTopology.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                    primitiveRestartEnable = false
-                )
-            )
-            // Specify rasterization state.
-            val rasterizationInfo = arrayOf(
-                VkPipelineRasterizationStateCreateInfo(
-                    // NONE, deliberately: cubeIndices' winding isn't guaranteed
-                    // outward-consistent per face (see its comment) -- depth testing alone
-                    // resolves correct occlusion regardless of triangle winding. Revisit
-                    // once per-face vertex duplication makes winding order meaningful.
-                    cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
-                    frontFace = VkFrontFace.VK_FRONT_FACE_CLOCKWISE,
-                    lineWidth = 1f
-                )
-            )
-
-            val blendAttachment = VkPipelineColorBlendAttachmentState(
-                blendEnable = false,
-                colorWriteMask = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value
-            )
-
-            val colorBlendInfo = arrayOf(
-                VkPipelineColorBlendStateCreateInfo(
-                    pAttachments = arrayOf(blendAttachment)
-                )
-            )
-
-            pipelineLayout = Vulkan.vkCreatePipelineLayout(
-                device,
-                VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(material.descriptorSetLayout.handle))
-            )
-
-            val createInfos = arrayOf(
-                VkGraphicsPipelineCreateInfo(
-                    pStages = shaderStages,
-                    pVertexInputState = vertexInputInfo,
-                    pInputAssemblyState = inputAssemblyInfo,
-                    pViewportState = viewportInfo,
-                    pRasterizationState = rasterizationInfo,
-                    pMultisampleState = multisamplingInfo,
-                    pColorBlendState = colorBlendInfo,
-                    pDepthStencilState = depthStencil,
-                    pDynamicState = dynamicInfo,
-                    layout = pipelineLayout,
-                    renderPass = renderPass,
-                    subpass = 0,
-                    basePipelineHandle = 0, // Optional
-                    basePipelineIndex = -1 // Optional
-                )
-            )
-            pipelineCache = Vulkan.vkCreatePipelineCache(device, VkPipelineCacheCreateInfo())
-            graphicsPipeline = Vulkan.vkCreateGraphicsPipelines(
-                device, pipelineCache, createInfos
-            )
-
-            Vulkan.vkDestroyShaderModule(device, fragShaderModule)
-            Vulkan.vkDestroyShaderModule(device, vertShaderModule)
-        }
     }
 
     private fun cleanSwapChain() {
@@ -697,13 +446,7 @@ class VulkanApplication : Application {
         VulkanImages.vkDestroyImage(device, depthImage)
         VulkanBuffers.vkFreeMemory(device, depthImageMemory)
 
-        graphicsPipeline.forEach { pipeline ->
-            Vulkan.vkDestroyPipeline(device, pipeline)
-        }
-
-        Vulkan.vkDestroyPipelineLayout(device, pipelineLayout)
-        Vulkan.vkDestroyRenderPass(device, renderPass)
-        Vulkan.vkDestroyPipelineCache(device, pipelineCache)
+        renderPipeline.destroy()
 
         graphicsDevice.destroy()
     }

@@ -932,6 +932,25 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
   - **Confirmed on real hardware** (Galaxy S25 Ultra): no crash across the run, steady
     "Fps: 60" in logcat, two screenshots 5 seconds apart show different cube orientations
     with the textured/colored cube rendering identically to before this pass.
+- [x] **`RenderPipeline` — render pass + graphics pipeline (2026-07-09):** new
+      `io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline` (awake-vulkan),
+      extracted verbatim from `VulkanApplication`'s `createRenderPass`/
+      `createGraphicsPipeline`/`createShaderModule` functions and their backing fields
+      (`renderPass`, `pipelineLayout`, `pipelineCache`, `graphicsPipeline`). Same two
+      color/depth attachments, same fixed position/color/uv vertex layout, same `NONE` cull
+      mode. Takes compiled SPIR-V bytecode directly (`vertShaderCode`/`fragShaderCode`)
+      rather than loading it itself — reading a shader asset off disk is a platform/resource
+      concern (`readResourceBytes`), not a pipeline concern, matching how `Mesh` takes raw
+      vertex/index data instead of loading a model file. Takes `Material`'s
+      `DescriptorSetLayoutHandle` (not the whole `Material`) since that's the only thing the
+      pipeline layout needs from it. The vertex attribute layout itself is still hardcoded
+      (only `vertexStride` is parameterized) — a real vertex-format abstraction is out of
+      scope for this pass. Exposes `bind(commandBuffer)` for `recordCommandBuffer` to call in
+      place of the old inline `vkCmdBindPipeline`.
+  - **Confirmed on real hardware** (Galaxy S25 Ultra): no crash across the run, steady
+    "Fps: 60" in logcat, two screenshots 5 seconds apart show different cube orientations
+    with the textured/colored cube and depth occlusion rendering identically to before the
+    extraction.
 - [ ] `Renderer.draw(camera, List<DrawCall>)` entry point
 - [ ] Keep the layer API-agnostic (future Metal/WebGPU seam)
 - [ ] Demo rewritten on the abstraction (~50 lines instead of ~800)
