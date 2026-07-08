@@ -22,6 +22,8 @@ package io.github.ronjunevaldoz.awake.vulkan.mesh
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
+import io.github.ronjunevaldoz.awake.vulkan.handles.BufferHandle
+import io.github.ronjunevaldoz.awake.vulkan.handles.DeviceMemoryHandle
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkIndexType
@@ -53,13 +55,13 @@ class Mesh(
     private val device get() = graphicsDevice.device
     private val physicalDevice get() = graphicsDevice.physicalDevice
 
-    var vertexBuffer: Long = 0
+    var vertexBuffer: BufferHandle = BufferHandle(0)
         private set
-    var vertexBufferMemory: Long = 0
+    var vertexBufferMemory: DeviceMemoryHandle = DeviceMemoryHandle(0)
         private set
-    var indexBuffer: Long = 0
+    var indexBuffer: BufferHandle = BufferHandle(0)
         private set
-    var indexBufferMemory: Long = 0
+    var indexBufferMemory: DeviceMemoryHandle = DeviceMemoryHandle(0)
         private set
     val indexCount: Int = indices.size
 
@@ -72,8 +74,8 @@ class Mesh(
                 VulkanBuffers.writeBufferMemoryFloats(device, stagingMemory, 0, vertices)
             }
         )
-        vertexBuffer = vBuffer
-        vertexBufferMemory = vMemory
+        vertexBuffer = BufferHandle(vBuffer)
+        vertexBufferMemory = DeviceMemoryHandle(vMemory)
 
         val indexBytes = indices.toByteArrayLE()
         val indexBufferSize = indexBytes.size.toLong()
@@ -84,8 +86,8 @@ class Mesh(
                 VulkanBuffers.writeBufferMemoryBytes(device, stagingMemory, 0, indexBytes)
             }
         )
-        indexBuffer = iBuffer
-        indexBufferMemory = iMemory
+        indexBuffer = BufferHandle(iBuffer)
+        indexBufferMemory = DeviceMemoryHandle(iMemory)
     }
 
     /** Allocates a HOST_VISIBLE staging buffer, writes into it via [write], copies it into a
@@ -118,38 +120,45 @@ class Mesh(
             )
         )
         VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
-        write(stagingMemory)
+        // The staging buffer/memory must be freed even if something below throws (e.g. the
+        // dest buffer's allocation fails, or runOneTimeCommands does) -- otherwise a failed
+        // upload leaks GPU memory silently. The dest buffer/memory themselves aren't covered
+        // here: if the copy fails, Mesh's constructor throws anyway and the whole object
+        // never becomes visible to a caller, so nothing (correctly) reaches use it.
+        try {
+            write(stagingMemory)
 
-        val destBuffer = VulkanBuffers.vkCreateBuffer(
-            device,
-            VkBufferCreateInfo(
-                size = byteSize,
-                usage = usage or VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            val destBuffer = VulkanBuffers.vkCreateBuffer(
+                device,
+                VkBufferCreateInfo(
+                    size = byteSize,
+                    usage = usage or VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                )
             )
-        )
-        val destRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, destBuffer)
-        val destMemoryTypeIndex = VulkanBuffers.findMemoryType(
-            physicalDevice,
-            destRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-        )
-        val destMemory = VulkanBuffers.vkAllocateMemory(
-            device,
-            VkMemoryAllocateInfo(
-                allocationSize = destRequirements.size,
-                memoryTypeIndex = destMemoryTypeIndex
+            val destRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, destBuffer)
+            val destMemoryTypeIndex = VulkanBuffers.findMemoryType(
+                physicalDevice,
+                destRequirements.memoryTypeBits,
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
             )
-        )
-        VulkanBuffers.vkBindBufferMemory(device, destBuffer, destMemory, 0)
+            val destMemory = VulkanBuffers.vkAllocateMemory(
+                device,
+                VkMemoryAllocateInfo(
+                    allocationSize = destRequirements.size,
+                    memoryTypeIndex = destMemoryTypeIndex
+                )
+            )
+            VulkanBuffers.vkBindBufferMemory(device, destBuffer, destMemory, 0)
 
-        runOneTimeCommands { commandBuffer ->
-            VulkanBuffers.vkCmdCopyBuffer(commandBuffer, stagingBuffer, destBuffer, byteSize)
+            runOneTimeCommands { commandBuffer ->
+                VulkanBuffers.vkCmdCopyBuffer(commandBuffer, stagingBuffer, destBuffer, byteSize)
+            }
+
+            return destBuffer to destMemory
+        } finally {
+            VulkanBuffers.vkDestroyBuffer(device, stagingBuffer)
+            VulkanBuffers.vkFreeMemory(device, stagingMemory)
         }
-
-        VulkanBuffers.vkDestroyBuffer(device, stagingBuffer)
-        VulkanBuffers.vkFreeMemory(device, stagingMemory)
-
-        return destBuffer to destMemory
     }
 
     private fun IntArray.toByteArrayLE(): ByteArray {
@@ -170,12 +179,12 @@ class Mesh(
         VulkanBuffers.vkCmdBindVertexBuffers(
             commandBuffer,
             0,
-            longArrayOf(vertexBuffer),
+            longArrayOf(vertexBuffer.handle),
             longArrayOf(0L)
         )
         VulkanBuffers.vkCmdBindIndexBuffer(
             commandBuffer,
-            indexBuffer,
+            indexBuffer.handle,
             0,
             VkIndexType.VK_INDEX_TYPE_UINT32
         )
@@ -186,9 +195,9 @@ class Mesh(
     }
 
     fun destroy() {
-        VulkanBuffers.vkDestroyBuffer(device, vertexBuffer)
-        VulkanBuffers.vkFreeMemory(device, vertexBufferMemory)
-        VulkanBuffers.vkDestroyBuffer(device, indexBuffer)
-        VulkanBuffers.vkFreeMemory(device, indexBufferMemory)
+        VulkanBuffers.vkDestroyBuffer(device, vertexBuffer.handle)
+        VulkanBuffers.vkFreeMemory(device, vertexBufferMemory.handle)
+        VulkanBuffers.vkDestroyBuffer(device, indexBuffer.handle)
+        VulkanBuffers.vkFreeMemory(device, indexBufferMemory.handle)
     }
 }

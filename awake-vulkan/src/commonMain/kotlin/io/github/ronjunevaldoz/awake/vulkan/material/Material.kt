@@ -24,6 +24,11 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkShaderStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
+import io.github.ronjunevaldoz.awake.vulkan.handles.BufferHandle
+import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorPoolHandle
+import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorSetHandle
+import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorSetLayoutHandle
+import io.github.ronjunevaldoz.awake.vulkan.handles.DeviceMemoryHandle
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorBufferInfo
@@ -55,32 +60,34 @@ class Material(private val graphicsDevice: GraphicsDevice) {
     private val device get() = graphicsDevice.device
     private val physicalDevice get() = graphicsDevice.physicalDevice
 
-    val descriptorSetLayout: Long
+    val descriptorSetLayout: DescriptorSetLayoutHandle
 
-    var descriptorPool: Long = 0
+    var descriptorPool: DescriptorPoolHandle = DescriptorPoolHandle(0)
         private set
-    var descriptorSet: Long = 0
+    var descriptorSet: DescriptorSetHandle = DescriptorSetHandle(0)
         private set
-    var uniformBuffer: Long = 0
+    var uniformBuffer: BufferHandle = BufferHandle(0)
         private set
-    var uniformBufferMemory: Long = 0
+    var uniformBufferMemory: DeviceMemoryHandle = DeviceMemoryHandle(0)
         private set
 
     init {
-        descriptorSetLayout = VulkanDescriptors.vkCreateDescriptorSetLayout(
-            device,
-            VkDescriptorSetLayoutCreateInfo(
-                pBindings = arrayOf(
-                    VkDescriptorSetLayoutBinding(
-                        binding = 0,
-                        descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                        // MVP matrix is only ever read in the vertex shader now.
-                        stageFlags = VkShaderStageFlagBits.VERTEX.value
-                    ),
-                    VkDescriptorSetLayoutBinding(
-                        binding = 1,
-                        descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                        stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+        descriptorSetLayout = DescriptorSetLayoutHandle(
+            VulkanDescriptors.vkCreateDescriptorSetLayout(
+                device,
+                VkDescriptorSetLayoutCreateInfo(
+                    pBindings = arrayOf(
+                        VkDescriptorSetLayoutBinding(
+                            binding = 0,
+                            descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                            // MVP matrix is only ever read in the vertex shader now.
+                            stageFlags = VkShaderStageFlagBits.VERTEX.value
+                        ),
+                        VkDescriptorSetLayoutBinding(
+                            binding = 1,
+                            descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                            stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+                        )
                     )
                 )
             )
@@ -92,30 +99,32 @@ class Material(private val graphicsDevice: GraphicsDevice) {
      * [Texture] exists. */
     fun createResources(texture: Texture) {
         val bufferSize = (16 * Float.SIZE_BYTES).toLong()
-        uniformBuffer = VulkanBuffers.vkCreateBuffer(
+        val rawUniformBuffer = VulkanBuffers.vkCreateBuffer(
             device,
             VkBufferCreateInfo(
                 size = bufferSize,
                 usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             )
         )
-        val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, uniformBuffer)
+        val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, rawUniformBuffer)
         val memoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
             memRequirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
                 VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
         )
-        uniformBufferMemory = VulkanBuffers.vkAllocateMemory(
+        val rawUniformBufferMemory = VulkanBuffers.vkAllocateMemory(
             device,
             VkMemoryAllocateInfo(
                 allocationSize = memRequirements.size,
                 memoryTypeIndex = memoryTypeIndex
             )
         )
-        VulkanBuffers.vkBindBufferMemory(device, uniformBuffer, uniformBufferMemory, 0)
+        VulkanBuffers.vkBindBufferMemory(device, rawUniformBuffer, rawUniformBufferMemory, 0)
+        uniformBuffer = BufferHandle(rawUniformBuffer)
+        uniformBufferMemory = DeviceMemoryHandle(rawUniformBufferMemory)
 
-        descriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
+        val rawDescriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
             device,
             VkDescriptorPoolCreateInfo(
                 maxSets = 1,
@@ -131,30 +140,32 @@ class Material(private val graphicsDevice: GraphicsDevice) {
                 )
             )
         )
+        descriptorPool = DescriptorPoolHandle(rawDescriptorPool)
 
-        descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(
+        val rawDescriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(
             device,
-            descriptorPool,
-            descriptorSetLayout
+            rawDescriptorPool,
+            descriptorSetLayout.handle
         )
+        descriptorSet = DescriptorSetHandle(rawDescriptorSet)
         VulkanDescriptors.vkUpdateDescriptorSetBuffer(
             device,
-            descriptorSet,
+            rawDescriptorSet,
             0,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             VkDescriptorBufferInfo(
-                buffer = uniformBuffer,
+                buffer = rawUniformBuffer,
                 range = (16 * Float.SIZE_BYTES).toLong()
             )
         )
         VulkanDescriptors.vkUpdateDescriptorSetImage(
             device,
-            descriptorSet,
+            rawDescriptorSet,
             1,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             VkDescriptorImageInfo(
-                sampler = texture.sampler,
-                imageView = texture.imageView
+                sampler = texture.sampler.handle,
+                imageView = texture.imageView.handle
             )
         )
     }
@@ -164,17 +175,17 @@ class Material(private val graphicsDevice: GraphicsDevice) {
      * `VulkanApplication.drawFrame` already does around this (`vkDeviceWaitIdle` after every
      * submit) -- this is a single shared buffer, not per-frame-in-flight. */
     fun updateUniformBuffer(mvp: FloatArray) {
-        VulkanBuffers.writeBufferMemoryFloats(device, uniformBufferMemory, 0, mvp)
+        VulkanBuffers.writeBufferMemoryFloats(device, uniformBufferMemory.handle, 0, mvp)
     }
 
     fun bind(commandBuffer: Long, pipelineLayout: Long) {
-        VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet)
+        VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet.handle)
     }
 
     fun destroy() {
-        VulkanBuffers.vkDestroyBuffer(device, uniformBuffer)
-        VulkanBuffers.vkFreeMemory(device, uniformBufferMemory)
-        VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool)
-        VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout)
+        VulkanBuffers.vkDestroyBuffer(device, uniformBuffer.handle)
+        VulkanBuffers.vkFreeMemory(device, uniformBufferMemory.handle)
+        VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool.handle)
+        VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout.handle)
     }
 }

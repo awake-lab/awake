@@ -875,6 +875,63 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
   - **Confirmed on real hardware** (Galaxy S25 Ultra): no crash across the run, steady
     "Fps: 60" in logcat, two screenshots 5 seconds apart show different cube orientations
     with the textured/colored cube rendering identically to before the extraction.
+- [x] **Code-quality pass across `Mesh`/`Texture`/`Material` + a new `TransferContext`
+      (2026-07-08):**
+  - **`TransferContext`** — new `io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext`
+    (awake-vulkan), extracted verbatim from `VulkanApplication`'s `createCommandPool`/
+    `runOneTimeCommands` functions. `Mesh`/`Texture` now take
+    `transferContext::runOneTimeCommands` (a bound method reference on a real object) instead
+    of a floating `((Long) -> Unit) -> Unit` lambda with no owner. `commandPool` stays exposed
+    (as a typed handle, see below) since `VulkanApplication` still allocates its per-frame
+    render command buffers from the same pool — that's a swapchain-frame concern, not a
+    transfer concern, so it wasn't pulled in too.
+  - **Typed Vulkan handles** — new `io.github.ronjunevaldoz.awake.vulkan.handles` package
+    (`BufferHandle`, `DeviceMemoryHandle`, `ImageHandle`, `ImageViewHandle`, `SamplerHandle`,
+    `DescriptorSetLayoutHandle`, `DescriptorPoolHandle`, `DescriptorSetHandle`,
+    `CommandPoolHandle` — all `@JvmInline value class`es around a `Long`, zero runtime cost).
+    `Mesh`, `Texture`, `Material`, and `TransferContext` now expose these instead of raw
+    `Long` on their public properties, so e.g. `texture.sampler`/`texture.imageView` can't be
+    accidentally swapped when building a `VkDescriptorImageInfo` — that exact mistake would
+    have compiled silently before and only shown up as a corrupted/black texture on-device.
+    Deliberately scoped to these four engine classes' own public API, not the generated
+    `Vulkan*`/`gen` JNI bindings themselves (those stay `Long`-based — retyping the generator's
+    output is out of scope for this pass; see the new `Handles.kt` doc comment).
+  - **Leak-safety** — `Mesh.createDeviceLocalBuffer` and `Texture`'s init now wrap the
+    staging-buffer lifecycle in `try`/`finally`, so a failure partway through an upload (e.g.
+    the dest buffer/image's allocation failing) still frees the staging buffer/memory instead
+    of leaking GPU memory silently.
+  - **Visibility** — `VulkanApplication`'s internal-only fields (`renderPass`,
+    `pipelineCache`, `pipelineLayout`, `graphicsPipeline`, `swapChainFrameBuffers`,
+    `commandBuffers`, `depthImage`/`depthImageMemory`/`depthImageView`, `frameCount`, and the
+    `GraphicsDevice`/`SwapchainManager`-delegating properties) are now `private` — nothing
+    outside the class ever read them, and this project publishes to Maven Central, so public
+    fields are API surface that need a major-version bump to change later. Also deleted two
+    now-genuinely-dead delegating properties (`debugUtilsMessenger`, `instance`) that nothing
+    read even internally.
+  - **`Camera`** — new `io.github.ronjunevaldoz.awake.core.math.Camera` (awake-core, not
+    awake-vulkan: it's pure view/projection math with no GPU dependency, so any future
+    backend — WebGPU, Metal — needs the same class, and it's unit-testable without a GPU).
+    Extracted out of `VulkanApplication.updateUniformBuffer`, which previously mixed the
+    demo's cube-spin animation together with view/projection matrix construction. Now
+    `updateUniformBuffer` only computes the model (rotation) matrix — genuinely
+    demo-specific — and combines it with `camera.viewProjectionMatrix(aspect)`. Also gave
+    `Camera` a `flipYForClipSpace` flag (defaults to `true`) to make the existing
+    Vulkan-vs-OpenGL NDC Y-flip an explicit, documented parameter instead of an inline `*= -1f`
+    buried in the demo.
+  - **Tests** — new `awake-core/src/commonTest/.../math/CameraTest.kt`, the project's first
+    real (non-stub) unit test: verifies `viewProjectionMatrix` matches `Mat4.perspective`
+    directly in the one configuration where `setLookAt` produces an identity view matrix
+    (hand-verified by working through `setLookAt`'s cross-product math), verifies the Y-flip
+    toggle, and verifies `m00` responds correctly to aspect ratio. All pure math, no GPU
+    required — 3/3 passing on `desktopTest`.
+  - **New agent**: `.claude/agents/game-framework-dev.md` — a dedicated agent for this
+    project's engine-internals work (Vulkan/OpenGL rendering layer, JNI bridges, the
+    extraction methodology above), since the existing `kmm-agent-skills` skill set is
+    entirely generic KMP **app**-development skills (auth, IAP, push notifications, design
+    systems) with nothing engine- or graphics-specific.
+  - **Confirmed on real hardware** (Galaxy S25 Ultra): no crash across the run, steady
+    "Fps: 60" in logcat, two screenshots 5 seconds apart show different cube orientations
+    with the textured/colored cube rendering identically to before this pass.
 - [ ] `Renderer.draw(camera, List<DrawCall>)` entry point
 - [ ] Keep the layer API-agnostic (future Metal/WebGPU seam)
 - [ ] Demo rewritten on the abstraction (~50 lines instead of ~800)

@@ -20,11 +20,13 @@
 package demo
 
 import io.github.ronjunevaldoz.awake.core.graphics.Application
+import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
+import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
@@ -50,7 +52,6 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkVertexInputRate
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkAccessFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandBufferUsageFlagBits
-import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandPoolCreateFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkFenceCreateFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
@@ -65,8 +66,6 @@ import io.github.ronjunevaldoz.awake.vulkan.models.VkSubpassDependency
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandPoolCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFenceCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFramebufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkGraphicsPipelineCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageSubresourceRange
@@ -97,7 +96,6 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAt
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineViewportStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
-import io.github.ronjunevaldoz.awake.vulkan.utils.findQueueFamilies
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 
 
@@ -105,35 +103,38 @@ class VulkanApplication : Application {
     /** Phase 2: instance/surface/physical-device/logical-device/queue lifecycle, extracted
      * into a reusable class -- see [GraphicsDevice]'s doc comment. */
     private val graphicsDevice = GraphicsDevice()
-    val debugUtilsMessenger get() = graphicsDevice.debugUtilsMessenger
-    val instance get() = graphicsDevice.instance
-    val surface get() = graphicsDevice.surface
-    val physicalDevice get() = graphicsDevice.physicalDevice
-    val device get() = graphicsDevice.device
-    val graphicsQueue get() = graphicsDevice.graphicsQueue
-    val presentQueue get() = graphicsDevice.presentQueue
+    private val surface get() = graphicsDevice.surface
+    private val physicalDevice get() = graphicsDevice.physicalDevice
+    private val device get() = graphicsDevice.device
+    private val graphicsQueue get() = graphicsDevice.graphicsQueue
+    private val presentQueue get() = graphicsDevice.presentQueue
     /** Phase 2: swapchain + frames-in-flight sync, extracted into a reusable class -- see
      * [SwapchainManager]'s doc comment. */
     private val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
-    val swapChain get() = swapchainManager.swapChain
-    val swapChainExtent get() = swapchainManager.extent
-    val swapChainImageViews get() = swapchainManager.imageViews
-    val swapChainImageFormat get() = swapchainManager.imageFormat
-    val imageAvailableSemaphores get() = swapchainManager.imageAvailableSemaphores
-    val renderFinishedSemaphores get() = swapchainManager.renderFinishedSemaphores
-    val inFlightFences get() = swapchainManager.inFlightFences
-    var currentFrame
+    private val swapChain get() = swapchainManager.swapChain
+    private val swapChainExtent get() = swapchainManager.extent
+    private val swapChainImageViews get() = swapchainManager.imageViews
+    private val swapChainImageFormat get() = swapchainManager.imageFormat
+    private val imageAvailableSemaphores get() = swapchainManager.imageAvailableSemaphores
+    private val renderFinishedSemaphores get() = swapchainManager.renderFinishedSemaphores
+    private val inFlightFences get() = swapchainManager.inFlightFences
+    private var currentFrame
         get() = swapchainManager.currentFrame
         set(value) {
             swapchainManager.currentFrame = value
         }
-    var renderPass: Long = 0
-    var pipelineCache: Long = 0
-    var pipelineLayout: Long = 0
-    var graphicsPipeline: LongArray = longArrayOf()
-    var swapChainFrameBuffers: List<Long> = emptyList()
-    var commandPool: Long = 0
-    var commandBuffers: LongArray = LongArray(MAX_FRAMES_IN_FLIGHT)
+    private var renderPass: Long = 0
+    private var pipelineCache: Long = 0
+    private var pipelineLayout: Long = 0
+    private var graphicsPipeline: LongArray = longArrayOf()
+    private var swapChainFrameBuffers: List<Long> = emptyList()
+    /** Phase 2: command pool + one-time (upload) command submission, extracted into a
+     * reusable class -- see [TransferContext]'s doc comment. Constructed lazily in
+     * [setupVulkan] for the same reason as [mesh]/[texture]/[material]: it needs
+     * [graphicsDevice] to already be `.create()`-d. */
+    private lateinit var transferContext: TransferContext
+    private val commandPool get() = transferContext.commandPool.handle
+    private var commandBuffers: LongArray = LongArray(MAX_FRAMES_IN_FLIGHT)
     /** Phase 2: vertex/index buffer upload, extracted into a reusable class -- see
      * [Mesh]'s doc comment. Constructed lazily in [setupVulkan] (needs [commandPool] and
      * [graphicsQueue] to already exist for its one-time upload commands), not eagerly like
@@ -143,10 +144,10 @@ class VulkanApplication : Application {
      * class -- see [Material]'s doc comment for why it's constructed in two phases. */
     private lateinit var material: Material
     private lateinit var texture: Texture
-    var depthImage: Long = 0
-    var depthImageMemory: Long = 0
-    var depthImageView: Long = 0
-    var frameCount = 0
+    private var depthImage: Long = 0
+    private var depthImageMemory: Long = 0
+    private var depthImageView: Long = 0
+    private var frameCount = 0
 
     companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
@@ -230,9 +231,15 @@ class VulkanApplication : Application {
         createGraphicsPipeline()
         createDepthResources()
         createFramebuffers()
-        createCommandPool()
-        mesh = Mesh(graphicsDevice, ::runOneTimeCommands, cubeVertices, cubeIndices)
-        texture = Texture(graphicsDevice, ::runOneTimeCommands, textureData, TEXTURE_WIDTH, TEXTURE_HEIGHT)
+        transferContext = TransferContext(graphicsDevice)
+        mesh = Mesh(graphicsDevice, transferContext::runOneTimeCommands, cubeVertices, cubeIndices)
+        texture = Texture(
+            graphicsDevice,
+            transferContext::runOneTimeCommands,
+            textureData,
+            TEXTURE_WIDTH,
+            TEXTURE_HEIGHT
+        )
         material.createResources(texture)
         createCommandBuffer()
         swapchainManager.createSyncObjects()
@@ -279,64 +286,34 @@ class VulkanApplication : Application {
         )
     }
 
-    /** Rebuilds model*view*projection every frame (a simple Y-axis spin) and rewrites the
-     * whole uniform buffer. Only safe because [drawFrame] calls `vkDeviceWaitIdle` after
-     * every submit -- see that function's comment for why a single shared (not
-     * per-frame-in-flight) uniform buffer needs that serialization. */
+    /** Fixed camera looking at the origin -- only [updateUniformBuffer]'s model (spin)
+     * matrix changes per frame. View/projection math itself lives in [Camera] (awake-core),
+     * not here: it's backend-agnostic camera math, not a demo-animation concern. */
+    private val camera = Camera(
+        eye = Vec3(2f, 2f, 2f),
+        center = Vec3(0f, 0f, 0f),
+        fovYRadians = (45.0 * kotlin.math.PI / 180.0).toFloat(),
+        near = 0.1f,
+        far = 10f
+    )
+
+    /** Rebuilds model*view*projection every frame (a simple Y-axis spin -- the only part of
+     * this that's demo-specific "animation," as opposed to [camera]'s reusable view/
+     * projection math) and rewrites the whole uniform buffer. Only safe because [drawFrame]
+     * calls `vkDeviceWaitIdle` after every submit -- see that function's comment for why a
+     * single shared (not per-frame-in-flight) uniform buffer needs that serialization. */
     private fun updateUniformBuffer() {
         val angle = frameCount * 0.02f
         val model = Mat4().rotateY(angle).rotateX(angle * 0.5f)
-        val view = Mat4.setLookAt(
-            eye = Vec3(2f, 2f, 2f),
-            center = Vec3(0f, 0f, 0f),
-            up = Vec3(0f, 1f, 0f)
-        )
         val aspect = swapChainExtent.width.toFloat() / swapChainExtent.height.toFloat()
-        val projection = Mat4.perspective(
-            fovY = (45.0 * kotlin.math.PI / 180.0).toFloat(),
-            aspect = aspect,
-            near = 0.1f,
-            far = 10f
-        )
-        // Mat4.perspective follows the OpenGL convention (NDC +Y up); Vulkan's NDC has +Y
-        // down, so the projection's Y scale must be flipped or the cube renders upside down.
-        projection.m11 *= -1f
         // Mat4's `data` array is column-major (matches GLSL's mat4 layout) but its `times`
         // operator's inner loops index it as if row-major, so `A * B` (Kotlin) actually
         // computes the conventional `B * A`. To get the conventional projection*view*model
         // (the standard vertex-transform order: model space -> view space -> clip space),
-        // the Kotlin expression has to be written in the opposite order.
-        val mvp = model * view * projection
+        // the Kotlin expression has to be written in the opposite order -- see
+        // Camera.viewProjectionMatrix's doc for the same rule applied to view*projection.
+        val mvp = model * camera.viewProjectionMatrix(aspect)
         material.updateUniformBuffer(mvp.data)
-    }
-
-    /** Runs [block] on a fresh one-time command buffer, submitted and waited-on via a
-     * throwaway fence rather than vkQueueWaitIdle/vkFreeCommandBuffers (neither of which
-     * exist in the legacy Vulkan object yet). */
-    private fun runOneTimeCommands(block: (Long) -> Unit) {
-        val allocInfo = VkCommandBufferAllocateInfo(
-            commandPool = commandPool,
-            level = VkCommandBufferLevel.VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            commandBufferCount = 1
-        )
-        val commandBuffer = Vulkan.vkAllocateCommandBuffers(device, allocInfo)
-        Vulkan.vkBeginCommandBuffer(
-            commandBuffer,
-            VkCommandBufferBeginInfo(
-                flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value
-            )
-        )
-        block(commandBuffer)
-        Vulkan.vkEndCommandBuffer(commandBuffer)
-
-        val fence = Vulkan.vkCreateFence(device, VkFenceCreateInfo())
-        Vulkan.vkQueueSubmit(
-            graphicsQueue,
-            arrayOf(VkSubmitInfo(pCommandBuffers = arrayOf(commandBuffer))),
-            fence
-        )
-        Vulkan.vkWaitForFences(device, longArrayOf(fence), true, Long.MAX_VALUE)
-        Vulkan.vkDestroyFence(device, fence)
     }
 
     private fun drawFrame() {
@@ -458,17 +435,6 @@ class VulkanApplication : Application {
         for (i in 0 until MAX_FRAMES_IN_FLIGHT) {
             commandBuffers[i] = Vulkan.vkAllocateCommandBuffers(device, allocInfo)
         }
-    }
-
-    private fun createCommandPool() {
-        val (graphicsFamily, presentFamily) = findQueueFamilies(physicalDevice, surface)
-
-        val poolInfo = VkCommandPoolCreateInfo(
-            flags = VkCommandPoolCreateFlagBits.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT.value,
-            queueFamilyIndex = graphicsFamily!!
-        )
-
-        commandPool = Vulkan.vkCreateCommandPool(device, poolInfo)
     }
 
     private fun createFramebuffers() {
@@ -679,7 +645,7 @@ class VulkanApplication : Application {
 
             pipelineLayout = Vulkan.vkCreatePipelineLayout(
                 device,
-                VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(material.descriptorSetLayout))
+                VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(material.descriptorSetLayout.handle))
             )
 
             val createInfos = arrayOf(
@@ -722,7 +688,7 @@ class VulkanApplication : Application {
 
         swapchainManager.destroySyncObjects()
 //      Vulkan.vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-        Vulkan.vkDestroyCommandPool(device, commandPool)
+        transferContext.destroy()
 
         mesh.destroy()
         texture.destroy()
