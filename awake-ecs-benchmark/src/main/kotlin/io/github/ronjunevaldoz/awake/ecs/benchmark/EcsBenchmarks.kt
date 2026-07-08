@@ -30,9 +30,9 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.ecs.Entity as AwakeEntity
 import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
-import io.github.ronjunevaldoz.awake.ecs.components.MeshRenderer
-import io.github.ronjunevaldoz.awake.ecs.components.Transform
-import io.github.ronjunevaldoz.awake.ecs.systems.TransformSystem
+import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import org.openjdk.jmh.annotations.Benchmark

@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-ecs.commonMain
+ * Awake.awake-scene.commonMain
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package io.github.ronjunevaldoz.awake.ecs.components
+package io.github.ronjunevaldoz.awake.scene.components
 
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 

@@ -32,7 +32,7 @@ minimal desktop editor. iOS follows as a fast-follow via MoltenVK cinterop.
 | iOS backend | ❌ Empty stub (needs MoltenVK cinterop, not JNI) |
 | Buffers / device memory API | ❌ Missing (`vkCreateBuffer`, `vkAllocateMemory`, …) |
 | Descriptor sets / uniforms / textures | ❌ Missing |
-| ECS | ✅ `awake-ecs` sparse-set runtime introduced; benchmark follow-up captured |
+| ECS | ✅ `awake-ecs` sparse-set runtime split from `awake-scene`; benchmark follow-up captured |
 | Editor | ❌ None ([graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) available as base) |
 | Toolchain | ⚠️ Stale — Kotlin 1.8.20, AGP 7.4.2, Compose 1.4.1 |
 | Codegen | ⚠️ Bespoke `awake-vulkan-generator` — to be replaced by jni-binding-generator |
@@ -1025,9 +1025,13 @@ twice (once against whatever's there today, again once Phase 2 settles).
 - [x] **Custom sparse-set `awake-ecs` module (2026-07-09):** decided against Fleks as a
       runtime dependency for the engine layer; implemented owned `Entity` handles with id +
       generation packing, `ComponentStore<T>` sparse sets, `World` allocation/recycling and
-      KClass-backed queries, and `System.update(world, delta)`. `awake-ecs` depends on
-      `awake-core` and `awake-vulkan`; no dependency points back into ECS.
-- [x] Core components: `Transform` (position/rotation/scale + parent hierarchy +
+      KClass-backed queries, and `System.update(world, delta)`. `awake-ecs` is now a
+      publishable library artifact with no dependency on `awake-core`, `awake-vulkan`, or
+      Awake-specific components.
+- [x] `awake-scene` module (2026-07-09): moved Awake-specific components/systems out of
+      `awake-ecs` so engine consumers can use the ECS runtime alone or opt into the scene
+      layer. `awake-scene` depends on `awake-ecs`, `awake-core`, and `awake-vulkan`.
+- [x] Scene components: `Transform` (position/rotation/scale + parent hierarchy +
       world matrix), `MeshRenderer` (Mesh + Material), `Camera`, `Light`
 - [x] `TransformSystem` — world-matrix propagation with parent-before-child DFS, including
       cycle detection instead of unordered stale-parent iteration
@@ -1035,12 +1039,12 @@ twice (once against whatever's there today, again once Phase 2 settles).
       delegates submission to `Renderer.draw(camera, drawCalls)`
 - [x] Unit tests on plain JVM (no platform deps): entity generation/recycling,
       component add/remove, query/cache correctness, stale-handle cleanup, and hierarchy
-      propagation order. Verified with `./gradlew :awake-ecs:desktopTest`
-      (`7/7` passing).
+      propagation order. Verified with
+      `./gradlew :awake-ecs:desktopTest :awake-scene:desktopTest`.
 - [x] Benchmark harness isolated in `:awake-ecs-benchmark` (JVM-only): depends on
-      `:awake-ecs` and Fleks 2.14, with Fleks absent from `awake-ecs`'s dependency graph.
-      `kotlinx-benchmark` 0.4.17 was checked before wiring; it supports Kotlin 2.2.0+
-      and resolved cleanly against this project's Kotlin 2.4.0. Scorecard:
+      `:awake-ecs`, `:awake-scene`, and Fleks 2.14, with Fleks absent from `awake-ecs`'s
+      dependency graph. `kotlinx-benchmark` 0.4.17 was checked before wiring; it supports
+      Kotlin 2.2.0+ and resolved cleanly against this project's Kotlin 2.4.0. Scorecard:
       [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md). Awake now caches
       untyped query results and exposes typed sparse-store iteration for systems; Fleks is
       still faster on the Transform+MeshRenderer query hot path at 10k/100k entities, so

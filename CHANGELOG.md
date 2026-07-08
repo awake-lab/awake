@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `awake-ecs` and `awake-scene` as publishable artifacts. `awake-ecs` is now the pure
+  sparse-set ECS runtime; Awake-specific scene components and systems moved to
+  `awake-scene`.
+
 ### Removed
 
 - `DemoApplication`'s per-second `Random.nextInt` drawable switching on desktop. Leftover

@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-ecs.commonMain
+ * Awake.awake-scene.commonMain
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 
-package io.github.ronjunevaldoz.awake.ecs.systems
+package io.github.ronjunevaldoz.awake.scene.systems
 
 import io.github.ronjunevaldoz.awake.core.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.core.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.ecs.components.Camera
-import io.github.ronjunevaldoz.awake.ecs.components.MeshRenderer
-import io.github.ronjunevaldoz.awake.ecs.components.Transform
+import io.github.ronjunevaldoz.awake.scene.components.Camera
+import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.components.Transform
 
 class RenderSystem(
     private val renderer: Renderer

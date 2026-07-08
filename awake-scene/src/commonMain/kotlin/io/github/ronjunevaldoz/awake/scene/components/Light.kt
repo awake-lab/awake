@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-ecs.commonMain
+ * Awake.awake-scene.commonMain
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -17,12 +17,17 @@
  * limitations under the License.
  */
 
-package io.github.ronjunevaldoz.awake.ecs.components
+package io.github.ronjunevaldoz.awake.scene.components
 
-import io.github.ronjunevaldoz.awake.vulkan.material.Material
-import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 
-data class MeshRenderer(
-    val mesh: Mesh,
-    val material: Material
-)
+data class Light(
+    val color: Vec3 = Vec3(1f, 1f, 1f),
+    val intensity: Float = 1f,
+    val type: Type = Type.Point
+) {
+    enum class Type {
+        Directional,
+        Point
+    }
+}

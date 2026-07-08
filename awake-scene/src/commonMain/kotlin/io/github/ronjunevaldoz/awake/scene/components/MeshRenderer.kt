@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-ecs-benchmark
+ * Awake.awake-scene.commonMain
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -17,26 +17,12 @@
  * limitations under the License.
  */
 
-plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlinx.benchmark)
-}
+package io.github.ronjunevaldoz.awake.scene.components
 
-kotlin {
-    jvmToolchain(17)
-}
+import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 
-dependencies {
-    implementation(project(":awake-core"))
-    implementation(project(":awake-ecs"))
-    implementation(project(":awake-scene"))
-    implementation(project(":awake-vulkan"))
-    implementation(libs.fleks)
-    implementation(libs.kotlinx.benchmark.runtime)
-}
-
-benchmark {
-    targets {
-        register("main")
-    }
-}
+data class MeshRenderer(
+    val mesh: Mesh,
+    val material: Material
+)

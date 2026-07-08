@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-ecs.commonMain
+ * Awake.awake-scene.commonMain
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -17,14 +17,14 @@
  * limitations under the License.
  */
 
-package io.github.ronjunevaldoz.awake.ecs.systems
+package io.github.ronjunevaldoz.awake.scene.systems
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.ecs.components.Transform
+import io.github.ronjunevaldoz.awake.scene.components.Transform
 
 class TransformSystem : System {
     override fun update(world: World, delta: Float) {

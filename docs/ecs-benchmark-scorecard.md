@@ -6,6 +6,8 @@
 > Harness: `kotlinx-benchmark` 0.4.17 / JMH, 1 fork, 2 warmup iterations,
 > 3 measurement iterations, 1 second per iteration. Short-run numbers are useful for
 > relative direction, not final release claims.
+>
+> Awake benchmark shape: pure `awake-ecs` runtime plus `awake-scene` components/systems.
 
 ## Results
 

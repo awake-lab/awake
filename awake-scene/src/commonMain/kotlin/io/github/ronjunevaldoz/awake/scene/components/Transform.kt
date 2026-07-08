@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-ecs.commonMain
+ * Awake.awake-scene.commonMain
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -17,17 +17,25 @@
  * limitations under the License.
  */
 
-package io.github.ronjunevaldoz.awake.ecs.components
+package io.github.ronjunevaldoz.awake.scene.components
 
+import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.ecs.Entity
 
-data class Light(
-    val color: Vec3 = Vec3(1f, 1f, 1f),
-    val intensity: Float = 1f,
-    val type: Type = Type.Point
+data class Transform(
+    var position: Vec3 = Vec3(0f, 0f, 0f),
+    var rotation: Vec3 = Vec3(0f, 0f, 0f),
+    var scale: Vec3 = Vec3(1f, 1f, 1f),
+    var parent: Entity? = null,
+    var worldMatrix: Mat4 = Mat4()
 ) {
-    enum class Type {
-        Directional,
-        Point
+    fun localMatrix(): Mat4 {
+        return Mat4()
+            .translate(position.x, position.y, position.z)
+            .rotateZ(rotation.z)
+            .rotateY(rotation.y)
+            .rotateX(rotation.x)
+            .scale(scale.x, scale.y, scale.z)
     }
 }

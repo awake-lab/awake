@@ -11,7 +11,8 @@ a Compose-style scene API, and a desktop editor. Native Vulkan access is via JNI
 Desktop JVM) and MoltenVK cinterop (iOS, planned). C++ JNI bindings are generated with
 [jni-binding-generator](https://github.com/ronjunevaldoz/jni-binding-generator).
 
-Group ID: `io.github.ronjunevaldoz` · Artifacts: `awake-core`, `awake-vulkan` ·
+Group ID: `io.github.ronjunevaldoz` · Artifacts: `awake-core`, `awake-vulkan`,
+`awake-ecs`, `awake-scene` ·
 Published to: Maven Central (Sonatype snapshots)
 
 **The roadmap and task checklist live in [docs/MVP_PLAN.md](../docs/MVP_PLAN.md) — consult
@@ -41,6 +42,8 @@ it before starting work; phases and open decisions (D1–D4) are tracked there.*
 | Module | Purpose | Published |
 |---|---|---|
 | `:awake-core` | Engine core: math, shaders, game loop, OpenGL wrapper | ✅ `awake-core` |
+| `:awake-ecs` | Pure sparse-set ECS runtime: entities, component stores, world queries, systems | ✅ `awake-ecs` |
+| `:awake-scene` | Awake scene components/systems on top of ECS (`Transform`, `Camera`, render integration) | ✅ `awake-scene` |
 | `:awake-vulkan` | Vulkan KMP bindings — common API + JNI C++ (`src/main/cpp`) | ✅ `awake-vulkan` |
 | `:awake-vulkan-generator` | Legacy bespoke C++ codegen — **being retired** (MVP Phase 1a) in favor of jni-binding-generator | ❌ |
 | `:awake-demo:shared` | Sample app shared code (Vulkan triangle demo) | ❌ sample |
@@ -62,7 +65,8 @@ it before starting work; phases and open decisions (D1–D4) are tracked there.*
 ## API surface rules
 
 - Never remove or rename public symbols without a major version bump
-- Public API changes to `awake-core` / `awake-vulkan` require a CHANGELOG.md entry
+- Public API changes to published modules (`awake-core`, `awake-vulkan`, `awake-ecs`,
+  `awake-scene`) require a CHANGELOG.md entry
 - Mark internal symbols `internal` — keep the published API surface minimal
 
 ## Commands installed

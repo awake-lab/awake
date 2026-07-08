@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-ecs
+ * Awake.awake-scene
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -32,7 +32,7 @@ kotlin {
     jvmToolchain(17)
 
     android {
-        namespace = "io.github.ronjunevaldoz.awake.ecs"
+        namespace = "io.github.ronjunevaldoz.awake.scene"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
     }
@@ -42,13 +42,18 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "awake-ecs"
+            baseName = "awake-scene"
         }
     }
 
     jvm("desktop")
 
     sourceSets {
+        commonMain.dependencies {
+            api(project(":awake-core"))
+            api(project(":awake-ecs"))
+            api(project(":awake-vulkan"))
+        }
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
@@ -95,8 +100,8 @@ mavenPublishing {
     )
 
     pom {
-        name.set("Awake ECS")
-        description.set("Sparse-set Kotlin Multiplatform ECS runtime")
+        name.set("Awake Scene")
+        description.set("Awake ECS scene components and systems")
         url.set("https://ronjunevaldoz.github.io/awake")
         licenses {
             license {
