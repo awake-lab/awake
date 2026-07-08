@@ -26,12 +26,10 @@ import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkAttachmentStoreOp
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorComponentFlagBits
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorSpaceKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCommandBufferLevel
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkComponentSwizzle
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkCompositeAlphaFlagBitsKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCullModeFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkDynamicState
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
@@ -41,7 +39,6 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageLayout
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageViewType
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkPresentModeKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPrimitiveTopology
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkResult
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkShaderStageFlagBits
@@ -56,7 +53,6 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
-import io.github.ronjunevaldoz.awake.vulkan.has
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
@@ -64,13 +60,10 @@ import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkSubpassDependency
-import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceCapabilitiesKHR
-import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceFormatKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandPoolCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkComponentMapping
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFenceCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFramebufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkGraphicsPipelineCreateInfo
@@ -79,11 +72,9 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageViewCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkPresentInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSemaphoreCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSwapchainCreateInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
@@ -121,7 +112,6 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBi
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineViewportStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 import io.github.ronjunevaldoz.awake.vulkan.utils.findQueueFamilies
-import io.github.ronjunevaldoz.awake.vulkan.utils.querySwapChainSupport
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 
 
@@ -136,10 +126,21 @@ class VulkanApplication : Application {
     val device get() = graphicsDevice.device
     val graphicsQueue get() = graphicsDevice.graphicsQueue
     val presentQueue get() = graphicsDevice.presentQueue
-    var swapChain: Long = 0
-    var swapChainExtent: VkExtent2D = VkExtent2D()
-    var swapChainImageViews: List<Long> = emptyList()
-    var swapChainImageFormat = VkFormat.VK_FORMAT_UNDEFINED
+    /** Phase 2: swapchain + frames-in-flight sync, extracted into a reusable class -- see
+     * [SwapchainManager]'s doc comment. */
+    private val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
+    val swapChain get() = swapchainManager.swapChain
+    val swapChainExtent get() = swapchainManager.extent
+    val swapChainImageViews get() = swapchainManager.imageViews
+    val swapChainImageFormat get() = swapchainManager.imageFormat
+    val imageAvailableSemaphores get() = swapchainManager.imageAvailableSemaphores
+    val renderFinishedSemaphores get() = swapchainManager.renderFinishedSemaphores
+    val inFlightFences get() = swapchainManager.inFlightFences
+    var currentFrame
+        get() = swapchainManager.currentFrame
+        set(value) {
+            swapchainManager.currentFrame = value
+        }
     var renderPass: Long = 0
     var pipelineCache: Long = 0
     var pipelineLayout: Long = 0
@@ -147,10 +148,6 @@ class VulkanApplication : Application {
     var swapChainFrameBuffers: List<Long> = emptyList()
     var commandPool: Long = 0
     var commandBuffers: LongArray = LongArray(MAX_FRAMES_IN_FLIGHT)
-    var imageAvailableSemaphores: LongArray = LongArray(MAX_FRAMES_IN_FLIGHT)
-    var renderFinishedSemaphores: LongArray = LongArray(MAX_FRAMES_IN_FLIGHT)
-    var inFlightFences: LongArray = LongArray(MAX_FRAMES_IN_FLIGHT)
-    var currentFrame = 0
     var vertexBuffer: Long = 0
     var vertexBufferMemory: Long = 0
     var indexBuffer: Long = 0
@@ -256,7 +253,7 @@ class VulkanApplication : Application {
     private fun setupVulkan(window: Any) {
         graphicsDevice.create(window)
         // create swap chain
-        swapChain()
+        swapchainManager.create()
         createRenderPass()
         createDescriptorSetLayout()
         createGraphicsPipeline()
@@ -272,7 +269,7 @@ class VulkanApplication : Application {
         createDescriptorPool()
         createDescriptorSet()
         createCommandBuffer()
-        createSyncObjects()
+        swapchainManager.createSyncObjects()
     }
 
     private fun createDescriptorSetLayout() {
@@ -734,19 +731,6 @@ class VulkanApplication : Application {
 //        Vulkan.vkDeviceWaitIdle(device)
     }
 
-    private fun createSyncObjects() {
-        val semaphoreInfo = VkSemaphoreCreateInfo()
-        val fenceInfo = VkFenceCreateInfo(
-            flags = VkFenceCreateFlagBits.VK_FENCE_CREATE_SIGNALED_BIT.value
-        )
-
-        for (i in 0 until MAX_FRAMES_IN_FLIGHT) {
-            imageAvailableSemaphores[i] = Vulkan.vkCreateSemaphore(device, semaphoreInfo)
-            renderFinishedSemaphores[i] = Vulkan.vkCreateSemaphore(device, semaphoreInfo)
-            inFlightFences[i] = Vulkan.vkCreateFence(device, fenceInfo)
-        }
-    }
-
     private fun recordCommandBuffer(commandBuffer: Long, aquiredImageIndex: Int) {
         val beginInfo = VkCommandBufferBeginInfo(
             flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value,
@@ -891,90 +875,6 @@ class VulkanApplication : Application {
         )
     }
 
-    private fun swapChain() {
-        val (capabilities, formats, presentModes) = querySwapChainSupport(physicalDevice, surface)
-        val (format, colorSpace) = chooseSwapSurfaceFormat(formats)
-        val presentMode = chooseSwapPresentMode(presentModes)
-        val extent = chooseSwapExtent(capabilities)
-
-        val imageCount = (capabilities.minImageCount + 1).coerceIn(1, capabilities.maxImageCount)
-
-        val indices = findQueueFamilies(physicalDevice, surface)
-        var queueFamilyIndices: Array<Int>? =
-            arrayOf(indices.graphicsFamily!!, indices.presentFamily!!)
-        val imageSharingMode: VkSharingMode
-        if (indices.graphicsFamily !== indices.presentFamily) {
-            imageSharingMode = VkSharingMode.VK_SHARING_MODE_CONCURRENT
-        } else {
-            imageSharingMode = VkSharingMode.VK_SHARING_MODE_EXCLUSIVE
-            queueFamilyIndices = null
-        }
-        val compositeAlpha =
-            if (capabilities.supportedCompositeAlpha has VkCompositeAlphaFlagBitsKHR.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR) {
-                VkCompositeAlphaFlagBitsKHR.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
-            } else if (capabilities.supportedCompositeAlpha has VkCompositeAlphaFlagBitsKHR.VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) {
-                VkCompositeAlphaFlagBitsKHR.VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR
-            } else {
-                throw Exception("No valid compositeAlpha found")
-            }
-
-
-        val imageUsage =
-            if (capabilities.supportedUsageFlags has VkImageUsageFlagBits.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) {
-                VkImageUsageFlagBits.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.value
-            } else {
-                throw Exception("No valid usage flags found")
-            }
-
-        val preTransform = capabilities.currentTransform
-
-        val createInfo = VkSwapchainCreateInfoKHR(
-            surface = surface,
-            minImageCount = imageCount,
-            imageFormat = format,
-            imageColorSpace = colorSpace,
-            imageExtent = extent,
-            imageArrayLayers = 1,
-            imageUsage = imageUsage,
-            imageSharingMode = imageSharingMode,
-            pQueueFamilyIndices = queueFamilyIndices?.toIntArray(),
-            preTransform = preTransform,
-            compositeAlpha = compositeAlpha,
-            presentMode = presentMode,
-            clipped = true,
-            oldSwapchain = swapChain
-        )
-        swapChainImageFormat = format
-        swapChain = Vulkan.vkCreateSwapchainKHR(device, createInfo)
-        swapChainExtent = extent
-        createImageViews()
-    }
-
-    private fun createImageViews() {
-        val swapChainImages = Vulkan.vkGetSwapchainImagesKHR(device, swapChain)
-
-        swapChainImageViews = swapChainImages.map { swapChainImage ->
-            val createInfo = VkImageViewCreateInfo(
-                image = swapChainImage,
-                viewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_2D,
-                format = swapChainImageFormat,
-                components = VkComponentMapping(
-                    VkComponentSwizzle.VK_COMPONENT_SWIZZLE_R,
-                    VkComponentSwizzle.VK_COMPONENT_SWIZZLE_G,
-                    VkComponentSwizzle.VK_COMPONENT_SWIZZLE_B,
-                    VkComponentSwizzle.VK_COMPONENT_SWIZZLE_A,
-                ),
-                subresourceRange = VkImageSubresourceRange(
-                    aspectMask = VkImageAspectFlagBits.VK_IMAGE_ASPECT_COLOR_BIT.value,
-                    baseMipLevel = 0,
-                    levelCount = 1,
-                    baseArrayLayer = 0,
-                    layerCount = 1
-                )
-            )
-            Vulkan.vkCreateImageView(device, createInfo)
-        }
-    }
 
     fun createShaderModule(code: IntArray): Long {
         val createInfo = VkShaderModuleCreateInfo(
@@ -1146,61 +1046,17 @@ class VulkanApplication : Application {
         }
     }
 
-    private fun chooseSwapSurfaceFormat(availableFormats: List<VkSurfaceFormatKHR>): VkSurfaceFormatKHR {
-        require(availableFormats.isNotEmpty()) { "AvailableFormats must not be empty." }
-        val preferedFormats = listOf(
-            VkFormat.VK_FORMAT_R8G8B8A8_SRGB,
-            VkFormat.VK_FORMAT_B8G8R8A8_SRGB,
-            VkFormat.VK_FORMAT_A8B8G8R8_SRGB_PACK32,
-        )
-        return availableFormats.find { surfaceFormat ->
-            preferedFormats.contains(surfaceFormat.format) && surfaceFormat.colorSpace == VkColorSpaceKHR.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-        } ?: availableFormats.first()
-    }
-
-    private fun chooseSwapPresentMode(availablePresetModes: List<VkPresentModeKHR>): VkPresentModeKHR {
-        require(availablePresetModes.isNotEmpty()) { "AvailablePresetModes must not be empty." }
-        return availablePresetModes.find { presentMode ->
-            presentMode == VkPresentModeKHR.VK_PRESENT_MODE_MAILBOX_KHR
-        } ?: return VkPresentModeKHR.VK_PRESENT_MODE_FIFO_KHR
-    }
-
-    private fun chooseSwapExtent(
-        capabilities: VkSurfaceCapabilitiesKHR,
-//        context: Context
-    ): VkExtent2D {
-        if (capabilities.currentExtent.width != Int.MAX_VALUE) {
-            return capabilities.currentExtent
-        }
-//        val displayMetrics = context.resources.displayMetrics
-        // TODO get size from actual window
-        val width = 0//displayMetrics.widthPixels
-        val height = 0//displayMetrics.heightPixels
-        val actualWidth =
-            width.coerceIn(capabilities.minImageExtent.width, capabilities.maxImageExtent.width)
-        val actualHeight =
-            height.coerceIn(capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
-        return VkExtent2D(actualWidth, actualHeight)
-    }
-
     private fun cleanSwapChain() {
-        swapChainImageViews.forEach { imageView ->
-            Vulkan.vkDestroyImageView(device, imageView)
-        }
         swapChainFrameBuffers.forEach { frameBuffer ->
             Vulkan.vkDestroyFramebuffer(device, frameBuffer)
         }
-        Vulkan.vkDestroySwapchainKHR(device, swapChain)
+        swapchainManager.destroy()
     }
 
     private fun destroy() {
         cleanSwapChain()
 
-        repeat(MAX_FRAMES_IN_FLIGHT) { index ->
-            Vulkan.vkDestroySemaphore(device, imageAvailableSemaphores[index])
-            Vulkan.vkDestroySemaphore(device, renderFinishedSemaphores[index])
-            Vulkan.vkDestroyFence(device, inFlightFences[index])
-        }
+        swapchainManager.destroySyncObjects()
 //      Vulkan.vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
         Vulkan.vkDestroyCommandPool(device, commandPool)
 

@@ -702,7 +702,23 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
       **Confirmed on real hardware** (Galaxy S25 Ultra): screenshot after the refactor is
       pixel-identical to before it — same cube, same colors, same depth occlusion — proving
       the extraction changed structure without changing behavior.
-- [ ] `SwapchainManager` — resize/recreate, frames-in-flight
+- [x] **`SwapchainManager` — swapchain + frames-in-flight sync (2026-07-08):** new
+      `io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager` (awake-vulkan),
+      extracted verbatim from `VulkanApplication`'s `swapChain`/`createImageViews`/
+      `chooseSwap*`/`cleanSwapChain`/`createSyncObjects` functions and their backing fields
+      (swapchain handle, extent, image format, image views, per-frame-in-flight semaphores/
+      fences, `currentFrame`). Takes a `GraphicsDevice` reference rather than raw
+      physicalDevice/device/surface longs, since those aren't known until
+      `GraphicsDevice.create()` runs — reading them live avoids a strict construction-order
+      requirement between the two classes. Framebuffers deliberately stay owned by
+      `VulkanApplication`: they also depend on the render pass and depth image view, neither
+      of which is extracted yet, so splitting them out now would mean passing those back in
+      as parameters for no real benefit yet. **"Resize/recreate" is not yet implemented** —
+      this extraction only moved what already existed (one-time creation); actual
+      swapchain-recreation-on-resize (`recreateSwapChain()`'s still-TODO body) is separate,
+      not-yet-done work.
+      **Confirmed on real hardware** (Galaxy S25 Ultra): screenshot after the extraction is
+      pixel-identical to before it.
 - [ ] `Mesh` — vertex/index buffer upload from common code
 - [ ] `Texture` — image upload, sampler, mipmaps (post-MVP ok)
 - [ ] `Material` / `Shader` — pipeline + descriptor set ownership
