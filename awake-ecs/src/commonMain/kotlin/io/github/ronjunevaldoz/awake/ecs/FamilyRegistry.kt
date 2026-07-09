@@ -34,42 +34,70 @@ import kotlin.reflect.KClass
 internal class FamilyRegistry(private val world: World) {
     private val families = mutableMapOf<FamilyKey, FamilyCache>()
     private val familySpecCaches = mutableMapOf<FamilySpec, FamilySpecCache>()
+    
+    /** Index of families that care about a specific component type, indexed by 
+     * [ComponentTypeId.value]. Using an array of lists avoids [KClass] map lookups
+     * on the structural-change hot path. */
+    private var familiesByComponentId = arrayOfNulls<MutableList<FamilyCache>>(16)
 
     fun clear() {
         families.clear()
         familySpecCaches.clear()
+        familiesByComponentId.fill(null)
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <A : Any> familyCache(type: KClass<A>): Family1Cache<A> {
         val key = FamilyKey.single(world.typeId(type))
-        return families.getOrPut(key) { buildFamily(type) } as Family1Cache<A>
+        return families.getOrPut(key) { 
+            buildFamily(type).also(::indexFamily)
+        } as Family1Cache<A>
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <A : Any, B : Any> familyCache(typeA: KClass<A>, typeB: KClass<B>): Family2Cache<A, B> {
         val key = FamilyKey.pair(world.typeId(typeA), world.typeId(typeB))
-        return families.getOrPut(key) { buildFamily(typeA, typeB) } as Family2Cache<A, B>
+        return families.getOrPut(key) { 
+            buildFamily(typeA, typeB).also(::indexFamily)
+        } as Family2Cache<A, B>
     }
 
     fun familySpecCache(spec: FamilySpec): FamilySpecCache {
-        return familySpecCaches.getOrPut(spec) { buildFamilySpecCache(spec) }
+        return familySpecCaches.getOrPut(spec) { 
+            buildFamilySpecCache(spec).also(::indexFamily)
+        }
     }
 
     fun removeEntity(entity: Entity) {
+        // Entity destruction affects every cache (it must be removed if it was present)
         forEachCache { it.remove(entity) }
     }
 
-    fun <T : Any> addComponent(entity: Entity, type: KClass<T>, component: T) {
-        forEachCache { it.addComponent(world, entity, type, component) }
+    fun <T : Any> addComponent(entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
+        forEachRelevantCache(typeId) { it.addComponent(world, entity, type, component) }
     }
 
-    fun <T : Any> replaceComponent(entity: Entity, type: KClass<T>, component: T) {
-        forEachCache { it.replaceComponent(world, entity, type, component) }
+    fun <T : Any> replaceComponent(entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
+        forEachRelevantCache(typeId) { it.replaceComponent(world, entity, type, component) }
     }
 
-    fun removeComponent(entity: Entity, type: KClass<out Any>) {
-        forEachCache { it.removeComponent(world, entity, type) }
+    fun removeComponent(entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
+        forEachRelevantCache(typeId) { it.removeComponent(world, entity, type) }
+    }
+
+    private fun indexFamily(cache: FamilyCache) {
+        cache.types().forEach { type ->
+            val id = world.typeId(type).value
+            ensureCapacity(id)
+            val list = familiesByComponentId[id] ?: mutableListOf<FamilyCache>().also { familiesByComponentId[id] = it }
+            list.add(cache)
+        }
+    }
+
+    private fun ensureCapacity(id: Int) {
+        if (id >= familiesByComponentId.size) {
+            familiesByComponentId = familiesByComponentId.copyOf(maxOf(id + 1, familiesByComponentId.size * 2))
+        }
     }
 
     /** Runs on every maintained cache without allocating a combined [Sequence] -- profiling
@@ -79,6 +107,13 @@ internal class FamilyRegistry(private val world: World) {
     private inline fun forEachCache(action: (FamilyCache) -> Unit) {
         families.values.forEach(action)
         familySpecCaches.values.forEach(action)
+    }
+
+    private inline fun forEachRelevantCache(typeId: ComponentTypeId, action: (FamilyCache) -> Unit) {
+        val id = typeId.value
+        if (id < familiesByComponentId.size) {
+            familiesByComponentId[id]?.forEach(action)
+        }
     }
 
     private fun <A : Any> buildFamily(type: KClass<A>): Family1Cache<A> {

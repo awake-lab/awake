@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit
 @OutputTimeUnit(TimeUnit.SECONDS)
 open class SceneBenchmarks {
     @Benchmark
-    fun awakeTransformMeshQuery(state: AwakeQueryState): Int {
+    fun awakeTransformMeshQuery(state: AwakeQueryState, bh: org.openjdk.jmh.infra.Blackhole): Int {
         var count = 0
         val family = state.family
         val componentsA = family.componentsA()
@@ -45,8 +45,8 @@ open class SceneBenchmarks {
         val size = family.size
         var index = 0
         while (index < size) {
-            componentsA[index]
-            componentsB[index]
+            bh.consume(componentsA[index])
+            bh.consume(componentsB[index])
             count += 1
             index += 1
         }

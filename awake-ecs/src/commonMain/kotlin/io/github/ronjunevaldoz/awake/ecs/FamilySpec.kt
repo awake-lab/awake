@@ -87,6 +87,8 @@ class Family @PublishedApi internal constructor(
 internal class FamilySpecCache(
     private val spec: FamilySpec
 ) : FamilyCache() {
+    override fun types(): Set<KClass<out Any>> = spec.all + spec.one + spec.exclude
+
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
     @PublishedApi

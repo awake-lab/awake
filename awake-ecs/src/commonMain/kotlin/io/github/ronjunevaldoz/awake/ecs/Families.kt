@@ -85,6 +85,7 @@ class Family2<A : Any, B : Any> @PublishedApi internal constructor(
  */
 @PublishedApi
 internal sealed class FamilyCache {
+    abstract fun types(): Set<KClass<out Any>>
     abstract fun remove(entity: Entity)
     abstract fun <T : Any> addComponent(world: World, entity: Entity, type: KClass<T>, component: T)
     abstract fun <T : Any> replaceComponent(world: World, entity: Entity, type: KClass<T>, component: T)
@@ -103,6 +104,8 @@ internal class Family1Cache<A : Any>(
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
+
+    override fun types(): Set<KClass<out Any>> = setOf(type)
 
     val size: Int get() = count
 
@@ -242,6 +245,8 @@ internal class Family2Cache<A : Any, B : Any>(
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
+
+    override fun types(): Set<KClass<out Any>> = setOf(typeA, typeB)
 
     val size: Int get() = count
 

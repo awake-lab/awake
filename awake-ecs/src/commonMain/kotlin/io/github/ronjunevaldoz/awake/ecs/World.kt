@@ -78,13 +78,13 @@ class World {
 
     fun <T : Any> add(entity: Entity, type: KClass<T>, component: T): T? {
         requireAlive(entity)
-        typeId(type)
+        val typeId = typeId(type)
         val previous = store(type).add(entity, component)
         if (previous == null) {
             markQueriesDirty()
-            familyRegistry.addComponent(entity, type, component)
+            familyRegistry.addComponent(entity, typeId, type, component)
         } else {
-            familyRegistry.replaceComponent(entity, type, component)
+            familyRegistry.replaceComponent(entity, typeId, type, component)
         }
         return previous
     }
@@ -108,10 +108,11 @@ class World {
         if (!isAlive(entity)) {
             return null
         }
+        val typeId = typeId(type)
         val removed = storeOrNull(type)?.remove(entity)
         if (removed != null) {
             markQueriesDirty()
-            familyRegistry.removeComponent(entity, type)
+            familyRegistry.removeComponent(entity, typeId, type)
         }
         return removed
     }
