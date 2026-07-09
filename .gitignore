@@ -5,6 +5,7 @@ __pycache__/
 /gradle/gradle-daemon-jvm.properties
 /local.properties
 /.idea
+.claude/
 .DS_Store
 build/
 /captures
