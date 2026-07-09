@@ -29,7 +29,11 @@ import kotlin.reflect.KClass
  * design (see the `game-framework-dev`/`ecs-dev` agent docs).
  */
 class World {
-    private val slots = mutableListOf<EntitySlot>()
+    private var entityGenerations = IntArray(DEFAULT_CAPACITY)
+    private var entityAlive = LongArray(DEFAULT_CAPACITY / 64 + 1)
+    private var entitySignatures = LongArray(DEFAULT_CAPACITY)
+    private var entitiesCount = 0
+
     private val recycledEntityIds = EntityIdStack()
 
     /** Dense array of stores indexed by [ComponentTypeId.value]. Replaces a [MutableMap]
@@ -44,14 +48,15 @@ class World {
     fun create(): Entity {
         val recycledId = recycledEntityIds.pop()
         if (recycledId >= 0) {
-            val slot = slots[recycledId]
-            slot.alive = true
+            setAlive(recycledId, true)
             markQueriesDirty()
-            return Entity.of(recycledId, slot.generation)
+            return Entity.of(recycledId, entityGenerations[recycledId])
         }
 
-        val nextId = slots.size
-        slots.add(EntitySlot(generation = 0, alive = true))
+        val nextId = entitiesCount++
+        ensureCapacity(nextId)
+        entityGenerations[nextId] = 0
+        setAlive(nextId, true)
         markQueriesDirty()
         return Entity.of(nextId, 0)
     }
@@ -63,17 +68,39 @@ class World {
 
         familyRegistry.removeEntity(entity)
         forEachStore { it.remove(entity) }
-        val slot = slots[entity.id]
-        slot.alive = false
-        slot.generation += 1
-        recycledEntityIds.push(entity.id)
+        
+        val id = entity.id
+        setAlive(id, false)
+        entityGenerations[id] += 1
+        entitySignatures[id] = 0L // Clear component signature
+        recycledEntityIds.push(id)
         markQueriesDirty()
         return true
     }
 
     fun isAlive(entity: Entity): Boolean {
-        val slot = slots.getOrNull(entity.id) ?: return false
-        return slot.alive && slot.generation == entity.generation
+        val id = entity.id
+        if (id < 0 || id >= entitiesCount) return false
+        return isAlive(id) && entityGenerations[id] == entity.generation
+    }
+
+    private fun isAlive(id: Int): Boolean {
+        val wordIndex = id ushr 6
+        return (entityAlive[wordIndex] and (1L shl (id and 63))) != 0L
+    }
+
+    private fun setAlive(id: Int, alive: Boolean) {
+        val wordIndex = id ushr 6
+        val bit = 1L shl (id and 63)
+        if (alive) {
+            entityAlive[wordIndex] = entityAlive[wordIndex] or bit
+        } else {
+            entityAlive[wordIndex] = entityAlive[wordIndex] and bit.inv()
+        }
+    }
+
+    internal fun getSignature(id: Int): Long {
+        return if (id in 0 until entitiesCount) entitySignatures[id] else 0L
     }
 
     inline fun <reified T : Any> add(entity: Entity, component: T): T? {
@@ -85,6 +112,8 @@ class World {
         val typeId = typeId(type)
         val previous = store(typeId, type).add(entity, component)
         if (previous == null) {
+            val id = entity.id
+            entitySignatures[id] = entitySignatures[id] or (1L shl typeId.value)
             markQueriesDirty()
             familyRegistry.addComponent(entity, typeId, type, component)
         } else {
@@ -116,6 +145,8 @@ class World {
         val typeId = typeId(type)
         val removed = storeOrNull<T>(typeId)?.remove(entity)
         if (removed != null) {
+            val id = entity.id
+            entitySignatures[id] = entitySignatures[id] and (1L shl typeId.value).inv()
             markQueriesDirty()
             familyRegistry.removeComponent(entity, typeId, type)
         }
@@ -129,7 +160,7 @@ class World {
     fun has(entity: Entity, type: KClass<out Any>): Boolean {
         if (!isAlive(entity)) return false
         val typeId = typeIds[type] ?: return false
-        return storeOrNull<Any>(typeId)?.contains(entity) == true
+        return (entitySignatures[entity.id] and (1L shl typeId.value)) != 0L
     }
 
     fun query(vararg types: KClass<out Any>): List<Entity> {
@@ -200,7 +231,10 @@ class World {
     }
 
     fun clear() {
-        slots.clear()
+        entitiesCount = 0
+        entityGenerations.fill(0)
+        entityAlive.fill(0L)
+        entitySignatures.fill(0L)
         recycledEntityIds.clear()
         stores.fill(null)
         typeIds.clear()
@@ -239,6 +273,15 @@ class World {
         return if (id < stores.size) stores[id] as? ComponentStore<T> else null
     }
 
+    private fun ensureCapacity(id: Int) {
+        if (id >= entityGenerations.size) {
+            val newCapacity = maxOf(id + 1, entityGenerations.size * 2)
+            entityGenerations = entityGenerations.copyOf(newCapacity)
+            entitySignatures = entitySignatures.copyOf(newCapacity)
+            entityAlive = entityAlive.copyOf(newCapacity / 64 + 1)
+        }
+    }
+
     private fun ensureStoreCapacity(id: Int) {
         if (id >= stores.size) {
             stores = stores.copyOf(maxOf(id + 1, stores.size * 2))
@@ -253,9 +296,9 @@ class World {
      * initial membership by scanning every currently-alive entity. */
     internal fun collectQuery(types: Set<KClass<out Any>>): List<Entity> {
         return if (types.isEmpty()) {
-            slots.indices
-                .map { Entity.of(it, slots[it].generation) }
+            (0 until entitiesCount)
                 .filter(::isAlive)
+                .map { Entity.of(it, entityGenerations[it]) }
         } else {
             val queryStores = types.mapNotNull { type ->
                 typeIds[type]?.let { storeOrNull<Any>(it) }
@@ -286,11 +329,6 @@ class World {
         }
     }
 
-    private data class EntitySlot(
-        var generation: Int,
-        var alive: Boolean
-    )
-
     private data class QueryKey(
         val types: Set<KClass<out Any>>
     )
@@ -299,4 +337,8 @@ class World {
         val entities: MutableList<Entity> = mutableListOf(),
         var version: Int = -1
     )
+
+    private companion object {
+        const val DEFAULT_CAPACITY = 16
+    }
 }

@@ -74,15 +74,15 @@ internal class FamilyRegistry(private val world: World) {
     }
 
     fun <T : Any> addComponent(entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
-        forEachRelevantCache(typeId) { it.addComponent(world, entity, type, component) }
+        forEachRelevantCache(typeId) { it.addComponent(world, entity, typeId, type, component) }
     }
 
     fun <T : Any> replaceComponent(entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
-        forEachRelevantCache(typeId) { it.replaceComponent(world, entity, type, component) }
+        forEachRelevantCache(typeId) { it.replaceComponent(world, entity, typeId, type, component) }
     }
 
     fun removeComponent(entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
-        forEachRelevantCache(typeId) { it.removeComponent(world, entity, type) }
+        forEachRelevantCache(typeId) { it.removeComponent(world, entity, typeId, type) }
     }
 
     private fun indexFamily(cache: FamilyCache) {
@@ -129,7 +129,7 @@ internal class FamilyRegistry(private val world: World) {
         typeA: KClass<A>,
         typeB: KClass<B>
     ): Family2Cache<A, B> {
-        val cache = Family2Cache(typeA, typeB)
+        val cache = Family2Cache(world, typeA, typeB)
         val typeIdA = world.typeId(typeA)
         val typeIdB = world.typeId(typeB)
         val storeA = world.storeOrNull<A>(typeIdA)
@@ -141,7 +141,7 @@ internal class FamilyRegistry(private val world: World) {
     }
 
     private fun buildFamilySpecCache(spec: FamilySpec): FamilySpecCache {
-        val cache = FamilySpecCache(spec)
+        val cache = FamilySpecCache(world, spec)
         world.collectQuery(emptySet()).forEach { entity ->
             if (cache.matches(world, entity)) {
                 cache.add(entity)

@@ -85,15 +85,20 @@ class Family @PublishedApi internal constructor(
  */
 @PublishedApi
 internal class FamilySpecCache(
+    private val world: World,
     private val spec: FamilySpec
 ) : FamilyCache() {
-    override fun types(): Set<KClass<out Any>> = spec.all + spec.one + spec.exclude
-
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
+    
+    private val allMask = spec.all.fold(0L) { acc, type -> acc or (1L shl world.typeId(type).value) }
+    private val oneMask = spec.one.fold(0L) { acc, type -> acc or (1L shl world.typeId(type).value) }
+    private val excludeMask = spec.exclude.fold(0L) { acc, type -> acc or (1L shl world.typeId(type).value) }
+
+    override fun types(): Set<KClass<out Any>> = spec.all + spec.one + spec.exclude
 
     val size: Int get() = count
 
@@ -111,13 +116,14 @@ internal class FamilySpecCache(
      * initial membership when the cache is first built and to re-check membership after a
      * structural change. */
     fun matches(world: World, entity: Entity): Boolean {
-        if (spec.all.isNotEmpty() && spec.all.any { !world.has(entity, it) }) {
+        val signature = world.getSignature(entity.id)
+        if (allMask != 0L && (signature and allMask) != allMask) {
             return false
         }
-        if (spec.one.isNotEmpty() && spec.one.none { world.has(entity, it) }) {
+        if (oneMask != 0L && (signature and oneMask) == 0L) {
             return false
         }
-        if (spec.exclude.isNotEmpty() && spec.exclude.any { world.has(entity, it) }) {
+        if (excludeMask != 0L && (signature and excludeMask) != 0L) {
             return false
         }
         return true
@@ -137,22 +143,18 @@ internal class FamilySpecCache(
         removeAt(indexOf(entity))
     }
 
-    override fun <T : Any> addComponent(world: World, entity: Entity, type: KClass<T>, component: T) {
-        if (isRelevant(type)) {
-            sync(world, entity)
-        }
+    override fun <T : Any> addComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
+        sync(world, entity)
     }
 
-    override fun <T : Any> replaceComponent(world: World, entity: Entity, type: KClass<T>, component: T) {
+    override fun <T : Any> replaceComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
         // Replacing a component's value (not adding/removing it) can't change which
         // all/one/exclude branch it satisfies -- the type is present either way -- so
         // membership can't change here. Nothing to do.
     }
 
-    override fun removeComponent(world: World, entity: Entity, type: KClass<out Any>) {
-        if (isRelevant(type)) {
-            sync(world, entity)
-        }
+    override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
+        sync(world, entity)
     }
 
     /** Re-checks [entity] against [matches] and adds/removes it to match -- called after a
@@ -165,10 +167,6 @@ internal class FamilySpecCache(
         } else if (!shouldBeMember && currentIndex >= 0) {
             removeAt(currentIndex)
         }
-    }
-
-    private fun isRelevant(type: KClass<out Any>): Boolean {
-        return type in spec.all || type in spec.one || type in spec.exclude
     }
 
     private fun indexOf(entity: Entity): Int {

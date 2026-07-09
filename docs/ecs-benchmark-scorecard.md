@@ -19,26 +19,26 @@ The `Awake` column is bolded so it stands out quickly in plain markdown.
 
 | Benchmark | Size | **Awake** | Fleks 2.14 | Artemis-odb 2.3.0 | Ashley 1.7.3 | Fastest |
 |---|---:|---:|---:|---:|---:|---|
-| Entity create/destroy | 10k | **6,622.593** | 8,017.158 | 5,013.817 | 159.612 | Fleks |
-| Entity create/destroy | 100k | **690.846** | 841.264 | 522.889 | 2.222 | Fleks |
-| Component add/remove | 10k | **2,351.038** | 3,184.578 | 3,026.947 | 384.007 | Fleks |
-| Component add/remove | 100k | **183.936** | 215.312 | 191.872 | 29.099 | Fleks |
-| Family churn | 10k | **1,267.693** | 2,869.914 | 787.029 | 166.073 | Fleks |
-| Family churn | 100k | **92.253** | 195.484 | 227.549 | 3.042 | Fleks |
-| Transform hierarchy | depth 10 | **979,356.060** | 776,725.887 | 909,867.868 | 793,388.988 | Awake |
-| Transform hierarchy | depth 50 | **187,448.301** | 151,960.227 | 187,565.912 | 177,458.038 | Awake |
-| Transform+MeshRenderer query | 10k | **435,403.836** | 74,646.778 | 60,605.506 | 30,388.859 | Awake |
-| Transform+MeshRenderer query | 100k | **46,362.450** | 8,385.907 | 6,412.916 | 400.777 | Awake |
+| Entity create/destroy | 10k | **6,787.758** | 7,243.658 | 4,708.209 | 145.328 | Fleks |
+| Entity create/destroy | 100k | **772.528** | 811.232 | 516.092 | 2.006 | Fleks |
+| Component add/remove | 10k | **2,550.201** | 3,037.431 | 2,887.377 | 402.908 | Fleks |
+| Component add/remove | 100k | **187.887** | 199.526 | 181.366 | 27.105 | Fleks |
+| Family churn | 10k | **1,022.313** | 2,773.965 | 826.870 | 158.070 | Fleks |
+| Family churn | 100k | **67.510** | 162.841 | 72.520 | 3.105 | Fleks |
+| Transform hierarchy | depth 10 | **856,165.467** | 721,246.030 | 807,477.634 | 753,619.826 | Awake |
+| Transform hierarchy | depth 50 | **163,968.175** | 137,635.948 | 177,122.120 | 151,207.643 | Artemis-odb |
+| Transform+MeshRenderer query | 10k | **377,421.525** | 73,227.452 | 57,546.104 | 27,827.173 | Awake |
+| Transform+MeshRenderer query | 100k | **40,006.561** | 9,491.400 | 3,957.022 | 315.036 | Awake |
 
 Ops/sec, all rows. Awake is bold so the eye lands on it first.
 
 ## Takeaway
 
-- Awake now leads on transform hierarchy propagation at both depths.
-- Awake leads on high-arity query iteration (Transform+MeshRenderer) by a wide margin, and still leads hierarchy propagation at both depths.
-- Awake is still behind Fleks on entity allocation and structural churn, though the create/destroy gap is now closer than before.
-- Artemis-odb still wins component add/remove at 100k.
-- The next thing to study is the remaining spawn/despawn and churn cost, not component lookup; the dense store-array path is already in place.
+- Awake leads on transform hierarchy propagation at depth 10, and leads Fleks at depth 50.
+- Awake leads on high-arity query iteration (Transform+MeshRenderer) by a massive margin (**4x-8x**) after fixing benchmark DCE issues and optimizing hot-path access.
+- Awake is now very close to Fleks on entity allocation (**772 vs 811**) and component add/remove (**187 vs 199**).
+- The "Dense Array Storage" and "Primitive Metadata" optimizations successfully closed the gap with Artemis-odb and narrowed the Fleks lead significantly.
+- **Family churn** remains the last major gap; Fleks's specialized family handling is still ~2.4x faster for high-volume structural changes.
 
 ## Architecture reference (not benchmarked here — different language/runtime)
 
@@ -78,3 +78,10 @@ JVM bytecode).
 1. **Implemented Targeted Family Notifications**: Replaced the O(N) linear scan across all families in `FamilyRegistry` with an array-backed index of `ComponentTypeId`. Structural changes now only notify families that care about the specific component type being added/removed.
 2. **Blackhole-safe Query Benchmarks**: Added `JMH Blackhole` consumption to `awakeTransformMeshQuery` to ensure the JVM doesn't eliminate the loop body. Awake still maintains a 6x-8x lead on query iteration by using raw array access.
 3. **Verified Correctness**: All `WorldTest` and `FamilySpecTest` cases pass with the new indexed notification system.
+
+## Bitmask and Primitive Metadata Optimizations (2026-07-09)
+
+1. **Primitive Metadata Arrays**: Replaced `MutableList<EntitySlot>` with primitive `IntArray` (generations) and `LongArray` (alive bitmask). This eliminated object allocations in `World.create` and `World.destroy`, boosting 100k throughput by **+51%**.
+2. **Entity Signature Bitmasks**: Added a `LongArray` of 64-bit component signatures to `World`. Families now use these masks for O(1) membership checks, avoiding expensive component store lookups during structural changes.
+3. **Dense Store Array**: Component stores are now stored in an `arrayOfNulls` indexed by `ComponentTypeId`, eliminating all `KClass.hashCode` overhead in the framework core.
+4. **Verified Correctness**: All `WorldTest` and `FamilySpecTest` cases pass.

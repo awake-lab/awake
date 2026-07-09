@@ -87,9 +87,9 @@ class Family2<A : Any, B : Any> @PublishedApi internal constructor(
 internal sealed class FamilyCache {
     abstract fun types(): Set<KClass<out Any>>
     abstract fun remove(entity: Entity)
-    abstract fun <T : Any> addComponent(world: World, entity: Entity, type: KClass<T>, component: T)
-    abstract fun <T : Any> replaceComponent(world: World, entity: Entity, type: KClass<T>, component: T)
-    abstract fun removeComponent(world: World, entity: Entity, type: KClass<out Any>)
+    abstract fun <T : Any> addComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T)
+    abstract fun <T : Any> replaceComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T)
+    abstract fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>)
 }
 
 @PublishedApi
@@ -164,6 +164,7 @@ internal class Family1Cache<A : Any>(
     override fun <T : Any> addComponent(
         world: World,
         entity: Entity,
+        typeId: ComponentTypeId,
         type: KClass<T>,
         component: T
     ) {
@@ -176,6 +177,7 @@ internal class Family1Cache<A : Any>(
     override fun <T : Any> replaceComponent(
         world: World,
         entity: Entity,
+        typeId: ComponentTypeId,
         type: KClass<T>,
         component: T
     ) {
@@ -185,7 +187,7 @@ internal class Family1Cache<A : Any>(
         }
     }
 
-    override fun removeComponent(world: World, entity: Entity, type: KClass<out Any>) {
+    override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
         if (this.type == type) {
             remove(entity)
         }
@@ -233,6 +235,7 @@ internal class Family1Cache<A : Any>(
 @PublishedApi
 @Suppress("TooManyFunctions")
 internal class Family2Cache<A : Any, B : Any>(
+    private val world: World,
     private val typeA: KClass<A>,
     private val typeB: KClass<B>
 ) : FamilyCache() {
@@ -245,6 +248,8 @@ internal class Family2Cache<A : Any, B : Any>(
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
+    
+    private val mask = (1L shl world.typeId(typeA).value) or (1L shl world.typeId(typeB).value)
 
     override fun types(): Set<KClass<out Any>> = setOf(typeA, typeB)
 
@@ -318,17 +323,19 @@ internal class Family2Cache<A : Any, B : Any>(
     override fun <T : Any> addComponent(
         world: World,
         entity: Entity,
+        typeId: ComponentTypeId,
         type: KClass<T>,
         component: T
     ) {
-        if (typeA == type || typeB == type) {
-            upsertIfMatched(world, entity)
+        if ((world.getSignature(entity.id) and mask) == mask) {
+            upsert(world, entity)
         }
     }
 
     override fun <T : Any> replaceComponent(
         world: World,
         entity: Entity,
+        typeId: ComponentTypeId,
         type: KClass<T>,
         component: T
     ) {
@@ -345,15 +352,15 @@ internal class Family2Cache<A : Any, B : Any>(
         }
     }
 
-    override fun removeComponent(world: World, entity: Entity, type: KClass<out Any>) {
+    override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
         if (typeA == type || typeB == type) {
             remove(entity)
         }
     }
 
-    private fun upsertIfMatched(world: World, entity: Entity) {
-        val componentA = world.get(entity, typeA) ?: return
-        val componentB = world.get(entity, typeB) ?: return
+    private fun upsert(world: World, entity: Entity) {
+        val componentA = world.get(entity, typeA)!!
+        val componentB = world.get(entity, typeB)!!
         val index = indexOf(entity)
         if (index >= 0) {
             componentsA[index] = componentA
