@@ -104,6 +104,7 @@ internal class Family1Cache<A : Any>(
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
+    private val membership = EntityBitSet(DEFAULT_FAMILY_CAPACITY)
 
     override fun types(): Set<KClass<out Any>> = setOf(type)
 
@@ -122,8 +123,13 @@ internal class Family1Cache<A : Any>(
     }
 
     fun add(entity: Entity, component: A) {
+        if (membership.contains(entity.id)) {
+            replace(entity, component)
+            return
+        }
         ensureCapacity(count + 1)
         sparse.set(entity.id, count)
+        membership.add(entity.id)
         entities[count] = entity.packed
         components[count] = component
         count += 1
@@ -132,13 +138,6 @@ internal class Family1Cache<A : Any>(
     @PublishedApi
     internal inline fun forEach(block: (Entity, A) -> Unit) {
         val localEntities = entities
-        // Cast the array reference once instead of casting each element read below --
-        // `components` is declared `Array<Any?>` (it stores `null` for unused/removed
-        // slots), so `localComponents[index] as A` on a non-null-bound `A` makes Kotlin
-        // insert an `Intrinsics.checkNotNull` on every single element read. Casting the
-        // array itself is a no-op at the bytecode level (array types erase to `Object[]`
-        // either way) and profiling confirmed this removed ~14% of CPU samples from
-        // `awakeTransformMeshQuery` that were going to that per-element null check.
         @Suppress("UNCHECKED_CAST")
         val localComponents = components as Array<A>
         val localCount = count
@@ -204,11 +203,15 @@ internal class Family1Cache<A : Any>(
         if (index < 0) {
             return
         }
+        val entityId = Entity(entities[index]).id
+        membership.remove(entityId)
+
         val lastIndex = count - 1
         val lastEntity = entities[lastIndex]
         entities[index] = lastEntity
         components[index] = components[lastIndex]
         sparse.set(Entity(lastEntity).id, index)
+
         components[lastIndex] = null
         count -= 1
     }
@@ -248,7 +251,8 @@ internal class Family2Cache<A : Any, B : Any>(
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
-    
+    private val membership = EntityBitSet(DEFAULT_FAMILY_CAPACITY)
+
     private val mask = (1L shl world.typeId(typeA).value) or (1L shl world.typeId(typeB).value)
 
     override fun types(): Set<KClass<out Any>> = setOf(typeA, typeB)
@@ -280,20 +284,30 @@ internal class Family2Cache<A : Any, B : Any>(
     }
 
     fun add(entity: Entity, componentA: A, componentB: B) {
+        if (membership.contains(entity.id)) {
+            replace(entity, componentA, componentB)
+            return
+        }
         ensureCapacity(count + 1)
         sparse.set(entity.id, count)
+        membership.add(entity.id)
         entities[count] = entity.packed
         componentsA[count] = componentA
         componentsB[count] = componentB
         count += 1
     }
 
+    private fun replace(entity: Entity, componentA: A, componentB: B) {
+        val index = indexOf(entity)
+        if (index >= 0) {
+            componentsA[index] = componentA
+            componentsB[index] = componentB
+        }
+    }
+
     @PublishedApi
     internal inline fun forEach(block: (Entity, A, B) -> Unit) {
         val localEntities = entities
-        // See the identical comment in Family1Cache.forEach -- casting the array reference
-        // once avoids an Intrinsics.checkNotNull per element read that profiling showed
-        // costing ~14% of CPU samples in the Transform+MeshRenderer query benchmark.
         @Suppress("UNCHECKED_CAST")
         val localComponentsA = componentsA as Array<A>
         @Suppress("UNCHECKED_CAST")
@@ -327,8 +341,10 @@ internal class Family2Cache<A : Any, B : Any>(
         type: KClass<T>,
         component: T
     ) {
-        if ((world.getSignature(entity.id) and mask) == mask) {
-            upsert(world, entity)
+        if (!membership.contains(entity.id) && (world.getSignature(entity.id) and mask) == mask) {
+            val compA = world.get(entity, typeA)!!
+            val compB = world.get(entity, typeB)!!
+            add(entity, compA, compB)
         }
     }
 
@@ -358,28 +374,20 @@ internal class Family2Cache<A : Any, B : Any>(
         }
     }
 
-    private fun upsert(world: World, entity: Entity) {
-        val componentA = world.get(entity, typeA)!!
-        val componentB = world.get(entity, typeB)!!
-        val index = indexOf(entity)
-        if (index >= 0) {
-            componentsA[index] = componentA
-            componentsB[index] = componentB
-        } else {
-            add(entity, componentA, componentB)
-        }
-    }
-
     private fun removeAt(index: Int) {
         if (index < 0) {
             return
         }
+        val entityId = Entity(entities[index]).id
+        membership.remove(entityId)
+
         val lastIndex = count - 1
         val lastEntity = entities[lastIndex]
         entities[index] = lastEntity
         componentsA[index] = componentsA[lastIndex]
         componentsB[index] = componentsB[lastIndex]
         sparse.set(Entity(lastEntity).id, index)
+
         componentsA[lastIndex] = null
         componentsB[lastIndex] = null
         count -= 1

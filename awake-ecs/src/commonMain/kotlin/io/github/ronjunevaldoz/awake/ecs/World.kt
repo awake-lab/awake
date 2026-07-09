@@ -39,6 +39,8 @@ class World {
     /** Dense array of stores indexed by [ComponentTypeId.value]. Replaces a [MutableMap]
      * so component access can skip a hash lookup once the type id is known. */
     private var stores = arrayOfNulls<ComponentStore<Any>>(16)
+    
+    private val componentPools = mutableMapOf<KClass<out Any>, ComponentPool<Any>>()
 
     private val typeIds = mutableMapOf<KClass<out Any>, ComponentTypeId>()
     private val queryCache = mutableMapOf<QueryKey, CachedQuery>()
@@ -67,7 +69,12 @@ class World {
         }
 
         familyRegistry.removeEntity(entity)
-        forEachStore { it.remove(entity) }
+        forEachStore { store ->
+            val removed = store.remove(entity)
+            if (removed != null) {
+                recycle(removed)
+            }
+        }
         
         val id = entity.id
         setAlive(id, false)
@@ -86,7 +93,11 @@ class World {
 
     private fun isAlive(id: Int): Boolean {
         val wordIndex = id ushr 6
-        return (entityAlive[wordIndex] and (1L shl (id and 63))) != 0L
+        return if (wordIndex < entityAlive.size) {
+            (entityAlive[wordIndex] and (1L shl (id and 63))) != 0L
+        } else {
+            false
+        }
     }
 
     private fun setAlive(id: Int, alive: Boolean) {
@@ -103,6 +114,22 @@ class World {
         return if (id in 0 until entitiesCount) entitySignatures[id] else 0L
     }
 
+    /** Reified sugar for [add] with pooling support. */
+    inline fun <reified T : Any> add(entity: Entity): T {
+        return add(entity, T::class)
+    }
+
+    /** Adds a component of [type] to [entity], obtaining an instance from the pool if available.
+     * Requires the component to have been registered with a factory via [registerPool] or
+     * to have a zero-arg constructor. */
+    fun <T : Any> add(entity: Entity, type: KClass<T>): T {
+        val pool = pool(type)
+        @Suppress("UNCHECKED_CAST")
+        val instance = pool.obtain() as T
+        add(entity, type, instance)
+        return instance
+    }
+
     inline fun <reified T : Any> add(entity: Entity, component: T): T? {
         return add(entity, T::class, component)
     }
@@ -117,6 +144,7 @@ class World {
             markQueriesDirty()
             familyRegistry.addComponent(entity, typeId, type, component)
         } else {
+            recycle(previous)
             familyRegistry.replaceComponent(entity, typeId, type, component)
         }
         return previous
@@ -149,6 +177,7 @@ class World {
             entitySignatures[id] = entitySignatures[id] and (1L shl typeId.value).inv()
             markQueriesDirty()
             familyRegistry.removeComponent(entity, typeId, type)
+            recycle(removed)
         }
         return removed
     }
@@ -230,16 +259,39 @@ class World {
         return query(T::class)
     }
 
+    /** Registers a factory for [type] to enable component pooling. */
+    fun <T : Any> registerPool(type: KClass<T>, factory: () -> T) {
+        @Suppress("UNCHECKED_CAST")
+        componentPools[type] = ComponentPool(factory) as ComponentPool<Any>
+    }
+
+    /** Automatically returns [component] to its type's pool. */
+    fun recycle(component: Any) {
+        componentPools[component::class]?.free(component)
+    }
+
+    private fun pool(type: KClass<out Any>): ComponentPool<Any> {
+        return componentPools.getOrPut(type) {
+            ComponentPool { 
+                @Suppress("UNCHECKED_CAST")
+                val clazz = type.javaObjectType as Class<Any>
+                clazz.getDeclaredConstructor().newInstance()
+            }
+        }
+    }
+
     fun clear() {
         entitiesCount = 0
         entityGenerations.fill(0)
         entityAlive.fill(0L)
         entitySignatures.fill(0L)
         recycledEntityIds.clear()
+        forEachStore { it.clear() }
         stores.fill(null)
         typeIds.clear()
         familyRegistry.clear()
         queryCache.clear()
+        componentPools.values.forEach { it.clear() }
         markQueriesDirty()
     }
 
