@@ -223,6 +223,18 @@ open class EcsBenchmarks {
         return state.family.size
     }
 
+    // Diagnostic only (not a real API recommendation yet): hoists `Transform::class` once
+    // instead of letting the reified `remove<Transform>()`/`add(entity, component)` sugar
+    // re-derive it on every call, to test whether that's where the ClassReference.hashCode
+    // /ReflectionFactory.getOrCreateKotlinClass profiler cost (~10% of samples) comes from.
+    @Benchmark
+    fun awakeFamilyChurnCachedClass(state: AwakeFamilyChurnState): Int {
+        val transformClass = Transform::class
+        state.entities.forEach { state.world.remove(it, transformClass) }
+        state.entities.forEach { state.world.add(it, transformClass, Transform()) }
+        return state.family.size
+    }
+
     @Benchmark
     fun fleksFamilyChurn(state: FleksFamilyChurnState): Int {
         with(state.world) {

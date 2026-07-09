@@ -53,6 +53,32 @@ Core pieces:
   exposes `query(vararg types)` for systems to iterate.
 - `System` — `update(world: World, delta: Float)`.
 
+## Hot-path performance: avoid reified generics inside per-entity loops
+
+Profiling `awakeFamilyChurn` with async-profiler (see `docs/ecs-benchmark-scorecard.md`'s
+"Profiled `awakeFamilyChurn`" section) found `kotlin.jvm.internal.ClassReference.hashCode`
++ `ReflectionFactory.getOrCreateKotlinClass` costing ~10% of CPU samples. Root cause:
+Kotlin's reified generics (`inline fun <reified T> add(entity, component) = add(entity,
+T::class, component)`) re-derive the `KClass` token *at the call site* on every invocation
+— without `kotlin-reflect` on the classpath (which this project deliberately doesn't add),
+that's a fresh `ClassReference` wrapper allocation each time, not a cached lookup.
+
+This is invisible for code that calls a reified generic once per frame (e.g.
+`TransformSystem`'s single `world.queryEach<Transform> { ... }` call) — negligible cost at
+that rate. It becomes real cost specifically in **per-entity loops that call a reified
+generic once per entity** (confirmed: hoisting `val transformClass = Transform::class`
+once outside the loop and calling the explicit-`KClass` overloads — `world.add(entity,
+transformClass, component)` / `world.remove(entity, transformClass)` — removed the
+`ClassReference`/`ReflectionFactory` cost from the profiler's top 25 samples entirely, for
+a measured ~13% throughput improvement on `awakeFamilyChurnCachedClass` vs
+`awakeFamilyChurn`).
+
+**Rule**: if you're writing a system or benchmark that calls `world.add<T>`/`remove<T>`/
+`get<T>`/`has<T>` inside a loop over many entities, hoist `T::class` into a `val` once
+outside the loop and call the explicit-`KClass` overload instead of the reified sugar.
+Don't do this for one-off or once-per-frame calls — it's not worth the readability cost
+there.
+
 ## Core components and systems (Phase 3 scope)
 
 - `Transform` (position/rotation/scale + parent `Entity?` for hierarchy)

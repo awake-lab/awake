@@ -206,6 +206,36 @@ integer IDs instead of `KClass` lookups) — a bigger, riskier structural change
 fixes above, consistent with what the "Where to look next" section below already flagged as
 a last resort. Not attempted in this pass.
 
+## Investigated the `KClass` reflection cost: usage-pattern fix, not a framework change (2026-07-09)
+
+Tested the hypothesis directly rather than committing to the "bigger, riskier structural
+change" framing above. Added a diagnostic `awakeFamilyChurnCachedClass` benchmark (same
+`AwakeFamilyChurnState`, but hoists `val transformClass = Transform::class` once outside
+the loop and calls the explicit-`KClass` overloads — `world.add(entity, transformClass,
+component)` / `world.remove(entity, transformClass)` — instead of the reified
+`add<Transform>`/`remove<Transform>` sugar, which re-derives the `KClass` token at every
+call site).
+
+Result: re-profiling `awakeFamilyChurnCachedClass` showed `ClassReference.hashCode` and
+`ReflectionFactory.getOrCreateKotlinClass` **gone from the top 25 samples entirely**
+(only `ClassReference.getJClass` at 2.09% remained). Measured throughput was ~13% higher
+than `awakeFamilyChurn` at 100k (122.9 → 138.6 ops/s), though that delta is within this
+run's noise band and shouldn't be over-read on its own — the profiler evidence (the
+hotspot disappearing) is the real confirmation here, not the ops/sec number.
+
+**Conclusion: this doesn't need the component-type-registry rewrite floated above.** The
+cost isn't inherent to using `KClass` as a `HashMap` key (its `hashCode`/`equals` delegate
+to the underlying `Class`, which is cheap) — it's specifically that Kotlin's reified
+generics re-derive a fresh `ClassReference` wrapper *at the call site* on every invocation
+when `kotlin-reflect` isn't on the classpath (which this project deliberately doesn't add).
+That cost is invisible for once-per-frame calls (e.g. `TransformSystem`'s single
+`world.queryEach<Transform> { ... }`) and only matters in tight per-entity loops. Documented
+as a hot-path idiom in `.claude/agents/ecs-dev.md` ("Hot-path performance" section): hoist
+`T::class` once outside a per-entity loop and use the explicit-`KClass` overload instead of
+the reified sugar. No production code currently has this pattern in a hot loop (checked
+`TransformSystem`/`RenderSystem` — both call reified generics at most once per frame), so
+no source change was needed there; only the diagnostic benchmark exists to track this.
+
 ## Where to look next if the gap remains after a clean re-benchmark
 
 If a clean re-run still shows Awake behind on query/propagation, the next things to check,

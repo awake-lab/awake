@@ -1148,6 +1148,17 @@ twice (once against whatever's there today, again once Phase 2 settles).
       construction/maintenance. Moved the latter into a new `FamilyRegistry` class; `World`
       now delegates via a handful of `internal` accessors (`storeOrNull`, `collectQuery`,
       `typeId`). `World.kt` is now 266 lines. Purely structural — all tests pass unchanged.
+- [x] **Investigated the `KClass` reflection cost (2026-07-09):** the ~10% `ClassReference
+      .hashCode`/`ReflectionFactory.getOrCreateKotlinClass` cost flagged above turned out
+      not to need the component-type-registry rewrite. Added a diagnostic
+      `awakeFamilyChurnCachedClass` benchmark that hoists `Transform::class` once instead
+      of letting the reified `add<T>`/`remove<T>` sugar re-derive it per call — re-profiling
+      confirmed the hotspot disappeared from the top 25 samples entirely. Documented as a
+      hot-path idiom in `.claude/agents/ecs-dev.md` rather than changing the framework:
+      hoist the `KClass` and use the explicit-type overload in per-entity loops; no change
+      needed for once-per-frame calls (checked `TransformSystem`/`RenderSystem` — neither
+      has this pattern). See [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md)'s
+      "Investigated the `KClass` reflection cost" section.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 
