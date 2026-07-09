@@ -97,7 +97,7 @@ internal sealed class FamilyCache {
 internal class Family1Cache<A : Any>(
     private val type: KClass<A>,
     private val typeId: ComponentTypeId,
-    private val store: ComponentStore<A>
+    @Suppress("unused") private val store: ComponentStore<A>
 ) : FamilyCache() {
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
@@ -106,7 +106,9 @@ internal class Family1Cache<A : Any>(
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
-    private val membership = EntityBitSet(DEFAULT_FAMILY_CAPACITY)
+    
+    // Memory Optimization: Remove local EntityBitSet. Rely on World's signature bitmask
+    // which is now O(1) and shared across the entire world.
 
     override fun types(): Set<KClass<out Any>> = setOf(type)
 
@@ -125,13 +127,13 @@ internal class Family1Cache<A : Any>(
     }
 
     fun add(entity: Entity, component: A) {
-        if (membership.contains(entity.id)) {
+        // Membership check using sparse index (standard sparse-set behavior)
+        if (indexOf(entity) >= 0) {
             replace(entity, component)
             return
         }
         ensureCapacity(count + 1)
         sparse.set(entity.id, count)
-        membership.add(entity.id)
         entities[count] = entity.packed
         components[count] = component
         count += 1
@@ -205,8 +207,6 @@ internal class Family1Cache<A : Any>(
         if (index < 0) {
             return
         }
-        val entityId = Entity(entities[index]).id
-        membership.remove(entityId)
 
         val lastIndex = count - 1
         val lastEntity = entities[lastIndex]

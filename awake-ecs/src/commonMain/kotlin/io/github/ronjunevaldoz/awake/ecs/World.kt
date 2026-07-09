@@ -51,8 +51,6 @@ class World {
         val recycledId = recycledEntityIds.pop()
         if (recycledId >= 0) {
             setAlive(recycledId, true)
-            // Optimization: create() doesn't change component signatures, 
-            // so cached queries remain valid.
             return Entity.of(recycledId, entityGenerations[recycledId])
         }
 
@@ -70,10 +68,9 @@ class World {
 
         familyRegistry.removeEntity(entity)
         val id = entity.id
-        val signature = entitySignatures[id]
         
         // Only clear stores that actually contain this entity's components
-        if (signature != 0L) {
+        if (entitySignatures[id] != 0L) {
             forEachStore { store ->
                 val removed = store.remove(entity)
                 if (removed != null) {
