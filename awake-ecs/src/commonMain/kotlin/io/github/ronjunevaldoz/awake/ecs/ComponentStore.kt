@@ -131,8 +131,3 @@ class ComponentStore<T : Any>(
         const val CAPACITY_GROWTH_FACTOR = 2
     }
 }
-
-@Suppress("UNCHECKED_CAST")
-private fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?> {
-    return java.lang.reflect.Array.newInstance(type.java, capacity) as Array<Any?>
-}
