@@ -5,56 +5,40 @@
 > `FamilySpec.kt` for clarity. Left as-is here since these are historical records of what
 > each commit actually did at the time — search the current source for the new names.
 
-> Table below: run 2026-07-09 on `Rons-MacBook-Pro-2.local` via
-> `./gradlew :awake-ecs-benchmark:benchmark`, machine otherwise idle, 1 fork, 2 warmup
-> iterations, 3 measurement iterations, 1 second per iteration — the last *reliable* run,
-> predating the fixes described below. The JMH config has since been bumped to 5/5
-> iterations (see "Fixes applied" section); re-run on an idle machine to refresh this table.
+> Current matrix below: run 2026-07-09 on `Rons-MacBook-Pro-2.local` via
+> `./gradlew :awake-ecs-benchmark:mainBenchmark`, 1 fork, 5 warmup iterations, 5
+> measurement iterations, 1 second per iteration. Historical profiling notes below are
+> preserved for context.
 >
 > Awake benchmark shape: pure `awake-ecs` runtime plus `awake-scene` components/systems.
 
-## Measured comparison (same JVM, same hardware, same operations)
+## Current matrix
 
-All four libraries below actually ran in this benchmark module (`awake-ecs-benchmark`) —
-this is real, apples-to-apples data, not a citation of someone else's numbers on different
-hardware.
+Latest rerun: `2026-07-09`, via `./gradlew :awake-ecs-benchmark:mainBenchmark`.
+The `Awake` column is highlighted in green so it stands out quickly.
 
-| Benchmark | Size | **Awake** | Fleks 2.14 | Artemis-odb 2.3.0 | Ashley 1.7.3 | Fastest |
+| Benchmark | Size | <span style="color:#16a34a"><strong>Awake</strong></span> | Fleks 2.14 | Artemis-odb 2.3.0 | Ashley 1.7.3 | Fastest |
 |---|---:|---:|---:|---:|---:|---|
-| Entity create/destroy | 10k | 5,982.1 | 7,745.2 | 5,251.3 | 155.7 | Fleks |
-| Entity create/destroy | 100k | 691.4 | 820.8 | 511.8 | 2.1 | Fleks |
-| Component add/remove | 10k | 2,352.3 | 2,845.1 | 2,984.0 | 368.4 | Artemis-odb |
-| Component add/remove | 100k | **210.1** | 189.4 | 209.3 | 28.6 | **Awake** (~tied w/ Artemis-odb) |
-| Transform+MeshRenderer query | 10k | 63,315.2 | 77,966.4 | 59,534.0 | 18,892.5 | Fleks |
-| Transform+MeshRenderer query | 100k | 4,622.6 | 7,831.5 | 4,570.7 | 282.9 | Fleks |
-| TransformSystem propagation | depth 10 | 599,160.0 | 757,925.5 | 898,550.3 | 789,559.6 | Artemis-odb |
-| TransformSystem propagation | depth 50 | 130,341.4 | 133,631.9 | 153,830.2 | 137,616.7 | Artemis-odb |
+| Entity create/destroy | 10k | <span style="color:#16a34a"><strong>6,314.707</strong></span> | 7,680.726 | 5,082.550 | 159.074 | Fleks |
+| Entity create/destroy | 100k | <span style="color:#16a34a"><strong>670.982</strong></span> | 595.409 | 515.602 | 2.175 | Awake |
+| Component add/remove | 10k | <span style="color:#16a34a"><strong>2,280.463</strong></span> | 1,672.243 | 2,997.667 | 315.619 | Artemis-odb |
+| Component add/remove | 100k | <span style="color:#16a34a"><strong>186.327</strong></span> | 103.212 | 194.685 | 28.216 | Artemis-odb |
+| Family churn | 10k | <span style="color:#16a34a"><strong>1,387.768</strong></span> | 2,939.655 | 794.189 | 183.549 | Fleks |
+| Family churn | 100k | <span style="color:#16a34a"><strong>64.208</strong></span> | 164.871 | 49.605 | 2.922 | Fleks |
+| Transform hierarchy | depth 10 | <span style="color:#16a34a"><strong>944,992.326</strong></span> | 704,048.175 | 582,313.879 | 611,382.977 | Awake |
+| Transform hierarchy | depth 50 | <span style="color:#16a34a"><strong>180,282.659</strong></span> | 131,209.632 | 169,811.689 | 121,106.394 | Awake |
+| Transform+MeshRenderer query | 10k | <span style="color:#16a34a"><strong>61,668.042</strong></span> | 69,398.322 | 54,277.326 | 24,203.368 | Fleks |
+| Transform+MeshRenderer query | 100k | <span style="color:#16a34a"><strong>1,587.594</strong></span> | 7,428.559 | 3,570.911 | 321.701 | Fleks |
 
-Ops/sec, all rows. Bold = Awake's own best showing.
+Ops/sec, all rows. Awake is green and bold so the eye lands on it first.
 
-## Takeaway (say the numbers plainly, don't spin them)
+## Takeaway
 
-- **Awake wins or ties on component add/remove** — the sparse-set design does what it's
-  supposed to do for structural churn (10k: within 20% of Artemis-odb/Fleks, ahead of
-  Ashley; 100k: fastest of the four, narrowly ahead of Artemis-odb and Fleks).
-- **Awake is not yet the fastest on stable family iteration** (Transform+MeshRenderer
-  query) — Fleks leads on query throughput. These are the per-frame hot paths that matter
-  most for a running game, so this is the real remaining gap, not a rounding error.
-  **Update (2026-07-09):** the hierarchy-propagation half of this gap has since been
-  closed — see "Profiled query and hierarchy propagation, fixed two more real bottlenecks"
-  below. Awake now leads Artemis-odb (and everyone else) on propagation at both depths;
-  query iteration is the one gap left from this table.
-- **Ashley is the clear outlier**, dramatically slower on create/destroy and component
-  add/remove at scale (2 ops/s at 100k entity create/destroy). This tracks with Ashley's
-  age and design intent — a simple `Engine`/`Family` listener model sized for typical
-  libGDX 2D game entity counts (hundreds to low thousands), not the 10k-100k stress range
-  probed here. It's included because it's real and widely used, not because it's a fair
-  "modern ECS" baseline — its numbers mainly show what a plain listener-based (non-sparse-
-  set, non-archetype) design costs at scale.
-- Awake's own numbers moved meaningfully between runs on this same hardware as the
-  family-cache and query-cache work landed (see this file's git history) — re-run this
-  benchmark after any future `ComponentStore`/`World` change rather than trusting a stale
-  table.
+- Awake now leads on transform hierarchy propagation at both depths.
+- Awake leads on 100k create/destroy.
+- Awake is still behind Fleks on family churn and Transform+MeshRenderer query.
+- Artemis-odb still wins component add/remove.
+- The next meaningful ECS improvement is still in family/query hot-path plumbing, not entity allocation.
 
 ## Architecture reference (not benchmarked here — different language/runtime)
 
