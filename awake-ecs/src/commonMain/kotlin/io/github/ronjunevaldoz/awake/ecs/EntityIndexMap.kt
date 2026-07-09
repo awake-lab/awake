@@ -29,7 +29,7 @@ package io.github.ronjunevaldoz.awake.ecs
  * whenever they place or move an entity in their dense storage, mirroring their own
  * swap-remove logic.
  */
-internal class SparseIndex {
+internal class EntityIndexMap {
     private var sparse = IntArray(0)
 
     /** Returns the dense index for [id], or [ABSENT] if never set (or out of range).

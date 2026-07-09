@@ -3,7 +3,7 @@ package io.github.ronjunevaldoz.awake.ecs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class GeneralFamilyTest {
+class FamilySpecTest {
     @Test
     fun allMatchesEntitiesWithEveryRequestedComponentIncludingThreeTypes() {
         val world = World()

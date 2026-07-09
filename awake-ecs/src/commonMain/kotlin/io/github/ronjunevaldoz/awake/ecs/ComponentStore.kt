@@ -20,7 +20,7 @@
 package io.github.ronjunevaldoz.awake.ecs
 
 class ComponentStore<T : Any> {
-    private val sparse = SparseIndex()
+    private val sparse = EntityIndexMap()
     private var denseEntities = LongArray(DEFAULT_CAPACITY)
     private var denseComponents = arrayOfNulls<Any>(DEFAULT_CAPACITY)
     private var count = 0

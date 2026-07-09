@@ -78,7 +78,7 @@ internal class Family1Cache<A : Any>(
     internal var components = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
     internal var count: Int = 0
-    private val sparse = SparseIndex()
+    private val sparse = EntityIndexMap()
 
     val size: Int get() = count
 
@@ -198,7 +198,7 @@ internal class Family2Cache<A : Any, B : Any>(
     internal var componentsB = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
     internal var count: Int = 0
-    private val sparse = SparseIndex()
+    private val sparse = EntityIndexMap()
 
     val size: Int get() = count
 

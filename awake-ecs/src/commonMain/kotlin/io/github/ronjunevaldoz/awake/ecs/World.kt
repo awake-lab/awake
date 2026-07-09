@@ -23,9 +23,9 @@ import kotlin.reflect.KClass
 
 /**
  * Owns entity allocation/recycling and one [ComponentStore] per component type. Family-cache
- * bookkeeping (the maintained [Family1Cache]/[Family2Cache]/[GeneralFamilyCache] instances
+ * bookkeeping (the maintained [Family1Cache]/[Family2Cache]/[FamilySpecCache] instances
  * backing [family]/[queryEach]) lives in [FamilyRegistry] -- see `Families.kt`/
- * `GeneralFamily.kt`/`FamilyRegistry.kt`. Not thread-safe; this ECS is single-threaded by
+ * `FamilySpec.kt`/`FamilyRegistry.kt`. Not thread-safe; this ECS is single-threaded by
  * design (see the `game-framework-dev`/`ecs-dev` agent docs).
  */
 class World {
@@ -184,7 +184,7 @@ class World {
      * generalized replacement for them. */
     fun family(configure: FamilySpecBuilder.() -> Unit): Family {
         val spec = FamilySpecBuilder().apply(configure).build()
-        return Family(familyRegistry.generalFamilyCache(spec))
+        return Family(familyRegistry.familySpecCache(spec))
     }
 
     inline fun <reified T : Any> query(): List<Entity> {
@@ -215,7 +215,7 @@ class World {
         return stores[type] as? ComponentStore<T>
     }
 
-    /** Package-visible for [FamilyRegistry], which needs to build a [GeneralFamilyCache]'s
+    /** Package-visible for [FamilyRegistry], which needs to build a [FamilySpecCache]'s
      * initial membership by scanning every currently-alive entity. */
     internal fun collectQuery(types: Set<KClass<out Any>>): List<Entity> {
         return if (types.isEmpty()) {

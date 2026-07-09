@@ -1,5 +1,10 @@
 # ECS Benchmark Scorecard
 
+> **Naming note:** `SparseIndex` and `GeneralFamilyCache`/`GeneralFamily.kt` mentioned in the
+> dated sections below were later renamed to `EntityIndexMap` and `FamilySpecCache`/
+> `FamilySpec.kt` for clarity. Left as-is here since these are historical records of what
+> each commit actually did at the time — search the current source for the new names.
+
 > Table below: run 2026-07-09 on `Rons-MacBook-Pro-2.local` via
 > `./gradlew :awake-ecs-benchmark:benchmark`, machine otherwise idle, 1 fork, 2 warmup
 > iterations, 3 measurement iterations, 1 second per iteration — the last *reliable* run,

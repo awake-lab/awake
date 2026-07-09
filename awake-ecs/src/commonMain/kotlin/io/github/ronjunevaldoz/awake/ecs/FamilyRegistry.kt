@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
 
 /**
  * Owns every maintained [FamilyCache] -- the typed [Family1Cache]/[Family2Cache] instances
- * plus the arbitrary-arity [GeneralFamilyCache] ones -- and keeps them all in sync with
+ * plus the arbitrary-arity [FamilySpecCache] ones -- and keeps them all in sync with
  * [World]'s structural changes (entity destroy, component add/replace/remove).
  *
  * Extracted out of [World] so entity/component lifecycle and family-cache bookkeeping don't
@@ -33,11 +33,11 @@ import kotlin.reflect.KClass
  */
 internal class FamilyRegistry(private val world: World) {
     private val families = mutableMapOf<FamilyKey, FamilyCache>()
-    private val generalFamilies = mutableMapOf<FamilySpec, GeneralFamilyCache>()
+    private val familySpecCaches = mutableMapOf<FamilySpec, FamilySpecCache>()
 
     fun clear() {
         families.clear()
-        generalFamilies.clear()
+        familySpecCaches.clear()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -52,8 +52,8 @@ internal class FamilyRegistry(private val world: World) {
         return families.getOrPut(key) { buildFamily(typeA, typeB) } as Family2Cache<A, B>
     }
 
-    fun generalFamilyCache(spec: FamilySpec): GeneralFamilyCache {
-        return generalFamilies.getOrPut(spec) { buildGeneralFamily(spec) }
+    fun familySpecCache(spec: FamilySpec): FamilySpecCache {
+        return familySpecCaches.getOrPut(spec) { buildFamilySpecCache(spec) }
     }
 
     fun removeEntity(entity: Entity) {
@@ -73,12 +73,12 @@ internal class FamilyRegistry(private val world: World) {
     }
 
     /** Runs on every maintained cache without allocating a combined [Sequence] -- profiling
-     * showed `families.values.asSequence() + generalFamilies.values.asSequence()` costing
+     * showed `families.values.asSequence() + familySpecCaches.values.asSequence()` costing
      * real CPU (asSequence/SequencesKt.plus wrapper allocation) on every structural change,
      * since this runs once per entity per add/remove/destroy. */
     private inline fun forEachCache(action: (FamilyCache) -> Unit) {
         families.values.forEach(action)
-        generalFamilies.values.forEach(action)
+        familySpecCaches.values.forEach(action)
     }
 
     private fun <A : Any> buildFamily(type: KClass<A>): Family1Cache<A> {
@@ -102,8 +102,8 @@ internal class FamilyRegistry(private val world: World) {
         return cache
     }
 
-    private fun buildGeneralFamily(spec: FamilySpec): GeneralFamilyCache {
-        val cache = GeneralFamilyCache(spec)
+    private fun buildFamilySpecCache(spec: FamilySpec): FamilySpecCache {
+        val cache = FamilySpecCache(spec)
         world.collectQuery(emptySet()).forEach { entity ->
             if (cache.matches(world, entity)) {
                 cache.add(entity)

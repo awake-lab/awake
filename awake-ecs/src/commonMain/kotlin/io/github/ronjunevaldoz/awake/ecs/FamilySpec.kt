@@ -26,14 +26,14 @@ import kotlin.reflect.KClass
  * (at least one) of [one] (if non-empty), and **none** of [exclude]. This is the same
  * `all()/one()/exclude()` shape Ashley's ECS uses, adopted deliberately for the API
  * ergonomics (one generic mechanism instead of hand-writing `Family1Cache`, `Family2Cache`,
- * `Family3Cache`, ... for every arity) -- but backed by [GeneralFamilyCache]'s own
+ * `Family3Cache`, ... for every arity) -- but backed by [FamilySpecCache]'s own
  * sparse-set + incremental-maintenance approach, not Ashley's listener-based internals
  * (which this project's own benchmark showed to be the slowest of the four ECS libraries
  * measured; see `docs/ecs-benchmark-scorecard.md`).
  *
  * Data class (not a data-less builder result) specifically so it works as a `Map` key in
  * `World`'s family cache -- two `family { ... }` calls describing the same predicate return
- * the same underlying [GeneralFamilyCache] instance, same convention [FamilyKey] already
+ * the same underlying [FamilySpecCache] instance, same convention [FamilyKey] already
  * uses for [Family1]/[Family2].
  */
 data class FamilySpec(
@@ -67,7 +67,7 @@ class FamilySpecBuilder @PublishedApi internal constructor() {
  * genuinely needs 3+ types or `one`/`exclude` semantics neither of those support.
  */
 class Family @PublishedApi internal constructor(
-    @PublishedApi internal val cache: GeneralFamilyCache
+    @PublishedApi internal val cache: FamilySpecCache
 ) {
     val size: Int get() = cache.size
 
@@ -81,17 +81,17 @@ class Family @PublishedApi internal constructor(
  * change hooks (`addComponentToFamilies` etc.) call [addComponent]/[removeComponent] here
  * directly instead of this cache re-scanning every entity on every query, the same
  * incremental-maintenance principle [Family1Cache]/[Family2Cache] already use. Backed by
- * [SparseIndex] for O(1) membership add/remove, same as those two.
+ * [EntityIndexMap] for O(1) membership add/remove, same as those two.
  */
 @PublishedApi
-internal class GeneralFamilyCache(
+internal class FamilySpecCache(
     private val spec: FamilySpec
 ) : FamilyCache() {
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
     internal var count: Int = 0
-    private val sparse = SparseIndex()
+    private val sparse = EntityIndexMap()
 
     val size: Int get() = count
 

@@ -1022,6 +1022,10 @@ twice (once against whatever's there today, again once Phase 2 settles).
 
 ## Phase 3 — ECS (1–2 weeks)
 
+> **Naming note:** `SparseIndex` and `GeneralFamilyCache`/`GeneralFamily.kt` mentioned below
+> were later renamed to `EntityIndexMap` and `FamilySpecCache`/`FamilySpec.kt`. Entries below
+> are left as historical records of what each commit did at the time.
+
 - [x] **Custom sparse-set `awake-ecs` module (2026-07-09):** decided against Fleks as a
       runtime dependency for the engine layer; implemented owned `Entity` handles with id +
       generation packing, `ComponentStore<T>` sparse sets, `World` allocation/recycling and
