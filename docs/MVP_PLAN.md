@@ -1078,6 +1078,17 @@ twice (once against whatever's there today, again once Phase 2 settles).
       just Awake's — a sign of noise, not a real signal. See
       [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md)'s "Fixes applied"
       section; re-run on an idle machine before drawing a numeric conclusion.
+- [x] **Cleanup pass on `awake-ecs` (2026-07-09):** `World.kt` had grown to 697 lines with
+      the sparse-index bookkeeping (sparse array + grow-on-demand + `ABSENT` sentinel)
+      hand-duplicated three times across `ComponentStore`, `Family1Cache`, and
+      `Family2Cache`. Extracted a shared internal `SparseIndex` helper (owns only the
+      sparse array; callers keep their own dense entity/component array(s) in sync by
+      calling `set()` — the same contract `ComponentStore`'s `get()`/`contains()` packed-
+      value check already relied on, so this isn't a behavior change) and moved
+      `FamilyCache`/`Family1Cache`/`Family2Cache`/`Family1`/`Family2` out of `World.kt` into
+      a new `Families.kt`. `World.kt` is now 382 lines (down from 697); `ComponentStore.kt`
+      dropped from 138 to 123. `WorldTest` (7/7) and `TransformSystemTest` (1/1) pass
+      unchanged, confirming this was a structural move, not a behavior change.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 
