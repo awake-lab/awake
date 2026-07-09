@@ -31,7 +31,10 @@ import kotlin.reflect.KClass
  * live in the same 400+ line file; this class needs read access to [World]'s stores and
  * type-id assignment helpers.
  */
-internal class FamilyRegistry(private val world: World) {
+internal class FamilyRegistry(
+    private val world: World,
+    private val queryCollector: QueryCollector
+) {
     private val families = mutableMapOf<FamilyKey, FamilyCache>()
     private val familySpecCaches = mutableMapOf<FamilySpec, FamilySpecCache>()
 
@@ -152,7 +155,7 @@ internal class FamilyRegistry(private val world: World) {
 
     private fun buildFamilySpecCache(spec: FamilySpec): FamilySpecCache {
         val cache = FamilySpecCache(world, spec)
-        world.collectQuery(emptySet()).forEach { entity ->
+        queryCollector.collect(emptySet()).forEach { entity ->
             if (cache.matches(world, entity)) {
                 cache.add(entity)
             }

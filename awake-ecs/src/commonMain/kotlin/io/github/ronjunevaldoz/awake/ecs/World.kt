@@ -22,15 +22,16 @@ package io.github.ronjunevaldoz.awake.ecs
 import kotlin.reflect.KClass
 
 /**
- * Public ECS facade. Lifecycle state, component storage/pooling, and query caching live in
- * [EntityArena], [ComponentRegistry], and [QueryCache]; [FamilyRegistry] keeps maintained
- * families in sync with structural changes.
+ * Public ECS facade. Lifecycle state, component storage/pooling, query collection, and
+ * query caching live in [EntityArena], [ComponentRegistry], [QueryCollector], and
+ * [QueryCache]; [FamilyRegistry] keeps maintained families in sync with structural changes.
  */
 class World {
     private val entities = EntityArena()
     private val components = ComponentRegistry()
-    private val queries = QueryCache(::collectQuery)
-    private val familyRegistry = FamilyRegistry(this)
+    private val queryCollector = QueryCollector(entities, components)
+    private val queries = QueryCache(queryCollector::collect)
+    private val familyRegistry = FamilyRegistry(this, queryCollector)
 
     fun create(): Entity {
         val entity = entities.create()
@@ -304,33 +305,6 @@ class World {
 
     private fun requireAlive(entity: Entity) {
         require(entities.isAlive(entity)) { "Entity is not alive: $entity" }
-    }
-
-    /** Package-visible for [FamilyRegistry], which needs to build a [FamilySpecCache]'s
-     * initial membership by scanning every currently-alive entity. */
-    internal fun collectQuery(types: Set<KClass<out Any>>): List<Entity> {
-        return if (types.isEmpty()) {
-            val count = entities.count
-            val results = ArrayList<Entity>(count)
-            for (id in 0 until count) {
-                if (entities.isAlive(id)) {
-                    results += entities.entity(id)
-                }
-            }
-            results
-        } else {
-            val queryStores = types.mapNotNull { type ->
-                components.typeIdOrNull(type)?.let { components.storeOrNull<Any>(it) }
-            }
-            if (queryStores.size != types.size) {
-                emptyList()
-            } else {
-                val smallestStore = queryStores.minBy { it.size }
-                smallestStore.entities.filter { entity ->
-                    entities.isAlive(entity) && queryStores.all { it.contains(entity) }
-                }
-            }
-        }
     }
 
     /** Returns the stable component id assigned to [type] within this world. */
