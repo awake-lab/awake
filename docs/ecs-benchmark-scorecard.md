@@ -145,6 +145,67 @@ This is exactly the situation where guessing at another fix would waste time. Th
 step is profiling this specific benchmark (async-profiler or JFR) to see where the time
 actually goes, rather than a fourth blind attempt at a structural change.
 
+## Profiled `awakeFamilyChurn`, found two real bottlenecks, fixed both (2026-07-09)
+
+Installed async-profiler (`brew install async-profiler`) and ran it directly against the
+standalone JMH jar (`awake-ecs-benchmark/build/benchmarks/main/jars/*-JMH.jar`) with
+`-prof "async:libPath=...;event=cpu"` on `awakeFamilyChurn` at 100k entities. Profiling,
+not guessing, found two concrete, fixable hotspots:
+
+1. **`SparseIndex.get()` was 36% of all CPU samples** (211 of 586). The implementation was
+   `sparse.getOrNull(id) ?: ABSENT` — `IntArray.getOrNull` boxes the result to `Int?` on
+   every call so it can represent "index out of range" as `null`, and the `?:` immediately
+   unboxes it. This runs on every `indexOf()` in `Family1Cache`/`Family2Cache`/
+   `GeneralFamilyCache`, i.e. on every add/remove against a family — exactly the path this
+   benchmark stresses. Fixed by replacing it with a manual `if (id in sparse.indices)
+   sparse[id] else ABSENT`, which never leaves the primitive `Int` domain. Re-profiling
+   after the fix: `SparseIndex.get` dropped to 1.4% of samples (11 of 791) — confirms the
+   fix removed the hotspot, not just moved it.
+2. **`FamilyRegistry.allCaches()` allocated a fresh combined `Sequence` on every single
+   structural-change notification** — `families.values.asSequence() + generalFamilies
+   .values.asSequence()`, called once per entity on every destroy/add/replace/remove.
+   Showed up as `LinkedHashMap$LinkedValues.iterator` (6.45%), `CollectionsKt.asSequence`
+   (4.68%), and `SequencesKt.plus` (2.65%) — real, avoidable allocation overhead. Fixed by
+   replacing the `Sequence` chain with a plain `inline fun forEachCache` that calls
+   `.forEach` on each map's values directly, no combined-sequence wrapper. Re-profiling
+   confirmed this whole cluster fell out of the top 25 samples entirely.
+
+**Both fixes verified correct**: `WorldTest` (7/7), `GeneralFamilyTest` (6/6),
+`TransformSystemTest` (1/1) all still pass.
+
+**Numeric result** (same machine, load average 27 during this run — see caveat below —
+but a consistent effect at both sizes is a good sign it's real, not noise):
+
+| FamilyChurn | Size | Awake before | Awake after | Change |
+|---|---:|---:|---:|---|
+| Family churn | 10k | 753.9 | 1,525.6 | **+102%** (~2.0x) |
+| Family churn | 100k | 60.7 | 122.5 | **+102%** (~2.0x) |
+
+A near-identical ~2.0x improvement at both 10k and 100k entities is a strong signal this is
+a real, structural win, not environmental noise (random noise doesn't usually land on the
+same multiplier twice). Fleks's own numbers also moved between these two runs (10k:
+2,170.0 → 2,550.7; 100k: 124.2 → 157.3) — expected run-to-run drift given the load — so the
+Awake-vs-Fleks *gap* narrowed but didn't close: 10k went from Fleks ~2.9x faster to ~1.67x
+faster; 100k went from ~2.0x to ~1.28x faster.
+
+**Caveat, said plainly**: this run happened at `uptime` load average 27 (Claude Desktop,
+Android Studio, and an emulator were all running) — the *absolute* numbers here are not
+trustworthy in isolation. What makes this result credible anyway is (a) it came from a
+profiler-identified, mechanically-understood fix (boxing elimination, allocation
+elimination) rather than a blind guess, and (b) the effect size was consistent across two
+different entity counts run back to back. Re-run on an idle machine to get a clean
+confirming number before treating this as final.
+
+**What's next, found by the same profiling pass**: after fixing the two hotspots above, the
+next-largest non-GC, non-benchmark-owned cost is `kotlin.jvm.internal.ClassReference
+.hashCode` + `ReflectionFactory.getOrCreateKotlinClass` (~10% combined) — the cost of using
+`KClass` as a `HashMap` key (in `World`'s `stores`/`typeIds` maps) and of reified `T::class`
+resolution on every typed call. This is a real, profiler-confirmed cost, but fixing it
+means changing how component types are identified (e.g. a component-type registry with
+integer IDs instead of `KClass` lookups) — a bigger, riskier structural change than the two
+fixes above, consistent with what the "Where to look next" section below already flagged as
+a last resort. Not attempted in this pass.
+
 ## Where to look next if the gap remains after a clean re-benchmark
 
 If a clean re-run still shows Awake behind on query/propagation, the next things to check,

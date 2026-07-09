@@ -1125,6 +1125,29 @@ twice (once against whatever's there today, again once Phase 2 settles).
       See [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md)'s "Targeted churn
       benchmark" section. Next step: profile this benchmark (async-profiler/JFR) rather
       than guess at a fourth fix.
+- [x] **Profiled and fixed two real bottlenecks (2026-07-09):** installed async-profiler,
+      ran it directly against the JMH benchmark jar. Found `SparseIndex.get()` was 36% of
+      CPU samples — `IntArray.getOrNull(id) ?: ABSENT` boxes to `Int?` on every call; fixed
+      with a manual bounds check that stays in the primitive `Int` domain. Also found
+      `FamilyRegistry`'s combined-`Sequence` allocation (`families.values.asSequence() +
+      generalFamilies.values.asSequence()`, built fresh on every structural-change
+      notification) costing another ~14% across `asSequence`/`SequencesKt.plus`/iterator
+      overhead; replaced with a plain `forEachCache` that iterates each map directly.
+      Re-profiling after both fixes confirmed both hotspots dropped out of the top-25
+      samples. `awakeFamilyChurn` improved ~2.0x at both 10k and 100k entities (753.9→1,525.6
+      and 60.7→122.5 ops/s) — narrows but doesn't close the gap to Fleks (now ~1.3-1.7x
+      instead of ~2-2.9x). Run happened at load average 27 so absolute numbers need an
+      idle-machine re-confirm, but the identical ~2x effect at two different entity counts
+      is a strong signal it's real. `WorldTest`/`GeneralFamilyTest`/`TransformSystemTest`
+      still pass unchanged. Next profiler-confirmed target (not yet attempted, bigger
+      change): `KClass`-as-`HashMap`-key + reified `T::class` reflection cost (~10% of
+      samples). See [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md)'s
+      "Profiled `awakeFamilyChurn`" section.
+- [x] **Cleanup: extracted `FamilyRegistry` from `World` (2026-07-09):** `World.kt` had
+      grown back to 417 lines mixing entity/component lifecycle with all family-cache
+      construction/maintenance. Moved the latter into a new `FamilyRegistry` class; `World`
+      now delegates via a handful of `internal` accessors (`storeOrNull`, `collectQuery`,
+      `typeId`). `World.kt` is now 266 lines. Purely structural — all tests pass unchanged.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 

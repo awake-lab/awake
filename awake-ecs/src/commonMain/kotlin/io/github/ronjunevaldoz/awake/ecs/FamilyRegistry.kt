@@ -57,23 +57,28 @@ internal class FamilyRegistry(private val world: World) {
     }
 
     fun removeEntity(entity: Entity) {
-        allCaches().forEach { it.remove(entity) }
+        forEachCache { it.remove(entity) }
     }
 
     fun <T : Any> addComponent(entity: Entity, type: KClass<T>, component: T) {
-        allCaches().forEach { it.addComponent(world, entity, type, component) }
+        forEachCache { it.addComponent(world, entity, type, component) }
     }
 
     fun <T : Any> replaceComponent(entity: Entity, type: KClass<T>, component: T) {
-        allCaches().forEach { it.replaceComponent(world, entity, type, component) }
+        forEachCache { it.replaceComponent(world, entity, type, component) }
     }
 
     fun removeComponent(entity: Entity, type: KClass<out Any>) {
-        allCaches().forEach { it.removeComponent(world, entity, type) }
+        forEachCache { it.removeComponent(world, entity, type) }
     }
 
-    private fun allCaches(): Sequence<FamilyCache> {
-        return families.values.asSequence() + generalFamilies.values.asSequence()
+    /** Runs on every maintained cache without allocating a combined [Sequence] -- profiling
+     * showed `families.values.asSequence() + generalFamilies.values.asSequence()` costing
+     * real CPU (asSequence/SequencesKt.plus wrapper allocation) on every structural change,
+     * since this runs once per entity per add/remove/destroy. */
+    private inline fun forEachCache(action: (FamilyCache) -> Unit) {
+        families.values.forEach(action)
+        generalFamilies.values.forEach(action)
     }
 
     private fun <A : Any> buildFamily(type: KClass<A>): Family1Cache<A> {

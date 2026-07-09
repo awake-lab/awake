@@ -32,9 +32,12 @@ package io.github.ronjunevaldoz.awake.ecs
 internal class SparseIndex {
     private var sparse = IntArray(0)
 
-    /** Returns the dense index for [id], or [ABSENT] if never set (or out of range). */
+    /** Returns the dense index for [id], or [ABSENT] if never set (or out of range).
+     * Deliberately not `sparse.getOrNull(id) ?: ABSENT` -- [IntArray.getOrNull] boxes to
+     * `Int?` on every call, which profiling showed as the single largest cost (36% of CPU
+     * samples) in family-cache churn, since this runs on every add/remove. */
     fun get(id: Int): Int {
-        return sparse.getOrNull(id) ?: ABSENT
+        return if (id in sparse.indices) sparse[id] else ABSENT
     }
 
     /** Records that [id] now lives at [denseIndex] in the caller's dense storage. */
