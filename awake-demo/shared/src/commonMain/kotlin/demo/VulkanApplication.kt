@@ -20,10 +20,6 @@
 package demo
 
 import io.github.ronjunevaldoz.awake.core.graphics.Application
-import io.github.ronjunevaldoz.awake.core.math.Camera
-import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.core.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.core.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
@@ -33,6 +29,7 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
+import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 
 
 class VulkanApplication : Application {
@@ -67,7 +64,7 @@ class VulkanApplication : Application {
      * class -- see [Material]'s doc comment for why it's constructed in two phases. */
     private lateinit var material: Material
     private lateinit var texture: Texture
-    private var frameCount = 0
+    private lateinit var sceneHost: SceneRuntimeHost
 
     companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
@@ -119,14 +116,8 @@ class VulkanApplication : Application {
         surface?.let { setupVulkan(it) }
     }
 
-    /** The cube's spin -- the one genuinely demo-specific piece of per-frame state, as
-     * opposed to [camera]'s reusable view/projection math or [Renderer.draw]'s reusable
-     * draw/submit/present orchestration. */
     override fun update(delta: Float) {
-        val angle = frameCount * 0.02f
-        val model = Mat4().rotateY(angle).rotateX(angle * 0.5f)
-        renderer.draw(camera, listOf(DrawCall(mesh, material, model)))
-        frameCount++
+        sceneHost.update(delta)
     }
 
     override fun pause() {
@@ -176,19 +167,10 @@ class VulkanApplication : Application {
         )
         material.createResources(texture)
         swapchainManager.createSyncObjects()
+        sceneHost = SceneRuntimeHost(renderer) { request ->
+            resolveRenderable(request)
+        }
     }
-
-    /** Fixed camera looking at the origin -- only the cube's model (spin) matrix changes per
-     * frame, computed in [update] and passed to [Renderer.draw] as part of a [DrawCall].
-     * View/projection math itself lives in [Camera] (awake-core), not here: it's
-     * backend-agnostic camera math, not a demo-animation concern. */
-    private val camera = Camera(
-        eye = Vec3(2f, 2f, 2f),
-        center = Vec3(0f, 0f, 0f),
-        fovYRadians = (45.0 * kotlin.math.PI / 180.0).toFloat(),
-        near = 0.1f,
-        far = 10f
-    )
 
     private fun destroy() {
         renderer.destroy()
@@ -204,5 +186,15 @@ class VulkanApplication : Application {
         renderPipeline.destroy()
 
         graphicsDevice.destroy()
+    }
+
+    private fun resolveRenderable(request: io.github.ronjunevaldoz.awake.scene.runtime.SceneRenderableRequest): MeshRenderer {
+        require(request.meshRenderer.mesh == "cube") {
+            "Unsupported scene mesh '${request.meshRenderer.mesh}'."
+        }
+        require(request.meshRenderer.material == "textured-default") {
+            "Unsupported scene material '${request.meshRenderer.material}'."
+        }
+        return MeshRenderer(mesh, material)
     }
 }

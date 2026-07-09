@@ -2,28 +2,26 @@
 
 ## Current Objective
 
-Wire the serialized scene runtime into the MVP bootstrap path and keep the asset binding
-layer clean.
+Start the core split after the scene bootstrap proof, beginning with the pure shared
+pieces.
 
 ## Active Phase
 
-- 2026-07-10: `SceneDocument`, `SceneLoader`, and the `scene.json` contract have landed in
-  `awake-scene`; next we connect renderable requests to the app-side bootstrap and asset
-  resolver.
+- 2026-07-10: `VulkanApplication` now loads `scene.json` through `SceneRuntimeHost`; next
+  we peel shared code into smaller modules, starting with math/runtime/utils.
 
 ## Open Questions
 
-- Should the first scene bootstrap live in `awake-demo/shared` or a dedicated runtime entry
-  point?
-- Do we resolve renderable requests eagerly during scene load, or keep them as a second
-  bind step?
-- Should the sample `scene.json` live in the engine module, or in the consuming app?
+- Should the core split start with `math`/`runtime`/`utils`, or should render boundaries be
+  carved out first?
+- Which code should remain in `awake-core` once the pure shared pieces move?
+- Do we split `physics` now, or leave it until the scene/runtime shape is settled?
 
 ## Fix Lanes
 
-- Dev: Scene runtime bootstrap
+- Dev: Core split
 - Beta: None yet
-- Stable: Refresh runtime docs after the app-side binding path is verified
+- Stable: Refresh runtime docs after the module split lands
 
 ## Task Log
 

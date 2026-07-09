@@ -22,6 +22,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose.compiler)
+    id("awake.dokka-convention")
+    id("awake.detekt-convention")
 }
 
 android {

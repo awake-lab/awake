@@ -27,38 +27,10 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.library.kmp) apply false
     alias(libs.plugins.compose.multiplatform) apply false
-    alias(libs.plugins.download) apply false
-    // dokka comes from the buildSrc classpath (needed by signing-publication-conventions),
-    // so it must not be re-requested here with a version
-    alias(libs.plugins.detekt) apply false
     alias(libs.plugins.vanniktech.publish) apply false
 }
 
 allprojects {
     group = "io.github.ronjunevaldoz"
     version = "1.0.0-SNAPSHOT"
-}
-
-subprojects {
-    apply(plugin = "org.jetbrains.dokka")
-    apply(plugin = "io.gitlab.arturbosch.detekt")
-
-    extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
-        toolVersion = rootProject.libs.versions.detekt.get()
-        config.setFrom(rootProject.file("config/detekt/detekt.yml"))
-        buildUponDefaultConfig = true
-        baseline = file("detekt-baseline.xml")
-    }
-
-    // the default detekt task only scans src/main/kotlin; widen it to all KMP source sets
-    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-        setSource(files("src"))
-        include("**/*.kt")
-        exclude("**/build/**", "**/attic/**")
-    }
-    tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach {
-        setSource(files("src"))
-        include("**/*.kt")
-        exclude("**/build/**", "**/attic/**")
-    }
 }

@@ -20,6 +20,8 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlinx.benchmark)
+    id("awake.dokka-convention")
+    id("awake.detekt-convention")
 }
 
 kotlin {

@@ -27,6 +27,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.library.kmp)
     alias(libs.plugins.vanniktech.publish)
+    id("awake.dokka-convention")
+    id("awake.detekt-convention")
 }
 
 kotlin {

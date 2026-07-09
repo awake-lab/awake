@@ -23,6 +23,8 @@
 // externalNativeBuild; :awake-vulkan's androidMain depends on this module.
 plugins {
     alias(libs.plugins.android.library)
+    id("awake.dokka-convention")
+    id("awake.detekt-convention")
 }
 
 android {

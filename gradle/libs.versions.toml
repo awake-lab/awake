@@ -9,6 +9,7 @@ download = "5.6.0"
 fleks = "2.14"
 artemis-odb = "2.3.0"
 ashley = "1.7.3"
+lwjgl = "3.3.6"
 kotlinx-benchmark = "0.4.17"
 kotlinx-serialization = "1.11.0"
 napier = "2.7.1"
@@ -17,12 +18,8 @@ androidx-appcompat = "1.7.0"
 androidx-core-ktx = "1.15.0"
 material-icons = "1.7.3"
 leakcanary = "2.14"
-# vanniktech-publish is not referenced by any plugins{} block -- like dokka, it's applied
-# via buildSrc's classpath by signing-publication-conventions.gradle.kts. Keep this in sync
-# with the version in buildSrc/build.gradle.kts.
+# vanniktech-publish is applied directly in awake-core/build.gradle.kts.
 vanniktech-publish = "0.36.0"
-# lwjgl version + host-native classifiers live in buildSrc/Dependecies.kt because
-# the natives classifier requires runtime host-OS detection, which TOML cannot express
 
 [libraries]
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
@@ -40,6 +37,14 @@ artemis-odb = { module = "net.onedaybeard.artemis:artemis-odb", version.ref = "a
 ashley = { module = "com.badlogicgames.ashley:ashley", version.ref = "ashley" }
 kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
+download-gradle-plugin = { module = "de.undercouch:gradle-download-task", version.ref = "download" }
+lwjgl-bom = { module = "org.lwjgl:lwjgl-bom", version.ref = "lwjgl" }
+lwjgl = { module = "org.lwjgl:lwjgl", version.ref = "lwjgl" }
+lwjgl-glfw = { module = "org.lwjgl:lwjgl-glfw", version.ref = "lwjgl" }
+lwjgl-opengl = { module = "org.lwjgl:lwjgl-opengl", version.ref = "lwjgl" }
+lwjgl-stb = { module = "org.lwjgl:lwjgl-stb", version.ref = "lwjgl" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -50,8 +55,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 android-library-kmp = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-download = { id = "de.undercouch.download", version.ref = "download" }
 vanniktech-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-publish" }
 kotlinx-benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kotlinx-benchmark" }

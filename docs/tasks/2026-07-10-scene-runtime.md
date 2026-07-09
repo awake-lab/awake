@@ -13,8 +13,9 @@ Turn the serialized scene contract into the runtime bootstrap path for the MVP s
 - Added `Name` as a tiny runtime label component for hierarchy/editor views.
 - Added a bundled `scenes/mvp.scene.json` fixture and desktop tests for JSON round-tripping
   and world hydration.
+- Wired the Vulkan demo bootstrap through `SceneRuntimeHost` so the app now loads the
+  scene contract at runtime and attaches real `MeshRenderer` components in one place.
 
 ## Next Step
 
-Wire `SceneInstance.renderableRequests` into the app-side asset resolver so the MVP scene
-can attach real `MeshRenderer` components instead of only describing them.
+Start the core split from the cleaned-up bootstrap boundary.

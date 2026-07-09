@@ -20,6 +20,8 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     application
+    id("awake.dokka-convention")
+    id("awake.detekt-convention")
 }
 
 sourceSets["main"].kotlin.srcDir("src/main/kotlin")
@@ -33,4 +35,3 @@ dependencies {
     implementation(project(":awake-vulkan"))
     implementation(kotlin("reflect"))
 }
-

@@ -2,7 +2,6 @@ import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SourcesJar
 import java.util.Properties
-import Deps.lwjgl
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -10,6 +9,50 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.vanniktech.publish)
+    id("awake.dokka-convention")
+    id("awake.detekt-convention")
+}
+
+private val lwjglVersion = "3.3.6"
+
+private val lwjglNatives = Pair(
+    System.getProperty("os.name")!!,
+    System.getProperty("os.arch")!!
+).let { (name, arch) ->
+    when {
+        arrayOf("Linux", "FreeBSD", "SunOS", "Unit").any { name.startsWith(it) } ->
+            if (arrayOf("arm", "aarch64").any { arch.startsWith(it) }) {
+                "natives-linux${if (arch.contains("64") || arch.startsWith("armv8")) "-arm64" else "-arm32"}"
+            } else {
+                "natives-linux"
+            }
+
+        arrayOf("Mac OS X", "Darwin").any { name.startsWith(it) } ->
+            "natives-macos${if (arch.startsWith("aarch64")) "-arm64" else ""}"
+
+        arrayOf("Windows").any { name.startsWith(it) } ->
+            if (arch.contains("64")) {
+                "natives-windows${if (arch.startsWith("aarch64")) "-arm64" else ""}"
+            } else {
+                "natives-windows-x86"
+            }
+
+        else -> throw Error("Unrecognized or unsupported platform. Please set \"lwjglNatives\" manually")
+    }
+}
+
+private fun lwjgl(module: String? = null, native: Boolean = false): String {
+    val modulePath = when (module) {
+        "lwjgl" -> ":$module"
+        null -> ""
+        else -> ":lwjgl-$module"
+    }
+    val coordinates = "org.lwjgl$modulePath:$lwjglVersion"
+    return if (native) {
+        "$coordinates:$lwjglNatives"
+    } else {
+        coordinates
+    }
 }
 
 kotlin {
@@ -55,19 +98,18 @@ kotlin {
         }
         getByName("desktopMain").dependencies {
             implementation(compose.desktop.currentOs)
-            implementation(project.dependencies.platform(lwjgl.bom))
-            implementation(lwjgl.lwjgl)
-            implementation(lwjgl.glfw)
-            implementation(lwjgl.opengl)
-            implementation(lwjgl.stb)
-            implementation(lwjgl.natives.lwjgl)
-            implementation(lwjgl.natives.glfw)
-            implementation(lwjgl.natives.opengl)
-            implementation(lwjgl.natives.stb)
+            implementation(project.dependencies.platform(lwjgl("bom")))
+            implementation(lwjgl("lwjgl"))
+            implementation(lwjgl("glfw"))
+            implementation(lwjgl("opengl"))
+            implementation(lwjgl("stb"))
+            implementation(lwjgl("lwjgl", native = true))
+            implementation(lwjgl("glfw", native = true))
+            implementation(lwjgl("opengl", native = true))
+            implementation(lwjgl("stb", native = true))
         }
     }
 }
-
 
 // iOS artifacts can only be built/signed for real on a macOS host -- gate those
 // publications so a non-mac CI runner (or a mac runner not doing the release) doesn't

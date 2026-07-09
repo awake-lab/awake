@@ -24,7 +24,9 @@ plugins {
     alias(libs.plugins.android.library.kmp)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.compose.compiler)
-    alias(libs.plugins.download)
+    id("awake.dokka-convention")
+    id("awake.detekt-convention")
+    id("awake.glsl-validator-convention")
 }
 
 kotlin {
@@ -66,6 +68,7 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.material.icons.core)
             implementation(libs.compose.components.resources)
+            implementation(project(":awake-scene"))
             implementation(project(":awake-vulkan"))
             implementation(project(":awake-core"))
         }
@@ -80,55 +83,6 @@ kotlin {
     }
 }
 
-
-val glslangDownload =
-    tasks.register<de.undercouch.gradle.tasks.download.Download>("glslangDownload") {
-        val osName = System.getProperty("os.name").lowercase()
-        val hostFile = when {
-            osName.contains("mac") -> "main-osx"
-            osName.contains("win") -> "master-windows"
-            osName.contains("linux") -> "main-linux"
-            else -> throw Exception("$osName not supported")
-        }
-        src("https://github.com/KhronosGroup/glslang/releases/download/main-tot/glslang-$hostFile-Release.zip")
-        dest(layout.buildDirectory.file("glslang.zip"))
-    }
-
-val glslangDownloadCopy = tasks.register<Copy>("glslangDownloadCopy") {
-    dependsOn(glslangDownload)
-    from(zipTree(layout.buildDirectory.file("glslang.zip")))
-    into(layout.buildDirectory.dir("glslang"))
-}
-
-// A plain Exec task only ever runs the LAST commandLine(...) call configured on it --
-// calling commandLine(...) once per shader inside a loop silently discards every prior
-// call, so only one shader (whichever the filesystem happens to enumerate last) was ever
-// actually compiled. Runs each glslangValidator invocation directly instead, so every
-// .frag/.vert under shaderDir gets a fresh .spv.
-tasks.register("glslValidator") {
-    dependsOn(glslangDownloadCopy)
-
-    val bin = layout.buildDirectory.dir("glslang/bin").get().asFile.path
-    val shadersDir = file("src/commonMain/resources/assets/shader/vulkan")
-    val shaders = project.fileTree(shadersDir) {
-        include("**/*.frag", "**/*.vert")
-    }
-
-    doLast {
-        shaders.forEach { shaderFile ->
-            val spvFile = File(shadersDir, "${shaderFile.name}.spv")
-            val process = ProcessBuilder(
-                "$bin/glslangValidator", "-V", shaderFile.absolutePath, "-o", spvFile.absolutePath
-            ).redirectErrorStream(true).start()
-            val output = process.inputStream.bufferedReader().readText()
-            val exitCode = process.waitFor()
-            if (exitCode != 0) {
-                throw RuntimeException("glslangValidator failed for ${shaderFile.name} (exit $exitCode):\n$output")
-            }
-        }
-    }
-}
-
 tasks.register<JavaExec>("runVulkanCpp") {
     mainClass.set("io.github.ronjunevaldoz.awake.vulkan_generator.MainKt")
     classpath = project(":awake-vulkan-generator").sourceSets["main"].runtimeClasspath
@@ -136,8 +90,5 @@ tasks.register<JavaExec>("runVulkanCpp") {
 }
 // glslValidator is a manual step, run explicitly after changing any .vert/.frag under
 // src/commonMain/resources/assets/shader/vulkan -- NOT wired as an automatic dependency
-// of any compile task. It used to (incorrectly) target `JavaCompile`, a task type this
-// KMP module (Kotlin/Android/desktop only, no java sources) never has, so it silently
-// never ran and shader edits could go uncompiled without any build failure to catch it
-// (see docs/decisions/D10-codegen-derisk-findings.md, Round 6, for how this surfaced).
-// Same manual convention as :awake-vulkan:android-native's generateJniBindings.
+// of any compile task. The shared build-logic plugin registers it so every module sees
+// the same shader workflow without duplicating the task wiring here.
