@@ -1064,6 +1064,20 @@ twice (once against whatever's there today, again once Phase 2 settles).
       component remove/replace (no sparse index of its own), and `TransformSystem.update()`
       allocates a fresh `Map`+two `Set`s every frame — both plausible contributors to the
       remaining query/propagation gap.
+- [x] **Applied both fixes identified above (2026-07-09):** gave `Family1Cache`/
+      `Family2Cache` their own sparse index (entity id → dense index), mirroring
+      `ComponentStore`'s existing approach, so `remove`/`replace` no longer scan the whole
+      family linearly. Changed `TransformSystem` to reuse its `Map`/`Set` buffers across
+      frames instead of allocating fresh ones every `update()` call (still recomputes the
+      full traversal from scratch each frame for correctness — only the buffers are
+      reused). Applied the identical buffer-reuse change to the Fleks/Artemis-odb/Ashley
+      benchmark code for fairness, and bumped the JMH config from 2 warmup/3 measurement
+      iterations to 5/5. `WorldTest` (7/7) and `TransformSystemTest` (1/1) still pass.
+      **Numeric re-benchmark was inconclusive**: the re-run happened while this machine had
+      a load average of 7-18 (background apps), and every library's numbers dropped, not
+      just Awake's — a sign of noise, not a real signal. See
+      [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md)'s "Fixes applied"
+      section; re-run on an idle machine before drawing a numeric conclusion.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 

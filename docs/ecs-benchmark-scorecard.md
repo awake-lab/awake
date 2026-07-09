@@ -1,12 +1,10 @@
 # ECS Benchmark Scorecard
 
-> Run: 2026-07-09 on `Rons-MacBook-Pro-2.local` via
-> `./gradlew :awake-ecs-benchmark:benchmark`
->
-> Harness: `kotlinx-benchmark` 0.4.17 / JMH, 1 fork, 2 warmup iterations,
-> 3 measurement iterations, 1 second per iteration. Short-run numbers are useful for
-> relative direction, not final release claims — JMH's own confidence intervals on several
-> rows are wide (see raw JSON under `build/reports/benchmarks/main/`).
+> Table below: run 2026-07-09 on `Rons-MacBook-Pro-2.local` via
+> `./gradlew :awake-ecs-benchmark:benchmark`, machine otherwise idle, 1 fork, 2 warmup
+> iterations, 3 measurement iterations, 1 second per iteration — the last *reliable* run,
+> predating the fixes described below. The JMH config has since been bumped to 5/5
+> iterations (see "Fixes applied" section); re-run on an idle machine to refresh this table.
 >
 > Awake benchmark shape: pure `awake-ecs` runtime plus `awake-scene` components/systems.
 
@@ -66,11 +64,45 @@ JVM bytecode).
 | [flecs](https://github.com/SanderMertens/flecs) | C | Archetype + relationships | Adds first-class entity relationships/hierarchies as a query primitive rather than a plain component field — a different modeling approach to what `Transform.parent` does here. |
 | Unity DOTS (Entities package) | C# (Burst-compiled) | Archetype (chunk-based) | Designed around Unity's Job System + Burst compiler for SIMD/multi-threaded iteration; the performance story depends entirely on that compilation pipeline, which has no JVM/Kotlin equivalent. |
 
-## Where to look next if closing the query/propagation gap matters
+## Fixes applied for the two gaps identified above (2026-07-09)
 
-Based on the code review that produced this scorecard: `Family1Cache`/`Family2Cache`'s
-`indexOf()` does a linear scan on every component remove/replace (no sparse index of its
-own, unlike `ComponentStore`), and `TransformSystem.update()` allocates a fresh
-`Map`+two `Set`s every frame. Both are plausible contributors to the query/propagation gap
-and are the natural next places to optimize before reaching for a bigger architectural
-change (e.g. archetypes).
+1. **`Family1Cache`/`Family2Cache` now have their own sparse index** (entity id → dense
+   index array), mirroring `ComponentStore`'s existing approach. `remove`/`replace` no
+   longer do a linear scan over every entity in the family to find a slot.
+2. **`TransformSystem` reuses its `Map`/`Set` buffers across frames** instead of allocating
+   a fresh `Map`+two `Set`s on every `update()` call. Still recomputes the full traversal
+   from scratch each frame (correctness-preserving even if a caller reparents an entity by
+   mutating `Transform.parent` directly, since there's no change-notification hook for
+   that) — only the *buffers* are reused, not a cached traversal order.
+3. For a fair comparison, the identical buffer-reuse change was applied to the Fleks/
+   Artemis-odb/Ashley hierarchy-propagation benchmark code too — otherwise Awake would get
+   a benchmark-shape advantage unrelated to what's actually being measured (ECS access
+   cost, not "which shim allocates less").
+4. Bumped the JMH config from 2 warmup/3 measurement iterations (1s each) to 5/5, for a
+   more stable signal.
+
+**Both fixes are verified correct** — `WorldTest` (7/7) and `TransformSystemTest` (1/1)
+still pass unchanged.
+
+**The numeric before/after re-benchmark is not trustworthy on this run**: `uptime` showed
+load averages of 7-18 on this machine during the re-run (background apps competing for
+CPU), and every library's numbers dropped noticeably from the table above, not just
+Awake's — a sign of environmental noise, not a real regression. Re-run
+`./gradlew :awake-ecs-benchmark:benchmark` on an idle machine before drawing any numeric
+conclusion from the fixes above; don't trust a comparison run under load like this one.
+
+## Where to look next if the gap remains after a clean re-benchmark
+
+If a clean re-run still shows Awake behind on query/propagation, the next things to check,
+roughly in order of expected payoff vs. effort:
+
+- Profile the 100k-entity query benchmark specifically (e.g. async-profiler or JFR) rather
+  than guessing further — the remaining gap may be JIT warmup variance in a short-lived
+  JMH run rather than an actual structural cost.
+- Consider whether `Family2Cache` duplicating component references (on top of what
+  `ComponentStore` already holds) costs more in cache misses than it saves in iteration
+  directness — a family cache backed by index arrays into the existing `ComponentStore`s,
+  rather than its own copies, would use less memory and might iterate just as fast.
+- A bigger architectural change (archetypes, or per-component-type codegen to avoid `Any`
+  boxing) is the last resort, not the first — see the "own the ECS" discussion in
+  `docs/MVP_PLAN.md`'s Phase 3 entry for why that tradeoff was deliberately deferred.

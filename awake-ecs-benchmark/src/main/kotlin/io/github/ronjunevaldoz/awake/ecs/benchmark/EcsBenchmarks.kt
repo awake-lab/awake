@@ -59,8 +59,8 @@ import sun.misc.Unsafe
 import java.util.concurrent.TimeUnit
 
 @Fork(1)
-@Warmup(iterations = 2, time = 1, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @OutputTimeUnit(TimeUnit.SECONDS)
 open class EcsBenchmarks {
     @Benchmark
@@ -447,17 +447,19 @@ open class AshleyHierarchyState {
         }
     }
 
+    // Reused across calls, same reasoning as Awake's TransformSystem (see
+    // docs/ecs-benchmark-scorecard.md) -- keeps this a fair comparison of the ECS's own
+    // per-entity access cost, not "which benchmark shim allocates less."
+    private val visited = mutableSetOf<AshleyEntity>()
+    private val visiting = mutableSetOf<AshleyEntity>()
+
     fun propagate() {
-        val visited = mutableSetOf<AshleyEntity>()
-        val visiting = mutableSetOf<AshleyEntity>()
-        entities.forEach { entity -> propagateOne(entity, visited, visiting) }
+        visited.clear()
+        visiting.clear()
+        entities.forEach { entity -> propagateOne(entity) }
     }
 
-    private fun propagateOne(
-        entity: AshleyEntity,
-        visited: MutableSet<AshleyEntity>,
-        visiting: MutableSet<AshleyEntity>
-    ): Mat4 {
+    private fun propagateOne(entity: AshleyEntity): Mat4 {
         val transform = transformMapper.get(entity)
         if (entity in visited) {
             return transform.worldMatrix
@@ -467,7 +469,7 @@ open class AshleyHierarchyState {
         val local = transform.localMatrix()
         val parent = transform.parent
         transform.worldMatrix = if (parent != null) {
-            local * propagateOne(parent, visited, visiting)
+            local * propagateOne(parent)
         } else {
             local
         }
@@ -482,17 +484,21 @@ class ArtemisTransformSystem(
     private val world: ArtemisWorld,
     private val mapper: com.artemis.ComponentMapper<ArtemisTransform>
 ) {
+    // Reused across calls -- see AshleyHierarchyState's identical comment.
+    private val visited = mutableSetOf<Int>()
+    private val visiting = mutableSetOf<Int>()
+
     fun propagate() {
         val subscription = world.aspectSubscriptionManager.get(Aspect.all(ArtemisTransform::class.java))
         val entities = subscription.entities
-        val visited = mutableSetOf<Int>()
-        val visiting = mutableSetOf<Int>()
+        visited.clear()
+        visiting.clear()
         for (index in 0 until entities.size()) {
-            propagateOne(entities[index], visited, visiting)
+            propagateOne(entities[index])
         }
     }
 
-    private fun propagateOne(entity: Int, visited: MutableSet<Int>, visiting: MutableSet<Int>): Mat4 {
+    private fun propagateOne(entity: Int): Mat4 {
         val transform = mapper.get(entity)
         if (entity in visited) {
             return transform.worldMatrix
@@ -502,7 +508,7 @@ class ArtemisTransformSystem(
         val local = transform.localMatrix()
         val parent = transform.parent
         transform.worldMatrix = if (parent >= 0) {
-            local * propagateOne(parent, visited, visiting)
+            local * propagateOne(parent)
         } else {
             local
         }
@@ -589,28 +595,27 @@ data class FleksMeshRenderer(
 
 class FleksTransformSystem : IntervalSystem() {
     private val family = world.family { all(FleksTransform) }
+    // Reused across calls -- see AshleyHierarchyState's identical comment.
+    private val transforms = linkedMapOf<FleksEntity, FleksTransform>()
+    private val visited = mutableSetOf<FleksEntity>()
+    private val visiting = mutableSetOf<FleksEntity>()
 
     override fun onTick() {
-        val transforms = linkedMapOf<FleksEntity, FleksTransform>()
+        transforms.clear()
         with(world) {
             family.forEach { entity ->
                 transforms[entity] = entity[FleksTransform]
             }
         }
 
-        val visited = mutableSetOf<FleksEntity>()
-        val visiting = mutableSetOf<FleksEntity>()
+        visited.clear()
+        visiting.clear()
         transforms.keys.forEach { entity ->
-            propagate(entity, transforms, visited, visiting)
+            propagate(entity)
         }
     }
 
-    private fun propagate(
-        entity: FleksEntity,
-        transforms: Map<FleksEntity, FleksTransform>,
-        visited: MutableSet<FleksEntity>,
-        visiting: MutableSet<FleksEntity>
-    ): Mat4 {
+    private fun propagate(entity: FleksEntity): Mat4 {
         if (entity in visited) {
             return transforms.getValue(entity).worldMatrix
         }
@@ -620,7 +625,7 @@ class FleksTransformSystem : IntervalSystem() {
         val local = transform.localMatrix()
         val parent = transform.parent
         transform.worldMatrix = if (parent != null && transforms.containsKey(parent)) {
-            local * propagate(parent, transforms, visited, visiting)
+            local * propagate(parent)
         } else {
             local
         }

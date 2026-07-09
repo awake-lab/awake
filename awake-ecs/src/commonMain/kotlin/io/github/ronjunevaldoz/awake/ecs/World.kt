@@ -420,11 +420,17 @@ internal class Family1Cache<A : Any>(
     internal var components = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
     internal var count: Int = 0
+    // Sparse index (entity id -> dense index) so remove/replace don't need a linear scan --
+    // same trick ComponentStore already uses. Family caches previously only had the dense
+    // arrays above, making indexOf() an O(n) scan on every structural change.
+    private var sparse = IntArray(0)
 
     val size: Int get() = count
 
     fun add(entity: Entity, component: A) {
+        ensureSparseCapacity(entity.id)
         ensureCapacity(count + 1)
+        sparse[entity.id] = count
         entities[count] = entity.packed
         components[count] = component
         count += 1
@@ -497,20 +503,31 @@ internal class Family1Cache<A : Any>(
             return
         }
         val lastIndex = count - 1
-        entities[index] = entities[lastIndex]
+        val lastEntity = entities[lastIndex]
+        entities[index] = lastEntity
         components[index] = components[lastIndex]
+        sparse[Entity(lastEntity).id] = index
         components[lastIndex] = null
         count -= 1
     }
 
     private fun indexOf(entity: Entity): Int {
-        val packed = entity.packed
-        for (index in 0 until count) {
-            if (entities[index] == packed) {
-                return index
-            }
+        val denseIndex = sparse.getOrNull(entity.id) ?: return -1
+        return if (denseIndex in 0 until count && entities[denseIndex] == entity.packed) {
+            denseIndex
+        } else {
+            -1
         }
-        return -1
+    }
+
+    private fun ensureSparseCapacity(id: Int) {
+        if (id < sparse.size) {
+            return
+        }
+        val previousSize = sparse.size
+        val newSize = maxOf(id + 1, maxOf(DEFAULT_FAMILY_CAPACITY, previousSize * CAPACITY_GROWTH_FACTOR))
+        sparse = sparse.copyOf(newSize)
+        sparse.fill(ABSENT, fromIndex = previousSize, toIndex = newSize)
     }
 
     private fun ensureCapacity(requiredCapacity: Int) {
@@ -537,11 +554,16 @@ internal class Family2Cache<A : Any, B : Any>(
     internal var componentsB = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
     internal var count: Int = 0
+    // Sparse index (entity id -> dense index) so remove/replace don't need a linear scan --
+    // same trick ComponentStore/Family1Cache use.
+    private var sparse = IntArray(0)
 
     val size: Int get() = count
 
     fun add(entity: Entity, componentA: A, componentB: B) {
+        ensureSparseCapacity(entity.id)
         ensureCapacity(count + 1)
+        sparse[entity.id] = count
         entities[count] = entity.packed
         componentsA[count] = componentA
         componentsB[count] = componentB
@@ -628,22 +650,33 @@ internal class Family2Cache<A : Any, B : Any>(
             return
         }
         val lastIndex = count - 1
-        entities[index] = entities[lastIndex]
+        val lastEntity = entities[lastIndex]
+        entities[index] = lastEntity
         componentsA[index] = componentsA[lastIndex]
         componentsB[index] = componentsB[lastIndex]
+        sparse[Entity(lastEntity).id] = index
         componentsA[lastIndex] = null
         componentsB[lastIndex] = null
         count -= 1
     }
 
     private fun indexOf(entity: Entity): Int {
-        val packed = entity.packed
-        for (index in 0 until count) {
-            if (entities[index] == packed) {
-                return index
-            }
+        val denseIndex = sparse.getOrNull(entity.id) ?: return -1
+        return if (denseIndex in 0 until count && entities[denseIndex] == entity.packed) {
+            denseIndex
+        } else {
+            -1
         }
-        return -1
+    }
+
+    private fun ensureSparseCapacity(id: Int) {
+        if (id < sparse.size) {
+            return
+        }
+        val previousSize = sparse.size
+        val newSize = maxOf(id + 1, maxOf(DEFAULT_FAMILY_CAPACITY, previousSize * CAPACITY_GROWTH_FACTOR))
+        sparse = sparse.copyOf(newSize)
+        sparse.fill(ABSENT, fromIndex = previousSize, toIndex = newSize)
     }
 
     private fun ensureCapacity(requiredCapacity: Int) {
@@ -661,3 +694,4 @@ private const val INT_BITS = 32
 private const val LOW_INT_MASK = 0xFFFF_FFFFL
 private const val DEFAULT_FAMILY_CAPACITY = 16
 private const val CAPACITY_GROWTH_FACTOR = 2
+private const val ABSENT = -1
