@@ -19,10 +19,14 @@
 
 package io.github.ronjunevaldoz.awake.ecs
 
-class ComponentStore<T : Any> {
+import kotlin.reflect.KClass
+
+class ComponentStore<T : Any>(
+    private val type: KClass<T>
+) {
     private val sparse = EntityIndexMap()
     private var denseEntities = LongArray(DEFAULT_CAPACITY)
-    private var denseComponents = arrayOfNulls<Any>(DEFAULT_CAPACITY)
+    private var denseComponents = newComponentArray(type, DEFAULT_CAPACITY)
     private var count = 0
 
     val size: Int get() = count
@@ -126,4 +130,9 @@ class ComponentStore<T : Any> {
         const val DEFAULT_CAPACITY = 16
         const val CAPACITY_GROWTH_FACTOR = 2
     }
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?> {
+    return java.lang.reflect.Array.newInstance(type.java, capacity) as Array<Any?>
 }

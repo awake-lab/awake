@@ -75,7 +75,7 @@ internal class Family1Cache<A : Any>(
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
-    internal var components = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
+    internal var components = newComponentArray(type, DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
@@ -200,9 +200,9 @@ internal class Family2Cache<A : Any, B : Any>(
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
-    internal var componentsA = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
+    internal var componentsA = newComponentArray(typeA, DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
-    internal var componentsB = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
+    internal var componentsB = newComponentArray(typeB, DEFAULT_FAMILY_CAPACITY)
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
@@ -335,3 +335,8 @@ internal class Family2Cache<A : Any, B : Any>(
 
 private const val DEFAULT_FAMILY_CAPACITY = 16
 private const val CAPACITY_GROWTH_FACTOR = 2
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?> {
+    return java.lang.reflect.Array.newInstance(type.java, capacity) as Array<Any?>
+}

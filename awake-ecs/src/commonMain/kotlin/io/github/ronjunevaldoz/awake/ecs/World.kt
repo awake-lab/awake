@@ -207,7 +207,13 @@ class World {
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> store(type: KClass<T>): ComponentStore<T> {
-        return stores.getOrPut(type) { ComponentStore() } as ComponentStore<T>
+        val existing = stores[type]
+        if (existing != null) {
+            return existing as ComponentStore<T>
+        }
+        val store: ComponentStore<T> = ComponentStore(type)
+        stores[type] = store as ComponentStore<Any>
+        return store
     }
 
     @Suppress("UNCHECKED_CAST")
