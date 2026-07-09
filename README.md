@@ -21,6 +21,13 @@ Awake is a cross-platform graphics wrapper and framework (OpenGL, Metal & Vulkan
     - [ ] iOS MoltenVK / Metal (TODO)
     - [ ] Desktop (TODO)
 
+### Modules
+
+- `awake-core` — math, renderer abstraction, asset utilities (installation below)
+- [`awake-vulkan`](awake-vulkan) — Vulkan bindings, mesh/material/pipeline types
+- [`awake-ecs`](awake-ecs/README.md) — sparse-set ECS runtime (entities, components, systems, queries)
+- [`awake-scene`](awake-scene/README.md) — scene-graph components/systems (`Transform`, `MeshRenderer`, `Camera`, `Light`) built on `awake-ecs`
+
 ### Tools
 
 Vulkan requires to use `.spv` shader, so i've provided a GlslValidator gradle plugin to convert glsl
