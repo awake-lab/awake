@@ -189,19 +189,23 @@ internal class Family1Cache<A : Any>(
             return
         }
 
+        val removedEntityId = entities[index].toInt()
         val lastIndex = count - 1
-        val lastEntity = entities[lastIndex]
-        entities[index] = lastEntity
-        components[index] = components[lastIndex]
-        sparse.set(lastEntity.toInt(), index)
+        if (index != lastIndex) {
+            val lastEntity = entities[lastIndex]
+            entities[index] = lastEntity
+            components[index] = components[lastIndex]
+            sparse.set(lastEntity.toInt(), index)
+        }
 
         components[lastIndex] = null
         count -= 1
+        sparse.remove(removedEntityId)
     }
 
     private fun indexOf(entity: Entity): Int {
         val denseIndex = sparse.get(entity.id)
-        return if (denseIndex >= 0 && denseIndex < count && entities[denseIndex] == entity.packed) {
+        return if (denseIndex >= 0 && denseIndex < count) {
             denseIndex
         } else {
             -1
@@ -353,21 +357,25 @@ internal class Family2Cache<A : Any, B : Any>(
             return
         }
 
+        val removedEntityId = entities[index].toInt()
         val lastIndex = count - 1
-        val lastEntity = entities[lastIndex]
-        entities[index] = lastEntity
-        componentsA[index] = componentsA[lastIndex]
-        componentsB[index] = componentsB[lastIndex]
-        sparse.set(lastEntity.toInt(), index)
+        if (index != lastIndex) {
+            val lastEntity = entities[lastIndex]
+            entities[index] = lastEntity
+            componentsA[index] = componentsA[lastIndex]
+            componentsB[index] = componentsB[lastIndex]
+            sparse.set(lastEntity.toInt(), index)
+        }
 
         componentsA[lastIndex] = null
         componentsB[lastIndex] = null
         count -= 1
+        sparse.remove(removedEntityId)
     }
 
     private fun indexOf(entity: Entity): Int {
         val denseIndex = sparse.get(entity.id)
-        return if (denseIndex >= 0 && denseIndex < count && entities[denseIndex] == entity.packed) {
+        return if (denseIndex >= 0 && denseIndex < count) {
             denseIndex
         } else {
             -1

@@ -140,7 +140,7 @@ class EcsOptimizationTest {
     fun signaturesCorrectlyMatchMultiComponentFamilies() {
         val world = World()
         val entity = world.create()
-        
+
         val family = world.family<CompA, CompB>()
         assertEquals(0, family.size)
 
@@ -189,6 +189,51 @@ class EcsOptimizationTest {
         assertSame(replacement, removed)
         assertFalse(world.has(entity, aTypeId))
         assertEquals(0, family.size)
+    }
+
+    @Test
+    fun pooledTypeIdFamilyChurnKeepsMembershipStableAcrossRemoveReaddAndDestroy() {
+        val world = World()
+        world.registerPool(PooledComponent::class) { PooledComponent() }
+        world.store(PooledComponent::class)
+
+        val typeId = world.typeId(PooledComponent::class)
+        val first = world.create()
+        val second = world.create()
+        val third = world.create()
+
+        val firstComponent = world.add<PooledComponent>(first, typeId)
+        val secondComponent = world.add<PooledComponent>(second, typeId)
+        val thirdComponent = world.add<PooledComponent>(third, typeId)
+        firstComponent.value = 1
+        secondComponent.value = 2
+        thirdComponent.value = 3
+
+        world.add(first, FamilyMarker)
+        world.add(second, FamilyMarker)
+        world.add(third, FamilyMarker)
+
+        val family = world.family<PooledComponent, FamilyMarker>()
+        assertEquals(setOf(first, second, third), family.entities())
+
+        val removedSecond = checkNotNull(world.remove<PooledComponent>(second, typeId))
+        assertSame(secondComponent, removedSecond)
+        assertEquals(0, removedSecond.value)
+        assertEquals(setOf(first, third), family.entities())
+
+        val reusedSecond = world.add<PooledComponent>(second, typeId)
+        assertSame(removedSecond, reusedSecond)
+        assertEquals(0, reusedSecond.value)
+        assertEquals(setOf(first, second, third), family.entities())
+
+        assertTrue(world.destroy(first))
+        assertEquals(setOf(second, third), family.entities())
+
+        val recycled = world.create()
+        val recycledComponent = world.add<PooledComponent>(recycled, typeId)
+        world.add(recycled, FamilyMarker)
+        assertEquals(0, recycledComponent.value)
+        assertEquals(setOf(second, third, recycled), family.entities())
     }
 
     @Test
@@ -255,6 +300,16 @@ class EcsOptimizationTest {
 
     private class CompA
     private class CompB
+
+    private fun Family2<PooledComponent, FamilyMarker>.entities(): Set<Entity> {
+        val entities = mutableSetOf<Entity>()
+        forEach { entity, _, _ ->
+            entities += entity
+        }
+        return entities
+    }
+
+    private data object FamilyMarker
 }
 
 private val first64ComponentTypes = listOf(

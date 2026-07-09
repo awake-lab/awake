@@ -46,6 +46,13 @@ internal class EntityIndexMap {
         sparse[id] = denseIndex
     }
 
+    /** Clears any dense index recorded for [id]. */
+    fun remove(id: Int) {
+        if (id >= 0 && id < sparse.size) {
+            sparse[id] = ABSENT
+        }
+    }
+
     fun clear() {
         sparse.fill(ABSENT)
     }

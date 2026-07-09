@@ -124,7 +124,6 @@ class World {
 
     /** Fast path for pooled components when the caller already cached [typeId]. */
     fun <T : Any> add(entity: Entity, typeId: ComponentTypeId): T {
-        requireAlive(entity)
         val pool = components.pool(typeId)
             ?: error("Component pool for type id ${typeId.value} is not registered.")
         @Suppress("UNCHECKED_CAST")

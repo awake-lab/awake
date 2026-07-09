@@ -155,6 +155,7 @@ open class EcsBenchmarks {
     // the awake*ComponentAddRemove benchmarks above exercise this: they never call
     // world.family<...>(), so no family cache exists for them to churn against. See
     // docs/ecs-benchmark-scorecard.md for why this gap mattered.
+    // Pooled type-id fast path.
     @Benchmark
     fun awakeFamilyChurn(state: AwakeFamilyChurnState): Int {
         val world = state.world
@@ -165,6 +166,22 @@ open class EcsBenchmarks {
         }
         for (entity in entities) {
             world.add<Transform>(entity, transformTypeId)
+        }
+        return state.family.size
+    }
+
+    // Diagnostic only: same family-churn path, but bypasses pooling so we can isolate the
+    // cost of component construction from the ECS hot path.
+    @Benchmark
+    fun awakeFamilyChurnTypeIdDirect(state: AwakeFamilyChurnState): Int {
+        val world = state.world
+        val transformTypeId = state.transformTypeId
+        val entities = state.entities
+        for (entity in entities) {
+            world.remove<Transform>(entity, transformTypeId)
+        }
+        for (entity in entities) {
+            world.add(entity, transformTypeId, Transform())
         }
         return state.family.size
     }

@@ -52,7 +52,7 @@ class ComponentStore<T : Any>(
 
     fun add(entity: Entity, component: T): T? {
         val denseIndex = sparse.get(entity.id)
-        if (denseIndex >= 0 && denseIndex < count && denseEntities[denseIndex] == entity.packed) {
+        if (denseIndex >= 0 && denseIndex < count) {
             val previous = typedDenseComponents[denseIndex]
             denseComponents[denseIndex] = component
             return previous
@@ -68,7 +68,7 @@ class ComponentStore<T : Any>(
 
     fun get(entity: Entity): T? {
         val denseIndex = sparse.get(entity.id)
-        return if (denseIndex >= 0 && denseIndex < count && denseEntities[denseIndex] == entity.packed) {
+        return if (denseIndex >= 0 && denseIndex < count) {
             typedDenseComponents[denseIndex]
         } else {
             null
@@ -81,7 +81,7 @@ class ComponentStore<T : Any>(
 
     fun remove(entity: Entity): T? {
         val denseIndex = sparse.get(entity.id)
-        return if (denseIndex >= 0 && denseIndex < count && denseEntities[denseIndex] == entity.packed) {
+        return if (denseIndex >= 0 && denseIndex < count) {
             removeAt(denseIndex)
         } else {
             null
@@ -90,15 +90,18 @@ class ComponentStore<T : Any>(
 
     private fun removeAt(denseIndex: Int): T {
         val removed = typedDenseComponents[denseIndex]
+        val removedEntityId = denseEntities[denseIndex].toInt()
         val lastIndex = count - 1
-        val lastEntity = denseEntities[lastIndex]
-
-        denseEntities[denseIndex] = lastEntity
-        denseComponents[denseIndex] = denseComponents[lastIndex]
-        sparse.set(lastEntity.toInt(), denseIndex)
+        if (denseIndex != lastIndex) {
+            val lastEntity = denseEntities[lastIndex]
+            denseEntities[denseIndex] = lastEntity
+            denseComponents[denseIndex] = denseComponents[lastIndex]
+            sparse.set(lastEntity.toInt(), denseIndex)
+        }
 
         denseComponents[lastIndex] = null
         count -= 1
+        sparse.remove(removedEntityId)
         return removed
     }
 
