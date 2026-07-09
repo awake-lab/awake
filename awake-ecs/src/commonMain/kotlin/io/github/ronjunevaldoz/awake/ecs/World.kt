@@ -19,24 +19,22 @@
 
 package io.github.ronjunevaldoz.awake.ecs
 
-import kotlin.jvm.JvmInline
 import kotlin.reflect.KClass
 
 /**
- * Owns entity allocation/recycling, one [ComponentStore] per component type, and the
- * maintained [Family1Cache]/[Family2Cache] instances backing [family]/[queryEach] --
- * see `Families.kt` for those. Not thread-safe; this ECS is single-threaded by design
- * (see the `game-framework-dev`/`ecs-dev` agent docs).
+ * Owns entity allocation/recycling and one [ComponentStore] per component type. Family-cache
+ * bookkeeping (the maintained [Family1Cache]/[Family2Cache]/[GeneralFamilyCache] instances
+ * backing [family]/[queryEach]) lives in [FamilyRegistry] -- see `Families.kt`/
+ * `GeneralFamily.kt`/`FamilyRegistry.kt`. Not thread-safe; this ECS is single-threaded by
+ * design (see the `game-framework-dev`/`ecs-dev` agent docs).
  */
-@Suppress("TooManyFunctions")
 class World {
     private val slots = mutableListOf<EntitySlot>()
     private val freeIds = mutableListOf<Int>()
     private val stores = mutableMapOf<KClass<out Any>, ComponentStore<Any>>()
     private val typeIds = mutableMapOf<KClass<out Any>, ComponentTypeId>()
-    private val families = mutableMapOf<FamilyKey, FamilyCache>()
-    private val generalFamilies = mutableMapOf<FamilySpec, GeneralFamilyCache>()
     private val queryCache = mutableMapOf<QueryKey, CachedQuery>()
+    private val familyRegistry = FamilyRegistry(this)
     private var queryVersion = 0
 
     fun create(): Entity {
@@ -59,7 +57,7 @@ class World {
             return false
         }
 
-        removeEntityFromFamilies(entity)
+        familyRegistry.removeEntity(entity)
         stores.values.forEach { it.remove(entity) }
         val slot = slots[entity.id]
         slot.alive = false
@@ -84,9 +82,9 @@ class World {
         val previous = store(type).add(entity, component)
         if (previous == null) {
             markQueriesDirty()
-            addComponentToFamilies(entity, type, component)
+            familyRegistry.addComponent(entity, type, component)
         } else {
-            replaceComponentInFamilies(entity, type, component)
+            familyRegistry.replaceComponent(entity, type, component)
         }
         return previous
     }
@@ -113,7 +111,7 @@ class World {
         val removed = storeOrNull(type)?.remove(entity)
         if (removed != null) {
             markQueriesDirty()
-            removeComponentFromFamilies(entity, type)
+            familyRegistry.removeComponent(entity, type)
         }
         return removed
     }
@@ -142,7 +140,7 @@ class World {
     }
 
     fun <A : Any> queryEach(type: KClass<A>, block: (Entity, A) -> Unit) {
-        familyCache(type).forEach(block)
+        familyRegistry.familyCache(type).forEach(block)
     }
 
     inline fun <reified A : Any> queryEach(noinline block: (Entity, A) -> Unit) {
@@ -150,7 +148,7 @@ class World {
     }
 
     fun <A : Any> family(type: KClass<A>): Family1<A> {
-        return Family1(familyCache(type))
+        return Family1(familyRegistry.familyCache(type))
     }
 
     inline fun <reified A : Any> family(): Family1<A> {
@@ -162,7 +160,7 @@ class World {
         typeB: KClass<B>,
         block: (Entity, A, B) -> Unit
     ) {
-        familyCache(typeA, typeB).forEach(block)
+        familyRegistry.familyCache(typeA, typeB).forEach(block)
     }
 
     inline fun <reified A : Any, reified B : Any> queryEach(noinline block: (Entity, A, B) -> Unit) {
@@ -170,7 +168,7 @@ class World {
     }
 
     fun <A : Any, B : Any> family(typeA: KClass<A>, typeB: KClass<B>): Family2<A, B> {
-        return Family2(familyCache(typeA, typeB))
+        return Family2(familyRegistry.familyCache(typeA, typeB))
     }
 
     inline fun <reified A : Any, reified B : Any> family(): Family2<A, B> {
@@ -186,10 +184,40 @@ class World {
      * generalized replacement for them. */
     fun family(configure: FamilySpecBuilder.() -> Unit): Family {
         val spec = FamilySpecBuilder().apply(configure).build()
-        return Family(generalFamilyCache(spec))
+        return Family(familyRegistry.generalFamilyCache(spec))
     }
 
-    private fun collectQuery(types: Set<KClass<out Any>>): List<Entity> {
+    inline fun <reified T : Any> query(): List<Entity> {
+        return query(T::class)
+    }
+
+    fun clear() {
+        slots.clear()
+        freeIds.clear()
+        stores.clear()
+        typeIds.clear()
+        familyRegistry.clear()
+        queryCache.clear()
+        markQueriesDirty()
+    }
+
+    fun componentCount(type: KClass<out Any>): Int {
+        return stores[type]?.size ?: 0
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> store(type: KClass<T>): ComponentStore<T> {
+        return stores.getOrPut(type) { ComponentStore() } as ComponentStore<T>
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    internal fun <T : Any> storeOrNull(type: KClass<T>): ComponentStore<T>? {
+        return stores[type] as? ComponentStore<T>
+    }
+
+    /** Package-visible for [FamilyRegistry], which needs to build a [GeneralFamilyCache]'s
+     * initial membership by scanning every currently-alive entity. */
+    internal fun collectQuery(types: Set<KClass<out Any>>): List<Entity> {
         return if (types.isEmpty()) {
             slots.indices
                 .map { Entity.of(it, slots[it].generation) }
@@ -207,35 +235,6 @@ class World {
         }
     }
 
-    inline fun <reified T : Any> query(): List<Entity> {
-        return query(T::class)
-    }
-
-    fun clear() {
-        slots.clear()
-        freeIds.clear()
-        stores.clear()
-        typeIds.clear()
-        families.clear()
-        generalFamilies.clear()
-        queryCache.clear()
-        markQueriesDirty()
-    }
-
-    fun componentCount(type: KClass<out Any>): Int {
-        return stores[type]?.size ?: 0
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> store(type: KClass<T>): ComponentStore<T> {
-        return stores.getOrPut(type) { ComponentStore() } as ComponentStore<T>
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun <T : Any> storeOrNull(type: KClass<T>): ComponentStore<T>? {
-        return stores[type] as? ComponentStore<T>
-    }
-
     private fun requireAlive(entity: Entity) {
         require(isAlive(entity)) { "Entity is not alive: $entity" }
     }
@@ -244,132 +243,10 @@ class World {
         queryVersion += 1
     }
 
-    private fun typeId(type: KClass<out Any>): ComponentTypeId {
+    /** Package-visible for [FamilyRegistry]'s [FamilyKey] construction. */
+    internal fun typeId(type: KClass<out Any>): ComponentTypeId {
         return typeIds.getOrPut(type) {
             ComponentTypeId(typeIds.size)
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun <A : Any> familyCache(type: KClass<A>): Family1Cache<A> {
-        val key = FamilyKey.single(typeId(type))
-        return families.getOrPut(key) { buildFamily(type) } as Family1Cache<A>
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun <A : Any, B : Any> familyCache(
-        typeA: KClass<A>,
-        typeB: KClass<B>
-    ): Family2Cache<A, B> {
-        val key = FamilyKey.pair(typeId(typeA), typeId(typeB))
-        return families.getOrPut(key) { buildFamily(typeA, typeB) } as Family2Cache<A, B>
-    }
-
-    private fun <A : Any> buildFamily(type: KClass<A>): Family1Cache<A> {
-        val cache = Family1Cache(type)
-        storeOrNull(type)?.forEach { entity, component ->
-            cache.add(entity, component)
-        }
-        return cache
-    }
-
-    private fun <A : Any, B : Any> buildFamily(
-        typeA: KClass<A>,
-        typeB: KClass<B>
-    ): Family2Cache<A, B> {
-        val cache = Family2Cache(typeA, typeB)
-        val storeA = storeOrNull(typeA)
-        val storeB = storeOrNull(typeB)
-        if (storeA != null && storeB != null) {
-            fillFamily(cache, storeA, storeB)
-        }
-        return cache
-    }
-
-    private fun generalFamilyCache(spec: FamilySpec): GeneralFamilyCache {
-        return generalFamilies.getOrPut(spec) { buildGeneralFamily(spec) }
-    }
-
-    private fun buildGeneralFamily(spec: FamilySpec): GeneralFamilyCache {
-        val cache = GeneralFamilyCache(spec)
-        collectQuery(emptySet()).forEach { entity ->
-            if (cache.matches(this, entity)) {
-                cache.add(entity)
-            }
-        }
-        return cache
-    }
-
-    private fun <A : Any, B : Any> fillFamily(
-        cache: Family2Cache<A, B>,
-        storeA: ComponentStore<A>,
-        storeB: ComponentStore<B>
-    ) {
-        if (storeA.size <= storeB.size) {
-            addMatchesFromA(cache, storeA, storeB)
-        } else {
-            addMatchesFromB(cache, storeA, storeB)
-        }
-    }
-
-    private fun <A : Any, B : Any> addMatchesFromA(
-        cache: Family2Cache<A, B>,
-        storeA: ComponentStore<A>,
-        storeB: ComponentStore<B>
-    ) {
-        storeA.forEach { entity, componentA ->
-            storeB.get(entity)?.let { componentB ->
-                cache.add(entity, componentA, componentB)
-            }
-        }
-    }
-
-    private fun <A : Any, B : Any> addMatchesFromB(
-        cache: Family2Cache<A, B>,
-        storeA: ComponentStore<A>,
-        storeB: ComponentStore<B>
-    ) {
-        storeB.forEach { entity, componentB ->
-            storeA.get(entity)?.let { componentA ->
-                cache.add(entity, componentA, componentB)
-            }
-        }
-    }
-
-    /** All maintained family caches -- the typed [Family1Cache]/[Family2Cache] instances
-     * plus the arbitrary-arity [GeneralFamilyCache] ones -- so the four notify methods
-     * below reach both without duplicating the notification logic per cache kind. */
-    private fun allFamilyCaches(): Sequence<FamilyCache> {
-        return families.values.asSequence() + generalFamilies.values.asSequence()
-    }
-
-    private fun removeEntityFromFamilies(entity: Entity) {
-        allFamilyCaches().forEach { it.remove(entity) }
-    }
-
-    private fun <T : Any> addComponentToFamilies(
-        entity: Entity,
-        type: KClass<T>,
-        component: T
-    ) {
-        allFamilyCaches().forEach { family ->
-            family.addComponent(this, entity, type, component)
-        }
-    }
-
-    private fun <T : Any> replaceComponentInFamilies(
-        entity: Entity,
-        type: KClass<T>,
-        component: T
-    ) {
-        allFamilyCaches().forEach { family ->
-            family.replaceComponent(this, entity, type, component)
-        }
-    }
-
-    private fun removeComponentFromFamilies(entity: Entity, type: KClass<out Any>) {
-        allFamilyCaches().forEach { family ->
-            family.removeComponent(this, entity, type)
         }
     }
 
@@ -386,32 +263,4 @@ class World {
         val entities: MutableList<Entity> = mutableListOf(),
         var version: Int = -1
     )
-}
-
-@JvmInline
-private value class ComponentTypeId(
-    val value: Int
-)
-
-@JvmInline
-private value class FamilyKey(
-    val packed: Long
-) {
-    companion object {
-        private const val SINGLE_SENTINEL = -1
-        private const val INT_BITS = 32
-        private const val LOW_INT_MASK = 0xFFFF_FFFFL
-
-        fun single(type: ComponentTypeId): FamilyKey {
-            return FamilyKey(pack(type.value, SINGLE_SENTINEL))
-        }
-
-        fun pair(typeA: ComponentTypeId, typeB: ComponentTypeId): FamilyKey {
-            return FamilyKey(pack(typeA.value, typeB.value))
-        }
-
-        private fun pack(first: Int, second: Int): Long {
-            return (first.toLong() shl INT_BITS) or (second.toLong() and LOW_INT_MASK)
-        }
-    }
 }
