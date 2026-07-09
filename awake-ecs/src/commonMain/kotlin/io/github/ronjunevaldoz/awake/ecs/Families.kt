@@ -30,6 +30,14 @@ class Family1<A : Any> @PublishedApi internal constructor(
 ) {
     val size: Int get() = cache.size
 
+    fun components(): Array<A> {
+        return cache.components()
+    }
+
+    fun componentAt(index: Int): A {
+        return cache.componentAt(index)
+    }
+
     inline fun forEach(block: (Entity, A) -> Unit) {
         cache.forEach(block)
     }
@@ -44,6 +52,22 @@ class Family2<A : Any, B : Any> @PublishedApi internal constructor(
     @PublishedApi internal val cache: Family2Cache<A, B>
 ) {
     val size: Int get() = cache.size
+
+    fun componentsA(): Array<A> {
+        return cache.componentsA()
+    }
+
+    fun componentsB(): Array<B> {
+        return cache.componentsB()
+    }
+
+    fun componentA(index: Int): A {
+        return cache.componentA(index)
+    }
+
+    fun componentB(index: Int): B {
+        return cache.componentB(index)
+    }
 
     inline fun forEach(block: (Entity, A, B) -> Unit) {
         cache.forEach(block)
@@ -81,6 +105,18 @@ internal class Family1Cache<A : Any>(
     private val sparse = EntityIndexMap()
 
     val size: Int get() = count
+
+    @PublishedApi
+    internal fun components(): Array<A> {
+        @Suppress("UNCHECKED_CAST")
+        return components as Array<A>
+    }
+
+    @PublishedApi
+    internal fun componentAt(index: Int): A {
+        @Suppress("UNCHECKED_CAST")
+        return components[index] as A
+    }
 
     fun add(entity: Entity, component: A) {
         ensureCapacity(count + 1)
@@ -208,6 +244,30 @@ internal class Family2Cache<A : Any, B : Any>(
     private val sparse = EntityIndexMap()
 
     val size: Int get() = count
+
+    @PublishedApi
+    internal fun componentsA(): Array<A> {
+        @Suppress("UNCHECKED_CAST")
+        return componentsA as Array<A>
+    }
+
+    @PublishedApi
+    internal fun componentsB(): Array<B> {
+        @Suppress("UNCHECKED_CAST")
+        return componentsB as Array<B>
+    }
+
+    @PublishedApi
+    internal fun componentA(index: Int): A {
+        @Suppress("UNCHECKED_CAST")
+        return componentsA[index] as A
+    }
+
+    @PublishedApi
+    internal fun componentB(index: Int): B {
+        @Suppress("UNCHECKED_CAST")
+        return componentsB[index] as B
+    }
 
     fun add(entity: Entity, componentA: A, componentB: B) {
         ensureCapacity(count + 1)

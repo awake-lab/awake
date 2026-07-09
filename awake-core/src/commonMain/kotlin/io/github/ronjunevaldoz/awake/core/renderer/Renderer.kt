@@ -195,12 +195,16 @@ class Renderer(
 
         val aspect = swapchainManager.extent.width.toFloat() / swapchainManager.extent.height.toFloat()
         val viewProjection = camera.viewProjectionMatrix(aspect)
-        drawCalls.forEach { drawCall ->
+        var drawIndex = 0
+        val drawCount = drawCalls.size
+        while (drawIndex < drawCount) {
+            val drawCall = drawCalls[drawIndex]
             // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
             // Camera.viewProjectionMatrix's docs), so `model * viewProjection` (Kotlin
             // order) gives the conventional `projection * view * model`.
             val mvp = drawCall.model * viewProjection
             drawCall.material.updateUniformBuffer(mvp.data)
+            drawIndex += 1
         }
 
         Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
@@ -276,10 +280,14 @@ class Renderer(
         )
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
 
-        drawCalls.forEach { drawCall ->
+        var drawIndex = 0
+        val drawCount = drawCalls.size
+        while (drawIndex < drawCount) {
+            val drawCall = drawCalls[drawIndex]
             drawCall.mesh.bind(commandBuffer)
             drawCall.material.bind(commandBuffer, renderPipeline.pipelineLayout)
             drawCall.mesh.draw(commandBuffer)
+            drawIndex += 1
         }
 
         Vulkan.vkCmdEndRenderPass(commandBuffer)
@@ -287,8 +295,11 @@ class Renderer(
     }
 
     fun destroy() {
-        framebuffers.forEach { framebuffer ->
-            Vulkan.vkDestroyFramebuffer(device, framebuffer)
+        var index = 0
+        val count = framebuffers.size
+        while (index < count) {
+            Vulkan.vkDestroyFramebuffer(device, framebuffers[index])
+            index += 1
         }
         Vulkan.vkDestroyImageView(device, depthImageView)
         VulkanImages.vkDestroyImage(device, depthImage)

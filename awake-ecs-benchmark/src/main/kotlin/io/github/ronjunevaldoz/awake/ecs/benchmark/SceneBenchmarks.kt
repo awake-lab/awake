@@ -39,8 +39,16 @@ open class SceneBenchmarks {
     @Benchmark
     fun awakeTransformMeshQuery(state: AwakeQueryState): Int {
         var count = 0
-        state.family.forEachComponents { _, _ ->
-            count++
+        val family = state.family
+        val componentsA = family.componentsA()
+        val componentsB = family.componentsB()
+        val size = family.size
+        var index = 0
+        while (index < size) {
+            componentsA[index]
+            componentsB[index]
+            count += 1
+            index += 1
         }
         return count
     }
