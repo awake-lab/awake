@@ -48,17 +48,20 @@ internal class FamilyRegistry(private val world: World) {
 
     @Suppress("UNCHECKED_CAST")
     fun <A : Any> familyCache(type: KClass<A>): Family1Cache<A> {
-        val key = FamilyKey.single(world.typeId(type))
+        val typeId = world.typeId(type)
+        val key = FamilyKey.single(typeId)
         return families.getOrPut(key) {
-            buildFamily(type).also(::indexFamily)
+            buildFamily(type, typeId).also(::indexFamily)
         } as Family1Cache<A>
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <A : Any, B : Any> familyCache(typeA: KClass<A>, typeB: KClass<B>): Family2Cache<A, B> {
-        val key = FamilyKey.pair(world.typeId(typeA), world.typeId(typeB))
+        val typeIdA = world.typeId(typeA)
+        val typeIdB = world.typeId(typeB)
+        val key = FamilyKey.pair(typeIdA, typeIdB)
         return families.getOrPut(key) {
-            buildFamily(typeA, typeB).also(::indexFamily)
+            buildFamily(typeA, typeIdA, typeB, typeIdB).also(::indexFamily)
         } as Family2Cache<A, B>
     }
 
@@ -116,10 +119,10 @@ internal class FamilyRegistry(private val world: World) {
         }
     }
 
-    private fun <A : Any> buildFamily(type: KClass<A>): Family1Cache<A> {
-        val cache = Family1Cache(type)
-        val typeId = world.typeId(type)
-        world.storeOrNull<A>(typeId)?.forEach { entity, component ->
+    private fun <A : Any> buildFamily(type: KClass<A>, typeId: ComponentTypeId): Family1Cache<A> {
+        val store = world.store(typeId, type)
+        val cache = Family1Cache(type, typeId, store)
+        store.forEach { entity, component ->
             cache.add(entity, component)
         }
         return cache
@@ -127,16 +130,15 @@ internal class FamilyRegistry(private val world: World) {
 
     private fun <A : Any, B : Any> buildFamily(
         typeA: KClass<A>,
-        typeB: KClass<B>
+        typeIdA: ComponentTypeId,
+        typeB: KClass<B>,
+        typeIdB: ComponentTypeId
     ): Family2Cache<A, B> {
-        val cache = Family2Cache(world, typeA, typeB)
-        val typeIdA = world.typeId(typeA)
-        val typeIdB = world.typeId(typeB)
-        val storeA = world.storeOrNull<A>(typeIdA)
-        val storeB = world.storeOrNull<B>(typeIdB)
-        if (storeA != null && storeB != null) {
-            fillFamily(cache, storeA, storeB)
-        }
+        val storeA = world.store(typeIdA, typeA)
+        val storeB = world.store(typeIdB, typeB)
+        val mask = (1L shl typeIdA.value) or (1L shl typeIdB.value)
+        val cache = Family2Cache(typeA, typeIdA, storeA, typeB, typeIdB, storeB, mask)
+        fillFamily(cache, storeA, storeB)
         return cache
     }
 

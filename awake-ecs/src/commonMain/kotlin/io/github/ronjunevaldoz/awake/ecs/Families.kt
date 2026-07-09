@@ -95,7 +95,9 @@ internal sealed class FamilyCache {
 @PublishedApi
 @Suppress("TooManyFunctions")
 internal class Family1Cache<A : Any>(
-    private val type: KClass<A>
+    private val type: KClass<A>,
+    private val typeId: ComponentTypeId,
+    private val store: ComponentStore<A>
 ) : FamilyCache() {
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
@@ -167,7 +169,7 @@ internal class Family1Cache<A : Any>(
         type: KClass<T>,
         component: T
     ) {
-        if (this.type == type) {
+        if (this.typeId == typeId) {
             @Suppress("UNCHECKED_CAST")
             add(entity, component as A)
         }
@@ -180,14 +182,14 @@ internal class Family1Cache<A : Any>(
         type: KClass<T>,
         component: T
     ) {
-        if (this.type == type) {
+        if (this.typeId == typeId) {
             @Suppress("UNCHECKED_CAST")
             replace(entity, component as A)
         }
     }
 
     override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
-        if (this.type == type) {
+        if (this.typeId == typeId) {
             remove(entity)
         }
     }
@@ -238,9 +240,13 @@ internal class Family1Cache<A : Any>(
 @PublishedApi
 @Suppress("TooManyFunctions")
 internal class Family2Cache<A : Any, B : Any>(
-    private val world: World,
     private val typeA: KClass<A>,
-    private val typeB: KClass<B>
+    private val typeIdA: ComponentTypeId,
+    private val storeA: ComponentStore<A>,
+    private val typeB: KClass<B>,
+    private val typeIdB: ComponentTypeId,
+    private val storeB: ComponentStore<B>,
+    private val mask: Long
 ) : FamilyCache() {
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
@@ -252,8 +258,6 @@ internal class Family2Cache<A : Any, B : Any>(
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
     private val membership = EntityBitSet(DEFAULT_FAMILY_CAPACITY)
-
-    private val mask = (1L shl world.typeId(typeA).value) or (1L shl world.typeId(typeB).value)
 
     override fun types(): Set<KClass<out Any>> = setOf(typeA, typeB)
 
@@ -342,8 +346,8 @@ internal class Family2Cache<A : Any, B : Any>(
         component: T
     ) {
         if (!membership.contains(entity.id) && (world.getSignature(entity.id) and mask) == mask) {
-            val compA = world.get(entity, typeA)!!
-            val compB = world.get(entity, typeB)!!
+            val compA = storeA.get(entity)!!
+            val compB = storeB.get(entity)!!
             add(entity, compA, compB)
         }
     }
@@ -359,17 +363,17 @@ internal class Family2Cache<A : Any, B : Any>(
         if (index < 0) {
             return
         }
-        if (typeA == type) {
+        if (typeIdA == typeId) {
             @Suppress("UNCHECKED_CAST")
             componentsA[index] = component as A
-        } else if (typeB == type) {
+        } else if (typeIdB == typeId) {
             @Suppress("UNCHECKED_CAST")
             componentsB[index] = component as B
         }
     }
 
     override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
-        if (typeA == type || typeB == type) {
+        if (typeIdA == typeId || typeIdB == typeId) {
             remove(entity)
         }
     }
