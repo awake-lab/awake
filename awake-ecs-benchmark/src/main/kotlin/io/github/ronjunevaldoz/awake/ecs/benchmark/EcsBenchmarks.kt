@@ -210,6 +210,43 @@ open class EcsBenchmarks {
         return count
     }
 
+    // The four benchmarks below specifically stress structural churn (remove + re-add a
+    // component) on entities that are already members of a *built* family -- i.e. the
+    // family cache's own indexOf()/remove()/add() path, not just ComponentStore's. None of
+    // the awake*ComponentAddRemove benchmarks above exercise this: they never call
+    // world.family<...>(), so no family cache exists for them to churn against. See
+    // docs/ecs-benchmark-scorecard.md for why this gap mattered.
+    @Benchmark
+    fun awakeFamilyChurn(state: AwakeFamilyChurnState): Int {
+        state.entities.forEach { state.world.remove<Transform>(it) }
+        state.entities.forEach { state.world.add(it, Transform()) }
+        return state.family.size
+    }
+
+    @Benchmark
+    fun fleksFamilyChurn(state: FleksFamilyChurnState): Int {
+        with(state.world) {
+            state.entities.forEach { entity -> entity.configure { it -= FleksTransform } }
+            state.entities.forEach { entity -> entity.configure { it += FleksTransform() } }
+        }
+        return state.family.numEntities
+    }
+
+    @Benchmark
+    fun artemisFamilyChurn(state: ArtemisFamilyChurnState): Int {
+        state.entities.forEach { state.transformMapper.remove(it) }
+        state.entities.forEach { state.transformMapper.create(it) }
+        state.world.process()
+        return state.subscription.entities.size()
+    }
+
+    @Benchmark
+    fun ashleyFamilyChurn(state: AshleyFamilyChurnState): Int {
+        state.entities.forEach { it.remove(AshleyTransform::class.java) }
+        state.entities.forEach { it.add(AshleyTransform()) }
+        return state.engine.getEntitiesFor(state.family).size()
+    }
+
     @Benchmark
     fun awakeTransformHierarchyPropagation(state: AwakeHierarchyState): Float {
         state.system.update(state.world, FRAME_DELTA)
@@ -387,6 +424,109 @@ open class AshleyQueryState {
             entity.add(AshleyMeshRenderer(FakeGpuObjects.mesh, FakeGpuObjects.material))
             engine.addEntity(entity)
         }
+    }
+}
+
+@State(Scope.Benchmark)
+open class AwakeFamilyChurnState {
+    @Param("10000", "100000")
+    var entityCount: Int = 0
+    lateinit var world: AwakeWorld
+    lateinit var entities: List<AwakeEntity>
+    lateinit var family: AwakeFamily2<Transform, MeshRenderer>
+
+    @Setup(Level.Iteration)
+    fun setup() {
+        world = AwakeWorld()
+        val list = ArrayList<AwakeEntity>(entityCount)
+        repeat(entityCount) {
+            val entity = world.create()
+            world.add(entity, Transform())
+            world.add(entity, MeshRenderer(FakeGpuObjects.mesh, FakeGpuObjects.material))
+            list += entity
+        }
+        // Build the family cache BEFORE churning -- this is the whole point of this
+        // benchmark: exercise indexOf()/remove()/add() on an already-built family cache,
+        // not just ComponentStore's.
+        family = world.family<Transform, MeshRenderer>()
+        entities = list
+    }
+}
+
+@State(Scope.Benchmark)
+open class FleksFamilyChurnState {
+    @Param("10000", "100000")
+    var entityCount: Int = 0
+    lateinit var world: FleksWorld
+    lateinit var entities: List<FleksEntity>
+    lateinit var family: com.github.quillraven.fleks.Family
+
+    @Setup(Level.Iteration)
+    fun setup() {
+        world = configureWorld(entityCount) { }
+        family = world.family { all(FleksTransform, FleksMeshRenderer) }
+        val list = ArrayList<FleksEntity>(entityCount)
+        repeat(entityCount) {
+            list += world.entity {
+                it += FleksTransform()
+                it += FleksMeshRenderer(FakeGpuObjects.mesh, FakeGpuObjects.material)
+            }
+        }
+        entities = list
+    }
+}
+
+@State(Scope.Benchmark)
+open class ArtemisFamilyChurnState {
+    @Param("10000", "100000")
+    var entityCount: Int = 0
+    lateinit var world: ArtemisWorld
+    lateinit var entities: IntArray
+    lateinit var subscription: com.artemis.EntitySubscription
+    lateinit var transformMapper: com.artemis.ComponentMapper<ArtemisTransform>
+
+    @Setup(Level.Iteration)
+    fun setup() {
+        world = ArtemisWorld(WorldConfigurationBuilder().build())
+        transformMapper = world.getMapper(ArtemisTransform::class.java)
+        val meshMapper = world.getMapper(ArtemisMeshRenderer::class.java)
+        subscription = world.aspectSubscriptionManager.get(
+            Aspect.all(ArtemisTransform::class.java, ArtemisMeshRenderer::class.java)
+        )
+        entities = IntArray(entityCount) {
+            val entity = world.create()
+            transformMapper.create(entity)
+            meshMapper.create(entity).apply {
+                mesh = FakeGpuObjects.mesh
+                material = FakeGpuObjects.material
+            }
+            entity
+        }
+        world.process()
+    }
+}
+
+@State(Scope.Benchmark)
+open class AshleyFamilyChurnState {
+    @Param("10000", "100000")
+    var entityCount: Int = 0
+    lateinit var engine: AshleyEngine
+    lateinit var family: AshleyFamily
+    lateinit var entities: List<AshleyEntity>
+
+    @Setup(Level.Iteration)
+    fun setup() {
+        engine = AshleyEngine()
+        family = AshleyFamily.all(AshleyTransform::class.java, AshleyMeshRenderer::class.java).get()
+        val list = ArrayList<AshleyEntity>(entityCount)
+        repeat(entityCount) {
+            val entity = engine.createEntity()
+            entity.add(AshleyTransform())
+            entity.add(AshleyMeshRenderer(FakeGpuObjects.mesh, FakeGpuObjects.material))
+            engine.addEntity(entity)
+            list += entity
+        }
+        entities = list
     }
 }
 

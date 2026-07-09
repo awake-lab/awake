@@ -115,6 +115,36 @@ at the same size went *up* — a shared environmental event during that measurem
 (likely a GC pause), not a real regression in either library. Even a "clean-looking" run
 with tight CIs can still have one bad row; don't over-read a single benchmark invocation.
 
+## Targeted churn benchmark: does the sparse-index fix actually help? (2026-07-09)
+
+Added `awakeFamilyChurn`/`fleksFamilyChurn`/`artemisFamilyChurn`/`ashleyFamilyChurn`: each
+builds a `Transform`+`MeshRenderer` family first, *then* removes and re-adds `Transform` on
+every entity already in that family — the one scenario `Family1Cache`/`Family2Cache`'s
+sparse-index fix targets, which none of the existing `*ComponentAddRemove` benchmarks
+exercise (they never call `world.family<...>()`).
+
+Ran `./gradlew :awake-ecs:benchmark -Pbenchmark.filter=".*FamilyChurn.*"`. The Artemis-odb
+and most of Ashley's rows were lost to a `tail -40` truncation on this run and need a re-run
+to capture, but Awake's and Fleks's numbers came through clean:
+
+| FamilyChurn | Size | **Awake** | Fleks 2.14 | Fastest |
+|---|---:|---:|---:|---|
+| Family churn (remove+re-add on existing family members) | 10k | 753.9 | 2,170.0 | Fleks (~2.9x) |
+| Family churn (remove+re-add on existing family members) | 100k | 60.7 | 124.2 | Fleks (~2x) |
+
+**Say it plainly: this is not a win.** This benchmark didn't exist before this change, so
+there's no true "before/after" for it specifically — but taken at face value, Awake is
+2-3x slower than Fleks in exactly the scenario the sparse-index fix was built for. That
+doesn't mean the fix made things worse (it replaced an O(n) linear scan with an O(1)
+lookup, which is strictly better than what came before); it means **the linear-scan cost
+was never the dominant cost in this path to begin with** — something else in
+`Family1Cache`/`Family2Cache.remove()`/`add()` (or in `World`'s per-notify dispatch across
+`allFamilyCaches()`) is the real bottleneck, and the sparse-index change didn't touch it.
+
+This is exactly the situation where guessing at another fix would waste time. The next
+step is profiling this specific benchmark (async-profiler or JFR) to see where the time
+actually goes, rather than a fourth blind attempt at a structural change.
+
 ## Where to look next if the gap remains after a clean re-benchmark
 
 If a clean re-run still shows Awake behind on query/propagation, the next things to check,

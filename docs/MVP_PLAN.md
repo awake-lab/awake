@@ -1111,6 +1111,20 @@ twice (once against whatever's there today, again once Phase 2 settles).
       right choice for the common 1-2-component hot path. New `GeneralFamilyTest.kt`: 6/6
       passing, covering `all`/`one`/`exclude` matching, sync-on-structural-change (including
       losing membership when an excluded component is added), and destroy-triggered removal.
+- [x] **Targeted family-churn benchmark (2026-07-09):** added `awakeFamilyChurn`/
+      `fleksFamilyChurn`/`artemisFamilyChurn`/`ashleyFamilyChurn` — each builds a family
+      first, then removes+re-adds a component on entities already in it, specifically
+      exercising the code path the sparse-index fix targeted (none of the
+      `*ComponentAddRemove` benchmarks ever build a family, so they never ran this path).
+      Result, say it plainly: **Awake is 2-3x slower than Fleks here** (10k: 753.9 vs
+      2,170.0 ops/s; 100k: 60.7 vs 124.2 ops/s — Artemis-odb/Ashley rows lost to a `tail
+      -40` truncation on this run, need a re-run to capture). The sparse-index fix itself
+      is still a correct, strict improvement over the O(n) scan it replaced, but this
+      result shows that scan was never the dominant cost in this path — something else in
+      `Family1Cache`/`Family2Cache.add()`/`remove()` or `World`'s per-notify dispatch is.
+      See [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md)'s "Targeted churn
+      benchmark" section. Next step: profile this benchmark (async-profiler/JFR) rather
+      than guess at a fourth fix.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 
