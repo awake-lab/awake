@@ -106,9 +106,6 @@ internal class Family1Cache<A : Any>(
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
-    
-    // Memory Optimization: Remove local EntityBitSet. Rely on World's signature bitmask
-    // which is now O(1) and shared across the entire world.
 
     override fun types(): Set<KClass<out Any>> = setOf(type)
 
@@ -127,9 +124,9 @@ internal class Family1Cache<A : Any>(
     }
 
     fun add(entity: Entity, component: A) {
-        // Membership check using sparse index (standard sparse-set behavior)
-        if (indexOf(entity) >= 0) {
-            replace(entity, component)
+        val index = indexOf(entity)
+        if (index >= 0) {
+            components[index] = component
             return
         }
         ensureCapacity(count + 1)
@@ -185,21 +182,17 @@ internal class Family1Cache<A : Any>(
         component: T
     ) {
         if (this.typeId == typeId) {
-            @Suppress("UNCHECKED_CAST")
-            replace(entity, component as A)
+            val index = indexOf(entity)
+            if (index >= 0) {
+                @Suppress("UNCHECKED_CAST")
+                components[index] = component as A
+            }
         }
     }
 
     override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
         if (this.typeId == typeId) {
             remove(entity)
-        }
-    }
-
-    private fun replace(entity: Entity, component: A) {
-        val index = indexOf(entity)
-        if (index >= 0) {
-            components[index] = component
         }
     }
 
@@ -257,7 +250,6 @@ internal class Family2Cache<A : Any, B : Any>(
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
-    private val membership = EntityBitSet(DEFAULT_FAMILY_CAPACITY)
 
     override fun types(): Set<KClass<out Any>> = setOf(typeA, typeB)
 
@@ -288,25 +280,18 @@ internal class Family2Cache<A : Any, B : Any>(
     }
 
     fun add(entity: Entity, componentA: A, componentB: B) {
-        if (membership.contains(entity.id)) {
-            replace(entity, componentA, componentB)
-            return
-        }
-        ensureCapacity(count + 1)
-        sparse.set(entity.id, count)
-        membership.add(entity.id)
-        entities[count] = entity.packed
-        componentsA[count] = componentA
-        componentsB[count] = componentB
-        count += 1
-    }
-
-    private fun replace(entity: Entity, componentA: A, componentB: B) {
         val index = indexOf(entity)
         if (index >= 0) {
             componentsA[index] = componentA
             componentsB[index] = componentB
+            return
         }
+        ensureCapacity(count + 1)
+        sparse.set(entity.id, count)
+        entities[count] = entity.packed
+        componentsA[count] = componentA
+        componentsB[count] = componentB
+        count += 1
     }
 
     @PublishedApi
@@ -345,7 +330,7 @@ internal class Family2Cache<A : Any, B : Any>(
         type: KClass<T>,
         component: T
     ) {
-        if (!membership.contains(entity.id) && (world.getSignature(entity.id) and mask) == mask) {
+        if (indexOf(entity) < 0 && (world.getSignature(entity.id) and mask) == mask) {
             val compA = storeA.get(entity)!!
             val compB = storeB.get(entity)!!
             add(entity, compA, compB)
@@ -382,8 +367,6 @@ internal class Family2Cache<A : Any, B : Any>(
         if (index < 0) {
             return
         }
-        val entityId = Entity(entities[index]).id
-        membership.remove(entityId)
 
         val lastIndex = count - 1
         val lastEntity = entities[lastIndex]
@@ -419,8 +402,3 @@ internal class Family2Cache<A : Any, B : Any>(
 
 private const val DEFAULT_FAMILY_CAPACITY = 16
 private const val CAPACITY_GROWTH_FACTOR = 2
-
-@Suppress("UNCHECKED_CAST")
-private fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?> {
-    return java.lang.reflect.Array.newInstance(type.java, capacity) as Array<Any?>
-}

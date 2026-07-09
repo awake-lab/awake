@@ -61,6 +61,14 @@ class World {
         return Entity.of(nextId, 0)
     }
 
+    /** Creates a new entity and initializes a pooled component of type [T]. */
+    inline fun <reified T : Any> spawn(block: (T) -> Unit = {}): Entity {
+        val entity = create()
+        val component = add<T>(entity)
+        block(component)
+        return entity
+    }
+
     fun destroy(entity: Entity): Boolean {
         if (!isAlive(entity)) {
             return false
