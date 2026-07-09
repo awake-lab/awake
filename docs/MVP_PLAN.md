@@ -1044,12 +1044,26 @@ twice (once against whatever's there today, again once Phase 2 settles).
 - [x] Benchmark harness isolated in `:awake-ecs-benchmark` (JVM-only): depends on
       `:awake-ecs`, `:awake-scene`, and Fleks 2.14, with Fleks absent from `awake-ecs`'s
       dependency graph. `kotlinx-benchmark` 0.4.17 was checked before wiring; it supports
-      Kotlin 2.2.0+ and resolved cleanly against this project's Kotlin 2.4.0. Scorecard:
-      [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md). Awake now uses
-      primitive sparse/dense component stores plus maintained family indexes with
-      component-only iteration for systems; component add/remove is ahead of Fleks in the
-      latest short run, while Fleks is still faster on the Transform+MeshRenderer family
-      iteration hot path at 10k/100k entities.
+      Kotlin 2.2.0+ and resolved cleanly against this project's Kotlin 2.4.0.
+- [x] **Broadened the comparison to all JVM-runnable ECS libraries, not just Fleks
+      (2026-07-09):** added Artemis-odb 2.3.0 and Ashley 1.7.3 (both real, widely used JVM
+      ECS libraries; class-file signatures were inspected directly via `javap` rather than
+      guessed, since library API surfaces don't always match memory/training data) to the
+      same benchmark module and same JMH run, so all four numbers come from one process on
+      one machine. Also added an architecture-only reference table (bevy_ecs/EnTT/flecs/
+      Unity DOTS) explicitly labeled as *not measured here* — different language/runtime,
+      included for context only, not to be conflated with the real measured numbers.
+      Full matrix: [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md).
+      **Honest result**: Awake wins/ties on component add/remove (the structural-churn
+      operation), but Fleks still leads on family-iteration query throughput and
+      Artemis-odb leads on hierarchy propagation — the two per-frame hot paths that matter
+      most at runtime. Ashley is dramatically slower than all three at 10k-100k entities
+      (2 ops/s create/destroy at 100k), consistent with its listener-based design being
+      sized for small libGDX 2D games, not this stress range. Next optimization targets
+      identified: `Family1Cache`/`Family2Cache.indexOf()` is a linear scan on every
+      component remove/replace (no sparse index of its own), and `TransformSystem.update()`
+      allocates a fresh `Map`+two `Set`s every frame — both plausible contributors to the
+      remaining query/propagation gap.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 

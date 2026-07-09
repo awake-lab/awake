@@ -19,6 +19,14 @@
 
 package io.github.ronjunevaldoz.awake.ecs.benchmark
 
+import com.artemis.Aspect
+import com.artemis.Component as ArtemisComponent
+import com.artemis.World as ArtemisWorld
+import com.artemis.WorldConfigurationBuilder
+import com.badlogic.ashley.core.Component as AshleyComponent
+import com.badlogic.ashley.core.Engine as AshleyEngine
+import com.badlogic.ashley.core.Entity as AshleyEntity
+import com.badlogic.ashley.core.Family as AshleyFamily
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
 import com.github.quillraven.fleks.Entity as FleksEntity
@@ -77,6 +85,31 @@ open class EcsBenchmarks {
     }
 
     @Benchmark
+    fun artemisCreateDestroy(state: EntityCountState): Int {
+        val world = ArtemisWorld(WorldConfigurationBuilder().build())
+        val entities = IntArray(state.entityCount)
+        repeat(state.entityCount) { index ->
+            entities[index] = world.create()
+        }
+        entities.forEach(world::delete)
+        world.process()
+        return entities.count(world.entityManager::isActive)
+    }
+
+    @Benchmark
+    fun ashleyCreateDestroy(state: EntityCountState): Int {
+        val engine = AshleyEngine()
+        val entities = ArrayList<AshleyEntity>(state.entityCount)
+        repeat(state.entityCount) {
+            val entity = engine.createEntity()
+            engine.addEntity(entity)
+            entities += entity
+        }
+        entities.forEach(engine::removeEntity)
+        return engine.entities.size()
+    }
+
+    @Benchmark
     fun awakeComponentAddRemove(state: EntityCountState): Int {
         val world = AwakeWorld()
         val entities = ArrayList<AwakeEntity>(state.entityCount)
@@ -107,6 +140,31 @@ open class EcsBenchmarks {
     }
 
     @Benchmark
+    fun artemisComponentAddRemove(state: EntityCountState): Int {
+        val world = ArtemisWorld(WorldConfigurationBuilder().build())
+        val mapper = world.getMapper(ArtemisTransform::class.java)
+        val entities = IntArray(state.entityCount) { world.create() }
+        entities.forEach { mapper.create(it) }
+        entities.forEach { mapper.remove(it) }
+        world.process()
+        return entities.count(mapper::has)
+    }
+
+    @Benchmark
+    fun ashleyComponentAddRemove(state: EntityCountState): Int {
+        val engine = AshleyEngine()
+        val entities = ArrayList<AshleyEntity>(state.entityCount)
+        repeat(state.entityCount) {
+            val entity = engine.createEntity()
+            engine.addEntity(entity)
+            entities += entity
+        }
+        entities.forEach { it.add(AshleyTransform()) }
+        entities.forEach { it.remove(AshleyTransform::class.java) }
+        return entities.count { it.getComponent(AshleyTransform::class.java) != null }
+    }
+
+    @Benchmark
     fun awakeTransformMeshQuery(state: AwakeQueryState): Int {
         var count = 0
         state.family.forEachComponents { _, _ ->
@@ -129,6 +187,30 @@ open class EcsBenchmarks {
     }
 
     @Benchmark
+    fun artemisTransformMeshQuery(state: ArtemisQueryState): Int {
+        var count = 0
+        val entities = state.subscription.entities
+        for (index in 0 until entities.size()) {
+            state.transformMapper.get(entities[index])
+            state.meshMapper.get(entities[index])
+            count++
+        }
+        return count
+    }
+
+    @Benchmark
+    fun ashleyTransformMeshQuery(state: AshleyQueryState): Int {
+        var count = 0
+        val entities = state.engine.getEntitiesFor(state.family)
+        for (index in 0 until entities.size()) {
+            state.transformMapper.get(entities[index])
+            state.meshMapper.get(entities[index])
+            count++
+        }
+        return count
+    }
+
+    @Benchmark
     fun awakeTransformHierarchyPropagation(state: AwakeHierarchyState): Float {
         state.system.update(state.world, FRAME_DELTA)
         return state.lastTransform().worldMatrix.m23
@@ -138,6 +220,18 @@ open class EcsBenchmarks {
     fun fleksTransformHierarchyPropagation(state: FleksHierarchyState): Float {
         state.world.update(FRAME_DELTA)
         return with(state.world) { state.lastEntity[FleksTransform].worldMatrix.m23 }
+    }
+
+    @Benchmark
+    fun artemisTransformHierarchyPropagation(state: ArtemisHierarchyState): Float {
+        state.system.propagate()
+        return state.transformMapper.get(state.lastEntity).worldMatrix.m23
+    }
+
+    @Benchmark
+    fun ashleyTransformHierarchyPropagation(state: AshleyHierarchyState): Float {
+        state.propagate()
+        return state.transformMapper.get(state.lastEntity).worldMatrix.m23
     }
 }
 
@@ -242,6 +336,226 @@ open class FleksHierarchyState {
         }
     }
 }
+
+@State(Scope.Benchmark)
+open class ArtemisQueryState {
+    @Param("10000", "100000")
+    var entityCount: Int = 0
+    lateinit var world: ArtemisWorld
+    lateinit var subscription: com.artemis.EntitySubscription
+    lateinit var transformMapper: com.artemis.ComponentMapper<ArtemisTransform>
+    lateinit var meshMapper: com.artemis.ComponentMapper<ArtemisMeshRenderer>
+
+    @Setup(Level.Iteration)
+    fun setup() {
+        world = ArtemisWorld(WorldConfigurationBuilder().build())
+        transformMapper = world.getMapper(ArtemisTransform::class.java)
+        meshMapper = world.getMapper(ArtemisMeshRenderer::class.java)
+        subscription = world.aspectSubscriptionManager.get(
+            Aspect.all(ArtemisTransform::class.java, ArtemisMeshRenderer::class.java)
+        )
+        repeat(entityCount) {
+            val entity = world.create()
+            transformMapper.create(entity)
+            meshMapper.create(entity).apply {
+                mesh = FakeGpuObjects.mesh
+                material = FakeGpuObjects.material
+            }
+        }
+        world.process()
+    }
+}
+
+@State(Scope.Benchmark)
+open class AshleyQueryState {
+    @Param("10000", "100000")
+    var entityCount: Int = 0
+    lateinit var engine: AshleyEngine
+    lateinit var family: AshleyFamily
+    lateinit var transformMapper: com.badlogic.ashley.core.ComponentMapper<AshleyTransform>
+    lateinit var meshMapper: com.badlogic.ashley.core.ComponentMapper<AshleyMeshRenderer>
+
+    @Setup(Level.Iteration)
+    fun setup() {
+        engine = AshleyEngine()
+        transformMapper = com.badlogic.ashley.core.ComponentMapper.getFor(AshleyTransform::class.java)
+        meshMapper = com.badlogic.ashley.core.ComponentMapper.getFor(AshleyMeshRenderer::class.java)
+        family = AshleyFamily.all(AshleyTransform::class.java, AshleyMeshRenderer::class.java).get()
+        repeat(entityCount) {
+            val entity = engine.createEntity()
+            entity.add(AshleyTransform())
+            entity.add(AshleyMeshRenderer(FakeGpuObjects.mesh, FakeGpuObjects.material))
+            engine.addEntity(entity)
+        }
+    }
+}
+
+@State(Scope.Benchmark)
+open class ArtemisHierarchyState {
+    @Param("10", "50")
+    var depth: Int = 0
+    lateinit var world: ArtemisWorld
+    lateinit var transformMapper: com.artemis.ComponentMapper<ArtemisTransform>
+    lateinit var system: ArtemisTransformSystem
+    var lastEntity: Int = -1
+
+    @Setup(Level.Iteration)
+    fun setup() {
+        world = ArtemisWorld(WorldConfigurationBuilder().build())
+        transformMapper = world.getMapper(ArtemisTransform::class.java)
+        system = ArtemisTransformSystem(world, transformMapper)
+        var parent = -1
+        repeat(depth) { index ->
+            val entity = world.create()
+            transformMapper.create(entity).apply {
+                position = Vec3(0f, 0f, 1f)
+                this.parent = parent
+            }
+            parent = entity
+            if (index == depth - 1) {
+                lastEntity = entity
+            }
+        }
+        world.process()
+    }
+}
+
+@State(Scope.Benchmark)
+open class AshleyHierarchyState {
+    @Param("10", "50")
+    var depth: Int = 0
+    lateinit var engine: AshleyEngine
+    lateinit var transformMapper: com.badlogic.ashley.core.ComponentMapper<AshleyTransform>
+    lateinit var lastEntity: AshleyEntity
+    private val entities = mutableListOf<AshleyEntity>()
+
+    @Setup(Level.Iteration)
+    fun setup() {
+        engine = AshleyEngine()
+        transformMapper = com.badlogic.ashley.core.ComponentMapper.getFor(AshleyTransform::class.java)
+        entities.clear()
+        var parent: AshleyEntity? = null
+        repeat(depth) { index ->
+            val entity = engine.createEntity()
+            entity.add(AshleyTransform(position = Vec3(0f, 0f, 1f), parent = parent))
+            engine.addEntity(entity)
+            entities += entity
+            parent = entity
+            if (index == depth - 1) {
+                lastEntity = entity
+            }
+        }
+    }
+
+    fun propagate() {
+        val visited = mutableSetOf<AshleyEntity>()
+        val visiting = mutableSetOf<AshleyEntity>()
+        entities.forEach { entity -> propagateOne(entity, visited, visiting) }
+    }
+
+    private fun propagateOne(
+        entity: AshleyEntity,
+        visited: MutableSet<AshleyEntity>,
+        visiting: MutableSet<AshleyEntity>
+    ): Mat4 {
+        val transform = transformMapper.get(entity)
+        if (entity in visited) {
+            return transform.worldMatrix
+        }
+        check(visiting.add(entity)) { "Transform hierarchy contains a cycle." }
+
+        val local = transform.localMatrix()
+        val parent = transform.parent
+        transform.worldMatrix = if (parent != null) {
+            local * propagateOne(parent, visited, visiting)
+        } else {
+            local
+        }
+
+        visiting.remove(entity)
+        visited += entity
+        return transform.worldMatrix
+    }
+}
+
+class ArtemisTransformSystem(
+    private val world: ArtemisWorld,
+    private val mapper: com.artemis.ComponentMapper<ArtemisTransform>
+) {
+    fun propagate() {
+        val subscription = world.aspectSubscriptionManager.get(Aspect.all(ArtemisTransform::class.java))
+        val entities = subscription.entities
+        val visited = mutableSetOf<Int>()
+        val visiting = mutableSetOf<Int>()
+        for (index in 0 until entities.size()) {
+            propagateOne(entities[index], visited, visiting)
+        }
+    }
+
+    private fun propagateOne(entity: Int, visited: MutableSet<Int>, visiting: MutableSet<Int>): Mat4 {
+        val transform = mapper.get(entity)
+        if (entity in visited) {
+            return transform.worldMatrix
+        }
+        check(visiting.add(entity)) { "Transform hierarchy contains a cycle." }
+
+        val local = transform.localMatrix()
+        val parent = transform.parent
+        transform.worldMatrix = if (parent >= 0) {
+            local * propagateOne(parent, visited, visiting)
+        } else {
+            local
+        }
+
+        visiting.remove(entity)
+        visited += entity
+        return transform.worldMatrix
+    }
+}
+
+class ArtemisTransform : ArtemisComponent() {
+    var position: Vec3 = Vec3(0f, 0f, 1f)
+    var rotation: Vec3 = Vec3(0f, 0f, 0f)
+    var scale: Vec3 = Vec3(1f, 1f, 1f)
+    var parent: Int = -1
+    var worldMatrix: Mat4 = Mat4()
+
+    fun localMatrix(): Mat4 {
+        return Mat4()
+            .translate(position.x, position.y, position.z)
+            .rotateZ(rotation.z)
+            .rotateY(rotation.y)
+            .rotateX(rotation.x)
+            .scale(scale.x, scale.y, scale.z)
+    }
+}
+
+class ArtemisMeshRenderer : ArtemisComponent() {
+    lateinit var mesh: Mesh
+    lateinit var material: Material
+}
+
+data class AshleyTransform(
+    var position: Vec3 = Vec3(0f, 0f, 1f),
+    var rotation: Vec3 = Vec3(0f, 0f, 0f),
+    var scale: Vec3 = Vec3(1f, 1f, 1f),
+    var parent: AshleyEntity? = null,
+    var worldMatrix: Mat4 = Mat4()
+) : AshleyComponent {
+    fun localMatrix(): Mat4 {
+        return Mat4()
+            .translate(position.x, position.y, position.z)
+            .rotateZ(rotation.z)
+            .rotateY(rotation.y)
+            .rotateX(rotation.x)
+            .scale(scale.x, scale.y, scale.z)
+    }
+}
+
+data class AshleyMeshRenderer(
+    val mesh: Mesh,
+    val material: Material
+) : AshleyComponent
 
 data class FleksTransform(
     var position: Vec3 = Vec3(0f, 0f, 1f),

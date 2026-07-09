@@ -7,6 +7,8 @@ detekt = "1.23.8"
 dokka = "2.0.0"
 download = "5.6.0"
 fleks = "2.14"
+artemis-odb = "2.3.0"
+ashley = "1.7.3"
 kotlinx-benchmark = "0.4.17"
 napier = "2.7.1"
 androidx-activity-compose = "1.9.3"
@@ -33,6 +35,8 @@ androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx
 compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "material-icons" }
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 fleks = { module = "io.github.quillraven.fleks:Fleks", version.ref = "fleks" }
+artemis-odb = { module = "net.onedaybeard.artemis:artemis-odb", version.ref = "artemis-odb" }
+ashley = { module = "com.badlogicgames.ashley:ashley", version.ref = "ashley" }
 kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
 
 [plugins]

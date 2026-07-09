@@ -32,6 +32,8 @@ dependencies {
     implementation(project(":awake-scene"))
     implementation(project(":awake-vulkan"))
     implementation(libs.fleks)
+    implementation(libs.artemis.odb)
+    implementation(libs.ashley)
     implementation(libs.kotlinx.benchmark.runtime)
 }
 
