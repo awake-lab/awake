@@ -1163,6 +1163,29 @@ twice (once against whatever's there today, again once Phase 2 settles).
       needed for once-per-frame calls (checked `TransformSystem`/`RenderSystem` — neither
       has this pattern). See [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md)'s
       "Investigated the `KClass` reflection cost" section.
+- [x] **Profiled and fixed the two remaining benchmark gaps (2026-07-09):** query iteration
+      and hierarchy propagation were flagged as "the real remaining gap" vs. Fleks/
+      Artemis-odb. Profiling found: (1) `Intrinsics.checkNotNull` at 13.74% of samples in
+      `awakeTransformMeshQuery`, from Kotlin inserting a null-check on every generic array
+      element cast (`arrayOfNulls<Any>()` element reads cast to a non-null-bound `A`) —
+      fixed by casting the array reference once instead of each element (a no-op at the
+      bytecode level) in `Family1Cache`/`Family2Cache`/`ComponentStore`; profiler confirmed
+      the check dropped to 0 samples. (2) ~19% of samples in
+      `awakeTransformHierarchyPropagation` across `HashMap`/`HashSet`/`Entity.box-impl`,
+      from `TransformSystem` using `Map<Entity, Transform>`/`Set<Entity>` (boxing the
+      `Entity` value class on every visit) for its per-frame DFS state — fixed by
+      replacing with two `IntArray`s indexed by `entity.id` and a single incrementing
+      `frameStamp`, eliminating both the boxing and the per-frame map/set churn entirely.
+      Added `transformSystemThrowsOnCyclicParenting` and
+      `transformSystemReusesInstanceStateAcrossMultipleUpdates` tests to cover what the
+      rewrite had to preserve. **Result: Awake now leads all three other libraries on
+      hierarchy propagation at both depths** (depth 10: 599,160→1,000,862 ops/s, +67%;
+      depth 50: 130,341→198,440 ops/s, +52% — both now ahead of Artemis-odb, previously the
+      leader). Query iteration is unchanged (Fleks still leads) — the checkNotNull removal
+      was confirmed via profiler but didn't move measurable throughput, since that
+      benchmark was already near its allocation-free floor. See
+      [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md)'s "Profiled query and
+      hierarchy propagation" section.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 

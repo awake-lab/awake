@@ -36,11 +36,20 @@ class ComponentStore<T : Any> {
             }
         }
 
+    /** View of [denseComponents] typed as non-null `T` instead of `Any?` -- casting the
+     * array reference once here (a no-op at the bytecode level; array types erase to
+     * `Object[]` regardless of declared nullability) avoids an `Intrinsics.checkNotNull`
+     * Kotlin would otherwise insert on every single `as T` element cast. Profiling
+     * `awakeTransformMeshQuery` showed that check costing ~14% of CPU samples. Only valid
+     * for indices `< count` -- slots at or beyond `count` may hold a stale `null`. */
+    @Suppress("UNCHECKED_CAST")
+    private inline val typedDenseComponents: Array<T>
+        get() = denseComponents as Array<T>
+
     fun add(entity: Entity, component: T): T? {
         val denseIndex = sparse.get(entity.id)
         if (denseIndex in 0 until count && denseEntities[denseIndex] == entity.packed) {
-            @Suppress("UNCHECKED_CAST")
-            val previous = denseComponents[denseIndex] as T
+            val previous = typedDenseComponents[denseIndex]
             denseComponents[denseIndex] = component
             return previous
         }
@@ -56,8 +65,7 @@ class ComponentStore<T : Any> {
     fun get(entity: Entity): T? {
         val denseIndex = sparse.get(entity.id)
         return if (denseIndex in 0 until count && denseEntities[denseIndex] == entity.packed) {
-            @Suppress("UNCHECKED_CAST")
-            denseComponents[denseIndex] as T
+            typedDenseComponents[denseIndex]
         } else {
             null
         }
@@ -77,8 +85,7 @@ class ComponentStore<T : Any> {
     }
 
     private fun removeAt(denseIndex: Int): T {
-        @Suppress("UNCHECKED_CAST")
-        val removed = denseComponents[denseIndex] as T
+        val removed = typedDenseComponents[denseIndex]
         val lastIndex = count - 1
         val lastEntity = denseEntities[lastIndex]
 
@@ -99,11 +106,10 @@ class ComponentStore<T : Any> {
 
     fun forEach(block: (Entity, T) -> Unit) {
         val localEntities = denseEntities
-        val localComponents = denseComponents
+        val localComponents = typedDenseComponents
         val localCount = count
         for (index in 0 until localCount) {
-            @Suppress("UNCHECKED_CAST")
-            block(Entity(localEntities[index]), localComponents[index] as T)
+            block(Entity(localEntities[index]), localComponents[index])
         }
     }
 

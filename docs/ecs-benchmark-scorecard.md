@@ -38,9 +38,12 @@ Ops/sec, all rows. Bold = Awake's own best showing.
   supposed to do for structural churn (10k: within 20% of Artemis-odb/Fleks, ahead of
   Ashley; 100k: fastest of the four, narrowly ahead of Artemis-odb and Fleks).
 - **Awake is not yet the fastest on stable family iteration** (Transform+MeshRenderer
-  query) or **hierarchy propagation** at either depth — Fleks leads on query throughput,
-  Artemis-odb leads on propagation at both depths. These are the per-frame hot paths that
-  matter most for a running game, so this is the real remaining gap, not a rounding error.
+  query) — Fleks leads on query throughput. These are the per-frame hot paths that matter
+  most for a running game, so this is the real remaining gap, not a rounding error.
+  **Update (2026-07-09):** the hierarchy-propagation half of this gap has since been
+  closed — see "Profiled query and hierarchy propagation, fixed two more real bottlenecks"
+  below. Awake now leads Artemis-odb (and everyone else) on propagation at both depths;
+  query iteration is the one gap left from this table.
 - **Ashley is the clear outlier**, dramatically slower on create/destroy and component
   add/remove at scale (2 ops/s at 100k entity create/destroy). This tracks with Ashley's
   age and design intent — a simple `Engine`/`Family` listener model sized for typical
@@ -240,6 +243,62 @@ as a hot-path idiom in `.claude/agents/ecs-dev.md` ("Hot-path performance" secti
 the reified sugar. No production code currently has this pattern in a hot loop (checked
 `TransformSystem`/`RenderSystem` — both call reified generics at most once per frame), so
 no source change was needed there; only the diagnostic benchmark exists to track this.
+
+## Profiled query and hierarchy propagation, fixed two more real bottlenecks (2026-07-09)
+
+Followed the same methodology on the two remaining gaps flagged as "the real remaining
+gap" earlier in this file: `awakeTransformMeshQuery` (Fleks led) and
+`awakeTransformHierarchyPropagation` (Artemis-odb led both depths).
+
+**Query iteration**: profiling `awakeTransformMeshQuery` at 100k showed `kotlin.jvm
+.internal.Intrinsics.checkNotNull` at **13.74% of CPU samples**. Cause: `Family1Cache`/
+`Family2Cache`/`ComponentStore` back their dense storage with `arrayOfNulls<Any>()`
+(statically `Array<Any?>`, since removed slots are nulled out for GC). Every element read
+then does `localComponents[index] as A` where `A : Any` is non-null-bound -- casting from a
+statically nullable array element type to a non-null generic type makes Kotlin insert a
+null-check on every single read. Fixed by casting the *array reference* once
+(`@Suppress("UNCHECKED_CAST") (componentsA as Array<A>)`) instead of casting each element --
+array types erase to `Object[]` regardless of declared nullability, so this cast is a no-op
+at the bytecode level, and reading from a statically non-null-typed array needs no check.
+Applied to `Family1Cache`, `Family2Cache`, and `ComponentStore`'s `add`/`get`/`remove`/
+`forEach`. Re-profiling confirmed `Intrinsics.checkNotNull` **dropped to 0 samples** --
+`awakeTransformMeshQuery`'s profile is now ~97% the inlined loop itself plus GC noise, i.e.
+close to the achievable floor for this code shape. Absolute throughput didn't move
+measurably under this run's noise (Fleks still leads at both sizes) -- the profiler
+evidence is the confirmation here, not the ops/sec delta.
+
+**Hierarchy propagation**: profiling `awakeTransformHierarchyPropagation` at depth 50 showed
+~19% of CPU samples combined across `HashMap.putVal`/`getNode`/`clear`,
+`LinkedHashMap.linkNodeAtEnd`/`afterNodeInsertion`/`afterNodeRemoval`, `HashSet.remove`/
+`contains`, and `Entity.box-impl`. Cause: `TransformSystem`'s memoized DFS used a
+`MutableMap<Entity, Transform>` plus two `MutableSet<Entity>` (`visited`/`visiting`) for
+per-frame traversal state -- `Entity` is a `@JvmInline value class`, so using it as a
+`Map`/`Set` key forces a box allocation plus `hashCode()`/`equals()` on every visit. Fixed
+by replacing the map/sets with two `IntArray`s indexed directly by `entity.id`
+(`visitedStamp`/`visitingStamp`), each entry compared against a single `frameStamp` int that
+increments once per `update()` call -- a node is "visited"/"visiting" this frame exactly
+when its array slot equals the current stamp, so incrementing the stamp implicitly
+invalidates every previous frame's state without ever clearing the arrays. Parent lookups
+now go through `world.get<Transform>(parent)` (an O(1) sparse-set lookup already used
+elsewhere) instead of a locally-built snapshot map. Added two tests
+(`transformSystemThrowsOnCyclicParenting`, `transformSystemReusesInstanceStateAcrossMultipleUpdates`)
+alongside the existing propagation-order test to cover the two correctness properties this
+rewrite had to preserve (cycle detection, correctness across repeated `update()` calls on
+the same instance) -- all pass. Re-profiling confirmed every `HashMap`/`HashSet`/
+`Entity.box-impl` frame is gone from the top 30 samples; what remains is legitimate matrix
+math (`Mat4.times` 53.76%, `Mat4.<init>` 15.99%, `sin`/`cos` for rotation).
+
+**Result: Awake now leads all three other libraries on hierarchy propagation at both
+depths** (same machine, load ~5.7-7.4, tight-ish CIs):
+
+| Hierarchy propagation | Awake (before → after) | Fastest before | Fastest after |
+|---|---|---|---|
+| depth 10 | 599,160 → **1,000,862** (+67%) | Artemis-odb (898,550) | **Awake** |
+| depth 50 | 130,341 → **198,440** (+52%) | Artemis-odb (153,830) | **Awake** |
+
+This reverses what was previously flagged as "the real remaining gap" for propagation.
+Query iteration remains behind Fleks (unchanged within noise), and is the one gap left from
+the original 4-way comparison table at the top of this file.
 
 ## Where to look next if the gap remains after a clean re-benchmark
 
