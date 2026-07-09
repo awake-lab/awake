@@ -30,24 +30,28 @@ import kotlin.reflect.KClass
  */
 class World {
     private val slots = mutableListOf<EntitySlot>()
-    private val freeIds = mutableListOf<Int>()
-    private val stores = mutableMapOf<KClass<out Any>, ComponentStore<Any>>()
+    private val recycledEntityIds = EntityIdStack()
+
+    /** Dense array of stores indexed by [ComponentTypeId.value]. Replaces a [MutableMap]
+     * so component access can skip a hash lookup once the type id is known. */
+    private var stores = arrayOfNulls<ComponentStore<Any>>(16)
+
     private val typeIds = mutableMapOf<KClass<out Any>, ComponentTypeId>()
     private val queryCache = mutableMapOf<QueryKey, CachedQuery>()
     private val familyRegistry = FamilyRegistry(this)
     private var queryVersion = 0
 
     fun create(): Entity {
-        val id = freeIds.removeLastOrNull()
-        if (id != null) {
-            val slot = slots[id]
+        val recycledId = recycledEntityIds.pop()
+        if (recycledId >= 0) {
+            val slot = slots[recycledId]
             slot.alive = true
             markQueriesDirty()
-            return Entity.of(id, slot.generation)
+            return Entity.of(recycledId, slot.generation)
         }
 
         val nextId = slots.size
-        slots += EntitySlot(generation = 0, alive = true)
+        slots.add(EntitySlot(generation = 0, alive = true))
         markQueriesDirty()
         return Entity.of(nextId, 0)
     }
@@ -58,11 +62,11 @@ class World {
         }
 
         familyRegistry.removeEntity(entity)
-        stores.values.forEach { it.remove(entity) }
+        forEachStore { it.remove(entity) }
         val slot = slots[entity.id]
         slot.alive = false
         slot.generation += 1
-        freeIds += entity.id
+        recycledEntityIds.push(entity.id)
         markQueriesDirty()
         return true
     }
@@ -79,7 +83,7 @@ class World {
     fun <T : Any> add(entity: Entity, type: KClass<T>, component: T): T? {
         requireAlive(entity)
         val typeId = typeId(type)
-        val previous = store(type).add(entity, component)
+        val previous = store(typeId, type).add(entity, component)
         if (previous == null) {
             markQueriesDirty()
             familyRegistry.addComponent(entity, typeId, type, component)
@@ -97,7 +101,8 @@ class World {
         if (!isAlive(entity)) {
             return null
         }
-        return storeOrNull(type)?.get(entity)
+        val typeId = typeIds[type] ?: return null
+        return storeOrNull<T>(typeId)?.get(entity)
     }
 
     inline fun <reified T : Any> remove(entity: Entity): T? {
@@ -109,7 +114,7 @@ class World {
             return null
         }
         val typeId = typeId(type)
-        val removed = storeOrNull(type)?.remove(entity)
+        val removed = storeOrNull<T>(typeId)?.remove(entity)
         if (removed != null) {
             markQueriesDirty()
             familyRegistry.removeComponent(entity, typeId, type)
@@ -122,7 +127,9 @@ class World {
     }
 
     fun has(entity: Entity, type: KClass<out Any>): Boolean {
-        return isAlive(entity) && (stores[type]?.contains(entity) == true)
+        if (!isAlive(entity)) return false
+        val typeId = typeIds[type] ?: return false
+        return storeOrNull<Any>(typeId)?.contains(entity) == true
     }
 
     fun query(vararg types: KClass<out Any>): List<Entity> {
@@ -194,8 +201,8 @@ class World {
 
     fun clear() {
         slots.clear()
-        freeIds.clear()
-        stores.clear()
+        recycledEntityIds.clear()
+        stores.fill(null)
         typeIds.clear()
         familyRegistry.clear()
         queryCache.clear()
@@ -203,23 +210,43 @@ class World {
     }
 
     fun componentCount(type: KClass<out Any>): Int {
-        return stores[type]?.size ?: 0
+        val typeId = typeIds[type] ?: return 0
+        return storeOrNull<Any>(typeId)?.size ?: 0
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> store(type: KClass<T>): ComponentStore<T> {
-        val existing = stores[type]
-        if (existing != null) {
-            return existing as ComponentStore<T>
+        return store(typeId(type), type)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    internal fun <T : Any> store(typeId: ComponentTypeId, type: KClass<T>): ComponentStore<T> {
+        val id = typeId.value
+        if (id < stores.size) {
+            val existing = stores[id]
+            if (existing != null) return existing as ComponentStore<T>
         }
+
         val store: ComponentStore<T> = ComponentStore(type)
-        stores[type] = store as ComponentStore<Any>
+        ensureStoreCapacity(id)
+        stores[id] = store as ComponentStore<Any>
         return store
     }
 
     @Suppress("UNCHECKED_CAST")
-    internal fun <T : Any> storeOrNull(type: KClass<T>): ComponentStore<T>? {
-        return stores[type] as? ComponentStore<T>
+    internal fun <T : Any> storeOrNull(typeId: ComponentTypeId): ComponentStore<T>? {
+        val id = typeId.value
+        return if (id < stores.size) stores[id] as? ComponentStore<T> else null
+    }
+
+    private fun ensureStoreCapacity(id: Int) {
+        if (id >= stores.size) {
+            stores = stores.copyOf(maxOf(id + 1, stores.size * 2))
+        }
+    }
+
+    private inline fun forEachStore(action: (ComponentStore<Any>) -> Unit) {
+        stores.forEach { it?.let(action) }
     }
 
     /** Package-visible for [FamilyRegistry], which needs to build a [FamilySpecCache]'s
@@ -230,7 +257,9 @@ class World {
                 .map { Entity.of(it, slots[it].generation) }
                 .filter(::isAlive)
         } else {
-            val queryStores = types.mapNotNull(stores::get)
+            val queryStores = types.mapNotNull { type ->
+                typeIds[type]?.let { storeOrNull<Any>(it) }
+            }
             if (queryStores.size != types.size) {
                 emptyList()
             } else {

@@ -34,8 +34,8 @@ import kotlin.reflect.KClass
 internal class FamilyRegistry(private val world: World) {
     private val families = mutableMapOf<FamilyKey, FamilyCache>()
     private val familySpecCaches = mutableMapOf<FamilySpec, FamilySpecCache>()
-    
-    /** Index of families that care about a specific component type, indexed by 
+
+    /** Index of families that care about a specific component type, indexed by
      * [ComponentTypeId.value]. Using an array of lists avoids [KClass] map lookups
      * on the structural-change hot path. */
     private var familiesByComponentId = arrayOfNulls<MutableList<FamilyCache>>(16)
@@ -49,7 +49,7 @@ internal class FamilyRegistry(private val world: World) {
     @Suppress("UNCHECKED_CAST")
     fun <A : Any> familyCache(type: KClass<A>): Family1Cache<A> {
         val key = FamilyKey.single(world.typeId(type))
-        return families.getOrPut(key) { 
+        return families.getOrPut(key) {
             buildFamily(type).also(::indexFamily)
         } as Family1Cache<A>
     }
@@ -57,13 +57,13 @@ internal class FamilyRegistry(private val world: World) {
     @Suppress("UNCHECKED_CAST")
     fun <A : Any, B : Any> familyCache(typeA: KClass<A>, typeB: KClass<B>): Family2Cache<A, B> {
         val key = FamilyKey.pair(world.typeId(typeA), world.typeId(typeB))
-        return families.getOrPut(key) { 
+        return families.getOrPut(key) {
             buildFamily(typeA, typeB).also(::indexFamily)
         } as Family2Cache<A, B>
     }
 
     fun familySpecCache(spec: FamilySpec): FamilySpecCache {
-        return familySpecCaches.getOrPut(spec) { 
+        return familySpecCaches.getOrPut(spec) {
             buildFamilySpecCache(spec).also(::indexFamily)
         }
     }
@@ -118,7 +118,8 @@ internal class FamilyRegistry(private val world: World) {
 
     private fun <A : Any> buildFamily(type: KClass<A>): Family1Cache<A> {
         val cache = Family1Cache(type)
-        world.storeOrNull(type)?.forEach { entity, component ->
+        val typeId = world.typeId(type)
+        world.storeOrNull<A>(typeId)?.forEach { entity, component ->
             cache.add(entity, component)
         }
         return cache
@@ -129,8 +130,10 @@ internal class FamilyRegistry(private val world: World) {
         typeB: KClass<B>
     ): Family2Cache<A, B> {
         val cache = Family2Cache(typeA, typeB)
-        val storeA = world.storeOrNull(typeA)
-        val storeB = world.storeOrNull(typeB)
+        val typeIdA = world.typeId(typeA)
+        val typeIdB = world.typeId(typeB)
+        val storeA = world.storeOrNull<A>(typeIdA)
+        val storeB = world.storeOrNull<B>(typeIdB)
         if (storeA != null && storeB != null) {
             fillFamily(cache, storeA, storeB)
         }
