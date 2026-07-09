@@ -80,16 +80,16 @@ class Family2<A : Any, B : Any> @PublishedApi internal constructor(
 
 /**
  * A family cache is kept in sync with [World] incrementally: [World.add]/[World.remove]
- * notify every existing family cache directly (see `addComponentToFamilies` etc. in
- * `World.kt`) instead of each family re-scanning all entities on every structural change.
+ * notify every existing family cache directly through [FamilyRegistry] instead of each
+ * family re-scanning all entities on every structural change.
  */
 @PublishedApi
 internal sealed class FamilyCache {
     abstract fun types(): Set<KClass<out Any>>
     abstract fun remove(entity: Entity)
-    abstract fun <T : Any> addComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T)
-    abstract fun <T : Any> replaceComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T)
-    abstract fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>)
+    abstract fun addComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any)
+    abstract fun replaceComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any)
+    abstract fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId)
 }
 
 @PublishedApi
@@ -124,11 +124,6 @@ internal class Family1Cache<A : Any>(
     }
 
     fun add(entity: Entity, component: A) {
-        val index = indexOf(entity)
-        if (index >= 0) {
-            components[index] = component
-            return
-        }
         ensureCapacity(count + 1)
         sparse.set(entity.id, count)
         entities[count] = entity.packed
@@ -161,26 +156,19 @@ internal class Family1Cache<A : Any>(
         removeAt(indexOf(entity))
     }
 
-    override fun <T : Any> addComponent(
-        world: World,
-        entity: Entity,
-        typeId: ComponentTypeId,
-        type: KClass<T>,
-        component: T
-    ) {
+    override fun addComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any) {
         if (this.typeId == typeId) {
             @Suppress("UNCHECKED_CAST")
-            add(entity, component as A)
+            val typedComponent = component as A
+            ensureCapacity(count + 1)
+            sparse.set(entity.id, count)
+            entities[count] = entity.packed
+            components[count] = typedComponent
+            count += 1
         }
     }
 
-    override fun <T : Any> replaceComponent(
-        world: World,
-        entity: Entity,
-        typeId: ComponentTypeId,
-        type: KClass<T>,
-        component: T
-    ) {
+    override fun replaceComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any) {
         if (this.typeId == typeId) {
             val index = indexOf(entity)
             if (index >= 0) {
@@ -190,7 +178,7 @@ internal class Family1Cache<A : Any>(
         }
     }
 
-    override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
+    override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId) {
         if (this.typeId == typeId) {
             remove(entity)
         }
@@ -205,7 +193,7 @@ internal class Family1Cache<A : Any>(
         val lastEntity = entities[lastIndex]
         entities[index] = lastEntity
         components[index] = components[lastIndex]
-        sparse.set(Entity(lastEntity).id, index)
+        sparse.set(lastEntity.toInt(), index)
 
         components[lastIndex] = null
         count -= 1
@@ -213,7 +201,7 @@ internal class Family1Cache<A : Any>(
 
     private fun indexOf(entity: Entity): Int {
         val denseIndex = sparse.get(entity.id)
-        return if (denseIndex in 0 until count && entities[denseIndex] == entity.packed) {
+        return if (denseIndex >= 0 && denseIndex < count && entities[denseIndex] == entity.packed) {
             denseIndex
         } else {
             -1
@@ -238,8 +226,7 @@ internal class Family2Cache<A : Any, B : Any>(
     private val storeA: ComponentStore<A>,
     private val typeB: KClass<B>,
     private val typeIdB: ComponentTypeId,
-    private val storeB: ComponentStore<B>,
-    private val mask: Long
+    private val storeB: ComponentStore<B>
 ) : FamilyCache() {
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
@@ -280,12 +267,6 @@ internal class Family2Cache<A : Any, B : Any>(
     }
 
     fun add(entity: Entity, componentA: A, componentB: B) {
-        val index = indexOf(entity)
-        if (index >= 0) {
-            componentsA[index] = componentA
-            componentsB[index] = componentB
-            return
-        }
         ensureCapacity(count + 1)
         sparse.set(entity.id, count)
         entities[count] = entity.packed
@@ -323,27 +304,31 @@ internal class Family2Cache<A : Any, B : Any>(
         removeAt(indexOf(entity))
     }
 
-    override fun <T : Any> addComponent(
-        world: World,
-        entity: Entity,
-        typeId: ComponentTypeId,
-        type: KClass<T>,
-        component: T
-    ) {
-        if (indexOf(entity) < 0 && (world.getSignature(entity.id) and mask) == mask) {
-            val compA = storeA.get(entity)!!
-            val compB = storeB.get(entity)!!
-            add(entity, compA, compB)
+    override fun addComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any) {
+        if (typeId == typeIdA) {
+            @Suppress("UNCHECKED_CAST")
+            val componentB = storeB.get(entity) ?: return
+            val typedComponentA = component as A
+            ensureCapacity(count + 1)
+            sparse.set(entity.id, count)
+            entities[count] = entity.packed
+            componentsA[count] = typedComponentA
+            componentsB[count] = componentB
+            count += 1
+        } else if (typeId == typeIdB) {
+            @Suppress("UNCHECKED_CAST")
+            val componentA = storeA.get(entity) ?: return
+            val typedComponentB = component as B
+            ensureCapacity(count + 1)
+            sparse.set(entity.id, count)
+            entities[count] = entity.packed
+            componentsA[count] = componentA
+            componentsB[count] = typedComponentB
+            count += 1
         }
     }
 
-    override fun <T : Any> replaceComponent(
-        world: World,
-        entity: Entity,
-        typeId: ComponentTypeId,
-        type: KClass<T>,
-        component: T
-    ) {
+    override fun replaceComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any) {
         val index = indexOf(entity)
         if (index < 0) {
             return
@@ -357,7 +342,7 @@ internal class Family2Cache<A : Any, B : Any>(
         }
     }
 
-    override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
+    override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId) {
         if (typeIdA == typeId || typeIdB == typeId) {
             remove(entity)
         }
@@ -373,7 +358,7 @@ internal class Family2Cache<A : Any, B : Any>(
         entities[index] = lastEntity
         componentsA[index] = componentsA[lastIndex]
         componentsB[index] = componentsB[lastIndex]
-        sparse.set(Entity(lastEntity).id, index)
+        sparse.set(lastEntity.toInt(), index)
 
         componentsA[lastIndex] = null
         componentsB[lastIndex] = null
@@ -382,7 +367,7 @@ internal class Family2Cache<A : Any, B : Any>(
 
     private fun indexOf(entity: Entity): Int {
         val denseIndex = sparse.get(entity.id)
-        return if (denseIndex in 0 until count && entities[denseIndex] == entity.packed) {
+        return if (denseIndex >= 0 && denseIndex < count && entities[denseIndex] == entity.packed) {
             denseIndex
         } else {
             -1

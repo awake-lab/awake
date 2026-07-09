@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  *
  * Extracted out of [World] so entity/component lifecycle and family-cache bookkeeping don't
  * live in the same 400+ line file; this class needs read access to [World]'s stores and
- * type-id assignment, exposed via `internal` members on [World].
+ * type-id assignment helpers.
  */
 internal class FamilyRegistry(private val world: World) {
     private val families = mutableMapOf<FamilyKey, FamilyCache>()
@@ -76,16 +76,16 @@ internal class FamilyRegistry(private val world: World) {
         forEachCache { it.remove(entity) }
     }
 
-    fun <T : Any> addComponent(entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
-        forEachRelevantCache(typeId) { it.addComponent(world, entity, typeId, type, component) }
+    fun addComponent(entity: Entity, typeId: ComponentTypeId, component: Any) {
+        forEachRelevantCache(typeId) { it.addComponent(world, entity, typeId, component) }
     }
 
-    fun <T : Any> replaceComponent(entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
-        forEachRelevantCache(typeId) { it.replaceComponent(world, entity, typeId, type, component) }
+    fun replaceComponent(entity: Entity, typeId: ComponentTypeId, component: Any) {
+        forEachRelevantCache(typeId) { it.replaceComponent(world, entity, typeId, component) }
     }
 
-    fun removeComponent(entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
-        forEachRelevantCache(typeId) { it.removeComponent(world, entity, typeId, type) }
+    fun removeComponent(entity: Entity, typeId: ComponentTypeId) {
+        forEachRelevantCache(typeId) { it.removeComponent(world, entity, typeId) }
     }
 
     private fun indexFamily(cache: FamilyCache) {
@@ -115,7 +115,16 @@ internal class FamilyRegistry(private val world: World) {
     private inline fun forEachRelevantCache(typeId: ComponentTypeId, action: (FamilyCache) -> Unit) {
         val id = typeId.value
         if (id < familiesByComponentId.size) {
-            familiesByComponentId[id]?.forEach(action)
+            val caches = familiesByComponentId[id] ?: return
+            when (caches.size) {
+                0 -> return
+                1 -> action(caches[0])
+                else -> {
+                    for (index in 0 until caches.size) {
+                        action(caches[index])
+                    }
+                }
+            }
         }
     }
 
@@ -136,8 +145,7 @@ internal class FamilyRegistry(private val world: World) {
     ): Family2Cache<A, B> {
         val storeA = world.store(typeIdA, typeA)
         val storeB = world.store(typeIdB, typeB)
-        val mask = (1L shl typeIdA.value) or (1L shl typeIdB.value)
-        val cache = Family2Cache(typeA, typeIdA, storeA, typeB, typeIdB, storeB, mask)
+        val cache = Family2Cache(typeA, typeIdA, storeA, typeB, typeIdB, storeB)
         fillFamily(cache, storeA, storeB)
         return cache
     }
@@ -190,7 +198,7 @@ internal class FamilyRegistry(private val world: World) {
 }
 
 @JvmInline
-internal value class ComponentTypeId(
+value class ComponentTypeId(
     val value: Int
 )
 

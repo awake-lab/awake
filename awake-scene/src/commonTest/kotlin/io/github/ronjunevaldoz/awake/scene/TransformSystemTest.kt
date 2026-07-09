@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertSame
 
 class TransformSystemTest {
     @Test
@@ -45,6 +46,45 @@ class TransformSystemTest {
         assertFailsWith<IllegalStateException> {
             TransformSystem().update(world, 0f)
         }
+    }
+
+    @Test
+    fun transformPoolResetsAndReusesState() {
+        val world = World()
+        world.registerPool(Transform::class) { Transform() }
+
+        val firstEntity = world.create()
+        val first = world.add<Transform>(firstEntity)
+        val parent = world.create()
+        first.position.x = 4f
+        first.rotation.y = 2f
+        first.scale.z = 3f
+        first.parent = parent
+        first.worldMatrix.m03 = 9f
+
+        val removed = world.remove<Transform>(firstEntity)
+        val reused = world.add<Transform>(world.create())
+
+        assertSame(first, removed)
+        assertSame(first, reused)
+        assertSame(first.position, reused.position)
+        assertSame(first.rotation, reused.rotation)
+        assertSame(first.scale, reused.scale)
+        assertSame(first.worldMatrix, reused.worldMatrix)
+        assertEquals(0f, reused.position.x)
+        assertEquals(0f, reused.position.y)
+        assertEquals(0f, reused.position.z)
+        assertEquals(0f, reused.rotation.x)
+        assertEquals(0f, reused.rotation.y)
+        assertEquals(0f, reused.rotation.z)
+        assertEquals(1f, reused.scale.x)
+        assertEquals(1f, reused.scale.y)
+        assertEquals(1f, reused.scale.z)
+        assertEquals(null, reused.parent)
+        assertEquals(1f, reused.worldMatrix.m00)
+        assertEquals(1f, reused.worldMatrix.m11)
+        assertEquals(1f, reused.worldMatrix.m22)
+        assertEquals(1f, reused.worldMatrix.m33)
     }
 
     @Test

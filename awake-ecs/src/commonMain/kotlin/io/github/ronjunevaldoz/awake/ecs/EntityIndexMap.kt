@@ -37,7 +37,7 @@ internal class EntityIndexMap {
      * `Int?` on every call, which profiling showed as the single largest cost (36% of CPU
      * samples) in family-cache churn, since this runs on every add/remove. */
     fun get(id: Int): Int {
-        return if (id in sparse.indices) sparse[id] else ABSENT
+        return if (id >= 0 && id < sparse.size) sparse[id] else ABSENT
     }
 
     /** Records that [id] now lives at [denseIndex] in the caller's dense storage. */

@@ -26,6 +26,7 @@ import com.badlogic.ashley.core.Entity as AshleyEntity
 import com.github.quillraven.fleks.Entity as FleksEntity
 import com.github.quillraven.fleks.World as FleksWorld
 import com.github.quillraven.fleks.configureWorld
+import io.github.ronjunevaldoz.awake.ecs.ComponentTypeId
 import io.github.ronjunevaldoz.awake.ecs.Entity as AwakeEntity
 import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
 import io.github.ronjunevaldoz.awake.scene.components.Transform
@@ -156,20 +157,31 @@ open class EcsBenchmarks {
     // docs/ecs-benchmark-scorecard.md for why this gap mattered.
     @Benchmark
     fun awakeFamilyChurn(state: AwakeFamilyChurnState): Int {
-        state.entities.forEach { state.world.remove<Transform>(it) }
-        state.entities.forEach { state.world.add(it, Transform()) }
+        val world = state.world
+        val transformTypeId = state.transformTypeId
+        val entities = state.entities
+        for (entity in entities) {
+            world.remove<Transform>(entity, transformTypeId)
+        }
+        for (entity in entities) {
+            world.add<Transform>(entity, transformTypeId)
+        }
         return state.family.size
     }
 
-    // Diagnostic only (not a real API recommendation yet): hoists `Transform::class` once
-    // instead of letting the reified `remove<Transform>()`/`add(entity, component)` sugar
-    // re-derive it on every call, to test whether that's where the ClassReference.hashCode
-    // /ReflectionFactory.getOrCreateKotlinClass profiler cost (~10% of samples) comes from.
+    // Diagnostic only: keeps the old class-based path around so we can compare it with the
+    // cached type-id fast path above.
     @Benchmark
     fun awakeFamilyChurnCachedClass(state: AwakeFamilyChurnState): Int {
+        val world = state.world
         val transformClass = Transform::class
-        state.entities.forEach { state.world.remove(it, transformClass) }
-        state.entities.forEach { state.world.add(it, transformClass, Transform()) }
+        val entities = state.entities
+        for (entity in entities) {
+            world.remove(entity, transformClass)
+        }
+        for (entity in entities) {
+            world.add(entity, transformClass, Transform())
+        }
         return state.family.size
     }
 

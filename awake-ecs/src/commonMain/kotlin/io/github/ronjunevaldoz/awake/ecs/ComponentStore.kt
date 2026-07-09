@@ -22,7 +22,7 @@ package io.github.ronjunevaldoz.awake.ecs
 import kotlin.reflect.KClass
 
 class ComponentStore<T : Any>(
-    private val type: KClass<T>
+    internal val type: KClass<T>
 ) {
     private val sparse = EntityIndexMap()
     private var denseEntities = LongArray(DEFAULT_CAPACITY)
@@ -52,7 +52,7 @@ class ComponentStore<T : Any>(
 
     fun add(entity: Entity, component: T): T? {
         val denseIndex = sparse.get(entity.id)
-        if (denseIndex in 0 until count && denseEntities[denseIndex] == entity.packed) {
+        if (denseIndex >= 0 && denseIndex < count && denseEntities[denseIndex] == entity.packed) {
             val previous = typedDenseComponents[denseIndex]
             denseComponents[denseIndex] = component
             return previous
@@ -68,7 +68,7 @@ class ComponentStore<T : Any>(
 
     fun get(entity: Entity): T? {
         val denseIndex = sparse.get(entity.id)
-        return if (denseIndex in 0 until count && denseEntities[denseIndex] == entity.packed) {
+        return if (denseIndex >= 0 && denseIndex < count && denseEntities[denseIndex] == entity.packed) {
             typedDenseComponents[denseIndex]
         } else {
             null
@@ -81,7 +81,7 @@ class ComponentStore<T : Any>(
 
     fun remove(entity: Entity): T? {
         val denseIndex = sparse.get(entity.id)
-        return if (denseIndex in 0 until count && denseEntities[denseIndex] == entity.packed) {
+        return if (denseIndex >= 0 && denseIndex < count && denseEntities[denseIndex] == entity.packed) {
             removeAt(denseIndex)
         } else {
             null
@@ -95,7 +95,7 @@ class ComponentStore<T : Any>(
 
         denseEntities[denseIndex] = lastEntity
         denseComponents[denseIndex] = denseComponents[lastIndex]
-        sparse.set(Entity(lastEntity).id, denseIndex)
+        sparse.set(lastEntity.toInt(), denseIndex)
 
         denseComponents[lastIndex] = null
         count -= 1

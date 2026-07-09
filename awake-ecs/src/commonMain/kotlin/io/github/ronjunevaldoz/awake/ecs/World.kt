@@ -39,18 +39,22 @@ class World {
     /** Dense array of stores indexed by [ComponentTypeId.value]. Replaces a [MutableMap]
      * so component access can skip a hash lookup once the type id is known. */
     private var stores = arrayOfNulls<ComponentStore<Any>>(16)
-    
+
     private val componentPools = mutableMapOf<KClass<out Any>, ComponentPool<Any>>()
+    private var componentPoolsById = arrayOfNulls<ComponentPool<Any>>(16)
 
     private val typeIds = mutableMapOf<KClass<out Any>, ComponentTypeId>()
     private val queryCache = mutableMapOf<QueryKey, CachedQuery>()
     private val familyRegistry = FamilyRegistry(this)
     private var queryVersion = 0
+    private var hasQueryCache = false
+    private var hasComponentPools = false
 
     fun create(): Entity {
         val recycledId = recycledEntityIds.pop()
         if (recycledId >= 0) {
             setAlive(recycledId, true)
+            markQueriesDirty()
             return Entity.of(recycledId, entityGenerations[recycledId])
         }
 
@@ -58,6 +62,7 @@ class World {
         ensureCapacity(nextId)
         entityGenerations[nextId] = 0
         setAlive(nextId, true)
+        markQueriesDirty()
         return Entity.of(nextId, 0)
     }
 
@@ -76,20 +81,20 @@ class World {
 
         familyRegistry.removeEntity(entity)
         val id = entity.id
-        
-        // Only clear stores that actually contain this entity's components
+
+        // Only clear stores that actually contain this entity's components.
         if (entitySignatures[id] != 0L) {
             forEachStore { store ->
                 val removed = store.remove(entity)
                 if (removed != null) {
-                    recycle(removed)
+                    recycle(store.type, removed)
                 }
             }
         }
-        
+
         setAlive(id, false)
         entityGenerations[id] += 1
-        entitySignatures[id] = 0L // Clear component signature
+        entitySignatures[id] = 0L
         recycledEntityIds.push(id)
         markQueriesDirty()
         return true
@@ -121,7 +126,7 @@ class World {
     }
 
     internal fun getSignature(id: Int): Long {
-        return if (id in 0 until entitiesCount) entitySignatures[id] else 0L
+        return if (id >= 0 && id < entitiesCount) entitySignatures[id] else 0L
     }
 
     /** Reified sugar for [add] with pooling support. */
@@ -152,12 +157,43 @@ class World {
             val id = entity.id
             entitySignatures[id] = entitySignatures[id] or (1L shl typeId.value)
             markQueriesDirty()
-            familyRegistry.addComponent(entity, typeId, type, component)
+            familyRegistry.addComponent(entity, typeId, component)
         } else {
-            recycle(previous)
-            familyRegistry.replaceComponent(entity, typeId, type, component)
+            recycle(typeId, previous)
+            familyRegistry.replaceComponent(entity, typeId, component)
         }
         return previous
+    }
+
+    /** Fast path for callers that already cached [typeId] for a component whose store has
+     * been initialized already through the [KClass]-based API. Avoids the per-call
+     * [KClass] lookup in the hot path. */
+    fun <T : Any> add(entity: Entity, typeId: ComponentTypeId, component: T): T? {
+        requireAlive(entity)
+        val store = storeOrNull<T>(typeId)
+            ?: error("Component store for type id ${typeId.value} is not initialized.")
+        val previous = store.add(entity, component)
+        if (previous == null) {
+            val id = entity.id
+            entitySignatures[id] = entitySignatures[id] or (1L shl typeId.value)
+            markQueriesDirty()
+            familyRegistry.addComponent(entity, typeId, component)
+        } else {
+            recycle(typeId, previous)
+            familyRegistry.replaceComponent(entity, typeId, component)
+        }
+        return previous
+    }
+
+    /** Fast path for pooled components when the caller already cached [typeId]. */
+    fun <T : Any> add(entity: Entity, typeId: ComponentTypeId): T {
+        requireAlive(entity)
+        val pool = pool(typeId)
+            ?: error("Component pool for type id ${typeId.value} is not registered.")
+        @Suppress("UNCHECKED_CAST")
+        val instance = pool.obtain() as T
+        add(entity, typeId, instance)
+        return instance
     }
 
     inline fun <reified T : Any> get(entity: Entity): T? {
@@ -169,6 +205,13 @@ class World {
             return null
         }
         val typeId = typeIds[type] ?: return null
+        return storeOrNull<T>(typeId)?.get(entity)
+    }
+
+    fun <T : Any> get(entity: Entity, typeId: ComponentTypeId): T? {
+        if (!isAlive(entity)) {
+            return null
+        }
         return storeOrNull<T>(typeId)?.get(entity)
     }
 
@@ -186,8 +229,23 @@ class World {
             val id = entity.id
             entitySignatures[id] = entitySignatures[id] and (1L shl typeId.value).inv()
             markQueriesDirty()
-            familyRegistry.removeComponent(entity, typeId, type)
-            recycle(removed)
+            familyRegistry.removeComponent(entity, typeId)
+            recycle(typeId, removed)
+        }
+        return removed
+    }
+
+    fun <T : Any> remove(entity: Entity, typeId: ComponentTypeId): T? {
+        if (!isAlive(entity)) {
+            return null
+        }
+        val removed = storeOrNull<T>(typeId)?.remove(entity)
+        if (removed != null) {
+            val id = entity.id
+            entitySignatures[id] = entitySignatures[id] and (1L shl typeId.value).inv()
+            markQueriesDirty()
+            familyRegistry.removeComponent(entity, typeId)
+            recycle(typeId, removed)
         }
         return removed
     }
@@ -202,9 +260,15 @@ class World {
         return (entitySignatures[entity.id] and (1L shl typeId.value)) != 0L
     }
 
+    fun has(entity: Entity, typeId: ComponentTypeId): Boolean {
+        if (!isAlive(entity)) return false
+        return (entitySignatures[entity.id] and (1L shl typeId.value)) != 0L
+    }
+
     fun query(vararg types: KClass<out Any>): List<Entity> {
         val key = QueryKey(types.toSet())
         val cached = queryCache.getOrPut(key) { CachedQuery() }
+        hasQueryCache = true
         if (cached.version != queryVersion) {
             cached.entities.clear()
             cached.entities += collectQuery(key.types)
@@ -272,12 +336,38 @@ class World {
     /** Registers a factory for [type] to enable component pooling. */
     fun <T : Any> registerPool(type: KClass<T>, factory: () -> T) {
         @Suppress("UNCHECKED_CAST")
-        componentPools[type] = ComponentPool(factory) as ComponentPool<Any>
+        val pool = ComponentPool(factory) as ComponentPool<Any>
+        componentPools[type] = pool
+        hasComponentPools = true
+        typeIds[type]?.let { typeId ->
+            ensurePoolCapacity(typeId.value)
+            componentPoolsById[typeId.value] = pool
+        }
     }
 
     /** Automatically returns [component] to its type's pool. */
     fun recycle(component: Any) {
+        if (!hasComponentPools) {
+            return
+        }
         componentPools[component::class]?.free(component)
+    }
+
+    internal fun <T : Any> recycle(type: KClass<T>, component: T) {
+        if (!hasComponentPools) {
+            return
+        }
+        typeIds[type]?.let { recycle(it, component) } ?: componentPools[type]?.free(component)
+    }
+
+    internal fun recycle(typeId: ComponentTypeId, component: Any) {
+        if (!hasComponentPools) {
+            return
+        }
+        val id = typeId.value
+        if (id < componentPoolsById.size) {
+            componentPoolsById[id]?.free(component)
+        }
     }
 
     private fun pool(type: KClass<out Any>): ComponentPool<Any> {
@@ -286,6 +376,11 @@ class World {
                 createComponentInstance(type)
             }
         }
+    }
+
+    private fun pool(typeId: ComponentTypeId): ComponentPool<Any>? {
+        val id = typeId.value
+        return if (id < componentPoolsById.size) componentPoolsById[id] else null
     }
 
     fun clear() {
@@ -297,8 +392,10 @@ class World {
         forEachStore { it.clear() }
         stores.fill(null)
         typeIds.clear()
+        componentPoolsById.fill(null)
         familyRegistry.clear()
         queryCache.clear()
+        hasQueryCache = false
         componentPools.values.forEach { it.clear() }
         markQueriesDirty()
     }
@@ -348,6 +445,12 @@ class World {
         }
     }
 
+    private fun ensurePoolCapacity(id: Int) {
+        if (id >= componentPoolsById.size) {
+            componentPoolsById = componentPoolsById.copyOf(maxOf(id + 1, componentPoolsById.size * 2))
+        }
+    }
+
     private inline fun forEachStore(action: (ComponentStore<Any>) -> Unit) {
         stores.forEach { it?.let(action) }
     }
@@ -379,13 +482,23 @@ class World {
     }
 
     private fun markQueriesDirty() {
-        queryVersion += 1
+        if (hasQueryCache) {
+            queryVersion += 1
+        }
     }
 
-    /** Package-visible for [FamilyRegistry]'s [FamilyKey] construction. */
-    internal fun typeId(type: KClass<out Any>): ComponentTypeId {
+    /** Returns the stable component id assigned to [type] within this world. */
+    fun typeId(type: KClass<out Any>): ComponentTypeId {
         return typeIds.getOrPut(type) {
-            ComponentTypeId(typeIds.size)
+            require(typeIds.size < MAX_COMPONENT_TYPES) {
+                "Awake ECS currently supports up to $MAX_COMPONENT_TYPES component types per World."
+            }
+            val id = typeIds.size
+            ensurePoolCapacity(id)
+            componentPools[type]?.let { pool ->
+                componentPoolsById[id] = pool
+            }
+            ComponentTypeId(id)
         }
     }
 
@@ -400,5 +513,6 @@ class World {
 
     private companion object {
         const val DEFAULT_CAPACITY = 16
+        const val MAX_COMPONENT_TYPES = Long.SIZE_BITS
     }
 }

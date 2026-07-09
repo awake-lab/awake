@@ -32,17 +32,17 @@ interface Poolable {
 internal class ComponentPool<T : Any>(
     private val factory: () -> T
 ) {
-    private val pool = mutableListOf<T>()
+    private val pool = ArrayDeque<T>()
 
     fun obtain(): T {
-        return if (pool.isNotEmpty()) pool.removeAt(pool.size - 1) else factory()
+        return pool.removeLastOrNull() ?: factory()
     }
 
     fun free(instance: T) {
         if (instance is Poolable) {
             instance.reset()
         }
-        pool.add(instance)
+        pool.addLast(instance)
     }
     
     fun clear() {

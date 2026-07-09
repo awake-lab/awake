@@ -36,6 +36,7 @@ import com.github.quillraven.fleks.configureWorld
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
+import io.github.ronjunevaldoz.awake.ecs.ComponentTypeId
 import io.github.ronjunevaldoz.awake.ecs.Entity as AwakeEntity
 import io.github.ronjunevaldoz.awake.ecs.Family2 as AwakeFamily2
 import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
@@ -150,10 +151,12 @@ open class AwakeFamilyChurnState {
     lateinit var world: AwakeWorld
     lateinit var entities: List<AwakeEntity>
     lateinit var family: AwakeFamily2<Transform, MeshRenderer>
+    var transformTypeId: ComponentTypeId = ComponentTypeId(0)
 
     @Setup(Level.Iteration)
     fun setup() {
         world = AwakeWorld()
+        world.registerPool(Transform::class) { Transform() }
         val list = ArrayList<AwakeEntity>(entityCount)
         repeat(entityCount) {
             val entity = world.create()
@@ -166,6 +169,7 @@ open class AwakeFamilyChurnState {
         // not just ComponentStore's.
         family = world.family<Transform, MeshRenderer>()
         entities = list
+        transformTypeId = world.typeId(Transform::class)
     }
 }
 

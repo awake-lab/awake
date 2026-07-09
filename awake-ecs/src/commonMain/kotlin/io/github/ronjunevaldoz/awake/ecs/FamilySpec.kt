@@ -78,10 +78,10 @@ class Family @PublishedApi internal constructor(
 
 /**
  * Maintains the entity set matching a [FamilySpec] incrementally: [World]'s structural-
- * change hooks (`addComponentToFamilies` etc.) call [addComponent]/[removeComponent] here
- * directly instead of this cache re-scanning every entity on every query, the same
- * incremental-maintenance principle [Family1Cache]/[Family2Cache] already use. Backed by
- * [EntityIndexMap] for O(1) membership add/remove, same as those two.
+ * change hooks call [addComponent]/[removeComponent] here directly instead of this cache
+ * re-scanning every entity on every query, the same incremental-maintenance principle
+ * [Family1Cache]/[Family2Cache] already use. Backed by [EntityIndexMap] for O(1)
+ * membership add/remove, same as those two.
  */
 @PublishedApi
 internal class FamilySpecCache(
@@ -143,17 +143,17 @@ internal class FamilySpecCache(
         removeAt(indexOf(entity))
     }
 
-    override fun <T : Any> addComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
+    override fun addComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any) {
         sync(world, entity)
     }
 
-    override fun <T : Any> replaceComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T) {
+    override fun replaceComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any) {
         // Replacing a component's value (not adding/removing it) can't change which
         // all/one/exclude branch it satisfies -- the type is present either way -- so
         // membership can't change here. Nothing to do.
     }
 
-    override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId, type: KClass<out Any>) {
+    override fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId) {
         sync(world, entity)
     }
 
@@ -171,7 +171,7 @@ internal class FamilySpecCache(
 
     private fun indexOf(entity: Entity): Int {
         val denseIndex = sparse.get(entity.id)
-        return if (denseIndex in 0 until count && entities[denseIndex] == entity.packed) {
+        return if (denseIndex >= 0 && denseIndex < count && entities[denseIndex] == entity.packed) {
             denseIndex
         } else {
             -1
@@ -185,7 +185,7 @@ internal class FamilySpecCache(
         val lastIndex = count - 1
         val lastEntity = entities[lastIndex]
         entities[index] = lastEntity
-        sparse.set(Entity(lastEntity).id, index)
+        sparse.set(lastEntity.toInt(), index)
         count -= 1
     }
 
