@@ -95,6 +95,53 @@ for (entity in manyEntities) {
 }
 ```
 
+There's an even faster path for the hottest loops: cache the `ComponentTypeId` (via
+`world.typeId(type)`) instead of the `KClass` itself. It skips both the reflection-derived
+type token *and* the `KClass`-keyed map lookup that the `KClass` overload still does:
+
+```kotlin
+val positionTypeId = world.typeId(Position::class)
+for (entity in manyEntities) {
+    world.add(entity, positionTypeId, Position(0f, 0f))   // fastest add() overload
+}
+```
+
+## Component pooling
+
+Register a factory once per component type, then obtain (and automatically recycle)
+pooled instances instead of allocating fresh ones on every `add`/`remove`:
+
+```kotlin
+world.registerPool(Position::class) { Position(0f, 0f) }
+
+val entity = world.spawn<Position> { it.x = 1f; it.y = 2f }   // create() + pooled add<T>() + init block
+world.destroy(entity)                                          // Position instance returns to the pool
+```
+
+If a component implements `Poolable`, `reset()` runs automatically when it's returned to
+the pool (on `remove`/`destroy`), so the next `obtain()` doesn't hand back stale state:
+
+```kotlin
+data class Position(var x: Float = 0f, var y: Float = 0f) : Poolable {
+    override fun reset() { x = 0f; y = 0f }
+}
+```
+
+Without a registered factory, `world.add<T>(entity)` (the no-component-argument overload)
+falls back to reflection for zero-arg-constructor components on JVM/Android. **iOS has no
+reflection-based instantiation** — register an explicit factory via `registerPool` for any
+type you construct this way if the code needs to run there.
+
+## A hard limit: 64 component types per `World`
+
+Entity-component membership is tracked as a single `Long` bitmask per entity (one bit per
+component type), which is how `has()`/family-matching stay cheap. That caps this ECS at
+**64 distinct component types per `World`** — registering a 65th type throws a clear
+`IllegalArgumentException` from `world.typeId(...)`/`add(...)` rather than silently
+overflowing. This is a deliberate tradeoff, not an oversight; if your game genuinely needs
+more than 64 component types in one `World`, that's worth raising as a design question
+before working around it.
+
 ## Queries and families
 
 For iterating "every entity with components X (and Y)", use `queryEach` for a one-shot pass
@@ -111,6 +158,10 @@ val movers = world.family<Position, Velocity>()   // Family2<Position, Velocity>
 movers.forEach { entity, position, velocity -> /* ... */ }
 movers.forEachComponents { position, velocity -> /* ... */ }   // skip the Entity if you don't need it
 movers.size
+
+// Direct array access, for callers that want bulk/indexed access instead of a callback
+val positions: Array<Position> = movers.componentsA()
+val velocity = movers.componentB(0)
 ```
 
 `Family1`/`Family2` cover the common 1- and 2-component case and hand you typed components
@@ -164,10 +215,14 @@ a `Map`/`Set` keyed by `Entity`, to avoid boxing the value class on every frame)
 - No archetype/table storage — sparse-set per component type instead (see
   `.claude/agents/ecs-dev.md` for why, and when that tradeoff would need revisiting).
 - No built-in scheduler, job system, or parallelism — single-threaded by design.
-- No serialization — component types are plain data classes; use whatever serialization
-  approach fits your game (`kotlinx.serialization` works fine against them).
-- No reflection-based component registration — any `Any` works as a component the moment
-  you `add` one.
+- No serialization at this layer — component types are plain data classes; use whatever
+  serialization approach fits your game (`awake-scene`'s scene runtime uses
+  `kotlinx.serialization` on top of this, entirely outside `awake-ecs` itself).
+- No mandatory component registration — any `Any` works as a component the moment you
+  `add` one, no base interface or upfront registration required. Reflection is used, but
+  only opt-in: pooled zero-arg component instantiation on JVM/Android falls back to it if
+  you don't register a factory (see "Component pooling" above); iOS has no reflection
+  fallback and requires an explicit factory for that path.
 
 ## Benchmarking
 

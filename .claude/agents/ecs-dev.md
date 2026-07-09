@@ -49,9 +49,31 @@ Core pieces:
   stale reference held elsewhere — don't simplify this to a bare `Int` id, it's the classic
   ECS use-after-free footgun.
 - `ComponentStore<T>` — the sparse-set itself.
-- `World` — owns entity allocation/recycling and one `ComponentStore` per component type;
-  exposes `query(vararg types)` for systems to iterate.
+- `World` — the public facade; delegates to `EntityArena` (entity lifecycle, alive bits,
+  per-entity `Long` bitmask signatures), `ComponentRegistry` (type ids, `ComponentStore`s,
+  pooling), `QueryCollector`/`QueryCache` (ad hoc query collection + invalidation), and
+  `FamilyRegistry` (maintained `Family1`/`Family2`/general `Family` caches). Don't add a new
+  concern directly to `World` — find (or add) the right collaborator instead; that's the
+  whole point of the split (see `docs/tasks/2026-07-09-decouple-world.md`).
 - `System` — `update(world: World, delta: Float)`.
+- **Component pooling** — `world.registerPool(type, factory)` + `world.spawn<T> { }` reuse
+  instances instead of allocating fresh ones; components can implement `Poolable.reset()`.
+  Reflection-based zero-arg instantiation is the JVM/Android fallback when no factory is
+  registered — iOS has no such fallback, so any code path that needs to run there must
+  register an explicit factory.
+- **`ComponentTypeId`** — a stable per-`World` integer id for a component type
+  (`world.typeId(type)`). `World.add`/`get`/`remove`/`has` all have a `ComponentTypeId`
+  overload alongside the `KClass` one, for callers that cache the id once and want to skip
+  both the reflection cost *and* the `KClass`-keyed map lookup in a hot per-entity loop —
+  the fastest available path, faster than caching just the `KClass` (see "Hot-path
+  performance" below).
+- **Hard limit: 64 component types per `World`** — entity-component membership is a single
+  `Long` bitmask per entity (`EntityArena.entitySignatures`), which is what makes
+  `has()`/family-matching cheap. `ComponentRegistry.typeId()` throws a clear
+  `IllegalArgumentException` on a 65th type rather than overflowing silently. Widening this
+  (e.g. multiple `Long`s, or a `LongArray` bitset) is a real option if a project ever needs
+  more than 64 types in one `World`, but it's a deliberate current tradeoff, not a bug —
+  don't "fix" it without discussing the actual need first.
 
 ## Hot-path performance: avoid reified generics inside per-entity loops
 
@@ -85,16 +107,25 @@ there.
 - `MeshRenderer` (wraps a `Mesh` + `Material` pair from `awake-vulkan` — feeds directly into
   the existing `DrawCall` type in
   `awake-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/core/renderer/DrawCall.kt`)
-- `Camera`, `Light`
+- `Camera`, `Light`, `Name` (a `Poolable` runtime label for hierarchy/editor views — not
+  part of the serialized scene document itself, see `SceneLoader`)
 - `TransformSystem` — propagates world matrices; **must** process parents before children
   (a naive single-pass iteration over an unordered entity list will use stale parent
   matrices for deep hierarchies — either sort by depth first or do a proper recursive/
-  topological walk)
+  topological walk). Uses entity-id-indexed `IntArray` frame-stamps for its DFS
+  visited/visiting state, not a `Map`/`Set<Entity>` — `Entity` is a value class, so a
+  hash-based collection keyed by it boxes on every access (found via profiling; see
+  `docs/ecs-benchmark-scorecard.md`). Follow the same pattern for any new system that needs
+  per-entity per-frame scratch state.
 - `RenderSystem` — walks `Transform`+`MeshRenderer` entities, emits `DrawCall`s to the
   existing `Renderer.draw(camera, drawCalls)` (in
   `awake-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/core/renderer/Renderer.kt`)
   — don't reimplement draw submission here, this system's only job is building the
   `List<DrawCall>`.
+- `awake-scene/.../runtime/` (`SceneDocument`, `SceneLoader`, `SceneInstance`) — the
+  serialized `scene.json` contract and the loader that turns it into a live `World` plus a
+  list of `SceneRenderableRequest`s for the app to resolve into real `MeshRenderer`s. Keep
+  mesh/material resolution out of this package — it's deliberately GPU-backend-agnostic.
 
 ## Reference files (exact paths — read these before writing `MeshRenderer`/`RenderSystem`)
 
@@ -166,7 +197,13 @@ report that rather than forcing a downgrade or a broken setup.
 
 ## Module boundaries
 
-- `awake-ecs` is `commonMain`-only, no platform-specific code and no dependency on
+- `awake-ecs` is almost entirely `commonMain` — the one exception is `Platform.kt`
+  (`expect fun newComponentArray`/`createComponentInstance`, `actual`-implemented per
+  target: `java.lang.reflect.Array`/reflection on JVM+Android, a plain `arrayOfNulls` and
+  an `error()` requiring an explicit pool factory on iOS). Keep that expect/actual surface
+  as small as it is now — it exists only because typed dense component arrays and
+  reflection-based pooled instantiation are genuinely platform-dependent, not because this
+  module should grow more platform-specific code. `awake-ecs` still has no dependency on
   `awake-vulkan`'s Vulkan-specific internals beyond the `Mesh`/`Material`/`DrawCall` types
   it needs to reference for `MeshRenderer`/`RenderSystem`. Unit tests run on plain JVM (per
   `docs/MVP_PLAN.md`'s Phase 3 checklist) — no GPU, no Android/iOS toolchain needed to test
