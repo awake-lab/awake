@@ -15,22 +15,22 @@
 ## Current matrix
 
 Latest rerun: `2026-07-09`, via `./gradlew :awake-ecs-benchmark:mainBenchmark`.
-The `Awake` column is highlighted in green so it stands out quickly.
+The `Awake` column is bolded so it stands out quickly in plain markdown.
 
-| Benchmark | Size | <span style="color:#16a34a"><strong>Awake</strong></span> | Fleks 2.14 | Artemis-odb 2.3.0 | Ashley 1.7.3 | Fastest |
+| Benchmark | Size | **Awake** | Fleks 2.14 | Artemis-odb 2.3.0 | Ashley 1.7.3 | Fastest |
 |---|---:|---:|---:|---:|---:|---|
-| Entity create/destroy | 10k | <span style="color:#16a34a"><strong>6,314.707</strong></span> | 7,680.726 | 5,082.550 | 159.074 | Fleks |
-| Entity create/destroy | 100k | <span style="color:#16a34a"><strong>670.982</strong></span> | 595.409 | 515.602 | 2.175 | Awake |
-| Component add/remove | 10k | <span style="color:#16a34a"><strong>2,280.463</strong></span> | 1,672.243 | 2,997.667 | 315.619 | Artemis-odb |
-| Component add/remove | 100k | <span style="color:#16a34a"><strong>186.327</strong></span> | 103.212 | 194.685 | 28.216 | Artemis-odb |
-| Family churn | 10k | <span style="color:#16a34a"><strong>1,387.768</strong></span> | 2,939.655 | 794.189 | 183.549 | Fleks |
-| Family churn | 100k | <span style="color:#16a34a"><strong>64.208</strong></span> | 164.871 | 49.605 | 2.922 | Fleks |
-| Transform hierarchy | depth 10 | <span style="color:#16a34a"><strong>944,992.326</strong></span> | 704,048.175 | 582,313.879 | 611,382.977 | Awake |
-| Transform hierarchy | depth 50 | <span style="color:#16a34a"><strong>180,282.659</strong></span> | 131,209.632 | 169,811.689 | 121,106.394 | Awake |
-| Transform+MeshRenderer query | 10k | <span style="color:#16a34a"><strong>61,668.042</strong></span> | 69,398.322 | 54,277.326 | 24,203.368 | Fleks |
-| Transform+MeshRenderer query | 100k | <span style="color:#16a34a"><strong>1,587.594</strong></span> | 7,428.559 | 3,570.911 | 321.701 | Fleks |
+| Entity create/destroy | 10k | **6,314.707** | 7,680.726 | 5,082.550 | 159.074 | Fleks |
+| Entity create/destroy | 100k | **670.982** | 595.409 | 515.602 | 2.175 | Awake |
+| Component add/remove | 10k | **2,280.463** | 1,672.243 | 2,997.667 | 315.619 | Artemis-odb |
+| Component add/remove | 100k | **186.327** | 103.212 | 194.685 | 28.216 | Artemis-odb |
+| Family churn | 10k | **1,387.768** | 2,939.655 | 794.189 | 183.549 | Fleks |
+| Family churn | 100k | **64.208** | 164.871 | 49.605 | 2.922 | Fleks |
+| Transform hierarchy | depth 10 | **944,992.326** | 704,048.175 | 582,313.879 | 611,382.977 | Awake |
+| Transform hierarchy | depth 50 | **180,282.659** | 131,209.632 | 169,811.689 | 121,106.394 | Awake |
+| Transform+MeshRenderer query | 10k | **61,668.042** | 69,398.322 | 54,277.326 | 24,203.368 | Fleks |
+| Transform+MeshRenderer query | 100k | **1,587.594** | 7,428.559 | 3,570.911 | 321.701 | Fleks |
 
-Ops/sec, all rows. Awake is green and bold so the eye lands on it first.
+Ops/sec, all rows. Awake is bold so the eye lands on it first.
 
 ## Takeaway
 
