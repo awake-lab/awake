@@ -19,6 +19,7 @@
 
 package io.github.ronjunevaldoz.awake.ecs
 
+import kotlin.jvm.JvmInline
 import kotlin.reflect.KClass
 
 @Suppress("TooManyFunctions")
@@ -26,6 +27,8 @@ class World {
     private val slots = mutableListOf<EntitySlot>()
     private val freeIds = mutableListOf<Int>()
     private val stores = mutableMapOf<KClass<out Any>, ComponentStore<Any>>()
+    private val typeIds = mutableMapOf<KClass<out Any>, ComponentTypeId>()
+    private val families = mutableMapOf<FamilyKey, FamilyCache>()
     private val queryCache = mutableMapOf<QueryKey, CachedQuery>()
     private var queryVersion = 0
 
@@ -49,6 +52,7 @@ class World {
             return false
         }
 
+        removeEntityFromFamilies(entity)
         stores.values.forEach { it.remove(entity) }
         val slot = slots[entity.id]
         slot.alive = false
@@ -69,9 +73,13 @@ class World {
 
     fun <T : Any> add(entity: Entity, type: KClass<T>, component: T): T? {
         requireAlive(entity)
+        typeId(type)
         val previous = store(type).add(entity, component)
         if (previous == null) {
             markQueriesDirty()
+            addComponentToFamilies(entity, type, component)
+        } else {
+            replaceComponentInFamilies(entity, type, component)
         }
         return previous
     }
@@ -98,6 +106,7 @@ class World {
         val removed = storeOrNull(type)?.remove(entity)
         if (removed != null) {
             markQueriesDirty()
+            removeComponentFromFamilies(entity, type)
         }
         return removed
     }
@@ -126,14 +135,19 @@ class World {
     }
 
     fun <A : Any> queryEach(type: KClass<A>, block: (Entity, A) -> Unit) {
-        val store = storeOrNull(type) ?: return
-        store.forEach { entity, component ->
-            block(entity, component)
-        }
+        familyCache(type).forEach(block)
     }
 
     inline fun <reified A : Any> queryEach(noinline block: (Entity, A) -> Unit) {
         queryEach(A::class, block)
+    }
+
+    fun <A : Any> family(type: KClass<A>): Family1<A> {
+        return Family1(familyCache(type))
+    }
+
+    inline fun <reified A : Any> family(): Family1<A> {
+        return family(A::class)
     }
 
     fun <A : Any, B : Any> queryEach(
@@ -141,27 +155,19 @@ class World {
         typeB: KClass<B>,
         block: (Entity, A, B) -> Unit
     ) {
-        val storeA = storeOrNull(typeA) ?: return
-        val storeB = storeOrNull(typeB) ?: return
-        if (storeA.size <= storeB.size) {
-            storeA.forEach { entity, componentA ->
-                val componentB = storeB.get(entity)
-                if (componentB != null) {
-                    block(entity, componentA, componentB)
-                }
-            }
-        } else {
-            storeB.forEach { entity, componentB ->
-                val componentA = storeA.get(entity)
-                if (componentA != null) {
-                    block(entity, componentA, componentB)
-                }
-            }
-        }
+        familyCache(typeA, typeB).forEach(block)
     }
 
     inline fun <reified A : Any, reified B : Any> queryEach(noinline block: (Entity, A, B) -> Unit) {
         queryEach(A::class, B::class, block)
+    }
+
+    fun <A : Any, B : Any> family(typeA: KClass<A>, typeB: KClass<B>): Family2<A, B> {
+        return Family2(familyCache(typeA, typeB))
+    }
+
+    inline fun <reified A : Any, reified B : Any> family(): Family2<A, B> {
+        return family(A::class, B::class)
     }
 
     private fun collectQuery(types: Set<KClass<out Any>>): List<Entity> {
@@ -190,6 +196,8 @@ class World {
         slots.clear()
         freeIds.clear()
         stores.clear()
+        typeIds.clear()
+        families.clear()
         queryCache.clear()
         markQueriesDirty()
     }
@@ -216,6 +224,114 @@ class World {
         queryVersion += 1
     }
 
+    private fun typeId(type: KClass<out Any>): ComponentTypeId {
+        return typeIds.getOrPut(type) {
+            ComponentTypeId(typeIds.size)
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <A : Any> familyCache(type: KClass<A>): Family1Cache<A> {
+        val key = FamilyKey.single(typeId(type))
+        return families.getOrPut(key) { buildFamily(type) } as Family1Cache<A>
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <A : Any, B : Any> familyCache(
+        typeA: KClass<A>,
+        typeB: KClass<B>
+    ): Family2Cache<A, B> {
+        val key = FamilyKey.pair(typeId(typeA), typeId(typeB))
+        return families.getOrPut(key) { buildFamily(typeA, typeB) } as Family2Cache<A, B>
+    }
+
+    private fun <A : Any> buildFamily(type: KClass<A>): Family1Cache<A> {
+        val cache = Family1Cache(type)
+        storeOrNull(type)?.forEach { entity, component ->
+            cache.add(entity, component)
+        }
+        return cache
+    }
+
+    private fun <A : Any, B : Any> buildFamily(
+        typeA: KClass<A>,
+        typeB: KClass<B>
+    ): Family2Cache<A, B> {
+        val cache = Family2Cache(typeA, typeB)
+        val storeA = storeOrNull(typeA)
+        val storeB = storeOrNull(typeB)
+        if (storeA != null && storeB != null) {
+            fillFamily(cache, storeA, storeB)
+        }
+        return cache
+    }
+
+    private fun <A : Any, B : Any> fillFamily(
+        cache: Family2Cache<A, B>,
+        storeA: ComponentStore<A>,
+        storeB: ComponentStore<B>
+    ) {
+        if (storeA.size <= storeB.size) {
+            addMatchesFromA(cache, storeA, storeB)
+        } else {
+            addMatchesFromB(cache, storeA, storeB)
+        }
+    }
+
+    private fun <A : Any, B : Any> addMatchesFromA(
+        cache: Family2Cache<A, B>,
+        storeA: ComponentStore<A>,
+        storeB: ComponentStore<B>
+    ) {
+        storeA.forEach { entity, componentA ->
+            storeB.get(entity)?.let { componentB ->
+                cache.add(entity, componentA, componentB)
+            }
+        }
+    }
+
+    private fun <A : Any, B : Any> addMatchesFromB(
+        cache: Family2Cache<A, B>,
+        storeA: ComponentStore<A>,
+        storeB: ComponentStore<B>
+    ) {
+        storeB.forEach { entity, componentB ->
+            storeA.get(entity)?.let { componentA ->
+                cache.add(entity, componentA, componentB)
+            }
+        }
+    }
+
+    private fun removeEntityFromFamilies(entity: Entity) {
+        families.values.forEach { it.remove(entity) }
+    }
+
+    private fun <T : Any> addComponentToFamilies(
+        entity: Entity,
+        type: KClass<T>,
+        component: T
+    ) {
+        families.values.forEach { family ->
+            family.addComponent(this, entity, type, component)
+        }
+    }
+
+    private fun <T : Any> replaceComponentInFamilies(
+        entity: Entity,
+        type: KClass<T>,
+        component: T
+    ) {
+        families.values.forEach { family ->
+            family.replaceComponent(this, entity, type, component)
+        }
+    }
+
+    private fun removeComponentFromFamilies(entity: Entity, type: KClass<out Any>) {
+        families.values.forEach { family ->
+            family.removeComponent(entity, type)
+        }
+    }
+
     private data class EntitySlot(
         var generation: Int,
         var alive: Boolean
@@ -230,3 +346,318 @@ class World {
         var version: Int = -1
     )
 }
+
+class Family1<A : Any> @PublishedApi internal constructor(
+    @PublishedApi internal val cache: Family1Cache<A>
+) {
+    val size: Int get() = cache.size
+
+    inline fun forEach(block: (Entity, A) -> Unit) {
+        cache.forEach(block)
+    }
+
+    inline fun forEachComponent(block: (A) -> Unit) {
+        cache.forEachComponent(block)
+    }
+}
+
+class Family2<A : Any, B : Any> @PublishedApi internal constructor(
+    @PublishedApi internal val cache: Family2Cache<A, B>
+) {
+    val size: Int get() = cache.size
+
+    inline fun forEach(block: (Entity, A, B) -> Unit) {
+        cache.forEach(block)
+    }
+
+    inline fun forEachComponents(block: (A, B) -> Unit) {
+        cache.forEachComponents(block)
+    }
+}
+
+@JvmInline
+private value class ComponentTypeId(
+    val value: Int
+)
+
+@JvmInline
+private value class FamilyKey(
+    val packed: Long
+) {
+    companion object {
+        private const val SINGLE_SENTINEL = -1
+
+        fun single(type: ComponentTypeId): FamilyKey {
+            return FamilyKey(pack(type.value, SINGLE_SENTINEL))
+        }
+
+        fun pair(typeA: ComponentTypeId, typeB: ComponentTypeId): FamilyKey {
+            return FamilyKey(pack(typeA.value, typeB.value))
+        }
+
+        private fun pack(first: Int, second: Int): Long {
+            return (first.toLong() shl INT_BITS) or (second.toLong() and LOW_INT_MASK)
+        }
+    }
+}
+
+@PublishedApi
+internal sealed class FamilyCache {
+    abstract fun remove(entity: Entity)
+    abstract fun <T : Any> addComponent(world: World, entity: Entity, type: KClass<T>, component: T)
+    abstract fun <T : Any> replaceComponent(world: World, entity: Entity, type: KClass<T>, component: T)
+    abstract fun removeComponent(entity: Entity, type: KClass<out Any>)
+}
+
+@PublishedApi
+@Suppress("TooManyFunctions")
+internal class Family1Cache<A : Any>(
+    private val type: KClass<A>
+) : FamilyCache() {
+    @PublishedApi
+    internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
+    @PublishedApi
+    internal var components = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
+    @PublishedApi
+    internal var count: Int = 0
+
+    val size: Int get() = count
+
+    fun add(entity: Entity, component: A) {
+        ensureCapacity(count + 1)
+        entities[count] = entity.packed
+        components[count] = component
+        count += 1
+    }
+
+    @PublishedApi
+    internal inline fun forEach(block: (Entity, A) -> Unit) {
+        val localEntities = entities
+        val localComponents = components
+        val localCount = count
+        for (index in 0 until localCount) {
+            @Suppress("UNCHECKED_CAST")
+            block(Entity(localEntities[index]), localComponents[index] as A)
+        }
+    }
+
+    @PublishedApi
+    internal inline fun forEachComponent(block: (A) -> Unit) {
+        val localComponents = components
+        val localCount = count
+        for (index in 0 until localCount) {
+            @Suppress("UNCHECKED_CAST")
+            block(localComponents[index] as A)
+        }
+    }
+
+    override fun remove(entity: Entity) {
+        removeAt(indexOf(entity))
+    }
+
+    override fun <T : Any> addComponent(
+        world: World,
+        entity: Entity,
+        type: KClass<T>,
+        component: T
+    ) {
+        if (this.type == type) {
+            @Suppress("UNCHECKED_CAST")
+            add(entity, component as A)
+        }
+    }
+
+    override fun <T : Any> replaceComponent(
+        world: World,
+        entity: Entity,
+        type: KClass<T>,
+        component: T
+    ) {
+        if (this.type == type) {
+            @Suppress("UNCHECKED_CAST")
+            replace(entity, component as A)
+        }
+    }
+
+    override fun removeComponent(entity: Entity, type: KClass<out Any>) {
+        if (this.type == type) {
+            remove(entity)
+        }
+    }
+
+    private fun replace(entity: Entity, component: A) {
+        val index = indexOf(entity)
+        if (index >= 0) {
+            components[index] = component
+        }
+    }
+
+    private fun removeAt(index: Int) {
+        if (index < 0) {
+            return
+        }
+        val lastIndex = count - 1
+        entities[index] = entities[lastIndex]
+        components[index] = components[lastIndex]
+        components[lastIndex] = null
+        count -= 1
+    }
+
+    private fun indexOf(entity: Entity): Int {
+        val packed = entity.packed
+        for (index in 0 until count) {
+            if (entities[index] == packed) {
+                return index
+            }
+        }
+        return -1
+    }
+
+    private fun ensureCapacity(requiredCapacity: Int) {
+        if (requiredCapacity <= entities.size) {
+            return
+        }
+        val newCapacity = maxOf(requiredCapacity, entities.size * CAPACITY_GROWTH_FACTOR)
+        entities = entities.copyOf(newCapacity)
+        components = components.copyOf(newCapacity)
+    }
+}
+
+@PublishedApi
+@Suppress("TooManyFunctions")
+internal class Family2Cache<A : Any, B : Any>(
+    private val typeA: KClass<A>,
+    private val typeB: KClass<B>
+) : FamilyCache() {
+    @PublishedApi
+    internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
+    @PublishedApi
+    internal var componentsA = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
+    @PublishedApi
+    internal var componentsB = arrayOfNulls<Any>(DEFAULT_FAMILY_CAPACITY)
+    @PublishedApi
+    internal var count: Int = 0
+
+    val size: Int get() = count
+
+    fun add(entity: Entity, componentA: A, componentB: B) {
+        ensureCapacity(count + 1)
+        entities[count] = entity.packed
+        componentsA[count] = componentA
+        componentsB[count] = componentB
+        count += 1
+    }
+
+    @PublishedApi
+    internal inline fun forEach(block: (Entity, A, B) -> Unit) {
+        val localEntities = entities
+        val localComponentsA = componentsA
+        val localComponentsB = componentsB
+        val localCount = count
+        for (index in 0 until localCount) {
+            @Suppress("UNCHECKED_CAST")
+            block(Entity(localEntities[index]), localComponentsA[index] as A, localComponentsB[index] as B)
+        }
+    }
+
+    @PublishedApi
+    internal inline fun forEachComponents(block: (A, B) -> Unit) {
+        val localComponentsA = componentsA
+        val localComponentsB = componentsB
+        val localCount = count
+        for (index in 0 until localCount) {
+            @Suppress("UNCHECKED_CAST")
+            block(localComponentsA[index] as A, localComponentsB[index] as B)
+        }
+    }
+
+    override fun remove(entity: Entity) {
+        removeAt(indexOf(entity))
+    }
+
+    override fun <T : Any> addComponent(
+        world: World,
+        entity: Entity,
+        type: KClass<T>,
+        component: T
+    ) {
+        if (typeA == type || typeB == type) {
+            upsertIfMatched(world, entity)
+        }
+    }
+
+    override fun <T : Any> replaceComponent(
+        world: World,
+        entity: Entity,
+        type: KClass<T>,
+        component: T
+    ) {
+        val index = indexOf(entity)
+        if (index < 0) {
+            return
+        }
+        if (typeA == type) {
+            @Suppress("UNCHECKED_CAST")
+            componentsA[index] = component as A
+        } else if (typeB == type) {
+            @Suppress("UNCHECKED_CAST")
+            componentsB[index] = component as B
+        }
+    }
+
+    override fun removeComponent(entity: Entity, type: KClass<out Any>) {
+        if (typeA == type || typeB == type) {
+            remove(entity)
+        }
+    }
+
+    private fun upsertIfMatched(world: World, entity: Entity) {
+        val componentA = world.get(entity, typeA) ?: return
+        val componentB = world.get(entity, typeB) ?: return
+        val index = indexOf(entity)
+        if (index >= 0) {
+            componentsA[index] = componentA
+            componentsB[index] = componentB
+        } else {
+            add(entity, componentA, componentB)
+        }
+    }
+
+    private fun removeAt(index: Int) {
+        if (index < 0) {
+            return
+        }
+        val lastIndex = count - 1
+        entities[index] = entities[lastIndex]
+        componentsA[index] = componentsA[lastIndex]
+        componentsB[index] = componentsB[lastIndex]
+        componentsA[lastIndex] = null
+        componentsB[lastIndex] = null
+        count -= 1
+    }
+
+    private fun indexOf(entity: Entity): Int {
+        val packed = entity.packed
+        for (index in 0 until count) {
+            if (entities[index] == packed) {
+                return index
+            }
+        }
+        return -1
+    }
+
+    private fun ensureCapacity(requiredCapacity: Int) {
+        if (requiredCapacity <= entities.size) {
+            return
+        }
+        val newCapacity = maxOf(requiredCapacity, entities.size * CAPACITY_GROWTH_FACTOR)
+        entities = entities.copyOf(newCapacity)
+        componentsA = componentsA.copyOf(newCapacity)
+        componentsB = componentsB.copyOf(newCapacity)
+    }
+}
+
+private const val INT_BITS = 32
+private const val LOW_INT_MASK = 0xFFFF_FFFFL
+private const val DEFAULT_FAMILY_CAPACITY = 16
+private const val CAPACITY_GROWTH_FACTOR = 2

@@ -20,34 +20,46 @@
 package io.github.ronjunevaldoz.awake.ecs
 
 class ComponentStore<T : Any> {
-    private val sparse = mutableListOf<Int>()
-    private val denseEntities = mutableListOf<Entity>()
-    private val denseComponents = mutableListOf<T>()
+    private var sparse = IntArray(0)
+    private var denseEntities = LongArray(DEFAULT_CAPACITY)
+    private var denseComponents = arrayOfNulls<Any>(DEFAULT_CAPACITY)
+    private var count = 0
 
-    val size: Int get() = denseEntities.size
+    val size: Int get() = count
 
-    val entities: List<Entity> get() = denseEntities
+    val entities: List<Entity>
+        get() = object : AbstractList<Entity>() {
+            override val size: Int get() = count
+
+            override fun get(index: Int): Entity {
+                return Entity(denseEntities[index])
+            }
+        }
 
     fun add(entity: Entity, component: T): T? {
         ensureSparseCapacity(entity.id)
         val denseIndex = sparse[entity.id]
-        if (denseIndex in denseEntities.indices && denseEntities[denseIndex].id == entity.id) {
-            val previous = denseComponents[denseIndex]
-            denseEntities[denseIndex] = entity
+        if (denseIndex in 0 until count && Entity(denseEntities[denseIndex]).id == entity.id) {
+            @Suppress("UNCHECKED_CAST")
+            val previous = denseComponents[denseIndex] as T
+            denseEntities[denseIndex] = entity.packed
             denseComponents[denseIndex] = component
             return previous
         }
 
-        sparse[entity.id] = denseEntities.size
-        denseEntities += entity
-        denseComponents += component
+        ensureDenseCapacity(count + 1)
+        sparse[entity.id] = count
+        denseEntities[count] = entity.packed
+        denseComponents[count] = component
+        count += 1
         return null
     }
 
     fun get(entity: Entity): T? {
         val denseIndex = sparse.getOrNull(entity.id) ?: return null
-        return if (denseIndex in denseEntities.indices && denseEntities[denseIndex] == entity) {
-            denseComponents[denseIndex]
+        return if (denseIndex in 0 until count && denseEntities[denseIndex] == entity.packed) {
+            @Suppress("UNCHECKED_CAST")
+            denseComponents[denseIndex] as T
         } else {
             null
         }
@@ -59,7 +71,7 @@ class ComponentStore<T : Any> {
 
     fun remove(entity: Entity): T? {
         val denseIndex = sparse.getOrNull(entity.id) ?: return null
-        return if (denseIndex in denseEntities.indices && denseEntities[denseIndex] == entity) {
+        return if (denseIndex in 0 until count && denseEntities[denseIndex] == entity.packed) {
             removeAt(entity, denseIndex)
         } else {
             null
@@ -67,40 +79,60 @@ class ComponentStore<T : Any> {
     }
 
     private fun removeAt(entity: Entity, denseIndex: Int): T {
-        val removed = denseComponents[denseIndex]
-        val lastIndex = denseEntities.lastIndex
+        @Suppress("UNCHECKED_CAST")
+        val removed = denseComponents[denseIndex] as T
+        val lastIndex = count - 1
         val lastEntity = denseEntities[lastIndex]
         val lastComponent = denseComponents[lastIndex]
 
         denseEntities[denseIndex] = lastEntity
         denseComponents[denseIndex] = lastComponent
-        sparse[lastEntity.id] = denseIndex
+        sparse[Entity(lastEntity).id] = denseIndex
 
-        denseEntities.removeAt(lastIndex)
-        denseComponents.removeAt(lastIndex)
+        denseComponents[lastIndex] = null
         sparse[entity.id] = ABSENT
+        count -= 1
         return removed
     }
 
     fun clear() {
-        denseEntities.clear()
-        denseComponents.clear()
+        denseComponents.fill(null, fromIndex = 0, toIndex = count)
+        count = 0
         sparse.fill(ABSENT)
     }
 
     fun forEach(block: (Entity, T) -> Unit) {
-        for (index in denseEntities.indices) {
-            block(denseEntities[index], denseComponents[index])
+        val localEntities = denseEntities
+        val localComponents = denseComponents
+        val localCount = count
+        for (index in 0 until localCount) {
+            @Suppress("UNCHECKED_CAST")
+            block(Entity(localEntities[index]), localComponents[index] as T)
         }
     }
 
     private fun ensureSparseCapacity(id: Int) {
-        while (id >= sparse.size) {
-            sparse += ABSENT
+        if (id < sparse.size) {
+            return
         }
+        val previousSize = sparse.size
+        val newSize = maxOf(id + 1, maxOf(DEFAULT_CAPACITY, previousSize * CAPACITY_GROWTH_FACTOR))
+        sparse = sparse.copyOf(newSize)
+        sparse.fill(ABSENT, fromIndex = previousSize, toIndex = newSize)
+    }
+
+    private fun ensureDenseCapacity(requiredCapacity: Int) {
+        if (requiredCapacity <= denseEntities.size) {
+            return
+        }
+        val newCapacity = maxOf(requiredCapacity, denseEntities.size * CAPACITY_GROWTH_FACTOR)
+        denseEntities = denseEntities.copyOf(newCapacity)
+        denseComponents = denseComponents.copyOf(newCapacity)
     }
 
     private companion object {
         const val ABSENT = -1
+        const val DEFAULT_CAPACITY = 16
+        const val CAPACITY_GROWTH_FACTOR = 2
     }
 }

@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `awake-ecs` and `awake-scene` as publishable artifacts. `awake-ecs` is now the pure
   sparse-set ECS runtime; Awake-specific scene components and systems moved to
   `awake-scene`.
+- Maintained ECS family handles for one- and two-component queries, including
+  component-only iteration for systems that do not need entity handles.
 
 ### Removed
 
@@ -51,6 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Android's `Surface` from desktop's GLFW window handle — it delegates to the new
   `expect fun createSurface` in `awake-vulkan` instead. Behavior is unchanged; this is a
   structural cleanup (see Phase 1c in `docs/MVP_PLAN.md` for the full rationale).
+- `awake-ecs` component stores now use primitive sparse/dense arrays instead of
+  `MutableList` storage, reducing structural add/remove overhead in the benchmark harness.
 
 ## [1.0.0-SNAPSHOT] - YYYY-MM-DD
 

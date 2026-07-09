@@ -1045,10 +1045,11 @@ twice (once against whatever's there today, again once Phase 2 settles).
       `:awake-ecs`, `:awake-scene`, and Fleks 2.14, with Fleks absent from `awake-ecs`'s
       dependency graph. `kotlinx-benchmark` 0.4.17 was checked before wiring; it supports
       Kotlin 2.2.0+ and resolved cleanly against this project's Kotlin 2.4.0. Scorecard:
-      [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md). Awake now caches
-      untyped query results and exposes typed sparse-store iteration for systems; Fleks is
-      still faster on the Transform+MeshRenderer query hot path at 10k/100k entities, so
-      keep family-style indexes in mind if Phase 4 scene sizes grow.
+      [docs/ecs-benchmark-scorecard.md](ecs-benchmark-scorecard.md). Awake now uses
+      primitive sparse/dense component stores plus maintained family indexes with
+      component-only iteration for systems; component add/remove is ahead of Fleks in the
+      latest short run, while Fleks is still faster on the Transform+MeshRenderer family
+      iteration hot path at 10k/100k entities.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 

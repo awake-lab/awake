@@ -33,7 +33,7 @@ class RenderSystem(
     override fun update(world: World, delta: Float) {
         val camera = primaryCamera(world) ?: return
         val drawCalls = mutableListOf<DrawCall>()
-        world.queryEach<Transform, MeshRenderer> { _, transform, meshRenderer ->
+        world.family<Transform, MeshRenderer>().forEachComponents { transform, meshRenderer ->
             drawCalls += DrawCall(
                 mesh = meshRenderer.mesh,
                 material = meshRenderer.material,
@@ -45,7 +45,7 @@ class RenderSystem(
 
     private fun primaryCamera(world: World): Camera? {
         var primary: Camera? = null
-        world.queryEach<Camera> { _, camera ->
+        world.family<Camera>().forEachComponent { camera ->
             if (primary == null && camera.isPrimary) {
                 primary = camera
             }

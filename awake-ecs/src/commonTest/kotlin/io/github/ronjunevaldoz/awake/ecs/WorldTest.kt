@@ -91,6 +91,34 @@ class WorldTest {
     }
 
     @Test
+    fun familyUpdatesAfterStructuralChanges() {
+        val world = World()
+        val first = world.create()
+        val second = world.create()
+        world.add(first, TestComponent(value = 1))
+        world.add(first, MarkerComponent)
+
+        val family = world.family<TestComponent, MarkerComponent>()
+        assertEquals(listOf(first to 1), family.values())
+
+        world.add(second, TestComponent(value = 2))
+        assertEquals(listOf(first to 1), family.values())
+
+        world.add(second, MarkerComponent)
+        assertEquals(setOf(first to 1, second to 2), family.values().toSet())
+
+        world.add(second, TestComponent(value = 3))
+        assertEquals(setOf(first to 1, second to 3), family.values().toSet())
+        assertEquals(listOf(1, 3), family.componentValues().sorted())
+
+        world.remove<MarkerComponent>(first)
+        assertEquals(listOf(second to 3), family.values())
+
+        world.destroy(second)
+        assertEquals(emptyList(), family.values())
+    }
+
+    @Test
     fun destroyingEntityRemovesComponentsAndRejectsStaleHandle() {
         val world = World()
         val entity = world.create()
@@ -109,3 +137,19 @@ private data class TestComponent(
 )
 
 private data object MarkerComponent
+
+private fun Family2<TestComponent, MarkerComponent>.values(): List<Pair<Entity, Int>> {
+    val values = mutableListOf<Pair<Entity, Int>>()
+    forEach { entity, component, _ ->
+        values += entity to component.value
+    }
+    return values
+}
+
+private fun Family2<TestComponent, MarkerComponent>.componentValues(): List<Int> {
+    val values = mutableListOf<Int>()
+    forEachComponents { component, _ ->
+        values += component.value
+    }
+    return values
+}

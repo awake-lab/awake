@@ -29,6 +29,7 @@ import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.ecs.Entity as AwakeEntity
+import io.github.ronjunevaldoz.awake.ecs.Family2 as AwakeFamily2
 import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
@@ -108,7 +109,7 @@ open class EcsBenchmarks {
     @Benchmark
     fun awakeTransformMeshQuery(state: AwakeQueryState): Int {
         var count = 0
-        state.world.queryEach<Transform, MeshRenderer> { _, _, _ ->
+        state.family.forEachComponents { _, _ ->
             count++
         }
         return count
@@ -153,6 +154,7 @@ open class AwakeQueryState {
     @Param("10000", "100000")
     var entityCount: Int = 0
     lateinit var world: AwakeWorld
+    lateinit var family: AwakeFamily2<Transform, MeshRenderer>
 
     @Setup(Level.Iteration)
     fun setup() {
@@ -162,6 +164,7 @@ open class AwakeQueryState {
             world.add(entity, Transform())
             world.add(entity, MeshRenderer(FakeGpuObjects.mesh, FakeGpuObjects.material))
         }
+        family = world.family<Transform, MeshRenderer>()
     }
 }
 
