@@ -131,7 +131,7 @@ class World {
 
     /** Adds a component of [type] to [entity], obtaining an instance from the pool if available.
      * Requires the component to have been registered with a factory via [registerPool] or
-     * to have a zero-arg constructor. */
+     * to have a zero-arg constructor (JVM only). */
     fun <T : Any> add(entity: Entity, type: KClass<T>): T {
         val pool = pool(type)
         @Suppress("UNCHECKED_CAST")
@@ -283,9 +283,7 @@ class World {
     private fun pool(type: KClass<out Any>): ComponentPool<Any> {
         return componentPools.getOrPut(type) {
             ComponentPool { 
-                @Suppress("UNCHECKED_CAST")
-                val clazz = type.javaObjectType as Class<Any>
-                clazz.getDeclaredConstructor().newInstance()
+                createComponentInstance(type)
             }
         }
     }

@@ -25,3 +25,8 @@ import kotlin.reflect.KClass
  * Creates a platform-optimized array for component storage.
  */
 internal expect fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?>
+
+/**
+ * Creates a new instance of [type]. Platform dependent.
+ */
+internal expect fun <T : Any> createComponentInstance(type: KClass<T>): T

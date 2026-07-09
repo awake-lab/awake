@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-ecs.iosMain
+ * Awake.awake-ecs.jvmMain
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -22,9 +22,11 @@ package io.github.ronjunevaldoz.awake.ecs
 import kotlin.reflect.KClass
 
 internal actual fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?> {
-    return arrayOfNulls<Any>(capacity)
+    return java.lang.reflect.Array.newInstance(type.java, capacity) as Array<Any?>
 }
 
 internal actual fun <T : Any> createComponentInstance(type: KClass<T>): T {
-    error("Automatic component instantiation not supported on this platform. Register a factory via registerPool.")
+    @Suppress("UNCHECKED_CAST")
+    val clazz = type.javaObjectType as Class<T>
+    return clazz.getDeclaredConstructor().newInstance()
 }
