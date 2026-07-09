@@ -2,8 +2,9 @@
 
 Scene-graph components and systems built on top of [`awake-ecs`](../awake-ecs/README.md):
 `Transform` (with parent/child hierarchy), `MeshRenderer`, `Camera`, `Light`, plus the
-`TransformSystem`/`RenderSystem` that make them do something each frame. This is the layer
-between the bare ECS and a real game — read `awake-ecs`'s README first if you haven't.
+`Name`, `TransformSystem`/`RenderSystem`, and the scene runtime that turns `scene.json`
+into live ECS entities. This is the layer between the bare ECS and a real game — read
+`awake-ecs`'s README first if you haven't.
 
 ## Installation
 
@@ -20,6 +21,8 @@ repositories {
 - **`Transform`** — `position`/`rotation`/`scale` (each a `Vec3`), an optional `parent:
   Entity?` for hierarchy, and a `worldMatrix: Mat4` that `TransformSystem` fills in every
   frame. `localMatrix()` builds the local transform from position/rotation/scale.
+- **`Name`** — optional label for scene hierarchy/editor views. It is a small runtime
+  component, not part of the serialized document itself.
 - **`MeshRenderer`** — wraps a `Mesh` + `Material` (from `awake-vulkan`) for `RenderSystem`
   to turn into a `DrawCall`.
 - **`Camera`** — wraps `awake-core`'s math `Camera` (eye/center/up/fov/near/far) plus
@@ -39,6 +42,28 @@ repositories {
 - **`RenderSystem`** — finds the primary `Camera`, builds a `DrawCall` for every
   `Transform`+`MeshRenderer` pair, and hands them to a `Renderer` (from `awake-core`) in one
   `draw()` call per frame.
+
+## Runtime
+
+The scene runtime keeps the document format separate from the renderer-specific asset
+binding step. A `scene.json` file becomes a live `World` first; actual `MeshRenderer`
+components can be attached later once the app resolves meshes and materials.
+
+```mermaid
+flowchart LR
+    "scene.json" --> "SceneLoader"
+    "SceneLoader" --> "SceneInstance"
+    "SceneInstance" --> "World"
+    "SceneInstance" --> "renderableRequests"
+    "renderableRequests" --> "MeshRenderer binder"
+```
+
+- `SceneDocument`, `SceneNode`, `SceneTransform`, `SceneCamera`, `SceneLight`, and
+  `SceneMeshRenderer` define the serializable scene contract.
+- `SceneLoader.loadFromResource(...)` parses bundled JSON, `SceneDocument.instantiate(...)`
+  builds entities and hierarchy, and `SceneInstance.attachRenderableComponents(...)` is the
+  handoff point for actual GPU-backed mesh/material construction.
+- `Name` keeps scene hierarchy labels available at runtime for editors and debug views.
 
 ## Quick start
 

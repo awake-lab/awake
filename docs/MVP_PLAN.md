@@ -1198,8 +1198,9 @@ twice (once against whatever's there today, again once Phase 2 settles).
 - [ ] **Mesh import:** minimal glTF 2.0 parser in `commonMain` (JSON via kotlinx.serialization
       + binary buffer views) — cube can be hardcoded, but the first real model needs this.
       Full glTF (skinning, animation) is post-MVP
-- [ ] Scene serialization: `kotlinx.serialization` → `scene.json`
-      (this file format is the editor contract)
+- [x] Scene serialization: `kotlinx.serialization` → `scene.json`
+      (the editor contract now lives in `SceneDocument`/`SceneLoader`; renderable binding
+      is still app-side)
 - [ ] `AwakeApp` entry point: load scene → build ECS world → run loop
 
 ## Phase 5 — Editor (parallel track, starts after Phase 3)

@@ -24,6 +24,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.library.kmp)
     alias(libs.plugins.vanniktech.publish)
 }
@@ -53,6 +54,7 @@ kotlin {
             api(project(":awake-core"))
             api(project(":awake-ecs"))
             api(project(":awake-vulkan"))
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
