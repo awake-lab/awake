@@ -64,7 +64,7 @@ internal sealed class FamilyCache {
     abstract fun remove(entity: Entity)
     abstract fun <T : Any> addComponent(world: World, entity: Entity, type: KClass<T>, component: T)
     abstract fun <T : Any> replaceComponent(world: World, entity: Entity, type: KClass<T>, component: T)
-    abstract fun removeComponent(entity: Entity, type: KClass<out Any>)
+    abstract fun removeComponent(world: World, entity: Entity, type: KClass<out Any>)
 }
 
 @PublishedApi
@@ -139,7 +139,7 @@ internal class Family1Cache<A : Any>(
         }
     }
 
-    override fun removeComponent(entity: Entity, type: KClass<out Any>) {
+    override fun removeComponent(world: World, entity: Entity, type: KClass<out Any>) {
         if (this.type == type) {
             remove(entity)
         }
@@ -268,7 +268,7 @@ internal class Family2Cache<A : Any, B : Any>(
         }
     }
 
-    override fun removeComponent(entity: Entity, type: KClass<out Any>) {
+    override fun removeComponent(world: World, entity: Entity, type: KClass<out Any>) {
         if (typeA == type || typeB == type) {
             remove(entity)
         }

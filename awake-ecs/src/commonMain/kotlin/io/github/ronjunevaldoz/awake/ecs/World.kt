@@ -35,6 +35,7 @@ class World {
     private val stores = mutableMapOf<KClass<out Any>, ComponentStore<Any>>()
     private val typeIds = mutableMapOf<KClass<out Any>, ComponentTypeId>()
     private val families = mutableMapOf<FamilyKey, FamilyCache>()
+    private val generalFamilies = mutableMapOf<FamilySpec, GeneralFamilyCache>()
     private val queryCache = mutableMapOf<QueryKey, CachedQuery>()
     private var queryVersion = 0
 
@@ -176,6 +177,18 @@ class World {
         return family(A::class, B::class)
     }
 
+    /** An arbitrary-arity family via `all`/`one`/`exclude` -- e.g.
+     * `world.family { all(Transform::class, MeshRenderer::class, Light::class) }`. Prefer
+     * the typed [family] overloads above for a 1-2-component query (they return matched
+     * components directly, not just entities) -- reach for this when a query needs 3+
+     * types or `one`/`exclude` semantics neither of those support. See [Family]'s doc
+     * comment for why this is a separate mechanism from [Family1]/[Family2] rather than a
+     * generalized replacement for them. */
+    fun family(configure: FamilySpecBuilder.() -> Unit): Family {
+        val spec = FamilySpecBuilder().apply(configure).build()
+        return Family(generalFamilyCache(spec))
+    }
+
     private fun collectQuery(types: Set<KClass<out Any>>): List<Entity> {
         return if (types.isEmpty()) {
             slots.indices
@@ -204,6 +217,7 @@ class World {
         stores.clear()
         typeIds.clear()
         families.clear()
+        generalFamilies.clear()
         queryCache.clear()
         markQueriesDirty()
     }
@@ -272,6 +286,20 @@ class World {
         return cache
     }
 
+    private fun generalFamilyCache(spec: FamilySpec): GeneralFamilyCache {
+        return generalFamilies.getOrPut(spec) { buildGeneralFamily(spec) }
+    }
+
+    private fun buildGeneralFamily(spec: FamilySpec): GeneralFamilyCache {
+        val cache = GeneralFamilyCache(spec)
+        collectQuery(emptySet()).forEach { entity ->
+            if (cache.matches(this, entity)) {
+                cache.add(entity)
+            }
+        }
+        return cache
+    }
+
     private fun <A : Any, B : Any> fillFamily(
         cache: Family2Cache<A, B>,
         storeA: ComponentStore<A>,
@@ -308,8 +336,15 @@ class World {
         }
     }
 
+    /** All maintained family caches -- the typed [Family1Cache]/[Family2Cache] instances
+     * plus the arbitrary-arity [GeneralFamilyCache] ones -- so the four notify methods
+     * below reach both without duplicating the notification logic per cache kind. */
+    private fun allFamilyCaches(): Sequence<FamilyCache> {
+        return families.values.asSequence() + generalFamilies.values.asSequence()
+    }
+
     private fun removeEntityFromFamilies(entity: Entity) {
-        families.values.forEach { it.remove(entity) }
+        allFamilyCaches().forEach { it.remove(entity) }
     }
 
     private fun <T : Any> addComponentToFamilies(
@@ -317,7 +352,7 @@ class World {
         type: KClass<T>,
         component: T
     ) {
-        families.values.forEach { family ->
+        allFamilyCaches().forEach { family ->
             family.addComponent(this, entity, type, component)
         }
     }
@@ -327,14 +362,14 @@ class World {
         type: KClass<T>,
         component: T
     ) {
-        families.values.forEach { family ->
+        allFamilyCaches().forEach { family ->
             family.replaceComponent(this, entity, type, component)
         }
     }
 
     private fun removeComponentFromFamilies(entity: Entity, type: KClass<out Any>) {
-        families.values.forEach { family ->
-            family.removeComponent(entity, type)
+        allFamilyCaches().forEach { family ->
+            family.removeComponent(this, entity, type)
         }
     }
 

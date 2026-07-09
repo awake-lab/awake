@@ -91,6 +91,30 @@ Awake's — a sign of environmental noise, not a real regression. Re-run
 `./gradlew :awake-ecs-benchmark:benchmark` on an idle machine before drawing any numeric
 conclusion from the fixes above; don't trust a comparison run under load like this one.
 
+## Second re-run, tighter confidence intervals, still no clear win (2026-07-09)
+
+A later re-run (load average down to 6-8, confidence intervals mostly single-digit percent
+— genuinely tighter than either prior run) still showed **no clear improvement** for Awake:
+`awakeComponentAddRemove` was flat-to-slightly-down (-8% at both 10k/100k vs. the original
+baseline table), and `awakeTransformHierarchyPropagation` was flat (+1.7%/-5.2%).
+
+Root cause found for why the add/remove fix showed nothing: **`awakeComponentAddRemove`
+never calls `world.family<Transform>()`**, so no family cache is ever built in that
+benchmark — the exact code path the sparse-index fix targeted (`Family1Cache`/
+`Family2Cache.indexOf()`) never runs. This is a gap in benchmark *coverage*, not a failed
+fix; none of the current benchmarks test "structural churn against an entity that already
+belongs to a built family," which is the only scenario the fix helps. The
+`TransformSystem` buffer-reuse fix genuinely is exercised by the propagation benchmarks and
+still shows no clear win, plausibly because JVM's young-gen GC already makes small,
+short-lived `Map`/`Set` allocations cheap at these entity counts — the fix is real and
+correctness-preserving, just not a measurable win at this scale.
+
+Also worth noting: both `awakeTransformMeshQuery` and `fleksTransformMeshQuery` at 100k
+dropped together in this same run (-74% and -61% respectively) while Artemis-odb's number
+at the same size went *up* — a shared environmental event during that measurement window
+(likely a GC pause), not a real regression in either library. Even a "clean-looking" run
+with tight CIs can still have one bad row; don't over-read a single benchmark invocation.
+
 ## Where to look next if the gap remains after a clean re-benchmark
 
 If a clean re-run still shows Awake behind on query/propagation, the next things to check,

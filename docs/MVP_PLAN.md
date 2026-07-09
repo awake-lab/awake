@@ -1089,6 +1089,28 @@ twice (once against whatever's there today, again once Phase 2 settles).
       a new `Families.kt`. `World.kt` is now 382 lines (down from 697); `ComponentStore.kt`
       dropped from 138 to 123. `WorldTest` (7/7) and `TransformSystemTest` (1/1) pass
       unchanged, confirming this was a structural move, not a behavior change.
+- [x] **Generalized `Family` — arbitrary-arity `all`/`one`/`exclude` queries (2026-07-09):**
+      new `io.github.ronjunevaldoz.awake.ecs.Family`/`FamilySpec`/`FamilySpecBuilder`/
+      `GeneralFamilyCache` (in a new `GeneralFamily.kt`). `world.family { all(A::class,
+      B::class, C::class) }` (or `one`/`exclude`, any combination, any arity) — solves the
+      real gap that `Family1`/`Family2` only cover exactly 1 or 2 component types, and a
+      3rd would otherwise mean hand-writing a whole new `Family3Cache`. Took the *API
+      shape* from Ashley's ECS (`all()/one()/exclude()` builder) deliberately, not its
+      *implementation* — this project's own benchmark showed Ashley's listener-based
+      internals are the slowest of the four ECS libraries measured (see
+      `docs/ecs-benchmark-scorecard.md`), so `GeneralFamilyCache` is instead backed by the
+      same `SparseIndex` + incremental-maintenance approach `Family1Cache`/`Family2Cache`
+      already use — registered into `World`'s existing structural-change notification path
+      (`addComponentToFamilies`/`removeComponentFromFamilies`/etc.), not a from-scratch
+      rescan per query. Required widening `FamilyCache.removeComponent`'s signature to also
+      take `World` (an internal-only change, no external API impact) since membership
+      re-checks need `world.has()`. Doesn't return typed component tuples the way
+      `Family1`/`Family2` do (Kotlin can't express an arbitrary-arity typed tuple without
+      per-arity codegen) — callers read matched entities' components back via
+      `world.get<T>(entity)`, an O(1) lookup but not free, so `Family1`/`Family2` remain the
+      right choice for the common 1-2-component hot path. New `GeneralFamilyTest.kt`: 6/6
+      passing, covering `all`/`one`/`exclude` matching, sync-on-structural-change (including
+      losing membership when an excluded component is added), and destroy-triggered removal.
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 
