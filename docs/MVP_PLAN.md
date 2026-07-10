@@ -1254,9 +1254,27 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
         marshalled (the only one any call site in this codebase uses) — documented as a
         narrow limitation, not silently unsupported; `pSpecializationInfo`/`pSampleMask`
         in the graphics-pipeline path are similarly narrow, similarly documented
-      **Still not run on a simulator/device** — this is all compile-time-verified, not
-      hardware-verified. `vulkan.gen` package (buffers/descriptors/images, ~30 more
-      functions) is untouched, still entirely `TODO()`.
+      `vulkan.gen` package (buffers/descriptors/images, ~30 more functions) is untouched,
+      still entirely `TODO()`.
+      **First real simulator run (2026-07-10, `awake-vulkan/src/iosTest/.../
+      VulkanMoltenVkSmokeTest.kt`, run via `iosSimulatorArm64Test`)**: MoltenVK actually
+      loads and executes on a real iOS Simulator process — logs its real version (1.4.2)
+      and all 152 supported extensions, and `vkCreateInstance` returns a real `VkResult`
+      (`-9`, `VK_ERROR_INCOMPATIBLE_DRIVER`) rather than crashing or failing to link. That
+      specific error is environmental, not a bug: `iosSimulatorArm64Test` runs the test
+      binary as a bare CLI process via `simctl spawn`, with no window server connection,
+      and Metal (which MoltenVK sits on) needs one — a real `.app` target would have
+      Metal available. Getting this far required two real fixes to
+      `awake-vulkan/build.gradle.kts`, now permanent: (1) link against MoltenVK's **static**
+      `.a`, not its dynamic `.framework` — a dynamic framework needs an app bundle's
+      "Embed Frameworks" build phase to be found by `dyld` at runtime, which a bare test
+      executable doesn't have (confirmed via a real `Library not loaded: @rpath/
+      MoltenVK.framework/MoltenVK` failure); static linking needed the Apple frameworks
+      MoltenVK's static lib references directly (Metal/QuartzCore/IOSurface/CoreGraphics/
+      Foundation/UIKit) named explicitly, since a dynamic framework normally resolves
+      those itself; (2) `linkerOpts` need to be set via `target.binaries.all { }`, not just
+      `target.binaries.framework { }` — the test binary is a separate binary target that
+      doesn't inherit the packaged framework's linker config.
 - [ ] `CAMetalLayer`-backed surface actual
 - [ ] iOS `actual object Vulkan` — evaluate extending jni-binding-generator to emit
       cinterop-backed actuals from the same `Vulkan.kt` source (revisit now that real
