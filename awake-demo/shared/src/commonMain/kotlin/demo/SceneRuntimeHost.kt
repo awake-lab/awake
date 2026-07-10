@@ -21,7 +21,7 @@ package demo
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
-import io.github.ronjunevaldoz.awake.core.renderer.Renderer
+import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform

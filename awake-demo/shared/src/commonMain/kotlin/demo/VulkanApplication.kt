@@ -21,7 +21,7 @@ package demo
 
 import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
 import io.github.ronjunevaldoz.awake.core.graphics.Application
-import io.github.ronjunevaldoz.awake.core.renderer.Renderer
+import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.material.Material

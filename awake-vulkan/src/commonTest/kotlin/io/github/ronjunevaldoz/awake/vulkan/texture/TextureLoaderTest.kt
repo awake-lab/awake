@@ -1,10 +1,10 @@
-package io.github.ronjunevaldoz.awake.core.utils
+package io.github.ronjunevaldoz.awake.vulkan.texture
 
 import io.github.ronjunevaldoz.awake.core.graphics.DefaultBitmap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class VulkanTextureLoaderTest {
+class TextureLoaderTest {
     @Test
     fun unpacksArgbIntoRedGreenBlueAlphaByteOrder() {
         val alpha = 0xAA

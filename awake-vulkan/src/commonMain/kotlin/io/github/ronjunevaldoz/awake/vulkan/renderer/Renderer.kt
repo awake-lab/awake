@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-core.commonMain
+ * Awake.awake-vulkan.commonMain
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package io.github.ronjunevaldoz.awake.core.renderer
+package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times

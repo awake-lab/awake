@@ -19,8 +19,8 @@
 
 package io.github.ronjunevaldoz.awake.scene.systems
 
-import io.github.ronjunevaldoz.awake.core.renderer.DrawCall
-import io.github.ronjunevaldoz.awake.core.renderer.Renderer
+import io.github.ronjunevaldoz.awake.vulkan.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Camera

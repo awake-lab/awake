@@ -22,6 +22,7 @@ rootProject.name = "Awake"
 include(":awake-demo:androidApp")
 include(":awake-demo:shared")
 include(":awake-demo:desktopApp")
+include(":awake-base")
 include(":awake-core")
 include(":awake-ecs")
 include(":awake-ecs-benchmark")
