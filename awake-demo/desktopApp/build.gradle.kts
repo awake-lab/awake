@@ -15,7 +15,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             // VulkanDesktopMain.kt needs Application/DesktopGameLoop (app-lifecycle glue).
-            implementation(project(":awake-core"))
+            implementation(project(":awake-engine"))
             // runOpenGlFrameDemo() (main.kt) uses AwakeContext.init/createFrame, both now
             // in awake-opengl (see docs/MVP_PLAN.md's Decision Log, D11 follow-up).
             implementation(project(":awake-opengl"))

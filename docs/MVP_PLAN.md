@@ -1820,6 +1820,45 @@ one that failed on even a raw-JS triangle in D13) — no unresolved concerns her
 D12/D13); Compose UI chrome on web (would require the CSS-overlay canvas-embedding hack
 explicitly declined this slice).
 
+### D15 — `awake-core` → `awake-engine` rename
+
+**DECIDED (2026-07-11): done.** D12/D13/D14 all deferred this rename on the same stated
+blocker: the user's original diagram had `core/engine` depending on `core/scene` (engine
+sits above scene, orchestrating it), but the real graph never matched — confirmed via
+`Explore`: `awake-core` only ever depended on `awake-base`, never `awake-scene`, and
+`awake-scene` never depended on `awake-core` either. They're siblings, not layered.
+
+**Why this turned out not to be a real blocker**: `awake-core` is nearly empty today —
+just the `Application`/`GameLoop` interfaces and `EngineConfig` (fps/ups holder). Nearly
+everything substantial that used to live there (math, `Input`/`Key`, `FixedTimestepLoop`,
+`Bitmap`, glTF parsing) already migrated to `awake-base` back in D11. The orchestration
+logic that *would* create a real engine→scene dependency — driving a fixed-timestep loop
+that reads input and steps an ECS scene graph — is `demo/SceneRuntimeHost.kt`, and it
+lives in `awake-demo` (the app layer), not in `awake-core`. So the diagram's assumed
+dependency was aspirational for a "real orchestrating engine" module that was never
+actually built here; what got built instead is a thin, independent lifecycle-interface
+layer that doesn't need `awake-scene` for anything.
+
+**Resolution**: renamed `awake-core` → `awake-engine` as a plain Gradle module id +
+directory rename (`git mv`), no dependency changes — matches the precedent already set by
+`awake-engine-render-api` (module id ≠ Kotlin package root is fine) and `awake-backend-
+vulkan` (D13): package name `io.github.ronjunevaldoz.awake.core` and the iOS framework
+`baseName = "awake-core"` were left unchanged, since neither is tied to any native
+toolchain or external consumer that would break, and touching them isn't necessary to fix
+the actual issue (the module id/name). Updated all 3 consumers'
+`project(":awake-core")` → `project(":awake-engine")`: `awake-opengl`, `awake-demo:shared`,
+`awake-demo:desktopApp`.
+
+**Explicitly not done, and not planned**: building out `awake-engine` into a real
+scene-orchestrating layer (moving `SceneRuntimeHost`-style logic out of `awake-demo` into
+it, so it would actually depend on `awake-scene` and match the original diagram literally)
+— this would be a real, separate feature (generalizing app-specific demo orchestration
+into a reusable engine API), not a naming fix, and wasn't asked for.
+
+**Verified**: `awake-engine` compiles on all 5 targets (desktop/Android/iosArm64/
+iosSimulatorArm64/wasmJs); all 3 consumers (`awake-opengl`, `awake-demo:shared` including
+its wasmJs target, `awake-demo:desktopApp`) compile clean.
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

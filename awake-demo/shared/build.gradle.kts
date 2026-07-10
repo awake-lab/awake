@@ -112,7 +112,7 @@ kotlin {
             implementation(libs.compose.material.icons.core)
             implementation(libs.compose.components.resources)
             implementation(project(":awake-scene"))
-            implementation(project(":awake-core"))
+            implementation(project(":awake-engine"))
             implementation(libs.kotlinx.coroutines.core)
         }
         // Web demo (see docs/MVP_PLAN.md's decision log): App.kt/AwakeCanvas.kt (the
@@ -134,7 +134,7 @@ kotlin {
             implementation(project(":awake-backend-vulkan"))
             // Legacy OpenGL demo path (App.kt/DemoApplication.kt/scene/Demo*.kt) -- see
             // docs/MVP_PLAN.md's Decision Log, D11 follow-up, for why this moved out of
-            // awake-core.
+            // awake-engine.
             implementation(project(":awake-opengl"))
         }
         named("desktopMain") { dependsOn(appMain) }

@@ -91,9 +91,9 @@ kotlin {
             // see docs/MVP_PLAN.md's Decision Log, D11 follow-up, for the split this module
             // boundary comes from.
             implementation(project(":awake-base"))
-            // AwakeContext.init mirrors fps/ups into EngineConfigHolder so awake-core's
+            // AwakeContext.init mirrors fps/ups into EngineConfigHolder so awake-engine's
             // GameLoop actuals keep working without depending on this (or any) backend.
-            implementation(project(":awake-core"))
+            implementation(project(":awake-engine"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.components.resources)
