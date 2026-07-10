@@ -62,6 +62,9 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSemaphoreCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSwapchainCreateInfoKHR
+import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkDebugUtilsMessageSeverityFlagBitsEXT
+import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.PFN_vkDebugUtilsMessengerCallbackEXT
+import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCallbackDataEXT
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCreateInfoEXT
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
@@ -70,10 +73,15 @@ import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDevi
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceLimits
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceProperties
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceSparseProperties
+import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.NativePlacement
+import kotlinx.cinterop.StableRef
+import kotlinx.cinterop.asStableRef
+import kotlinx.cinterop.pointed
+import kotlinx.cinterop.staticCFunction
 import kotlinx.cinterop.UIntVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
@@ -189,6 +197,7 @@ import platform.MoltenVK.vkCreateSwapchainKHR as nativeVkCreateSwapchainKHR
 import platform.MoltenVK.vkCreateDevice as nativeVkCreateDevice
 import platform.MoltenVK.vkCreateRenderPass as nativeVkCreateRenderPass
 import platform.MoltenVK.vkCreateGraphicsPipelines as nativeVkCreateGraphicsPipelines
+import platform.MoltenVK.vkCreateDebugUtilsMessengerEXT as nativeVkCreateDebugUtilsMessengerEXT
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
 import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
@@ -249,6 +258,10 @@ import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_I
 import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
+import platform.MoltenVK.VkDebugUtilsMessengerCreateInfoEXT as NativeVkDebugUtilsMessengerCreateInfoEXT
+import platform.MoltenVK.VkDebugUtilsMessengerCallbackDataEXT as NativeVkDebugUtilsMessengerCallbackDataEXT
+import platform.MoltenVK.VkDebugUtilsMessengerEXTVar
 import platform.MoltenVK.VkViewport as NativeVkViewport
 import platform.MoltenVK.VkRect2D as NativeVkRect2D
 import platform.MoltenVK.VkSurfaceCapabilitiesKHR as NativeVkSurfaceCapabilitiesKHR
@@ -517,6 +530,32 @@ private fun Array<VkAttachmentReference>.toNativeAttachmentRefArray(
 ): CPointer<NativeVkAttachmentReference> = scope.allocArray(size) { index ->
     attachment = this@toNativeAttachmentRefArray[index].attachment.toUInt()
     layout = this@toNativeAttachmentRefArray[index].layout.value.toUInt()
+}
+
+// vkCreateDebugUtilsMessengerEXT support -- the one function in this file needing a real
+// Kotlin-lambda-to-C-function-pointer bridge (staticCFunction can't capture state, so the
+// actual Kotlin callback travels through pUserData as a StableRef instead, recovered inside
+// the trampoline). debugMessengerCallbacks maps the returned messenger handle back to its
+// StableRef so vkDestroyDebugUtilsMessengerEXT can dispose it and avoid leaking it forever.
+@OptIn(ExperimentalForeignApi::class)
+private val debugMessengerCallbacks = mutableMapOf<Long, StableRef<PFN_vkDebugUtilsMessengerCallbackEXT>>()
+
+@OptIn(ExperimentalForeignApi::class)
+private val debugMessengerTrampoline = staticCFunction {
+        severity: UInt,
+        types: UInt,
+        pCallbackData: CPointer<NativeVkDebugUtilsMessengerCallbackDataEXT>?,
+        pUserData: COpaquePointer? ->
+    val callback = pUserData!!.asStableRef<PFN_vkDebugUtilsMessengerCallbackEXT>().get()
+    val native = pCallbackData!!.pointed
+    val kotlinCallbackData = VkDebugUtilsMessengerCallbackDataEXT(
+        pMessageIdName = native.pMessageIdName?.toKString(),
+        messageIdNumber = native.messageIdNumber,
+        pMessage = native.pMessage?.toKString() ?: ""
+    )
+    val severityBits = VkDebugUtilsMessageSeverityFlagBitsEXT.entries.first { it.value.toUInt() == severity }
+    val handled = callback(severityBits, types.toInt(), kotlinCallbackData, null)
+    if (handled) 1u else 0u
 }
 
 // Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
@@ -1560,8 +1599,31 @@ actual object Vulkan {
     actual fun vkCreateDebugUtilsMessengerEXT(
         instance: Long,
         createInfo: VkDebugUtilsMessengerCreateInfoEXT
-    ): Long {
-        TODO("Not yet implemented")
+    ): Long = memScoped {
+        val callbackRef = StableRef.create(createInfo.pfnUserCallback)
+        val nativeCreateInfo = alloc<NativeVkDebugUtilsMessengerCreateInfoEXT>().apply {
+            sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
+            pNext = null
+            flags = createInfo.flags.toUInt()
+            messageSeverity = createInfo.messageSeverity.toUInt()
+            messageType = createInfo.messageType.toUInt()
+            pfnUserCallback = debugMessengerTrampoline
+            pUserData = callbackRef.asCPointer()
+        }
+        val messengerVar = alloc<VkDebugUtilsMessengerEXTVar>()
+        val result = nativeVkCreateDebugUtilsMessengerEXT(
+            instance.toCPointer(),
+            nativeCreateInfo.ptr,
+            null,
+            messengerVar.ptr
+        )
+        check(result == VK_SUCCESS) {
+            callbackRef.dispose()
+            "vkCreateDebugUtilsMessengerEXT failed: $result"
+        }
+        val handle = messengerVar.value!!.rawValue.toLong()
+        debugMessengerCallbacks[handle] = callbackRef
+        handle
     }
 
     actual fun vkDestroyDebugUtilsMessengerEXT(instance: Long, debugUtilsMessenger: Long) {
@@ -1570,5 +1632,6 @@ actual object Vulkan {
             debugUtilsMessenger.toCPointer<cnames.structs.VkDebugUtilsMessengerEXT_T>(),
             null
         )
+        debugMessengerCallbacks.remove(debugUtilsMessenger)?.dispose()
     }
 }
