@@ -25,6 +25,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPresentModeKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagBitsKHR
+import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtensionProperties
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent3D
@@ -66,6 +67,7 @@ import kotlinx.cinterop.allocArrayOf
 import kotlinx.cinterop.cstr
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.set
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toCPointer
 import kotlinx.cinterop.toKString
@@ -80,6 +82,7 @@ import cnames.structs.VkImage_T
 import cnames.structs.VkInstance_T
 import cnames.structs.VkPhysicalDevice_T
 import cnames.structs.VkPipelineCache_T
+import cnames.structs.VkQueue_T
 import cnames.structs.VkPipelineLayout_T
 import cnames.structs.VkPipeline_T
 import cnames.structs.VkRenderPass_T
@@ -91,14 +94,20 @@ import platform.MoltenVK.VK_STRUCTURE_TYPE_APPLICATION_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_FENCE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
+import platform.MoltenVK.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_SUBMIT_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
 import platform.MoltenVK.VK_SUCCESS
 import platform.MoltenVK.VkCommandBufferVar
 import platform.MoltenVK.VkCommandPoolVar
@@ -111,6 +120,7 @@ import platform.MoltenVK.VkPipelineLayoutVar
 import platform.MoltenVK.VkQueueVar
 import platform.MoltenVK.VkSemaphoreVar
 import platform.MoltenVK.VkShaderModuleVar
+import platform.MoltenVK.VkSwapchainKHRVar
 import platform.MoltenVK.vkBeginCommandBuffer as nativeVkBeginCommandBuffer
 import platform.MoltenVK.vkCmdBindPipeline as nativeVkCmdBindPipeline
 import platform.MoltenVK.vkCmdDraw as nativeVkCmdDraw
@@ -157,6 +167,11 @@ import platform.MoltenVK.vkAcquireNextImageKHR as nativeVkAcquireNextImageKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceCapabilitiesKHR as nativeVkGetPhysicalDeviceSurfaceCapabilitiesKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceFormatsKHR as nativeVkGetPhysicalDeviceSurfaceFormatsKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfacePresentModesKHR as nativeVkGetPhysicalDeviceSurfacePresentModesKHR
+import platform.MoltenVK.vkQueueSubmit as nativeVkQueueSubmit
+import platform.MoltenVK.vkQueuePresentKHR as nativeVkQueuePresentKHR
+import platform.MoltenVK.vkCmdBeginRenderPass as nativeVkCmdBeginRenderPass
+import platform.MoltenVK.vkCreateSwapchainKHR as nativeVkCreateSwapchainKHR
+import platform.MoltenVK.vkCreateDevice as nativeVkCreateDevice
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
 import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
@@ -175,6 +190,14 @@ import platform.MoltenVK.VkPipelineCacheCreateInfo as NativeVkPipelineCacheCreat
 import platform.MoltenVK.VkQueueFamilyProperties as NativeVkQueueFamilyProperties
 import platform.MoltenVK.VkSemaphoreCreateInfo as NativeVkSemaphoreCreateInfo
 import platform.MoltenVK.VkShaderModuleCreateInfo as NativeVkShaderModuleCreateInfo
+import platform.MoltenVK.VkSubmitInfo as NativeVkSubmitInfo
+import platform.MoltenVK.VkPresentInfoKHR as NativeVkPresentInfoKHR
+import platform.MoltenVK.VkRenderPassBeginInfo as NativeVkRenderPassBeginInfo
+import platform.MoltenVK.VkClearValue as NativeVkClearValue
+import platform.MoltenVK.VkSwapchainCreateInfoKHR as NativeVkSwapchainCreateInfoKHR
+import platform.MoltenVK.VkDeviceCreateInfo as NativeVkDeviceCreateInfo
+import platform.MoltenVK.VkDeviceQueueCreateInfo as NativeVkDeviceQueueCreateInfo
+import platform.MoltenVK.VkDeviceVar
 import platform.MoltenVK.VkViewport as NativeVkViewport
 import platform.MoltenVK.VkRect2D as NativeVkRect2D
 import platform.MoltenVK.VkSurfaceCapabilitiesKHR as NativeVkSurfaceCapabilitiesKHR
@@ -240,6 +263,67 @@ private fun NativeVkPhysicalDeviceFeatures.toKotlinModel(): VkPhysicalDeviceFeat
     variableMultisampleRate = variableMultisampleRate != 0u,
     inheritedQueries = inheritedQueries != 0u
 )
+
+// Reverse of NativeVkPhysicalDeviceFeatures.toKotlinModel() above -- used by vkCreateDevice's
+// pEnabledFeatures marshalling.
+@OptIn(ExperimentalForeignApi::class)
+private fun NativeVkPhysicalDeviceFeatures.fromKotlinModel(model: VkPhysicalDeviceFeatures) {
+    robustBufferAccess = if (model.robustBufferAccess) 1u else 0u
+    fullDrawIndexUint32 = if (model.fullDrawIndexUint32) 1u else 0u
+    imageCubeArray = if (model.imageCubeArray) 1u else 0u
+    independentBlend = if (model.independentBlend) 1u else 0u
+    geometryShader = if (model.geometryShader) 1u else 0u
+    tessellationShader = if (model.tessellationShader) 1u else 0u
+    sampleRateShading = if (model.sampleRateShading) 1u else 0u
+    dualSrcBlend = if (model.dualSrcBlend) 1u else 0u
+    logicOp = if (model.logicOp) 1u else 0u
+    multiDrawIndirect = if (model.multiDrawIndirect) 1u else 0u
+    drawIndirectFirstInstance = if (model.drawIndirectFirstInstance) 1u else 0u
+    depthClamp = if (model.depthClamp) 1u else 0u
+    depthBiasClamp = if (model.depthBiasClamp) 1u else 0u
+    fillModeNonSolid = if (model.fillModeNonSolid) 1u else 0u
+    depthBounds = if (model.depthBounds) 1u else 0u
+    wideLines = if (model.wideLines) 1u else 0u
+    largePoints = if (model.largePoints) 1u else 0u
+    alphaToOne = if (model.alphaToOne) 1u else 0u
+    multiViewport = if (model.multiViewport) 1u else 0u
+    samplerAnisotropy = if (model.samplerAnisotropy) 1u else 0u
+    textureCompressionETC2 = if (model.textureCompressionETC2) 1u else 0u
+    textureCompressionASTC_LDR = if (model.textureCompressionASTC_LDR) 1u else 0u
+    textureCompressionBC = if (model.textureCompressionBC) 1u else 0u
+    occlusionQueryPrecise = if (model.occlusionQueryPrecise) 1u else 0u
+    pipelineStatisticsQuery = if (model.pipelineStatisticsQuery) 1u else 0u
+    vertexPipelineStoresAndAtomics = if (model.vertexPipelineStoresAndAtomics) 1u else 0u
+    fragmentStoresAndAtomics = if (model.fragmentStoresAndAtomics) 1u else 0u
+    shaderTessellationAndGeometryPointSize = if (model.shaderTessellationAndGeometryPointSize) 1u else 0u
+    shaderImageGatherExtended = if (model.shaderImageGatherExtended) 1u else 0u
+    shaderStorageImageExtendedFormats = if (model.shaderStorageImageExtendedFormats) 1u else 0u
+    shaderStorageImageMultisample = if (model.shaderStorageImageMultisample) 1u else 0u
+    shaderStorageImageReadWithoutFormat = if (model.shaderStorageImageReadWithoutFormat) 1u else 0u
+    shaderStorageImageWriteWithoutFormat = if (model.shaderStorageImageWriteWithoutFormat) 1u else 0u
+    shaderUniformBufferArrayDynamicIndexing = if (model.shaderUniformBufferArrayDynamicIndexing) 1u else 0u
+    shaderSampledImageArrayDynamicIndexing = if (model.shaderSampledImageArrayDynamicIndexing) 1u else 0u
+    shaderStorageBufferArrayDynamicIndexing = if (model.shaderStorageBufferArrayDynamicIndexing) 1u else 0u
+    shaderStorageImageArrayDynamicIndexing = if (model.shaderStorageImageArrayDynamicIndexing) 1u else 0u
+    shaderClipDistance = if (model.shaderClipDistance) 1u else 0u
+    shaderCullDistance = if (model.shaderCullDistance) 1u else 0u
+    shaderFloat64 = if (model.shaderFloat64) 1u else 0u
+    shaderInt64 = if (model.shaderInt64) 1u else 0u
+    shaderInt16 = if (model.shaderInt16) 1u else 0u
+    shaderResourceResidency = if (model.shaderResourceResidency) 1u else 0u
+    shaderResourceMinLod = if (model.shaderResourceMinLod) 1u else 0u
+    sparseBinding = if (model.sparseBinding) 1u else 0u
+    sparseResidencyBuffer = if (model.sparseResidencyBuffer) 1u else 0u
+    sparseResidencyImage2D = if (model.sparseResidencyImage2D) 1u else 0u
+    sparseResidencyImage3D = if (model.sparseResidencyImage3D) 1u else 0u
+    sparseResidency2Samples = if (model.sparseResidency2Samples) 1u else 0u
+    sparseResidency4Samples = if (model.sparseResidency4Samples) 1u else 0u
+    sparseResidency8Samples = if (model.sparseResidency8Samples) 1u else 0u
+    sparseResidency16Samples = if (model.sparseResidency16Samples) 1u else 0u
+    sparseResidencyAliased = if (model.sparseResidencyAliased) 1u else 0u
+    variableMultisampleRate = if (model.variableMultisampleRate) 1u else 0u
+    inheritedQueries = if (model.inheritedQueries) 1u else 0u
+}
 
 // Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
 //
@@ -399,8 +483,38 @@ actual object Vulkan {
         LongArray(count) { i -> nativeArray[i]!!.rawValue.toLong() }
     }
 
-    actual fun vkCreateDevice(physicalDevice: Long, deviceInfo: VkDeviceCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateDevice(physicalDevice: Long, deviceInfo: VkDeviceCreateInfo): Long = memScoped {
+        val nativeQueueCreateInfos = allocArray<NativeVkDeviceQueueCreateInfo>(deviceInfo.pQueueCreateInfos.size) { index ->
+            val queueInfo = deviceInfo.pQueueCreateInfos[index]
+            sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
+            pNext = null
+            flags = queueInfo.flags.toUInt()
+            queueFamilyIndex = queueInfo.queueFamilyIndex.toUInt()
+            queueCount = queueInfo.queueCount.toUInt()
+            pQueuePriorities = allocArray(queueInfo.pQueuePriorities.size) { i -> value = queueInfo.pQueuePriorities[i] }
+        }
+        val nativeEnabledFeatures = deviceInfo.pEnabledFeatures.firstOrNull()?.let { features ->
+            alloc<NativeVkPhysicalDeviceFeatures>().apply { fromKotlinModel(features) }
+        }
+        val nativeCreateInfo = alloc<NativeVkDeviceCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
+            pNext = null
+            flags = deviceInfo.flags.toUInt()
+            queueCreateInfoCount = deviceInfo.pQueueCreateInfos.size.toUInt()
+            pQueueCreateInfos = nativeQueueCreateInfos
+            val layerNames = deviceInfo.ppEnabledLayerNames
+            enabledLayerCount = (layerNames?.size ?: 0).toUInt()
+            ppEnabledLayerNames = layerNames?.let { names -> allocArrayOf(names.map { it.cstr.ptr }) }
+            val extensionNames = deviceInfo.ppEnabledExtensionNames
+            enabledExtensionCount = (extensionNames?.size ?: 0).toUInt()
+            ppEnabledExtensionNames =
+                extensionNames?.let { names -> allocArrayOf(names.map { it.cstr.ptr }) }
+            pEnabledFeatures = nativeEnabledFeatures?.ptr
+        }
+        val deviceVar = alloc<VkDeviceVar>()
+        val result = nativeVkCreateDevice(physicalDevice.toCPointer(), nativeCreateInfo.ptr, null, deviceVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateDevice failed: $result" }
+        deviceVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyDevice(device: Long) {
@@ -507,8 +621,37 @@ actual object Vulkan {
         Array(count) { i -> VkPresentModeKHR.entries.first { it.value.toUInt() == nativeArray[i] } }
     }
 
-    actual fun vkCreateSwapchainKHR(device: Long, createInfoKHR: VkSwapchainCreateInfoKHR): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateSwapchainKHR(device: Long, createInfoKHR: VkSwapchainCreateInfoKHR): Long = memScoped {
+        val nativeCreateInfo = alloc<NativeVkSwapchainCreateInfoKHR>().apply {
+            sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
+            pNext = null
+            flags = createInfoKHR.flags.toUInt()
+            surface = createInfoKHR.surface.toCPointer()
+            minImageCount = createInfoKHR.minImageCount.toUInt()
+            imageFormat = createInfoKHR.imageFormat.value.toUInt()
+            imageColorSpace = createInfoKHR.imageColorSpace.value.toUInt()
+            imageExtent.apply {
+                width = createInfoKHR.imageExtent.width.toUInt()
+                height = createInfoKHR.imageExtent.height.toUInt()
+            }
+            imageArrayLayers = createInfoKHR.imageArrayLayers.toUInt()
+            imageUsage = createInfoKHR.imageUsage.toUInt()
+            imageSharingMode = createInfoKHR.imageSharingMode.value.toUInt()
+            val queueFamilyIndices = createInfoKHR.pQueueFamilyIndices
+            queueFamilyIndexCount = (queueFamilyIndices?.size ?: 0).toUInt()
+            pQueueFamilyIndices = queueFamilyIndices?.let { indices ->
+                allocArray(indices.size) { i -> value = indices[i].toUInt() }
+            }
+            preTransform = createInfoKHR.preTransform.value.toUInt()
+            compositeAlpha = createInfoKHR.compositeAlpha.value.toUInt()
+            presentMode = createInfoKHR.presentMode.value.toUInt()
+            clipped = if (createInfoKHR.clipped) 1u else 0u
+            oldSwapchain = createInfoKHR.oldSwapchain.toCPointer()
+        }
+        val swapchainVar = alloc<VkSwapchainKHRVar>()
+        val result = nativeVkCreateSwapchainKHR(device.toCPointer(), nativeCreateInfo.ptr, null, swapchainVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateSwapchainKHR failed: $result" }
+        swapchainVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroySwapchainKHR(device: Long, swapchainKHR: Long) {
@@ -771,8 +914,43 @@ actual object Vulkan {
         commandBuffer: Long,
         renderPassBeginInfo: VkRenderPassBeginInfo,
         contents: VkSubpassContents
-    ) {
-        TODO("Not yet implemented")
+    ) = memScoped {
+        val nativeBeginInfo = alloc<NativeVkRenderPassBeginInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
+            pNext = null
+            renderPass = renderPassBeginInfo.renderPass.toCPointer()
+            framebuffer = renderPassBeginInfo.framebuffer.toCPointer()
+            renderArea.apply {
+                offset.apply {
+                    x = renderPassBeginInfo.renderArea.offset.x
+                    y = renderPassBeginInfo.renderArea.offset.y
+                }
+                extent.apply {
+                    width = renderPassBeginInfo.renderArea.extent.width.toUInt()
+                    height = renderPassBeginInfo.renderArea.extent.height.toUInt()
+                }
+            }
+            val clearValues = renderPassBeginInfo.pClearValues
+            clearValueCount = (clearValues?.size ?: 0).toUInt()
+            pClearValues = clearValues?.let { values ->
+                allocArray<NativeVkClearValue>(values.size) { index ->
+                    // Only the RGBA float clear-color case is marshalled -- the only variant
+                    // any call site in this codebase uses today. VkClearDepthStencilValue
+                    // (union's other member) would need its own branch if a depth-clear ever
+                    // gets wired up.
+                    val clearColor = values[index] as? VkClearColorValue.Float32
+                        ?: error("vkCmdBeginRenderPass: only VkClearColorValue.Float32 is supported on iOS")
+                    color.float32.apply {
+                        this[0] = clearColor.values[0]
+                        this[1] = clearColor.values[1]
+                        this[2] = clearColor.values[2]
+                        this[3] = clearColor.values[3]
+                    }
+                }
+            }
+        }
+        nativeVkCmdBeginRenderPass(commandBuffer.toCPointer(), nativeBeginInfo.ptr, contents.value.toUInt())
+        Unit
     }
 
     actual fun vkCmdEndRenderPass(commandBuffer: Long) {
@@ -860,12 +1038,62 @@ actual object Vulkan {
         nativeVkResetCommandBuffer(commandBuffer.toCPointer(), flags.toUInt())
     }
 
-    actual fun vkQueueSubmit(queue: Long, pSubmits: Array<VkSubmitInfo>, fence: Long) {
-        TODO("Not yet implemented")
+    actual fun vkQueueSubmit(queue: Long, pSubmits: Array<VkSubmitInfo>, fence: Long) = memScoped {
+        val nativeSubmits = allocArray<NativeVkSubmitInfo>(pSubmits.size) { index ->
+            val submit = pSubmits[index]
+            sType = VK_STRUCTURE_TYPE_SUBMIT_INFO
+            pNext = null
+            val waitSemaphores = submit.pWaitSemaphores
+            waitSemaphoreCount = (waitSemaphores?.size ?: 0).toUInt()
+            pWaitSemaphores = waitSemaphores?.let { semaphores ->
+                allocArray<CPointerVar<VkSemaphore_T>>(semaphores.size) { i -> value = semaphores[i].toCPointer() }
+            }
+            pWaitDstStageMask = submit.pWaitDstStageMask?.let { masks ->
+                allocArray(masks.size) { i -> value = masks[i].toUInt() }
+            }
+            val commandBuffers = submit.pCommandBuffers
+            commandBufferCount = (commandBuffers?.size ?: 0).toUInt()
+            pCommandBuffers = commandBuffers?.let { buffers ->
+                allocArray<CPointerVar<VkCommandBuffer_T>>(buffers.size) { i -> value = buffers[i].toCPointer() }
+            }
+            val signalSemaphores = submit.pSignalSemaphores
+            signalSemaphoreCount = (signalSemaphores?.size ?: 0).toUInt()
+            pSignalSemaphores = signalSemaphores?.let { semaphores ->
+                allocArray<CPointerVar<VkSemaphore_T>>(semaphores.size) { i -> value = semaphores[i].toCPointer() }
+            }
+        }
+        val result = nativeVkQueueSubmit(
+            queue.toCPointer<VkQueue_T>(),
+            pSubmits.size.toUInt(),
+            nativeSubmits,
+            fence.toCPointer<VkFence_T>()
+        )
+        check(result == VK_SUCCESS) { "vkQueueSubmit failed: $result" }
+        Unit
     }
 
-    actual fun vkQueuePresentKHR(queue: Long, pPresentInfoKHR: VkPresentInfoKHR) {
-        TODO("Not yet implemented")
+    actual fun vkQueuePresentKHR(queue: Long, pPresentInfoKHR: VkPresentInfoKHR) = memScoped {
+        val nativePresentInfo = alloc<NativeVkPresentInfoKHR>().apply {
+            sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
+            pNext = null
+            val waitSemaphores = pPresentInfoKHR.pWaitSemaphores
+            waitSemaphoreCount = (waitSemaphores?.size ?: 0).toUInt()
+            pWaitSemaphores = waitSemaphores?.let { semaphores ->
+                allocArray<CPointerVar<VkSemaphore_T>>(semaphores.size) { i -> value = semaphores[i].toCPointer() }
+            }
+            val swapchains = pPresentInfoKHR.pSwapchains
+            swapchainCount = (swapchains?.size ?: 0).toUInt()
+            pSwapchains = swapchains?.let { chains ->
+                allocArray<CPointerVar<VkSwapchainKHR_T>>(chains.size) { i -> value = chains[i].toCPointer() }
+            }
+            pImageIndices = pPresentInfoKHR.pImageIndices?.let { indices ->
+                allocArray(indices.size) { i -> value = indices[i].toUInt() }
+            }
+            pResults = null
+        }
+        val result = nativeVkQueuePresentKHR(queue.toCPointer<VkQueue_T>(), nativePresentInfo.ptr)
+        check(result == VK_SUCCESS) { "vkQueuePresentKHR failed: $result" }
+        Unit
     }
 
     actual fun vkCreateDebugUtilsMessengerEXT(
