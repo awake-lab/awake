@@ -54,4 +54,17 @@ expect object VulkanWindow {
      * `VkInstanceCreateInfo.ppEnabledExtensionNames` *before* calling
      * [glfwCreateWindowSurface], or it fails with `VK_ERROR_INITIALIZATION_FAILED`. */
     fun glfwGetRequiredInstanceExtensions(): Array<String>
+
+    /** `GLFW_PRESS` (1) if the GLFW key code [key] is currently held, `GLFW_RELEASE` (0)
+     * otherwise. Polled once per frame (see the desktop entry point) rather than
+     * callback-based -- `glfwPollEvents()` already runs on the single render thread every
+     * frame (see this project's `.claude/AGENTS.md` "Threading model" section), so a poll
+     * there needs no callback/synchronization machinery a push-based API would. */
+    fun glfwGetKey(window: Long, key: Int): Int
+
+    /** Same polling contract as [glfwGetKey], for a GLFW mouse button code. */
+    fun glfwGetMouseButton(window: Long, button: Int): Int
+
+    /** Cursor position in screen coordinates as `[x, y]`. */
+    fun glfwGetCursorPos(window: Long): DoubleArray
 }

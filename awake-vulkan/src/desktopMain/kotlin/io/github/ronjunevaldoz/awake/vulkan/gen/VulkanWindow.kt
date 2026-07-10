@@ -42,4 +42,7 @@ actual object VulkanWindow {
     actual external fun glfwGetFramebufferHeight(window: Long): Int
     actual external fun glfwCreateWindowSurface(instance: Long, window: Long): Long
     actual external fun glfwGetRequiredInstanceExtensions(): Array<String>
+    actual external fun glfwGetKey(window: Long, key: Int): Int
+    actual external fun glfwGetMouseButton(window: Long, button: Int): Int
+    actual external fun glfwGetCursorPos(window: Long): DoubleArray
 }

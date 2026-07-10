@@ -66,4 +66,16 @@ actual object VulkanWindow {
     // rather than a TODO -- "no GLFW-required extensions" is true on every non-GLFW
     // platform, letting cross-platform code call this unconditionally.
     actual fun glfwGetRequiredInstanceExtensions(): Array<String> = emptyArray()
+
+    actual fun glfwGetKey(window: Long, key: Int): Int {
+        TODO("Not applicable on iOS -- see VulkanWindow.kt's doc comment.")
+    }
+
+    actual fun glfwGetMouseButton(window: Long, button: Int): Int {
+        TODO("Not applicable on iOS -- see VulkanWindow.kt's doc comment.")
+    }
+
+    actual fun glfwGetCursorPos(window: Long): DoubleArray {
+        TODO("Not applicable on iOS -- see VulkanWindow.kt's doc comment.")
+    }
 }

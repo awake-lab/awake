@@ -216,3 +216,66 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwGetRequiredInstan
     }
     return make_boxed_string_array(env, result);
 }
+
+
+extern "C" JNIEXPORT jint JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwGetKey(
+        JNIEnv* env,
+        jclass clazz,
+        jlong window,
+        jint key) {
+    // --- Marshalling ---
+    void* window_ptr = reinterpret_cast<void*>(window);
+    int32_t key_val = static_cast<int32_t>(key);
+
+    // --- Error handling ---
+    if (!window_ptr) {
+        throw_illegal_state(env, "glfwGetKey: window not initialized");
+        return 0;
+    }
+
+    return static_cast<jint>(glfwGetKey(reinterpret_cast<GLFWwindow*>(window_ptr), key_val));
+}
+
+
+extern "C" JNIEXPORT jint JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwGetMouseButton(
+        JNIEnv* env,
+        jclass clazz,
+        jlong window,
+        jint button) {
+    // --- Marshalling ---
+    void* window_ptr = reinterpret_cast<void*>(window);
+    int32_t button_val = static_cast<int32_t>(button);
+
+    // --- Error handling ---
+    if (!window_ptr) {
+        throw_illegal_state(env, "glfwGetMouseButton: window not initialized");
+        return 0;
+    }
+
+    return static_cast<jint>(glfwGetMouseButton(reinterpret_cast<GLFWwindow*>(window_ptr), button_val));
+}
+
+
+extern "C" JNIEXPORT jdoubleArray JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwGetCursorPos(
+        JNIEnv* env,
+        jclass clazz,
+        jlong window) {
+    // --- Marshalling ---
+    void* window_ptr = reinterpret_cast<void*>(window);
+
+    // --- Error handling ---
+    if (!window_ptr) {
+        throw_illegal_state(env, "glfwGetCursorPos: window not initialized");
+        return nullptr;
+    }
+
+    double x = 0.0, y = 0.0;
+    glfwGetCursorPos(reinterpret_cast<GLFWwindow*>(window_ptr), &x, &y);
+    jdouble values[2] = { x, y };
+    jdoubleArray result = env->NewDoubleArray(2);
+    env->SetDoubleArrayRegion(result, 0, 2, values);
+    return result;
+}

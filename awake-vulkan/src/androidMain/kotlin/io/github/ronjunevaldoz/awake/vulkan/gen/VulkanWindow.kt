@@ -69,4 +69,16 @@ actual object VulkanWindow {
     // code call this unconditionally without a platform check -- see VulkanApplication's
     // createInstance() in awake-demo.
     actual fun glfwGetRequiredInstanceExtensions(): Array<String> = emptyArray()
+
+    actual fun glfwGetKey(window: Long, key: Int): Int {
+        TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
+    }
+
+    actual fun glfwGetMouseButton(window: Long, button: Int): Int {
+        TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
+    }
+
+    actual fun glfwGetCursorPos(window: Long): DoubleArray {
+        TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
+    }
 }
