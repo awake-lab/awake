@@ -152,6 +152,16 @@ kotlin {
         named("desktopMain") { dependsOn(vulkanMain) }
         named("androidMain") { dependsOn(vulkanMain) }
         named("iosMain") { dependsOn(vulkanMain) }
+        // Phase 2.5 milestone 2 spike: wgpu4k is the candidate WebGPU binding noted in
+        // docs/MVP_PLAN.md -- pre-1.0 (last tag v0.1.1, June 2025), consumed here as a
+        // Sonatype snapshot (see settings.gradle.kts) to evaluate whether its API shape fits
+        // before committing the real GraphicsDevice/Renderer/etc. wasmJs actuals to it.
+        named("wasmJsMain") {
+            dependencies {
+                implementation(libs.wgpu4k)
+                implementation(libs.wgpu4k.toolkit)
+            }
+        }
         androidMain.dependencies {
             // CMake/NDK build + bundled validation layers (AGP 9 KMP plugin
             // has no externalNativeBuild support, so a plain library owns it)

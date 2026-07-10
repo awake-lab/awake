@@ -50,5 +50,9 @@ dependencyResolutionManagement {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
+        // wgpu4k (Phase 2.5 spike, see docs/MVP_PLAN.md) has no stable release yet (last tag
+        // v0.1.1, June 2025) -- only snapshots via Sonatype's current Central Portal
+        // snapshot repo (not the legacy oss.sonatype.org ones above).
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
     }
 }

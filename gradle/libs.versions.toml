@@ -20,8 +20,16 @@ material-icons = "1.7.3"
 leakcanary = "2.14"
 # vanniktech-publish is applied directly in awake-core/build.gradle.kts.
 vanniktech-publish = "0.36.0"
+# Phase 2.5 (Web/WebGPU) spike -- no stable release yet (last tag v0.1.1, June 2025), this
+# is a Sonatype snapshot build (see settings.gradle.kts's snapshot repo addition).
+wgpu4k = "0.2.0-SNAPSHOT"
 
 [libraries]
+wgpu4k = { module = "io.ygdrasil:wgpu4k", version.ref = "wgpu4k" }
+# wgpu4k-toolkit has the canvas/adapter/device bootstrap helpers (canvasContextRenderer,
+# WGPUContext) the core wgpu4k module doesn't -- see wgpu4k-toolkit/src/webMain/kotlin/
+# Surface.kt in the wgpu4k repo.
+wgpu4k-toolkit = { module = "io.ygdrasil:wgpu4k-toolkit", version.ref = "wgpu4k" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }

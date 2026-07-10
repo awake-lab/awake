@@ -1040,10 +1040,29 @@ twice (once against whatever's there today, again once Phase 2 settles).
       the new `compileKotlinWasmJs` all succeed; `desktopTest` (real lavapipe Vulkan smoke
       suite) passes; `assembleSharedDebugXCFramework` + a real Simulator run still render
       the demo cube identically to before the refactor.
-- [ ] Milestone 2: real WebGPU backend implementing the `expect` seam milestone 1 built —
-      evaluate wgpu4k hands-on first (does its API shape fit `GraphicsDevice.create()`'s
-      window/surface model? does it support the swapchain/frames-in-flight pattern
-      `SwapchainManager` needs, or does WebGPU's model make that concept obsolete?)
+- [x] **wgpu4k hands-on spike (2026-07-10): real WebGPU device + canvas clear-color
+      confirmed working end to end.** `io.ygdrasil:wgpu4k`/`wgpu4k-toolkit` (Sonatype
+      snapshot `0.2.0-SNAPSHOT` — no stable release exists yet, last tag `v0.1.1` is from
+      June 2025; snapshot repo added to `settings.gradle.kts`) resolves and compiles clean
+      against `awake-vulkan`'s `wasmJsMain`. `WebGpuSpike.kt` acquires a real adapter/device
+      via `canvasContextRenderer()`, clears a canvas to a distinct test color via a real
+      `GPUCommandEncoder`/render pass, and was verified rendering that exact color in a real
+      Chromium browser (temporary `binaries.executable()` + `main()` entry point, removed
+      after confirming — see git history for the exact verification setup if needed again).
+      **Real gotcha found**: `canvasContextRenderer()` does not call `Surface.configure()`
+      itself (unlike wgpu4k-toolkit's own `Application.configureRenderingContext()` helper
+      used by its example scenes) — omitting it throws `"context is not configured"` from
+      `getCurrentTexture()`. Any real backend built on wgpu4k must call `surface.configure(
+      SurfaceConfiguration(device, format, usage, alphaMode))` explicitly before rendering.
+      **wgpu4k's API shape looks like a good fit** for `GraphicsDevice`/`SwapchainManager`:
+      `WGPUContext` bundles adapter/device/surface/renderingContext similarly to what
+      `GraphicsDevice.create()` already assembles, and `SurfaceRenderingContext.getCurrentTexture()`
+      is a close analog to `SwapchainManager`'s per-frame image acquisition — though WebGPU
+      has no separate "frames in flight" concept to mirror (no explicit fence/semaphore
+      array), so `SwapchainManager`'s wasmJs actual will likely be much thinner than its
+      Vulkan counterpart, not a 1:1 port.
+- [ ] Milestone 2: real WebGPU backend implementing the `expect` seam milestone 1 built,
+      using wgpu4k (spike above) as the binding library
 - [ ] Wasm ECS/runtime: Fleks and the kotlinx libraries already used elsewhere in this
       project (coroutines, datetime, serialization) already support Wasm — confirm no
       Vulkan-only assumption leaked into `awake-base`'s non-rendering code paths (also still
