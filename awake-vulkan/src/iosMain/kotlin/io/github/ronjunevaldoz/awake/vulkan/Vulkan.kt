@@ -19,12 +19,17 @@
 
 package io.github.ronjunevaldoz.awake.vulkan
 
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorSpaceKHR
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPresentModeKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagBitsKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtensionProperties
+import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent3D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkLayerProperties
+import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkQueueFamilyProperties
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceCapabilitiesKHR
@@ -144,6 +149,14 @@ import platform.MoltenVK.vkCreateShaderModule as nativeVkCreateShaderModule
 import platform.MoltenVK.vkCreatePipelineCache as nativeVkCreatePipelineCache
 import platform.MoltenVK.vkCreatePipelineLayout as nativeVkCreatePipelineLayout
 import platform.MoltenVK.vkCreateFramebuffer as nativeVkCreateFramebuffer
+import platform.MoltenVK.vkCmdSetViewport as nativeVkCmdSetViewport
+import platform.MoltenVK.vkCmdSetScissor as nativeVkCmdSetScissor
+import platform.MoltenVK.vkWaitForFences as nativeVkWaitForFences
+import platform.MoltenVK.vkResetFences as nativeVkResetFences
+import platform.MoltenVK.vkAcquireNextImageKHR as nativeVkAcquireNextImageKHR
+import platform.MoltenVK.vkGetPhysicalDeviceSurfaceCapabilitiesKHR as nativeVkGetPhysicalDeviceSurfaceCapabilitiesKHR
+import platform.MoltenVK.vkGetPhysicalDeviceSurfaceFormatsKHR as nativeVkGetPhysicalDeviceSurfaceFormatsKHR
+import platform.MoltenVK.vkGetPhysicalDeviceSurfacePresentModesKHR as nativeVkGetPhysicalDeviceSurfacePresentModesKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
 import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
@@ -162,6 +175,10 @@ import platform.MoltenVK.VkPipelineCacheCreateInfo as NativeVkPipelineCacheCreat
 import platform.MoltenVK.VkQueueFamilyProperties as NativeVkQueueFamilyProperties
 import platform.MoltenVK.VkSemaphoreCreateInfo as NativeVkSemaphoreCreateInfo
 import platform.MoltenVK.VkShaderModuleCreateInfo as NativeVkShaderModuleCreateInfo
+import platform.MoltenVK.VkViewport as NativeVkViewport
+import platform.MoltenVK.VkRect2D as NativeVkRect2D
+import platform.MoltenVK.VkSurfaceCapabilitiesKHR as NativeVkSurfaceCapabilitiesKHR
+import platform.MoltenVK.VkSurfaceFormatKHR as NativeVkSurfaceFormatKHR
 
 // One field per VkPhysicalDeviceFeatures member (55 VkBool32 flags, no nesting) -- shared by
 // vkGetPhysicalDeviceFeatures (native -> Kotlin) below.
@@ -422,22 +439,72 @@ actual object Vulkan {
     actual fun vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
         physicalDevice: Long,
         surface: Long
-    ): VkSurfaceCapabilitiesKHR {
-        TODO("Not yet implemented")
+    ): VkSurfaceCapabilitiesKHR = memScoped {
+        val nativeCaps = alloc<NativeVkSurfaceCapabilitiesKHR>()
+        nativeVkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+            physicalDevice.toCPointer(),
+            surface.toCPointer<VkSurfaceKHR_T>(),
+            nativeCaps.ptr
+        )
+        VkSurfaceCapabilitiesKHR(
+            minImageCount = nativeCaps.minImageCount.toInt(),
+            maxImageCount = nativeCaps.maxImageCount.toInt(),
+            currentExtent = VkExtent2D(
+                width = nativeCaps.currentExtent.width.toInt(),
+                height = nativeCaps.currentExtent.height.toInt()
+            ),
+            minImageExtent = VkExtent2D(
+                width = nativeCaps.minImageExtent.width.toInt(),
+                height = nativeCaps.minImageExtent.height.toInt()
+            ),
+            maxImageExtent = VkExtent2D(
+                width = nativeCaps.maxImageExtent.width.toInt(),
+                height = nativeCaps.maxImageExtent.height.toInt()
+            ),
+            maxImageArrayLayers = nativeCaps.maxImageArrayLayers.toInt(),
+            supportedTransforms = nativeCaps.supportedTransforms.toInt(),
+            currentTransform = VkSurfaceTransformFlagBitsKHR.entries.first {
+                it.value.toUInt() == nativeCaps.currentTransform
+            },
+            supportedCompositeAlpha = nativeCaps.supportedCompositeAlpha.toInt(),
+            supportedUsageFlags = nativeCaps.supportedUsageFlags.toInt()
+        )
     }
 
     actual fun vkGetPhysicalDeviceSurfaceFormatsKHR(
         physicalDevice: Long,
         surface: Long
-    ): Array<VkSurfaceFormatKHR> {
-        TODO("Not yet implemented")
+    ): Array<VkSurfaceFormatKHR> = memScoped {
+        val nativePhysicalDevice = physicalDevice.toCPointer<VkPhysicalDevice_T>()
+        val nativeSurface = surface.toCPointer<VkSurfaceKHR_T>()
+        val countVar = alloc<UIntVar>()
+        nativeVkGetPhysicalDeviceSurfaceFormatsKHR(nativePhysicalDevice, nativeSurface, countVar.ptr, null)
+        val count = countVar.value.toInt()
+        if (count == 0) return@memScoped emptyArray()
+        val nativeArray = allocArray<NativeVkSurfaceFormatKHR>(count)
+        nativeVkGetPhysicalDeviceSurfaceFormatsKHR(nativePhysicalDevice, nativeSurface, countVar.ptr, nativeArray)
+        Array(count) { i ->
+            val native = nativeArray[i]
+            VkSurfaceFormatKHR(
+                format = VkFormat.entries.first { it.value.toUInt() == native.format },
+                colorSpace = VkColorSpaceKHR.entries.first { it.value.toUInt() == native.colorSpace }
+            )
+        }
     }
 
     actual fun vkGetPhysicalDeviceSurfacePresentModesKHR(
         physicalDevice: Long,
         surface: Long
-    ): Array<VkPresentModeKHR> {
-        TODO("Not yet implemented")
+    ): Array<VkPresentModeKHR> = memScoped {
+        val nativePhysicalDevice = physicalDevice.toCPointer<VkPhysicalDevice_T>()
+        val nativeSurface = surface.toCPointer<VkSurfaceKHR_T>()
+        val countVar = alloc<UIntVar>()
+        nativeVkGetPhysicalDeviceSurfacePresentModesKHR(nativePhysicalDevice, nativeSurface, countVar.ptr, null)
+        val count = countVar.value.toInt()
+        if (count == 0) return@memScoped emptyArray()
+        val nativeArray = allocArray<UIntVar>(count)
+        nativeVkGetPhysicalDeviceSurfacePresentModesKHR(nativePhysicalDevice, nativeSurface, countVar.ptr, nativeArray)
+        Array(count) { i -> VkPresentModeKHR.entries.first { it.value.toUInt() == nativeArray[i] } }
     }
 
     actual fun vkCreateSwapchainKHR(device: Long, createInfoKHR: VkSwapchainCreateInfoKHR): Long {
@@ -656,12 +723,32 @@ actual object Vulkan {
         )
     }
 
-    actual fun vkCmdSetViewport(commandBuffer: Long, firstViewport: Int, viewports: Array<VkViewport>) {
-        TODO("Not yet implemented")
+    actual fun vkCmdSetViewport(commandBuffer: Long, firstViewport: Int, viewports: Array<VkViewport>) = memScoped {
+        val nativeViewports = allocArray<NativeVkViewport>(viewports.size) { index ->
+            x = viewports[index].x
+            y = viewports[index].y
+            width = viewports[index].width
+            height = viewports[index].height
+            minDepth = viewports[index].minDepth
+            maxDepth = viewports[index].maxDepth
+        }
+        nativeVkCmdSetViewport(commandBuffer.toCPointer(), firstViewport.toUInt(), viewports.size.toUInt(), nativeViewports)
+        Unit
     }
 
-    actual fun vkCmdSetScissor(commandBuffer: Long, firstScissor: Int, scissors: Array<VkRect2D>) {
-        TODO("Not yet implemented")
+    actual fun vkCmdSetScissor(commandBuffer: Long, firstScissor: Int, scissors: Array<VkRect2D>) = memScoped {
+        val nativeScissors = allocArray<NativeVkRect2D>(scissors.size) { index ->
+            offset.apply {
+                x = scissors[index].offset.x
+                y = scissors[index].offset.y
+            }
+            extent.apply {
+                width = scissors[index].extent.width.toUInt()
+                height = scissors[index].extent.height.toUInt()
+            }
+        }
+        nativeVkCmdSetScissor(commandBuffer.toCPointer(), firstScissor.toUInt(), scissors.size.toUInt(), nativeScissors)
+        Unit
     }
 
     actual fun vkCmdDraw(
@@ -728,12 +815,26 @@ actual object Vulkan {
         nativeVkDestroyFence(device.toCPointer(), fence.toCPointer<VkFence_T>(), null)
     }
 
-    actual fun vkWaitForFences(device: Long, fences: LongArray, waitAll: Boolean, timeout: Long) {
-        TODO("Not yet implemented")
+    actual fun vkWaitForFences(device: Long, fences: LongArray, waitAll: Boolean, timeout: Long) = memScoped {
+        val nativeFences = allocArray<CPointerVar<VkFence_T>>(fences.size) { index ->
+            value = fences[index].toCPointer()
+        }
+        nativeVkWaitForFences(
+            device.toCPointer(),
+            fences.size.toUInt(),
+            nativeFences,
+            if (waitAll) 1u else 0u,
+            timeout.toULong()
+        )
+        Unit
     }
 
-    actual fun vkResetFences(device: Long, fences: LongArray) {
-        TODO("Not yet implemented")
+    actual fun vkResetFences(device: Long, fences: LongArray) = memScoped {
+        val nativeFences = allocArray<CPointerVar<VkFence_T>>(fences.size) { index ->
+            value = fences[index].toCPointer()
+        }
+        nativeVkResetFences(device.toCPointer(), fences.size.toUInt(), nativeFences)
+        Unit
     }
 
     actual fun vkAcquireNextImageKHR(
@@ -742,8 +843,17 @@ actual object Vulkan {
         timeout: Long,
         semaphore: Long,
         fence: Long
-    ): Int {
-        TODO("Not yet implemented")
+    ): Int = memScoped {
+        val imageIndexVar = alloc<UIntVar>()
+        nativeVkAcquireNextImageKHR(
+            device.toCPointer(),
+            swapchain.toCPointer<VkSwapchainKHR_T>(),
+            timeout.toULong(),
+            semaphore.toCPointer<VkSemaphore_T>(),
+            fence.toCPointer<VkFence_T>(),
+            imageIndexVar.ptr
+        )
+        imageIndexVar.value.toInt()
     }
 
     actual fun vkResetCommandBuffer(commandBuffer: Long, flags: Int) {
