@@ -52,6 +52,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayou
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceFeatures
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceProperties
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.UIntVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArrayOf
 import kotlinx.cinterop.cstr
@@ -59,24 +60,61 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toCPointer
 import kotlinx.cinterop.value
+import cnames.structs.VkCommandPool_T
+import cnames.structs.VkFence_T
+import cnames.structs.VkFramebuffer_T
+import cnames.structs.VkImageView_T
 import cnames.structs.VkInstance_T
+import cnames.structs.VkPipelineCache_T
+import cnames.structs.VkPipelineLayout_T
+import cnames.structs.VkPipeline_T
+import cnames.structs.VkRenderPass_T
+import cnames.structs.VkSemaphore_T
+import cnames.structs.VkShaderModule_T
+import cnames.structs.VkSurfaceKHR_T
+import cnames.structs.VkSwapchainKHR_T
 import platform.MoltenVK.VK_STRUCTURE_TYPE_APPLICATION_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
 import platform.MoltenVK.VK_SUCCESS
 import platform.MoltenVK.VkInstanceVar
+import platform.MoltenVK.VkQueueVar
+import platform.MoltenVK.vkBeginCommandBuffer as nativeVkBeginCommandBuffer
+import platform.MoltenVK.vkCmdBindPipeline as nativeVkCmdBindPipeline
+import platform.MoltenVK.vkCmdDraw as nativeVkCmdDraw
+import platform.MoltenVK.vkCmdEndRenderPass as nativeVkCmdEndRenderPass
 import platform.MoltenVK.vkCreateInstance as nativeVkCreateInstance
+import platform.MoltenVK.vkDestroyCommandPool as nativeVkDestroyCommandPool
+import platform.MoltenVK.vkDestroyDebugUtilsMessengerEXT as nativeVkDestroyDebugUtilsMessengerEXT
+import platform.MoltenVK.vkDestroyDevice as nativeVkDestroyDevice
+import platform.MoltenVK.vkDestroyFence as nativeVkDestroyFence
+import platform.MoltenVK.vkDestroyFramebuffer as nativeVkDestroyFramebuffer
+import platform.MoltenVK.vkDestroyImageView as nativeVkDestroyImageView
 import platform.MoltenVK.vkDestroyInstance as nativeVkDestroyInstance
+import platform.MoltenVK.vkDestroyPipeline as nativeVkDestroyPipeline
+import platform.MoltenVK.vkDestroyPipelineCache as nativeVkDestroyPipelineCache
+import platform.MoltenVK.vkDestroyPipelineLayout as nativeVkDestroyPipelineLayout
+import platform.MoltenVK.vkDestroyRenderPass as nativeVkDestroyRenderPass
+import platform.MoltenVK.vkDestroySemaphore as nativeVkDestroySemaphore
+import platform.MoltenVK.vkDestroyShaderModule as nativeVkDestroyShaderModule
+import platform.MoltenVK.vkDestroySurfaceKHR as nativeVkDestroySurfaceKHR
+import platform.MoltenVK.vkDestroySwapchainKHR as nativeVkDestroySwapchainKHR
+import platform.MoltenVK.vkEndCommandBuffer as nativeVkEndCommandBuffer
+import platform.MoltenVK.vkGetDeviceQueue as nativeVkGetDeviceQueue
+import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
+import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
 import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
+import platform.MoltenVK.VkCommandBufferBeginInfo as NativeVkCommandBufferBeginInfo
 import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
 
-// Phase 6 (MoltenVK cinterop) has not landed yet — see docs/MVP_PLAN.md.
+// Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
 //
-// vkCreateInstance/vkDestroyInstance below are a real cinterop implementation (not a
-// TODO stub) -- proof-of-concept that awake-vulkan's iOS target actually links against
-// and calls into the vendored MoltenVK.xcframework (awake-vulkan/ios-native/MoltenVK).
-// Compiled, not yet hardware/simulator-verified -- no iOS app target drives a real frame
-// yet (Phase 6 is still "MoltenVK cinterop bindings," not "iOS demo runs"). The other 56
-// functions below remain TODO() stubs; each needs this same struct-marshalling treatment.
+// Functions with real cinterop bodies (not TODO() stubs) actually link against and call
+// into the vendored MoltenVK.xcframework (awake-vulkan/ios-native/MoltenVK). Compiled,
+// not yet hardware/simulator-verified -- no iOS app target drives a real frame yet (Phase
+// 6 is still "MoltenVK cinterop bindings," not "iOS demo runs"). Functions still marked
+// TODO() below need the same struct-marshalling treatment -- see vkCreateInstance for the
+// nested-struct-and-arrays pattern, or any vkDestroyXxx for the trivial handle-only one.
 @OptIn(ExperimentalForeignApi::class)
 actual object Vulkan {
     actual fun vkCreateInstance(createInfo: VkInstanceCreateInfo): Long = memScoped {
@@ -157,11 +195,13 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyDevice(device: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyDevice(device.toCPointer(), null)
     }
 
-    actual fun vkGetDeviceQueue(device: Long, queueFamilyIndex: Int, queueIndex: Int): Long {
-        TODO("Not yet implemented")
+    actual fun vkGetDeviceQueue(device: Long, queueFamilyIndex: Int, queueIndex: Int): Long = memScoped {
+        val queueVar = alloc<VkQueueVar>()
+        nativeVkGetDeviceQueue(device.toCPointer(), queueFamilyIndex.toUInt(), queueIndex.toUInt(), queueVar.ptr)
+        queueVar.value!!.rawValue.toLong()
     }
 
     actual fun vkCreateAndroidSurfaceKHR(instance: Long, surfaceInfo: VkAndroidSurfaceCreateInfoKHR): Long {
@@ -172,12 +212,19 @@ actual object Vulkan {
         physicalDevice: Long,
         queueFamilyIndex: Int,
         surface: Long
-    ): Boolean {
-        TODO("Not yet implemented")
+    ): Boolean = memScoped {
+        val supportedVar = alloc<UIntVar>()
+        nativeVkGetPhysicalDeviceSurfaceSupportKHR(
+            physicalDevice.toCPointer(),
+            queueFamilyIndex.toUInt(),
+            surface.toCPointer<VkSurfaceKHR_T>(),
+            supportedVar.ptr
+        )
+        supportedVar.value != 0u
     }
 
     actual fun vkDestroySurfaceKHR(instance: Long, surface: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroySurfaceKHR(instance.toCPointer(), surface.toCPointer<VkSurfaceKHR_T>(), null)
     }
 
     actual fun vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
@@ -206,7 +253,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroySwapchainKHR(device: Long, swapchainKHR: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroySwapchainKHR(device.toCPointer(), swapchainKHR.toCPointer<VkSwapchainKHR_T>(), null)
     }
 
     actual fun vkCreateImageView(device: Long, createInfo: VkImageViewCreateInfo): Long {
@@ -214,7 +261,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyImageView(device: Long, imageView: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyImageView(device.toCPointer(), imageView.toCPointer<VkImageView_T>(), null)
     }
 
     actual fun vkCreateShaderModule(device: Long, createInfo: VkShaderModuleCreateInfo): Long {
@@ -222,7 +269,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyShaderModule(device: Long, shaderModule: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyShaderModule(device.toCPointer(), shaderModule.toCPointer<VkShaderModule_T>(), null)
     }
 
     actual fun vkCreatePipelineCache(device: Long, createInfo: VkPipelineCacheCreateInfo): Long {
@@ -230,7 +277,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyPipelineCache(device: Long, pipelineCache: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyPipelineCache(device.toCPointer(), pipelineCache.toCPointer<VkPipelineCache_T>(), null)
     }
 
     actual fun vkCreatePipelineLayout(device: Long, createInfo: VkPipelineLayoutCreateInfo): Long {
@@ -238,7 +285,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyPipelineLayout(device: Long, pipelineLayout: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyPipelineLayout(device.toCPointer(), pipelineLayout.toCPointer<VkPipelineLayout_T>(), null)
     }
 
     actual fun vkCreateGraphicsPipelines(
@@ -250,7 +297,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyPipeline(device: Long, pipeline: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyPipeline(device.toCPointer(), pipeline.toCPointer<VkPipeline_T>(), null)
     }
 
     actual fun vkCreateRenderPass(device: Long, createInfo: VkRenderPassCreateInfo): Long {
@@ -258,7 +305,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyRenderPass(device: Long, renderPass: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyRenderPass(device.toCPointer(), renderPass.toCPointer<VkRenderPass_T>(), null)
     }
 
     actual fun vkCreateFramebuffer(device: Long, framebufferInfo: VkFramebufferCreateInfo): Long {
@@ -266,15 +313,24 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyFramebuffer(device: Long, framebuffer: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyFramebuffer(device.toCPointer(), framebuffer.toCPointer<VkFramebuffer_T>(), null)
     }
 
     actual fun vkAllocateCommandBuffers(device: Long, createInfo: VkCommandBufferAllocateInfo): Long {
         TODO("Not yet implemented")
     }
 
-    actual fun vkBeginCommandBuffer(commandBuffer: Long, beginInfo: VkCommandBufferBeginInfo) {
-        TODO("Not yet implemented")
+    actual fun vkBeginCommandBuffer(commandBuffer: Long, beginInfo: VkCommandBufferBeginInfo) = memScoped {
+        val nativeBeginInfo = alloc<NativeVkCommandBufferBeginInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
+            pNext = null
+            flags = beginInfo.flags.toUInt()
+            // pInheritanceInfo only matters for secondary command buffers -- out of scope
+            // for this pass, matching this codebase's primary-command-buffer-only usage.
+            pInheritanceInfo = null
+        }
+        nativeVkBeginCommandBuffer(commandBuffer.toCPointer(), nativeBeginInfo.ptr)
+        Unit
     }
 
     actual fun vkCreateCommandPool(device: Long, createInfo: VkCommandPoolCreateInfo): Long {
@@ -282,7 +338,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyCommandPool(device: Long, commandPool: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyCommandPool(device.toCPointer(), commandPool.toCPointer<VkCommandPool_T>(), null)
     }
 
     actual fun vkCmdBindPipeline(
@@ -290,7 +346,11 @@ actual object Vulkan {
         pipelineBindPoint: VkPipelineBindPoint,
         graphicsPipeline: Long
     ) {
-        TODO("Not yet implemented")
+        nativeVkCmdBindPipeline(
+            commandBuffer.toCPointer(),
+            pipelineBindPoint.value.toUInt(),
+            graphicsPipeline.toCPointer<VkPipeline_T>()
+        )
     }
 
     actual fun vkCmdSetViewport(commandBuffer: Long, firstViewport: Int, viewports: Array<VkViewport>) {
@@ -308,7 +368,13 @@ actual object Vulkan {
         firstVertex: Int,
         firstInstance: Int
     ) {
-        TODO("Not yet implemented")
+        nativeVkCmdDraw(
+            commandBuffer.toCPointer(),
+            vertexCount.toUInt(),
+            instanceCount.toUInt(),
+            firstVertex.toUInt(),
+            firstInstance.toUInt()
+        )
     }
 
     actual fun vkCmdBeginRenderPass(
@@ -320,11 +386,11 @@ actual object Vulkan {
     }
 
     actual fun vkCmdEndRenderPass(commandBuffer: Long) {
-        TODO("Not yet implemented")
+        nativeVkCmdEndRenderPass(commandBuffer.toCPointer())
     }
 
     actual fun vkEndCommandBuffer(commandBuffer: Long) {
-        TODO("Not yet implemented")
+        nativeVkEndCommandBuffer(commandBuffer.toCPointer())
     }
 
     actual fun vkCreateSemaphore(device: Long, createInfo: VkSemaphoreCreateInfo): Long {
@@ -332,7 +398,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroySemaphore(device: Long, semaphore: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroySemaphore(device.toCPointer(), semaphore.toCPointer<VkSemaphore_T>(), null)
     }
 
     actual fun vkCreateFence(device: Long, createInfo: VkFenceCreateInfo): Long {
@@ -340,7 +406,7 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyFence(device: Long, fence: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyFence(device.toCPointer(), fence.toCPointer<VkFence_T>(), null)
     }
 
     actual fun vkWaitForFences(device: Long, fences: LongArray, waitAll: Boolean, timeout: Long) {
@@ -362,7 +428,7 @@ actual object Vulkan {
     }
 
     actual fun vkResetCommandBuffer(commandBuffer: Long, flags: Int) {
-        TODO("Not yet implemented")
+        nativeVkResetCommandBuffer(commandBuffer.toCPointer(), flags.toUInt())
     }
 
     actual fun vkQueueSubmit(queue: Long, pSubmits: Array<VkSubmitInfo>, fence: Long) {
@@ -381,6 +447,10 @@ actual object Vulkan {
     }
 
     actual fun vkDestroyDebugUtilsMessengerEXT(instance: Long, debugUtilsMessenger: Long) {
-        TODO("Not yet implemented")
+        nativeVkDestroyDebugUtilsMessengerEXT(
+            instance.toCPointer(),
+            debugUtilsMessenger.toCPointer<cnames.structs.VkDebugUtilsMessengerEXT_T>(),
+            null
+        )
     }
 }
