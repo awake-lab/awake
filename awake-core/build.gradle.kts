@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.android.library.kmp)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.vanniktech.publish)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
@@ -91,6 +92,7 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.components.resources)
             implementation(libs.napier)
+            implementation(libs.kotlinx.serialization.json)
             implementation(project(":awake-vulkan"))
         }
         commonTest.dependencies {
