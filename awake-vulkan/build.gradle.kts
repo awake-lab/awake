@@ -46,12 +46,17 @@ kotlin {
     // scratch, so `make ios` must run *after* `make iossim` -- or vice versa run twice --
     // to end up with both platform slices in one xcframework; confirmed empirically.)
     val moltenVkIncludeDir = file("ios-native/MoltenVK/Package/Release/MoltenVK/include")
-    val moltenVkFrameworkDir = mapOf(
+    // Static, not dynamic: a dynamic MoltenVK.framework needs to be embedded into an app
+    // bundle's Frameworks/ dir (an "Embed Frameworks" build phase) or dyld can't find it at
+    // runtime -- confirmed the hard way (`dyld: Library not loaded: @rpath/MoltenVK.framework/
+    // MoltenVK`) trying to run a plain Kotlin/Native test executable, which has no app
+    // bundle/embed step at all. Static linking has no such runtime-loading step.
+    val moltenVkStaticDir = mapOf(
         "iosArm64" to file(
-            "ios-native/MoltenVK/Package/Release/MoltenVK/dynamic/MoltenVK.xcframework/ios-arm64"
+            "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64"
         ),
         "iosSimulatorArm64" to file(
-            "ios-native/MoltenVK/Package/Release/MoltenVK/dynamic/MoltenVK.xcframework/" +
+            "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/" +
                 "ios-arm64_x86_64-simulator"
         ),
     )
@@ -59,17 +64,33 @@ kotlin {
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { target ->
-        val frameworkDir = moltenVkFrameworkDir.getValue(target.name)
+        val staticDir = moltenVkStaticDir.getValue(target.name)
         target.binaries.framework {
             baseName = "awake-vulkan"
-            linkerOpts("-F${frameworkDir.path}", "-framework", "MoltenVK")
+        }
+        // binaries.all{} (not just binaries.framework{}) so the test binary
+        // (linkDebugTestIosSimulatorArm64 etc.) gets these too, not just the packaged
+        // .framework output.
+        target.binaries.all {
+            linkerOpts(
+                "-L${staticDir.path}", "-lMoltenVK", "-lc++",
+                // MoltenVK's static lib references these Apple frameworks directly
+                // (CAMetalLayer, IOSurface, color-space constants, etc.) -- a dynamic
+                // .framework resolves its own dependencies at load time, but a static
+                // .a needs them named explicitly at link time.
+                "-framework", "Metal",
+                "-framework", "QuartzCore",
+                "-framework", "IOSurface",
+                "-framework", "CoreGraphics",
+                "-framework", "Foundation",
+                "-framework", "UIKit",
+            )
         }
         target.compilations.getByName("main") {
             cinterops {
                 create("MoltenVK") {
                     defFile(project.file("src/nativeInterop/cinterop/MoltenVK.def"))
                     includeDirs(moltenVkIncludeDir)
-                    extraOpts("-compiler-option", "-F${frameworkDir.path}")
                 }
             }
         }
