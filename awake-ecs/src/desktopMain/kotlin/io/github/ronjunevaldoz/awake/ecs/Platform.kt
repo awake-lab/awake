@@ -30,3 +30,11 @@ internal actual fun <T : Any> createComponentInstance(type: KClass<T>): T {
     val clazz = type.javaObjectType as Class<T>
     return clazz.getDeclaredConstructor().newInstance()
 }
+
+// `T::class.java` on a reified type parameter is a recognized Kotlin compiler idiom that
+// compiles directly to an `LDC <Class>` constant, skipping `Reflection.getOrCreateKotlinClass`
+// entirely -- see the commonMain expect declaration's doc comment for how this was verified.
+@PublishedApi
+internal actual inline fun <reified T : Any> componentTypeKey(): Any = T::class.java
+
+internal actual fun <T : Any> componentTypeKeyOf(type: KClass<T>): Any = type.java

@@ -97,8 +97,16 @@ class World {
         return instance
     }
 
+    /** Reified sugar for [add] -- resolves the type id via [componentTypeKey] instead of a fresh
+     * `KClass` per call (see that function's doc comment for why this matters: without
+     * `kotlin-reflect`, a bare `T::class` inside a reified inline function re-derives a
+     * `ClassReference` wrapper on every single call, confirmed by decompiling the generated
+     * bytecode). This gives the default reified API every caller already uses the same
+     * steady-state cost as a caller hand-hoisting a `ComponentTypeId` (see "Hot-path
+     * performance" in this module's agent doc) -- no opt-in required. */
     inline fun <reified T : Any> add(entity: Entity, component: T): T? {
-        return add(entity, T::class, component)
+        val typeId = resolveReifiedTypeId(componentTypeKey<T>()) { T::class }
+        return addReified(entity, typeId, { T::class }, component)
     }
 
     fun <T : Any> add(entity: Entity, type: KClass<T>, component: T): T? {
@@ -114,6 +122,47 @@ class World {
             familyRegistry.replaceComponent(entity, typeId, component)
         }
         return previous
+    }
+
+    /** Shared body for the reified [add] sugar above -- kept as a regular (non-inline) member so
+     * it can touch private state, and marked `@PublishedApi internal` so the public inline
+     * function above can call it from any module. Unlike the `ComponentTypeId` overload of [add]
+     * (which requires the store to already exist), this lazily creates it via [type] if missing,
+     * since the reified sugar must work on a type's very first `add` with no prior setup. */
+    @PublishedApi
+    internal fun <T : Any> addReified(
+        entity: Entity,
+        typeId: ComponentTypeId,
+        type: () -> KClass<T>,
+        component: T
+    ): T? {
+        requireAlive(entity)
+        val store = components.storeForKey(typeId, type)
+        val previous = store.add(entity, component)
+        if (previous == null) {
+            entities.markComponentAdded(entity.id, typeId)
+            queries.markDirty()
+            familyRegistry.addComponent(entity, typeId, component)
+        } else {
+            components.recycle(typeId, previous)
+            familyRegistry.replaceComponent(entity, typeId, component)
+        }
+        return previous
+    }
+
+    /** Resolves (or registers) a reified type's id via its [componentTypeKey] token -- shared by
+     * every reified sugar function below. `@PublishedApi internal` so it's callable from the
+     * public inline functions that use it. */
+    @PublishedApi
+    internal fun <T : Any> resolveReifiedTypeId(key: Any, type: () -> KClass<T>): ComponentTypeId {
+        return components.typeIdForKey(key, type)
+    }
+
+    /** [resolveReifiedTypeId]'s `get`/`has` counterpart -- doesn't register a new type on a miss,
+     * matching [typeIdOrNull]-style "unknown type means null" semantics for reads. */
+    @PublishedApi
+    internal fun resolveReifiedTypeIdOrNull(key: Any): ComponentTypeId? {
+        return components.typeIdForKeyOrNull(key)
     }
 
     /** Fast path for callers that already cached [typeId] for a component whose store has
@@ -145,8 +194,19 @@ class World {
         return instance
     }
 
+    /** Reified sugar for [get] -- see [add]'s reified overload for why this avoids a per-call
+     * `T::class` derivation. */
     inline fun <reified T : Any> get(entity: Entity): T? {
-        return get(entity, T::class)
+        val typeId = resolveReifiedTypeIdOrNull(componentTypeKey<T>()) ?: return null
+        return getReified(entity, typeId)
+    }
+
+    @PublishedApi
+    internal fun <T : Any> getReified(entity: Entity, typeId: ComponentTypeId): T? {
+        if (!entities.isAlive(entity)) {
+            return null
+        }
+        return components.storeOrNull<T>(typeId)?.get(entity)
     }
 
     fun <T : Any> get(entity: Entity, type: KClass<T>): T? {
@@ -164,8 +224,26 @@ class World {
         return components.storeOrNull<T>(typeId)?.get(entity)
     }
 
+    /** Reified sugar for [remove] -- see [add]'s reified overload for why this avoids a per-call
+     * `T::class` derivation. */
     inline fun <reified T : Any> remove(entity: Entity): T? {
-        return remove(entity, T::class)
+        val typeId = resolveReifiedTypeId(componentTypeKey<T>()) { T::class }
+        return removeReified(entity, typeId)
+    }
+
+    @PublishedApi
+    internal fun <T : Any> removeReified(entity: Entity, typeId: ComponentTypeId): T? {
+        if (!entities.isAlive(entity)) {
+            return null
+        }
+        val removed = components.storeOrNull<T>(typeId)?.remove(entity)
+        if (removed != null) {
+            entities.markComponentRemoved(entity.id, typeId)
+            queries.markDirty()
+            familyRegistry.removeComponent(entity, typeId)
+            components.recycle(typeId, removed)
+        }
+        return removed
     }
 
     fun <T : Any> remove(entity: Entity, type: KClass<T>): T? {
@@ -197,8 +275,11 @@ class World {
         return removed
     }
 
+    /** Reified sugar for [has] -- see [add]'s reified overload for why this avoids a per-call
+     * `T::class` derivation. */
     inline fun <reified T : Any> has(entity: Entity): Boolean {
-        return has(entity, T::class)
+        val typeId = resolveReifiedTypeIdOrNull(componentTypeKey<T>()) ?: return false
+        return has(entity, typeId)
     }
 
     fun has(entity: Entity, type: KClass<out Any>): Boolean {

@@ -28,12 +28,17 @@ internal class ComponentRegistry {
     private var componentPoolsById = arrayOfNulls<ComponentPool<Any>>(16)
 
     private val typeIds = mutableMapOf<KClass<out Any>, ComponentTypeId>()
+
+    /** Mirrors [typeIds], but keyed by [componentTypeKey]'s platform token instead of a `KClass`
+     * -- see [typeIdForKey] for why this exists and how it stays in sync with [typeIds]. */
+    private val typeIdsByKey = mutableMapOf<Any, ComponentTypeId>()
     private var hasComponentPools = false
 
     fun clear() {
         forEachStore { it.clear() }
         stores.fill(null)
         typeIds.clear()
+        typeIdsByKey.clear()
         componentPoolsById.fill(null)
         componentPools.values.forEach { it.clear() }
         hasComponentPools = componentPools.isNotEmpty()
@@ -102,12 +107,32 @@ internal class ComponentRegistry {
             componentPools[type]?.let { pool ->
                 componentPoolsById[id] = pool
             }
-            ComponentTypeId(id)
+            val typeId = ComponentTypeId(id)
+            typeIdsByKey[componentTypeKeyOf(type)] = typeId
+            typeId
         }
     }
 
     fun typeIdOrNull(type: KClass<out Any>): ComponentTypeId? {
         return typeIds[type]
+    }
+
+    /** Fast path for [World]'s reified `add`/`remove`/`get`/`has` sugar -- resolves (or
+     * registers) a type id from [key] (see [componentTypeKey]) instead of a `KClass`, so the
+     * reified call site never needs to derive one on the steady-state (already-registered) path.
+     * [type] is only invoked -- and only ever pays a `KClass` derivation cost -- the first time
+     * this component type is registered in this [ComponentRegistry], from either this method or
+     * [typeId]; every call after that is a single hash lookup keyed by a cheap platform token. */
+    fun <T : Any> typeIdForKey(key: Any, type: () -> KClass<T>): ComponentTypeId {
+        typeIdsByKey[key]?.let { return it }
+        return typeId(type())
+    }
+
+    /** Same lookup as [typeIdOrNull], but keyed by [componentTypeKey]'s token -- doesn't register
+     * a new type on a miss, matching [typeIdOrNull]'s "unknown type means null, not a fresh id"
+     * contract for `get`/`has`. */
+    fun typeIdForKeyOrNull(key: Any): ComponentTypeId? {
+        return typeIdsByKey[key]
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -128,6 +153,15 @@ internal class ComponentRegistry {
     fun <T : Any> storeOrNull(typeId: ComponentTypeId): ComponentStore<T>? {
         val id = typeId.value
         return if (id < stores.size) stores[id] as? ComponentStore<T> else null
+    }
+
+    /** Fast path for [World]'s reified `add` sugar -- unlike the strict [storeOrNull]-or-`error`
+     * combination the `ComponentTypeId` overload of `World.add` uses (which requires the store to
+     * already exist), this lazily creates the store via [type] if it's missing, since the reified
+     * sugar has to work correctly on a brand-new component type's very first `add` with no prior
+     * setup. [type] is only invoked on that first-ever miss. */
+    fun <T : Any> storeForKey(typeId: ComponentTypeId, type: () -> KClass<T>): ComponentStore<T> {
+        return storeOrNull(typeId) ?: store(typeId, type())
     }
 
     fun removeEntity(entity: Entity, signature: Long) {

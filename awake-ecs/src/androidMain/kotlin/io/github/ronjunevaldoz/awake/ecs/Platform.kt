@@ -30,3 +30,9 @@ internal actual fun <T : Any> createComponentInstance(type: KClass<T>): T {
     val clazz = type.javaObjectType as Class<T>
     return clazz.getDeclaredConstructor().newInstance()
 }
+
+// Same reasoning as the desktop actual -- see the commonMain expect declaration's doc comment.
+@PublishedApi
+internal actual inline fun <reified T : Any> componentTypeKey(): Any = T::class.java
+
+internal actual fun <T : Any> componentTypeKeyOf(type: KClass<T>): Any = type.java
