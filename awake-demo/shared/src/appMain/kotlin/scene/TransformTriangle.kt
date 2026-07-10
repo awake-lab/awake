@@ -21,11 +21,7 @@ import io.github.ronjunevaldoz.awake.core.utils.Time
 
 class TransformTriangle : Drawable, Disposable {
 
-    private val shader = SimpleShader(
-        vertFile = "transform.vert",
-        fragFile = "transform.frag",
-        define = if (getPlatform().isMobile) "#version 300 es\n" else "#version 330 core\n"
-    )
+    private lateinit var shader: SimpleShader
 
     private val aPosition by lazy { shader.position }
     private val aTexCoords by lazy { shader.texCoords }
@@ -68,7 +64,12 @@ class TransformTriangle : Drawable, Disposable {
     private var previousAngle = 0f
     private val trans = Mat4()
 
-    init {
+    suspend fun load() {
+        shader = SimpleShader.create(
+            vertFile = "transform.vert",
+            fragFile = "transform.frag",
+            define = if (getPlatform().isMobile) "#version 300 es\n" else "#version 330 core\n"
+        )
         shader.compile()
         AssetUtils.texture.load(DemoTexture.textureKey, "assets/fonts/calibri.png")
         createBuffers()

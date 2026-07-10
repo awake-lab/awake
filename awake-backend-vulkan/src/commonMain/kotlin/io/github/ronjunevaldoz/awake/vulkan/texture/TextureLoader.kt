@@ -57,7 +57,7 @@ fun Bitmap.toRgba8Bytes(): ByteArray {
  * directly -- the one real texture the demo app renders is a hardcoded 2x2 procedural
  * checkerboard `ByteArray`, not something loaded from a resource file.
  */
-fun loadVulkanTexture(
+suspend fun loadVulkanTexture(
     graphicsDevice: GraphicsDevice,
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     resourcePath: String

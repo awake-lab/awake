@@ -25,6 +25,8 @@ import io.github.ronjunevaldoz.awake.core.graphics.Application
 import io.github.ronjunevaldoz.awake.core.graphics.Disposable
 import io.github.ronjunevaldoz.awake.core.graphics.Drawable
 import io.github.ronjunevaldoz.awake.core.graphics.opengl.OpenGL
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import scene.CubeSample
 import scene.DemoColoredTriangle
 import scene.DemoTexture
@@ -50,21 +52,35 @@ object DemoApplication : Application {
     var color = 0f
     var colorObject = Color.Green
     var colorVelocity = 1f / 60f
+    // Web demo (see docs/MVP_PLAN.md's decision log): each scene's shader/texture loading
+    // is now suspend (readResourceBytes), so create() constructs the scenes (cheap,
+    // synchronous) then loads them in its own coroutine -- same "create() stays
+    // synchronous, launch internally" pattern as VulkanApplication/WebGpuApplication. This
+    // flag keeps update() a no-op until loading actually finishes.
+    private var isReady = false
 
     override fun create(surface: Any?) {
-        drawables =
-            listOf(
-                DemoTriangle(),
-                DemoTexture(),
-                DemoColoredTriangle(),
-                TransformTriangle(),
-                FontBitmapSample(),
-                CubeSample()
-            )
+        val triangle = DemoTriangle()
+        val texture = DemoTexture()
+        val colored = DemoColoredTriangle()
+        val transform = TransformTriangle()
+        val font = FontBitmapSample()
+        val cube = CubeSample()
+        drawables = listOf(triangle, texture, colored, transform, font, cube)
+        MainScope().launch {
+            triangle.load()
+            texture.load()
+            colored.load()
+            transform.load()
+            font.load()
+            cube.load()
+            isReady = true
+        }
     }
 
 
     override fun update(delta: Float) {
+        if (!isReady) return
         // Redraw background color
         if (color > 1 || color < 0) {
             colorVelocity = -colorVelocity
@@ -87,6 +103,8 @@ object DemoApplication : Application {
     }
 
     override fun dispose() {
-        drawables.filterIsInstance<Disposable>().forEach { it.dispose() }
+        if (isReady) {
+            drawables.filterIsInstance<Disposable>().forEach { it.dispose() }
+        }
     }
 }

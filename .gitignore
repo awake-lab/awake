@@ -18,3 +18,4 @@ awake-demo/iosApp/iosApp.xcodeproj/*
 !awake-demo/iosApp/iosApp.xcodeproj/project.pbxproj
 shared/shared.podspec
 /awake-backend-vulkan/build-native/*
+.playwright-mcp/

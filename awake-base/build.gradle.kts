@@ -61,9 +61,17 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.napier)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+        }
+        // Web demo (see docs/MVP_PLAN.md's decision log): readResourceBytes' wasmJs actual
+        // needs a real browser fetch() -- kotlinx-browser wraps it.
+        named("wasmJsMain") {
+            dependencies {
+                implementation(libs.kotlinx.browser)
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ import platform.Foundation.dataWithContentsOfFile
 import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun readResourceBytes(path: String): ByteArray {
+actual suspend fun readResourceBytes(path: String): ByteArray {
     val fullPath = NSBundle.mainBundle.resourcePath?.plus("/$path")
         ?: error("Bundle resource path unavailable")
     val data: NSData = NSData.dataWithContentsOfFile(fullPath)

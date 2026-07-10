@@ -23,11 +23,7 @@ import io.github.ronjunevaldoz.awake.core.utils.Time
 
 class CubeSample : Drawable, Disposable {
 
-    private val shader = SimpleShader(
-        vertFile = "cube.vert",
-        fragFile = "cube.frag",
-        define = if (getPlatform().isMobile) "#version 300 es\n" else "#version 330 core\n"
-    )
+    private lateinit var shader: SimpleShader
 
     private val aPosition by lazy { shader.position }
     private val aColor by lazy { shader.color }
@@ -62,7 +58,12 @@ class CubeSample : Drawable, Disposable {
 
     private var angle = 0f
 
-    init {
+    suspend fun load() {
+        shader = SimpleShader.create(
+            vertFile = "cube.vert",
+            fragFile = "cube.frag",
+            define = if (getPlatform().isMobile) "#version 300 es\n" else "#version 330 core\n"
+        )
         shader.compile()
         createBuffers()
     }

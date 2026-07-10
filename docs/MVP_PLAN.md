@@ -1725,6 +1725,101 @@ parity it doesn't have); renaming `awake-core` → `awake-engine` (blocked on re
 `Material`/`Texture` WebGPU implementation (still `TODO()`); a real `wasmJs` target on
 `awake-demo:shared` to run the actual demo scene on web.
 
+### D14 — Web demo: async resource loading + a real `wasmJs` target on `awake-demo:shared`
+
+**DECIDED (2026-07-11): done.** D13's last deferred item. Four real forks surfaced during
+planning, each resolved with the user before implementation:
+
+1. **Compose Multiplatform's `wasmJs` target has no first-class API to embed a native
+   `<canvas>` inside the Compose layout tree** (confirmed via web search — only community
+   CSS-overlay/"punch-hole" hacks exist). Resolution: the web demo is a bare-canvas
+   `requestAnimationFrame` loop (`awake-demo/shared/src/wasmJsMain/kotlin/main.kt`) that
+   does not go through `App()`/`DemoScene()`/`AwakeCanvas` at all — no FPS counter/
+   Vulkan-toggle chrome on web.
+2. **`readResourceBytes`** (used by `SceneLoader.loadFromResource` to load
+   `scenes/mvp.scene.json`) **was a synchronous-signature `TODO()` stub on wasmJs** —
+   browser resource loading is inherently async (`fetch()`). Fixed properly: the `expect`
+   declaration and all 5 platform actuals became `suspend` (4 of 5 needed no body change;
+   wasmJs got a real `kotlinx-browser`-based `window.fetch()` implementation — new
+   dependency, plus `kotlinx-coroutines-core`, neither previously in
+   `gradle/libs.versions.toml`).
+3. **The `suspend` conversion cascades to every caller** — confirmed via grep this reaches
+   `awake-opengl`'s `TextureLoader.load`/`SimpleShader` and all 6 legacy OpenGL demo scene
+   classes (`TransformTriangle`, `DemoTexture`, `DemoColoredTriangle`, `DemoTriangle`,
+   `FontBitmapSample`, `CubeSample`), none of which relate to WebGPU. Did the full cascade
+   rather than a parallel web-only API. `SimpleShader` gained a `suspend fun create(...)`
+   factory that pre-loads source text into `private val` fields — `Shader`/`BaseShader
+   .compile()`'s own contract stayed fully synchronous and untouched. Each demo scene
+   class's `private val shader = SimpleShader(...)` + `init {}` (shader compile + texture
+   load) became `private lateinit var shader` + a new `suspend fun load()`.
+4. **`Application.create(surface: Any?)` stayed synchronous everywhere** rather than
+   becoming `suspend` — it's called from platform lifecycle callbacks that can't
+   (`VulkanView.surfaceCreated` on Android, `VulkanMetalView.layoutSubviews` on iOS, a
+   plain `fun main()` on desktop). Every implementation that needs `suspend` work
+   (`VulkanApplication`, the new `WebGpuApplication`, `DemoApplication`) launches it
+   internally via `MainScope().launch { }` instead. Real correctness bug caught during
+   this: since `create()` now returns before setup finishes, the platform render loop can
+   call `update()` before the `lateinit` scene-host field is initialized — fixed with an
+   `isReady` guard in each implementation's `update()`/`dispose()`.
+
+`SceneRuntimeHost` (used by every platform, including the new wasmJs one) needed two
+changes to become genuinely shared: its `Renderer` import switched from the concrete
+`io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer` to the backend-neutral
+`io.github.ronjunevaldoz.awake.render.renderer.Renderer` interface (a pre-existing bug —
+`RenderSystem` already expected the interface), and its constructor became `private` +
+a `companion object suspend fun create(...)` factory, since `SceneLoader.loadFromResource`
+is now `suspend` and Kotlin forbids `suspend` calls inside `init {}`/property initializers.
+
+**New `appMain` intermediate source set** in `awake-demo/shared` (mirrors the exact
+`vulkanMain`-style pattern D13 just removed from `awake-backend-vulkan`, needed here one
+layer up for a different reason): `App.kt`, `AwakeCanvas.kt` (the `expect fun`),
+`demo/DemoScene.kt`, `demo/DemoApplication.kt`, `demo/DemoDrawer.kt`,
+`demo/VulkanApplication.kt`, and `scene/*.kt` (the 6 OpenGL demo classes) all depend on
+`awake-backend-vulkan` and/or `awake-opengl`, neither of which publishes a wasmJs variant
+by design — a `commonMain.dependencies` entry on either fails Gradle dependency resolution
+the moment wasmJs becomes a declared target, not just compilation. These moved into
+`appMain` (`dependsOn(commonMain)`, desktop/Android/iOS `dependsOn(appMain)`);
+`demo/SceneRuntimeHost.kt` is the one file that stayed in true `commonMain`.
+
+**A wrong assumption surfaced mid-implementation**: `awake-scene`/`awake-core`/`awake-ecs`
+were assumed to already support wasmJs (since `awake-engine-render-api`/`awake-base` do) —
+they didn't; none had declared a `wasmJs` target at all. All three needed one added.
+`awake-ecs`'s `Platform.kt` (`newComponentArray`/`createComponentInstance`/
+`componentTypeKey`/`componentTypeKeyOf`) needed a real wasmJs actual — mirrors the iOS
+actual exactly (no `java.lang.Class` on Kotlin/Wasm either, so there's nothing to optimize,
+same as Kotlin/Native). `awake-core`/`awake-scene` had zero `expect` declarations, so
+adding the target was a pure Gradle change, no new Kotlin files.
+
+**`WebGpuApplication.kt`** (`awake-demo/shared/src/wasmJsMain/kotlin/demo/`) mirrors
+`VulkanApplication.kt`'s structure (same cube geometry, `MAX_FRAMES_IN_FLIGHT`,
+`resolveRenderable` mesh="cube"/material="textured-default" contract) on
+`awake-backend-webgpu`'s types. `Material`/`Texture` are not meaningfully used — `Material`
+is constructed only as a placeholder to satisfy `MeshRenderer`'s type (its real methods are
+still `TODO()` on this backend, and `Renderer.draw()` never touches `DrawCall.material`,
+confirmed this session's browser verification); `Texture` isn't constructed at all.
+`main.kt` resolves the `WGPUContext` (`canvasContextRenderer()` + `surface.configure()`,
+both `suspend`) before calling `WebGpuApplication.create()`, matching `GraphicsDevice`'s
+existing doc-commented expectation that its `window` parameter is a pre-resolved context
+on this backend, then drives a plain `window.requestAnimationFrame` loop.
+
+**Verified end-to-end, not just compiled**: all 5 `awake-demo:shared` targets compile;
+`awake-scene`/`awake-base` test suites pass (including the now-`runTest`-wrapped
+`SceneLoaderTest`); a real iOS Simulator run renders the demo cube identically to before
+(confirming the suspend restructuring changed no runtime behavior on the 4 existing
+platforms); and — the actual payoff — a real browser run of the wasmJs bundle
+(`wasmJsBrowserDevelopmentRun`) renders the real RGB cube loaded from `mvp.scene.json` via
+genuine async `fetch()`, through the same `SceneRuntimeHost`/`RenderSystem`/ECS pipeline
+every other platform uses, animating frame-to-frame via `requestAnimationFrame` — screenshot-
+confirmed rotating between two captures two seconds apart. Unlike D13's WebGPU check, this
+one's screenshot pipeline worked cleanly (via a different browser tool than the sandboxed
+one that failed on even a raw-JS triangle in D13) — no unresolved concerns here.
+
+**Deferred, not this slice**: real `Material`/`Texture` WebGPU implementation (still
+`TODO()`, so no texture sampling/multi-material support on web yet); `awake-opengl` →
+`awake-backend-opengl` and `awake-core` → `awake-engine` renames (unchanged blockers from
+D12/D13); Compose UI chrome on web (would require the CSS-overlay canvas-embedding hack
+explicitly declined this slice).
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

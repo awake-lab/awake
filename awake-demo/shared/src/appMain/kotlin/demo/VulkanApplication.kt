@@ -31,6 +31,8 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 
 class VulkanApplication : Application {
@@ -70,6 +72,12 @@ class VulkanApplication : Application {
      * from [SceneRuntimeHost.render] (once per frame) -- see [FixedTimestepLoop]'s doc
      * comment for why this matters ahead of Phase 8 physics. */
     private val fixedTimestepLoop = FixedTimestepLoop()
+    /** Web demo (see docs/MVP_PLAN.md's decision log): [setupVulkan] now runs in its own
+     * coroutine (launched from [create], which must stay synchronous -- see its doc
+     * comment), so [create] returns before setup finishes. The platform render loop can
+     * start calling [update] before [sceneHost] is initialized; this flag makes [update] a
+     * no-op until setup actually completes instead of throwing on the `lateinit` access. */
+    private var isReady = false
 
     companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
@@ -117,11 +125,17 @@ class VulkanApplication : Application {
     }
 
 
+    // Web demo (see docs/MVP_PLAN.md's decision log): Application.create() stays
+    // synchronous everywhere -- it's called from platform lifecycle callbacks (Android's
+    // SurfaceHolder.surfaceCreated, iOS's layoutSubviews) that can't become suspend.
+    // setupVulkan needs suspend (SceneRuntimeHost.create() loads the scene JSON via a
+    // suspend readResourceBytes), so it's launched in its own coroutine instead.
     override fun create(surface: Any?) {
-        surface?.let { setupVulkan(it) }
+        surface?.let { window -> MainScope().launch { setupVulkan(window) } }
     }
 
     override fun update(delta: Float) {
+        if (!isReady) return
         fixedTimestepLoop.advance(
             frameDelta = delta,
             fixedUpdate = sceneHost::fixedUpdate,
@@ -140,10 +154,10 @@ class VulkanApplication : Application {
     }
 
     override fun dispose() {
-        destroy()
+        if (isReady) destroy()
     }
 
-    private fun setupVulkan(window: Any) {
+    private suspend fun setupVulkan(window: Any) {
         graphicsDevice.create(window)
         // create swap chain
         swapchainManager.create()
@@ -174,9 +188,10 @@ class VulkanApplication : Application {
         )
         material.createResources(texture)
         swapchainManager.createSyncObjects()
-        sceneHost = SceneRuntimeHost(renderer) { request ->
+        sceneHost = SceneRuntimeHost.create(renderer) { request ->
             resolveRenderable(request)
         }
+        isReady = true
     }
 
     private fun destroy() {

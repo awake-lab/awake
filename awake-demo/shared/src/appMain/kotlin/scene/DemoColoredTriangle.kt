@@ -17,10 +17,7 @@ import io.github.ronjunevaldoz.awake.core.shader.use
 
 class DemoColoredTriangle : Drawable, Disposable {
 
-    private val shader = SimpleShader(
-        vertFile = if (isMobile) "colored-triangle.mobile.vert" else "colored-triangle.vert",
-        fragFile = if (isMobile) "colored-triangle.mobile.frag" else "colored-triangle.frag"
-    )
+    private lateinit var shader: SimpleShader
 
     private val aPosition by lazy { shader.position }
     private val aColor by lazy { shader.color }
@@ -51,7 +48,11 @@ class DemoColoredTriangle : Drawable, Disposable {
 
     private lateinit var vao: VertexArrayObject
 
-    init {
+    suspend fun load() {
+        shader = SimpleShader.create(
+            vertFile = if (isMobile) "colored-triangle.mobile.vert" else "colored-triangle.vert",
+            fragFile = if (isMobile) "colored-triangle.mobile.frag" else "colored-triangle.frag"
+        )
         shader.compile()
         createBuffers()
     }

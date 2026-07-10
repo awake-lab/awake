@@ -23,10 +23,7 @@ import io.github.ronjunevaldoz.awake.core.utils.AssetUtils
  * Draw texture using elements
  */
 class DemoTexture : Drawable, Disposable {
-    private val shader = SimpleShader(
-        vertFile = if (isMobile) "text.mobile.vert" else "text.vert",
-        fragFile = if (isMobile) "text.mobile.frag" else "text.frag"
-    )
+    private lateinit var shader: SimpleShader
 
     private val aPosition by lazy { shader.position }
     private val aColor by lazy { shader.color }
@@ -34,13 +31,17 @@ class DemoTexture : Drawable, Disposable {
 
     private var vao = VertexArrayObject()
 
-    private val attributes: List<Attribute>
+    private lateinit var attributes: List<Attribute>
     private val indices = byteArrayOf(
         0, 1, 2, // first triangle
         0, 3, 2  // second triangle
     )
 
-    init {
+    suspend fun load() {
+        shader = SimpleShader.create(
+            vertFile = if (isMobile) "text.mobile.vert" else "text.vert",
+            fragFile = if (isMobile) "text.mobile.frag" else "text.frag"
+        )
         shader.compile()
         AssetUtils.texture.load(textureKey, "assets/fonts/calibri.png")
         attributes = listOf(

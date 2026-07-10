@@ -50,6 +50,13 @@ kotlin {
 
     jvm("desktop")
 
+    // Web demo (see docs/MVP_PLAN.md's decision log): awake-scene (SceneRuntimeHost's
+    // World/Family/TransformSystem/RenderSystem) depends on this module, and
+    // demo/SceneRuntimeHost.kt is reused by the wasmJs-only WebGpuApplication too.
+    wasmJs {
+        browser()
+    }
+
     sourceSets {
         commonTest.dependencies {
             implementation(kotlin("test"))

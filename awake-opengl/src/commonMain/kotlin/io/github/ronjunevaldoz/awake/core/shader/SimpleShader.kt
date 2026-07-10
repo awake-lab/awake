@@ -4,26 +4,33 @@ import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 
 /**
  * TODO move to separate library AwakeCompose
+ *
+ * Web demo (see docs/MVP_PLAN.md's decision log): construction is a `suspend` factory
+ * ([create]), not a plain constructor -- loading shader source is now `suspend` (real
+ * async browser `fetch()` on wasmJs), and `suspend` calls aren't allowed in a property
+ * initializer. [Shader]/[BaseShader]'s own `compile()` contract stays fully synchronous:
+ * [getVertexSource]/[getFragmentSource] just return the already-loaded strings.
  */
-class SimpleShader(
-    private val vertFile: String,
-    private val fragFile: String,
-    private val define: String = "",
+class SimpleShader private constructor(
+    private val vertSource: String,
+    private val fragSource: String
 ) : DefaultShader() {
-
-    private val shaderDir = "assets/shader"
 
     var transformMatrix by uniform
     var modelViewMatrix by uniform
     var projectionViewMatrix by uniform
 
-    override fun getVertexSource(): String {
-        val vertString = readResourceBytes("$shaderDir/$vertFile").decodeToString()
-        return define + vertString
-    }
+    override fun getVertexSource(): String = vertSource
 
-    override fun getFragmentSource(): String {
-        val fragString = readResourceBytes("$shaderDir/$fragFile").decodeToString()
-        return define + fragString
+    override fun getFragmentSource(): String = fragSource
+
+    companion object {
+        private const val shaderDir = "assets/shader"
+
+        suspend fun create(vertFile: String, fragFile: String, define: String = ""): SimpleShader {
+            val vertString = readResourceBytes("$shaderDir/$vertFile").decodeToString()
+            val fragString = readResourceBytes("$shaderDir/$fragFile").decodeToString()
+            return SimpleShader(define + vertString, define + fragString)
+        }
     }
 }

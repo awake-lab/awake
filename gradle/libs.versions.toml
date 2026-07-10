@@ -12,6 +12,8 @@ ashley = "1.7.3"
 lwjgl = "3.3.6"
 kotlinx-benchmark = "0.4.17"
 kotlinx-serialization = "1.11.0"
+kotlinx-coroutines = "1.10.2"
+kotlinx-browser = "0.5.0"
 napier = "2.7.1"
 androidx-activity-compose = "1.9.3"
 androidx-appcompat = "1.7.0"
@@ -45,6 +47,11 @@ artemis-odb = { module = "net.onedaybeard.artemis:artemis-odb", version.ref = "a
 ashley = { module = "com.badlogicgames.ashley:ashley", version.ref = "ashley" }
 kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+# Wraps browser fetch()/DOM APIs for Kotlin/Wasm -- used by awake-base's wasmJs
+# readResourceBytes actual (see docs/MVP_PLAN.md's web-demo decision log entry).
+kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinx-browser" }
 detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
 download-gradle-plugin = { module = "de.undercouch:gradle-download-task", version.ref = "download" }

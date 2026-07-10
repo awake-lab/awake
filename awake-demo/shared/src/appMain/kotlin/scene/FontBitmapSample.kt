@@ -23,11 +23,7 @@ import io.github.ronjunevaldoz.awake.core.utils.Time
 
 class FontBitmapSample : Drawable, Disposable {
 
-    private val shader = SimpleShader(
-        vertFile = "fonttext.vert",
-        fragFile = "fonttext.frag",
-        define = if (getPlatform().isMobile) "#version 300 es\n" else "#version 330 core\n"
-    )
+    private lateinit var shader: SimpleShader
 
     private val aPosition by lazy { shader.position }
     private val aTexCoords by lazy { shader.texCoords }
@@ -46,7 +42,12 @@ class FontBitmapSample : Drawable, Disposable {
     )
     private val ttf = createTrueType("assets/fonts/roboto.ttf", 24f)
 
-    init {
+    suspend fun load() {
+        shader = SimpleShader.create(
+            vertFile = "fonttext.vert",
+            fragFile = "fonttext.frag",
+            define = if (getPlatform().isMobile) "#version 300 es\n" else "#version 330 core\n"
+        )
         shader.compile()
         fontTexture = ttf.texture
     }

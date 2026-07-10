@@ -15,10 +15,7 @@ import io.github.ronjunevaldoz.awake.core.shader.use
  * Draw triangle using arrays
  */
 class DemoTriangle : Drawable, Disposable {
-    private val shader = SimpleShader(
-        vertFile = if (isMobile) "triangle.mobile.vert" else "triangle.vert",
-        fragFile = if (isMobile) "triangle.mobile.frag" else "triangle.frag"
-    )
+    private lateinit var shader: SimpleShader
 
     private val aPosition by lazy { shader.position }
 
@@ -30,7 +27,11 @@ class DemoTriangle : Drawable, Disposable {
 
     private val vao = VertexArrayObject()
 
-    init {
+    suspend fun load() {
+        shader = SimpleShader.create(
+            vertFile = if (isMobile) "triangle.mobile.vert" else "triangle.vert",
+            fragFile = if (isMobile) "triangle.mobile.frag" else "triangle.frag"
+        )
         shader.compile()
         createBuffers()
     }

@@ -4,6 +4,7 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
 import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.Transform
+import kotlinx.coroutines.test.runTest
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -106,7 +107,7 @@ class SceneLoaderTest {
     }
 
     @Test
-    fun loadFromResourceReadsBundledSceneJson() {
+    fun loadFromResourceReadsBundledSceneJson() = runTest {
         val document = SceneLoader.loadFromResource("scenes/mvp.scene.json")
 
         assertEquals("mvp-scene", document.name)

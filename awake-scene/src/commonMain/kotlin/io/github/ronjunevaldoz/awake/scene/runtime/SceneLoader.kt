@@ -64,7 +64,7 @@ object SceneLoader {
         return json.decodeFromString(text)
     }
 
-    fun loadFromResource(path: String, json: Json = SceneJson): SceneDocument {
+    suspend fun loadFromResource(path: String, json: Json = SceneJson): SceneDocument {
         return decode(readResourceBytes(path).decodeToString(), json)
     }
 

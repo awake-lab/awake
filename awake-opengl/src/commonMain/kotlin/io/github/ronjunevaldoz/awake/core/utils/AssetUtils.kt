@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.core.rendering.Texture
 object TextureLoader {
     private val textures: MutableMap<String, Texture> = mutableMapOf()
 
-    fun load(textureName: String, texturePath: String) {
+    suspend fun load(textureName: String, texturePath: String) {
         load(textureName, BitmapUtils.decode(readResourceBytes(texturePath)))
     }
 

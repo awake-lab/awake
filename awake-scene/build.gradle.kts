@@ -51,6 +51,13 @@ kotlin {
 
     jvm("desktop")
 
+    // Web demo (see docs/MVP_PLAN.md's decision log): demo/SceneRuntimeHost.kt
+    // (awake-demo:shared, commonMain) depends on this module and is reused by the
+    // wasmJs-only WebGpuApplication.
+    wasmJs {
+        browser()
+    }
+
     sourceSets {
         commonMain.dependencies {
             api(project(":awake-base"))
@@ -62,9 +69,11 @@ kotlin {
             // restructuring.
             api(project(":awake-engine-render-api"))
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

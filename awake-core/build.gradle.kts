@@ -33,6 +33,13 @@ kotlin {
 
     jvm("desktop")
 
+    // Web demo (see docs/MVP_PLAN.md's decision log): demo/SceneRuntimeHost.kt
+    // (awake-demo:shared, commonMain) uses Input/Key/FixedTimestepLoop from this module
+    // and is reused by the wasmJs-only WebGpuApplication.
+    wasmJs {
+        browser()
+    }
+
     sourceSets {
         commonMain.dependencies {
             api(project(":awake-base"))

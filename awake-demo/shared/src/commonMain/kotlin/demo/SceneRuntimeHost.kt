@@ -21,10 +21,11 @@ package demo
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
-import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
+import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRenderableRequest
 import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
@@ -32,24 +33,28 @@ import io.github.ronjunevaldoz.awake.scene.runtime.attachRenderableComponents
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 
-internal class SceneRuntimeHost(
+/**
+ * Web demo (see docs/MVP_PLAN.md's decision log): [Renderer] is now the backend-neutral
+ * `awake-engine-render-api` interface, not the concrete Vulkan class -- this class was
+ * already only using the interface's own contract (via [RenderSystem]), so widening the
+ * declared type here is what actually makes it reusable by both `VulkanApplication` and
+ * the wasmJs-only `WebGpuApplication`, matching what `RenderSystem`'s own constructor
+ * already expected.
+ *
+ * Private constructor + [create] factory, not a plain constructor: [SceneLoader
+ * .loadFromResource] is `suspend` (real async browser `fetch()` on wasmJs), and `suspend`
+ * calls are not allowed inside a constructor's `init {}` block.
+ */
+internal class SceneRuntimeHost private constructor(
     renderer: Renderer,
-    private val resolveRenderable: (SceneRenderableRequest) -> MeshRenderer
+    private val world: World,
+    private val cubeTransform: Transform
 ) {
-    private val world = World()
     private val transformSystem = TransformSystem()
     private val renderSystem = RenderSystem(renderer)
-    private val cubeTransform: Transform
     private var elapsedSeconds = 0f
     private var paused = false
     private var spaceWasDown = false
-
-    init {
-        val scene = SceneLoader.loadFromResource(SCENE_PATH).instantiate(world)
-        scene.attachRenderableComponents(resolveRenderable)
-        cubeTransform = scene.root("cube")
-            ?: error("MVP scene is missing a root node named 'cube'.")
-    }
 
     /** Runs at a fixed [delta] (see [io.github.ronjunevaldoz.awake.core.application
      * .FixedTimestepLoop]), zero or more times per frame -- anything that mutates scene
@@ -83,12 +88,24 @@ internal class SceneRuntimeHost(
         renderSystem.update(world, 0f)
     }
 
-    private fun io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance.root(name: String): Transform? {
-        val node = roots.firstOrNull { it.name == name } ?: return null
-        return world.get(node.entity)
-    }
+    companion object {
+        private const val SCENE_PATH = "scenes/mvp.scene.json"
 
-    private companion object {
-        const val SCENE_PATH = "scenes/mvp.scene.json"
+        suspend fun create(
+            renderer: Renderer,
+            resolveRenderable: (SceneRenderableRequest) -> MeshRenderer
+        ): SceneRuntimeHost {
+            val world = World()
+            val scene = SceneLoader.loadFromResource(SCENE_PATH).instantiate(world)
+            scene.attachRenderableComponents(resolveRenderable)
+            val cubeTransform = scene.root(world, "cube")
+                ?: error("MVP scene is missing a root node named 'cube'.")
+            return SceneRuntimeHost(renderer, world, cubeTransform)
+        }
+
+        private fun SceneInstance.root(world: World, name: String): Transform? {
+            val node = roots.firstOrNull { it.name == name } ?: return null
+            return world.get(node.entity)
+        }
     }
 }

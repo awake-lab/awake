@@ -32,6 +32,13 @@ plugins {
 kotlin {
     jvmToolchain(17)
 
+    // Web demo (see docs/MVP_PLAN.md's decision log): adding a manual dependsOn() edge
+    // below (appMain) silently disables the default hierarchy template's own automatic
+    // wiring project-wide otherwise -- confirmed the hard way once already this session
+    // (awake-backend-vulkan's iosMain briefly lost its parent). Calling this explicitly
+    // restores that template wiring; appMain is layered on top as an *additional* parent.
+    applyDefaultHierarchyTemplate()
+
     android {
         namespace = "io.github.ronjunevaldoz.awake.demo.common"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
@@ -88,6 +95,15 @@ kotlin {
         }
     }
 
+    // Web demo (see docs/MVP_PLAN.md's decision log): the bare-canvas WebGPU entry point
+    // (wasmJsMain/main.kt) does not go through App()/DemoScene()/AwakeCanvas at all --
+    // Compose Multiplatform's wasmJs target has no first-class API to embed a native
+    // <canvas> inside the Compose layout tree the way UIKitView/AndroidView do.
+    wasmJs {
+        browser()
+        binaries.executable()
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -96,13 +112,34 @@ kotlin {
             implementation(libs.compose.material.icons.core)
             implementation(libs.compose.components.resources)
             implementation(project(":awake-scene"))
-            implementation(project(":awake-backend-vulkan"))
             implementation(project(":awake-core"))
+            implementation(libs.kotlinx.coroutines.core)
+        }
+        // Web demo (see docs/MVP_PLAN.md's decision log): App.kt/AwakeCanvas.kt (the
+        // expect fun)/demo/DemoScene.kt/demo/VulkanApplication.kt all depend on
+        // awake-backend-vulkan and/or awake-opengl, neither of which publishes a wasmJs
+        // variant by design -- a commonMain.dependencies entry on either would fail Gradle
+        // dependency resolution the moment wasmJs becomes a declared target of this
+        // module, not just fail at compile time. This intermediate source set (shared by
+        // desktop/Android/iOS only) is where those 4 files and their 2 dependencies live
+        // instead -- the exact pattern slice 2 removed from awake-backend-vulkan, needed
+        // here one layer up for a different reason. demo/SceneRuntimeHost.kt stays in true
+        // commonMain: it only ever touched the backend-neutral Renderer interface (fixed
+        // this same session), so it's genuinely reusable by both VulkanApplication here
+        // and the wasmJs-only WebGpuApplication.
+        val appMain = create("appMain") {
+            dependsOn(commonMain.get())
+        }
+        appMain.dependencies {
+            implementation(project(":awake-backend-vulkan"))
             // Legacy OpenGL demo path (App.kt/DemoApplication.kt/scene/Demo*.kt) -- see
             // docs/MVP_PLAN.md's Decision Log, D11 follow-up, for why this moved out of
             // awake-core.
             implementation(project(":awake-opengl"))
         }
+        named("desktopMain") { dependsOn(appMain) }
+        named("androidMain") { dependsOn(appMain) }
+        named("iosMain") { dependsOn(appMain) }
         androidMain.dependencies {
             api(libs.androidx.activity.compose)
             api(libs.androidx.appcompat)
@@ -110,6 +147,17 @@ kotlin {
         }
         getByName("desktopMain").dependencies {
             implementation(compose.desktop.common)
+        }
+        named("wasmJsMain") {
+            dependencies {
+                implementation(project(":awake-backend-webgpu"))
+                // awake-backend-webgpu depends on these via `implementation`, not `api`,
+                // so main.kt (which talks to wgpu4k/the DOM directly to resolve the
+                // WGPUContext before handing it to WebGpuApplication) needs its own copies.
+                implementation(libs.wgpu4k)
+                implementation(libs.wgpu4k.toolkit)
+                implementation(libs.kotlinx.browser)
+            }
         }
     }
 }
