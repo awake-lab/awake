@@ -1173,6 +1173,17 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
     `@JvmOverloads`/`@JvmInline` are unresolved on this project's Kotlin/Native source set,
     on top of the already-documented all-`expect`-fun-unimplemented stub). Unrelated to
     CocoaPods vs. SPM; still Phase 6 scope.
+- [x] **`@Volatile`/`@JvmInline`/`@JvmOverloads` fixed across `awake-base`/`awake-core`/
+      `awake-vulkan` (2026-07-10):** root cause was the same in all three — these resolve
+      via the JVM target's implicit `kotlin.jvm.*` default import, which Kotlin/Native
+      doesn't have; every usage needed an explicit `import kotlin.jvm.JvmInline` (etc.), and
+      `@Volatile` specifically needed `kotlin.concurrent.Volatile` (the real multiplatform
+      one) instead. `awake-base`, `awake-core`, and `awake-vulkan`'s common/model code all
+      compile clean for `iosSimulatorArm64` now; desktop/Android re-verified unaffected.
+      **The one remaining blocker is real engine work, not another quick import fix**:
+      `awake-vulkan/src/iosMain/.../Vulkan.kt` is a literal empty stub (`actual object
+      Vulkan {}`) missing ~65 `actual` implementations of the `expect` Vulkan API — the
+      MoltenVK cinterop bindings themselves, described in the next 3 checklist items.
 - [ ] MoltenVK cinterop def + framework linking
 - [ ] `CAMetalLayer`-backed surface actual
 - [ ] iOS `actual object Vulkan` — evaluate extending jni-binding-generator to emit
