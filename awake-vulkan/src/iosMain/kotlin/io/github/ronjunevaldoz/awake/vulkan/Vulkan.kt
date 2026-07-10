@@ -67,6 +67,7 @@ import kotlinx.cinterop.toKString
 import kotlinx.cinterop.value
 import cnames.structs.VkCommandBuffer_T
 import cnames.structs.VkCommandPool_T
+import cnames.structs.VkDescriptorSetLayout_T
 import cnames.structs.VkFence_T
 import cnames.structs.VkFramebuffer_T
 import cnames.structs.VkImageView_T
@@ -86,18 +87,22 @@ import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_FENCE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
 import platform.MoltenVK.VK_SUCCESS
 import platform.MoltenVK.VkCommandBufferVar
 import platform.MoltenVK.VkCommandPoolVar
 import platform.MoltenVK.VkFenceVar
+import platform.MoltenVK.VkFramebufferVar
 import platform.MoltenVK.VkImageViewVar
 import platform.MoltenVK.VkInstanceVar
 import platform.MoltenVK.VkPipelineCacheVar
+import platform.MoltenVK.VkPipelineLayoutVar
 import platform.MoltenVK.VkQueueVar
 import platform.MoltenVK.VkSemaphoreVar
 import platform.MoltenVK.VkShaderModuleVar
@@ -137,6 +142,8 @@ import platform.MoltenVK.vkAllocateCommandBuffers as nativeVkAllocateCommandBuff
 import platform.MoltenVK.vkCreateImageView as nativeVkCreateImageView
 import platform.MoltenVK.vkCreateShaderModule as nativeVkCreateShaderModule
 import platform.MoltenVK.vkCreatePipelineCache as nativeVkCreatePipelineCache
+import platform.MoltenVK.vkCreatePipelineLayout as nativeVkCreatePipelineLayout
+import platform.MoltenVK.vkCreateFramebuffer as nativeVkCreateFramebuffer
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
 import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
@@ -145,7 +152,9 @@ import platform.MoltenVK.VkCommandBufferBeginInfo as NativeVkCommandBufferBeginI
 import platform.MoltenVK.VkCommandPoolCreateInfo as NativeVkCommandPoolCreateInfo
 import platform.MoltenVK.VkExtensionProperties as NativeVkExtensionProperties
 import platform.MoltenVK.VkFenceCreateInfo as NativeVkFenceCreateInfo
+import platform.MoltenVK.VkFramebufferCreateInfo as NativeVkFramebufferCreateInfo
 import platform.MoltenVK.VkImageViewCreateInfo as NativeVkImageViewCreateInfo
+import platform.MoltenVK.VkPipelineLayoutCreateInfo as NativeVkPipelineLayoutCreateInfo
 import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
 import platform.MoltenVK.VkLayerProperties as NativeVkLayerProperties
 import platform.MoltenVK.VkPhysicalDeviceFeatures as NativeVkPhysicalDeviceFeatures
@@ -511,8 +520,33 @@ actual object Vulkan {
         nativeVkDestroyPipelineCache(device.toCPointer(), pipelineCache.toCPointer<VkPipelineCache_T>(), null)
     }
 
-    actual fun vkCreatePipelineLayout(device: Long, createInfo: VkPipelineLayoutCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreatePipelineLayout(device: Long, createInfo: VkPipelineLayoutCreateInfo): Long = memScoped {
+        val nativeCreateInfo = alloc<NativeVkPipelineLayoutCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+            pNext = null
+            flags = createInfo.flags.toUInt()
+            val setLayouts = createInfo.pSetLayouts
+            setLayoutCount = (setLayouts?.size ?: 0).toUInt()
+            pSetLayouts = setLayouts?.let { layouts ->
+                allocArray<CPointerVar<VkDescriptorSetLayout_T>>(layouts.size) { index ->
+                    value = layouts[index].toCPointer()
+                }
+            }
+            val pushConstantRanges = createInfo.pPushConstantRanges
+            pushConstantRangeCount = (pushConstantRanges?.size ?: 0).toUInt()
+            pPushConstantRanges = pushConstantRanges?.let { ranges ->
+                allocArray(ranges.size) { index ->
+                    stageFlags = ranges[index].stageFlags.toUInt()
+                    offset = ranges[index].offset.toUInt()
+                    size = ranges[index].size.toUInt()
+                }
+            }
+        }
+        val pipelineLayoutVar = alloc<VkPipelineLayoutVar>()
+        val result =
+            nativeVkCreatePipelineLayout(device.toCPointer(), nativeCreateInfo.ptr, null, pipelineLayoutVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreatePipelineLayout failed: $result" }
+        pipelineLayoutVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyPipelineLayout(device: Long, pipelineLayout: Long) {
@@ -539,8 +573,24 @@ actual object Vulkan {
         nativeVkDestroyRenderPass(device.toCPointer(), renderPass.toCPointer<VkRenderPass_T>(), null)
     }
 
-    actual fun vkCreateFramebuffer(device: Long, framebufferInfo: VkFramebufferCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateFramebuffer(device: Long, framebufferInfo: VkFramebufferCreateInfo): Long = memScoped {
+        val nativeCreateInfo = alloc<NativeVkFramebufferCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO
+            pNext = null
+            flags = framebufferInfo.flags.toUInt()
+            renderPass = framebufferInfo.renderPass.toCPointer()
+            attachmentCount = framebufferInfo.pAttachments.size.toUInt()
+            pAttachments = allocArray<CPointerVar<VkImageView_T>>(framebufferInfo.pAttachments.size) { index ->
+                value = framebufferInfo.pAttachments[index].toCPointer()
+            }
+            width = framebufferInfo.width.toUInt()
+            height = framebufferInfo.height.toUInt()
+            layers = framebufferInfo.layers.toUInt()
+        }
+        val framebufferVar = alloc<VkFramebufferVar>()
+        val result = nativeVkCreateFramebuffer(device.toCPointer(), nativeCreateInfo.ptr, null, framebufferVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateFramebuffer failed: $result" }
+        framebufferVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyFramebuffer(device: Long, framebuffer: Long) {
