@@ -25,6 +25,8 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPresentModeKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagBitsKHR
+import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
+import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtensionProperties
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
@@ -33,10 +35,12 @@ import io.github.ronjunevaldoz.awake.vulkan.models.VkLayerProperties
 import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkQueueFamilyProperties
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
+import io.github.ronjunevaldoz.awake.vulkan.models.VkSubpassDependency
 import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceCapabilitiesKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceFormatKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkAndroidSurfaceCreateInfoKHR
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandPoolCreateInfo
@@ -58,8 +62,10 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCache
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceFeatures
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceProperties
+import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.NativePlacement
 import kotlinx.cinterop.UIntVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
@@ -172,6 +178,7 @@ import platform.MoltenVK.vkQueuePresentKHR as nativeVkQueuePresentKHR
 import platform.MoltenVK.vkCmdBeginRenderPass as nativeVkCmdBeginRenderPass
 import platform.MoltenVK.vkCreateSwapchainKHR as nativeVkCreateSwapchainKHR
 import platform.MoltenVK.vkCreateDevice as nativeVkCreateDevice
+import platform.MoltenVK.vkCreateRenderPass as nativeVkCreateRenderPass
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
 import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
@@ -198,6 +205,13 @@ import platform.MoltenVK.VkSwapchainCreateInfoKHR as NativeVkSwapchainCreateInfo
 import platform.MoltenVK.VkDeviceCreateInfo as NativeVkDeviceCreateInfo
 import platform.MoltenVK.VkDeviceQueueCreateInfo as NativeVkDeviceQueueCreateInfo
 import platform.MoltenVK.VkDeviceVar
+import platform.MoltenVK.VkAttachmentDescription as NativeVkAttachmentDescription
+import platform.MoltenVK.VkAttachmentReference as NativeVkAttachmentReference
+import platform.MoltenVK.VkSubpassDescription as NativeVkSubpassDescription
+import platform.MoltenVK.VkSubpassDependency as NativeVkSubpassDependency
+import platform.MoltenVK.VkRenderPassCreateInfo as NativeVkRenderPassCreateInfo
+import platform.MoltenVK.VkRenderPassVar
+import platform.MoltenVK.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
 import platform.MoltenVK.VkViewport as NativeVkViewport
 import platform.MoltenVK.VkRect2D as NativeVkRect2D
 import platform.MoltenVK.VkSurfaceCapabilitiesKHR as NativeVkSurfaceCapabilitiesKHR
@@ -323,6 +337,15 @@ private fun NativeVkPhysicalDeviceFeatures.fromKotlinModel(model: VkPhysicalDevi
     sparseResidencyAliased = if (model.sparseResidencyAliased) 1u else 0u
     variableMultisampleRate = if (model.variableMultisampleRate) 1u else 0u
     inheritedQueries = if (model.inheritedQueries) 1u else 0u
+}
+
+// Shared by vkCreateRenderPass's pInputAttachments/pColorAttachments/pResolveAttachments.
+@OptIn(ExperimentalForeignApi::class)
+private fun Array<VkAttachmentReference>.toNativeAttachmentRefArray(
+    scope: NativePlacement
+): CPointer<NativeVkAttachmentReference> = scope.allocArray(size) { index ->
+    attachment = this@toNativeAttachmentRefArray[index].attachment.toUInt()
+    layout = this@toNativeAttachmentRefArray[index].layout.value.toUInt()
 }
 
 // Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
@@ -775,8 +798,73 @@ actual object Vulkan {
         nativeVkDestroyPipeline(device.toCPointer(), pipeline.toCPointer<VkPipeline_T>(), null)
     }
 
-    actual fun vkCreateRenderPass(device: Long, createInfo: VkRenderPassCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateRenderPass(device: Long, createInfo: VkRenderPassCreateInfo): Long = memScoped {
+        val nativeAttachments = createInfo.pAttachments?.let { attachments ->
+            allocArray<NativeVkAttachmentDescription>(attachments.size) { index ->
+                val attachment = attachments[index]
+                flags = attachment.flags.toUInt()
+                format = attachment.format.value.toUInt()
+                samples = attachment.samples.value.toUInt()
+                loadOp = attachment.loadOp.value.toUInt()
+                storeOp = attachment.storeOp.value.toUInt()
+                stencilLoadOp = attachment.stencilLoadOp.value.toUInt()
+                stencilStoreOp = attachment.stencilStoreOp.value.toUInt()
+                initialLayout = attachment.initialLayout.value.toUInt()
+                finalLayout = attachment.finalLayout.value.toUInt()
+            }
+        }
+        val nativeSubpasses = createInfo.pSubpasses?.let { subpasses ->
+            allocArray<NativeVkSubpassDescription>(subpasses.size) { index ->
+                val subpass = subpasses[index]
+                flags = subpass.flags.toUInt()
+                pipelineBindPoint = subpass.pipelineBindPoint.value.toUInt()
+                val inputAttachments = subpass.pInputAttachments
+                inputAttachmentCount = (inputAttachments?.size ?: 0).toUInt()
+                pInputAttachments = inputAttachments?.toNativeAttachmentRefArray(this@memScoped)
+                val colorAttachments = subpass.pColorAttachments
+                colorAttachmentCount = (colorAttachments?.size ?: 0).toUInt()
+                pColorAttachments = colorAttachments?.toNativeAttachmentRefArray(this@memScoped)
+                pResolveAttachments = subpass.pResolveAttachments?.toNativeAttachmentRefArray(this@memScoped)
+                pDepthStencilAttachment = subpass.pDepthStencilAttachment?.firstOrNull()?.let { ref ->
+                    alloc<NativeVkAttachmentReference>().apply {
+                        attachment = ref.attachment.toUInt()
+                        layout = ref.layout.value.toUInt()
+                    }.ptr
+                }
+                val preserveAttachments = subpass.pPreserveAttachments
+                preserveAttachmentCount = (preserveAttachments?.size ?: 0).toUInt()
+                pPreserveAttachments = preserveAttachments?.let { indices ->
+                    allocArray(indices.size) { i -> value = indices[i].toUInt() }
+                }
+            }
+        }
+        val nativeDependencies = createInfo.pDependencies?.let { dependencies ->
+            allocArray<NativeVkSubpassDependency>(dependencies.size) { index ->
+                val dependency = dependencies[index]
+                srcSubpass = dependency.srcSubpass.toUInt()
+                dstSubpass = dependency.dstSubpass.toUInt()
+                srcStageMask = dependency.srcStageMask.toUInt()
+                dstStageMask = dependency.dstStageMask.toUInt()
+                srcAccessMask = dependency.srcAccessMask.toUInt()
+                dstAccessMask = dependency.dstAccessMask.toUInt()
+                dependencyFlags = dependency.dependencyFlags.toUInt()
+            }
+        }
+        val nativeCreateInfo = alloc<NativeVkRenderPassCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
+            pNext = null
+            flags = createInfo.flags.toUInt()
+            attachmentCount = (createInfo.pAttachments?.size ?: 0).toUInt()
+            pAttachments = nativeAttachments
+            subpassCount = (createInfo.pSubpasses?.size ?: 0).toUInt()
+            pSubpasses = nativeSubpasses
+            dependencyCount = (createInfo.pDependencies?.size ?: 0).toUInt()
+            pDependencies = nativeDependencies
+        }
+        val renderPassVar = alloc<VkRenderPassVar>()
+        val result = nativeVkCreateRenderPass(device.toCPointer(), nativeCreateInfo.ptr, null, renderPassVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateRenderPass failed: $result" }
+        renderPassVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyRenderPass(device: Long, renderPass: Long) {
