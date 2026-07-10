@@ -19,6 +19,8 @@
 
 package demo
 
+import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
@@ -39,6 +41,8 @@ internal class SceneRuntimeHost(
     private val renderSystem = RenderSystem(renderer)
     private val cubeTransform: Transform
     private var elapsedSeconds = 0f
+    private var paused = false
+    private var spaceWasDown = false
 
     init {
         val scene = SceneLoader.loadFromResource(SCENE_PATH).instantiate(world)
@@ -47,12 +51,36 @@ internal class SceneRuntimeHost(
             ?: error("MVP scene is missing a root node named 'cube'.")
     }
 
-    fun update(delta: Float) {
+    /** Runs at a fixed [delta] (see [io.github.ronjunevaldoz.awake.core.application
+     * .FixedTimestepLoop]), zero or more times per frame -- anything that mutates scene
+     * state (today: the demo cube's own animation, plus [TransformSystem]'s world-matrix
+     * recompute) belongs here, not in [render], so it stays framerate-independent once
+     * something in this scene actually integrates velocity/force (physics, Phase 8). */
+    fun fixedUpdate(delta: Float) {
+        // Space toggles pause, on the rising edge only (not "while held") -- otherwise a
+        // single held keypress would flip `paused` on/off dozens of times per second at a
+        // 60Hz fixed step. A tiny, real, hardware-verifiable demonstration that Input
+        // actually reaches the simulation, not just an isolated unit test.
+        val spaceIsDown = Input.isKeyDown(Key.Space)
+        if (spaceIsDown && !spaceWasDown) {
+            paused = !paused
+        }
+        spaceWasDown = spaceIsDown
+
+        if (paused) {
+            return
+        }
         elapsedSeconds += delta
         cubeTransform.rotation.y = elapsedSeconds
         cubeTransform.rotation.x = elapsedSeconds * 0.5f
         transformSystem.update(world, delta)
-        renderSystem.update(world, delta)
+    }
+
+    /** Runs exactly once per frame, after zero or more [fixedUpdate] calls. Only draws --
+     * [RenderSystem] reads whatever [Transform.worldMatrix] [fixedUpdate] last wrote via
+     * [TransformSystem], it never mutates simulation state itself. */
+    fun render() {
+        renderSystem.update(world, 0f)
     }
 
     private fun io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance.root(name: String): Transform? {

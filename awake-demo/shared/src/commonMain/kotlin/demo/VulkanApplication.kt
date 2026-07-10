@@ -19,6 +19,7 @@
 
 package demo
 
+import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
 import io.github.ronjunevaldoz.awake.core.graphics.Application
 import io.github.ronjunevaldoz.awake.core.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
@@ -65,6 +66,10 @@ class VulkanApplication : Application {
     private lateinit var material: Material
     private lateinit var texture: Texture
     private lateinit var sceneHost: SceneRuntimeHost
+    /** Phase 4: decouples [SceneRuntimeHost.fixedUpdate] (framerate-independent simulation)
+     * from [SceneRuntimeHost.render] (once per frame) -- see [FixedTimestepLoop]'s doc
+     * comment for why this matters ahead of Phase 8 physics. */
+    private val fixedTimestepLoop = FixedTimestepLoop()
 
     companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
@@ -117,7 +122,11 @@ class VulkanApplication : Application {
     }
 
     override fun update(delta: Float) {
-        sceneHost.update(delta)
+        fixedTimestepLoop.advance(
+            frameDelta = delta,
+            fixedUpdate = sceneHost::fixedUpdate,
+            render = { sceneHost.render() }
+        )
     }
 
     override fun pause() {
