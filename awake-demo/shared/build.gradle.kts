@@ -71,6 +71,10 @@ kotlin {
             implementation(project(":awake-scene"))
             implementation(project(":awake-vulkan"))
             implementation(project(":awake-core"))
+            // Legacy OpenGL demo path (App.kt/DemoApplication.kt/scene/Demo*.kt) -- see
+            // docs/MVP_PLAN.md's Decision Log, D11 follow-up, for why this moved out of
+            // awake-core.
+            implementation(project(":awake-opengl"))
         }
         androidMain.dependencies {
             api(libs.androidx.activity.compose)

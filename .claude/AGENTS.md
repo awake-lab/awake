@@ -41,7 +41,9 @@ it before starting work; phases and open decisions (D1–D4) are tracked there.*
 
 | Module | Purpose | Published |
 |---|---|---|
-| `:awake-core` | Engine core: math, shaders, game loop, OpenGL wrapper | ✅ `awake-core` |
+| `:awake-base` | Dependency-free portable core: math, `Input`, `FixedTimestepLoop`, glTF parsing, bitmap/resource I/O — no Compose, no Vulkan, no OpenGL (see Decision Log D11) | ✅ `awake-base` |
+| `:awake-core` | Backend-agnostic app-lifecycle glue: `Application`, `GameLoop` + actuals, `VulkanView`, `EngineConfig` — no Compose, no rendering backend (see Decision Log D11) | ✅ `awake-core` |
+| `:awake-opengl` | Legacy OpenGL rendering backend: `Context`/`Config`, GL object wrappers, shaders, fonts, GLFW desktop window (see Decision Log D11) | ✅ `awake-opengl` |
 | `:awake-ecs` | Pure sparse-set ECS runtime: entities, component stores, world queries, systems | ✅ `awake-ecs` |
 | `:awake-scene` | Awake scene components/systems on top of ECS (`Transform`, `Camera`, render integration) | ✅ `awake-scene` |
 | `:awake-vulkan` | Vulkan KMP bindings — common API + JNI C++ (`src/main/cpp`) | ✅ `awake-vulkan` |

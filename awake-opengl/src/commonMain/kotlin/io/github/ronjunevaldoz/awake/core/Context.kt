@@ -2,6 +2,8 @@ package io.github.ronjunevaldoz.awake.core
 
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
+import io.github.ronjunevaldoz.awake.core.application.EngineConfig
+import io.github.ronjunevaldoz.awake.core.application.EngineConfigHolder
 import io.github.ronjunevaldoz.awake.core.graphics.Config
 import io.github.ronjunevaldoz.awake.core.graphics.opengl.Agl
 import io.github.ronjunevaldoz.awake.core.graphics.opengl.AglDebuggable
@@ -27,11 +29,19 @@ class AwakeContext(override val gl: OpenGL, override val config: Config) : Conte
             Napier.i("Awake Context initiated")
             if (instance == null) {
                 val gl = if (debug) Agl else AglDebuggable
+                val resolvedConfig = Config(debug = debug).apply(config)
                 instance = AwakeContext(
                     gl = gl,
-                    config = Config(
-                        debug = debug
-                    ).apply(config)
+                    config = resolvedConfig
+                )
+                // GameLoop (awake-core) is backend-agnostic and can't depend on this
+                // OpenGL-specific Context/Config -- mirror the fps/ups this Context was
+                // configured with into the generic holder GameLoop actuals actually read,
+                // so existing `AwakeContext.init { fps = X }` call sites keep working
+                // unchanged (see docs/MVP_PLAN.md's Decision Log, D11 follow-up).
+                EngineConfigHolder.config = EngineConfig(
+                    fps = resolvedConfig.fps,
+                    ups = resolvedConfig.ups
                 )
             }
             return instance as Context

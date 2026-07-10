@@ -1,10 +1,9 @@
 package io.github.ronjunevaldoz.awake.core.application
 
-import io.github.ronjunevaldoz.awake.core.AwakeContext
 import io.github.ronjunevaldoz.awake.core.utils.Time
 
 object DesktopGameLoop : GameLoop {
-    private val desiredFrameRate = AwakeContext.config.fps
+    private val desiredFrameRate = EngineConfigHolder.config.fps
     private val desiredFrameTimeMillis = (1000 / desiredFrameRate).toLong()
     private var previousFrameTime = System.nanoTime()
     private var fpsTimer = 0L

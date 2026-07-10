@@ -29,7 +29,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":awake-core"))
+    implementation(project(":awake-base"))
     implementation(project(":awake-ecs"))
     implementation(project(":awake-scene"))
     implementation(project(":awake-vulkan"))

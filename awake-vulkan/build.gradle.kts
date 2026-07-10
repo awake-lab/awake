@@ -49,8 +49,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // Renderer/DrawCall/TextureLoader (moved in from awake-core) need Mat4/Camera
-            // and Bitmap/readResourceBytes -- see docs/decisions/ for the awake-core split
-            // this module boundary comes from.
+            // and Bitmap/readResourceBytes -- see docs/MVP_PLAN.md's Decision Log, D11, for
+            // the awake-core split this module boundary comes from.
             implementation(project(":awake-base"))
         }
         commonTest.dependencies {

@@ -14,8 +14,11 @@ kotlin {
     sourceSets {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
-            // awake-core in intended for compose project, should be remove in the future
+            // VulkanDesktopMain.kt needs Application/DesktopGameLoop (app-lifecycle glue).
             implementation(project(":awake-core"))
+            // runOpenGlFrameDemo() (main.kt) uses AwakeContext.init/createFrame, both now
+            // in awake-opengl (see docs/MVP_PLAN.md's Decision Log, D11 follow-up).
+            implementation(project(":awake-opengl"))
             implementation(project(":awake-demo:shared"))
             // VulkanWindow (GLFW) for VulkanDesktopMain.kt's real Vulkan window/render loop.
             implementation(project(":awake-vulkan"))

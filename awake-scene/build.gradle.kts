@@ -53,7 +53,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":awake-core"))
+            api(project(":awake-base"))
             api(project(":awake-ecs"))
             api(project(":awake-vulkan"))
             implementation(libs.kotlinx.serialization.json)

@@ -1113,15 +1113,21 @@ add/remove and family churn at 100k).
 
 ## Phase 4 — Engine Runtime (2–3 weeks)
 
-- [ ] Unified game loop (fixed-timestep update + render) across platforms
-- [ ] **Threading model decision:** single render thread owning all Vulkan calls
-      (Vulkan objects are not free-threaded); game update on the same thread for MVP,
-      coroutines only for loading/IO. Document as a hard rule in AGENTS.md
-- [ ] Input abstraction: touch (Android) + keyboard/mouse (desktop GLFW)
-- [ ] Asset loading: extend `AssetUtils` for shaders (`.spv`), textures, scenes
-- [ ] **Mesh import:** minimal glTF 2.0 parser in `commonMain` (JSON via kotlinx.serialization
-      + binary buffer views) — cube can be hardcoded, but the first real model needs this.
-      Full glTF (skinning, animation) is post-MVP
+- [x] **Unified game loop (2026-07-09):** `FixedTimestepLoop` accumulator (`awake-base`) —
+      `SceneRuntimeHost.fixedUpdate`/`render` split, wired through `VulkanApplication`
+- [x] **Threading model decision (2026-07-09):** documented as a hard rule in
+      `.claude/AGENTS.md`'s "Threading model" section — one thread owns every Vulkan call,
+      `Application.update` is synchronous end-to-end, coroutines for loading/IO only
+- [x] **Input abstraction (2026-07-09):** `Input`/`Key` (`awake-base`) — Android touch via
+      `VulkanView.onTouchEvent`, desktop keyboard/mouse via GLFW polling
+      (`pollDesktopInput` in `VulkanDesktopMain.kt`)
+- [x] **Asset loading extended (2026-07-09):** `TextureLoader`/`Bitmap.toRgba8Bytes()`
+      (`awake-vulkan`) for textures; shaders/scenes already covered by
+      `readResourceBytes`/`SceneLoader`
+- [x] **Mesh import (2026-07-09):** minimal glTF 2.0 parser (`GltfDocument`/`GltfMesh`/
+      `GltfParser` in `awake-base`) — single mesh/primitive, base64-embedded buffers only,
+      deliberately narrow MVP scope; full glTF (external `.bin`, skinning, animation,
+      multi-primitive) is post-MVP
 - [x] Scene serialization: `kotlinx.serialization` → `scene.json`
       (the editor contract now lives in `SceneDocument`/`SceneLoader`; renderable binding
       is still app-side)
@@ -1304,6 +1310,50 @@ compile-check, and drift checks all pass). Full history:
 [decisions/D10-codegen-derisk-findings.md](decisions/D10-codegen-derisk-findings.md).
 `awake-vulkan-generator` retirement (originally a Phase 1a checklist item) is back on the
 table now that jni-binding-generator covers real struct marshalling end-to-end.
+
+### D11 — Split `awake-core` into a dependency-free `awake-base` module
+**DECIDED (2026-07-10): done.** `awake-core`'s `commonMain` forced every consumer to pull in
+Compose UI and the entire `:awake-vulkan` native-binding graph just to reach portable math/
+input/glTF-parsing code, which would have blocked any headless consumer (e.g. a future
+physics-server module) from depending on the engine's math layer alone. Confirmed via a full
+read of every file in `awake-core` and a grep of every consumer that no circular dependency
+existed, only 3 files pulled in `vulkan.*` (`Renderer.kt`, `DrawCall.kt`,
+`VulkanTextureLoader.kt`), and only 1 file pulled in Compose (`glExt.kt`, deep in the legacy
+OpenGL path). New module `:awake-base` (modeled on `:awake-ecs`'s already-lean template) now
+holds math, `Input`, `FixedTimestepLoop`, glTF parsing, and bitmap/resource I/O — moved with
+package names unchanged (`io.github.ronjunevaldoz.awake.core.*`), so `awake-core`'s
+`api(project(":awake-base"))` re-export needed zero downstream import changes. The 3
+Vulkan-coupled files moved (and were repackaged) into `:awake-vulkan` itself, which now
+depends on `:awake-base` for `Camera`/`Mat4`; `awake-core` dropped its `:awake-vulkan`
+dependency entirely. `Context`/`Config`/`GameLoop` deliberately stayed untouched (still
+OpenGL-FPS-coupled) — out of scope for this pass, since a headless consumer can drive
+`FixedTimestepLoop.advance(...)` from its own tick source without needing a render loop at
+all.
+
+**Follow-up (2026-07-10): the OpenGL-FPS coupling above is now resolved too.** A second
+pass split `awake-core` again — this time pulling the entire legacy OpenGL stack
+(`graphics/opengl/*`, `rendering/*`, `shader/*`, `fonts/*`, `geometry/Attribute.kt`,
+`utils/AssetUtils.kt`/`BufferUtils.kt`/`BitmapUtils.kt`, `Context.kt`, `graphics/Config.kt`,
+the desktop `createFrame`) into a new peer module, `awake-opengl` (same "keep package names
+unchanged" trick as `awake-base`, so zero consumer import changes). What's left in
+`awake-core` is genuinely backend-agnostic app-lifecycle glue: `Application`, `GameLoop` +
+its 3 platform actuals, `VulkanView` (confirmed via read to import nothing Vulkan-specific
+despite the name — just a generic Android surface/render-thread helper), `Greeting`.
+Compose and lwjgl are no longer `awake-core` dependencies at all.
+
+The one real blocker the first pass explicitly deferred — `GameLoop` actuals reading
+`AwakeContext.config.fps`, which would have meant `awake-core` depending on the
+OpenGL-specific `Context`/`Config` it no longer contains — is fixed by a new
+`EngineConfig`/`EngineConfigHolder` (`awake-core/.../application/EngineConfig.kt`): a
+backend-agnostic fps/ups holder. `awake-opengl`'s `AwakeContext.init()` mirrors its
+resolved `Config.fps`/`Config.ups` into this holder, so every existing
+`AwakeContext.init { fps = X }` call site keeps working with zero changes, while
+`awake-core`'s `GameLoop` actuals now read `EngineConfigHolder.config.fps` and have no
+OpenGL dependency whatsoever. `awake-scene` and `awake-ecs-benchmark` — which only ever
+needed `awake-core` for math — now depend on `awake-base` directly instead, dropping
+Compose/OpenGL from their transitive graph entirely. Verified: all modules compile
+(desktop + Android), `awake-base`/`awake-scene` test suites pass, and the real GLFW+Vulkan
+desktop demo (`runVulkanDesktop`) still runs correctly end-to-end.
 
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**

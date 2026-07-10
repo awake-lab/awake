@@ -1,6 +1,5 @@
 package io.github.ronjunevaldoz.awake.core.application
 
-import io.github.ronjunevaldoz.awake.core.AwakeContext
 import io.github.ronjunevaldoz.awake.core.utils.Time
 import kotlin.time.TimeSource
 import platform.posix.usleep
@@ -18,7 +17,7 @@ import platform.posix.usleep
  */
 @ThreadLocal
 object IOSGameLoop : GameLoop {
-    private val desiredFrameRate = AwakeContext.config.fps
+    private val desiredFrameRate = EngineConfigHolder.config.fps
     private val desiredFrameTimeMicros = (1_000_000L / desiredFrameRate)
     private var previousMark = TimeSource.Monotonic.markNow()
     private var fpsTimerNanos = 0L
