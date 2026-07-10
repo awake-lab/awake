@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPresentModeKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtensionProperties
+import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent3D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkLayerProperties
 import io.github.ronjunevaldoz.awake.vulkan.models.VkQueueFamilyProperties
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
@@ -112,6 +113,7 @@ import platform.MoltenVK.vkEnumerateInstanceLayerProperties as nativeVkEnumerate
 import platform.MoltenVK.vkEnumeratePhysicalDevices as nativeVkEnumeratePhysicalDevices
 import platform.MoltenVK.vkGetDeviceQueue as nativeVkGetDeviceQueue
 import platform.MoltenVK.vkGetPhysicalDeviceFeatures as nativeVkGetPhysicalDeviceFeatures
+import platform.MoltenVK.vkGetPhysicalDeviceQueueFamilyProperties as nativeVkGetPhysicalDeviceQueueFamilyProperties
 import platform.MoltenVK.vkGetSwapchainImagesKHR as nativeVkGetSwapchainImagesKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
@@ -121,6 +123,7 @@ import platform.MoltenVK.VkExtensionProperties as NativeVkExtensionProperties
 import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
 import platform.MoltenVK.VkLayerProperties as NativeVkLayerProperties
 import platform.MoltenVK.VkPhysicalDeviceFeatures as NativeVkPhysicalDeviceFeatures
+import platform.MoltenVK.VkQueueFamilyProperties as NativeVkQueueFamilyProperties
 
 // One field per VkPhysicalDeviceFeatures member (55 VkBool32 flags, no nesting) -- shared by
 // vkGetPhysicalDeviceFeatures (native -> Kotlin) below.
@@ -306,8 +309,27 @@ actual object Vulkan {
         nativeFeatures.toKotlinModel()
     }
 
-    actual fun vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice: Long): Array<VkQueueFamilyProperties> {
-        TODO("Not yet implemented")
+    actual fun vkGetPhysicalDeviceQueueFamilyProperties(
+        physicalDevice: Long
+    ): Array<VkQueueFamilyProperties> = memScoped {
+        val nativePhysicalDevice = physicalDevice.toCPointer<VkPhysicalDevice_T>()
+        val countVar = alloc<UIntVar>()
+        nativeVkGetPhysicalDeviceQueueFamilyProperties(nativePhysicalDevice, countVar.ptr, null)
+        val count = countVar.value.toInt()
+        if (count == 0) return@memScoped emptyArray()
+        val nativeArray = allocArray<NativeVkQueueFamilyProperties>(count)
+        nativeVkGetPhysicalDeviceQueueFamilyProperties(nativePhysicalDevice, countVar.ptr, nativeArray)
+        Array(count) { i ->
+            val native = nativeArray[i]
+            VkQueueFamilyProperties(
+                queueFlags = native.queueFlags.toInt(),
+                queueCount = native.queueCount,
+                timestampValidBits = native.timestampValidBits,
+                minImageTransferGranularity = native.minImageTransferGranularity.let {
+                    VkExtent3D(width = it.width.toInt(), height = it.height.toInt(), depth = it.depth.toInt())
+                }
+            )
+        }
     }
 
     actual fun vkGetSwapchainImagesKHR(device: Long, swapchain: Long): LongArray = memScoped {
