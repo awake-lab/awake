@@ -1275,12 +1275,53 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
       those itself; (2) `linkerOpts` need to be set via `target.binaries.all { }`, not just
       `target.binaries.framework { }` — the test binary is a separate binary target that
       doesn't inherit the packaged framework's linker config.
-- [ ] `CAMetalLayer`-backed surface actual
-- [ ] iOS `actual object Vulkan` — evaluate extending jni-binding-generator to emit
-      cinterop-backed actuals from the same `Vulkan.kt` source (revisit now that real
-      cinterop patterns exist to generate *from* — see `vkCreateInstance`'s hand-written
-      implementation above as the reference shape)
-- [ ] Triangle → cube parity with Android/desktop
+- [x] **`CAMetalLayer`-backed surface actual (2026-07-10):** `VulkanSurface.kt`'s
+      `createSurface`/`destroySurfaceWindow` use the real `vkCreateMetalSurfaceEXT`/
+      `VkMetalSurfaceCreateInfoEXT` (MoltenVK's `VK_EXT_metal_surface`), with a new
+      `VulkanMetalView.kt` (`CAMetalLayer` sublayer + `CADisplayLink`-driven render loop,
+      matching `awake-opengl`'s existing `GameView.kt` target-selector pattern) wired into
+      `AwakeCanvas.kt`'s previously-dead `vulkan: Boolean` flag.
+- [x] **iOS `actual object Vulkan` (2026-07-10):** all 58 legacy functions plus all 30
+      `vulkan.gen` functions (buffers/descriptors/images) are real MoltenVK cinterop
+      implementations now — no `TODO()`s remain except the permanently-N/A
+      `vkCreateAndroidSurfaceKHR`. (jni-binding-generator codegen extension not pursued —
+      hand-written was fast enough once the patterns were established; revisit only if a
+      second native backend needs the same ~90 functions.)
+- [x] **Triangle → cube parity with Android/desktop (2026-07-10):** confirmed on a real
+      booted iPhone 17 Simulator, not just `iosSimulatorArm64Test`'s headless smoke test —
+      `xcodebuild` produces a linking, launching `.app`, MoltenVK creates a real
+      `VkInstance`/`VkDevice`/swapchain against the live `CAMetalLayer`, and the demo's
+      textured, depth-tested cube renders on screen. Three runtime-only bugs surfaced and
+      fixed getting here (none were MoltenVK/cinterop issues):
+      1. **Static framework linking never reaches the app binary**: cinterop `.def`
+         `linkerOpts` don't propagate through a `project()` dependency to a downstream
+         module's own framework link step, and repeating them in the producing module's
+         `binaries.framework {}` block doesn't help either — a *static* framework
+         (`isStatic = true`) legitimately leaves symbols unresolved until the final
+         executable links. Fix: `LIBRARY_SEARCH_PATHS`/`OTHER_LDFLAGS` for MoltenVK added
+         directly to the Xcode **app target's** own build settings
+         (`iosApp.xcodeproj/project.pbxproj`), since that's the actual final link step.
+      2. `VulkanApplication.pause()`/`resume()` were `TODO()` stubs, hit immediately by
+         the CADisplayLink-driven `UIView` lifecycle (`willMoveToWindow`).
+      3. `assets/`/`scenes/` resource directories were never copied into the iOS app
+         bundle (`readResourceBytes` reads from `NSBundle.mainBundle`, not a Compose
+         resource system) — added as Xcode folder references to the app target's
+         Resources build phase. Also fixed a real `vkCmdBeginRenderPass` gap while
+         debugging this: only `VkClearColorValue.Float32` was marshalled, but the
+         renderer's depth attachment passes `VkClearDepthStencilValue` — added that
+         union branch.
+      **Phase 6 is functionally complete.** Remaining work is polish, not blockers: see
+      new checklist items below.
+- [ ] Real-device (not just Simulator) run — confirm on physical hardware, since
+      Simulator's Vulkan/Metal path can behave differently (e.g. the earlier
+      `VK_ERROR_INCOMPATIBLE_DRIVER` finding was Simulator-specific)
+- [ ] `iosArm64` (device) release-config `xcodebuild`/App Store archive path — only
+      `iosSimulatorArm64`/Debug has been exercised end-to-end so far
+- [ ] Input handling on iOS (touch → the existing `awake-core` input abstraction) —
+      `VulkanMetalView` has no touch wiring yet
+- [ ] Revisit `vkCmdBeginRenderPass`'s remaining narrow spots
+      (`pSpecializationInfo`/`pSampleMask` in the graphics-pipeline path) if a real
+      shader ever needs them
 
 ## Phase 7 — Compose-Style Scene API (post-decision, see D2)
 
