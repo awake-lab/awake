@@ -111,6 +111,7 @@ import platform.MoltenVK.vkEnumerateInstanceExtensionProperties as nativeVkEnume
 import platform.MoltenVK.vkEnumerateInstanceLayerProperties as nativeVkEnumerateInstanceLayerProperties
 import platform.MoltenVK.vkEnumeratePhysicalDevices as nativeVkEnumeratePhysicalDevices
 import platform.MoltenVK.vkGetDeviceQueue as nativeVkGetDeviceQueue
+import platform.MoltenVK.vkGetPhysicalDeviceFeatures as nativeVkGetPhysicalDeviceFeatures
 import platform.MoltenVK.vkGetSwapchainImagesKHR as nativeVkGetSwapchainImagesKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
@@ -119,6 +120,68 @@ import platform.MoltenVK.VkCommandBufferBeginInfo as NativeVkCommandBufferBeginI
 import platform.MoltenVK.VkExtensionProperties as NativeVkExtensionProperties
 import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
 import platform.MoltenVK.VkLayerProperties as NativeVkLayerProperties
+import platform.MoltenVK.VkPhysicalDeviceFeatures as NativeVkPhysicalDeviceFeatures
+
+// One field per VkPhysicalDeviceFeatures member (55 VkBool32 flags, no nesting) -- shared by
+// vkGetPhysicalDeviceFeatures (native -> Kotlin) below.
+@OptIn(ExperimentalForeignApi::class)
+private fun NativeVkPhysicalDeviceFeatures.toKotlinModel(): VkPhysicalDeviceFeatures = VkPhysicalDeviceFeatures(
+    robustBufferAccess = robustBufferAccess != 0u,
+    fullDrawIndexUint32 = fullDrawIndexUint32 != 0u,
+    imageCubeArray = imageCubeArray != 0u,
+    independentBlend = independentBlend != 0u,
+    geometryShader = geometryShader != 0u,
+    tessellationShader = tessellationShader != 0u,
+    sampleRateShading = sampleRateShading != 0u,
+    dualSrcBlend = dualSrcBlend != 0u,
+    logicOp = logicOp != 0u,
+    multiDrawIndirect = multiDrawIndirect != 0u,
+    drawIndirectFirstInstance = drawIndirectFirstInstance != 0u,
+    depthClamp = depthClamp != 0u,
+    depthBiasClamp = depthBiasClamp != 0u,
+    fillModeNonSolid = fillModeNonSolid != 0u,
+    depthBounds = depthBounds != 0u,
+    wideLines = wideLines != 0u,
+    largePoints = largePoints != 0u,
+    alphaToOne = alphaToOne != 0u,
+    multiViewport = multiViewport != 0u,
+    samplerAnisotropy = samplerAnisotropy != 0u,
+    textureCompressionETC2 = textureCompressionETC2 != 0u,
+    textureCompressionASTC_LDR = textureCompressionASTC_LDR != 0u,
+    textureCompressionBC = textureCompressionBC != 0u,
+    occlusionQueryPrecise = occlusionQueryPrecise != 0u,
+    pipelineStatisticsQuery = pipelineStatisticsQuery != 0u,
+    vertexPipelineStoresAndAtomics = vertexPipelineStoresAndAtomics != 0u,
+    fragmentStoresAndAtomics = fragmentStoresAndAtomics != 0u,
+    shaderTessellationAndGeometryPointSize = shaderTessellationAndGeometryPointSize != 0u,
+    shaderImageGatherExtended = shaderImageGatherExtended != 0u,
+    shaderStorageImageExtendedFormats = shaderStorageImageExtendedFormats != 0u,
+    shaderStorageImageMultisample = shaderStorageImageMultisample != 0u,
+    shaderStorageImageReadWithoutFormat = shaderStorageImageReadWithoutFormat != 0u,
+    shaderStorageImageWriteWithoutFormat = shaderStorageImageWriteWithoutFormat != 0u,
+    shaderUniformBufferArrayDynamicIndexing = shaderUniformBufferArrayDynamicIndexing != 0u,
+    shaderSampledImageArrayDynamicIndexing = shaderSampledImageArrayDynamicIndexing != 0u,
+    shaderStorageBufferArrayDynamicIndexing = shaderStorageBufferArrayDynamicIndexing != 0u,
+    shaderStorageImageArrayDynamicIndexing = shaderStorageImageArrayDynamicIndexing != 0u,
+    shaderClipDistance = shaderClipDistance != 0u,
+    shaderCullDistance = shaderCullDistance != 0u,
+    shaderFloat64 = shaderFloat64 != 0u,
+    shaderInt64 = shaderInt64 != 0u,
+    shaderInt16 = shaderInt16 != 0u,
+    shaderResourceResidency = shaderResourceResidency != 0u,
+    shaderResourceMinLod = shaderResourceMinLod != 0u,
+    sparseBinding = sparseBinding != 0u,
+    sparseResidencyBuffer = sparseResidencyBuffer != 0u,
+    sparseResidencyImage2D = sparseResidencyImage2D != 0u,
+    sparseResidencyImage3D = sparseResidencyImage3D != 0u,
+    sparseResidency2Samples = sparseResidency2Samples != 0u,
+    sparseResidency4Samples = sparseResidency4Samples != 0u,
+    sparseResidency8Samples = sparseResidency8Samples != 0u,
+    sparseResidency16Samples = sparseResidency16Samples != 0u,
+    sparseResidencyAliased = sparseResidencyAliased != 0u,
+    variableMultisampleRate = variableMultisampleRate != 0u,
+    inheritedQueries = inheritedQueries != 0u
+)
 
 // Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
 //
@@ -237,8 +300,10 @@ actual object Vulkan {
         TODO("Not yet implemented")
     }
 
-    actual fun vkGetPhysicalDeviceFeatures(physicalDevice: Long): VkPhysicalDeviceFeatures {
-        TODO("Not yet implemented")
+    actual fun vkGetPhysicalDeviceFeatures(physicalDevice: Long): VkPhysicalDeviceFeatures = memScoped {
+        val nativeFeatures = alloc<NativeVkPhysicalDeviceFeatures>()
+        nativeVkGetPhysicalDeviceFeatures(physicalDevice.toCPointer(), nativeFeatures.ptr)
+        nativeFeatures.toKotlinModel()
     }
 
     actual fun vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice: Long): Array<VkQueueFamilyProperties> {
