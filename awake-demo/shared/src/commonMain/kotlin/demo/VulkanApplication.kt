@@ -130,11 +130,9 @@ class VulkanApplication : Application {
     }
 
     override fun pause() {
-        TODO("Not yet implemented")
     }
 
     override fun resume() {
-        TODO("Not yet implemented")
     }
 
     override fun resize(x: Int, y: Int, width: Int, height: Int) {

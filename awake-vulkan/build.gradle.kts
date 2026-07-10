@@ -68,28 +68,37 @@ kotlin {
         target.binaries.framework {
             baseName = "awake-vulkan"
         }
-        // binaries.all{} (not just binaries.framework{}) so the test binary
-        // (linkDebugTestIosSimulatorArm64 etc.) gets these too, not just the packaged
-        // .framework output.
-        target.binaries.all {
-            linkerOpts(
-                "-L${staticDir.path}", "-lMoltenVK", "-lc++",
-                // MoltenVK's static lib references these Apple frameworks directly
-                // (CAMetalLayer, IOSurface, color-space constants, etc.) -- a dynamic
-                // .framework resolves its own dependencies at load time, but a static
-                // .a needs them named explicitly at link time.
-                "-framework", "Metal",
-                "-framework", "QuartzCore",
-                "-framework", "IOSurface",
-                "-framework", "CoreGraphics",
-                "-framework", "Foundation",
-                "-framework", "UIKit",
-            )
-        }
+        // Gradle's binaries.X { linkerOpts(...) } only affects binaries THIS module
+        // builds directly -- it does not propagate to a downstream consumer's own final
+        // link step (e.g. awake-demo:shared's Shared.xcframework), confirmed the hard way
+        // (undefined vk* symbols linking a real iOS app against Shared.framework despite
+        // this module compiling clean). The linker flags cinterop actually propagates to
+        // consumers are the ones embedded in the .def file's own `linkerOpts` directive --
+        // so a per-target .def file is generated here (paths differ: device vs simulator
+        // ship separate binary slices) rather than reusing one static file.
+        val generatedDefFile = layout.buildDirectory.file("cinterop/MoltenVK-${target.name}.def").get().asFile
+        generatedDefFile.parentFile.mkdirs()
+        val moltenVkLinkerOpts = listOf(
+            "-L${staticDir.path}", "-lMoltenVK", "-lc++",
+            // MoltenVK's static lib references these Apple frameworks directly
+            // (CAMetalLayer, IOSurface, color-space constants, etc.) -- a dynamic
+            // .framework resolves its own dependencies at load time, but a static .a
+            // needs them named explicitly at link time.
+            "-framework", "Metal",
+            "-framework", "QuartzCore",
+            "-framework", "IOSurface",
+            "-framework", "CoreGraphics",
+            "-framework", "Foundation",
+            "-framework", "UIKit",
+        ).joinToString(" ")
+        generatedDefFile.writeText(
+            project.file("src/nativeInterop/cinterop/MoltenVK.def").readText() +
+                "\nlinkerOpts = $moltenVkLinkerOpts\n"
+        )
         target.compilations.getByName("main") {
             cinterops {
                 create("MoltenVK") {
-                    defFile(project.file("src/nativeInterop/cinterop/MoltenVK.def"))
+                    defFile(generatedDefFile)
                     includeDirs(moltenVkIncludeDir)
                 }
             }

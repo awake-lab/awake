@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagBitsKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
+import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtensionProperties
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent3D
@@ -1434,17 +1435,20 @@ actual object Vulkan {
             clearValueCount = (clearValues?.size ?: 0).toUInt()
             pClearValues = clearValues?.let { values ->
                 allocArray<NativeVkClearValue>(values.size) { index ->
-                    // Only the RGBA float clear-color case is marshalled -- the only variant
-                    // any call site in this codebase uses today. VkClearDepthStencilValue
-                    // (union's other member) would need its own branch if a depth-clear ever
-                    // gets wired up.
-                    val clearColor = values[index] as? VkClearColorValue.Float32
-                        ?: error("vkCmdBeginRenderPass: only VkClearColorValue.Float32 is supported on iOS")
-                    color.float32.apply {
-                        this[0] = clearColor.values[0]
-                        this[1] = clearColor.values[1]
-                        this[2] = clearColor.values[2]
-                        this[3] = clearColor.values[3]
+                    when (val value = values[index]) {
+                        is VkClearColorValue.Float32 -> color.float32.apply {
+                            this[0] = value.values[0]
+                            this[1] = value.values[1]
+                            this[2] = value.values[2]
+                            this[3] = value.values[3]
+                        }
+                        is VkClearDepthStencilValue -> depthStencil.apply {
+                            depth = value.depth
+                            stencil = value.stencil.toUInt()
+                        }
+                        else -> error(
+                            "vkCmdBeginRenderPass: unsupported VkClearValue variant on iOS: $value"
+                        )
                     }
                 }
             }

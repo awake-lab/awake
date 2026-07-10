@@ -46,10 +46,35 @@ kotlin {
     // not CocoaPods -- SPM binary targets don't need Kotlin/Gradle/CocoaPods installed
     // on the iOS-only-consumer's machine, and Xcode resolves them natively.
     val xcf = XCFramework("Shared")
+    // MoltenVK's own linkerOpts (set in awake-vulkan/build.gradle.kts's cinterop .def file)
+    // do NOT propagate through the project(":awake-vulkan") dependency to this module's own
+    // framework link step -- confirmed the hard way (Shared.framework's binary still showing
+    // _vkCreateInstance as an undefined symbol via `nm -g` even after that fix). Kotlin/Native
+    // only applies a cinterop klib's linkerOpts to the binary built by the module that OWNS
+    // the cinterop; a downstream consumer's final link needs the same flags repeated here.
+    val moltenVkStaticDir = mapOf(
+        "iosArm64" to project(":awake-vulkan").file(
+            "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64"
+        ),
+        "iosSimulatorArm64" to project(":awake-vulkan").file(
+            "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/" +
+                "ios-arm64_x86_64-simulator"
+        ),
+    )
+    fun moltenVkLinkerOpts(targetName: String) = listOf(
+        "-L${moltenVkStaticDir.getValue(targetName).path}", "-lMoltenVK", "-lc++",
+        "-framework", "Metal",
+        "-framework", "QuartzCore",
+        "-framework", "IOSurface",
+        "-framework", "CoreGraphics",
+        "-framework", "Foundation",
+        "-framework", "UIKit",
+    )
     iosArm64 {
         binaries.framework {
             baseName = "Shared"
             isStatic = true
+            linkerOpts(moltenVkLinkerOpts("iosArm64"))
             xcf.add(this)
         }
     }
@@ -57,6 +82,7 @@ kotlin {
         binaries.framework {
             baseName = "Shared"
             isStatic = true
+            linkerOpts(moltenVkLinkerOpts("iosSimulatorArm64"))
             xcf.add(this)
         }
     }
