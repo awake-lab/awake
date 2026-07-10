@@ -120,6 +120,22 @@ used, so the categorical view (what kind of system is this) and the sequencing v
 
 ## 🔍 Level 2 — Simulation & Environment Pipelines
 
+### Physics Simulation
+
+| Item | Status | Priority | Stage | Approach |
+|---|---|---|---|---|
+| Kinematic Character Movement (no physics engine) | 🔲 Not started | P0 | MVP1a | 🕰️ deliberately simple — `Transform` moved directly from input, NavMesh-clamped |
+| Jolt Physics JNI/cinterop Bindings | 🔲 Not started | P1 | MVP1b | 🆕 — see [D5](./MVP_PLAN.md#d5--physics-engine): Jolt over Bullet/PhysX/Rapier, coarse-grained `step(dt)` + batched transform read-back, not a 1:1 API mirror |
+| Dynamic Rigid Bodies (ragdolls, projectiles, knockback) | 🔲 Not started | P2 | MVP4 | 🆕 — only once gameplay needs real dynamics, not before |
+| 2D Physics (kbox2d, pure Kotlin) | 🔲 Not started | P3 | — | 🆕 — only if a 2D minigame/UI-physics need ever comes up; covers Wasm/JS for free since it's pure Kotlin |
+
+> **Don't build a custom physics engine.** Unlike the Vulkan/WebGPU rendering work in this
+> repo (which is custom *because* nothing else gives KMP a real backend-neutral renderer),
+> there's no multiplatform-necessity argument for rolling your own rigid-body solver —
+> Jolt already solves the hard part (broad/narrow-phase collision, constraint solving,
+> continuous collision detection); the only real engineering work left is the JNI/cinterop
+> binding layer, using the same pattern already proven for Vulkan.
+
 ### World Space & Serialization
 
 | Item | Status | Priority | Stage | Approach |
