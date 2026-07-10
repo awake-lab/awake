@@ -51,20 +51,26 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCache
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceFeatures
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceProperties
+import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.UIntVar
 import kotlinx.cinterop.alloc
+import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.allocArrayOf
 import kotlinx.cinterop.cstr
+import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toCPointer
+import kotlinx.cinterop.toKString
 import kotlinx.cinterop.value
 import cnames.structs.VkCommandPool_T
 import cnames.structs.VkFence_T
 import cnames.structs.VkFramebuffer_T
 import cnames.structs.VkImageView_T
+import cnames.structs.VkImage_T
 import cnames.structs.VkInstance_T
+import cnames.structs.VkPhysicalDevice_T
 import cnames.structs.VkPipelineCache_T
 import cnames.structs.VkPipelineLayout_T
 import cnames.structs.VkPipeline_T
@@ -100,12 +106,19 @@ import platform.MoltenVK.vkDestroyShaderModule as nativeVkDestroyShaderModule
 import platform.MoltenVK.vkDestroySurfaceKHR as nativeVkDestroySurfaceKHR
 import platform.MoltenVK.vkDestroySwapchainKHR as nativeVkDestroySwapchainKHR
 import platform.MoltenVK.vkEndCommandBuffer as nativeVkEndCommandBuffer
+import platform.MoltenVK.vkEnumerateDeviceExtensionProperties as nativeVkEnumerateDeviceExtensionProperties
+import platform.MoltenVK.vkEnumerateInstanceExtensionProperties as nativeVkEnumerateInstanceExtensionProperties
+import platform.MoltenVK.vkEnumerateInstanceLayerProperties as nativeVkEnumerateInstanceLayerProperties
+import platform.MoltenVK.vkEnumeratePhysicalDevices as nativeVkEnumeratePhysicalDevices
 import platform.MoltenVK.vkGetDeviceQueue as nativeVkGetDeviceQueue
+import platform.MoltenVK.vkGetSwapchainImagesKHR as nativeVkGetSwapchainImagesKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
 import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
 import platform.MoltenVK.VkCommandBufferBeginInfo as NativeVkCommandBufferBeginInfo
+import platform.MoltenVK.VkExtensionProperties as NativeVkExtensionProperties
 import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
+import platform.MoltenVK.VkLayerProperties as NativeVkLayerProperties
 
 // Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
 //
@@ -155,23 +168,69 @@ actual object Vulkan {
         nativeVkDestroyInstance(nativeInstance, null)
     }
 
-    actual fun vkEnumerateInstanceLayerProperties(): Array<VkLayerProperties> {
-        TODO("Not yet implemented")
+    actual fun vkEnumerateInstanceLayerProperties(): Array<VkLayerProperties> = memScoped {
+        val countVar = alloc<UIntVar>()
+        nativeVkEnumerateInstanceLayerProperties(countVar.ptr, null)
+        val count = countVar.value.toInt()
+        if (count == 0) return@memScoped emptyArray()
+        val nativeArray = allocArray<NativeVkLayerProperties>(count)
+        nativeVkEnumerateInstanceLayerProperties(countVar.ptr, nativeArray)
+        Array(count) { i ->
+            val native = nativeArray[i]
+            VkLayerProperties(
+                layerName = native.layerName.toKString(),
+                specVersion = native.specVersion.toInt(),
+                implementationVersion = native.implementationVersion.toInt(),
+                description = native.description.toKString()
+            )
+        }
     }
 
-    actual fun vkEnumerateInstanceExtensionProperties(layerName: String?): Array<VkExtensionProperties> {
-        TODO("Not yet implemented")
-    }
+    actual fun vkEnumerateInstanceExtensionProperties(layerName: String?): Array<VkExtensionProperties> =
+        memScoped {
+            val countVar = alloc<UIntVar>()
+            nativeVkEnumerateInstanceExtensionProperties(layerName, countVar.ptr, null)
+            val count = countVar.value.toInt()
+            if (count == 0) return@memScoped emptyArray()
+            val nativeArray = allocArray<NativeVkExtensionProperties>(count)
+            nativeVkEnumerateInstanceExtensionProperties(layerName, countVar.ptr, nativeArray)
+            Array(count) { i ->
+                val native = nativeArray[i]
+                VkExtensionProperties(
+                    extensionName = native.extensionName.toKString(),
+                    specVersion = native.specVersion.toInt()
+                )
+            }
+        }
 
     actual fun vkEnumerateDeviceExtensionProperties(
         physicalDevice: Long,
         layerName: String?
-    ): Array<VkExtensionProperties> {
-        TODO("Not yet implemented")
+    ): Array<VkExtensionProperties> = memScoped {
+        val nativePhysicalDevice = physicalDevice.toCPointer<VkPhysicalDevice_T>()
+        val countVar = alloc<UIntVar>()
+        nativeVkEnumerateDeviceExtensionProperties(nativePhysicalDevice, layerName, countVar.ptr, null)
+        val count = countVar.value.toInt()
+        if (count == 0) return@memScoped emptyArray()
+        val nativeArray = allocArray<NativeVkExtensionProperties>(count)
+        nativeVkEnumerateDeviceExtensionProperties(nativePhysicalDevice, layerName, countVar.ptr, nativeArray)
+        Array(count) { i ->
+            val native = nativeArray[i]
+            VkExtensionProperties(
+                extensionName = native.extensionName.toKString(),
+                specVersion = native.specVersion.toInt()
+            )
+        }
     }
 
-    actual fun vkEnumeratePhysicalDevices(instance: Long): LongArray {
-        TODO("Not yet implemented")
+    actual fun vkEnumeratePhysicalDevices(instance: Long): LongArray = memScoped {
+        val countVar = alloc<UIntVar>()
+        nativeVkEnumeratePhysicalDevices(instance.toCPointer(), countVar.ptr, null)
+        val count = countVar.value.toInt()
+        if (count == 0) return@memScoped LongArray(0)
+        val nativeArray = allocArray<CPointerVar<VkPhysicalDevice_T>>(count)
+        nativeVkEnumeratePhysicalDevices(instance.toCPointer(), countVar.ptr, nativeArray)
+        LongArray(count) { i -> nativeArray[i]!!.rawValue.toLong() }
     }
 
     actual fun vkGetPhysicalDeviceProperties(physicalDevice: Long): VkPhysicalDeviceProperties {
@@ -186,8 +245,16 @@ actual object Vulkan {
         TODO("Not yet implemented")
     }
 
-    actual fun vkGetSwapchainImagesKHR(device: Long, swapchain: Long): LongArray {
-        TODO("Not yet implemented")
+    actual fun vkGetSwapchainImagesKHR(device: Long, swapchain: Long): LongArray = memScoped {
+        val nativeDevice = device.toCPointer<cnames.structs.VkDevice_T>()
+        val nativeSwapchain = swapchain.toCPointer<VkSwapchainKHR_T>()
+        val countVar = alloc<UIntVar>()
+        nativeVkGetSwapchainImagesKHR(nativeDevice, nativeSwapchain, countVar.ptr, null)
+        val count = countVar.value.toInt()
+        if (count == 0) return@memScoped LongArray(0)
+        val nativeArray = allocArray<CPointerVar<VkImage_T>>(count)
+        nativeVkGetSwapchainImagesKHR(nativeDevice, nativeSwapchain, countVar.ptr, nativeArray)
+        LongArray(count) { i -> nativeArray[i]!!.rawValue.toLong() }
     }
 
     actual fun vkCreateDevice(physicalDevice: Long, deviceInfo: VkDeviceCreateInfo): Long {
