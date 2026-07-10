@@ -60,8 +60,11 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSwapchainCreateInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCreateInfoEXT
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkPhysicalDeviceType
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceFeatures
+import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceLimits
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceProperties
+import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceSparseProperties
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -154,6 +157,7 @@ import platform.MoltenVK.vkEnumerateInstanceLayerProperties as nativeVkEnumerate
 import platform.MoltenVK.vkEnumeratePhysicalDevices as nativeVkEnumeratePhysicalDevices
 import platform.MoltenVK.vkGetDeviceQueue as nativeVkGetDeviceQueue
 import platform.MoltenVK.vkGetPhysicalDeviceFeatures as nativeVkGetPhysicalDeviceFeatures
+import platform.MoltenVK.vkGetPhysicalDeviceProperties as nativeVkGetPhysicalDeviceProperties
 import platform.MoltenVK.vkGetPhysicalDeviceQueueFamilyProperties as nativeVkGetPhysicalDeviceQueueFamilyProperties
 import platform.MoltenVK.vkGetSwapchainImagesKHR as nativeVkGetSwapchainImagesKHR
 import platform.MoltenVK.vkCreateSemaphore as nativeVkCreateSemaphore
@@ -193,6 +197,7 @@ import platform.MoltenVK.VkPipelineLayoutCreateInfo as NativeVkPipelineLayoutCre
 import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
 import platform.MoltenVK.VkLayerProperties as NativeVkLayerProperties
 import platform.MoltenVK.VkPhysicalDeviceFeatures as NativeVkPhysicalDeviceFeatures
+import platform.MoltenVK.VkPhysicalDeviceProperties as NativeVkPhysicalDeviceProperties
 import platform.MoltenVK.VkPipelineCacheCreateInfo as NativeVkPipelineCacheCreateInfo
 import platform.MoltenVK.VkQueueFamilyProperties as NativeVkQueueFamilyProperties
 import platform.MoltenVK.VkSemaphoreCreateInfo as NativeVkSemaphoreCreateInfo
@@ -339,6 +344,128 @@ private fun NativeVkPhysicalDeviceFeatures.fromKotlinModel(model: VkPhysicalDevi
     inheritedQueries = if (model.inheritedQueries) 1u else 0u
 }
 
+// One field per VkPhysicalDeviceLimits member (~100 fields, no further nesting beyond a few
+// fixed-size 2/3-element arrays) -- shared by vkGetPhysicalDeviceProperties below.
+@OptIn(ExperimentalForeignApi::class)
+private fun platform.MoltenVK.VkPhysicalDeviceLimits.toKotlinModel(): VkPhysicalDeviceLimits = VkPhysicalDeviceLimits(
+    maxImageDimension1D = maxImageDimension1D,
+    maxImageDimension2D = maxImageDimension2D,
+    maxImageDimension3D = maxImageDimension3D,
+    maxImageDimensionCube = maxImageDimensionCube,
+    maxImageArrayLayers = maxImageArrayLayers,
+    maxTexelBufferElements = maxTexelBufferElements,
+    maxUniformBufferRange = maxUniformBufferRange,
+    maxStorageBufferRange = maxStorageBufferRange,
+    maxPushConstantsSize = maxPushConstantsSize,
+    maxMemoryAllocationCount = maxMemoryAllocationCount,
+    maxSamplerAllocationCount = maxSamplerAllocationCount,
+    bufferImageGranularity = bufferImageGranularity.toLong(),
+    sparseAddressSpaceSize = sparseAddressSpaceSize.toLong(),
+    maxBoundDescriptorSets = maxBoundDescriptorSets,
+    maxPerStageDescriptorSamplers = maxPerStageDescriptorSamplers,
+    maxPerStageDescriptorUniformBuffers = maxPerStageDescriptorUniformBuffers,
+    maxPerStageDescriptorStorageBuffers = maxPerStageDescriptorStorageBuffers,
+    maxPerStageDescriptorSampledImages = maxPerStageDescriptorSampledImages,
+    maxPerStageDescriptorStorageImages = maxPerStageDescriptorStorageImages,
+    maxPerStageDescriptorInputAttachments = maxPerStageDescriptorInputAttachments,
+    maxPerStageResources = maxPerStageResources,
+    maxDescriptorSetSamplers = maxDescriptorSetSamplers,
+    maxDescriptorSetUniformBuffers = maxDescriptorSetUniformBuffers,
+    maxDescriptorSetUniformBuffersDynamic = maxDescriptorSetUniformBuffersDynamic,
+    maxDescriptorSetStorageBuffers = maxDescriptorSetStorageBuffers,
+    maxDescriptorSetStorageBuffersDynamic = maxDescriptorSetStorageBuffersDynamic,
+    maxDescriptorSetSampledImages = maxDescriptorSetSampledImages,
+    maxDescriptorSetStorageImages = maxDescriptorSetStorageImages,
+    maxDescriptorSetInputAttachments = maxDescriptorSetInputAttachments,
+    maxVertexInputAttributes = maxVertexInputAttributes,
+    maxVertexInputBindings = maxVertexInputBindings,
+    maxVertexInputAttributeOffset = maxVertexInputAttributeOffset,
+    maxVertexInputBindingStride = maxVertexInputBindingStride,
+    maxVertexOutputComponents = maxVertexOutputComponents,
+    maxTessellationGenerationLevel = maxTessellationGenerationLevel,
+    maxTessellationPatchSize = maxTessellationPatchSize,
+    maxTessellationControlPerVertexInputComponents = maxTessellationControlPerVertexInputComponents,
+    maxTessellationControlPerVertexOutputComponents = maxTessellationControlPerVertexOutputComponents,
+    maxTessellationControlPerPatchOutputComponents = maxTessellationControlPerPatchOutputComponents,
+    maxTessellationControlTotalOutputComponents = maxTessellationControlTotalOutputComponents,
+    maxTessellationEvaluationInputComponents = maxTessellationEvaluationInputComponents,
+    maxTessellationEvaluationOutputComponents = maxTessellationEvaluationOutputComponents,
+    maxGeometryShaderInvocations = maxGeometryShaderInvocations,
+    maxGeometryInputComponents = maxGeometryInputComponents,
+    maxGeometryOutputComponents = maxGeometryOutputComponents,
+    maxGeometryOutputVertices = maxGeometryOutputVertices,
+    maxGeometryTotalOutputComponents = maxGeometryTotalOutputComponents,
+    maxFragmentInputComponents = maxFragmentInputComponents,
+    maxFragmentOutputAttachments = maxFragmentOutputAttachments,
+    maxFragmentDualSrcAttachments = maxFragmentDualSrcAttachments,
+    maxFragmentCombinedOutputResources = maxFragmentCombinedOutputResources,
+    maxComputeSharedMemorySize = maxComputeSharedMemorySize,
+    maxComputeWorkGroupCount = IntArray(3) { i -> maxComputeWorkGroupCount[i].toInt() },
+    maxComputeWorkGroupInvocations = maxComputeWorkGroupInvocations,
+    maxComputeWorkGroupSize = IntArray(3) { i -> maxComputeWorkGroupSize[i].toInt() },
+    subPixelPrecisionBits = subPixelPrecisionBits,
+    subTexelPrecisionBits = subTexelPrecisionBits,
+    mipmapPrecisionBits = mipmapPrecisionBits,
+    maxDrawIndexedIndexValue = maxDrawIndexedIndexValue,
+    maxDrawIndirectCount = maxDrawIndirectCount,
+    maxSamplerLodBias = maxSamplerLodBias,
+    maxSamplerAnisotropy = maxSamplerAnisotropy,
+    maxViewports = maxViewports,
+    maxViewportDimensions = IntArray(2) { i -> maxViewportDimensions[i].toInt() },
+    viewportBoundsRange = FloatArray(2) { i -> viewportBoundsRange[i] },
+    viewportSubPixelBits = viewportSubPixelBits,
+    minMemoryMapAlignment = minMemoryMapAlignment,
+    minTexelBufferOffsetAlignment = minTexelBufferOffsetAlignment.toLong(),
+    minUniformBufferOffsetAlignment = minUniformBufferOffsetAlignment.toLong(),
+    minStorageBufferOffsetAlignment = minStorageBufferOffsetAlignment.toLong(),
+    minTexelOffset = minTexelOffset,
+    maxTexelOffset = maxTexelOffset,
+    minTexelGatherOffset = minTexelGatherOffset,
+    maxTexelGatherOffset = maxTexelGatherOffset,
+    minInterpolationOffset = minInterpolationOffset,
+    maxInterpolationOffset = maxInterpolationOffset,
+    subPixelInterpolationOffsetBits = subPixelInterpolationOffsetBits,
+    maxFramebufferWidth = maxFramebufferWidth,
+    maxFramebufferHeight = maxFramebufferHeight,
+    maxFramebufferLayers = maxFramebufferLayers,
+    framebufferColorSampleCounts = framebufferColorSampleCounts.toInt(),
+    framebufferDepthSampleCounts = framebufferDepthSampleCounts.toInt(),
+    framebufferStencilSampleCounts = framebufferStencilSampleCounts.toInt(),
+    framebufferNoAttachmentsSampleCounts = framebufferNoAttachmentsSampleCounts.toInt(),
+    maxColorAttachments = maxColorAttachments,
+    sampledImageColorSampleCounts = sampledImageColorSampleCounts.toInt(),
+    sampledImageIntegerSampleCounts = sampledImageIntegerSampleCounts.toInt(),
+    sampledImageDepthSampleCounts = sampledImageDepthSampleCounts.toInt(),
+    sampledImageStencilSampleCounts = sampledImageStencilSampleCounts.toInt(),
+    storageImageSampleCounts = storageImageSampleCounts.toInt(),
+    maxSampleMaskWords = maxSampleMaskWords,
+    timestampComputeAndGraphics = timestampComputeAndGraphics != 0u,
+    timestampPeriod = timestampPeriod,
+    maxClipDistances = maxClipDistances,
+    maxCullDistances = maxCullDistances,
+    maxCombinedClipAndCullDistances = maxCombinedClipAndCullDistances,
+    discreteQueuePriorities = discreteQueuePriorities,
+    pointSizeRange = FloatArray(2) { i -> pointSizeRange[i] },
+    lineWidthRange = FloatArray(2) { i -> lineWidthRange[i] },
+    pointSizeGranularity = pointSizeGranularity,
+    lineWidthGranularity = lineWidthGranularity,
+    strictLines = strictLines != 0u,
+    standardSampleLocations = standardSampleLocations != 0u,
+    optimalBufferCopyOffsetAlignment = optimalBufferCopyOffsetAlignment.toLong(),
+    optimalBufferCopyRowPitchAlignment = optimalBufferCopyRowPitchAlignment.toLong(),
+    nonCoherentAtomSize = nonCoherentAtomSize.toLong()
+)
+
+@OptIn(ExperimentalForeignApi::class)
+private fun platform.MoltenVK.VkPhysicalDeviceSparseProperties.toKotlinModel(): VkPhysicalDeviceSparseProperties =
+    VkPhysicalDeviceSparseProperties(
+        residencyStandard2DBlockShape = residencyStandard2DBlockShape != 0u,
+        residencyStandard2DMultisampleBlockShape = residencyStandard2DMultisampleBlockShape != 0u,
+        residencyStandard3DBlockShape = residencyStandard3DBlockShape != 0u,
+        residencyAlignedMipSize = residencyAlignedMipSize != 0u,
+        residencyNonResidentStrict = residencyNonResidentStrict != 0u
+    )
+
 // Shared by vkCreateRenderPass's pInputAttachments/pColorAttachments/pResolveAttachments.
 @OptIn(ExperimentalForeignApi::class)
 private fun Array<VkAttachmentReference>.toNativeAttachmentRefArray(
@@ -461,8 +588,20 @@ actual object Vulkan {
         LongArray(count) { i -> nativeArray[i]!!.rawValue.toLong() }
     }
 
-    actual fun vkGetPhysicalDeviceProperties(physicalDevice: Long): VkPhysicalDeviceProperties {
-        TODO("Not yet implemented")
+    actual fun vkGetPhysicalDeviceProperties(physicalDevice: Long): VkPhysicalDeviceProperties = memScoped {
+        val native = alloc<NativeVkPhysicalDeviceProperties>()
+        nativeVkGetPhysicalDeviceProperties(physicalDevice.toCPointer(), native.ptr)
+        VkPhysicalDeviceProperties(
+            apiVersion = native.apiVersion.toInt(),
+            driverVersion = native.driverVersion.toInt(),
+            vendorID = native.vendorID.toInt(),
+            deviceID = native.deviceID.toInt(),
+            deviceType = VkPhysicalDeviceType.entries.first { it.value.toUInt() == native.deviceType },
+            deviceName = CharArray(VK_MAX_PHYSICAL_DEVICE_NAME_SIZE) { i -> native.deviceName[i].toInt().toChar() },
+            pipelineCacheUUID = ByteArray(VK_UUID_SIZE) { i -> native.pipelineCacheUUID[i].toByte() },
+            limits = native.limits.toKotlinModel(),
+            sparseProperties = native.sparseProperties.toKotlinModel()
+        )
     }
 
     actual fun vkGetPhysicalDeviceFeatures(physicalDevice: Long): VkPhysicalDeviceFeatures = memScoped {
