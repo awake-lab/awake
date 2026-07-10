@@ -19,6 +19,7 @@
 
 package io.github.ronjunevaldoz.awake.vulkan.mesh
 
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
@@ -51,7 +52,7 @@ actual class Mesh actual constructor(
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     vertices: FloatArray,
     indices: IntArray
-) {
+) : RenderMesh {
     private val graphicsDevice = graphicsDevice
     private val runOneTimeCommands = runOneTimeCommands
     private val device get() = graphicsDevice.device
@@ -173,7 +174,7 @@ actual class Mesh actual constructor(
 
     /** Binds this mesh's vertex + index buffers. Descriptor-set binding (a Material/Shader
      * concern) happens in between this and [draw], not here. */
-    actual fun bind(commandBuffer: Long) {
+    actual override fun bind(commandBuffer: Long) {
         VulkanBuffers.vkCmdBindVertexBuffers(
             commandBuffer,
             0,
@@ -188,11 +189,11 @@ actual class Mesh actual constructor(
         )
     }
 
-    actual fun draw(commandBuffer: Long) {
+    actual override fun draw(commandBuffer: Long) {
         VulkanBuffers.vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0)
     }
 
-    actual fun destroy() {
+    actual override fun destroy() {
         VulkanBuffers.vkDestroyBuffer(device, vertexBuffer.handle)
         VulkanBuffers.vkFreeMemory(device, vertexBufferMemory.handle)
         VulkanBuffers.vkDestroyBuffer(device, indexBuffer.handle)

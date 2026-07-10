@@ -19,6 +19,7 @@
 
 package io.github.ronjunevaldoz.awake.vulkan.material
 
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorPoolHandle
@@ -31,8 +32,13 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
  * Phase 2.5 (Web/WebGPU, decision D7) milestone 1: `expect class` -- see
  * [io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice]'s doc comment for why. Real
  * Vulkan body in `vulkanMain/.../material/Material.kt`.
+ *
+ * Module restructuring slice 1 (see docs/MVP_PLAN.md): implements
+ * [io.github.ronjunevaldoz.awake.render.material.Material] -- see
+ * [io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh]'s doc comment for why this doesn't
+ * change `VulkanApplication.kt`'s construction pattern.
  */
-expect class Material(graphicsDevice: GraphicsDevice) {
+expect class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
     val descriptorSetLayout: DescriptorSetLayoutHandle
     var descriptorPool: DescriptorPoolHandle
     var descriptorSet: DescriptorSetHandle
@@ -40,7 +46,7 @@ expect class Material(graphicsDevice: GraphicsDevice) {
     var uniformBufferMemory: DeviceMemoryHandle
 
     fun createResources(texture: Texture)
-    fun updateUniformBuffer(mvp: FloatArray)
-    fun bind(commandBuffer: Long, pipelineLayout: Long)
-    fun destroy()
+    override fun updateUniformBuffer(mvp: FloatArray)
+    override fun bind(commandBuffer: Long, pipelineLayout: Long)
+    override fun destroy()
 }

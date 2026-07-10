@@ -2,7 +2,10 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
+import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
@@ -44,7 +47,7 @@ actual class Renderer actual constructor(
     renderPipeline: RenderPipeline,
     commandPool: Long,
     maxFramesInFlight: Int
-) {
+) : RenderRenderer {
     private val graphicsDevice = graphicsDevice
     private val renderPipeline = renderPipeline
 
@@ -71,7 +74,7 @@ actual class Renderer actual constructor(
         )
     }
 
-    actual fun draw(camera: Camera, drawCalls: List<DrawCall>) {
+    actual override fun draw(camera: Camera, drawCalls: List<DrawCall>) {
         val device = graphicsDevice.wgpuContext.device
         val renderingContext = graphicsDevice.wgpuContext.renderingContext
         val pipeline = WebGpuHandles.resolve<GPURenderPipeline>(renderPipeline.graphicsPipeline[0])
@@ -104,9 +107,14 @@ actual class Renderer actual constructor(
                 val mvp = drawCall.model * viewProjection
                 device.queue.writeBuffer(uniformBuffer!!, 0uL, ArrayBuffer.of(mvp.data))
                 setBindGroup(0u, uniformBindGroup!!)
-                setVertexBuffer(0u, WebGpuHandles.resolve(drawCall.mesh.vertexBuffer.handle))
-                setIndexBuffer(WebGpuHandles.resolve(drawCall.mesh.indexBuffer.handle), meshIndexFormat)
-                drawIndexed(drawCall.mesh.indexCount.toUInt())
+                // drawCall.mesh is the render-api interface (only bind()/draw()/destroy()) --
+                // cast to this backend's own concrete Mesh for vertexBuffer/indexBuffer/
+                // indexCount, safe since this Renderer only ever runs against this module's
+                // own Mesh instances (never a different backend's).
+                val mesh = drawCall.mesh as Mesh
+                setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))
+                setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
+                drawIndexed(mesh.indexCount.toUInt())
                 drawIndex += 1
             }
             end()
@@ -115,7 +123,7 @@ actual class Renderer actual constructor(
         device.queue.submit(listOf(encoder.finish()))
     }
 
-    actual fun destroy() {
+    actual override fun destroy() {
         uniformBuffer?.close()
         uniformBuffer = null
         uniformBindGroup = null

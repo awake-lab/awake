@@ -55,7 +55,12 @@ kotlin {
         commonMain.dependencies {
             api(project(":awake-base"))
             api(project(":awake-ecs"))
-            api(project(":awake-vulkan"))
+            // Module restructuring slice 1 (see docs/MVP_PLAN.md): RenderSystem/MeshRenderer
+            // only ever touch the backend-neutral Mesh/Material/Renderer/DrawCall contract,
+            // never awake-vulkan's concrete Vulkan bindings -- depending on just the
+            // interface module (instead of all of awake-vulkan) is the actual point of this
+            // restructuring.
+            api(project(":awake-engine-render-api"))
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {

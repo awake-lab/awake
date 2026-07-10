@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-vulkan.commonMain
+ * Awake.awake-engine-render-api.commonMain
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -17,13 +17,16 @@
  * limitations under the License.
  */
 
-package io.github.ronjunevaldoz.awake.vulkan.renderer
+package io.github.ronjunevaldoz.awake.render.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.vulkan.material.Material
-import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
+import io.github.ronjunevaldoz.awake.render.material.Material
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 
 /**
+ * Module restructuring slice 1 (see docs/MVP_PLAN.md): moved here (from `awake-vulkan`)
+ * unchanged -- this is the actual backend-neutral data `RenderSystem` constructs.
+ *
  * One draw: a [mesh] bound to a [material] (its descriptor set, and the uniform buffer
  * [Renderer.draw] writes this draw's MVP matrix into), placed in the world by [model].
  * Multiple `DrawCall`s can share the same [mesh] or [material] instance -- `Renderer` doesn't

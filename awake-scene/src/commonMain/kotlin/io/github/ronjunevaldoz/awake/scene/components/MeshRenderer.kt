@@ -19,8 +19,8 @@
 
 package io.github.ronjunevaldoz.awake.scene.components
 
-import io.github.ronjunevaldoz.awake.vulkan.material.Material
-import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
+import io.github.ronjunevaldoz.awake.render.material.Material
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 
 data class MeshRenderer(
     val mesh: Mesh,

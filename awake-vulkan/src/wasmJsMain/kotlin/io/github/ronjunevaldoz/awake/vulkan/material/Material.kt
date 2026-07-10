@@ -1,5 +1,6 @@
 package io.github.ronjunevaldoz.awake.vulkan.material
 
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorPoolHandle
@@ -10,7 +11,7 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 
 // Phase 2.5 (Web/WebGPU, decision D7) milestone 1: compile-only stub -- see
 // docs/MVP_PLAN.md.
-actual class Material actual constructor(graphicsDevice: GraphicsDevice) {
+actual class Material actual constructor(graphicsDevice: GraphicsDevice) : RenderMaterial {
     actual val descriptorSetLayout: DescriptorSetLayoutHandle = DescriptorSetLayoutHandle(0)
     actual var descriptorPool: DescriptorPoolHandle = DescriptorPoolHandle(0)
     actual var descriptorSet: DescriptorSetHandle = DescriptorSetHandle(0)
@@ -21,15 +22,15 @@ actual class Material actual constructor(graphicsDevice: GraphicsDevice) {
         TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
     }
 
-    actual fun updateUniformBuffer(mvp: FloatArray) {
+    actual override fun updateUniformBuffer(mvp: FloatArray) {
         TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
     }
 
-    actual fun bind(commandBuffer: Long, pipelineLayout: Long) {
+    actual override fun bind(commandBuffer: Long, pipelineLayout: Long) {
         TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
     }
 
-    actual fun destroy() {
+    actual override fun destroy() {
         TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
     }
 }

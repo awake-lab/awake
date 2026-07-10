@@ -1,5 +1,6 @@
 package io.github.ronjunevaldoz.awake.vulkan.mesh
 
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.vulkan.handles.DeviceMemoryHandle
@@ -24,7 +25,7 @@ actual class Mesh actual constructor(
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     vertices: FloatArray,
     indices: IntArray
-) {
+) : RenderMesh {
     actual var vertexBuffer: BufferHandle
     actual var vertexBufferMemory: DeviceMemoryHandle
     actual var indexBuffer: BufferHandle
@@ -57,15 +58,15 @@ actual class Mesh actual constructor(
         indexBufferMemory = DeviceMemoryHandle(indexHandle)
     }
 
-    actual fun bind(commandBuffer: Long) {
+    actual override fun bind(commandBuffer: Long) {
         TODO("WebGPU binds vertex/index buffers directly in Renderer.draw(), see docs/MVP_PLAN.md")
     }
 
-    actual fun draw(commandBuffer: Long) {
+    actual override fun draw(commandBuffer: Long) {
         TODO("WebGPU issues drawIndexed directly in Renderer.draw(), see docs/MVP_PLAN.md")
     }
 
-    actual fun destroy() {
+    actual override fun destroy() {
         WebGpuHandles.release(vertexBuffer.handle)
         WebGpuHandles.release(indexBuffer.handle)
     }

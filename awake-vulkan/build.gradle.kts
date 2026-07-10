@@ -129,6 +129,13 @@ kotlin {
             // and Bitmap/readResourceBytes -- see docs/MVP_PLAN.md's Decision Log, D11, for
             // the awake-core split this module boundary comes from.
             implementation(project(":awake-base"))
+            // Module restructuring slice 1 (see docs/MVP_PLAN.md): Mesh/Material/Renderer's
+            // expect declarations now implement the narrow backend-neutral interfaces this
+            // module owns, so RenderSystem (awake-scene) can depend on just that module
+            // instead of all of awake-vulkan's concrete Vulkan bindings. `api`, not
+            // `implementation`, since consumers reaching these types through awake-vulkan
+            // (e.g. VulkanApplication.kt) need them visible too.
+            api(project(":awake-engine-render-api"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

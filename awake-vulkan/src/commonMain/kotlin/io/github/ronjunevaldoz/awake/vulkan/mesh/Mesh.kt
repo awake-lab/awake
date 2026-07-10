@@ -19,6 +19,7 @@
 
 package io.github.ronjunevaldoz.awake.vulkan.mesh
 
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.vulkan.handles.DeviceMemoryHandle
@@ -27,20 +28,25 @@ import io.github.ronjunevaldoz.awake.vulkan.handles.DeviceMemoryHandle
  * Phase 2.5 (Web/WebGPU, decision D7) milestone 1: `expect class` -- see
  * [io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice]'s doc comment for why. Real
  * Vulkan body in `vulkanMain/.../mesh/Mesh.kt`.
+ *
+ * Module restructuring slice 1 (see docs/MVP_PLAN.md): implements
+ * [io.github.ronjunevaldoz.awake.render.mesh.Mesh] -- an `expect` class can implement an
+ * interface declared in a different module, so this doesn't change
+ * `VulkanApplication.kt`'s existing `Mesh(graphicsDevice, ...)` construction pattern at all.
  */
 expect class Mesh(
     graphicsDevice: GraphicsDevice,
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     vertices: FloatArray,
     indices: IntArray
-) {
+) : RenderMesh {
     var vertexBuffer: BufferHandle
     var vertexBufferMemory: DeviceMemoryHandle
     var indexBuffer: BufferHandle
     var indexBufferMemory: DeviceMemoryHandle
     val indexCount: Int
 
-    fun bind(commandBuffer: Long)
-    fun draw(commandBuffer: Long)
-    fun destroy()
+    override fun bind(commandBuffer: Long)
+    override fun draw(commandBuffer: Long)
+    override fun destroy()
 }

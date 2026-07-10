@@ -19,6 +19,7 @@
 
 package io.github.ronjunevaldoz.awake.vulkan.material
 
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkShaderStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
@@ -56,7 +57,7 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
  * constructor only creates the layout; [createResources] (called once the texture is ready)
  * creates the uniform buffer, descriptor pool, and descriptor set.
  */
-actual class Material actual constructor(graphicsDevice: GraphicsDevice) {
+actual class Material actual constructor(graphicsDevice: GraphicsDevice) : RenderMaterial {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
     private val physicalDevice get() = graphicsDevice.physicalDevice
@@ -171,15 +172,15 @@ actual class Material actual constructor(graphicsDevice: GraphicsDevice) {
      * as produced by `Mat4.data`). Caller is responsible for the same serialization
      * `VulkanApplication.drawFrame` already does around this (`vkDeviceWaitIdle` after every
      * submit) -- this is a single shared buffer, not per-frame-in-flight. */
-    actual fun updateUniformBuffer(mvp: FloatArray) {
+    actual override fun updateUniformBuffer(mvp: FloatArray) {
         VulkanBuffers.writeBufferMemoryFloats(device, uniformBufferMemory.handle, 0, mvp)
     }
 
-    actual fun bind(commandBuffer: Long, pipelineLayout: Long) {
+    actual override fun bind(commandBuffer: Long, pipelineLayout: Long) {
         VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet.handle)
     }
 
-    actual fun destroy() {
+    actual override fun destroy() {
         VulkanBuffers.vkDestroyBuffer(device, uniformBuffer.handle)
         VulkanBuffers.vkFreeMemory(device, uniformBufferMemory.handle)
         VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool.handle)

@@ -1591,6 +1591,62 @@ its 3 platform actuals, `VulkanView` (confirmed via read to import nothing Vulka
 despite the name — just a generic Android surface/render-thread helper), `Greeting`.
 Compose and lwjgl are no longer `awake-core` dependencies at all.
 
+### D12 — Extract `awake-engine-render-api`: a real backend-neutral module
+
+**DECIDED (2026-07-10): slice 1 done.** User proposed a target module shape (`core/ecs`,
+`core/scene`, `core/engine`, `api/engine-render-api`, `backend/{vulkan,opengl,webgpu}`,
+flat directory names per this repo's `awake-*` convention, not physically nested folders).
+Usage analysis (grep across `awake-scene`/`awake-demo`) found `RenderSystem` only ever
+touches `DrawCall`/`Renderer` from `awake-vulkan`'s Phase 2.5 `expect` seam — never the raw
+Vulkan bindings, and never `GraphicsDevice`/`SwapchainManager`/`RenderPipeline`/`Texture`/
+`TransferContext` (those are only constructed by `VulkanApplication.kt`'s own backend-
+specific bootstrap). `awake-scene` was depending on all of `awake-vulkan` via `api()` just
+to reach two types.
+
+**Real architectural constraint found mid-implementation**: `VulkanApplication.kt` is one
+*common* Kotlin file compiling for desktop/Android/iOS/wasmJs simultaneously, constructing
+`RenderPipeline(...)`/`Mesh(...)`/etc. as plain constructor calls — this only works because
+`expect class Foo(...)` + per-platform `actual class Foo(...)` let one shared call resolve
+polymorphically, and **`expect`/`actual` only resolves within a single Gradle module's own
+target graph** (you cannot declare `expect` in one module and `actual` in a different one).
+Converting these to plain interfaces in a new module would have broken that construction
+pattern — plain interfaces have no constructors, so there's no "same call, different
+implementation per platform" left; fixing that properly would mean splitting
+`VulkanApplication.kt` per-platform, a much larger change than what was asked for.
+
+**Resolution**: `expect class Foo(...) : io.github.ronjunevaldoz.awake.render.foo.Foo { }`
+is fully valid Kotlin — an `expect` class can implement an interface declared in a
+*different* module, and Kotlin requires only the `actual` implementations (already in
+`awake-vulkan`'s `vulkanMain`/`wasmJsMain`) to also declare the same supertype. This means
+`VulkanApplication.kt`'s exact existing construction pattern needed **zero changes**.
+
+**Scope, deliberately narrow** — only `Mesh`, `Material`, `Renderer` (+ the `DrawCall` data
+class) moved into the new `awake-engine-render-api` module, as interfaces exposing only
+what's read across the module boundary (`bind()`/`draw()`/`destroy()`/
+`updateUniformBuffer()` — confirmed via grep, not `vertexBuffer`/`indexBuffer`/`indexCount`/
+etc., which only same-backend code ever touches). `GraphicsDevice`/`SwapchainManager`/
+`RenderPipeline`/`Texture`/`TransferContext` stay exactly as they are in `awake-vulkan`,
+untouched — nothing outside `awake-vulkan` needs them. Also deliberately NOT moved:
+`VkFormat` (a 356-entry enum mirroring the entire Vulkan spec, which `SwapchainManager`'s
+now-untouched `imageFormat` property uses) — dragging Vulkan's entire format enum into a
+"neutral" API module to satisfy one field with zero external readers would have been a
+real mistake, not just extra work.
+
+`awake-vulkan` now `api()`-depends on `awake-engine-render-api`; `awake-scene` now depends
+on `awake-engine-render-api` directly instead of all of `awake-vulkan`. Verified zero
+behavior change: all 5 `awake-vulkan` targets + `awake-engine-render-api`'s 5 targets +
+`awake-scene` compile clean, `desktopTest` (lavapipe Vulkan suite) passes, and a real iOS
+Simulator run renders the demo cube identically to before this change.
+
+**Explicitly deferred** (noted here so a future session doesn't lose them): physically
+splitting `awake-vulkan` into `awake-backend-vulkan` (raw bindings + Vulkan actuals) and
+`awake-backend-webgpu` (wasmJs actuals) as separate Gradle modules — real work, since
+`VulkanApplication.kt`'s per-platform construction pattern would need to split too (see the
+constraint above); renaming `awake-opengl` → `awake-backend-opengl`; renaming `awake-core`
+→ `awake-engine` (note: `awake-scene` currently sits *above*, not below, the
+`awake-core`/`awake-base` loop/config layer in the real dependency graph — the opposite of
+what the user's original diagram assumed — worth confirming before this rename).
+
 The one real blocker the first pass explicitly deferred — `GameLoop` actuals reading
 `AwakeContext.config.fps`, which would have meant `awake-core` depending on the
 OpenGL-specific `Context`/`Config` it no longer contains — is fixed by a new

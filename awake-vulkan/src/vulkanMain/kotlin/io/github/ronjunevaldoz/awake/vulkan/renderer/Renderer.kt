@@ -21,6 +21,8 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
+import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCommandBufferLevel
@@ -80,7 +82,7 @@ actual class Renderer actual constructor(
     renderPipeline: RenderPipeline,
     commandPool: Long,
     maxFramesInFlight: Int
-) {
+) : RenderRenderer {
     private val graphicsDevice = graphicsDevice
     private val swapchainManager = swapchainManager
     private val renderPipeline = renderPipeline
@@ -178,7 +180,7 @@ actual class Renderer actual constructor(
      * uniform buffer can be safely rewritten every frame -- a real engine would double-buffer
      * those per frame-in-flight instead of paying this full-pipeline stall; deferred as a
      * later Phase 2 concern, unchanged from before this extraction. */
-    actual fun draw(camera: Camera, drawCalls: List<DrawCall>) {
+    actual override fun draw(camera: Camera, drawCalls: List<DrawCall>) {
         val currentFrame = swapchainManager.currentFrame
         Vulkan.vkWaitForFences(
             device,
@@ -297,7 +299,7 @@ actual class Renderer actual constructor(
         Vulkan.vkEndCommandBuffer(commandBuffer)
     }
 
-    actual fun destroy() {
+    actual override fun destroy() {
         var index = 0
         val count = framebuffers.size
         while (index < count) {
