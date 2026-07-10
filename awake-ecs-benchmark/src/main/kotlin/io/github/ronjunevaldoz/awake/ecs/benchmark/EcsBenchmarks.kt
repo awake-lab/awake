@@ -29,6 +29,7 @@ import com.github.quillraven.fleks.configureWorld
 import io.github.ronjunevaldoz.awake.ecs.ComponentTypeId
 import io.github.ronjunevaldoz.awake.ecs.Entity as AwakeEntity
 import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
+import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Fork
@@ -202,6 +203,26 @@ open class EcsBenchmarks {
         return state.family.size
     }
 
+    // Isolates QueryCollector.collect's recompute cost -- the vararg `world.query(...)`
+    // path general callers use, as opposed to the maintained Family1/Family2 caches
+    // RenderSystem/TransformSystem use for their own per-frame iteration (already the
+    // fastest rows in this suite and untouched by this benchmark). Toggles a component on
+    // a scratch entity every call specifically to force `QueryCache` to miss and re-run
+    // `QueryCollector.collect` each time, since a cache hit is just a map lookup and
+    // wouldn't exercise the collection path this benchmark targets.
+    @Benchmark
+    fun awakeGeneralQueryIteration(state: AwakeGeneralQueryState): Int {
+        val world = state.world
+        if (state.scratchPresent) {
+            world.remove<QueryChurnMarker>(state.scratch, state.scratchTypeId)
+            state.scratchPresent = false
+        } else {
+            world.add(state.scratch, state.scratchTypeId, QueryChurnMarker())
+            state.scratchPresent = true
+        }
+        return world.query(Transform::class, MeshRenderer::class).size
+    }
+
     @Benchmark
     fun fleksFamilyChurn(state: FleksFamilyChurnState): Int {
         with(state.world) {
@@ -232,3 +253,29 @@ open class EntityCountState {
     @Param("10000", "100000")
     var entityCount: Int = 0
 }
+
+@State(Scope.Benchmark)
+open class AwakeGeneralQueryState {
+    @Param("10000", "100000")
+    var entityCount: Int = 0
+    lateinit var world: AwakeWorld
+    var scratch: AwakeEntity = AwakeEntity.of(0, 0)
+    var scratchTypeId: ComponentTypeId = ComponentTypeId(0)
+    var scratchPresent = false
+
+    @Setup(Level.Iteration)
+    fun setup() {
+        world = AwakeWorld()
+        repeat(entityCount) {
+            val entity = world.create()
+            world.add(entity, Transform())
+            world.add(entity, MeshRenderer(FakeGpuObjects.mesh, FakeGpuObjects.material))
+        }
+        world.store(QueryChurnMarker::class)
+        scratch = world.create()
+        scratchTypeId = world.typeId(QueryChurnMarker::class)
+        scratchPresent = false
+    }
+}
+
+private class QueryChurnMarker

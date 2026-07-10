@@ -32,7 +32,7 @@ internal class QueryCollector(
     private val components: ComponentRegistry
 ) {
     fun collect(types: Set<KClass<out Any>>): List<Entity> {
-        return if (types.isEmpty()) {
+        if (types.isEmpty()) {
             val count = entities.count
             val results = ArrayList<Entity>(count)
             for (id in 0 until count) {
@@ -40,19 +40,52 @@ internal class QueryCollector(
                     results += entities.entity(id)
                 }
             }
-            results
-        } else {
-            val queryStores = types.mapNotNull { type ->
-                components.typeIdOrNull(type)?.let { components.storeOrNull<Any>(it) }
-            }
-            if (queryStores.size != types.size) {
-                emptyList()
-            } else {
-                val smallestStore = queryStores.minBy { it.size }
-                smallestStore.entities.filter { entity ->
-                    entities.isAlive(entity) && queryStores.all { it.contains(entity) }
-                }
+            return results
+        }
+
+        // Resolves every requested type's store up front into a plain array instead of
+        // `types.mapNotNull { ... }` -- avoids both the intermediate `List` allocation and
+        // (via the `filter { queryStores.all { ... } }` this replaces below) re-walking that
+        // list once per candidate entity. Bails out to `emptyList()` as soon as any type
+        // has no store yet, same semantics as the old size-mismatch check.
+        val queryStores = arrayOfNulls<ComponentStore<Any>>(types.size)
+        var resolvedIndex = 0
+        for (type in types) {
+            val typeId = components.typeIdOrNull(type) ?: return emptyList()
+            val store = components.storeOrNull<Any>(typeId) ?: return emptyList()
+            queryStores[resolvedIndex] = store
+            resolvedIndex += 1
+        }
+
+        var smallestStore = queryStores[0]!!
+        for (index in 1 until queryStores.size) {
+            val store = queryStores[index]!!
+            if (store.size < smallestStore.size) {
+                smallestStore = store
             }
         }
+
+        // Iterates the smallest store's own dense arrays via `forEach` instead of
+        // `smallestStore.entities.filter { ... }` -- `entities` exposes a `List<Entity>`,
+        // and `Entity` (a value class) boxes on every access through that interface, plus
+        // `filter`/`Iterable.all` allocate their own iterators. `forEach` walks the typed
+        // dense arrays directly (see `ComponentStore.forEach`), so entities here are never
+        // boxed until they're actually added to `results`.
+        val results = ArrayList<Entity>(smallestStore.size)
+        smallestStore.forEach { entity, _ ->
+            if (entities.isAlive(entity) && matchesAll(queryStores, entity)) {
+                results += entity
+            }
+        }
+        return results
+    }
+
+    private fun matchesAll(stores: Array<ComponentStore<Any>?>, entity: Entity): Boolean {
+        for (index in stores.indices) {
+            if (!stores[index]!!.contains(entity)) {
+                return false
+            }
+        }
+        return true
     }
 }

@@ -551,7 +551,7 @@ class FleksTransformSystem : IntervalSystem() {
     }
 }
 
-private object FakeGpuObjects {
+internal object FakeGpuObjects {
     val mesh: Mesh = UnsafeAllocator.allocate(Mesh::class.java)
     val material: Material = UnsafeAllocator.allocate(Material::class.java)
 }

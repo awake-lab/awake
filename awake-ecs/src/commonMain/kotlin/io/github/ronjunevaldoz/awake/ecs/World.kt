@@ -47,6 +47,18 @@ class World {
         return entity
     }
 
+    /** Fast path for callers spawning many entities of the same pooled component type in a
+     * loop -- takes an already-resolved [typeId] (see [typeId]) instead of the reified
+     * [spawn], so the caller can hoist `T::class`'s resolution outside the loop instead of
+     * paying a fresh `KClass` lookup (and, without `kotlin-reflect`, a fresh `ClassReference`
+     * allocation) on every entity. */
+    fun <T : Any> spawn(typeId: ComponentTypeId, block: (T) -> Unit = {}): Entity {
+        val entity = create()
+        val component = add<T>(entity, typeId)
+        block(component)
+        return entity
+    }
+
     fun destroy(entity: Entity): Boolean {
         if (!entities.isAlive(entity)) {
             return false

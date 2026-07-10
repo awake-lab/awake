@@ -31,14 +31,20 @@ class ComponentStore<T : Any>(
 
     val size: Int get() = count
 
-    val entities: List<Entity>
-        get() = object : AbstractList<Entity>() {
-            override val size: Int get() = count
+    /** Live view over the dense entity array -- backed by a single instance created once
+     * per store instead of a fresh `object : AbstractList<...>()` on every access. The view
+     * still reads [count]/[denseEntities] through the enclosing instance, so it stays live;
+     * only the wrapper allocation itself is what's cached here. [QueryCollector.collect] is
+     * the main caller and used to allocate one of these per query recomputation. */
+    private val entitiesView: List<Entity> = object : AbstractList<Entity>() {
+        override val size: Int get() = count
 
-            override fun get(index: Int): Entity {
-                return Entity(denseEntities[index])
-            }
+        override fun get(index: Int): Entity {
+            return Entity(denseEntities[index])
         }
+    }
+
+    val entities: List<Entity> get() = entitiesView
 
     /** View of [denseComponents] typed as non-null `T` instead of `Any?` -- casting the
      * array reference once here (a no-op at the bytecode level; array types erase to
