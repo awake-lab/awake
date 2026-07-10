@@ -53,7 +53,7 @@ actual fun AwakeCanvas(
             factory = vulkanView,
             modifier = modifier,
             onRelease = { renderer.dispose() },
-            interactive = false
+            interactive = true
         )
         return
     }

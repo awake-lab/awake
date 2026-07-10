@@ -19,6 +19,7 @@
 
 package io.github.ronjunevaldoz.awake.vulkan
 
+import io.github.ronjunevaldoz.awake.core.input.Input
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCAction
@@ -31,7 +32,9 @@ import platform.Foundation.NSRunLoopCommonModes
 import platform.Foundation.NSSelectorFromString
 import platform.QuartzCore.CADisplayLink
 import platform.QuartzCore.CAMetalLayer
+import platform.UIKit.UIEvent
 import platform.UIKit.UIScreen
+import platform.UIKit.UITouch
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
 
@@ -121,5 +124,37 @@ class VulkanMetalView(
         onPause()
         displayLink?.invalidate()
         displayLink = null
+    }
+
+    // Mirrors awake-core's Android VulkanView.onTouchEvent -- single-pointer only (Input
+    // doesn't model multi-touch yet), same setPointer(down, x, y) contract. Coordinates are
+    // in this view's own point space, matching Frame's pixel space closely enough for the
+    // demo's UI-independent scale (Android's MotionEvent.x/y are also view-local, not
+    // scaled by density there either).
+    private fun updatePointer(touches: Set<*>, down: Boolean) {
+        val touch = touches.firstOrNull() as? UITouch ?: return
+        touch.locationInView(this).useContents {
+            Input.setPointer(down = down, x = x.toFloat(), y = y.toFloat())
+        }
+    }
+
+    override fun touchesBegan(touches: Set<*>, withEvent: UIEvent?) {
+        super.touchesBegan(touches, withEvent)
+        updatePointer(touches, down = true)
+    }
+
+    override fun touchesMoved(touches: Set<*>, withEvent: UIEvent?) {
+        super.touchesMoved(touches, withEvent)
+        updatePointer(touches, down = true)
+    }
+
+    override fun touchesEnded(touches: Set<*>, withEvent: UIEvent?) {
+        super.touchesEnded(touches, withEvent)
+        updatePointer(touches, down = false)
+    }
+
+    override fun touchesCancelled(touches: Set<*>, withEvent: UIEvent?) {
+        super.touchesCancelled(touches, withEvent)
+        updatePointer(touches, down = false)
     }
 }

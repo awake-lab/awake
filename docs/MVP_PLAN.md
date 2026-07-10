@@ -1317,8 +1317,15 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
       `VK_ERROR_INCOMPATIBLE_DRIVER` finding was Simulator-specific)
 - [ ] `iosArm64` (device) release-config `xcodebuild`/App Store archive path — only
       `iosSimulatorArm64`/Debug has been exercised end-to-end so far
-- [ ] Input handling on iOS (touch → the existing `awake-core` input abstraction) —
-      `VulkanMetalView` has no touch wiring yet
+- [x] **Input handling on iOS (2026-07-10):** `VulkanMetalView` now overrides
+      `touchesBegan`/`Moved`/`Ended`/`Cancelled`, mirroring `awake-core`'s Android
+      `VulkanView.onTouchEvent` exactly (single-pointer, `Input.setPointer(down, x, y)`).
+      `AwakeCanvas.kt`'s `UIKitView(interactive = false)` was also blocking touch
+      pass-through from Compose to the interop view — flipped to `true` for the Vulkan
+      path. Verified: taps against a running Simulator instance don't crash or destabilize
+      the render loop (not yet verified that a gameplay system actually *reacts* to the
+      touch -- no such system exists in the demo scene yet, same as Android's touch input
+      today).
 - [ ] Revisit `vkCmdBeginRenderPass`'s remaining narrow spots
       (`pSpecializationInfo`/`pSampleMask` in the graphics-pipeline path) if a real
       shader ever needs them
