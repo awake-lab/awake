@@ -29,8 +29,9 @@ include(":awake-ecs")
 include(":awake-ecs-benchmark")
 include(":awake-scene")
 include(":awake-engine-render-api")
-include(":awake-vulkan")
-include(":awake-vulkan:android-native")
+include(":awake-backend-vulkan")
+include(":awake-backend-vulkan:android-native")
+include(":awake-backend-webgpu")
 include(":awake-vulkan-generator")
 
 

@@ -191,5 +191,5 @@ fun main(args: Array<String>) {
     // vulkan awake utils
     createVulkanUtils(Vulkan::class.java)
 
-    println(cmakeListTemplate("awake-vulkan/src/main/cpp/vulkan-kotlin/"))
+    println(cmakeListTemplate("awake-backend-vulkan/src/main/cpp/vulkan-kotlin/"))
 }

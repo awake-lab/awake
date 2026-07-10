@@ -32,7 +32,7 @@ dependencies {
     implementation(project(":awake-base"))
     implementation(project(":awake-ecs"))
     implementation(project(":awake-scene"))
-    implementation(project(":awake-vulkan"))
+    implementation(project(":awake-backend-vulkan"))
     implementation(libs.fleks)
     implementation(libs.artemis.odb)
     implementation(libs.ashley)

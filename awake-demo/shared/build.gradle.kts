@@ -46,17 +46,18 @@ kotlin {
     // not CocoaPods -- SPM binary targets don't need Kotlin/Gradle/CocoaPods installed
     // on the iOS-only-consumer's machine, and Xcode resolves them natively.
     val xcf = XCFramework("Shared")
-    // MoltenVK's own linkerOpts (set in awake-vulkan/build.gradle.kts's cinterop .def file)
-    // do NOT propagate through the project(":awake-vulkan") dependency to this module's own
-    // framework link step -- confirmed the hard way (Shared.framework's binary still showing
-    // _vkCreateInstance as an undefined symbol via `nm -g` even after that fix). Kotlin/Native
-    // only applies a cinterop klib's linkerOpts to the binary built by the module that OWNS
-    // the cinterop; a downstream consumer's final link needs the same flags repeated here.
+    // MoltenVK's own linkerOpts (set in awake-backend-vulkan/build.gradle.kts's cinterop
+    // .def file) do NOT propagate through the project(":awake-backend-vulkan") dependency to
+    // this module's own framework link step -- confirmed the hard way (Shared.framework's
+    // binary still showing _vkCreateInstance as an undefined symbol via `nm -g` even after
+    // that fix). Kotlin/Native only applies a cinterop klib's linkerOpts to the binary built
+    // by the module that OWNS the cinterop; a downstream consumer's final link needs the
+    // same flags repeated here.
     val moltenVkStaticDir = mapOf(
-        "iosArm64" to project(":awake-vulkan").file(
+        "iosArm64" to project(":awake-backend-vulkan").file(
             "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64"
         ),
-        "iosSimulatorArm64" to project(":awake-vulkan").file(
+        "iosSimulatorArm64" to project(":awake-backend-vulkan").file(
             "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/" +
                 "ios-arm64_x86_64-simulator"
         ),
@@ -95,7 +96,7 @@ kotlin {
             implementation(libs.compose.material.icons.core)
             implementation(libs.compose.components.resources)
             implementation(project(":awake-scene"))
-            implementation(project(":awake-vulkan"))
+            implementation(project(":awake-backend-vulkan"))
             implementation(project(":awake-core"))
             // Legacy OpenGL demo path (App.kt/DemoApplication.kt/scene/Demo*.kt) -- see
             // docs/MVP_PLAN.md's Decision Log, D11 follow-up, for why this moved out of

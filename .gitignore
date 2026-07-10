@@ -17,4 +17,4 @@ awake-demo/iosApp/iosApp.xcworkspace/*
 awake-demo/iosApp/iosApp.xcodeproj/*
 !awake-demo/iosApp/iosApp.xcodeproj/project.pbxproj
 shared/shared.podspec
-/awake-vulkan/build-native/*
+/awake-backend-vulkan/build-native/*

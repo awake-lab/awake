@@ -141,7 +141,7 @@ fun createVulkanAccessor(clazz: Class<*>) {
             }
         }
 
-    val awakeVulkanCpp = "awake-vulkan/src/main/cpp/vulkan-kotlin"
+    val awakeVulkanCpp = "awake-backend-vulkan/src/main/cpp/vulkan-kotlin"
     FileWriter.writeFile(
         "$awakeVulkanCpp/includes/${clazz.simpleName + "Accessor"}.h",
         cppClassCode.first

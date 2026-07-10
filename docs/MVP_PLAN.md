@@ -1661,6 +1661,70 @@ Compose/OpenGL from their transitive graph entirely. Verified: all modules compi
 (desktop + Android), `awake-base`/`awake-scene` test suites pass, and the real GLFW+Vulkan
 desktop demo (`runVulkanDesktop`) still runs correctly end-to-end.
 
+### D13 — Module restructuring slice 2: physically split `awake-vulkan` into `awake-backend-vulkan` + `awake-backend-webgpu`
+
+**DECIDED (2026-07-11): done.** D12 slice 1 deferred the physical split because
+`VulkanApplication.kt` is one common Kotlin file targeting desktop/Android/iOS
+simultaneously — the concern was that splitting the backend would force splitting that
+file per-platform too. Investigation found the concern didn't apply: `awake-demo:shared`
+never declares a `wasmJs` target at all (only android/desktop/iosArm64/
+iosSimulatorArm64), so `VulkanApplication.kt` never needs to compile against the webgpu
+backend and needed zero structural change — just a `project(":awake-vulkan")` →
+`project(":awake-backend-vulkan")` dependency-coordinate update.
+
+**A second finding simplified the code itself**: the 8 renderer-type `expect class`
+declarations (`GraphicsDevice`/`SwapchainManager`/`RenderPipeline`/`Mesh`/`Material`/
+`Texture`/`TransferContext`/`Renderer`) only needed `expect`/`actual` because wasmJs was a
+*sibling target in the same module* as desktop/Android/iOS. Their `vulkanMain` body was
+already a single implementation shared identically across desktop/Android/iOS. Once wasmJs
+moved to its own module, all 8 became plain classes directly in each new module's
+`commonMain` — no more `actual constructor` ceremony, no more custom `vulkanMain` source
+set, no more explicit `applyDefaultHierarchyTemplate()` workaround (that call existed
+solely to counteract the custom `vulkanMain` `dependsOn()` edge, which no longer exists).
+
+**Dead code confirmed and dropped, not carried forward**: `awake-vulkan/src/wasmJsMain`'s
+`gen/`, `Vulkan.kt`, `VulkanSurface.kt` (raw Vulkan-binding `TODO()` stubs, never called by
+the real WebGPU code) and `webgpu/WebGpuSpike.kt` (the milestone-2 spike, unreferenced
+anywhere per repo-wide grep). `SwapchainManager`'s `imageFormat: VkFormat` field (dead —
+grep confirmed nothing reads it, `imageFormatWebGpu` was always the real one) and `extent:
+VkExtent2D` (also confirmed dead on closer inspection — despite its own doc comment
+claiming `RenderPipeline`/`Renderer` read it, they don't) were both dropped from the new
+`awake-backend-webgpu` module.
+
+**Package naming**: `awake-backend-vulkan` keeps the `io.github.ronjunevaldoz.awake.vulkan`
+package unchanged (only the Gradle module id changed) — matches `awake-engine-render-api`'s
+existing precedent (module id ≠ package root) and meant zero import changes anywhere.
+`awake-backend-webgpu`'s moved files were repackaged to `io.github.ronjunevaldoz.awake.webgpu`
+— safe since grep confirmed no file outside the old `awake-vulkan` module ever imported a
+wasmJs-specific symbol. Its own tiny `handles/Handles.kt` (9 `@JvmInline value class`
+wrappers) is a local copy, not a dependency on `awake-backend-vulkan`, to keep the two
+backends genuinely independent (the whole point of the split). Note: `@JvmInline` value
+classes must live in `commonMain`, not a platform-specific source set, even for a
+single-target module — first attempt placed the copy in `wasmJsMain` and got
+`Declaration annotated with '@OptionalExpectation' can only be used in common module
+sources`.
+
+Verified: `awake-backend-vulkan` compiles on desktop/Android/iosArm64/iosSimulatorArm64,
+`desktopTest` (real lavapipe Vulkan smoke suite) passes, `awake-backend-webgpu` compiles on
+wasmJs, `awake-ecs-benchmark` and `awake-vulkan-generator` (its hardcoded C++ output path
+and `project()` coordinate updated) both compile against the renamed module. A real iOS
+Simulator run (after also fixing a hardcoded MoltenVK library search path in
+`iosApp.xcodeproj/project.pbxproj`, which `git mv` doesn't touch) renders the demo cube
+identically to before the split. The WebGPU backend's code path was verified indirectly —
+compiles clean, runs a full draw loop with zero exceptions and zero WebGPU validation
+errors, and produces a valid non-degenerate MVP matrix — but a temporary browser
+screenshot check was inconclusive: even a raw hand-written JS WebGPU triangle (bypassing
+Kotlin entirely) drawn on the same canvas in the same sandboxed browser tool failed to show
+a visible triangle, only its clear color, indicating an environment/screenshot-pipeline
+quirk in that tool rather than a defect in the ported code.
+
+**Still deferred** (unchanged from D12): renaming `awake-opengl` → `awake-backend-opengl`
+(OpenGL doesn't implement `awake-engine-render-api` at all yet, so this rename would imply
+parity it doesn't have); renaming `awake-core` → `awake-engine` (blocked on resolving the
+`awake-scene` vs `awake-core` dependency-direction mismatch vs. the original diagram); real
+`Material`/`Texture` WebGPU implementation (still `TODO()`); a real `wasmJs` target on
+`awake-demo:shared` to run the actual demo scene on web.
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

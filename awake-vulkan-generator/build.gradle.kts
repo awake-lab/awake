@@ -25,13 +25,13 @@ plugins {
 }
 
 sourceSets["main"].kotlin.srcDir("src/main/kotlin")
-sourceSets["main"].resources.srcDir("awake-vulkan/src/main/cpp/vulkan-kotlin/")
+sourceSets["main"].resources.srcDir("awake-backend-vulkan/src/main/cpp/vulkan-kotlin/")
 
 application { // Specify the main class using the application plugin
     mainClass.set("io.github.ronjunevaldoz.awake.vulkan_generator.MainKt")
 }
 
 dependencies {
-    implementation(project(":awake-vulkan"))
+    implementation(project(":awake-backend-vulkan"))
     implementation(kotlin("reflect"))
 }
