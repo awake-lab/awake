@@ -65,6 +65,7 @@ import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toCPointer
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.value
+import cnames.structs.VkCommandBuffer_T
 import cnames.structs.VkCommandPool_T
 import cnames.structs.VkFence_T
 import cnames.structs.VkFramebuffer_T
@@ -81,11 +82,25 @@ import cnames.structs.VkShaderModule_T
 import cnames.structs.VkSurfaceKHR_T
 import cnames.structs.VkSwapchainKHR_T
 import platform.MoltenVK.VK_STRUCTURE_TYPE_APPLICATION_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_FENCE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
 import platform.MoltenVK.VK_SUCCESS
+import platform.MoltenVK.VkCommandBufferVar
+import platform.MoltenVK.VkCommandPoolVar
+import platform.MoltenVK.VkFenceVar
+import platform.MoltenVK.VkImageViewVar
 import platform.MoltenVK.VkInstanceVar
+import platform.MoltenVK.VkPipelineCacheVar
 import platform.MoltenVK.VkQueueVar
+import platform.MoltenVK.VkSemaphoreVar
+import platform.MoltenVK.VkShaderModuleVar
 import platform.MoltenVK.vkBeginCommandBuffer as nativeVkBeginCommandBuffer
 import platform.MoltenVK.vkCmdBindPipeline as nativeVkCmdBindPipeline
 import platform.MoltenVK.vkCmdDraw as nativeVkCmdDraw
@@ -115,15 +130,29 @@ import platform.MoltenVK.vkGetDeviceQueue as nativeVkGetDeviceQueue
 import platform.MoltenVK.vkGetPhysicalDeviceFeatures as nativeVkGetPhysicalDeviceFeatures
 import platform.MoltenVK.vkGetPhysicalDeviceQueueFamilyProperties as nativeVkGetPhysicalDeviceQueueFamilyProperties
 import platform.MoltenVK.vkGetSwapchainImagesKHR as nativeVkGetSwapchainImagesKHR
+import platform.MoltenVK.vkCreateSemaphore as nativeVkCreateSemaphore
+import platform.MoltenVK.vkCreateFence as nativeVkCreateFence
+import platform.MoltenVK.vkCreateCommandPool as nativeVkCreateCommandPool
+import platform.MoltenVK.vkAllocateCommandBuffers as nativeVkAllocateCommandBuffers
+import platform.MoltenVK.vkCreateImageView as nativeVkCreateImageView
+import platform.MoltenVK.vkCreateShaderModule as nativeVkCreateShaderModule
+import platform.MoltenVK.vkCreatePipelineCache as nativeVkCreatePipelineCache
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
 import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
+import platform.MoltenVK.VkCommandBufferAllocateInfo as NativeVkCommandBufferAllocateInfo
 import platform.MoltenVK.VkCommandBufferBeginInfo as NativeVkCommandBufferBeginInfo
+import platform.MoltenVK.VkCommandPoolCreateInfo as NativeVkCommandPoolCreateInfo
 import platform.MoltenVK.VkExtensionProperties as NativeVkExtensionProperties
+import platform.MoltenVK.VkFenceCreateInfo as NativeVkFenceCreateInfo
+import platform.MoltenVK.VkImageViewCreateInfo as NativeVkImageViewCreateInfo
 import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
 import platform.MoltenVK.VkLayerProperties as NativeVkLayerProperties
 import platform.MoltenVK.VkPhysicalDeviceFeatures as NativeVkPhysicalDeviceFeatures
+import platform.MoltenVK.VkPipelineCacheCreateInfo as NativeVkPipelineCacheCreateInfo
 import platform.MoltenVK.VkQueueFamilyProperties as NativeVkQueueFamilyProperties
+import platform.MoltenVK.VkSemaphoreCreateInfo as NativeVkSemaphoreCreateInfo
+import platform.MoltenVK.VkShaderModuleCreateInfo as NativeVkShaderModuleCreateInfo
 
 // One field per VkPhysicalDeviceFeatures member (55 VkBool32 flags, no nesting) -- shared by
 // vkGetPhysicalDeviceFeatures (native -> Kotlin) below.
@@ -410,24 +439,72 @@ actual object Vulkan {
         nativeVkDestroySwapchainKHR(device.toCPointer(), swapchainKHR.toCPointer<VkSwapchainKHR_T>(), null)
     }
 
-    actual fun vkCreateImageView(device: Long, createInfo: VkImageViewCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateImageView(device: Long, createInfo: VkImageViewCreateInfo): Long = memScoped {
+        val nativeCreateInfo = alloc<NativeVkImageViewCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
+            pNext = null
+            flags = createInfo.flags.toUInt()
+            image = createInfo.image.toCPointer()
+            viewType = createInfo.viewType.value.toUInt()
+            format = createInfo.format.value.toUInt()
+            components.apply {
+                r = createInfo.components.r.value.toUInt()
+                g = createInfo.components.g.value.toUInt()
+                b = createInfo.components.b.value.toUInt()
+                a = createInfo.components.a.value.toUInt()
+            }
+            subresourceRange.apply {
+                aspectMask = createInfo.subresourceRange.aspectMask.toUInt()
+                baseMipLevel = createInfo.subresourceRange.baseMipLevel.toUInt()
+                levelCount = createInfo.subresourceRange.levelCount.toUInt()
+                baseArrayLayer = createInfo.subresourceRange.baseArrayLayer.toUInt()
+                layerCount = createInfo.subresourceRange.layerCount.toUInt()
+            }
+        }
+        val imageViewVar = alloc<VkImageViewVar>()
+        val result = nativeVkCreateImageView(device.toCPointer(), nativeCreateInfo.ptr, null, imageViewVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateImageView failed: $result" }
+        imageViewVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyImageView(device: Long, imageView: Long) {
         nativeVkDestroyImageView(device.toCPointer(), imageView.toCPointer<VkImageView_T>(), null)
     }
 
-    actual fun vkCreateShaderModule(device: Long, createInfo: VkShaderModuleCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateShaderModule(device: Long, createInfo: VkShaderModuleCreateInfo): Long = memScoped {
+        val nativeCreateInfo = alloc<NativeVkShaderModuleCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
+            pNext = null
+            flags = createInfo.flags.toUInt()
+            codeSize = (createInfo.pCode.size * Int.SIZE_BYTES).toULong()
+            pCode = allocArray(createInfo.pCode.size) { index -> value = createInfo.pCode[index].toUInt() }
+        }
+        val shaderModuleVar = alloc<VkShaderModuleVar>()
+        val result = nativeVkCreateShaderModule(device.toCPointer(), nativeCreateInfo.ptr, null, shaderModuleVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateShaderModule failed: $result" }
+        shaderModuleVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyShaderModule(device: Long, shaderModule: Long) {
         nativeVkDestroyShaderModule(device.toCPointer(), shaderModule.toCPointer<VkShaderModule_T>(), null)
     }
 
-    actual fun vkCreatePipelineCache(device: Long, createInfo: VkPipelineCacheCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreatePipelineCache(device: Long, createInfo: VkPipelineCacheCreateInfo): Long = memScoped {
+        // pInitialData is unused by every call site in this codebase today (always null) --
+        // not marshalled here; revisit if a real pipeline-cache-warm-start use case appears.
+        check(createInfo.pInitialData == null) { "vkCreatePipelineCache: pInitialData not yet supported on iOS" }
+        val nativeCreateInfo = alloc<NativeVkPipelineCacheCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO
+            pNext = null
+            flags = createInfo.flags.toUInt()
+            initialDataSize = 0u
+            pInitialData = null
+        }
+        val pipelineCacheVar = alloc<VkPipelineCacheVar>()
+        val result =
+            nativeVkCreatePipelineCache(device.toCPointer(), nativeCreateInfo.ptr, null, pipelineCacheVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreatePipelineCache failed: $result" }
+        pipelineCacheVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyPipelineCache(device: Long, pipelineCache: Long) {
@@ -470,8 +547,21 @@ actual object Vulkan {
         nativeVkDestroyFramebuffer(device.toCPointer(), framebuffer.toCPointer<VkFramebuffer_T>(), null)
     }
 
-    actual fun vkAllocateCommandBuffers(device: Long, createInfo: VkCommandBufferAllocateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkAllocateCommandBuffers(device: Long, createInfo: VkCommandBufferAllocateInfo): Long = memScoped {
+        // Return type is a single Long -- matches this codebase's Android/desktop actuals,
+        // which only ever allocate one primary command buffer at a time (commandBufferCount
+        // is expected to be 1 here, not a real batch-allocate).
+        val nativeCreateInfo = alloc<NativeVkCommandBufferAllocateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
+            pNext = null
+            commandPool = createInfo.commandPool.toCPointer()
+            level = createInfo.level.value.toUInt()
+            commandBufferCount = createInfo.commandBufferCount.toUInt()
+        }
+        val commandBufferVar = alloc<VkCommandBufferVar>()
+        val result = nativeVkAllocateCommandBuffers(device.toCPointer(), nativeCreateInfo.ptr, commandBufferVar.ptr)
+        check(result == VK_SUCCESS) { "vkAllocateCommandBuffers failed: $result" }
+        commandBufferVar.value!!.rawValue.toLong()
     }
 
     actual fun vkBeginCommandBuffer(commandBuffer: Long, beginInfo: VkCommandBufferBeginInfo) = memScoped {
@@ -487,8 +577,17 @@ actual object Vulkan {
         Unit
     }
 
-    actual fun vkCreateCommandPool(device: Long, createInfo: VkCommandPoolCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateCommandPool(device: Long, createInfo: VkCommandPoolCreateInfo): Long = memScoped {
+        val nativeCreateInfo = alloc<NativeVkCommandPoolCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO
+            pNext = null
+            flags = createInfo.flags.toUInt()
+            queueFamilyIndex = createInfo.queueFamilyIndex.toUInt()
+        }
+        val commandPoolVar = alloc<VkCommandPoolVar>()
+        val result = nativeVkCreateCommandPool(device.toCPointer(), nativeCreateInfo.ptr, null, commandPoolVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateCommandPool failed: $result" }
+        commandPoolVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyCommandPool(device: Long, commandPool: Long) {
@@ -547,16 +646,32 @@ actual object Vulkan {
         nativeVkEndCommandBuffer(commandBuffer.toCPointer())
     }
 
-    actual fun vkCreateSemaphore(device: Long, createInfo: VkSemaphoreCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateSemaphore(device: Long, createInfo: VkSemaphoreCreateInfo): Long = memScoped {
+        val nativeCreateInfo = alloc<NativeVkSemaphoreCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+            pNext = null
+            flags = createInfo.flags.toUInt()
+        }
+        val semaphoreVar = alloc<VkSemaphoreVar>()
+        val result = nativeVkCreateSemaphore(device.toCPointer(), nativeCreateInfo.ptr, null, semaphoreVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateSemaphore failed: $result" }
+        semaphoreVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroySemaphore(device: Long, semaphore: Long) {
         nativeVkDestroySemaphore(device.toCPointer(), semaphore.toCPointer<VkSemaphore_T>(), null)
     }
 
-    actual fun vkCreateFence(device: Long, createInfo: VkFenceCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateFence(device: Long, createInfo: VkFenceCreateInfo): Long = memScoped {
+        val nativeCreateInfo = alloc<NativeVkFenceCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO
+            pNext = null
+            flags = createInfo.flags.toUInt()
+        }
+        val fenceVar = alloc<VkFenceVar>()
+        val result = nativeVkCreateFence(device.toCPointer(), nativeCreateInfo.ptr, null, fenceVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateFence failed: $result" }
+        fenceVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyFence(device: Long, fence: Long) {
