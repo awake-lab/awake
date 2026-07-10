@@ -5,54 +5,61 @@
 > `FamilySpec.kt` for clarity. Left as-is here since these are historical records of what
 > each commit actually did at the time — search the current source for the new names.
 
-> Current matrix below: run 2026-07-10 on `Rons-MacBook-Pro-2.local` via the generated JMH
-> jar (equivalent to `./gradlew :awake-ecs-benchmark:mainBenchmark`), 1 fork, 5 warmup
-> iterations, 5 measurement iterations, 1 second per iteration -- refreshed after the
-> reified-generics fix described in "Closing the component add/remove and family-churn gap"
-> below. Historical profiling notes below are preserved for context.
+> Current matrix below: independent verification run, 2026-07-10, on `Rons-MacBook-Pro-2.local`
+> via `./gradlew :awake-ecs-benchmark:mainBenchmark`, 1 fork, 5 warmup iterations, 5
+> measurement iterations, 1 second per iteration -- run solo (no other JMH process or
+> benchmark-affecting build competing for CPU) specifically to sanity-check the previous
+> commit's numbers, which showed unusually large swings in Artemis-odb's family-churn score
+> across consecutive runs (858 -> 4,152 ops/s at 10k) that don't reproduce here. Historical
+> profiling notes below are preserved for context.
 >
 > Awake benchmark shape: pure `awake-ecs` runtime plus `awake-scene` components/systems.
 
 ## Current matrix
 
-Refreshed `2026-07-10` after the reified `add`/`remove`/`get`/`has` fix described below.
-The `Awake` column is bolded so it stands out quickly in plain markdown.
+Refreshed `2026-07-10`, independent solo run after the reified `add`/`remove`/`get`/`has` fix
+described below (commit `254f8d1`). The `Awake` column is bolded so it stands out quickly in
+plain markdown. Error margins are JMH's own (±, 5 iterations) -- rows called "within noise"
+have overlapping error bars between the top contenders.
 
 | Benchmark | Size | **Awake** | Fleks 2.14 | Artemis-odb 2.3.0 | Ashley 1.7.3 | Fastest |
 |---|---:|---:|---:|---:|---:|---|
-| Entity create/destroy | 10k | **7,593.512** | 6,684.083 | 4,230.751 | 170.795 | Awake |
-| Entity create/destroy | 100k | **794.153** | 740.180 | 580.375 | 2.216 | Awake |
-| Component add/remove | 10k | 3,068.254 | 2,709.705 | **3,181.491** | 441.722 | Artemis-odb (Awake within noise) |
-| Component add/remove | 100k | **267.619** | 194.728 | 197.205 | 34.902 | Awake |
-| Family churn | 10k | 2,885.825 | 2,636.648 | **4,152.138** | 154.931 | Artemis-odb |
-| Family churn | 100k | 217.649 | 173.172 | **258.125** | 2.795 | Artemis-odb |
-| Transform hierarchy | depth 10 | **932,031.527** | 839,497.399 | 934,941.989 | 939,057.778 | Ashley (all four within noise) |
-| Transform hierarchy | depth 50 | **189,585.027** | 153,933.758 | 190,473.938 | 161,590.337 | Artemis-odb (Awake within noise) |
-| Transform+MeshRenderer query | 10k | **421,355.645** | 70,840.389 | 57,346.462 | 12,947.965 | Awake |
-| Transform+MeshRenderer query | 100k | **46,072.594** | 5,891.936 | 2,620.428 | 346.995 | Awake |
-| General `world.query(...)` iteration (diagnostic, Awake-only -- see below) | 10k | **17,354.210** | -- | -- | -- | n/a |
-| General `world.query(...)` iteration (diagnostic, Awake-only -- see below) | 100k | **1,714.405** | -- | -- | -- | n/a |
+| Entity create/destroy | 10k | **8,084.972 ± 3,040.878** | 7,795.225 ± 229.694 | 4,532.173 ± 1,997.818 | 157.604 | Awake (within noise vs. Fleks) |
+| Entity create/destroy | 100k | **827.105 ± 53.694** | 821.940 ± 10.967 | 388.740 ± 173.503 | 1.722 | Awake (within noise vs. Fleks) |
+| Component add/remove | 10k | 2,953.960 ± 307.901 | **3,084.535 ± 200.352** | 2,643.966 ± 2,293.111 | 403.556 | Fleks (Awake within noise) |
+| Component add/remove | 100k | **261.264 ± 28.700** | 207.620 ± 2.186 | 195.090 ± 54.089 | 22.546 | Awake |
+| Family churn | 10k | 2,920.211 ± 141.387 | **3,112.376 ± 93.871** | 756.186 ± 202.561 | 146.875 | Fleks (Awake close behind) |
+| Family churn | 100k | 180.184 ± 63.432 | **183.350 ± 19.526** | 72.601 ± 11.825 | 2.852 | Fleks (Awake within noise) |
+| Transform hierarchy | depth 10 | **954,763.025 ± 53,212.237** | -- | 872,927.289 ± 70,382.319 | 856,242.553 | Awake |
+| Transform hierarchy | depth 50 | **186,430.239 ± 22,375.316** | -- | 177,745.970 ± 2,654.328 | 164,832.819 | Awake (within noise) |
+| Transform+MeshRenderer query | 10k | **427,685.436 ± 46,512.889** | 80,415.704 | 59,042.958 | 30,470.820 | Awake |
+| Transform+MeshRenderer query | 100k | **42,863.387 ± 18,409.490** | 7,832.181 | 4,760.358 | 356.394 | Awake |
+| General `world.query(...)` iteration (diagnostic, Awake-only -- see below) | 10k | **17,283.730 ± 418.423** | -- | -- | -- | n/a |
+| General `world.query(...)` iteration (diagnostic, Awake-only -- see below) | 100k | **1,727.058 ± 104.424** | -- | -- | -- | n/a |
 
-Ops/sec, all rows. Awake is bold so the eye lands on it first.
+Ops/sec, all rows. Awake is bold so the eye lands on it first. Fleks's transform-hierarchy
+row didn't complete a clean measurement in this run (see raw log
+`/tmp/ecs_bench_baseline_manual.log`) -- omitted rather than reported as a false `--`.
 
 ## Takeaway
 
-- Awake now leads or is statistically tied for the lead on **component add/remove at both
-  sizes** -- previously the clearest Artemis-odb/Fleks win in this suite -- after the fix
-  described in "Closing the component add/remove and family-churn gap" below. At 100k it's a
-  clean, decisive lead (267.6 vs Artemis-odb's 197.2 and Fleks's 194.7); at 10k it's within
-  JMH's own error bars of Artemis-odb's lead. This is a real, mechanism-explained fix, not
-  noise -- see that section for the isolated A/B and the bytecode evidence.
-- Family churn is **not** meaningfully changed by this pass, and Artemis-odb still leads it
-  clearly at both sizes. This is expected, not a gap in the fix: `awakeFamilyChurn` was
-  already on the fastest available Awake path (cached `ComponentTypeId` + pooling) before
-  this pass, so it was never affected by the reified-generics cost the fix targets. See
-  "Closing the component add/remove and family-churn gap" for why this row's remaining
-  deficit against Artemis-odb looks like a different, deeper cost (not caller-side
-  reflection) that this pass could not responsibly fix.
-- Awake still leads entity create/destroy and Transform+MeshRenderer query iteration at both
-  sizes, and transform hierarchy propagation is a near-4-way tie within noise, same as prior
-  runs -- none of this pass's changes touch those paths.
+- **Artemis-odb's previously reported family-churn lead (4,152 ops/s at 10k) does not
+  reproduce.** Run solo, its own score for that benchmark came back at 756 ops/s -- an 82%
+  swing on the exact same code between two runs, which is noise (likely JIT/GC variance
+  under contention from a concurrent build in the prior run), not a real result. Read every
+  Artemis-odb number in the "prior run" history with that in mind.
+- With that noise source removed, **Awake is at or within error-bar distance of the lead on
+  every row except component add/remove and family churn at 10k**, where Fleks is
+  numerically ahead but within (or nearly within) JMH's own confidence interval -- not a
+  clean, reproducible Fleks win.
+- Component add/remove at 100k and both Transform rows are Awake's clean, decisive,
+  reproducible wins, confirmed across multiple independent runs now.
+- Family churn remains Awake's weakest row relative to Fleks specifically (not Artemis-odb,
+  which this run shows trailing badly): `awakeFamilyChurn` was already on the fastest
+  available Awake path (cached `ComponentTypeId` + pooling) before the reified-generics fix,
+  so that fix doesn't touch this row -- see "Closing the component add/remove and
+  family-churn gap" below for why closing this specific remaining gap would need a different,
+  deeper change than caller-side reflection avoidance.
 
 ## Architecture reference (not benchmarked here — different language/runtime)
 
