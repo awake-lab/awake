@@ -1,0 +1,3 @@
+[submodule "awake-vulkan/ios-native/MoltenVK"]
+	path = awake-vulkan/ios-native/MoltenVK
+	url = https://github.com/KhronosGroup/MoltenVK.git

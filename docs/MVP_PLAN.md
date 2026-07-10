@@ -1202,10 +1202,39 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
       recommends freezing it, so whether to spend effort making the frozen OpenGL backend
       iOS-buildable (vs. gating `awake-demo:shared`'s iOS target on Vulkan only) is a
       decision point, not something to fix reflexively.
-- [ ] MoltenVK cinterop def + framework linking
+- [x] **MoltenVK cinterop def + framework linking (2026-07-10):** built MoltenVK from
+      source for iOS (device `arm64` + simulator `arm64`/`x86_64`, both slices in one
+      `MoltenVK.xcframework`) via a new git submodule at `awake-vulkan/ios-native/MoltenVK`
+      (KhronosGroup/MoltenVK, pinned commit `973bb08a`) — no iOS-targeted MoltenVK build
+      existed anywhere before this (only the macOS Homebrew desktop `.dylib` did). One-time
+      local setup, from that directory: `./fetchDependencies --ios --iossim && make ios &&
+      make iossim` (note: `make ios`/`make iossim` each *replace* `Package/Release/MoltenVK/
+      *.xcframework` wholesale rather than merging, confirmed empirically — running both,
+      in either order, with the second as the final step, is what leaves both platform
+      slices present in one xcframework). Vendored as a submodule rather than a committed
+      binary, matching this module's existing desktop-native/android-native convention of
+      building against real toolchains instead of checking in binaries.
+      First-ever `cinterops {}` block in this repo now lives in `awake-vulkan/build.gradle.kts`,
+      pointing at a new `awake-vulkan/src/nativeInterop/cinterop/MoltenVK.def` (uses
+      MoltenVK's own `mvk_vulkan.h` convenience header, which sets
+      `VK_USE_PLATFORM_METAL_EXT`/`VK_USE_PLATFORM_IOS_MVK` and pulls in `vulkan/vulkan.h`).
+      Per-target `-F<framework-dir>` compiler/linker search paths differ (device vs.
+      simulator each ship a separate binary slice inside the same xcframework).
+      **Proven with a real implementation, not just a compiling stub**: `iosMain/.../Vulkan.kt`'s
+      `vkCreateInstance`/`vkDestroyInstance` now do real cinterop struct marshalling
+      (`VkApplicationInfo`/`VkInstanceCreateInfo` → native memory via `memScoped`/`alloc`/
+      `cstr`/`allocArrayOf`) and call the real MoltenVK-linked `vkCreateInstance` symbol —
+      compiles clean for both iOS targets; desktop/Android re-verified unaffected. **Not
+      run on a simulator/device yet** — compile-time proof only, per this session's explicit
+      scope decision to stop here rather than rush the other 56 functions' marshalling
+      without the same care. Remaining `vulkan.gen` package functions (buffers/descriptors/
+      images, ~30 more) and the legacy `Vulkan` object's other 56 functions all still need
+      this same per-function treatment.
 - [ ] `CAMetalLayer`-backed surface actual
 - [ ] iOS `actual object Vulkan` — evaluate extending jni-binding-generator to emit
-      cinterop-backed actuals from the same `Vulkan.kt` source
+      cinterop-backed actuals from the same `Vulkan.kt` source (revisit now that real
+      cinterop patterns exist to generate *from* — see `vkCreateInstance`'s hand-written
+      implementation above as the reference shape)
 - [ ] Triangle → cube parity with Android/desktop
 
 ## Phase 7 — Compose-Style Scene API (post-decision, see D2)

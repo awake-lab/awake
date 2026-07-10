@@ -51,15 +51,70 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCache
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceFeatures
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceProperties
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.allocArrayOf
+import kotlinx.cinterop.cstr
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.toCPointer
+import kotlinx.cinterop.value
+import cnames.structs.VkInstance_T
+import platform.MoltenVK.VK_STRUCTURE_TYPE_APPLICATION_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
+import platform.MoltenVK.VK_SUCCESS
+import platform.MoltenVK.VkInstanceVar
+import platform.MoltenVK.vkCreateInstance as nativeVkCreateInstance
+import platform.MoltenVK.vkDestroyInstance as nativeVkDestroyInstance
+import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
+import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
 
 // Phase 6 (MoltenVK cinterop) has not landed yet — see docs/MVP_PLAN.md.
+//
+// vkCreateInstance/vkDestroyInstance below are a real cinterop implementation (not a
+// TODO stub) -- proof-of-concept that awake-vulkan's iOS target actually links against
+// and calls into the vendored MoltenVK.xcframework (awake-vulkan/ios-native/MoltenVK).
+// Compiled, not yet hardware/simulator-verified -- no iOS app target drives a real frame
+// yet (Phase 6 is still "MoltenVK cinterop bindings," not "iOS demo runs"). The other 56
+// functions below remain TODO() stubs; each needs this same struct-marshalling treatment.
+@OptIn(ExperimentalForeignApi::class)
 actual object Vulkan {
-    actual fun vkCreateInstance(createInfo: VkInstanceCreateInfo): Long {
-        TODO("Not yet implemented")
+    actual fun vkCreateInstance(createInfo: VkInstanceCreateInfo): Long = memScoped {
+        val nativeAppInfo = createInfo.pApplicationInfo?.firstOrNull()?.let { appInfo ->
+            alloc<NativeVkApplicationInfo>().apply {
+                sType = VK_STRUCTURE_TYPE_APPLICATION_INFO
+                pNext = null
+                pApplicationName = appInfo.pApplicationName.cstr.ptr
+                applicationVersion = appInfo.applicationVersion.toUInt()
+                pEngineName = appInfo.pEngineName.cstr.ptr
+                engineVersion = appInfo.engineVersion.toUInt()
+                apiVersion = appInfo.apiVersion.toUInt()
+            }
+        }
+        val nativeCreateInfo = alloc<NativeVkInstanceCreateInfo>().apply {
+            sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
+            pNext = null
+            flags = createInfo.flags.toUInt()
+            pApplicationInfo = nativeAppInfo?.ptr
+            val layerNames = createInfo.ppEnabledLayerNames
+            enabledLayerCount = (layerNames?.size ?: 0).toUInt()
+            ppEnabledLayerNames = layerNames?.let { names -> allocArrayOf(names.map { it.cstr.ptr }) }
+            val extensionNames = createInfo.ppEnabledExtensionNames
+            enabledExtensionCount = (extensionNames?.size ?: 0).toUInt()
+            ppEnabledExtensionNames =
+                extensionNames?.let { names -> allocArrayOf(names.map { it.cstr.ptr }) }
+        }
+        val instanceVar = alloc<VkInstanceVar>()
+        val result = nativeVkCreateInstance(nativeCreateInfo.ptr, null, instanceVar.ptr)
+        check(result == VK_SUCCESS) { "vkCreateInstance failed: $result" }
+        // VK_SUCCESS guarantees pInstance was written -- see the Vulkan spec's
+        // vkCreateInstance return-value contract.
+        instanceVar.value!!.rawValue.toLong()
     }
 
     actual fun vkDestroyInstance(instance: Long) {
-        TODO("Not yet implemented")
+        val nativeInstance = instance.toCPointer<VkInstance_T>()
+        nativeVkDestroyInstance(nativeInstance, null)
     }
 
     actual fun vkEnumerateInstanceLayerProperties(): Array<VkLayerProperties> {

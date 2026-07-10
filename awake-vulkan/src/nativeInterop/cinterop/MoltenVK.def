@@ -1,0 +1,10 @@
+package = platform.MoltenVK
+headers = MoltenVK/mvk_vulkan.h
+headerFilter = vulkan/** MoltenVK/**
+
+# mvk_vulkan.h defines VK_USE_PLATFORM_METAL_EXT/VK_USE_PLATFORM_IOS_MVK and pulls in
+# vulkan/vulkan.h with the right platform surface extensions enabled -- see that header's
+# own doc comment. The actual MoltenVK.framework binary (linked via -framework MoltenVK,
+# see build.gradle.kts's per-target -F search path) implements every vk* symbol declared
+# here as its own real Vulkan ICD; this .def only needs to expose the C declarations.
+compilerOpts = -DVK_ENABLE_BETA_EXTENSIONS=1

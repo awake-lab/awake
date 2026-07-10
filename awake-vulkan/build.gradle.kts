@@ -35,12 +35,43 @@ kotlin {
 
     // iosX64 (Intel simulator) dropped: Compose Multiplatform stopped publishing it
     // after 1.11.0-alpha01 (Apple Silicon only going forward)
+    //
+    // MoltenVK (Vulkan-over-Metal, Phase 6) is vendored as a git submodule at
+    // ios-native/MoltenVK (KhronosGroup/MoltenVK) rather than a committed prebuilt
+    // binary -- matches this module's existing desktop-native/android-native convention
+    // of building/linking against real native toolchains rather than vendoring binaries.
+    // One-time setup, from awake-vulkan/ios-native/MoltenVK:
+    //   ./fetchDependencies --ios --iossim && make ios && make iossim
+    // (each `make` target repackages Package/Release/MoltenVK/*.xcframework from
+    // scratch, so `make ios` must run *after* `make iossim` -- or vice versa run twice --
+    // to end up with both platform slices in one xcframework; confirmed empirically.)
+    val moltenVkIncludeDir = file("ios-native/MoltenVK/Package/Release/MoltenVK/include")
+    val moltenVkFrameworkDir = mapOf(
+        "iosArm64" to file(
+            "ios-native/MoltenVK/Package/Release/MoltenVK/dynamic/MoltenVK.xcframework/ios-arm64"
+        ),
+        "iosSimulatorArm64" to file(
+            "ios-native/MoltenVK/Package/Release/MoltenVK/dynamic/MoltenVK.xcframework/" +
+                "ios-arm64_x86_64-simulator"
+        ),
+    )
     listOf(
         iosArm64(),
         iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
+    ).forEach { target ->
+        val frameworkDir = moltenVkFrameworkDir.getValue(target.name)
+        target.binaries.framework {
             baseName = "awake-vulkan"
+            linkerOpts("-F${frameworkDir.path}", "-framework", "MoltenVK")
+        }
+        target.compilations.getByName("main") {
+            cinterops {
+                create("MoltenVK") {
+                    defFile(project.file("src/nativeInterop/cinterop/MoltenVK.def"))
+                    includeDirs(moltenVkIncludeDir)
+                    extraOpts("-compiler-option", "-F${frameworkDir.path}")
+                }
+            }
         }
     }
 
