@@ -2,6 +2,10 @@
 
 > Status: **DRAFT** · Created 2026-07-07 · Branch: `vulkan`
 
+> This document covers the near-term "spinning cube" MVP only (Phases 0–8 below). For the
+> long-horizon architecture blueprint toward the actual end goal — a working MMORPG — see
+> [MMORPG_ROADMAP.md](./MMORPG_ROADMAP.md).
+
 ## Vision
 
 Awake becomes the first **Kotlin Multiplatform game engine** with:
