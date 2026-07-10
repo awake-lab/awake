@@ -1184,6 +1184,24 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
       `awake-vulkan/src/iosMain/.../Vulkan.kt` is a literal empty stub (`actual object
       Vulkan {}`) missing ~65 `actual` implementations of the `expect` Vulkan API — the
       MoltenVK cinterop bindings themselves, described in the next 3 checklist items.
+- [x] **`awake-vulkan` iOS stub-out pass (2026-07-10):** all 58 `expect fun`s in
+      `commonMain/.../Vulkan.kt` now have matching `actual fun`s in `iosMain/.../Vulkan.kt`
+      (each a single `TODO("Not yet implemented")`, mirroring the exact convention the
+      newer `vulkan.gen` package's iOS actuals already used). `awake-vulkan` now compiles
+      clean for both `iosSimulatorArm64` and `iosArm64`; desktop/Android re-verified
+      unaffected. Real MoltenVK behavior is still not implemented — these are compile-time
+      stubs only, same as `gen/VulkanBuffers.kt` etc. already were.
+      **Next blocker found, out of `awake-vulkan`'s scope**: attempting
+      `awake-demo:shared:assembleSharedDebugXCFramework` now fails inside `awake-opengl`
+      instead — `iosMain/.../graphics/opengl/Agl.kt` and `GameView.kt` (the legacy OpenGL
+      iOS path, moved verbatim in the D11 module split, never previously compiled for iOS)
+      hit the same missing-`ExperimentalForeignApi`-opt-in issue already fixed once in
+      `awake-base`'s `Bitmap.kt`/`Buffer.kt`, plus one real type error (`Argument type
+      mismatch: actual type is 'Int', but 'UInt' was expected` at 3 call sites in
+      `Agl.kt`). This is legacy OpenGL, not Vulkan — D6 (OpenGL's fate) is still open and
+      recommends freezing it, so whether to spend effort making the frozen OpenGL backend
+      iOS-buildable (vs. gating `awake-demo:shared`'s iOS target on Vulkan only) is a
+      decision point, not something to fix reflexively.
 - [ ] MoltenVK cinterop def + framework linking
 - [ ] `CAMetalLayer`-backed surface actual
 - [ ] iOS `actual object Vulkan` — evaluate extending jni-binding-generator to emit
