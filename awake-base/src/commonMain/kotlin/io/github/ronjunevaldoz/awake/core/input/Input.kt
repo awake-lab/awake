@@ -19,6 +19,7 @@
 
 package io.github.ronjunevaldoz.awake.core.input
 
+import kotlin.concurrent.Volatile
 import kotlin.native.concurrent.ThreadLocal
 
 /**

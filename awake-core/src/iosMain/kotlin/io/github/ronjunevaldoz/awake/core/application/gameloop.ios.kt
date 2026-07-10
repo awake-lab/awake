@@ -1,6 +1,7 @@
 package io.github.ronjunevaldoz.awake.core.application
 
 import io.github.ronjunevaldoz.awake.core.utils.Time
+import kotlin.native.concurrent.ThreadLocal
 import kotlin.time.TimeSource
 import platform.posix.usleep
 

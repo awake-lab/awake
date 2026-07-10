@@ -19,6 +19,8 @@
 
 package io.github.ronjunevaldoz.awake.vulkan.handles
 
+import kotlin.jvm.JvmInline
+
 /**
  * Typed wrappers around the raw `Long` Vulkan handles that Awake's own engine classes
  * (`Mesh`, `Texture`, `Material`, `TransferContext`, ...) expose as public API, so a

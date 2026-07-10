@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkCompositeAlphaFlagsKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageUsageFlags
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagBitsKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagsKHR
+import kotlin.jvm.JvmOverloads
 
 @VkMutator
 data class VkSurfaceCapabilitiesKHR @JvmOverloads constructor(

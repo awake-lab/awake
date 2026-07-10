@@ -21,6 +21,7 @@ package io.github.ronjunevaldoz.awake.vulkan.models
 
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkQueueFlags
+import kotlin.jvm.JvmOverloads
 
 @VkMutator
 data class VkQueueFamilyProperties @JvmOverloads constructor(

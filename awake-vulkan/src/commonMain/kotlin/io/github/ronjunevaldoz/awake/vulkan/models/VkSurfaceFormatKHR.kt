@@ -22,6 +22,7 @@ package io.github.ronjunevaldoz.awake.vulkan.models
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorSpaceKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
+import kotlin.jvm.JvmOverloads
 
 @VkMutator
 data class VkSurfaceFormatKHR @JvmOverloads constructor(

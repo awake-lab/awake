@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VK_UUID_SIZE
 import io.github.ronjunevaldoz.awake.vulkan.VkConstArray
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPhysicalDeviceType
+import kotlin.jvm.JvmOverloads
 
 @VkMutator
 class VkPhysicalDeviceProperties @JvmOverloads constructor(

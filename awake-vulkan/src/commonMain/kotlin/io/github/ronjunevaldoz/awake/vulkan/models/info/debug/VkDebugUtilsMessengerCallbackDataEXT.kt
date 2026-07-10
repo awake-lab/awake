@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VkArray
 import io.github.ronjunevaldoz.awake.vulkan.VkFlags
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkStructureType
+import kotlin.jvm.JvmOverloads
 
 @VkMutator
 class VkDebugUtilsMessengerCallbackDataEXT @JvmOverloads constructor(

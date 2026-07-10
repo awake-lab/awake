@@ -21,6 +21,7 @@ package io.github.ronjunevaldoz.awake.vulkan.models
 
 import io.github.ronjunevaldoz.awake.vulkan.VkConstArray
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
+import kotlin.jvm.JvmOverloads
 
 @VkMutator
 data class VkLayerProperties @JvmOverloads constructor(

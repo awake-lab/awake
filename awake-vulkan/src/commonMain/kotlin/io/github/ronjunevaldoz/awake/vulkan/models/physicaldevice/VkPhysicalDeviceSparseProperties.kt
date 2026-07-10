@@ -21,6 +21,7 @@ package io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice
 
 import io.github.ronjunevaldoz.awake.vulkan.VkBool32
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
+import kotlin.jvm.JvmOverloads
 
 @VkMutator
 data class VkPhysicalDeviceSparseProperties @JvmOverloads constructor(

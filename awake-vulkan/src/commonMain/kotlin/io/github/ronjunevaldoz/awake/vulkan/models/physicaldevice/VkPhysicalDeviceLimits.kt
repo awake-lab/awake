@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VkConstArray
 import io.github.ronjunevaldoz.awake.vulkan.VkDeviceSize
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSampleCountFlags
+import kotlin.jvm.JvmOverloads
 
 @VkMutator
 class VkPhysicalDeviceLimits @JvmOverloads constructor(

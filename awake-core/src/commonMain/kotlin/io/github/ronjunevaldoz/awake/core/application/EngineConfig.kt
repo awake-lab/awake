@@ -19,6 +19,7 @@
 
 package io.github.ronjunevaldoz.awake.core.application
 
+import kotlin.concurrent.Volatile
 import kotlin.native.concurrent.ThreadLocal
 
 data class EngineConfig(

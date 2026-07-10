@@ -22,6 +22,7 @@ package io.github.ronjunevaldoz.awake.vulkan.models.info.debug
 import io.github.ronjunevaldoz.awake.vulkan.VkConstArray
 import io.github.ronjunevaldoz.awake.vulkan.VkMutator
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkStructureType
+import kotlin.jvm.JvmOverloads
 
 @VkMutator
 class VkDebugUtilsLabelEXT @JvmOverloads constructor(
