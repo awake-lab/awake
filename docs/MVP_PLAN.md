@@ -1315,8 +1315,16 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
 - [ ] Real-device (not just Simulator) run — confirm on physical hardware, since
       Simulator's Vulkan/Metal path can behave differently (e.g. the earlier
       `VK_ERROR_INCOMPATIBLE_DRIVER` finding was Simulator-specific)
-- [ ] `iosArm64` (device) release-config `xcodebuild`/App Store archive path — only
-      `iosSimulatorArm64`/Debug has been exercised end-to-end so far
+- [x] **`iosArm64` (device) Release build (2026-07-10):** `assembleSharedReleaseXCFramework`
+      + `xcodebuild -destination 'generic/platform=iOS' -configuration Release
+      CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO` both succeed (signing disabled
+      since this project has no real Apple Developer team configured --
+      `Configuration/Config.xcconfig`'s `TEAM_ID` is empty). Confirmed the produced binary
+      is a real `arm64` Mach-O device executable (`file`) with `_vkCreateInstance` as a
+      defined (`T`, not `U`) symbol via `nm` — MoltenVK resolves correctly for the device
+      slice too, not just simulator. **Not yet verified: actually running on a physical
+      iPhone** — needs a real device plus a paid team ID to code-sign and install, neither
+      of which exist in this dev environment.
 - [x] **Input handling on iOS (2026-07-10):** `VulkanMetalView` now overrides
       `touchesBegan`/`Moved`/`Ended`/`Cancelled`, mirroring `awake-core`'s Android
       `VulkanView.onTouchEvent` exactly (single-pointer, `Input.setPointer(down, x, y)`).
