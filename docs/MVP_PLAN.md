@@ -1874,6 +1874,42 @@ its wasmJs target, `awake-demo:desktopApp`) compile clean.
 - 2D (when needed): **kbox2d** pure-Kotlin port in `commonMain` — zero native cost,
   covers future Wasm/JS targets.
 
+**D5 follow-up (2026-07-11): binding-layer facade + per-target library choice.**
+
+To keep any future backend swap (different Jolt binding, or a different engine entirely)
+from rippling into `awake-scene`/gameplay code, physics is fronted by a new
+**`awake-physics-api`** module — plain `commonMain` interfaces only (`PhysicsWorld`,
+`PhysicsShape`, `BodyHandle`, `MotionType`, batched `syncTransforms`/`raycast`), no
+`expect`/`actual`, same architectural role `awake-engine-render-api` already plays for
+`Renderer`/`Mesh`/`Material` between the ECS layer and the Vulkan/WebGPU backends. Gameplay
+code depends only on this module; each backend below implements it in isolation.
+
+Per-target binding choice, evaluated on maintainer track record over star count (low stars
+on a JVM-physics-binding repo mostly reflects a small market, not neglect):
+
+- **Desktop + Android (JVM)**: [`stephengold/jolt-jni`](https://github.com/stephengold/jolt-jni).
+  Chosen over hand-rolled JNI and over `xpenatan/xJolt`: xJolt claims broader coverage
+  (JNI + Emscripten/TeaVM) via a custom in-house codegen tool (`jParser`) — more surface for
+  a small maintainer to sustain, and its web claim doesn't apply here anyway (TeaVM ≠
+  Kotlin/Wasm). `jolt-jni`'s author (stephengold) has a multi-year track record maintaining
+  JVM physics bindings (`libbulldeme`, `Minie`), a narrower JVM-only scope, and no iOS
+  claim to begin with (irrelevant — iOS isn't JVM in this project regardless). Fallback if
+  it goes stale: fork/patch the existing working JNI layer, not a from-scratch rewrite.
+- **iOS (Kotlin/Native)**: no off-the-shelf option exists (neither `jolt-jni` nor `xJolt`
+  targets Kotlin/Native cinterop). **Custom cinterop against `JoltC`**
+  ([`SecondHalfGames/JoltC`](https://github.com/SecondHalfGames/JoltC), a C-compatible
+  wrapper over Jolt's C++ core — cinterop only understands C, same constraint MoltenVK's
+  vendoring already solved for Vulkan), vendored as a git submodule the same way MoltenVK
+  is. Scoped small per the coarse-grained rule above — a dozen or so entry points, not a
+  full mirror.
+- **wasmJs**: [`jrouwe/JoltPhysics.js`](https://github.com/jrouwe/JoltPhysics.js) — the
+  official Emscripten/WASM port, maintained by Jolt's own author, published on npm as
+  `jolt-physics`. Consumed via Kotlin/Wasm JS interop, the same role `wgpu4k` plays for the
+  WebGPU backend today. No custom work needed for this leg.
+- Core engine itself: [`jrouwe/JoltPhysics`](https://github.com/jrouwe/JoltPhysics) —
+  vendored as a submodule regardless of binding choice, since it's the upstream C++ library
+  every option above ultimately wraps.
+
 ### D4 — Editor base
 **Decided: build on [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor)**
 (Compose Desktop shell + design system) rather than building from scratch.
