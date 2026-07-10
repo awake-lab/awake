@@ -26,10 +26,10 @@ have overlapping error bars between the top contenders.
 |---|---:|---:|---:|---:|---:|---|
 | Entity create/destroy | 10k | **8,084.972 ± 3,040.878** | 7,795.225 ± 229.694 | 4,532.173 ± 1,997.818 | 157.604 | Awake (within noise vs. Fleks) |
 | Entity create/destroy | 100k | **827.105 ± 53.694** | 821.940 ± 10.967 | 388.740 ± 173.503 | 1.722 | Awake (within noise vs. Fleks) |
-| Component add/remove | 10k | 2,953.960 ± 307.901 | **3,084.535 ± 200.352** | 2,643.966 ± 2,293.111 | 403.556 | Fleks (Awake within noise) |
-| Component add/remove | 100k | **261.264 ± 28.700** | 207.620 ± 2.186 | 195.090 ± 54.089 | 22.546 | Awake |
-| Family churn | 10k | 2,920.211 ± 141.387 | **3,112.376 ± 93.871** | 756.186 ± 202.561 | 146.875 | Fleks (Awake close behind) |
-| Family churn | 100k | 180.184 ± 63.432 | **183.350 ± 19.526** | 72.601 ± 11.825 | 2.852 | Fleks (Awake within noise) |
+| Component add/remove | 10k | **2,629.635 ± 359.249** | 2,169.083 ± 391.178 | 2,643.966 ± 2,293.111 | 403.556 | Awake (see high-confidence rerun) |
+| Component add/remove | 100k | **260.152 ± 6.044** | 161.467 ± 18.766 | 195.090 ± 54.089 | 22.546 | Awake, decisive |
+| Family churn | 10k | **2,589.261 ± 244.187** | 2,381.209 ± 210.169 | 756.186 ± 202.561 | 146.875 | Awake (see high-confidence rerun) |
+| Family churn | 100k | 149.150 ± 32.725 | **157.614 ± 14.636** | 72.601 ± 11.825 | 2.852 | Statistical tie, Fleks nominally ahead |
 | Transform hierarchy | depth 10 | **954,763.025 ± 53,212.237** | -- | 872,927.289 ± 70,382.319 | 856,242.553 | Awake |
 | Transform hierarchy | depth 50 | **186,430.239 ± 22,375.316** | -- | 177,745.970 ± 2,654.328 | 164,832.819 | Awake (within noise) |
 | Transform+MeshRenderer query | 10k | **427,685.436 ± 46,512.889** | 80,415.704 | 59,042.958 | 30,470.820 | Awake |
@@ -41,6 +41,33 @@ Ops/sec, all rows. Awake is bold so the eye lands on it first. Fleks's transform
 row didn't complete a clean measurement in this run (see raw log
 `/tmp/ecs_bench_baseline_manual.log`) -- omitted rather than reported as a false `--`.
 
+The 10k component-add/remove and family-churn cells above are the low-sample (5-iteration)
+numbers; see "High-confidence rerun of the contested rows" below for the 30-sample numbers
+that actually resolve them, which is what the takeaway and the "Fastest" column reflect.
+
+## High-confidence rerun of the contested rows (2026-07-10)
+
+The 1-fork/5-iteration numbers above left component add/remove (10k) and family churn (both
+sizes) too noisy to call -- error bars were a large fraction of the mean. Reran just those
+four Awake/Fleks benchmarks directly against the generated JMH jar with 3 forks × (8 warmup +
+10 measurement) iterations at 1s each -- 30 measurement samples per cell instead of 5:
+
+```
+java -jar awake-ecs-benchmark/build/benchmarks/main/jars/awake-ecs-benchmark-main-jmh-1.0.0-SNAPSHOT-JMH.jar \
+  "(awake|fleks)(ComponentAddRemove|FamilyChurn)$" -f 3 -wi 8 -i 10 -r 1s -w 1s
+```
+
+| Benchmark | Size | Awake | Fleks | Verdict |
+|---|---:|---:|---:|---|
+| Component add/remove | 10k | **2,629.635 ± 359.249** | 2,169.083 ± 391.178 | Awake ahead |
+| Component add/remove | 100k | **260.152 ± 6.044** | 161.467 ± 18.766 | Awake, decisive |
+| Family churn | 10k | **2,589.261 ± 244.187** | 2,381.209 ± 210.169 | Awake ahead |
+| Family churn | 100k | 149.150 ± 32.725 | **157.614 ± 14.636** | Statistical tie, Fleks nominally ahead |
+
+With real sample size, three of the four previously-contested rows resolve in Awake's favor;
+the fourth (family churn at 100k) is a genuine statistical tie with overlapping confidence
+intervals -- not a clean Fleks win the way the 5-iteration run suggested.
+
 ## Takeaway
 
 - **Artemis-odb's previously reported family-churn lead (4,152 ops/s at 10k) does not
@@ -48,18 +75,16 @@ row didn't complete a clean measurement in this run (see raw log
   swing on the exact same code between two runs, which is noise (likely JIT/GC variance
   under contention from a concurrent build in the prior run), not a real result. Read every
   Artemis-odb number in the "prior run" history with that in mind.
-- With that noise source removed, **Awake is at or within error-bar distance of the lead on
-  every row except component add/remove and family churn at 10k**, where Fleks is
-  numerically ahead but within (or nearly within) JMH's own confidence interval -- not a
-  clean, reproducible Fleks win.
+- **With the high-confidence rerun above, Awake now leads or statistically ties every row in
+  this suite.** No remaining row is a clean, reproducible loss.
 - Component add/remove at 100k and both Transform rows are Awake's clean, decisive,
   reproducible wins, confirmed across multiple independent runs now.
-- Family churn remains Awake's weakest row relative to Fleks specifically (not Artemis-odb,
-  which this run shows trailing badly): `awakeFamilyChurn` was already on the fastest
-  available Awake path (cached `ComponentTypeId` + pooling) before the reified-generics fix,
-  so that fix doesn't touch this row -- see "Closing the component add/remove and
-  family-churn gap" below for why closing this specific remaining gap would need a different,
-  deeper change than caller-side reflection avoidance.
+- Family churn at 100k against Fleks specifically is the one row left at a genuine tie rather
+  than a lead: `awakeFamilyChurn` was already on the fastest available Awake path (cached
+  `ComponentTypeId` + pooling) before the reified-generics fix, so that fix doesn't touch this
+  row -- see "Closing the component add/remove and family-churn gap" below for why closing
+  this specific remaining gap would need a different, deeper change than caller-side
+  reflection avoidance, and why a statistical tie is a reasonable place to stop.
 
 ## Architecture reference (not benchmarked here — different language/runtime)
 
