@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 package io.github.ronjunevaldoz.awake.core.graphics
 
 import kotlinx.cinterop.useContents

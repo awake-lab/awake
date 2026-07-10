@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 package io.github.ronjunevaldoz.awake.core.graphics.opengl
 
 import io.github.ronjunevaldoz.awake.core.graphics.Bitmap
@@ -116,7 +118,7 @@ internal actual object Agl : OpenGL {
 
     override fun getShaderInfoLog(shader: Int): String {
         val logLengthBuffer = IntArray(1)
-        glGetShaderiv(shader.toUInt(), GL_INFO_LOG_LENGTH, logLengthBuffer.refTo(0))
+        glGetShaderiv(shader.toUInt(), GL_INFO_LOG_LENGTH.toUInt(), logLengthBuffer.refTo(0))
         val logLength = logLengthBuffer[0]
 
         return if (logLength > 0) {
@@ -146,7 +148,7 @@ internal actual object Agl : OpenGL {
 
     override fun getProgramInfoLog(program: Int): String {
         val logLengthBuffer = IntArray(1)
-        glGetProgramiv(program.toUInt(), GL_INFO_LOG_LENGTH, logLengthBuffer.refTo(0))
+        glGetProgramiv(program.toUInt(), GL_INFO_LOG_LENGTH.toUInt(), logLengthBuffer.refTo(0))
         val logLength = logLengthBuffer[0]
 
         val logBuffer = ByteArray(logLength)
@@ -392,7 +394,7 @@ internal actual object Agl : OpenGL {
             width = width,
             height = height,
             format = format.toUInt(),
-            type = GL_UNSIGNED_BYTE,
+            type = GL_UNSIGNED_BYTE.toUInt(),
             pixels = pixelBuffer
         )
     }
@@ -413,7 +415,7 @@ internal actual object Agl : OpenGL {
             width = bitmap.width,
             height = bitmap.height,
             format = format.toUInt(),
-            type = GL_UNSIGNED_BYTE,
+            type = GL_UNSIGNED_BYTE.toUInt(),
             pixels = bitmap.pixels.refTo(0)
         )
     }
@@ -433,7 +435,7 @@ internal actual object Agl : OpenGL {
             height = bitmap.height,
             border = 0,
             format = internalFormat.toFormat().toUInt(),
-            type = GL_UNSIGNED_BYTE,
+            type = GL_UNSIGNED_BYTE.toUInt(),
             pixels = bitmap.pixels.refTo(0)
         )
     }

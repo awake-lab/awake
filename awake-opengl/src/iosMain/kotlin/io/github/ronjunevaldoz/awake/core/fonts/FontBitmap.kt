@@ -6,6 +6,8 @@ import io.github.ronjunevaldoz.awake.core.graphics.Pixmap
 import io.github.ronjunevaldoz.awake.core.math.Vec2
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Font
+import org.jetbrains.skia.FontMgr
+import org.jetbrains.skia.FontStyle
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.Surface
 import org.jetbrains.skia.Typeface
@@ -17,8 +19,14 @@ class FontBitmap(private val font: Font, antiAlias: Boolean) {
     val bitmap: Bitmap
     private val glyphs = mutableMapOf<Char, Glyph>()
 
+    // Typeface.makeDefault() doesn't exist on this Skiko version's iOS target -- FontMgr's
+    // family-style match against a null family name is the equivalent "give me the system
+    // default" idiom on this platform.
     constructor(fontSize: Float, antiAlias: Boolean) : this(
-        Font(Typeface.makeDefault(), fontSize),
+        Font(
+            FontMgr.default.matchFamilyStyle(null, FontStyle.NORMAL) ?: Typeface.makeEmpty(),
+            fontSize
+        ),
         antiAlias
     )
 
