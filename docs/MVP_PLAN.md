@@ -1081,10 +1081,21 @@ add/remove and family churn at 100k).
       `scenes/mvp.scene.json`, instantiates it into a real `World`, attaches `MeshRenderer`s,
       and drives `TransformSystem`→`RenderSystem` every frame (animating the scene's `cube`
       root node's rotation). Wired into `VulkanApplication`.
-      **Not yet confirmed on real hardware** — this is the first time the ECS scene layer
-      drives the actual Vulkan renderer end-to-end in the demo app; prior hardware
-      verifications in this doc predate the scene runtime. Verify on the Galaxy S25 Ultra
-      before treating this integration as done.
+      **Confirmed on real hardware (2026-07-10, Galaxy S25 Ultra)**: this is the first time
+      the ECS scene layer drives the actual Vulkan renderer end-to-end in the demo app.
+      Along the way, found and fixed a real Android packaging bug this exposed —
+      `awake-scene`'s `commonTest`-only fixture (`scenes/mvp.scene.json`, used by
+      `SceneLoaderTest`) had been placed under `commonMain/resources` instead of
+      `commonTest/resources`, so it got bundled into every consumer of the library and
+      collided with `awake-demo/shared`'s own copy of the same file at Android's
+      `mergeDebugJavaResource` step ("2 files found with path 'scenes/mvp.scene.json'").
+      Moved the test fixture to `awake-scene/src/commonTest/resources/`; `:awake-scene
+      :desktopTest` still passes, and `:awake-demo:androidApp:assembleDebug` now builds
+      clean. Installed on-device (`R5CY2247V9X`), launched, and verified via two screenshots
+      ~2 seconds apart: steady 60-61 FPS, no crash, and the cube visibly rotated between
+      captures (confirming `TransformSystem`/`RenderSystem` are live per-frame, not a static
+      first frame) — logcat showed no exceptions/errors from the app's own package over the
+      verification window.
 - [x] **Tests**: `:awake-ecs:allTests` and `:awake-scene:desktopTest` cover entity
       recycling/generation correctness, component add/remove/pooling, query/family
       correctness (including the generalized `all`/`one`/`exclude` `Family`), hierarchy
