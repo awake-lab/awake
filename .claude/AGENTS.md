@@ -62,6 +62,37 @@ it before starting work; phases and open decisions (D1–D4) are tracked there.*
   subsystems. Do not restructure engine modules to match it.
 - `.spv` shaders are compiled from GLSL via the `glslValidator` Gradle task (glslang).
 
+## Threading model
+
+- **One thread owns every Vulkan call, per running app instance.** Vulkan objects
+  (`VkDevice`, `VkQueue`, command buffers, etc.) are not free-threaded — do not call any
+  `awake-vulkan`/`awake-core` rendering API, or touch a `GraphicsDevice`/`Renderer`/
+  `Mesh`/`Texture`/`Material` instance, from a thread other than the one that owns it.
+- **`Application.update(delta)` is that thread's entry point, and it's synchronous
+  end-to-end.** One call does simulation (`SceneRuntimeHost.fixedUpdate`, via
+  `FixedTimestepLoop`), rendering (`SceneRuntimeHost.render`), and the full Vulkan submit +
+  present + `vkDeviceWaitIdle` (inside `Renderer.draw`) — all on the calling thread, in
+  that order, before returning. There is no separate render thread *inside* the engine;
+  the platform entry point supplies the one thread that drives everything.
+- **Which thread that is, per platform:** Android's `VulkanView` spins a dedicated
+  `Thread("VulkanView-Render")` and calls `AndroidGameLoop.startLoop { application.update
+  (...) }` from it — never the UI thread, since `vkWaitForFences`/`vkQueuePresentKHR`
+  block and `SurfaceView` has no render thread of its own. Desktop's Vulkan entry point
+  (`VulkanDesktopMain.kt`) calls `DesktopGameLoop.startLoop { ... }` from `main()` directly
+  — GLFW requires window/surface calls (`glfwPollEvents`, swapchain creation) to happen on
+  the thread that created the window, so this has to be the main thread, not a spawned one.
+- **Coroutines are for loading/IO only** (asset byte reads, glTF/scene JSON parsing,
+  texture decode) **— never for anything that touches a Vulkan handle.** Decode off-thread
+  if useful, but construct/mutate GPU-backed objects (`Mesh(...)`, `Texture(...)`,
+  `Material.createResources(...)`) only on the render thread, after the off-thread work
+  hands back plain data (bytes, parsed structs) with no Vulkan calls in it.
+- **Input callbacks are not a separate thread.** GLFW fires callbacks synchronously during
+  `glfwPollEvents()`, which already runs on the render thread (see above) — don't assume a
+  callback could race a Vulkan call. Android touch events arrive on the UI thread, not the
+  render thread; a touch handler that needs to affect game state must hand the event to
+  the render thread (e.g. via a lock-free queue or `@Volatile` state it polls), not call
+  into `World`/`Application` directly from `onTouchEvent`.
+
 ## API surface rules
 
 - Never remove or rename public symbols without a major version bump
