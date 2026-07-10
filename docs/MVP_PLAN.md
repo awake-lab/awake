@@ -1061,8 +1061,48 @@ twice (once against whatever's there today, again once Phase 2 settles).
       has no separate "frames in flight" concept to mirror (no explicit fence/semaphore
       array), so `SwapchainManager`'s wasmJs actual will likely be much thinner than its
       Vulkan counterpart, not a 1:1 port.
-- [ ] Milestone 2: real WebGPU backend implementing the `expect` seam milestone 1 built,
-      using wgpu4k (spike above) as the binding library
+- [x] **Milestone 2 slice 1 (2026-07-10): a real WebGPU triangle renders through the actual
+      Awake engine classes.** `GraphicsDevice`/`SwapchainManager`/`RenderPipeline`/`Mesh`/
+      `Renderer`'s `wasmJs` actuals are real wgpu4k implementations now (not stubs) — a
+      colored, per-vertex-interpolated triangle was confirmed rendering in a real Chromium
+      browser via a temporary executable (same technique as the spike, removed after
+      confirming), constructed through the exact same `expect` contract desktop/Android/iOS
+      already implement (`GraphicsDevice()` → `create()` → `RenderPipeline(...)` →
+      `Mesh(...)` → `Renderer(...).draw(camera, drawCalls)`). `Material`/`Texture` (texture
+      sampling, bind-group-per-material) are still `TODO()` — deferred to slice 2.
+      **Design decisions and gotchas that will matter for slice 2:**
+      - **Handle table** (`WebGpuHandles`, `wasmJsMain`-only): the `expect` contract types
+        every handle `Long`/`XxxHandle`-wrapping-`Long`, mirroring Vulkan's raw-integer-handle
+        model — but wgpu4k hands back real typed objects (`GPUBuffer`, `GPUDevice`, ...), not
+        integers. A simple incrementing-`Long`-id → `Any` map bridges this without touching
+        the `expect` contract (which would ripple back into commonMain and force
+        re-verifying all 4 already-proven platforms for zero benefit to them).
+      - **`GraphicsDevice.create()` can't do the async device/surface setup itself**:
+        `canvasContextRenderer()`/`Surface.configure()` are `suspend`, and
+        `kotlinx.coroutines.runBlocking` does not exist on `wasmJs` at all (confirmed the
+        hard way — the import itself doesn't resolve; a single-threaded JS event loop can't
+        block). Since `create()` on the `expect` contract isn't `suspend`, the caller must
+        resolve a `WGPUContext` in its own coroutine first and pass it through the already
+        platform-flexible `window: Any` parameter (same "means something different per
+        platform" pattern as GLFW's `Long` on desktop / `android.view.Surface` on Android).
+        **This means the eventual real web demo-app entry point needs its own coroutine
+        scope wrapping `GraphicsDevice.create()`'s call site** — not a `wasmJs`-internal
+        detail slice 2 can paper over.
+      - **`Mesh` has no staging-buffer step** — `device.queue.writeBuffer()` uploads
+        directly, a real simplification vs. Vulkan's HOST_VISIBLE-staging + one-time-command
+        dance, not an oversight.
+      - **One shared uniform buffer, not per-`Material`**: since `Material` is still
+        `TODO()`, `Renderer` currently owns one uniform buffer + bind group directly
+        (mirroring how wgpu4k's own example scenes work, no separate "Material"
+        abstraction) — this only correctly supports **one draw call per frame** today,
+        since `queue.writeBuffer` is queue-scheduled, not something that interleaves
+        mid-encoder across multiple draw calls sharing one buffer. Slice 2's real `Material`
+        needs its own uniform buffer + bind group per instance to fix this.
+      - **Y-axis is flipped**: `Camera`'s default `flipYForClipSpace = true` targets
+        Vulkan's Y-down NDC; WebGPU (like OpenGL) is Y-up, so the verified triangle rendered
+        upside-down — confirmed as an expected, easily-fixed `Camera` construction detail
+        (`flipYForClipSpace = false`), not a pipeline bug. The real web demo-app entry point
+        needs to construct its `Camera` this way.
 - [ ] Wasm ECS/runtime: Fleks and the kotlinx libraries already used elsewhere in this
       project (coroutines, datetime, serialization) already support Wasm — confirm no
       Vulkan-only assumption leaked into `awake-base`'s non-rendering code paths (also still

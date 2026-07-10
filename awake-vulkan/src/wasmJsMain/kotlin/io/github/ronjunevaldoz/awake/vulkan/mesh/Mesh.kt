@@ -3,30 +3,75 @@ package io.github.ronjunevaldoz.awake.vulkan.mesh
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.vulkan.handles.DeviceMemoryHandle
+import io.github.ronjunevaldoz.awake.vulkan.webgpu.WebGpuHandles
+import io.ygdrasil.webgpu.ArrayBuffer
+import io.ygdrasil.webgpu.BufferDescriptor
+import io.ygdrasil.webgpu.GPUBuffer
+import io.ygdrasil.webgpu.GPUBufferUsage
+import io.ygdrasil.webgpu.GPUIndexFormat
 
-// Phase 2.5 (Web/WebGPU, decision D7) milestone 1: compile-only stub -- see
-// docs/MVP_PLAN.md.
+/**
+ * Phase 2.5 milestone 2 slice 1 (see docs/MVP_PLAN.md): real wgpu4k implementation.
+ * `device.queue.writeBuffer()` uploads directly -- no HOST_VISIBLE staging buffer + one-time
+ * command buffer + `vkCmdCopyBuffer` dance the way Vulkan's `Mesh.kt` needs, a real
+ * simplification, not an oversight. [vertexBufferMemory]/[indexBufferMemory] have no WebGPU
+ * equivalent (buffer memory is managed internally, no separate allocation object to hold a
+ * handle to) and just mirror their buffer's handle. [runOneTimeCommands] is unused for the
+ * same reason.
+ */
 actual class Mesh actual constructor(
     graphicsDevice: GraphicsDevice,
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     vertices: FloatArray,
     indices: IntArray
 ) {
-    actual var vertexBuffer: BufferHandle = BufferHandle(0)
-    actual var vertexBufferMemory: DeviceMemoryHandle = DeviceMemoryHandle(0)
-    actual var indexBuffer: BufferHandle = BufferHandle(0)
-    actual var indexBufferMemory: DeviceMemoryHandle = DeviceMemoryHandle(0)
+    actual var vertexBuffer: BufferHandle
+    actual var vertexBufferMemory: DeviceMemoryHandle
+    actual var indexBuffer: BufferHandle
+    actual var indexBufferMemory: DeviceMemoryHandle
     actual val indexCount: Int = indices.size
 
+    init {
+        val device = graphicsDevice.wgpuContext.device
+
+        val rawVertexBuffer: GPUBuffer = device.createBuffer(
+            BufferDescriptor(
+                size = (vertices.size * Float.SIZE_BYTES).toULong(),
+                usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst
+            )
+        )
+        device.queue.writeBuffer(rawVertexBuffer, 0uL, ArrayBuffer.of(vertices))
+        val vertexHandle = WebGpuHandles.register(rawVertexBuffer)
+        vertexBuffer = BufferHandle(vertexHandle)
+        vertexBufferMemory = DeviceMemoryHandle(vertexHandle)
+
+        val rawIndexBuffer: GPUBuffer = device.createBuffer(
+            BufferDescriptor(
+                size = (indices.size * Int.SIZE_BYTES).toULong(),
+                usage = GPUBufferUsage.Index or GPUBufferUsage.CopyDst
+            )
+        )
+        device.queue.writeBuffer(rawIndexBuffer, 0uL, ArrayBuffer.of(indices))
+        val indexHandle = WebGpuHandles.register(rawIndexBuffer)
+        indexBuffer = BufferHandle(indexHandle)
+        indexBufferMemory = DeviceMemoryHandle(indexHandle)
+    }
+
     actual fun bind(commandBuffer: Long) {
-        TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
+        TODO("WebGPU binds vertex/index buffers directly in Renderer.draw(), see docs/MVP_PLAN.md")
     }
 
     actual fun draw(commandBuffer: Long) {
-        TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
+        TODO("WebGPU issues drawIndexed directly in Renderer.draw(), see docs/MVP_PLAN.md")
     }
 
     actual fun destroy() {
-        TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
+        WebGpuHandles.release(vertexBuffer.handle)
+        WebGpuHandles.release(indexBuffer.handle)
     }
 }
+
+// Referenced by Renderer.kt (same source set) -- GPUIndexFormat isn't derivable from an
+// IntArray-typed index buffer alone, so this constant documents the assumption both files
+// share: indices are always UInt32 here (matching Vulkan's VK_INDEX_TYPE_UINT32 usage).
+internal val meshIndexFormat = GPUIndexFormat.Uint32
