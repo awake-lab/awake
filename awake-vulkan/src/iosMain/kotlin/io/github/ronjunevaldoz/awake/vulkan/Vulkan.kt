@@ -47,7 +47,12 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandPoolCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDeviceCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFenceCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFramebufferCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.VkStencilOpState
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkDynamicState
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkGraphicsPipelineCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendAttachmentState
+import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAttributeDescription
+import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageViewCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkInstanceCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkPresentInfoKHR
@@ -183,6 +188,7 @@ import platform.MoltenVK.vkCmdBeginRenderPass as nativeVkCmdBeginRenderPass
 import platform.MoltenVK.vkCreateSwapchainKHR as nativeVkCreateSwapchainKHR
 import platform.MoltenVK.vkCreateDevice as nativeVkCreateDevice
 import platform.MoltenVK.vkCreateRenderPass as nativeVkCreateRenderPass
+import platform.MoltenVK.vkCreateGraphicsPipelines as nativeVkCreateGraphicsPipelines
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
 import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
@@ -217,6 +223,32 @@ import platform.MoltenVK.VkSubpassDependency as NativeVkSubpassDependency
 import platform.MoltenVK.VkRenderPassCreateInfo as NativeVkRenderPassCreateInfo
 import platform.MoltenVK.VkRenderPassVar
 import platform.MoltenVK.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
+import platform.MoltenVK.VkGraphicsPipelineCreateInfo as NativeVkGraphicsPipelineCreateInfo
+import platform.MoltenVK.VkPipelineShaderStageCreateInfo as NativeVkPipelineShaderStageCreateInfo
+import platform.MoltenVK.VkPipelineVertexInputStateCreateInfo as NativeVkPipelineVertexInputStateCreateInfo
+import platform.MoltenVK.VkVertexInputBindingDescription as NativeVkVertexInputBindingDescription
+import platform.MoltenVK.VkVertexInputAttributeDescription as NativeVkVertexInputAttributeDescription
+import platform.MoltenVK.VkPipelineInputAssemblyStateCreateInfo as NativeVkPipelineInputAssemblyStateCreateInfo
+import platform.MoltenVK.VkPipelineTessellationStateCreateInfo as NativeVkPipelineTessellationStateCreateInfo
+import platform.MoltenVK.VkPipelineViewportStateCreateInfo as NativeVkPipelineViewportStateCreateInfo
+import platform.MoltenVK.VkPipelineRasterizationStateCreateInfo as NativeVkPipelineRasterizationStateCreateInfo
+import platform.MoltenVK.VkPipelineMultisampleStateCreateInfo as NativeVkPipelineMultisampleStateCreateInfo
+import platform.MoltenVK.VkPipelineDepthStencilStateCreateInfo as NativeVkPipelineDepthStencilStateCreateInfo
+import platform.MoltenVK.VkPipelineColorBlendStateCreateInfo as NativeVkPipelineColorBlendStateCreateInfo
+import platform.MoltenVK.VkPipelineColorBlendAttachmentState as NativeVkPipelineColorBlendAttachmentState
+import platform.MoltenVK.VkPipelineDynamicStateCreateInfo as NativeVkPipelineDynamicStateCreateInfo
+import platform.MoltenVK.VkStencilOpState as NativeVkStencilOpState
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
 import platform.MoltenVK.VkViewport as NativeVkViewport
 import platform.MoltenVK.VkRect2D as NativeVkRect2D
 import platform.MoltenVK.VkSurfaceCapabilitiesKHR as NativeVkSurfaceCapabilitiesKHR
@@ -455,6 +487,18 @@ private fun platform.MoltenVK.VkPhysicalDeviceLimits.toKotlinModel(): VkPhysical
     optimalBufferCopyRowPitchAlignment = optimalBufferCopyRowPitchAlignment.toLong(),
     nonCoherentAtomSize = nonCoherentAtomSize.toLong()
 )
+
+// Used by vkCreateGraphicsPipelines for VkPipelineDepthStencilStateCreateInfo's front/back.
+@OptIn(ExperimentalForeignApi::class)
+private fun NativeVkStencilOpState.fromKotlinModel(model: VkStencilOpState) {
+    failOp = model.failOp.value.toUInt()
+    passOp = model.passOp.value.toUInt()
+    depthFailOp = model.depthFailOp.value.toUInt()
+    compareOp = model.compareOp.value.toUInt()
+    compareMask = model.compareMask.toUInt()
+    writeMask = model.writeMask.toUInt()
+    reference = model.reference.toUInt()
+}
 
 @OptIn(ExperimentalForeignApi::class)
 private fun platform.MoltenVK.VkPhysicalDeviceSparseProperties.toKotlinModel(): VkPhysicalDeviceSparseProperties =
@@ -929,8 +973,198 @@ actual object Vulkan {
         device: Long,
         pipelineCache: Long,
         createInfos: Array<VkGraphicsPipelineCreateInfo>
-    ): LongArray {
-        TODO("Not yet implemented")
+    ): LongArray = memScoped {
+        val nativeCreateInfos = allocArray<NativeVkGraphicsPipelineCreateInfo>(createInfos.size) { index ->
+            val info = createInfos[index]
+            sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
+            pNext = null
+            flags = info.flags.toUInt()
+            stageCount = info.pStages.size.toUInt()
+            pStages = allocArray<NativeVkPipelineShaderStageCreateInfo>(info.pStages.size) { i ->
+                val stage = info.pStages[i]
+                sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
+                pNext = null
+                flags = stage.flags.toUInt()
+                this.stage = stage.stage.value.toUInt()
+                module = stage.module.toCPointer()
+                pName = (stage.pName ?: "main").cstr.ptr
+                // pSpecializationInfo is unused by every call site in this codebase today --
+                // revisit if a real specialization-constant use case appears.
+                pSpecializationInfo = null
+            }
+            val vertexInputState = info.pVertexInputState.first()
+            pVertexInputState = alloc<NativeVkPipelineVertexInputStateCreateInfo>().apply {
+                sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
+                pNext = null
+                flags = vertexInputState.flags.toUInt()
+                val bindings = vertexInputState.pVertexBindingDescriptions
+                vertexBindingDescriptionCount = (bindings?.size ?: 0).toUInt()
+                pVertexBindingDescriptions = bindings?.let { descs ->
+                    allocArray<NativeVkVertexInputBindingDescription>(descs.size) { i ->
+                        binding = descs[i].binding.toUInt()
+                        stride = descs[i].stride.toUInt()
+                        inputRate = descs[i].inputRate.value.toUInt()
+                    }
+                }
+                val attributes = vertexInputState.pVertexAttributeDescriptions
+                vertexAttributeDescriptionCount = (attributes?.size ?: 0).toUInt()
+                pVertexAttributeDescriptions = attributes?.let { descs ->
+                    allocArray<NativeVkVertexInputAttributeDescription>(descs.size) { i ->
+                        location = descs[i].location.toUInt()
+                        binding = descs[i].binding.toUInt()
+                        format = descs[i].format.value.toUInt()
+                        offset = descs[i].offset.toUInt()
+                    }
+                }
+            }.ptr
+            val inputAssemblyState = info.pInputAssemblyState.first()
+            pInputAssemblyState = alloc<NativeVkPipelineInputAssemblyStateCreateInfo>().apply {
+                sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
+                pNext = null
+                flags = inputAssemblyState.flags.toUInt()
+                topology = inputAssemblyState.topology.value.toUInt()
+                primitiveRestartEnable = if (inputAssemblyState.primitiveRestartEnable) 1u else 0u
+            }.ptr
+            val tessellationState = info.pTessellationState.first()
+            pTessellationState = alloc<NativeVkPipelineTessellationStateCreateInfo>().apply {
+                sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO
+                pNext = null
+                flags = tessellationState.flags.toUInt()
+                patchControlPoints = tessellationState.patchControlPoints.toUInt()
+            }.ptr
+            val viewportState = info.pViewportState.first()
+            pViewportState = alloc<NativeVkPipelineViewportStateCreateInfo>().apply {
+                sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
+                pNext = null
+                flags = viewportState.flags.toUInt()
+                val viewports = viewportState.pViewports
+                viewportCount = (viewports?.size ?: 0).toUInt()
+                pViewports = viewports?.let { vps ->
+                    allocArray<NativeVkViewport>(vps.size) { i ->
+                        x = vps[i].x
+                        y = vps[i].y
+                        width = vps[i].width
+                        height = vps[i].height
+                        minDepth = vps[i].minDepth
+                        maxDepth = vps[i].maxDepth
+                    }
+                }
+                val scissors = viewportState.pScissors
+                scissorCount = (scissors?.size ?: 0).toUInt()
+                pScissors = scissors?.let { rects ->
+                    allocArray<NativeVkRect2D>(rects.size) { i ->
+                        offset.apply {
+                            x = rects[i].offset.x
+                            y = rects[i].offset.y
+                        }
+                        extent.apply {
+                            width = rects[i].extent.width.toUInt()
+                            height = rects[i].extent.height.toUInt()
+                        }
+                    }
+                }
+            }.ptr
+            val rasterizationState = info.pRasterizationState.first()
+            pRasterizationState = alloc<NativeVkPipelineRasterizationStateCreateInfo>().apply {
+                sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO
+                pNext = null
+                flags = rasterizationState.flags.toUInt()
+                depthClampEnable = if (rasterizationState.depthClampEnable) 1u else 0u
+                rasterizerDiscardEnable = if (rasterizationState.rasterizerDiscardEnable) 1u else 0u
+                polygonMode = rasterizationState.polygonMode.value.toUInt()
+                cullMode = rasterizationState.cullMode.toUInt()
+                frontFace = rasterizationState.frontFace.value.toUInt()
+                depthBiasEnable = if (rasterizationState.depthBiasEnable) 1u else 0u
+                depthBiasConstantFactor = rasterizationState.depthBiasConstantFactor
+                depthBiasClamp = rasterizationState.depthBiasClamp
+                depthBiasSlopeFactor = rasterizationState.depthBiasSlopeFactor
+                lineWidth = rasterizationState.lineWidth
+            }.ptr
+            val multisampleState = info.pMultisampleState.first()
+            pMultisampleState = alloc<NativeVkPipelineMultisampleStateCreateInfo>().apply {
+                sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
+                pNext = null
+                flags = multisampleState.flags.toUInt()
+                rasterizationSamples = multisampleState.rasterizationSamples.value.toUInt()
+                sampleShadingEnable = if (multisampleState.sampleShadingEnable) 1u else 0u
+                minSampleShading = multisampleState.minSampleShading
+                // pSampleMask (per-sample coverage mask) is unused by every call site in
+                // this codebase today -- revisit if real multisampling is wired up.
+                pSampleMask = null
+                alphaToCoverageEnable = if (multisampleState.alphaToCoverageEnable) 1u else 0u
+                alphaToOneEnable = if (multisampleState.alphaToOneEnable) 1u else 0u
+            }.ptr
+            pDepthStencilState = info.pDepthStencilState?.firstOrNull()?.let { depthStencilState ->
+                alloc<NativeVkPipelineDepthStencilStateCreateInfo>().apply {
+                    sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO
+                    pNext = null
+                    flags = depthStencilState.flags.toUInt()
+                    depthTestEnable = if (depthStencilState.depthTestEnable) 1u else 0u
+                    depthWriteEnable = if (depthStencilState.depthWriteEnable) 1u else 0u
+                    depthCompareOp = depthStencilState.depthCompareOp.value.toUInt()
+                    depthBoundsTestEnable = if (depthStencilState.depthBoundsTestEnable) 1u else 0u
+                    stencilTestEnable = if (depthStencilState.stencilTestEnable) 1u else 0u
+                    front.apply { fromKotlinModel(depthStencilState.front) }
+                    back.apply { fromKotlinModel(depthStencilState.back) }
+                    minDepthBounds = depthStencilState.minDepthBounds
+                    maxDepthBounds = depthStencilState.maxDepthBounds
+                }.ptr
+            }
+            val colorBlendState = info.pColorBlendState.first()
+            pColorBlendState = alloc<NativeVkPipelineColorBlendStateCreateInfo>().apply {
+                sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
+                pNext = null
+                flags = colorBlendState.flags.toUInt()
+                logicOpEnable = if (colorBlendState.logicOpEnable) 1u else 0u
+                logicOp = colorBlendState.logicOp.value.toUInt()
+                val attachments = colorBlendState.pAttachments
+                attachmentCount = (attachments?.size ?: 0).toUInt()
+                pAttachments = attachments?.let { atts ->
+                    allocArray<NativeVkPipelineColorBlendAttachmentState>(atts.size) { i ->
+                        blendEnable = if (atts[i].blendEnable) 1u else 0u
+                        srcColorBlendFactor = atts[i].srcColorBlendFactor.value.toUInt()
+                        dstColorBlendFactor = atts[i].dstColorBlendFactor.value.toUInt()
+                        colorBlendOp = atts[i].colorBlendOp.value.toUInt()
+                        srcAlphaBlendFactor = atts[i].srcAlphaBlendFactor.value.toUInt()
+                        dstAlphaBlendFactor = atts[i].dstAlphaBlendFactor.value.toUInt()
+                        alphaBlendOp = atts[i].alphaBlendOp.value.toUInt()
+                        colorWriteMask = atts[i].colorWriteMask.toUInt()
+                    }
+                }
+                blendConstants.apply {
+                    this[0] = colorBlendState.blendConstants[0]
+                    this[1] = colorBlendState.blendConstants[1]
+                    this[2] = colorBlendState.blendConstants[2]
+                    this[3] = colorBlendState.blendConstants[3]
+                }
+            }.ptr
+            val dynamicState = info.pDynamicState.first()
+            pDynamicState = alloc<NativeVkPipelineDynamicStateCreateInfo>().apply {
+                sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO
+                pNext = null
+                flags = dynamicState.flags.toUInt()
+                dynamicStateCount = dynamicState.pDynamicStates.size.toUInt()
+                pDynamicStates = allocArray(dynamicState.pDynamicStates.size) { i ->
+                    value = dynamicState.pDynamicStates[i].value.toUInt()
+                }
+            }.ptr
+            layout = info.layout.toCPointer()
+            renderPass = info.renderPass.toCPointer()
+            subpass = info.subpass.toUInt()
+            basePipelineHandle = info.basePipelineHandle.toCPointer()
+            basePipelineIndex = info.basePipelineIndex
+        }
+        val pipelinesArray = allocArray<CPointerVar<VkPipeline_T>>(createInfos.size)
+        val result = nativeVkCreateGraphicsPipelines(
+            device.toCPointer(),
+            pipelineCache.toCPointer<VkPipelineCache_T>(),
+            createInfos.size.toUInt(),
+            nativeCreateInfos,
+            null,
+            pipelinesArray
+        )
+        check(result == VK_SUCCESS) { "vkCreateGraphicsPipelines failed: $result" }
+        LongArray(createInfos.size) { i -> pipelinesArray[i]!!.rawValue.toLong() }
     }
 
     actual fun vkDestroyPipeline(device: Long, pipeline: Long) {
