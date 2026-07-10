@@ -1010,14 +1010,46 @@ Deliberately sequenced after `GraphicsDevice`/`SwapchainManager`/`Mesh`/`Materia
 implement against — writing a WebGPU backend before that seam is real would mean writing it
 twice (once against whatever's there today, again once Phase 2 settles).
 
-- [ ] Add a `wasmJs` Kotlin target to `awake-core`, `awake-vulkan` (or a new sibling module
-      if Vulkan-specific types don't make sense to expose on web — TBD once Phase 2's
-      abstraction boundary is concrete), and `awake-demo:shared`
-- [ ] WebGPU backend implementing the same `GraphicsDevice`/`Mesh`/`Material` seam Vulkan
-      implements — kotlinx-browser or a WebGPU Kotlin/Wasm binding for the actual API calls
+- [x] **Milestone 1: renderer abstraction seam is real, plus `wasmJs` scaffolding
+      (2026-07-10).** Before this, `GraphicsDevice`/`SwapchainManager`/`Mesh`/`Material`/
+      `RenderPipeline`/`Texture`/`TransferContext`/`Renderer` were concrete `commonMain`
+      classes with real Vulkan calls baked directly in — no `expect`/`actual` split existed
+      for any of them, confirmed by a repo-wide grep. All 8 are now `expect class` in
+      `commonMain`, with their real (unchanged) Vulkan bodies moved to a new intermediate
+      `vulkanMain` source set shared by desktop/Android/iOS (wired via explicit
+      `dependsOn()`, layered on top of `applyDefaultHierarchyTemplate()` — calling that
+      explicitly turned out to be required, since adding *any* manual `dependsOn()` edge
+      anywhere in the project silently disables the template project-wide, which broke
+      iOS's existing MoltenVK actuals until diagnosed). `wasmJs` targets added to
+      `awake-base` and `awake-vulkan`, with `TODO()`-stub actuals for the low-level
+      `Vulkan`/`VulkanBuffers`/`VulkanDescriptors`/`VulkanImages`/`VulkanWindow` objects
+      (~90 functions) and the 8 renderer classes — same "stub out first" convention Phase 6
+      used for iOS's first pass. **Real finding that reshapes milestone 2's scope**:
+      `Renderer.draw()`'s synchronization model (`VkFence`/`VkSemaphore`, explicit
+      `vkAcquireNextImageKHR`/`vkQueueSubmit`/`vkQueuePresentKHR`, an explicit
+      `VkRenderPass`/`VkFramebuffer` pair) has no 1:1 WebGPU equivalent (WebGPU's
+      `GPUQueue.submit`/canvas-context model is structurally different) — a real WebGPU
+      backend cannot share `Renderer`'s method *bodies* with Vulkan the way
+      `GraphicsDevice` etc. already share one body across desktop/Android/iOS. It needs its
+      own full implementation behind the same `expect` contract, not a shared one.
+      Candidate binding library for that implementation: [wgpu4k](https://github.com/wgpu4k/wgpu4k)
+      (Kotlin Multiplatform WebGPU binding, already targets `wasmJs`/desktop/mobile) — not
+      yet added as a dependency, not yet evaluated hands-on.
+      Verified zero behavior change: all 4 existing platforms (`compileKotlinDesktop`,
+      `compileAndroidMain`, `compileKotlinIosArm64`, `compileKotlinIosSimulatorArm64`) plus
+      the new `compileKotlinWasmJs` all succeed; `desktopTest` (real lavapipe Vulkan smoke
+      suite) passes; `assembleSharedDebugXCFramework` + a real Simulator run still render
+      the demo cube identically to before the refactor.
+- [ ] Milestone 2: real WebGPU backend implementing the `expect` seam milestone 1 built —
+      evaluate wgpu4k hands-on first (does its API shape fit `GraphicsDevice.create()`'s
+      window/surface model? does it support the swapchain/frames-in-flight pattern
+      `SwapchainManager` needs, or does WebGPU's model make that concept obsolete?)
 - [ ] Wasm ECS/runtime: Fleks and the kotlinx libraries already used elsewhere in this
       project (coroutines, datetime, serialization) already support Wasm — confirm no
-      Vulkan-only assumption leaked into `awake-core`'s non-rendering code paths
+      Vulkan-only assumption leaked into `awake-base`'s non-rendering code paths (also still
+      needs real `wasmJs` actuals for `awake-base`'s `readResourceBytes`/`createBitmap` —
+      currently `TODO()` stubs added alongside this milestone's scaffolding, needing an
+      async browser `fetch()`/canvas-decode implementation)
 - [ ] Demo runs in-browser via the exact same `Renderer.draw()` call the other three
       platforms use — no web-specific demo code beyond the WebGPU backend itself
 - [ ] CI: headless browser (e.g. Chrome via Karma/Playwright) smoke test, analogous to the

@@ -51,6 +51,12 @@ kotlin {
 
     jvm("desktop")
 
+    // Phase 2.5 (Web/WebGPU, decision D7): needed so awake-vulkan's own wasmJs target can
+    // resolve this module as a commonMain dependency -- see docs/MVP_PLAN.md.
+    wasmJs {
+        browser()
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.napier)

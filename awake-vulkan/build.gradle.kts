@@ -27,6 +27,14 @@ plugins {
 kotlin {
     jvmToolchain(17)
 
+    // Explicit, not implicit: adding a manual dependsOn() edge anywhere in this project
+    // (vulkanMain, below) silently disables the default hierarchy template's own automatic
+    // wiring project-wide -- confirmed the hard way (iosArm64Main/iosSimulatorArm64Main lost
+    // their "iosMain" parent entirely, breaking the real MoltenVK actuals that already lived
+    // under src/iosMain). Calling this explicitly restores that template wiring; vulkanMain
+    // is then layered on top as an *additional* parent, not a replacement.
+    applyDefaultHierarchyTemplate()
+
     android {
         namespace = "io.github.ronjunevaldoz.awake.vulkan"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
@@ -107,6 +115,14 @@ kotlin {
 
     jvm("desktop")
 
+    // Phase 2.5 (Web/WebGPU, decision D7): scaffolding only -- wasmJsMain's actuals are
+    // TODO() stubs until a real WebGPU implementation lands (see docs/MVP_PLAN.md). Added
+    // here, not a new sibling module, so the wasmJs target sees the same expect seam
+    // (GraphicsDevice/Mesh/Material/etc.) the other four platforms implement.
+    wasmJs {
+        browser()
+    }
+
     sourceSets {
         commonMain.dependencies {
             // Renderer/DrawCall/TextureLoader (moved in from awake-core) need Mat4/Camera
@@ -117,6 +133,25 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+        // Phase 2.5 (Web/WebGPU, decision D7) milestone 1: intermediate source set shared
+        // by every platform whose actual Vulkan calls go through the same expect/actual
+        // `Vulkan.vkXxx` low-level API (desktop/Android/iOS) -- NOT the default hierarchy
+        // template (that only groups native/Apple targets; desktop+Android+iOS-vs-web is a
+        // custom split this module needs). This is where GraphicsDevice/SwapchainManager/
+        // Mesh/Material/RenderPipeline/Texture/TransferContext/Renderer's real bodies live
+        // now that they're `expect class` in commonMain -- one shared body for all four
+        // non-web platforms, same as before this split (zero behavior change), because they
+        // already only called the already-platform-agnostic `Vulkan.vkXxx` surface.
+        val vulkanMain = create("vulkanMain") {
+            dependsOn(commonMain.get())
+        }
+        // applyDefaultHierarchyTemplate() (above) guarantees "iosMain" exists here --
+        // layering vulkanMain onto it (rather than the two concrete iOS source sets
+        // separately) is the more direct expression of "one shared body for every
+        // Vulkan-backed platform" now that the template is restored.
+        named("desktopMain") { dependsOn(vulkanMain) }
+        named("androidMain") { dependsOn(vulkanMain) }
+        named("iosMain") { dependsOn(vulkanMain) }
         androidMain.dependencies {
             // CMake/NDK build + bundled validation layers (AGP 9 KMP plugin
             // has no externalNativeBuild support, so a plain library owns it)
