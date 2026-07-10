@@ -1247,6 +1247,31 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
       simulator/device** — compile-time proof only, deliberately, per this session's scope
       decision. `vulkan.gen` package functions (buffers/descriptors/images, ~30 more) are
       untouched, still `TODO()`.
+      **Final tally, same session (2026-07-10): 53 of 58 legacy `Vulkan` functions are
+      real** (up from 31). Added: all remaining `vkCreateXxx` functions except the two
+      called out below (`vkCreateDevice` — queue-create-info array + a `fromKotlinModel()`
+      reverse mapper for the 55-field `VkPhysicalDeviceFeatures` struct, symmetric with the
+      query-direction one; `vkCreateSwapchainKHR`; `vkCreateImageView`; `vkCreateShaderModule`
+      — `IntArray` SPIR-V words via `allocArray` initializer since `allocArrayOf` has no
+      `IntArray`/`FloatArray` overload; `vkCreatePipelineCache`; `vkCreatePipelineLayout`;
+      `vkCreateFramebuffer`; `vkAllocateCommandBuffers`; `vkCreateCommandPool`;
+      `vkCreateSemaphore`; `vkCreateFence`), the three surface capability/format/present-mode
+      query functions (first native-enum-to-Kotlin-enum *reverse* lookup, via
+      `.entries.first { it.value.toUInt() == native }`), `vkCmdSetViewport`/`vkCmdSetScissor`,
+      `vkWaitForFences`/`vkResetFences`/`vkAcquireNextImageKHR`, `vkQueueSubmit`/
+      `vkQueuePresentKHR` (semaphore/command-buffer/swapchain handle arrays), and
+      `vkCmdBeginRenderPass` (`VkClearValue` union — only the RGBA float32 variant is
+      marshalled, the only one any call site in this codebase uses; documented as a narrow
+      limitation, not silently unsupported). **Remaining 5, each deliberately deferred for
+      a specific reason**: `vkCreateAndroidSurfaceKHR` (permanently N/A on iOS — matches
+      desktop's own stub), `vkGetPhysicalDeviceProperties` (needs the ~100-field
+      `VkPhysicalDeviceLimits`), `vkCreateGraphicsPipelines`/`vkCreateRenderPass` (Vulkan's
+      most complex structs — `VkSubpassDescription`'s nested attachment-reference arrays,
+      `VkGraphicsPipelineCreateInfo`'s many pipeline-state sub-structs), and
+      `vkCreateDebugUtilsMessengerEXT` (needs a Kotlin-lambda-to-C-function-pointer bridge
+      via `staticCFunction` — a genuinely different problem than struct marshalling, not
+      yet attempted). `vulkan.gen` package (buffers/descriptors/images, ~30 more) still
+      entirely `TODO()`. **Still not run on a simulator/device** — compile-time proof only.
 - [ ] `CAMetalLayer`-backed surface actual
 - [ ] iOS `actual object Vulkan` — evaluate extending jni-binding-generator to emit
       cinterop-backed actuals from the same `Vulkan.kt` source (revisit now that real
