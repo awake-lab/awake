@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.attachRenderableComponents
 import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
+import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
@@ -24,6 +25,7 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
+import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -54,11 +56,15 @@ abstract class VulkanGameApplication(
     private val graphicsDevice = GraphicsDevice()
     private val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
     private lateinit var renderPipeline: RenderPipeline
+    private lateinit var uiRenderPipeline: UiRenderPipeline
     private lateinit var transferContext: TransferContext
     private lateinit var renderer: Renderer
     private lateinit var material: Material
     private lateinit var textureInstance: Texture
     private val meshInstances = mutableMapOf<String, Mesh>()
+
+    /** Immediate-mode debug/catalog UI overlay -- see [onDrawUi]. */
+    protected val ui = UiContext()
 
     /** The ECS world the scene at [scenePath] was instantiated into -- exposed (alongside
      * [scene]) so a subclass can look up its own entities (e.g. a player/camera) once, in
@@ -110,8 +116,23 @@ abstract class VulkanGameApplication(
     /** Runs exactly once per frame, after zero or more [onFixedUpdate] calls. Override only
      * if a game needs to draw something beyond the standard scene-graph render pass. */
     protected open fun onRender() {
+        // ui.beginFrame/onDrawUi/renderer.drawUi run BEFORE renderSystem.update (which
+        // triggers the actual GPU submit) -- drawUi() only stages this frame's overlay
+        // content into a CPU-side buffer, it issues no GPU commands itself. The 3D pass and
+        // the UI pass both get recorded into the SAME command buffer inside the one
+        // renderSystem.update -> renderer.draw call below, so staging the UI content first
+        // is what makes it show up THIS frame instead of one frame late.
+        ui.beginFrame(swapchainManager.extent.width.toFloat(), swapchainManager.extent.height.toFloat())
+        onDrawUi(ui)
+        renderer.drawUi(ui.endFrame())
         renderSystem.update(world, 0f)
     }
+
+    /** Override to declare this frame's UI widgets (buttons/toggles/dropdowns) via [ui] --
+     * called once per real frame, before the 3D scene is actually submitted to the GPU (see
+     * [onRender]'s doc comment for why that ordering matters). Mirrors [onSceneReady]/
+     * [onFixedUpdate]'s "subclass declares behavior, base class drives the call" shape. */
+    protected open fun onDrawUi(ui: UiContext) {}
 
     /** Looks the mesh up by name in the map built from the constructor's [meshes] and pairs
      * it with the single shared [material] -- override for per-mesh materials. */
@@ -139,11 +160,18 @@ abstract class VulkanGameApplication(
             readResourceBytes(fragmentShaderResourcePath),
             vertexStride
         )
+        uiRenderPipeline = UiRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            readResourceBytes(UI_VERTEX_SHADER_RESOURCE_PATH),
+            readResourceBytes(UI_FRAGMENT_SHADER_RESOURCE_PATH)
+        )
         transferContext = TransferContext(graphicsDevice)
         renderer = Renderer(
             graphicsDevice,
             swapchainManager,
             renderPipeline,
+            uiRenderPipeline,
             transferContext.commandPool.handle,
             MAX_FRAMES_IN_FLIGHT
         )
@@ -184,11 +212,19 @@ abstract class VulkanGameApplication(
         textureInstance.destroy()
         material.destroy()
         renderPipeline.destroy()
+        uiRenderPipeline.destroy()
         graphicsDevice.destroy()
     }
 
     private companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
         val PLACEHOLDER_TEXTURE = TextureAsset(byteArrayOf(-1, -1, -1, -1), 1, 1)
+
+        // Bundled per-consumer-app (not a base-class resource -- see docs/MVP_PLAN.md's
+        // custom-UI decision log entry for why): every VulkanGameApplication subclass needs
+        // its own copy of these two files at this exact resource path, same as awake-demo's
+        // and sample-hello-cube's existing triangle.vert/.frag copies.
+        const val UI_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.vert.spv"
+        const val UI_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.frag.spv"
     }
 }

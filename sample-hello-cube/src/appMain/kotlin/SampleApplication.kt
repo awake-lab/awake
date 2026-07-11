@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 
 /**
@@ -20,6 +21,15 @@ class SampleApplication : VulkanGameApplication(
     meshes = mapOf("cube" to MeshGeometry(cubeVertices, cubeIndices)),
     scenePath = "scenes/sample.scene.json"
 ) {
+    // Smallest possible proof the custom UI overlay pipeline works end to end: a toggle
+    // rendered top-left over the existing cube scene (see docs/MVP_PLAN.md's custom-UI
+    // decision log entry) -- not the actual model-viewer/camera-catalog feature itself.
+    private var debugOverlayOn = false
+
+    override fun onDrawUi(ui: UiContext) {
+        debugOverlayOn = ui.toggle("debug-toggle", 20f, 20f, 120f, 40f, debugOverlayOn)
+    }
+
     companion object {
         // Same interleaved position(vec3) + color(vec3) + uv(vec2) layout the shared
         // triangle.vert/.frag shaders expect -- see awake-demo's VulkanApplication.kt for

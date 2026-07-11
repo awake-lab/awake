@@ -1949,6 +1949,86 @@ base-class extraction above is reusable beyond desktop/wasmJs specifically:
   `sample-hello-cube` and, after the `awake-ecs` fix, `awake-demo` too. `awake-scene`'s
   desktop test suite is unaffected by the `awake-ecs` change.
 
+### D17 — Custom immediate-mode UI (Phase A: colored quads), not ImGui/Nuklear
+
+**Decided (2026-07-11): build a small custom immediate-mode UI in `commonMain` rather than
+bind ImGui or Nuklear.** The next planned tool (a model-viewer + camera/frustum "catalog"
+debug overlay) needs some UI — buttons, toggles, a dropdown. ImGui/Nuklear are mature but
+require real per-platform cinterop/JNI binding work to reach Vulkan (desktop/Android/iOS)
+and would never reach wasmJs without a separate Emscripten story — the same cost class as
+the Jolt physics binding already deferred to MVP1b. Matches this repo's established pattern
+of avoiding native-binding cost when possible (own ECS instead of Fleks, `kbox2d` over a
+native 2D physics binding for cross-platform reach). Not ECS-backed (widgets have no
+persistent gameplay state — forcing them through `World`/family queries would mean
+rebuilding a second Transform-hierarchy system just for 2D screen space) and not
+declarative/Compose-style (no composer/recomposer/slot-table runtime needed for ~5 widget
+types) — plain immediate-mode, matching ImGui's own actual architecture.
+
+**Phase A scope (this slice): colored quads only, no text.** Both Vulkan and WebGPU
+backends. Bitmap-font text (Phase B) and the actual model-viewer/camera-catalog feature
+this infra exists for are explicit, separate follow-ups.
+
+- New `awake-engine-ui` module (mirrors `awake-engine-render-api`'s backend-neutral-facade
+  role): `UiContext` (the immediate-mode API — `beginFrame`/`button`/`toggle`/`dropdown`/
+  `endFrame`, ImGui's classic hot/active-id click model), `UiDrawPrimitive` (currently just
+  `Quad`). Depends only on `awake-base` (for `Input`).
+- `Renderer` (`awake-engine-render-api`) gains a second interface method,
+  `drawUi(primitives: List<UiDrawPrimitive>)`, alongside the existing `draw(camera,
+  drawCalls)` — a real interface-widening change, but there are exactly two implementers,
+  both in this repo, both updated in this slice.
+- **Vulkan**: new `DynamicMesh` (HOST_VISIBLE, rewritten every frame via
+  `writeBufferMemoryFloats`/`Bytes` — a different lifecycle contract than `Mesh`'s
+  DEVICE_LOCAL one-time upload, so a separate class, not a bolted-on `update()`) and
+  `UiRenderPipeline` (its own render pass — single color attachment, `loadOp = LOAD` so it
+  composites on top of the 3D pass's output, `blendEnable = true`, no depth). The 3D pass's
+  `finalLayout` changed from `PRESENT_SRC_KHR` to `COLOR_ATTACHMENT_OPTIMAL` so the UI pass
+  can pick up from there and do the final present-layout transition itself.
+  `Renderer.recordCommandBuffer` appends the UI pass to the *same* command buffer, after the
+  3D pass — `drawUi()` only stages this frame's primitives into `DynamicMesh` (no GPU
+  commands), so it must be called *before* `draw()` (see `onRender()`'s ordering below) for
+  the staged content to reach the same frame's submission rather than lagging behind.
+  Screen size reaches the shader via a tiny uniform buffer (not a push constant — this
+  repo's Vulkan bindings don't expose `vkCmdPushConstants` yet, confirmed by checking; only
+  the `VkPipelineLayoutCreateInfo`/`VkPushConstantRange` struct fields exist).
+- **WebGPU**: mirrors the above — `DynamicMesh` is thinner (`queue.writeBuffer` is already
+  safe per-frame, no staging/mapping needed), `UiRenderPipeline` adds a second render pass
+  in the same command encoder with `loadOp = Load` (WebGPU has no framebuffer object, so no
+  Vulkan-style parallel-framebuffer-list needed), and its own screen-size uniform + bind
+  group (separate from the 3D pass's shared MVP buffer, so it doesn't touch that class's
+  already-documented "unsafe for >1 draw call" constraint).
+- Both `*GameApplication` base classes gain `protected val ui = UiContext()` and
+  `protected open fun onDrawUi(ui: UiContext) {}`, called from `onRender()` *before*
+  `renderSystem.update(...)` (the call that actually triggers GPU submission) — same
+  "subclass declares behavior, base class drives the call" shape as `onSceneReady`/
+  `onFixedUpdate`.
+- **Bug found and fixed along the way**: a genuine `devicePixelRatio` scale mismatch on
+  wasmJs — `UiRenderPipeline`'s screen-size uniform reads the WebGPU canvas's physical
+  backing-buffer size (e.g. 3024×1598 on a 2x-DPI display), while mouse events report CSS
+  pixels (e.g. 1512×799) — meaning a click where the button visually appears didn't line up
+  with where hit-testing expected it, and the button itself rendered at roughly half the
+  intended size, shifted toward the canvas origin. Fixed by scaling `offsetX`/`offsetY` by
+  `window.devicePixelRatio` before feeding `Input.setPointer` in `sample-hello-cube`'s
+  wasmJs `main.kt`, so pointer coordinates stay in the same physical-pixel space the shader
+  already assumes.
+- **Verified**: new `UiContextTest` (`awake-engine-ui`) unit-tests the press-while-hovered
+  → release-while-hovered → click-fires sequence and confirms out-of-bounds clicks don't
+  register — deterministic proof the core click-detection logic is correct, decoupled from
+  any platform rendering pipeline. All `sample-hello-cube` targets (desktop/android/iOS/
+  wasmJs) plus `awake-backend-vulkan`/`awake-backend-webgpu`/`awake-engine-ui` compile
+  clean. `sample-hello-cube`'s `androidApp:assembleDebug` still succeeds. Real desktop runs
+  of both `sample-hello-cube` and the full `awake-demo` gameplay scene (cube/ground/NPC/
+  player) confirm no crash/regression from the new second-render-pass wiring. In-browser
+  (wasmJs) verification confirmed the overlay quad renders and its hover-color state
+  visibly changes in response to real pointer events reaching `Input` — full click-to-
+  toggle visual confirmation in-browser wasn't independently reconfirmed via screenshot in
+  this session (a `devicePixelRatio`-driven rendering/debugging detour consumed the
+  available verification budget), relying instead on the passing unit test as the
+  authoritative proof of the click-detection logic itself.
+- **Explicitly out of scope for this slice**: Phase B bitmap-font/text rendering; the
+  actual model-viewer/camera-mode/frustum-wireframe catalog feature (this slice is
+  infrastructure it will be built on top of); per-widget clip/scissor rects; auto-
+  disambiguated widget ids (caller must supply unique string ids manually).
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

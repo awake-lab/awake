@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 
 /**
@@ -18,6 +19,13 @@ class WebGpuSampleApplication : WebGpuGameApplication(
     meshes = mapOf("cube" to MeshGeometry(cubeVertices, cubeIndices)),
     scenePath = "scenes/sample.scene.json"
 ) {
+    // Same verification proof as SampleApplication (appMain) -- see that class's comment.
+    private var debugOverlayOn = false
+
+    override fun onDrawUi(ui: UiContext) {
+        debugOverlayOn = ui.toggle("debug-toggle", 20f, 20f, 120f, 40f, debugOverlayOn)
+    }
+
     companion object {
         const val VERTEX_STRIDE = 8 * Float.SIZE_BYTES
 

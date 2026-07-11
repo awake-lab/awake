@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.attachRenderableComponents
 import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
+import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
@@ -23,6 +24,7 @@ import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.renderer.Renderer
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
+import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -52,9 +54,13 @@ abstract class WebGpuGameApplication(
     private val graphicsDevice = GraphicsDevice()
     private val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
     private lateinit var renderPipeline: RenderPipeline
+    private lateinit var uiRenderPipeline: UiRenderPipeline
     private lateinit var renderer: Renderer
     private lateinit var material: Material
     private val meshInstances = mutableMapOf<String, Mesh>()
+
+    /** Immediate-mode debug/catalog UI overlay -- see [onDrawUi]. */
+    protected val ui = UiContext()
 
     protected lateinit var world: World
         private set
@@ -97,10 +103,19 @@ abstract class WebGpuGameApplication(
         transformSystem.update(world, delta)
     }
 
-    /** See `VulkanGameApplication.onRender`'s doc comment -- identical contract. */
+    /** See `VulkanGameApplication.onRender`'s doc comment -- identical contract (including
+     * the ui.beginFrame/onDrawUi/drawUi-before-renderSystem.update ordering, and why it
+     * matters). */
     protected open fun onRender() {
+        val renderingContext = graphicsDevice.wgpuContext.renderingContext
+        ui.beginFrame(renderingContext.width.toFloat(), renderingContext.height.toFloat())
+        onDrawUi(ui)
+        renderer.drawUi(ui.endFrame())
         renderSystem.update(world, 0f)
     }
+
+    /** See `VulkanGameApplication.onDrawUi`'s doc comment -- identical contract. */
+    protected open fun onDrawUi(ui: UiContext) {}
 
     /** See `VulkanGameApplication.resolveRenderable`'s doc comment -- identical contract. */
     protected open fun resolveRenderable(request: SceneRenderableRequest): MeshRenderer {
@@ -124,10 +139,16 @@ abstract class WebGpuGameApplication(
             ByteArray(0),
             vertexStride
         )
+        uiRenderPipeline = UiRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            readResourceBytes(UI_SHADER_RESOURCE_PATH)
+        )
         renderer = Renderer(
             graphicsDevice,
             swapchainManager,
             renderPipeline,
+            uiRenderPipeline,
             0L,
             MAX_FRAMES_IN_FLIGHT
         )
@@ -149,10 +170,15 @@ abstract class WebGpuGameApplication(
         swapchainManager.destroy()
         meshInstances.values.forEach { it.destroy() }
         renderPipeline.destroy()
+        uiRenderPipeline.destroy()
         graphicsDevice.destroy()
     }
 
     private companion object {
         const val MAX_FRAMES_IN_FLIGHT = 1
+
+        // Bundled per-consumer-app -- see VulkanGameApplication's identical companion
+        // constant doc comment for why.
+        const val UI_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_quad.wgsl"
     }
 }
