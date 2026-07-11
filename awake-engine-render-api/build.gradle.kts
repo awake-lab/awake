@@ -59,6 +59,11 @@ kotlin {
             // loading `expect fun`s some backends' Texture implementations need come from
             // awake-base too.
             implementation(project(":awake-base"))
+            // api, not implementation: Renderer.drawUi(primitives: List<UiDrawPrimitive>)
+            // exposes UiDrawPrimitive in this module's own public interface, so consumers
+            // implementing Renderer (awake-backend-vulkan, awake-backend-webgpu) need it
+            // visible transitively.
+            api(project(":awake-engine-ui"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

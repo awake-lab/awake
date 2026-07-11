@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.render.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 
 /**
  * Module restructuring slice 1 (see docs/MVP_PLAN.md): the one real cross-backend entry
@@ -13,5 +14,12 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
  */
 interface Renderer {
     fun draw(camera: Camera, drawCalls: List<DrawCall>)
+
+    /** Draws this frame's UI overlay on top of whatever [draw] already wrote -- a separate
+     * method (not folded into [draw]) so the 3D `Camera`+[DrawCall] contract stays untouched.
+     * Each backend composites this as a second render pass with `loadOp = LOAD`, after the
+     * 3D pass, in the same frame. */
+    fun drawUi(primitives: List<UiDrawPrimitive>)
+
     fun destroy()
 }
