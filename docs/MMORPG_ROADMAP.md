@@ -63,7 +63,7 @@ only *then* starts networking (MVP2).
 | Stage | Goal | Status |
 |---|---|---|
 | **MVP0 — Engine Foundation** | Single-player render loop: ECS, Vulkan + WebGPU rendering, fixed-timestep loop, `scene.json` loading | ✅ Done — this is `MVP_PLAN.md`'s entire scope |
-| **MVP1a — Playable Prototype** | One controllable character moving around one hand-built world with a simple NavMesh-driven AI to chase/avoid, using the *existing* renderer as-is (no skinning, no render-graph rewrite) | 🔲 Not started — the fastest real next milestone |
+| **MVP1a — Playable Prototype** | One controllable character moving around one hand-built world with a simple NavMesh-driven AI to chase/avoid, using the *existing* renderer as-is (no skinning, no render-graph rewrite) | 🚧 In progress — kinematic movement + third-person follow camera done (2026-07-11); NavMesh/AI/HUD still open |
 | **MVP1b — Vertical Slice Polish** | Upgrade the renderer to support what a shippable slice actually needs: render graph, dynamic rendering, real animated (skinned) characters | 🔲 Not started — only worth doing once MVP1a proves the gameplay loop |
 | **MVP2 — Networked Prototype** | 2–10 players in the same world: client-server split, reliable transport, prediction/reconciliation — *layered on top of the now-proven single-player loop* | 🔲 Not started |
 | **MVP3 — Persistent Shard** | One authoritative server, database-backed state, basic anti-cheat, automated regression testing | 🔲 Not started |
@@ -98,7 +98,17 @@ used, so the categorical view (what kind of system is this) and the sequencing v
 > Multiplatform UI overlay (`App.kt`, `DemoDrawer.kt`) on 4 of 5 targets today. A basic
 > HUD/menu for the playable prototype can reuse that directly — a custom retained-node UI
 > engine is a later, more specialized need (in-world 3D UI, controller navigation), not a
-> blocker for a first playable build.
+> blocker for a first playable build. **Confirmed (2026-07-11)**: a debug player-position
+> readout was added this way — a second `Text` in `App.kt`'s existing FPS overlay `Box`,
+> polling a new `DebugHud` singleton (mirrors `Time`'s existing polled-singleton shape).
+> wasmJs has no Compose UI at all by design, so it's skipped there for now.
+
+> **First real per-frame `Camera` writer (2026-07-11)**: every scene previously authored
+> `Camera.eye`/`center` once in `scenes/mvp.scene.json` and never touched them again. The
+> new `CameraFollowSystem` (`awake-scene/.../systems/`) is the first system to mutate them
+> at runtime — a fixed third-person offset tracking the player's `Transform.position`, no
+> collision/occlusion handling yet (matches `PlayerMovementSystem`'s "deliberately simple"
+> scope for this slice).
 
 ### Gameplay Mechanics & AI Systems
 
@@ -124,7 +134,7 @@ used, so the categorical view (what kind of system is this) and the sequencing v
 
 | Item | Status | Priority | Stage | Approach |
 |---|---|---|---|---|
-| Kinematic Character Movement (no physics engine) | 🔲 Not started | P0 | MVP1a | 🕰️ deliberately simple — `Transform` moved directly from input, NavMesh-clamped |
+| Kinematic Character Movement (no physics engine) | ✅ Done (2026-07-11) | P0 | MVP1a | 🕰️ deliberately simple — `Transform` moved directly from input via `PlayerMovementSystem` (`awake-scene`); WASD/arrows on desktop+wasmJs, touch-drag on Android+iOS (both already fed `Input.pointerDown/X/Y` from existing touch handlers, no new platform code needed). Not yet NavMesh-clamped — that's the next MVP1a item. |
 | Jolt Physics JNI/cinterop Bindings | 🔲 Not started | P1 | MVP1b | 🆕 — see [D5](./MVP_PLAN.md#d5--physics-engine): Jolt over Bullet/PhysX/Rapier, coarse-grained `step(dt)` + batched transform read-back, not a 1:1 API mirror |
 | Dynamic Rigid Bodies (ragdolls, projectiles, knockback) | 🔲 Not started | P2 | MVP4 | 🆕 — only once gameplay needs real dynamics, not before |
 | 2D Physics (kbox2d, pure Kotlin) | 🔲 Not started | P3 | — | 🆕 — only if a 2D minigame/UI-physics need ever comes up; covers Wasm/JS for free since it's pure Kotlin |

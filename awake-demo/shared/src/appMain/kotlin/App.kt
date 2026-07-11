@@ -48,6 +48,7 @@ import demo.DemoScene
 import demo.VulkanScene
 import io.github.ronjunevaldoz.awake.core.AwakeContext
 import io.github.ronjunevaldoz.awake.core.Greeting
+import io.github.ronjunevaldoz.awake.core.utils.DebugHud
 import io.github.ronjunevaldoz.awake.core.utils.Time
 import kotlinx.coroutines.delay
 
@@ -57,6 +58,7 @@ fun App() {
         var greetingText by remember { mutableStateOf("Hello, World!") }
         var vulkan by remember { mutableStateOf(true) }
         var fpsText by remember { mutableStateOf("") }
+        var playerPositionText by remember { mutableStateOf("") }
         // DemoApplication.drawableLabels only selects OpenGL demo scenes (DemoScene) --
         // VulkanScene always renders the same cube regardless, so showing this catalog
         // while Vulkan is enabled let you "select" items that silently did nothing. Empty
@@ -66,6 +68,7 @@ fun App() {
             while (true) {
                 delay(16)
                 fpsText = "Fps: ${Time.FpsString}"
+                playerPositionText = DebugHud.PlayerPositionText
             }
         }
         // init awake context
@@ -100,6 +103,11 @@ fun App() {
                 Text(
                     text = fpsText,
                     modifier = Modifier.fillMaxWidth(),
+                    color = Color.White
+                )
+                Text(
+                    text = playerPositionText,
+                    modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
                     color = Color.White
                 )
             }

@@ -18,6 +18,8 @@
  */
 
 import demo.WebGpuApplication
+import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.Key
 import io.ygdrasil.webgpu.CompositeAlphaMode
 import io.ygdrasil.webgpu.GPUTextureUsage
 import io.ygdrasil.webgpu.SurfaceConfiguration
@@ -25,6 +27,7 @@ import io.ygdrasil.webgpu.canvasContextRenderer
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import org.w3c.dom.events.KeyboardEvent
 import web.dom.ElementId
 import web.dom.document
 import web.html.HTMLCanvasElement
@@ -41,6 +44,14 @@ import web.html.HTMLCanvasElement
  */
 fun main() {
     val canvas = document.getElementById(ElementId("awake-canvas")) as HTMLCanvasElement
+    // MVP1a (see docs/MMORPG_ROADMAP.md): the only platform with zero existing input glue --
+    // desktop already polls GLFW keys, Android/iOS already feed Input.setPointer from touch.
+    window.addEventListener("keydown") { event ->
+        mapKey(event as KeyboardEvent)?.let { Input.setKeyDown(it, true) }
+    }
+    window.addEventListener("keyup") { event ->
+        mapKey(event as KeyboardEvent)?.let { Input.setKeyDown(it, false) }
+    }
     MainScope().launch {
         val canvasContext = canvasContextRenderer(htmlCanvas = canvas)
         val wgpuContext = canvasContext.wgpuContext
@@ -68,4 +79,18 @@ fun main() {
         }
         window.requestAnimationFrame(::frame)
     }
+}
+
+private fun mapKey(event: KeyboardEvent): Key? = when (event.code) {
+    "KeyW" -> Key.W
+    "KeyA" -> Key.A
+    "KeyS" -> Key.S
+    "KeyD" -> Key.D
+    "ArrowUp" -> Key.ArrowUp
+    "ArrowDown" -> Key.ArrowDown
+    "ArrowLeft" -> Key.ArrowLeft
+    "ArrowRight" -> Key.ArrowRight
+    "Space" -> Key.Space
+    "Escape" -> Key.Escape
+    else -> null
 }

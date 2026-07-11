@@ -21,8 +21,11 @@ package demo
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
+import io.github.ronjunevaldoz.awake.core.utils.DebugHud
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
@@ -30,6 +33,8 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRenderableRequest
 import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
 import io.github.ronjunevaldoz.awake.scene.runtime.attachRenderableComponents
+import io.github.ronjunevaldoz.awake.scene.systems.CameraFollowSystem
+import io.github.ronjunevaldoz.awake.scene.systems.PlayerMovementSystem
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 
@@ -48,10 +53,14 @@ import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 internal class SceneRuntimeHost private constructor(
     renderer: Renderer,
     private val world: World,
-    private val cubeTransform: Transform
+    private val cubeTransform: Transform,
+    private val playerTransform: Transform,
+    cameraComponent: Camera
 ) {
     private val transformSystem = TransformSystem()
     private val renderSystem = RenderSystem(renderer)
+    private val playerMovementSystem = PlayerMovementSystem(playerTransform)
+    private val cameraFollowSystem = CameraFollowSystem(playerTransform, cameraComponent)
     private var elapsedSeconds = 0f
     private var paused = false
     private var spaceWasDown = false
@@ -78,7 +87,16 @@ internal class SceneRuntimeHost private constructor(
         elapsedSeconds += delta
         cubeTransform.rotation.y = elapsedSeconds
         cubeTransform.rotation.x = elapsedSeconds * 0.5f
+        playerMovementSystem.update(world, delta)
+        cameraFollowSystem.update(world, delta)
         transformSystem.update(world, delta)
+        val position = playerTransform.position
+        DebugHud.PlayerPositionText =
+            "Pos: ${roundTo1dp(position.x)}, ${roundTo1dp(position.y)}, ${roundTo1dp(position.z)}"
+    }
+
+    private fun roundTo1dp(value: Float): Float {
+        return kotlin.math.round(value * 10f) / 10f
     }
 
     /** Runs exactly once per frame, after zero or more [fixedUpdate] calls. Only draws --
@@ -98,14 +116,23 @@ internal class SceneRuntimeHost private constructor(
             val world = World()
             val scene = SceneLoader.loadFromResource(SCENE_PATH).instantiate(world)
             scene.attachRenderableComponents(resolveRenderable)
-            val cubeTransform = scene.root(world, "cube")
+            val cubeEntity = scene.rootEntity("cube")
                 ?: error("MVP scene is missing a root node named 'cube'.")
-            return SceneRuntimeHost(renderer, world, cubeTransform)
+            val playerEntity = scene.rootEntity("player")
+                ?: error("MVP scene is missing a root node named 'player'.")
+            val cameraEntity = scene.rootEntity("camera")
+                ?: error("MVP scene is missing a root node named 'camera'.")
+            val cubeTransform: Transform = world.get(cubeEntity)
+                ?: error("'cube' node has no Transform.")
+            val playerTransform: Transform = world.get(playerEntity)
+                ?: error("'player' node has no Transform.")
+            val cameraComponent: Camera = world.get(cameraEntity)
+                ?: error("'camera' node has no Camera component.")
+            return SceneRuntimeHost(renderer, world, cubeTransform, playerTransform, cameraComponent)
         }
 
-        private fun SceneInstance.root(world: World, name: String): Transform? {
-            val node = roots.firstOrNull { it.name == name } ?: return null
-            return world.get(node.entity)
+        private fun SceneInstance.rootEntity(name: String): Entity? {
+            return roots.firstOrNull { it.name == name }?.entity
         }
     }
 }
