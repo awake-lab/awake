@@ -2,9 +2,9 @@
 name: game-framework-dev
 description: >
   Use this agent for work on Awake's engine internals — the Vulkan/OpenGL rendering
-  layer (`awake-vulkan`, `awake-core`), the JNI/cinterop native bridges, the KMP
+  layer (`awake-backend-vulkan`, `awake-engine`), the JNI/cinterop native bridges, the KMP
   `expect`/`actual` graphics abstraction, and the demo app that exercises them
-  (`awake-demo`). This is a game-engine authoring agent, not a general KMP app-feature
+  (`sample-hello-cube`). This is a game-engine authoring agent, not a general KMP app-feature
   agent — reach for it when the task is about engine architecture (renderer
   abstraction, resource lifetime, frame lifecycle, buffer/image/pipeline management),
   not about app-layer concerns like auth, navigation, or design systems (those already
@@ -80,10 +80,10 @@ context, the eventual `Renderer.draw(camera, List<DrawCall>)` entry point):
 6. Wire `VulkanApplication.kt` to use the new class; remove the now-dead private
    functions/fields and any now-unused imports.
 7. Compile-check both targets:
-   `./gradlew :awake-demo:shared:compileKotlinDesktop :awake-demo:shared:compileAndroidMain`
-8. Build the debug APK (`./gradlew :awake-demo:androidApp:assembleDebug`) and install/run it
-   on real hardware over wireless ADB (`adb connect <device-ip:port>`, then
-   `adb -s <device> install -r awake-demo/androidApp/build/outputs/apk/debug/androidApp-debug.apk`).
+   `./gradlew :sample-hello-cube:compileKotlinDesktop :sample-hello-cube:compileAndroidMain`
+8. Build the debug APK (`./gradlew :sample-hello-cube:androidApp:assembleDebug`) and
+   install/run it on real hardware over wireless ADB (`adb connect <device-ip:port>`, then
+   `adb -s <device> install -r sample-hello-cube/androidApp/build/outputs/apk/debug/androidApp-debug.apk`).
    Confirm via `adb logcat` (no fatal/crash lines from the app's own process — ignore
    unrelated system/other-app noise) and two screenshots ~5 seconds apart (different cube
    orientation, steady FPS, same visual result as before the extraction).

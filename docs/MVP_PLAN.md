@@ -2196,6 +2196,56 @@ single-threaded).
   `onRender`) still works end to end — the cube renders at Orbit's default distance/pitch/
   auto-rotate framing, visually distinct from the pre-Orbit straight-on view.
 
+### D20 — Retire `awake-demo`; port camera/frustum catalog into `sample-hello-cube`
+
+**Decided (2026-07-11): delete `awake-demo` entirely; `sample-hello-cube` becomes the
+project's one demo going forward.** `awake-demo`'s Compose-based two-window desktop split
+(a Compose placeholder window spawning a separate GLFW/Vulkan companion process) and the
+legacy OpenGL gallery it never fully escaped were the root cause of three separate pieces of
+confusion this same session: the `FontBitmapSample` OpenGL-context crash, a round of
+questions about why the Vulkan cube rendered in a companion window instead of the Compose
+canvas, and the `VK_ERROR_MEMORY_MAP_FAILED` bug (D19's note above, fixed the same session
+in a separate commit). `sample-hello-cube` — bare GLFW/Vulkan window, no Compose, no
+subprocess — had already proven simpler and more reliable to verify throughout.
+
+- Before deleting `awake-demo`, its camera/frustum catalog tool (Orbit/Free-fly modes,
+  frustum-wireframe toggle — the feature D17's custom UI was built as infrastructure for)
+  was ported into `SampleApplication`/`WebGpuSampleApplication`, scoped down for a
+  single-entity scene: no catalog-target dropdown (nothing to switch between) and no
+  `FOLLOW` camera mode (nothing to follow). A `homeCameraSnapshot` (copied from the scene's
+  authored `Camera` before `OrbitCameraSystem`/`FreeFlyCameraSystem` start mutating it in
+  place) plays the role `demo.SceneRuntimeHost.followCameraSnapshot()` played, minus the
+  moving-player part.
+- **Explicitly not ported**: NPC chase AI, player movement, NavMesh — separate MVP1a
+  gameplay systems tied to entities (`player`, `npc`, `ground`) `sample-hello-cube`
+  deliberately doesn't have. Porting them would turn `sample-hello-cube` into another
+  `awake-demo`, contradicting the "minimal single cube" purpose it was scaffolded for.
+- `awake-demo/` (shared, androidApp, desktopApp, iosApp) removed entirely; its three
+  `include(...)` lines dropped from `settings.gradle.kts`; the `wasmjs-demo` entry dropped
+  from `.claude/launch.json` (local-only, not git-tracked).
+- **A second, separate pre-existing bug surfaced while verifying the ported catalog panel
+  on desktop**: clicking a button/toggle at its visually-correct location never registers.
+  Root cause (confirmed by precisely pixel-measuring a screenshot): `Input.pointerX/Y`
+  (from `glfwGetCursorPos`, logical points) is compared directly against widget coordinates
+  authored in the same units as the UI shader's `screenSize` uniform — which is populated
+  from the swapchain's actual framebuffer-pixel extent (2x the logical point size on a
+  Retina display). The two coordinate spaces silently disagree by exactly the Retina scale
+  factor. Unrelated to D19's Y-flip fix (confirmed separately: text position/orientation is
+  now correct, only click hit-testing is off) — flagged as its own follow-up, not fixed in
+  this slice, since it's a pre-existing gap this session's UI system already had and is out
+  of scope for a retirement/port task.
+- Docs updated: `README.md`'s "Running the Demo"/"Building a New Game" sections now describe
+  `sample-hello-cube` as the primary demo; `docs/MMORPG_ROADMAP.md`'s catalog-tool row now
+  points at `sample-hello-cube`. Historical decision-log entries referencing `awake-demo`
+  (D14/D16/D18/D19/etc.) are left unedited — accurate record of what was true when written.
+- **Verified**: all 5 `sample-hello-cube` targets compile clean after the port,
+  `awake-scene:desktopTest` regression passes, `./gradlew projects` confirms `awake-demo` no
+  longer appears anywhere in the build. Real desktop run confirms the ported catalog panel
+  renders correctly (right-side-up, correctly positioned per D19's fix) with Orbit
+  auto-rotating as expected; the wasmJs equivalent couldn't be visually verified this slice
+  due to the separate pre-existing `sample-hello-cube` wasmJs shader-bundling gap (D19's
+  other flagged follow-up).
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

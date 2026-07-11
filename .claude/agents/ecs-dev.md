@@ -246,8 +246,8 @@ confirm the decision already made.
    target task), then **actually run** `./gradlew :awake-ecs:desktopTest` and read the
    result — report the pass count (e.g. "5/5 passing"), don't just claim tests exist. A
    test file that doesn't compile or fails silently is worse than no test.
-4. When wiring `RenderSystem` into the existing `Renderer`/`DrawCall` in `awake-core`,
-   compile-check `awake-demo:shared` too (`compileKotlinDesktop`/`compileAndroidMain`) to
+4. When wiring `RenderSystem` into the existing `Renderer`/`DrawCall` in `awake-engine`,
+   compile-check `sample-hello-cube` too (`compileKotlinDesktop`/`compileAndroidMain`) to
    catch integration breaks early, same as `game-framework-dev`'s methodology. **No APK
    build or device/hardware verification is needed for this module** — `awake-ecs` is pure
    JVM/commonTest logic with no GPU-facing code, unlike the Vulkan extraction work.
