@@ -86,6 +86,95 @@ intervals -- not a clean Fleks win the way the 5-iteration run suggested.
   this specific remaining gap would need a different, deeper change than caller-side
   reflection avoidance, and why a statistical tie is a reasonable place to stop.
 
+## Family churn @100k follow-up investigation (2026-07-11)
+
+Follow-up on the one remaining tied row (`awakeFamilyChurn` vs `fleksFamilyChurn` @100k,
+149.150 ± 32.725 vs 157.614 ± 14.636 ops/s in the high-confidence rerun above). Goal: find
+out whether Fleks's edge here is a genuine architectural difference or a closable cost, by
+reading code and profiling instead of guessing.
+
+**Code read**: `FamilyRegistry`/`Family1Cache`/`Family2Cache`/`ComponentStore`/
+`EntityIndexMap` (this repo) and Fleks 2.14's own sources (`entity.kt`, `family.kt`, pulled
+from the `Fleks-jvm-2.14-sources.jar` in the local Gradle cache). The two designs turn out to
+do genuinely different amounts of work per `remove`+`add`:
+
+- **Awake** (`Family2Cache`): every structural change does an eager swap-remove/push against
+  a *dense* array of `(Entity, ComponentA, ComponentB)` -- the same dense array
+  `RenderSystem`/`TransformSystem` iterate directly with no further indirection. That's
+  exactly why Awake's query-iteration rows are decisive wins (427,685 vs 80,415 ops/s @10k,
+  42,863 vs 7,832 @100k) -- but it means churn pays a real memory-move cost (swap-remove +
+  two `EntityIndexMap` updates) on every single call, and `ComponentStore` does its *own*,
+  independent swap-remove for the same entity on top of that.
+- **Fleks** (`Family.onEntityCfgChanged`): a family only stores `Entity` values in a `Bag`
+  indexed directly by entity id (`activeEntities[entity.id] = entity` / `.removeAt(entity.id)`
+  -- plain array slot writes, no swap-compaction), plus a bitmask `contains` check and an
+  `isDirty` flag. The actual *dense, ordered* iteration list (`mutableEntities`) is only
+  rebuilt lazily, on next access, via the `isDirty` flag -- and `fleksFamilyChurn` only reads
+  `family.numEntities` (a plain `Int` counter) at the end, so it **never triggers that
+  rebuild at all** for the whole benchmark. Fleks is doing strictly less work per call here;
+  it defers the cost this benchmark doesn't ask it to pay.
+
+This is a genuine architectural trade-off, not a bug in either design: Fleks's laziness is
+exactly what would make its `RenderSystem`-equivalent hot path slower (it has to indirect
+through `entity[Type]` component lookups during iteration, which is why it loses that row by
+5-10x), while Awake's eager dense-array maintenance is what makes iteration fast and churn
+comparatively expensive.
+
+**Profiling** (`async-profiler` 4.4, `-prof async`, collapsed CPU stacks,
+`awakeFamilyChurn` @100k) confirmed the above and additionally found one real, closable cost
+that wasn't inherent to the eager-dense-array design: **`ComponentPool` was backed by Kotlin's
+`ArrayDeque`**, but is only ever used as a single-ended LIFO stack (`removeLastOrNull` /
+`addLast`). `ArrayDeque`'s circular-buffer implementation pays for both-end operations via
+modulo-based index wraparound (`positiveMod`) that this usage never needs. Leaf-sample
+breakdown before the fix:
+
+| Frame | % of CPU samples |
+|---|---:|
+| `ArrayDeque.removeLast` | 6.6% |
+| `ArrayDeque.positiveMod` | 1.9% |
+| `ArrayDeque.ensureCapacity` | 1.9% |
+| `ArrayDeque.getSize` | 1.1% |
+| `ArrayDeque.addLast` | 0.8% |
+| **Total** | **~12.3%** |
+
+**Fix**: rewrote `ComponentPool` (`awake-ecs/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ecs/Pool.kt`)
+to use a plain growable `Array<Any?>` + `size` counter instead of `ArrayDeque` -- direct
+`items[size]` indexing for push/pop, no wraparound math. Re-profiling the same benchmark
+after the change shows the equivalent cost (now attributed to `ComponentPool.obtain`/`free`/
+`ensureCapacity` directly, since there's no more library frame to hide behind) dropped to
+**~7.9%** of samples -- a real reduction in a genuine cost, confirmed by reading the
+decompiled/attributed frames, not assumed from the ops/sec number alone.
+
+**Wall-clock verification**: the machine was under real background load during this session
+(`load avg` 7-8 from Chrome and other processes), which dominates the noise floor for a
+100k-entity/100k-op benchmark. Three repeated 3-fork x 10-iteration high-confidence runs
+(same methodology as the section above) before and after the `ComponentPool` change, plus a
+3-round interleaved before/after/before/after comparison to cancel out session-level drift,
+all landed in the same ~110-130 ops/s band for `awakeFamilyChurn` @100k with heavily
+overlapping error bars in both directions -- i.e. **not a measurable wall-clock movement on
+this specific benchmark**, despite the profiler-confirmed reduction in a real cost. That's
+consistent with `ComponentPool` being a secondary cost next to the dominant ones
+(`ComponentStore.removeAt` ~14-16%, `Family2Cache.addComponent`/`removeAt` ~14%,
+`EntityIndexMap.set`/`get` ~10%), which are the direct, inherent cost of eagerly maintaining
+two independent dense sparse-sets (the store's and the family cache's) per structural change
+-- exactly the architectural cost described above, not something this fix touches.
+
+**Verdict**:
+- The `ComponentPool` fix is real, verified via profiler, zero-regression (26/26
+  `:awake-ecs:desktopTest` still passing, including the existing multi-instance pool-reuse
+  test `pooledTypeIdFamilyChurnKeepsMembershipStableAcrossRemoveReaddAndDestroy`), and kept --
+  it benefits every pooled-component code path in the module, not just this benchmark, even
+  though it wasn't large enough to move this specific noisy top-line number today.
+- The remaining family-churn @100k tie against Fleks **is architectural**, not a bug or an
+  overlooked allocation: closing it fully would mean adopting Fleks's lazy/dirty-flag dense
+  array rebuild for family membership (defer materializing iteration order until next read,
+  track membership via a directly-indexed sparse slot instead of an always-consistent dense
+  array). That would trade away the very thing that makes Awake's query-iteration rows a 5-10x
+  decisive win over Fleks (`Family1Cache`/`Family2Cache` caching component references directly
+  in dense, ordered arrays so `RenderSystem`/`TransformSystem` never indirect through a
+  component lookup) to chase a currently-tied, secondary row. Not a good trade -- flagging this
+  plainly rather than chasing it further, per this investigation's scope.
+
 ## Architecture reference (not benchmarked here — different language/runtime)
 
 These are real, widely used ECS implementations that can't run in this JVM-based benchmark
