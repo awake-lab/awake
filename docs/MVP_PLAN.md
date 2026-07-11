@@ -2070,6 +2070,79 @@ msdf`).
   did register, confirming hit-testing/coordinate math is correct) — not re-litigated here
   since it isn't Phase B's concern.
 
+### D18 — Camera/frustum catalog debug tool
+
+**Decided (2026-07-11): Orbit + Free-fly camera modes, a world-space debug-line renderer,
+and a frustum-wireframe visualization, all wired into `awake-demo` (not `sample-hello-cube`,
+which has nothing meaningful to catalog).** This is the feature the custom UI (D17, Phase
+A+B) was built as infrastructure for.
+
+- `awake-base`: new `Frustum` object — `corners(camera, aspect)` computes the 8 frustum
+  corner points analytically (no matrix inverse; this codebase's `Mat4` has none), `EDGES`
+  gives the 12 corner-index pairs a line renderer needs. Unit-tested (`FrustumTest`) against
+  a hand-verifiable identity-view camera setup (same trick `CameraTest` already uses).
+- `awake-engine-render-api`: new `LineSegment` (world-space, unlike screen-space
+  `UiDrawPrimitive`) + `Renderer.drawDebugLines(lines)` — a third interface method,
+  staged before `draw()` the same way `drawUi` already is.
+- Both backends drawn **inside the existing main 3D render pass** (not a new pass), reusing
+  that frame's already-computed view-projection matrix — new `debug.LineMesh`
+  (`LINE_LIST`/no-index dynamic vertex buffer, mirrors `ui.DynamicMesh`'s rewrite-every-frame
+  lifecycle) + `debug.LineRenderPipeline` per backend, `debug_line.vert/.frag`(`.spv`)/
+  `.wgsl` shaders. **Discovered along the way**: `awake-backend-webgpu`'s 3D pass has no
+  depth attachment at all today (confirmed by reading `pipeline/RenderPipeline.kt`/
+  `renderer/Renderer.kt` — no `depthStencil` field anywhere) — so WebGPU debug lines don't
+  depth-test against scene geometry, matching that backend's existing (pre-existing, not
+  newly introduced) lack of depth testing for every other draw call too. Vulkan's lines DO
+  depth-test correctly, sharing the 3D pass's real depth buffer.
+- `awake-scene`: new `OrbitCameraSystem` (drag rotates yaw/pitch around a mutable `target`
+  Transform, `W`/`S` zoom — no scroll-wheel axis exists in `Input` yet) and
+  `FreeFlyCameraSystem` (`WASD` + drag, spectator-style) — same shape as the existing
+  `CameraFollowSystem`, unit-tested the same way (`OrbitCameraSystemTest`/
+  `FreeFlyCameraSystemTest`).
+- `awake-demo`'s `SceneRuntimeHost` gained a `CameraMode` enum (`FOLLOW` default/`ORBIT`/
+  `FREE_FLY`) driving which system's `update()` runs each fixed step, a `catalogTargets` map
+  (`player`/`cube`/`ground`/`npc` — reusing meshes the demo already loads, not a new
+  arbitrary-glTF-loading feature; `awake-base`'s glTF parser is still explicitly single-mesh
+  only), and `followCameraSnapshot()` — a synthetic `Camera` computed from
+  `CameraFollowSystem`'s own offset formula, *not* the live shared camera (which IS the
+  active render camera regardless of mode) — used to visualize "what Follow would see" while
+  actually looking from Orbit/Free-fly.
+- `VulkanApplication`/`WebGpuApplication` (`awake-demo`) `onDrawUi`: a camera-mode dropdown,
+  a catalog-target dropdown, and a show-frustum toggle calling `drawDebugLines(Frustum.EDGES
+  .map { ... })`. **Two real bugs found and fixed during verification, not anticipated by
+  the plan**:
+  1. `BitmapFont`'s glyph set (D17 Phase B) is deliberately minimal (space/`:`/B/D/E/F/G/N/
+     O/U, scoped to "DEBUG: ON"/"DEBUG: OFF") — none of "FOLLOW"/"ORBIT"/"FREE_FLY"/
+     "FRUSTUM" fit it (missing L/W/R/I/T/C/A/Y), so the panel's dropdown/toggle widgets have
+     no text captions this slice; their own hover/active/checked coloring is the feedback.
+  2. `awake-demo` (unlike `sample-hello-cube`) uses the Compose Multiplatform plugin, and its
+     wasmJs resource-aggregation pipeline did not reliably pick up `awake-backend-webgpu`'s
+     bundled UI/debug-line `.wgsl` shaders (a stale `wasmJsDevelopmentExecutableCompileSync`
+     cache was the proximate cause here — forcing that specific task, not just the resource
+     tasks, fixed it) — but as a durable fix (not dependent on cache behavior), the three
+     WebGPU UI shaders are now also copied into `awake-demo/shared`'s own
+     `wasmJsMain/resources`, alongside its per-app `triangle.wgsl`. This is a deliberate,
+     documented exception to D17/AGENTS.md's "bundle once in the backend module" rule,
+     scoped to this one Compose-based consumer.
+- **Verified**: `awake-base`/`awake-scene`/`awake-backend-vulkan`/`awake-backend-webgpu`/
+  `awake-demo` (all 5 targets: desktop/android*/iOS arm64+simulator/wasmJs) compile clean.
+  `FrustumTest`/`OrbitCameraSystemTest`/`FreeFlyCameraSystemTest` pass alongside the existing
+  `CameraFollowSystemTest`/`CameraTest`. Real desktop launch (`awake-demo:desktopApp:run`)
+  starts clean, Vulkan native libs load, no crash. wasmJs browser verification: the catalog
+  panel renders correctly (no garbled text after the font-glyph fix), the ground plane
+  renders, `debug_line.wgsl` resolves with a 200 (after the resource-bundling fix) — the
+  frustum-toggle click itself wasn't independently re-confirmed via a successful synthetic
+  browser click (a known, previously-documented headless-click-timing limitation, not a new
+  regression), relying on `FrustumTest`'s corner-math proof and the absence of any runtime
+  exception as the evidence the code path is sound. (*Android's `androidApp` module wasn't
+  separately `assembleDebug`-checked this slice — out of scope, same as most prior slices
+  that only spot-checked Android periodically.)
+- **Explicitly out of scope**: loading arbitrary external glTF models; scroll-wheel zoom;
+  resolving the UI-vs-camera-drag input-consumption conflict (dragging over a UI panel
+  button also rotates the camera underneath it, since both read the same `Input.pointerDown`
+  /`X`/`Y` with no arbitration); expanding `BitmapFont`'s glyph set for real mode-name
+  captions (revisit if this UI grows enough to need it).
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

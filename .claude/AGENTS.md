@@ -74,6 +74,15 @@ it before starting work; phases and open decisions (D1–D4) are tracked there.*
   silently at compile time and only crashes at runtime (`readResourceBytes` throws). This
   does NOT apply to genuinely per-app content (each game's own 3D shaders, scenes, texture
   assets) — those are correctly consumer-owned and constructor-injected.
+  **Known exception**: `awake-demo` applies the Compose Multiplatform plugin (unlike
+  `sample-hello-cube`), and its wasmJs resource-aggregation didn't reliably pick up
+  `awake-backend-webgpu`'s bundled shaders even after a full dev-server restart (a stale
+  `wasmJsDevelopmentExecutableCompileSync` cache was the proximate cause, confirmed by
+  forcing that exact task) — as a durable fix, `awake-demo/shared`'s own
+  `wasmJsMain/resources` also carries copies of the shared WebGPU UI/debug-line shaders
+  alongside its per-app `triangle.wgsl`. If a future consumer app also applies the Compose
+  plugin and hits the same "resource not found (HTTP 404)" error for a backend-module
+  shader, this is the first thing to check.
 
 ## Threading model
 
