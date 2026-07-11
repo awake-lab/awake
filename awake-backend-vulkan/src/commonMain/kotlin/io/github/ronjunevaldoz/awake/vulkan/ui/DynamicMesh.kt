@@ -27,7 +27,11 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
  */
 class DynamicMesh(
     private val graphicsDevice: GraphicsDevice,
-    private val maxQuads: Int
+    private val maxQuads: Int,
+    /** Floats per vertex -- 6 for colored quads (pos2+color4, see `ui_quad.vert`), 8 for
+     * textured glyph quads (pos2+uv2+color4, see `ui_glyph.vert`). Parameterized (not a
+     * fixed companion constant) so this one class serves both vertex layouts. */
+    private val floatsPerVertex: Int = FLOATS_PER_VERTEX
 ) {
     private val device get() = graphicsDevice.device
     private val physicalDevice get() = graphicsDevice.physicalDevice
@@ -47,7 +51,7 @@ class DynamicMesh(
 
     init {
         val (vBuffer, vMemory) = allocateHostVisibleBuffer(
-            byteSize = (maxVertices * FLOATS_PER_VERTEX * Float.SIZE_BYTES).toLong(),
+            byteSize = (maxVertices * floatsPerVertex * Float.SIZE_BYTES).toLong(),
             usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
         )
         vertexBuffer = BufferHandle(vBuffer)
@@ -66,7 +70,7 @@ class DynamicMesh(
      * [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad]s (2 floats position + 4 floats
      * color per vertex). */
     fun update(vertices: FloatArray, indices: IntArray) {
-        require(vertices.size <= maxVertices * FLOATS_PER_VERTEX) {
+        require(vertices.size <= maxVertices * floatsPerVertex) {
             "UI quad count exceeds DynamicMesh capacity ($maxQuads quads) -- " +
                 "raise maxQuads or reduce widgets drawn this frame."
         }
@@ -132,8 +136,9 @@ class DynamicMesh(
     }
 
     companion object {
-        /** pos (vec2) + color (vec4) -- see `ui_quad.vert`'s input layout. */
+        /** Default (colored-quad) layout: pos (vec2) + color (vec4) -- see `ui_quad.vert`. */
         const val FLOATS_PER_VERTEX = 6
+        const val GLYPH_FLOATS_PER_VERTEX = 8
         const val VERTICES_PER_QUAD = 4
         const val INDICES_PER_QUAD = 6
     }

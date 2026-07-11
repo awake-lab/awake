@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
@@ -25,6 +26,7 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
+import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -57,6 +59,8 @@ abstract class VulkanGameApplication(
     private val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
     private lateinit var renderPipeline: RenderPipeline
     private lateinit var uiRenderPipeline: UiRenderPipeline
+    private lateinit var uiGlyphRenderPipeline: UiGlyphRenderPipeline
+    private lateinit var fontTexture: Texture
     private lateinit var transferContext: TransferContext
     private lateinit var renderer: Renderer
     private lateinit var material: Material
@@ -65,6 +69,10 @@ abstract class VulkanGameApplication(
 
     /** Immediate-mode debug/catalog UI overlay -- see [onDrawUi]. */
     protected val ui = UiContext()
+
+    /** Phase B (see docs/MVP_PLAN.md's custom-UI decision log) -- pass to [ui]'s `text(...)`
+     * calls in an overridden [onDrawUi]. */
+    protected val font = BitmapFont()
 
     /** The ECS world the scene at [scenePath] was instantiated into -- exposed (alongside
      * [scene]) so a subclass can look up its own entities (e.g. a player/camera) once, in
@@ -167,11 +175,27 @@ abstract class VulkanGameApplication(
             readResourceBytes(UI_FRAGMENT_SHADER_RESOURCE_PATH)
         )
         transferContext = TransferContext(graphicsDevice)
+        fontTexture = Texture(
+            graphicsDevice,
+            transferContext::runOneTimeCommands,
+            font.atlasPixelsRgba,
+            font.atlasWidth,
+            font.atlasHeight
+        )
+        uiGlyphRenderPipeline = UiGlyphRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            uiRenderPipeline.renderPass,
+            readResourceBytes(UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH),
+            readResourceBytes(UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH),
+            fontTexture
+        )
         renderer = Renderer(
             graphicsDevice,
             swapchainManager,
             renderPipeline,
             uiRenderPipeline,
+            uiGlyphRenderPipeline,
             transferContext.commandPool.handle,
             MAX_FRAMES_IN_FLIGHT
         )
@@ -213,6 +237,8 @@ abstract class VulkanGameApplication(
         material.destroy()
         renderPipeline.destroy()
         uiRenderPipeline.destroy()
+        uiGlyphRenderPipeline.destroy()
+        fontTexture.destroy()
         graphicsDevice.destroy()
     }
 
@@ -226,5 +252,7 @@ abstract class VulkanGameApplication(
         // and sample-hello-cube's existing triangle.vert/.frag copies.
         const val UI_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.vert.spv"
         const val UI_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.frag.spv"
+        const val UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.vert.spv"
+        const val UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.frag.spv"
     }
 }

@@ -28,6 +28,8 @@ class SampleApplication : VulkanGameApplication(
 
     override fun onDrawUi(ui: UiContext) {
         debugOverlayOn = ui.toggle("debug-toggle", 20f, 20f, 120f, 40f, debugOverlayOn)
+        val label = if (debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
+        ui.text(150f, 32f, label, floatArrayOf(1f, 1f, 1f, 1f), font)
     }
 
     companion object {

@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 
 /**
  * Minimal immediate-mode UI context -- ImGui's own architecture (hot/active id tracking, no
@@ -91,6 +92,30 @@ class UiContext {
             }
         }
         return picked
+    }
+
+    /** Draws [text] as a row of [font]-sized glyph quads starting at ([x], [y]), advancing
+     * by [font]'s cell size each character -- monospace only, no kerning. Characters not in
+     * [font] are skipped (advance still applies) rather than drawn as a missing-glyph box. */
+    fun text(x: Float, y: Float, text: String, color: FloatArray, font: BitmapFont) {
+        var penX = x
+        for (char in text) {
+            val uv = font.uvFor(char)
+            if (uv != null) {
+                primitives += UiDrawPrimitive.Glyph(
+                    x = penX,
+                    y = y,
+                    w = font.cellSize.toFloat(),
+                    h = font.cellSize.toFloat(),
+                    u0 = uv.u0,
+                    v0 = uv.v0,
+                    u1 = uv.u1,
+                    v1 = uv.v1,
+                    color = color
+                )
+            }
+            penX += font.cellSize
+        }
     }
 
     fun endFrame(): List<UiDrawPrimitive> = primitives.toList()

@@ -38,6 +38,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.ui.DynamicMesh
+import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 
@@ -67,6 +68,7 @@ class Renderer(
     swapchainManager: SwapchainManager,
     renderPipeline: RenderPipeline,
     private val uiRenderPipeline: UiRenderPipeline,
+    private val uiGlyphRenderPipeline: UiGlyphRenderPipeline,
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
@@ -89,6 +91,7 @@ class Renderer(
     // .onRender()'s ordering) so recordCommandBuffer's UI pass, later in the SAME command
     // buffer as the 3D pass, always draws this frame's widgets, not last frame's.
     private val uiMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS)
+    private val uiGlyphMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
 
     init {
         createDepthResources()
@@ -295,6 +298,33 @@ class Renderer(
             quadIndex += 1
         }
         uiMesh.update(vertices, indices)
+
+        val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
+        require(glyphs.size <= MAX_UI_QUADS) {
+            "UI glyph count (${glyphs.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
+        }
+        val glyphVertices = FloatArray(glyphs.size * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+        val glyphIndices = IntArray(glyphs.size * DynamicMesh.INDICES_PER_QUAD)
+        var glyphIndex = 0
+        while (glyphIndex < glyphs.size) {
+            val glyph = glyphs[glyphIndex]
+            val vertexBase = glyphIndex * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.GLYPH_FLOATS_PER_VERTEX
+            writeGlyphVertex(glyphVertices, vertexBase + 0 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y, glyph.u0, glyph.v0, glyph.color)
+            writeGlyphVertex(glyphVertices, vertexBase + 1 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y, glyph.u1, glyph.v0, glyph.color)
+            writeGlyphVertex(glyphVertices, vertexBase + 2 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y + glyph.h, glyph.u1, glyph.v1, glyph.color)
+            writeGlyphVertex(glyphVertices, vertexBase + 3 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y + glyph.h, glyph.u0, glyph.v1, glyph.color)
+
+            val vertexOffset = glyphIndex * DynamicMesh.VERTICES_PER_QUAD
+            val indexBase = glyphIndex * DynamicMesh.INDICES_PER_QUAD
+            glyphIndices[indexBase] = vertexOffset
+            glyphIndices[indexBase + 1] = vertexOffset + 1
+            glyphIndices[indexBase + 2] = vertexOffset + 2
+            glyphIndices[indexBase + 3] = vertexOffset + 2
+            glyphIndices[indexBase + 4] = vertexOffset + 3
+            glyphIndices[indexBase + 5] = vertexOffset
+            glyphIndex += 1
+        }
+        uiGlyphMesh.update(glyphVertices, glyphIndices)
     }
 
     private fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: FloatArray) {
@@ -304,6 +334,17 @@ class Renderer(
         out[offset + 3] = color[1]
         out[offset + 4] = color[2]
         out[offset + 5] = if (color.size > 3) color[3] else 1f
+    }
+
+    private fun writeGlyphVertex(out: FloatArray, offset: Int, x: Float, y: Float, u: Float, v: Float, color: FloatArray) {
+        out[offset] = x
+        out[offset + 1] = y
+        out[offset + 2] = u
+        out[offset + 3] = v
+        out[offset + 4] = color[0]
+        out[offset + 5] = color[1]
+        out[offset + 6] = color[2]
+        out[offset + 7] = if (color.size > 3) color[3] else 1f
     }
 
     private fun recreateSwapChain() {
@@ -367,6 +408,15 @@ class Renderer(
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
         uiMesh.bind(commandBuffer)
         uiMesh.draw(commandBuffer)
+
+        // Phase B: glyph quads drawn with a second, textured pipeline, same render pass/
+        // subpass, after the colored quads (so text composites on top of button fills).
+        uiGlyphRenderPipeline.bind(commandBuffer)
+        Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
+        Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+        uiGlyphMesh.bind(commandBuffer)
+        uiGlyphMesh.draw(commandBuffer)
+
         Vulkan.vkCmdEndRenderPass(commandBuffer)
 
         Vulkan.vkEndCommandBuffer(commandBuffer)
@@ -381,6 +431,7 @@ class Renderer(
         }
         uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
         uiMesh.destroy()
+        uiGlyphMesh.destroy()
         Vulkan.vkDestroyImageView(device, depthImageView)
         VulkanImages.vkDestroyImage(device, depthImage)
         VulkanBuffers.vkFreeMemory(device, depthImageMemory)

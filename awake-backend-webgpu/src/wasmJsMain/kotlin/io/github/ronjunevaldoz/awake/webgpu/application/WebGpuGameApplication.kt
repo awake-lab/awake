@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
@@ -24,6 +25,7 @@ import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.renderer.Renderer
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
+import io.github.ronjunevaldoz.awake.webgpu.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -55,12 +57,17 @@ abstract class WebGpuGameApplication(
     private val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
     private lateinit var renderPipeline: RenderPipeline
     private lateinit var uiRenderPipeline: UiRenderPipeline
+    private lateinit var uiGlyphRenderPipeline: UiGlyphRenderPipeline
     private lateinit var renderer: Renderer
     private lateinit var material: Material
     private val meshInstances = mutableMapOf<String, Mesh>()
 
     /** Immediate-mode debug/catalog UI overlay -- see [onDrawUi]. */
     protected val ui = UiContext()
+
+    /** Phase B (see docs/MVP_PLAN.md's custom-UI decision log): the minimal bitmap font
+     * atlas shared by [ui]'s `text()` calls. */
+    protected val font = BitmapFont()
 
     protected lateinit var world: World
         private set
@@ -144,11 +151,18 @@ abstract class WebGpuGameApplication(
             swapchainManager,
             readResourceBytes(UI_SHADER_RESOURCE_PATH)
         )
+        uiGlyphRenderPipeline = UiGlyphRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            readResourceBytes(UI_GLYPH_SHADER_RESOURCE_PATH),
+            font
+        )
         renderer = Renderer(
             graphicsDevice,
             swapchainManager,
             renderPipeline,
             uiRenderPipeline,
+            uiGlyphRenderPipeline,
             0L,
             MAX_FRAMES_IN_FLIGHT
         )
@@ -171,6 +185,7 @@ abstract class WebGpuGameApplication(
         meshInstances.values.forEach { it.destroy() }
         renderPipeline.destroy()
         uiRenderPipeline.destroy()
+        uiGlyphRenderPipeline.destroy()
         graphicsDevice.destroy()
     }
 
@@ -180,5 +195,6 @@ abstract class WebGpuGameApplication(
         // Bundled per-consumer-app -- see VulkanGameApplication's identical companion
         // constant doc comment for why.
         const val UI_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_quad.wgsl"
+        const val UI_GLYPH_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_glyph.wgsl"
     }
 }

@@ -19,7 +19,8 @@ import io.ygdrasil.webgpu.GPUIndexFormat
  */
 class DynamicMesh(
     private val graphicsDevice: GraphicsDevice,
-    private val maxQuads: Int
+    private val maxQuads: Int,
+    private val floatsPerVertex: Int = FLOATS_PER_VERTEX
 ) {
     private val maxVertices = maxQuads * VERTICES_PER_QUAD
     private val maxIndices = maxQuads * INDICES_PER_QUAD
@@ -35,7 +36,7 @@ class DynamicMesh(
         val device = graphicsDevice.wgpuContext.device
         vertexBuffer = device.createBuffer(
             BufferDescriptor(
-                size = (maxVertices * FLOATS_PER_VERTEX * Float.SIZE_BYTES).toULong(),
+                size = (maxVertices * floatsPerVertex * Float.SIZE_BYTES).toULong(),
                 usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst
             )
         )
@@ -48,7 +49,7 @@ class DynamicMesh(
     }
 
     fun update(vertices: FloatArray, indices: IntArray) {
-        require(vertices.size <= maxVertices * FLOATS_PER_VERTEX) {
+        require(vertices.size <= maxVertices * floatsPerVertex) {
             "UI quad count exceeds DynamicMesh capacity ($maxQuads quads) -- " +
                 "raise maxQuads or reduce widgets drawn this frame."
         }
@@ -69,6 +70,9 @@ class DynamicMesh(
     companion object {
         /** pos (vec2) + color (vec4) -- see `ui_quad.wgsl`'s input layout. */
         const val FLOATS_PER_VERTEX = 6
+
+        /** pos (vec2) + uv (vec2) + color (vec4) -- see `ui_glyph.wgsl`'s input layout. */
+        const val GLYPH_FLOATS_PER_VERTEX = 8
         const val VERTICES_PER_QUAD = 4
         const val INDICES_PER_QUAD = 6
         val indexFormat = GPUIndexFormat.Uint32
