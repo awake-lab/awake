@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package demo
 
+import io.github.ronjunevaldoz.awake.core.math.Frustum
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 
 /**
@@ -24,6 +27,7 @@ class WebGpuApplication : WebGpuGameApplication(
     scenePath = "scenes/mvp.scene.json"
 ) {
     private lateinit var sceneHost: SceneRuntimeHost
+    private var showFrustum = false
 
     override fun onSceneReady() {
         sceneHost = SceneRuntimeHost.create(scene, world)
@@ -34,7 +38,32 @@ class WebGpuApplication : WebGpuGameApplication(
         super.onFixedUpdate(delta)
     }
 
+    /** See `demo.VulkanApplication.onDrawUi`'s doc comment -- identical contract, including
+     * why these widgets have no text captions (BitmapFont's glyph set doesn't cover
+     * "FOLLOW"/"ORBIT"/"FREE_FLY"/"FRUSTUM"). */
+    override fun onDrawUi(ui: UiContext) {
+        val modeNames = CameraMode.entries.map { it.name }
+        ui.dropdown("camera-mode", 20f, 20f, 160f, 32f, modeNames, sceneHost.cameraMode.ordinal)?.let { picked ->
+            sceneHost.cameraMode = CameraMode.entries[picked]
+        }
+
+        val targetNames = sceneHost.catalogTargets.keys.toList()
+        val targetIndex = targetNames.indexOf(sceneHost.catalogTargetName).coerceAtLeast(0)
+        ui.dropdown("catalog-target", 200f, 20f, 120f, 32f, targetNames, targetIndex)?.let { picked ->
+            sceneHost.catalogTargetName = targetNames[picked]
+        }
+
+        showFrustum = ui.toggle("show-frustum", 340f, 20f, 32f, 32f, showFrustum)
+
+        if (showFrustum) {
+            val corners = Frustum.corners(sceneHost.followCameraSnapshot(), aspectRatio)
+            val lines = Frustum.EDGES.map { (a, b) -> LineSegment(corners[a], corners[b], FRUSTUM_COLOR) }
+            drawDebugLines(lines)
+        }
+    }
+
     companion object {
+        private val FRUSTUM_COLOR = floatArrayOf(1f, 0.9f, 0.2f, 1f)
         const val VERTEX_STRIDE = 8 * Float.SIZE_BYTES
 
         // Same cube geometry as demo/VulkanApplication.kt (interleaved pos/color/uv, 8

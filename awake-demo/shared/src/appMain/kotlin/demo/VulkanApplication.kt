@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package demo
 
+import io.github.ronjunevaldoz.awake.core.math.Frustum
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 
 /**
@@ -26,6 +29,7 @@ class VulkanApplication : VulkanGameApplication(
     scenePath = "scenes/mvp.scene.json"
 ) {
     private lateinit var sceneHost: SceneRuntimeHost
+    private var showFrustum = false
 
     override fun onSceneReady() {
         sceneHost = SceneRuntimeHost.create(scene, world)
@@ -36,7 +40,43 @@ class VulkanApplication : VulkanGameApplication(
         super.onFixedUpdate(delta)
     }
 
+    /** The catalog debug tool (see docs/MVP_PLAN.md's model-viewer/camera-catalog decision
+     * log): a camera-mode dropdown (Follow/Orbit/Free-fly, driving [SceneRuntimeHost
+     * .cameraMode]), a catalog-target dropdown (which already-loaded entity Orbit pivots
+     * around), and a frustum-wireframe toggle visualizing where the Follow camera would be
+     * looking (see [SceneRuntimeHost.followCameraSnapshot]'s doc comment for why that's a
+     * synthetic camera, not the live one, when a different mode is actually driving the
+     * scene's shared camera). */
+    override fun onDrawUi(ui: UiContext) {
+        // No text captions on these widgets -- BitmapFont's glyph set is deliberately
+        // minimal (space/`:`/B/D/E/F/G/N/O/U only, scoped to "DEBUG: ON"/"DEBUG: OFF" -- see
+        // docs/MVP_PLAN.md's bitmap-font-over-MSDF decision log), and none of "FOLLOW"/
+        // "ORBIT"/"FREE_FLY"/"FRUSTUM" fit that set (need L/W/R/I/T/C/A/Y). The dropdown/
+        // toggle widgets' own coloring (hover/active/checked) is this slice's UI feedback;
+        // expanding the font is a separate, deliberate follow-up if the catalog UI grows
+        // enough to need real labels.
+        val modeNames = CameraMode.entries.map { it.name }
+        ui.dropdown("camera-mode", 20f, 20f, 160f, 32f, modeNames, sceneHost.cameraMode.ordinal)?.let { picked ->
+            sceneHost.cameraMode = CameraMode.entries[picked]
+        }
+
+        val targetNames = sceneHost.catalogTargets.keys.toList()
+        val targetIndex = targetNames.indexOf(sceneHost.catalogTargetName).coerceAtLeast(0)
+        ui.dropdown("catalog-target", 200f, 20f, 120f, 32f, targetNames, targetIndex)?.let { picked ->
+            sceneHost.catalogTargetName = targetNames[picked]
+        }
+
+        showFrustum = ui.toggle("show-frustum", 340f, 20f, 32f, 32f, showFrustum)
+
+        if (showFrustum) {
+            val corners = Frustum.corners(sceneHost.followCameraSnapshot(), aspectRatio)
+            val lines = Frustum.EDGES.map { (a, b) -> LineSegment(corners[a], corners[b], FRUSTUM_COLOR) }
+            drawDebugLines(lines)
+        }
+    }
+
     companion object {
+        private val FRUSTUM_COLOR = floatArrayOf(1f, 0.9f, 0.2f, 1f)
         const val VERTEX_STRIDE = 8 * Float.SIZE_BYTES
 
         // interleaved position(vec3) + color(vec3) + uv(vec2), matching triangle.vert's
