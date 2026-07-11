@@ -100,7 +100,11 @@ class RenderPipeline(
                     VkAttachmentDescription(
                         format = swapchainManager.imageFormat,
                         initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
-                        finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+                        // COLOR_ATTACHMENT_OPTIMAL, not PRESENT_SRC_KHR: the UI overlay pass
+                        // (UiRenderPipeline) draws on top of this pass's output before the
+                        // final present-layout transition happens, at the end of that pass
+                        // instead. See docs/MVP_PLAN.md's custom-UI decision log entry.
+                        finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
                     ),
                     VkAttachmentDescription(
                         format = VkFormat.VK_FORMAT_D32_SFLOAT,

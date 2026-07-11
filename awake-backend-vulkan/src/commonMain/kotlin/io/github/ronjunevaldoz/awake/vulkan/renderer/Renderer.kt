@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCommandBufferLevel
@@ -36,6 +37,8 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
+import io.github.ronjunevaldoz.awake.vulkan.ui.DynamicMesh
+import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 
 /**
@@ -63,6 +66,7 @@ class Renderer(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     renderPipeline: RenderPipeline,
+    private val uiRenderPipeline: UiRenderPipeline,
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
@@ -78,11 +82,18 @@ class Renderer(
     private var depthImageMemory: Long = 0
     private var depthImageView: Long = 0
     private var framebuffers: List<Long> = emptyList()
+    private var uiFramebuffers: List<Long> = emptyList()
     private var commandBuffers: LongArray = LongArray(maxFramesInFlight)
+
+    // Rewritten every frame by drawUi() (called before draw() -- see VulkanGameApplication
+    // .onRender()'s ordering) so recordCommandBuffer's UI pass, later in the SAME command
+    // buffer as the 3D pass, always draws this frame's widgets, not last frame's.
+    private val uiMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS)
 
     init {
         createDepthResources()
         createFramebuffers()
+        createUiFramebuffers()
         createCommandBuffers(commandPool, maxFramesInFlight)
     }
 
@@ -141,6 +152,24 @@ class Renderer(
                 layers = 1
             )
             Vulkan.vkCreateFramebuffer(device, frameBufferInfo)
+        }.toList()
+    }
+
+    /** Separate from [createFramebuffers]: the UI pass's render pass object differs from
+     * the 3D pass's (single color attachment, no depth), so Vulkan requires its own
+     * framebuffer even though both wrap the identical swapchain image view. */
+    private fun createUiFramebuffers() {
+        uiFramebuffers = swapchainManager.imageViews.map { imageView ->
+            Vulkan.vkCreateFramebuffer(
+                device,
+                VkFramebufferCreateInfo(
+                    renderPass = uiRenderPipeline.renderPass,
+                    pAttachments = arrayOf(imageView),
+                    width = swapchainManager.extent.width,
+                    height = swapchainManager.extent.height,
+                    layers = 1
+                )
+            )
         }.toList()
     }
 
@@ -233,6 +262,50 @@ class Renderer(
         VulkanBuffers.vkDeviceWaitIdle(device)
     }
 
+    /** Stages this frame's UI overlay content -- rewrites [uiMesh]'s buffers but issues no
+     * GPU commands itself. Must be called BEFORE [draw] (see `VulkanGameApplication
+     * .onRender()`'s ordering) so [recordCommandBuffer]'s UI pass, appended to the SAME
+     * command buffer as the 3D pass inside that same [draw] call, draws this frame's
+     * widgets rather than lagging a frame behind. */
+    override fun drawUi(primitives: List<UiDrawPrimitive>) {
+        val quads = primitives.filterIsInstance<UiDrawPrimitive.Quad>()
+        require(quads.size <= MAX_UI_QUADS) {
+            "UI quad count (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
+        }
+        val vertices = FloatArray(quads.size * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.FLOATS_PER_VERTEX)
+        val indices = IntArray(quads.size * DynamicMesh.INDICES_PER_QUAD)
+        var quadIndex = 0
+        while (quadIndex < quads.size) {
+            val quad = quads[quadIndex]
+            val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.FLOATS_PER_VERTEX
+            // Triangle-list quad, corners in TL/TR/BR/BL order (pixel space, Y-down).
+            writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.color)
+            writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.color)
+            writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.color)
+            writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.color)
+
+            val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
+            val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
+            indices[indexBase] = vertexOffset
+            indices[indexBase + 1] = vertexOffset + 1
+            indices[indexBase + 2] = vertexOffset + 2
+            indices[indexBase + 3] = vertexOffset + 2
+            indices[indexBase + 4] = vertexOffset + 3
+            indices[indexBase + 5] = vertexOffset
+            quadIndex += 1
+        }
+        uiMesh.update(vertices, indices)
+    }
+
+    private fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: FloatArray) {
+        out[offset] = x
+        out[offset + 1] = y
+        out[offset + 2] = color[0]
+        out[offset + 3] = color[1]
+        out[offset + 4] = color[2]
+        out[offset + 5] = if (color.size > 3) color[3] else 1f
+    }
+
     private fun recreateSwapChain() {
         // TODO process recreation of swapchain here
     }
@@ -279,6 +352,23 @@ class Renderer(
         }
 
         Vulkan.vkCmdEndRenderPass(commandBuffer)
+
+        // Second pass, same command buffer, drawn on top of the 3D pass's output (that
+        // pass's finalLayout leaves the image in COLOR_ATTACHMENT_OPTIMAL specifically so
+        // this pass can pick up from there -- see RenderPipeline.kt's createRenderPass).
+        val uiRenderPassInfo = VkRenderPassBeginInfo(
+            renderPass = uiRenderPipeline.renderPass,
+            framebuffer = uiFramebuffers[acquiredImageIndex],
+            renderArea = VkRect2D(extent = swapchainManager.extent)
+        )
+        Vulkan.vkCmdBeginRenderPass(commandBuffer, uiRenderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
+        uiRenderPipeline.bind(commandBuffer)
+        Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
+        Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+        uiMesh.bind(commandBuffer)
+        uiMesh.draw(commandBuffer)
+        Vulkan.vkCmdEndRenderPass(commandBuffer)
+
         Vulkan.vkEndCommandBuffer(commandBuffer)
     }
 
@@ -289,6 +379,8 @@ class Renderer(
             Vulkan.vkDestroyFramebuffer(device, framebuffers[index])
             index += 1
         }
+        uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
+        uiMesh.destroy()
         Vulkan.vkDestroyImageView(device, depthImageView)
         VulkanImages.vkDestroyImage(device, depthImage)
         VulkanBuffers.vkFreeMemory(device, depthImageMemory)
@@ -296,6 +388,7 @@ class Renderer(
 
     companion object {
         const val DEPTH_FORMAT = 126 // VkFormat.VK_FORMAT_D32_SFLOAT.value
+        const val MAX_UI_QUADS = 256
         val clearColorValue = VkClearColorValue.rgba(0f, 0f, 0f, 1f)
         val clearDepthValue = VkClearDepthStencilValue(depth = 1f, stencil = 0)
     }
