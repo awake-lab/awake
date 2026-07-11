@@ -1863,6 +1863,47 @@ into a reusable engine API), not a naming fix, and wasn't asked for.
 iosSimulatorArm64/wasmJs); all 3 consumers (`awake-opengl`, `awake-demo:shared` including
 its wasmJs target, `awake-demo:desktopApp`) compile clean.
 
+### D16 — Reusable-Application gap: `VulkanGameApplication`/`WebGpuGameApplication`
+
+**DECIDED (2026-07-11): done.** While scoping a "sample project" to show a new consumer how
+to build a game on Awake, confirmed a real gap: `awake-demo`'s `VulkanApplication.kt`/
+`WebGpuApplication.kt` each hand-rolled ~150–230 lines of near-identical engine bootstrap
+(`GraphicsDevice` → `SwapchainManager` → `RenderPipeline` → `TransferContext`/`Texture`/
+`Material` → `Mesh`(es) → scene loading → `Renderer`), differing only in concrete backend
+types and a few real omissions (WebGPU skips `TransferContext`/`Texture`/
+`Material.createResources` entirely). A sample built against that starting point would just
+be another copy of the same boilerplate — not simpler, just smaller in scope.
+
+**Resolution**: extracted `VulkanGameApplication` (`awake-backend-vulkan`) and
+`WebGpuGameApplication` (`awake-backend-webgpu`), each owning the full generic bootstrap
+plus scene loading/`TransformSystem`/`RenderSystem` wiring. A game supplies mesh geometry
+(new `MeshGeometry`/`TextureAsset` data types in `awake-engine-render-api`, same neutral
+role `DrawCall` already plays), an optional texture (`null` binds a built-in 1x1 white
+placeholder, so the shader/descriptor-set contract doesn't need a second no-texture
+variant), and a scene path via the constructor. Game-specific logic hooks in via three
+`open` methods: `onSceneReady()` (resolve entities once the scene loads),
+`onFixedUpdate()`/`onRender()` (per-frame, call `super` first to keep the generic systems
+running). `awake-demo`'s own `SceneRuntimeHost` was trimmed to only the parts genuinely
+specific to that demo (player/camera/NPC resolution, their systems) — generic scene
+loading/`TransformSystem`/`RenderSystem` moved into the base classes.
+
+**Relationship to D15**: D15 explicitly deferred "building `awake-engine` out into a real
+scene-orchestrating layer" as a separate, unrequested feature. This is that feature, now
+requested — but it landed in `awake-backend-vulkan`/`awake-backend-webgpu`, not
+`awake-engine` itself, since the bootstrap is inherently backend-specific (concrete
+`GraphicsDevice`/`RenderPipeline`/etc. types differ per backend); `awake-engine` still only
+holds the backend-neutral `Application` interface and fixed-timestep loop.
+
+**Verified**: retrofitting `awake-demo`'s two `Application` classes onto the new base
+classes shrinks `VulkanApplication.kt` from 229 lines to ~90 (mostly geometry data, no
+bootstrap code) — real proof, not just a claim. All 5 targets compile clean; a real wasmJs
+browser screenshot is pixel-identical to the pre-refactor render (confirming this was a
+pure extraction); `awake-scene`'s test suite is unaffected. New
+[`sample-hello-cube`](../sample-hello-cube) module (a single static cube, no texture)
+compiles and its desktop process boots without crashing, demonstrating the base class is
+genuinely reusable outside `awake-demo` — visual screenshot confirmation of that specific
+module wasn't done (no reliable tool for its unlisted native GLFW window in this session).
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

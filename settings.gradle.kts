@@ -33,6 +33,7 @@ include(":awake-backend-vulkan")
 include(":awake-backend-vulkan:android-native")
 include(":awake-backend-webgpu")
 include(":awake-vulkan-generator")
+include(":sample-hello-cube")
 
 
 pluginManagement {

@@ -1,81 +1,99 @@
 ![Build And Publish](https://github.com/ronjunevaldoz/awake/actions/workflows/build-and-publish.yml/badge.svg)
-![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/io.github.ronjunevaldoz/awake-core?server=https%3A%2F%2Fs01.oss.sonatype.org)
-[![Kotlin](https://img.shields.io/badge/kotlin-1.8.20-blue.svg?logo=kotlin)](http://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/kotlin-2.4.0-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Awake
 
-Awake is a cross-platform graphics wrapper and framework (OpenGL, Metal & Vulkan)
-
-> **Note**
-> The library is still unstable and might encounter issues. While the Android and iOS platform have stable and functional opengl support, the Desktop platform that utilizes the lwjgl/glfw window is still in the development and experimental phase.
+Awake is a Kotlin Multiplatform game engine (Vulkan, WebGPU, OpenGL) with a shared ECS
+runtime, targeting Android, iOS, Desktop (macOS/Windows/Linux), and the Web (Wasm/WebGPU)
+from one `commonMain` codebase. `awake-demo` is the playable MVP built on top of it — see
+[docs/MMORPG_ROADMAP.md](docs/MMORPG_ROADMAP.md) for the long-horizon plan and
+[docs/MVP_PLAN.md](docs/MVP_PLAN.md) for near-term status.
 
 ### Features Supported
 
-- OpenGL
-    - [x] Android OpenGL
-    - [x] iOS OpenGL
-    - [x] Desktop OpenGL (JVM experimental due to in-compatibility to compose AWT)
-- Vulkan
-    - [ ] Android Vulkan (TODO)
-    - [ ] iOS MoltenVK / Metal (TODO)
-    - [ ] Desktop (TODO)
+- Vulkan — Android, Desktop (macOS/Windows/Linux), iOS (via MoltenVK)
+- WebGPU — Web (Wasm), behind the same renderer abstraction as Vulkan
+- OpenGL — Android, iOS, Desktop (frozen: bugfixes only, Vulkan is the active backend)
+- Shared ECS (`awake-ecs`) + scene graph (`awake-scene`: `Transform`, `MeshRenderer`,
+  `Camera`, `Light`, NavMesh-driven AI)
 
 ### Modules
 
-- `awake-core` — math, renderer abstraction, asset utilities (installation below)
-- [`awake-vulkan`](awake-vulkan) — Vulkan bindings, mesh/material/pipeline types
+- [`awake-engine`](awake-engine) — engine core: `EngineConfig`, `Application`, game loop
+- [`awake-base`](awake-base) — math, asset/resource utilities, input abstraction
 - [`awake-ecs`](awake-ecs/README.md) — sparse-set ECS runtime (entities, components, systems, queries)
-- [`awake-scene`](awake-scene/README.md) — scene-graph components/systems (`Transform`, `MeshRenderer`, `Camera`, `Light`) built on `awake-ecs`
+- [`awake-scene`](awake-scene/README.md) — scene-graph components/systems built on `awake-ecs`
+- [`awake-engine-render-api`](awake-engine-render-api) — backend-neutral renderer interfaces
+- [`awake-backend-vulkan`](awake-backend-vulkan) — Vulkan bindings + renderer (Android/Desktop/iOS)
+- [`awake-backend-webgpu`](awake-backend-webgpu) — WebGPU renderer (Web/Wasm)
+- [`awake-opengl`](awake-opengl) — legacy OpenGL backend (frozen)
+- [`awake-demo`](awake-demo) — the playable demo app (shared code + per-platform entry points)
+- [`sample-hello-cube`](sample-hello-cube) — minimal starter project (see "Building a New Game" below)
+
+### Running the Demo
+
+Clone the repo, then pick a platform:
+
+- **Desktop** (real GLFW + Vulkan window, MoltenVK on macOS):
+  ```
+  ./gradlew :awake-demo:desktopApp:runVulkanDesktop
+  ```
+  Or the Compose-embedded variant (FPS/HUD overlay, Vulkan on/off switch):
+  ```
+  ./gradlew :awake-demo:desktopApp:run
+  ```
+- **Web** (WebGPU, requires a browser with WebGPU support — Chrome/Edge 113+):
+  ```
+  ./gradlew :awake-demo:shared:wasmJsBrowserDevelopmentRun
+  ```
+  Then open the URL it prints (usually `http://localhost:8080`).
+- **Android**: open the project in Android Studio, run the `androidApp` configuration on a
+  device/emulator with Vulkan support.
+- **iOS**: open `awake-demo/iosApp` in Xcode (Apple Silicon Simulator or a real device) and
+  run — the shared code ships as an XCFramework via SPM, no CocoaPods needed.
+
+Controls: WASD/arrow keys (desktop/web) or touch-drag (Android/iOS) move the player; the
+camera follows in third person; an NPC chases the player using a real Recast/Detour navmesh
+(desktop/Android only for now — see `docs/MMORPG_ROADMAP.md`'s NavMesh decision).
+
+### Building a New Game
+
+`awake-demo` is a full MVP, not a starting point — for a new project, start from
+[`sample-hello-cube`](sample-hello-cube) instead: a single static Vulkan cube, ~100 lines
+total, no player/camera/AI/NavMesh. Run it with:
+
+```
+./gradlew :sample-hello-cube:run
+```
+
+The reusable engine bootstrap lives in `VulkanGameApplication`
+(`awake-backend-vulkan`) and `WebGpuGameApplication` (`awake-backend-webgpu`) — a new game
+subclasses one of these, supplying mesh geometry, an optional texture, and a scene JSON path
+through the constructor. `GraphicsDevice`/`SwapchainManager`/`RenderPipeline`/`Mesh`/
+`Material`/`Renderer` construction, scene loading, and the fixed-timestep loop are all
+handled generically. Game-specific behavior (player movement, camera control, AI) is added
+by overriding `onSceneReady()` (resolve your entities once the scene loads) and
+`onFixedUpdate()`/`onRender()` (per-frame logic) — see `awake-demo`'s own
+`VulkanApplication.kt`/`WebGpuApplication.kt` for a worked example with a moving player,
+third-person camera, and NavMesh-driven AI layered on top of the same base class.
 
 ### Tools
 
-Vulkan requires to use `.spv` shader, so i've provided a GlslValidator gradle plugin to convert glsl
-to spv on pre-compilation.
+Vulkan requires `.spv` shaders, so a GlslValidator Gradle plugin converts `.glsl`/`.vert`/
+`.frag` sources to `.spv` on demand (manual step, not wired into the automatic build):
 
-1. To install `glslangValidator`
-    ```
-    brew install glslang 
-    ```
-2. To verify installation
-    ```
-    glslangValidator --version
-    ```
-3. Run gradle task `glslValidator`
-    ```
-   gradle glslValidator
+1. Install `glslangValidator`:
    ```
-
-### Installation
-
-To use this library in your Kotlin Multiplatform project, follow the steps below:
-
-1. Add the library as a dependency in your Gradle `build.gradle.kts`
-
-```kotlin
-implementation("io.github.ronjunevaldoz:awake-core:1.0.0-SNAPSHOT")
-```
-
-```kotlin
-repositories {
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
-}
-```
-
-### Example Usage
-
-1. Initialize the AwakeContext
-
-    ```kotlin
-        // by default debug is enabled
-        // default fps is set to 60
-        // default gl version is set to 3
-        AwakeContext.init()
-    ```
-2. Create a sample compose component
-
-   ```kotlin
-        
+   brew install glslang
+   ```
+2. Verify installation:
+   ```
+   glslangValidator --version
+   ```
+3. Run the Gradle task after editing any shader:
+   ```
+   ./gradlew glslValidator
    ```
 
 ### License
