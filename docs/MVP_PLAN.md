@@ -2143,6 +2143,59 @@ A+B) was built as infrastructure for.
   /`X`/`Y` with no arbitration); expanding `BitmapFont`'s glyph set for real mode-name
   captions (revisit if this UI grows enough to need it).
 
+### D19 — Deduplicate `VulkanGameApplication`/`WebGpuGameApplication` into `GenericGameApplication`
+
+**Decided (2026-07-11): extract the ~90% of `VulkanGameApplication` (`awake-backend-vulkan`,
+298 lines) and `WebGpuGameApplication` (`awake-backend-webgpu`, 224 lines) that was
+identical — same fields, same `Application` lifecycle, same `onFixedUpdate`/`onRender`/
+`onDrawUi`/`onSceneReady`/`resolveRenderable`/`aspectRatio`/`drawDebugLines` hooks — into one
+new shared base class, rather than continuing to hand-copy every catalog-tool feature (this
+session's `drawDebugLines`, `OrbitCameraSystem` wiring) into both files.** They'd already
+drifted once: only `VulkanGameApplication`'s `create()` had its `-XstartOnFirstThread`/
+`MainScope()` desktop deadlock fixed a few commits earlier in this same session;
+`WebGpuGameApplication` still had the identical latent bug (harmless only because wasmJs is
+single-threaded).
+
+- New module `awake-engine-game` (same 5-target shape as `awake-scene`/
+  `awake-engine-render-api`) holds `GenericGameApplication` — an abstract class with all the
+  shared state/lifecycle/hooks, operating only through `awake-engine-render-api`'s existing
+  `Renderer`/`Mesh`/`Material` interfaces (no new interfaces needed). Each backend implements
+  exactly two abstract members: `createBackendResources(window): BackendResources`
+  (construct concrete `GraphicsDevice`/`SwapchainManager`/`RenderPipeline`/etc., upload
+  meshes/texture, return the handful of interface-typed objects the shared bootstrap needs)
+  and `destroyBackend()` (GPU teardown, reading the base class's now-`protected` `renderer`/
+  `meshInstances`/`material` fields).
+- `viewportSize: () -> Pair<Float, Float>` in `BackendResources` replaces each backend's
+  separate "compute width/height for `ui.beginFrame`" and "compute `aspectRatio`" logic
+  (previously duplicated 2x each) with one live-queried lambda.
+- `awake-backend-vulkan`/`awake-backend-webgpu` depend on `awake-engine-game` via `api`, not
+  `implementation` — it's a supertype of `VulkanGameApplication`/`WebGpuGameApplication`, so
+  Gradle requires it resolvable on every downstream consumer's own classpath too (confirmed
+  the hard way: `implementation` compiled fine within the backend module itself, but broke
+  `sample-hello-cube`/`awake-demo` with "Cannot access X which is a supertype" the moment
+  they tried to compile against the now-slimmer `VulkanGameApplication`).
+- **Zero changes needed** to the four actual consumer classes (`demo.VulkanApplication`,
+  `demo.WebGpuApplication`, `SampleApplication`, `WebGpuSampleApplication`) or their modules'
+  `build.gradle.kts` files — they only ever touched the protected surface this refactor kept
+  byte-for-byte identical.
+- **Two pre-existing, unrelated bugs found during verification** (confirmed via `git stash`
+  to predate this refactor, not caused by it): (1) `awake-demo`'s Vulkan companion window
+  spams `VK_ERROR_MEMORY_MAP_FAILED` every frame and exits early instead of showing a window
+  — reproduces identically on the pre-refactor commit; (2) `sample-hello-cube`'s wasmJs
+  target is missing `awake-backend-webgpu`'s bundled UI/debug-line `.wgsl` shaders in its
+  aggregated browser package (only its own per-app `triangle.wgsl` makes it through) — same
+  gap as D18's Compose-specific exception, except `sample-hello-cube` doesn't apply the
+  Compose plugin, so the assumption in AGENTS.md's resource-bundling rule that plain KMP
+  consumers bundle transitively fine needs re-examining. Both flagged as separate follow-up
+  work, not fixed in this slice.
+- **Verified**: all 5 targets (desktop/android/iOS arm64+simulator/wasmJs) compile clean for
+  `awake-engine-game`, `awake-backend-vulkan`, `awake-backend-webgpu`, `sample-hello-cube`,
+  and `awake-demo`. `awake-scene:desktopTest` regression passes. Real desktop run of
+  `sample-hello-cube` confirms the full refactored bootstrap chain (`create` →
+  `createBackendResources` → scene loading → `onSceneReady` → `OrbitCameraSystem` →
+  `onRender`) still works end to end — the cube renders at Orbit's default distance/pitch/
+  auto-rotate framing, visually distinct from the pre-Orbit straight-on view.
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

@@ -47,6 +47,7 @@ it before starting work; phases and open decisions (D1–D4) are tracked there.*
 | `:awake-ecs` | Pure sparse-set ECS runtime: entities, component stores, world queries, systems | ✅ `awake-ecs` |
 | `:awake-scene` | Awake scene components/systems on top of ECS (`Transform`, `Camera`, render integration) | ✅ `awake-scene` |
 | `:awake-vulkan` | Vulkan KMP bindings — common API + JNI C++ (`src/main/cpp`) | ✅ `awake-vulkan` |
+| `:awake-engine-game` | `GenericGameApplication` — the backend-neutral game bootstrap (scene loading, fixed-timestep loop, UI/debug-line staging) `VulkanGameApplication`/`WebGpuGameApplication` both extend, instead of duplicating it (see Decision Log D19) | ❌ |
 | `:awake-vulkan-generator` | Legacy bespoke C++ codegen — **being retired** (MVP Phase 1a) in favor of jni-binding-generator | ❌ |
 | `:awake-demo:shared` | Sample app shared code (Vulkan triangle demo) | ❌ sample |
 | `:awake-demo:androidApp` | Android sample entry point | ❌ sample |
