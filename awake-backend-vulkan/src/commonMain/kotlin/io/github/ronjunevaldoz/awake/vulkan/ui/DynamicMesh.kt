@@ -68,15 +68,26 @@ class DynamicMesh(
     /** Overwrites this frame's vertex/index contents. [vertices] must be at most
      * `maxQuads * VERTICES_PER_QUAD * FLOATS_PER_VERTEX` floats -- callers build this from
      * [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad]s (2 floats position + 4 floats
-     * color per vertex). */
+     * color per vertex).
+     *
+     * Called unconditionally every frame by `Renderer.drawUi` regardless of whether this
+     * frame actually has any quads for this mesh (e.g. `uiGlyphMesh` when a scene's
+     * `onDrawUi` never calls `UiContext.text`) -- a 0-length [indices] is a legitimate,
+     * common "nothing to draw" call, not a caller bug, so it's handled here rather than
+     * pushing an empty-check onto every caller. Skipping the GPU write in that case isn't
+     * just an optimization: `vkMapMemory`/`vkUnmapMemory` with a 0-byte range is invalid
+     * per the Vulkan spec, and MoltenVK's `vkUnmapMemory` throws `VK_ERROR_MEMORY_MAP_FAILED`
+     * ("Memory is not mapped") for it, since the preceding 0-size `vkMapMemory` never
+     * actually establishes a mapping. */
     fun update(vertices: FloatArray, indices: IntArray) {
         require(vertices.size <= maxVertices * floatsPerVertex) {
             "UI quad count exceeds DynamicMesh capacity ($maxQuads quads) -- " +
                 "raise maxQuads or reduce widgets drawn this frame."
         }
+        drawIndexCount = indices.size
+        if (indices.isEmpty()) return
         VulkanBuffers.writeBufferMemoryFloats(device, vertexBufferMemory.handle, 0, vertices)
         VulkanBuffers.writeBufferMemoryBytes(device, indexBufferMemory.handle, 0, indices.toByteArrayLE())
-        drawIndexCount = indices.size
     }
 
     fun bind(commandBuffer: Long) {
