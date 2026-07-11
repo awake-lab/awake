@@ -127,10 +127,11 @@ val dyldFallbackLibraryPath = "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew
 tasks.register<JavaExec>("run") {
     group = "application"
     description = "Run the minimal hello-cube sample (a single static Vulkan cube, no texture)."
-    dependsOn("compileKotlinDesktop")
+    dependsOn("compileKotlinDesktop", "desktopProcessResources")
     mainClass.set("MainKt")
     classpath = files(
         layout.buildDirectory.dir("classes/kotlin/desktop/main"),
+        layout.buildDirectory.dir("processedResources/desktop/main"),
         kotlin.jvm("desktop").compilations.getByName("main").runtimeDependencyFiles
     )
     if (moltenVkIcdPath != null) {

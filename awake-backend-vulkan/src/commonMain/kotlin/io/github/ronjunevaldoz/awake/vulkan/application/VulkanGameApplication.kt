@@ -30,7 +30,8 @@ import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -97,7 +98,14 @@ abstract class VulkanGameApplication(
     private var isReady = false
 
     final override fun create(surface: Any?) {
-        surface?.let { window -> MainScope().launch { setupVulkan(window) } }
+        // NOT MainScope(): its Dispatchers.Main resolves to kotlinx-coroutines-swing's
+        // SwingDispatcher on desktop, which needs Toolkit.getDefaultToolkit() -- that
+        // deadlocks against -XstartOnFirstThread (already claimed by GLFW), so the render
+        // thread would hang before ever creating a window. setupVulkan() never touches
+        // Swing/AWT (readResourceBytes is a plain blocking read on desktop, see
+        // awake-base's Resource.kt), so Dispatchers.Unconfined keeps every Vulkan call on
+        // this calling thread, per this project's "one thread owns Vulkan" rule.
+        surface?.let { window -> CoroutineScope(Dispatchers.Unconfined).launch { setupVulkan(window) } }
     }
 
     final override fun update(delta: Float) {
