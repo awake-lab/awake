@@ -2029,6 +2029,47 @@ this infra exists for are explicit, separate follow-ups.
   infrastructure it will be built on top of); per-widget clip/scissor rects; auto-
   disambiguated widget ids (caller must supply unique string ids manually).
 
+**Phase B (2026-07-11): minimal bitmap-font text rendering, both backends.** Considered
+`msdf-bmfont-xml`/MSDF signed-distance-field rendering (real font quality/scaling) against a
+hand-authored fixed-grid bitmap font; picked the latter since this UI is a debug/catalog
+overlay, not user-facing typography, and MSDF's shader + toolchain cost isn't justified yet
+(revisit if the UI grows more prominent — see project memory `decision-bitmap-font-over-
+msdf`).
+
+- `awake-engine-ui`: new `font.BitmapFont` — hand-authored 8×8 glyph bitmaps for exactly the
+  ~10 characters `"DEBUG: ON"`/`"DEBUG: OFF"` need (space, `:`, B, D, E, F, G, N, O, U), not
+  full ASCII; generates its RGBA8 atlas at runtime from those bitmaps rather than shipping an
+  image asset. `UiDrawPrimitive` gained a `Glyph` variant (quad + UV rect); `UiContext.text()`
+  walks a string, looks up each character's UV rect, and emits one `Glyph` per character,
+  advancing by `font.cellSize`.
+- **Vulkan**: new `UiGlyphRenderPipeline` — a second pipeline sharing `UiRenderPipeline`'s
+  already-created render pass (both draw within the same subpass sequentially: colored quads
+  first, glyphs on top), with its own descriptor set (binding 0 = screen-size uniform,
+  binding 1 = combined-image-sampler for the font atlas, mirroring `Material`'s existing
+  texture-binding pattern for the 3D pass). `DynamicMesh` gained a constructor
+  `floatsPerVertex` parameter so one class serves both the 6-float colored-quad layout and
+  the 8-float (pos+uv+color) glyph layout.
+- **WebGPU**: mirrors the Vulkan shape, but WebGPU's own `Texture` class
+  (`awake-backend-webgpu/.../texture/Texture.kt`) is still an unimplemented `TODO()` stub (no
+  upload path exists yet for either this or the 3D pass's `Material`) — so the font-atlas
+  `GPUTexture` is created and uploaded directly inside the new WebGPU `UiGlyphRenderPipeline`
+  (`device.createTexture(TextureDescriptor(...))` + `device.queue.writeTexture(...)`), not
+  routed through that stub. Bind group has three entries (screen-size uniform, texture view,
+  sampler) since WGSL requires the texture and sampler as separate bindings, unlike Vulkan's
+  combined-image-sampler.
+- Both `*GameApplication` base classes construct `protected val font = BitmapFont()`, the
+  glyph pipeline, and (Vulkan only) the font-atlas `Texture`, alongside their existing
+  `UiRenderPipeline` setup/teardown.
+- **Verified**: `awake-backend-vulkan`/`awake-backend-webgpu`/`sample-hello-cube` (all
+  targets) compile clean. `sample-hello-cube` now renders a live `"DEBUG: ON"`/`"DEBUG:
+  OFF"` label next to its toggle in both `SampleApplication.kt` (Vulkan) and
+  `WebGpuSampleApplication.kt` (WebGPU); confirmed in-browser for WebGPU via screenshot
+  (label renders and is legible). Toggle click-to-flip itself was already proven by Phase
+  A's `UiContextTest`; a synthetic mousedown/mouseup dispatch in this headless-browser
+  session didn't reliably reproduce the full press-release cycle (hover-state color change
+  did register, confirming hit-testing/coordinate math is correct) — not re-litigated here
+  since it isn't Phase B's concern.
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

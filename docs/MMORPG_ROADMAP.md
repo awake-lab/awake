@@ -82,7 +82,7 @@ used, so the categorical view (what kind of system is this) and the sequencing v
 
 | Item | Status | Priority | Stage | Approach |
 |---|---|---|---|---|
-| In-Engine ImGui Catalog & Profiler Overlay | 🚧 Partial | P1 | MVP1a | Custom UI (not ImGui) -- see docs/MVP_PLAN.md's decision log. Phase A done: immediate-mode `UiContext` (button/toggle/dropdown), a second alpha-blended render pass on both Vulkan+WebGPU, `onDrawUi` hook on both `*GameApplication` base classes. Still open: Phase B (bitmap-font text), and the actual model-viewer/camera-mode/frustum-wireframe catalog tool this infra exists for. |
+| In-Engine ImGui Catalog & Profiler Overlay | 🚧 Partial | P1 | MVP1a | Custom UI (not ImGui) -- see docs/MVP_PLAN.md's decision log. Phase A done: immediate-mode `UiContext` (button/toggle/dropdown), a second alpha-blended render pass on both Vulkan+WebGPU, `onDrawUi` hook on both `*GameApplication` base classes. Phase B done: minimal bitmap-font glyph rendering (`BitmapFont` + `UiGlyphRenderPipeline`) on both backends, verified with a live "DEBUG: ON/OFF" label in `sample-hello-cube`. Still open: the actual model-viewer/camera-mode/frustum-wireframe catalog tool this infra exists for. |
 | Hot-Reloading SPIR-V Shader Compilation Toolchain | 🔲 Not started | P2 | MVP5 | 🆕 |
 | Compute-Shader Heightmap Deformation Brushes | 🔲 Not started | P2 | MVP5 | 🆕 |
 | Procedural L-System Tree Generation Toolchain | 🔲 Not started | P2 | MVP5 | 🆕 |
