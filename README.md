@@ -61,11 +61,18 @@ camera follows in third person; an NPC chases the player using a real Recast/Det
 
 `awake-demo` is a full MVP, not a starting point — for a new project, start from
 [`sample-hello-cube`](sample-hello-cube) instead: a single static Vulkan cube, ~100 lines
-total, no player/camera/AI/NavMesh. Run it with:
+total, no player/camera/AI/NavMesh. It targets all 4 platforms, same as `awake-demo`:
 
-```
-./gradlew :sample-hello-cube:run
-```
+- **Desktop**: `./gradlew :sample-hello-cube:run`
+- **Web** (WebGPU): `./gradlew :sample-hello-cube:wasmJsBrowserDevelopmentRun`, then open
+  the printed URL.
+- **Android**: open the project in Android Studio, run the `sample-hello-cube:androidApp`
+  configuration — a plain `Activity` calling
+  `setContentView(VulkanView(this, SampleApplication()))`, no Compose needed.
+- **iOS**: open `sample-hello-cube/iosApp` in Xcode and run. Unlike `awake-demo` (which
+  hosts its canvas through Compose), this sample wires `VulkanMetalView` directly from a
+  plain `UIViewController` (`sample-hello-cube/src/iosMain/kotlin/main.ios.kt`'s
+  `makeSampleViewController()`) — the pattern to copy if your own game skips Compose too.
 
 The reusable engine bootstrap lives in `VulkanGameApplication`
 (`awake-backend-vulkan`) and `WebGpuGameApplication` (`awake-backend-webgpu`) — a new game

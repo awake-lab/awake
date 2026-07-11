@@ -295,6 +295,12 @@ class World {
         return Family1(familyRegistry.familyCache(type))
     }
 
+    // ObjCName disambiguates this from the two-type family() overload below -- both are
+    // `inline`/`reified` (erased to `id` in the generated Objective-C header), so without
+    // distinct names they collide under the same selector ("duplicate declaration of
+    // method 'family'"), breaking every iOS consumer's XCFramework build.
+    @OptIn(kotlin.experimental.ExperimentalObjCName::class)
+    @kotlin.native.ObjCName("family1")
     inline fun <reified A : Any> family(): Family1<A> {
         return family(A::class)
     }
@@ -315,6 +321,8 @@ class World {
         return Family2(familyRegistry.familyCache(typeA, typeB))
     }
 
+    @OptIn(kotlin.experimental.ExperimentalObjCName::class)
+    @kotlin.native.ObjCName("family2")
     inline fun <reified A : Any, reified B : Any> family(): Family2<A, B> {
         return family(A::class, B::class)
     }

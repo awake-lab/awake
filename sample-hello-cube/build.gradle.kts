@@ -77,11 +77,8 @@ kotlin {
             dependsOn(commonMain.get())
         }
         appMain.dependencies {
-            // api, not implementation: sample-hello-cube:androidApp needs VulkanView
-            // (awake-engine) and Application (also awake-engine, via VulkanGameApplication's
-            // supertype) visible transitively -- see that module's build.gradle.kts comment.
-            api(project(":awake-engine"))
-            api(project(":awake-backend-vulkan"))
+            implementation(project(":awake-engine"))
+            implementation(project(":awake-backend-vulkan"))
         }
         named("desktopMain") {
             dependsOn(appMain)
@@ -91,7 +88,20 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.swing)
             }
         }
-        named("androidMain") { dependsOn(appMain) }
+        named("androidMain") {
+            dependsOn(appMain)
+            dependencies {
+                // api, not implementation: sample-hello-cube:androidApp needs VulkanView
+                // (awake-engine) and Application visible transitively -- see that module's
+                // build.gradle.kts comment. Scoped to androidMain only (not appMain, which
+                // iosMain also depends on) -- promoting this to api project-wide caused
+                // awake-ecs's World (and its ambiguous ObjC-exported `family()` overloads)
+                // to leak into the iOS XCFramework's generated header, which doesn't happen
+                // when these stay `implementation` there, matching awake-demo/shared.
+                api(project(":awake-engine"))
+                api(project(":awake-backend-vulkan"))
+            }
+        }
         named("iosMain") { dependsOn(appMain) }
 
         named("wasmJsMain") {

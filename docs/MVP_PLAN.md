@@ -1904,6 +1904,51 @@ compiles and its desktop process boots without crashing, demonstrating the base 
 genuinely reusable outside `awake-demo` — visual screenshot confirmation of that specific
 module wasn't done (no reliable tool for its unlisted native GLFW window in this session).
 
+**D16 follow-up (2026-07-11): `sample-hello-cube` extended to all 4 platforms.** Proves the
+base-class extraction above is reusable beyond desktop/wasmJs specifically:
+
+- **Android**: new `sample-hello-cube:androidApp` module — plain `com.android.application`
+  (not KMP), a bare `Activity` calling
+  `setContentView(VulkanView(this, SampleApplication()))`, no Compose at all (simpler than
+  `awake-demo:androidApp`'s own Activity, since `VulkanView` already accepts an
+  `Application` instance directly). Required promoting `sample-hello-cube`'s
+  `awake-engine`/`awake-backend-vulkan` deps from `implementation` to `api`, scoped to
+  `androidMain` only (not the shared `appMain` source set) — see the iOS note below for why
+  scoping mattered.
+- **iOS**: first plain-`UIViewController`-hosting-`VulkanMetalView` pattern in this repo
+  (`sample-hello-cube/src/iosMain/kotlin/main.ios.kt`'s `makeSampleViewController()`) —
+  `awake-demo` always goes through Compose (`ComposeUIViewController` wrapping
+  `AwakeCanvas.kt`'s `UIKitView`); this sample has no UI chrome, so it wires the same five
+  `VulkanMetalView` lifecycle lambdas directly. `sample-hello-cube/iosApp` was `cp -R`'d
+  from `awake-demo/iosApp` (per this doc's own standing rule against hand-authoring
+  `project.pbxproj`), then only file *contents* were repointed: `Package.swift`'s
+  `binaryTarget` path/framework name, and the two resource-folder `PBXFileReference` paths
+  (`../shared/src/commonMain/resources/...` → `../src/.../resources/...`, since
+  `sample-hello-cube` has no nested `shared/` module). `ContentView.swift` imports the
+  XCFramework's own compiled module name (`Sample`, from `baseName = "Sample"`) even though
+  the wrapping SPM package/product is still named `Shared` (cosmetic) — the binaryTarget
+  just wraps the binary as-is, so Swift resolves the framework's actual module name on
+  import, not the package's declared name.
+- **Bug found + fixed while verifying iOS**: promoting `sample-hello-cube`'s deps to `api`
+  project-wide (not scoped to `androidMain`) caused `awake-ecs`'s `World` class to leak into
+  the iOS XCFramework's generated Objective-C header, which exposed a **pre-existing,
+  previously-latent bug**: `World`'s two `inline reified` `family()` overloads (1-type and
+  2-type) both erase to the same Objective-C selector (`- (id)family`), causing
+  "duplicate declaration of method 'family'" — a genuine compile blocker, confirmed to
+  affect `awake-demo`'s own `iosApp` identically once its XCFramework is rebuilt fresh
+  (stale cached builds had been masking it). Fixed in `awake-ecs/World.kt` with
+  `@ObjCName("family1")`/`@ObjCName("family2")` on the two overloads — a 4-line fix,
+  unrelated in scope to this platform-extension work but blocking it entirely, so it
+  landed here rather than as a separate deferred item.
+- **Verified**: `androidApp:assembleDebug` succeeds (no device/emulator connected, so
+  build-only, not visual — same limitation already flagged for task #85 elsewhere in this
+  doc). iOS: `assembleSampleDebugXCFramework` + `xcodebuild build` against a concrete
+  simulator device (`generic/platform=iOS Simulator` hits an unrelated missing-x86_64-slice
+  issue that also pre-exists for `awake-demo`, since the XCFramework only registers an
+  arm64 simulator slice — a concrete-device destination sidesteps it) both succeed, for
+  `sample-hello-cube` and, after the `awake-ecs` fix, `awake-demo` too. `awake-scene`'s
+  desktop test suite is unaffected by the `awake-ecs` change.
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).
