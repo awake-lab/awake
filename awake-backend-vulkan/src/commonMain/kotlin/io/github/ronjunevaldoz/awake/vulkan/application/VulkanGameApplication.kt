@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.graphics.Application
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
@@ -19,6 +20,7 @@ import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
+import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
@@ -60,6 +62,7 @@ abstract class VulkanGameApplication(
     private lateinit var renderPipeline: RenderPipeline
     private lateinit var uiRenderPipeline: UiRenderPipeline
     private lateinit var uiGlyphRenderPipeline: UiGlyphRenderPipeline
+    private lateinit var lineRenderPipeline: LineRenderPipeline
     private lateinit var fontTexture: Texture
     private lateinit var transferContext: TransferContext
     private lateinit var renderer: Renderer
@@ -142,6 +145,20 @@ abstract class VulkanGameApplication(
      * [onFixedUpdate]'s "subclass declares behavior, base class drives the call" shape. */
     protected open fun onDrawUi(ui: UiContext) {}
 
+    /** The current swapchain's width/height aspect ratio -- for a subclass computing a
+     * [io.github.ronjunevaldoz.awake.core.math.Frustum]'s corners to visualize via
+     * [drawDebugLines]. */
+    protected val aspectRatio: Float
+        get() = swapchainManager.extent.width.toFloat() / swapchainManager.extent.height.toFloat()
+
+    /** Draws world-space debug lines (e.g. a frustum wireframe) this frame -- see
+     * [io.github.ronjunevaldoz.awake.render.renderer.Renderer.drawDebugLines]'s doc comment
+     * for the staging/depth-testing details. Call from an overridden [onDrawUi] (or
+     * [onRender]), before [onDrawUi]'s caller submits the frame. */
+    protected fun drawDebugLines(lines: List<LineSegment>) {
+        renderer.drawDebugLines(lines)
+    }
+
     /** Looks the mesh up by name in the map built from the constructor's [meshes] and pairs
      * it with the single shared [material] -- override for per-mesh materials. */
     protected open fun resolveRenderable(request: SceneRenderableRequest): MeshRenderer {
@@ -167,6 +184,13 @@ abstract class VulkanGameApplication(
             readResourceBytes(vertexShaderResourcePath),
             readResourceBytes(fragmentShaderResourcePath),
             vertexStride
+        )
+        lineRenderPipeline = LineRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            renderPipeline.renderPass,
+            readResourceBytes(DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH),
+            readResourceBytes(DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH)
         )
         uiRenderPipeline = UiRenderPipeline(
             graphicsDevice,
@@ -196,6 +220,7 @@ abstract class VulkanGameApplication(
             renderPipeline,
             uiRenderPipeline,
             uiGlyphRenderPipeline,
+            lineRenderPipeline,
             transferContext.commandPool.handle,
             MAX_FRAMES_IN_FLIGHT
         )
@@ -236,6 +261,7 @@ abstract class VulkanGameApplication(
         textureInstance.destroy()
         material.destroy()
         renderPipeline.destroy()
+        lineRenderPipeline.destroy()
         uiRenderPipeline.destroy()
         uiGlyphRenderPipeline.destroy()
         fontTexture.destroy()
@@ -258,5 +284,7 @@ abstract class VulkanGameApplication(
         const val UI_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.frag.spv"
         const val UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.vert.spv"
         const val UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.frag.spv"
+        const val DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/debug_line.vert.spv"
+        const val DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/debug_line.frag.spv"
     }
 }

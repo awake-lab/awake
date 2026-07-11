@@ -5,8 +5,11 @@ package io.github.ronjunevaldoz.awake.webgpu.renderer
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
+import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
@@ -53,6 +56,7 @@ class Renderer(
     renderPipeline: RenderPipeline,
     private val uiRenderPipeline: UiRenderPipeline,
     private val uiGlyphRenderPipeline: UiGlyphRenderPipeline,
+    private val lineRenderPipeline: LineRenderPipeline,
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
@@ -67,6 +71,9 @@ class Renderer(
     // draw(), always draws this frame's widgets, not last frame's.
     private val uiMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS)
     private val uiGlyphMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+
+    // Rewritten by drawDebugLines() (staged before draw(), same pattern as uiMesh above).
+    private val lineMesh = LineMesh(graphicsDevice, MAX_DEBUG_LINES)
 
     private fun ensureUniformResources(pipeline: GPURenderPipeline) {
         if (uniformBuffer != null) return
@@ -148,6 +155,35 @@ class Renderer(
         uiGlyphMesh.update(glyphVertices, glyphIndices)
     }
 
+    /** Stages this frame's world-space debug lines (e.g. a frustum wireframe) -- rewrites
+     * [lineMesh]'s buffer but issues no GPU commands itself, same "stage now, consume on
+     * next draw" pattern as [drawUi]. Call before [draw] each frame. */
+    override fun drawDebugLines(lines: List<LineSegment>) {
+        require(lines.size <= MAX_DEBUG_LINES) {
+            "Debug line count (${lines.size}) exceeds Renderer's LineMesh capacity ($MAX_DEBUG_LINES)."
+        }
+        val vertices = FloatArray(lines.size * LineMesh.VERTICES_PER_LINE * LineMesh.FLOATS_PER_VERTEX)
+        var lineIndex = 0
+        while (lineIndex < lines.size) {
+            val line = lines[lineIndex]
+            val vertexBase = lineIndex * LineMesh.VERTICES_PER_LINE * LineMesh.FLOATS_PER_VERTEX
+            writeLineVertex(vertices, vertexBase, line.start.x, line.start.y, line.start.z, line.color)
+            writeLineVertex(vertices, vertexBase + LineMesh.FLOATS_PER_VERTEX, line.end.x, line.end.y, line.end.z, line.color)
+            lineIndex += 1
+        }
+        lineMesh.update(vertices)
+    }
+
+    private fun writeLineVertex(out: FloatArray, offset: Int, x: Float, y: Float, z: Float, color: FloatArray) {
+        out[offset] = x
+        out[offset + 1] = y
+        out[offset + 2] = z
+        out[offset + 3] = color[0]
+        out[offset + 4] = color[1]
+        out[offset + 5] = color[2]
+        out[offset + 6] = if (color.size > 3) color[3] else 1f
+    }
+
     private fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: FloatArray) {
         out[offset] = x
         out[offset + 1] = y
@@ -176,6 +212,8 @@ class Renderer(
 
         val aspect = renderingContext.width.toFloat() / renderingContext.height.toFloat()
         val viewProjection = camera.viewProjectionMatrix(aspect)
+        // Debug lines are already in world space, so their MVP is exactly viewProjection.
+        lineRenderPipeline.writeMvp(viewProjection.data)
 
         val encoder = device.createCommandEncoder()
         val colorView = renderingContext.getCurrentTexture().createView()
@@ -210,6 +248,18 @@ class Renderer(
                 setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
                 drawIndexed(mesh.indexCount.toUInt())
                 drawIndex += 1
+            }
+
+            // Debug lines (e.g. a frustum wireframe), same render pass as the 3D draw
+            // calls above. This backend's 3D pass has no depth attachment at all today
+            // (see LineRenderPipeline's doc comment), so this doesn't depth-test against
+            // scene geometry -- matches this pass's existing (pre-existing, not new) lack
+            // of depth testing for every other draw call too.
+            if (lineMesh.vertexCount > 0) {
+                setPipeline(lineRenderPipeline.pipeline)
+                setBindGroup(0u, lineRenderPipeline.bindGroup)
+                setVertexBuffer(0u, lineMesh.vertexBufferRef())
+                draw(lineMesh.vertexCount.toUInt())
             }
             end()
         }
@@ -256,9 +306,11 @@ class Renderer(
         uniformBindGroup = null
         uiMesh.destroy()
         uiGlyphMesh.destroy()
+        lineMesh.destroy()
     }
 
     private companion object {
         const val MAX_UI_QUADS = 256
+        const val MAX_DEBUG_LINES = 64
     }
 }

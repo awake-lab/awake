@@ -21,5 +21,12 @@ interface Renderer {
      * 3D pass, in the same frame. */
     fun drawUi(primitives: List<UiDrawPrimitive>)
 
+    /** Draws world-space debug lines (e.g. a frustum wireframe) -- unlike [drawUi], these
+     * are transformed by [draw]'s own view-projection matrix and drawn *inside* the main 3D
+     * render pass (not a separate pass), so they get real depth-testing against scene
+     * geometry. Stages the lines for the next [draw] call, same "stage now, consume on next
+     * draw" pattern [drawUi] already uses -- call before [draw] each frame. */
+    fun drawDebugLines(lines: List<LineSegment>)
+
     fun destroy()
 }

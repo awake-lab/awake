@@ -48,6 +48,18 @@ data class Vec3(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f) {
         )
     }
 
+    operator fun plus(other: Vec3): Vec3 {
+        return Vec3(
+            x + other.x,
+            y + other.y,
+            z + other.z,
+        )
+    }
+
+    operator fun times(scalar: Float): Vec3 {
+        return Vec3(x * scalar, y * scalar, z * scalar)
+    }
+
     companion object {
         val UP = Vec3(0f, 1f, 0f)
     }

@@ -5,9 +5,12 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
+import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
+import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCommandBufferLevel
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
@@ -69,6 +72,7 @@ class Renderer(
     renderPipeline: RenderPipeline,
     private val uiRenderPipeline: UiRenderPipeline,
     private val uiGlyphRenderPipeline: UiGlyphRenderPipeline,
+    private val lineRenderPipeline: LineRenderPipeline,
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
@@ -92,6 +96,11 @@ class Renderer(
     // buffer as the 3D pass, always draws this frame's widgets, not last frame's.
     private val uiMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS)
     private val uiGlyphMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+
+    // Rewritten every frame by drawDebugLines() (staged before draw(), same pattern as
+    // uiMesh/uiGlyphMesh) -- world-space, so draw() writes lineRenderPipeline's MVP uniform
+    // from the same viewProjection it already computes for the 3D draw calls.
+    private val lineMesh = LineMesh(graphicsDevice, MAX_DEBUG_LINES)
 
     init {
         createDepthResources()
@@ -215,6 +224,9 @@ class Renderer(
 
         val aspect = swapchainManager.extent.width.toFloat() / swapchainManager.extent.height.toFloat()
         val viewProjection = camera.viewProjectionMatrix(aspect)
+        // Debug lines are already in world space (no per-line model matrix), so their MVP
+        // is exactly this frame's viewProjection.
+        lineRenderPipeline.writeMvp(viewProjection.data)
         var drawIndex = 0
         val drawCount = drawCalls.size
         while (drawIndex < drawCount) {
@@ -327,6 +339,35 @@ class Renderer(
         uiGlyphMesh.update(glyphVertices, glyphIndices)
     }
 
+    /** Stages this frame's world-space debug lines (e.g. a frustum wireframe) -- rewrites
+     * [lineMesh]'s buffer but issues no GPU commands itself, same "stage now, consume on
+     * next draw" pattern as [drawUi]. Call before [draw] each frame. */
+    override fun drawDebugLines(lines: List<LineSegment>) {
+        require(lines.size <= MAX_DEBUG_LINES) {
+            "Debug line count (${lines.size}) exceeds Renderer's LineMesh capacity ($MAX_DEBUG_LINES)."
+        }
+        val vertices = FloatArray(lines.size * LineMesh.VERTICES_PER_LINE * LineMesh.FLOATS_PER_VERTEX)
+        var lineIndex = 0
+        while (lineIndex < lines.size) {
+            val line = lines[lineIndex]
+            val vertexBase = lineIndex * LineMesh.VERTICES_PER_LINE * LineMesh.FLOATS_PER_VERTEX
+            writeLineVertex(vertices, vertexBase, line.start.x, line.start.y, line.start.z, line.color)
+            writeLineVertex(vertices, vertexBase + LineMesh.FLOATS_PER_VERTEX, line.end.x, line.end.y, line.end.z, line.color)
+            lineIndex += 1
+        }
+        lineMesh.update(vertices)
+    }
+
+    private fun writeLineVertex(out: FloatArray, offset: Int, x: Float, y: Float, z: Float, color: FloatArray) {
+        out[offset] = x
+        out[offset + 1] = y
+        out[offset + 2] = z
+        out[offset + 3] = color[0]
+        out[offset + 4] = color[1]
+        out[offset + 5] = color[2]
+        out[offset + 6] = if (color.size > 3) color[3] else 1f
+    }
+
     private fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: FloatArray) {
         out[offset] = x
         out[offset + 1] = y
@@ -392,6 +433,13 @@ class Renderer(
             drawIndex += 1
         }
 
+        // Debug lines (e.g. a frustum wireframe), same render pass/depth attachment as
+        // the 3D draw calls above -- real depth-testing against scene geometry, not an
+        // X-ray overlay. Still inside this pass, before it ends.
+        lineRenderPipeline.bind(commandBuffer)
+        lineMesh.bind(commandBuffer)
+        lineMesh.draw(commandBuffer)
+
         Vulkan.vkCmdEndRenderPass(commandBuffer)
 
         // Second pass, same command buffer, drawn on top of the 3D pass's output (that
@@ -432,6 +480,7 @@ class Renderer(
         uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
         uiMesh.destroy()
         uiGlyphMesh.destroy()
+        lineMesh.destroy()
         Vulkan.vkDestroyImageView(device, depthImageView)
         VulkanImages.vkDestroyImage(device, depthImage)
         VulkanBuffers.vkFreeMemory(device, depthImageMemory)
@@ -440,6 +489,7 @@ class Renderer(
     companion object {
         const val DEPTH_FORMAT = 126 // VkFormat.VK_FORMAT_D32_SFLOAT.value
         const val MAX_UI_QUADS = 256
+        const val MAX_DEBUG_LINES = 64
         val clearColorValue = VkClearColorValue.rgba(0f, 0f, 0f, 1f)
         val clearDepthValue = VkClearDepthStencilValue(depth = 1f, stencil = 0)
     }

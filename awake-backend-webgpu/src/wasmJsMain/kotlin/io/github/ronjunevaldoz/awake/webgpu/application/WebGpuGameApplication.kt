@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.graphics.Application
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
@@ -18,6 +19,7 @@ import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
@@ -58,6 +60,7 @@ abstract class WebGpuGameApplication(
     private lateinit var renderPipeline: RenderPipeline
     private lateinit var uiRenderPipeline: UiRenderPipeline
     private lateinit var uiGlyphRenderPipeline: UiGlyphRenderPipeline
+    private lateinit var lineRenderPipeline: LineRenderPipeline
     private lateinit var renderer: Renderer
     private lateinit var material: Material
     private val meshInstances = mutableMapOf<String, Mesh>()
@@ -124,6 +127,18 @@ abstract class WebGpuGameApplication(
     /** See `VulkanGameApplication.onDrawUi`'s doc comment -- identical contract. */
     protected open fun onDrawUi(ui: UiContext) {}
 
+    /** See `VulkanGameApplication.aspectRatio`'s doc comment -- identical contract. */
+    protected val aspectRatio: Float
+        get() {
+            val renderingContext = graphicsDevice.wgpuContext.renderingContext
+            return renderingContext.width.toFloat() / renderingContext.height.toFloat()
+        }
+
+    /** See `VulkanGameApplication.drawDebugLines`'s doc comment -- identical contract. */
+    protected fun drawDebugLines(lines: List<LineSegment>) {
+        renderer.drawDebugLines(lines)
+    }
+
     /** See `VulkanGameApplication.resolveRenderable`'s doc comment -- identical contract. */
     protected open fun resolveRenderable(request: SceneRenderableRequest): MeshRenderer {
         val resolvedMesh = meshInstances[request.meshRenderer.mesh]
@@ -146,6 +161,11 @@ abstract class WebGpuGameApplication(
             ByteArray(0),
             vertexStride
         )
+        lineRenderPipeline = LineRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            readResourceBytes(DEBUG_LINE_SHADER_RESOURCE_PATH)
+        )
         uiRenderPipeline = UiRenderPipeline(
             graphicsDevice,
             swapchainManager,
@@ -163,6 +183,7 @@ abstract class WebGpuGameApplication(
             renderPipeline,
             uiRenderPipeline,
             uiGlyphRenderPipeline,
+            lineRenderPipeline,
             0L,
             MAX_FRAMES_IN_FLIGHT
         )
@@ -184,6 +205,7 @@ abstract class WebGpuGameApplication(
         swapchainManager.destroy()
         meshInstances.values.forEach { it.destroy() }
         renderPipeline.destroy()
+        lineRenderPipeline.destroy()
         uiRenderPipeline.destroy()
         uiGlyphRenderPipeline.destroy()
         graphicsDevice.destroy()
@@ -197,5 +219,6 @@ abstract class WebGpuGameApplication(
         // constant doc comment for the full rationale.
         const val UI_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_quad.wgsl"
         const val UI_GLYPH_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_glyph.wgsl"
+        const val DEBUG_LINE_SHADER_RESOURCE_PATH = "assets/shader/webgpu/debug_line.wgsl"
     }
 }
