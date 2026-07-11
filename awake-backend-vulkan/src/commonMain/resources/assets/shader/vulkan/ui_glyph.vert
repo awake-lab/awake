@@ -12,8 +12,9 @@ layout(location = 0) out vec2 fragUV;
 layout(location = 1) out vec4 fragColor;
 
 void main() {
+    // See ui_quad.vert's identical comment -- Vulkan's NDC is already Y-down, matching this
+    // pixel-space input, so no flip is needed (or wanted) here.
     vec2 ndc = (inPosition / ubo.screenSize) * 2.0 - 1.0;
-    ndc.y = -ndc.y; // pixel-space is Y-down, NDC is Y-up
     gl_Position = vec4(ndc, 0.0, 1.0);
     fragUV = inUV;
     fragColor = inColor;
