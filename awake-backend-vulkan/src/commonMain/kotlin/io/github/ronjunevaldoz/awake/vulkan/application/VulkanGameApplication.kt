@@ -246,10 +246,14 @@ abstract class VulkanGameApplication(
         const val MAX_FRAMES_IN_FLIGHT = 2
         val PLACEHOLDER_TEXTURE = TextureAsset(byteArrayOf(-1, -1, -1, -1), 1, 1)
 
-        // Bundled per-consumer-app (not a base-class resource -- see docs/MVP_PLAN.md's
-        // custom-UI decision log entry for why): every VulkanGameApplication subclass needs
-        // its own copy of these two files at this exact resource path, same as awake-demo's
-        // and sample-hello-cube's existing triangle.vert/.frag copies.
+        // Bundled once in this module (`awake-backend-vulkan/src/commonMain/resources`),
+        // not duplicated per consumer -- these files are identical for every
+        // VulkanGameApplication subclass, so they live with the framework code that reads
+        // them and reach every consumer transitively via normal KMP resource bundling (see
+        // docs/MVP_PLAN.md's custom-UI decision log entry, and AGENTS.md's resource-
+        // bundling rule). Per-app shaders (each subclass's own vertexShaderResourcePath/
+        // fragmentShaderResourcePath) are different: they vary per game, so they stay
+        // constructor-injected and consumer-owned.
         const val UI_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.vert.spv"
         const val UI_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.frag.spv"
         const val UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.vert.spv"

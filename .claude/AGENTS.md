@@ -63,6 +63,17 @@ it before starting work; phases and open decisions (D1–D4) are tracked there.*
   (`:model/:api/:domain/:data/:presenter/:ui`) — that pattern is for app features, not engine
   subsystems. Do not restructure engine modules to match it.
 - `.spv` shaders are compiled from GLSL via the `glslValidator` Gradle task (glslang).
+- **Resource bundling rule**: a resource (shader, font atlas, etc.) that is identical across
+  every consumer of a backend/engine module belongs in that module's own
+  `src/<sourceSet>/resources/` (e.g. `awake-backend-vulkan/src/commonMain/resources`,
+  `awake-backend-webgpu/src/wasmJsMain/resources`) — never copy-pasted into each consumer
+  app's own resources. KMP already bundles a library module's resources transitively into
+  every consumer (confirmed by a real Android resource-merge collision hit in this repo,
+  see `docs/MVP_PLAN.md`'s scene-loader note) — duplicating the file instead just risks the
+  copies drifting out of sync or a new consumer forgetting to add its own, which fails
+  silently at compile time and only crashes at runtime (`readResourceBytes` throws). This
+  does NOT apply to genuinely per-app content (each game's own 3D shaders, scenes, texture
+  assets) — those are correctly consumer-owned and constructor-injected.
 
 ## Threading model
 

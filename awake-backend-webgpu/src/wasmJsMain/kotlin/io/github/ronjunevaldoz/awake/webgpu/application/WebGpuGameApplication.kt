@@ -192,8 +192,9 @@ abstract class WebGpuGameApplication(
     private companion object {
         const val MAX_FRAMES_IN_FLIGHT = 1
 
-        // Bundled per-consumer-app -- see VulkanGameApplication's identical companion
-        // constant doc comment for why.
+        // Bundled once in this module (`awake-backend-webgpu/src/wasmJsMain/resources`),
+        // not duplicated per consumer -- see VulkanGameApplication's identical companion
+        // constant doc comment for the full rationale.
         const val UI_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_quad.wgsl"
         const val UI_GLYPH_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_glyph.wgsl"
     }
