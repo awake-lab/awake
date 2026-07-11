@@ -5,46 +5,36 @@ package demo
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.utils.DebugHud
-import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Camera
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneRenderableRequest
-import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
-import io.github.ronjunevaldoz.awake.scene.runtime.attachRenderableComponents
 import io.github.ronjunevaldoz.awake.scene.navigation.createDemoNavMesh
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
 import io.github.ronjunevaldoz.awake.scene.systems.CameraFollowSystem
 import io.github.ronjunevaldoz.awake.scene.systems.ChaseAiSystem
 import io.github.ronjunevaldoz.awake.scene.systems.PlayerMovementSystem
-import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
-import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 
 /**
- * Web demo (see docs/MVP_PLAN.md's decision log): [Renderer] is now the backend-neutral
- * `awake-engine-render-api` interface, not the concrete Vulkan class -- this class was
- * already only using the interface's own contract (via [RenderSystem]), so widening the
- * declared type here is what actually makes it reusable by both `VulkanApplication` and
- * the wasmJs-only `WebGpuApplication`, matching what `RenderSystem`'s own constructor
- * already expected.
+ * Reusable-Application gap fix (see docs/MVP_PLAN.md's Decision Log): generic scene
+ * loading/`TransformSystem`/`RenderSystem` wiring now lives in
+ * `VulkanGameApplication`/`WebGpuGameApplication` (`awake-backend-vulkan`/
+ * `awake-backend-webgpu`) -- this class only owns what's genuinely specific to *this* demo
+ * game: resolving the player/camera/NPC entities by name and driving their
+ * movement/camera-follow/chase-AI systems each fixed step. Both platform `Application`
+ * subclasses construct this from their overridden `onSceneReady()` (once the base class's
+ * `scene`/`world` are populated) and drive it from their overridden `onFixedUpdate`.
  *
- * Private constructor + [create] factory, not a plain constructor: [SceneLoader
- * .loadFromResource] is `suspend` (real async browser `fetch()` on wasmJs), and `suspend`
- * calls are not allowed inside a constructor's `init {}` block.
+ * Not `suspend`/no factory-vs-constructor split needed anymore -- all the `suspend` scene
+ * loading already happened in the base class before `onSceneReady()` runs.
  */
 internal class SceneRuntimeHost private constructor(
-    renderer: Renderer,
     private val world: World,
     private val cubeTransform: Transform,
     private val playerTransform: Transform,
     cameraComponent: Camera,
     npcTransform: Transform
 ) {
-    private val transformSystem = TransformSystem()
-    private val renderSystem = RenderSystem(renderer)
     private val playerMovementSystem = PlayerMovementSystem(playerTransform)
     private val cameraFollowSystem = CameraFollowSystem(playerTransform, cameraComponent)
     // Null on platforms with no navmesh backend yet (iOS, wasmJs -- recast4j is plain JVM
@@ -58,10 +48,8 @@ internal class SceneRuntimeHost private constructor(
     private var spaceWasDown = false
 
     /** Runs at a fixed [delta] (see [io.github.ronjunevaldoz.awake.core.application
-     * .FixedTimestepLoop]), zero or more times per frame -- anything that mutates scene
-     * state (today: the demo cube's own animation, plus [TransformSystem]'s world-matrix
-     * recompute) belongs here, not in [render], so it stays framerate-independent once
-     * something in this scene actually integrates velocity/force (physics, Phase 8). */
+     * .FixedTimestepLoop]) -- game-specific state only; the caller's own `onFixedUpdate`
+     * runs [io.github.ronjunevaldoz.awake.scene.systems.TransformSystem] afterward. */
     fun fixedUpdate(delta: Float) {
         // Space toggles pause, on the rising edge only (not "while held") -- otherwise a
         // single held keypress would flip `paused` on/off dozens of times per second at a
@@ -82,7 +70,6 @@ internal class SceneRuntimeHost private constructor(
         playerMovementSystem.update(world, delta)
         chaseAiSystem?.update(world, delta)
         cameraFollowSystem.update(world, delta)
-        transformSystem.update(world, delta)
         val position = playerTransform.position
         DebugHud.PlayerPositionText =
             "Pos: ${roundTo1dp(position.x)}, ${roundTo1dp(position.y)}, ${roundTo1dp(position.z)}"
@@ -92,23 +79,8 @@ internal class SceneRuntimeHost private constructor(
         return kotlin.math.round(value * 10f) / 10f
     }
 
-    /** Runs exactly once per frame, after zero or more [fixedUpdate] calls. Only draws --
-     * [RenderSystem] reads whatever [Transform.worldMatrix] [fixedUpdate] last wrote via
-     * [TransformSystem], it never mutates simulation state itself. */
-    fun render() {
-        renderSystem.update(world, 0f)
-    }
-
     companion object {
-        private const val SCENE_PATH = "scenes/mvp.scene.json"
-
-        suspend fun create(
-            renderer: Renderer,
-            resolveRenderable: (SceneRenderableRequest) -> MeshRenderer
-        ): SceneRuntimeHost {
-            val world = World()
-            val scene = SceneLoader.loadFromResource(SCENE_PATH).instantiate(world)
-            scene.attachRenderableComponents(resolveRenderable)
+        fun create(scene: SceneInstance, world: World): SceneRuntimeHost {
             val cubeEntity = scene.rootEntity("cube")
                 ?: error("MVP scene is missing a root node named 'cube'.")
             val playerEntity = scene.rootEntity("player")
@@ -125,9 +97,7 @@ internal class SceneRuntimeHost private constructor(
                 ?: error("'camera' node has no Camera component.")
             val npcTransform: Transform = world.get(npcEntity)
                 ?: error("'npc' node has no Transform.")
-            return SceneRuntimeHost(
-                renderer, world, cubeTransform, playerTransform, cameraComponent, npcTransform
-            )
+            return SceneRuntimeHost(world, cubeTransform, playerTransform, cameraComponent, npcTransform)
         }
 
         private fun SceneInstance.rootEntity(name: String): Entity? {

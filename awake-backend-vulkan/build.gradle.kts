@@ -121,6 +121,14 @@ kotlin {
             // `implementation`, since consumers reaching these types through awake-backend-vulkan
             // (e.g. VulkanApplication.kt) need them visible too.
             api(project(":awake-engine-render-api"))
+            // Reusable-Application gap fix (see docs/MVP_PLAN.md's Decision Log):
+            // VulkanGameApplication implements the Application interface (awake-engine) and
+            // owns generic scene loading/TransformSystem/RenderSystem wiring (awake-scene) so
+            // a new game doesn't have to hand-roll the same ~200 lines of GraphicsDevice/
+            // SwapchainManager/RenderPipeline/Mesh/Material bootstrap awake-demo used to.
+            implementation(project(":awake-engine"))
+            implementation(project(":awake-scene"))
+            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
