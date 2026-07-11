@@ -77,8 +77,11 @@ kotlin {
             dependsOn(commonMain.get())
         }
         appMain.dependencies {
-            implementation(project(":awake-engine"))
-            implementation(project(":awake-backend-vulkan"))
+            // api, not implementation: sample-hello-cube:androidApp needs VulkanView
+            // (awake-engine) and Application (also awake-engine, via VulkanGameApplication's
+            // supertype) visible transitively -- see that module's build.gradle.kts comment.
+            api(project(":awake-engine"))
+            api(project(":awake-backend-vulkan"))
         }
         named("desktopMain") {
             dependsOn(appMain)
