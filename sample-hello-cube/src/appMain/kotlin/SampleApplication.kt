@@ -43,7 +43,14 @@ class SampleApplication : VulkanGameApplication(
             ?: error("'cube' node has no Transform.")
         val cameraComponent: Camera = world.get(cameraEntity)
             ?: error("'camera' node has no Camera component.")
-        orbitCameraSystem = OrbitCameraSystem(target = cubeTransform, camera = cameraComponent)
+        orbitCameraSystem = OrbitCameraSystem(
+            target = cubeTransform,
+            camera = cameraComponent,
+            // This sample has nothing else to animate (a single static cube, no player/AI),
+            // so auto-rotate by default -- drag still takes over/overrides yaw normally,
+            // see OrbitCameraSystem's own doc comment for why this defaults to off there.
+            autoRotateSpeed = AUTO_ROTATE_SPEED
+        )
     }
 
     override fun onFixedUpdate(delta: Float) {
@@ -58,6 +65,9 @@ class SampleApplication : VulkanGameApplication(
     }
 
     companion object {
+        // Radians/second -- a full 2*PI orbit takes about 21 seconds at this speed.
+        private const val AUTO_ROTATE_SPEED = 0.3f
+
         // Same interleaved position(vec3) + color(vec3) + uv(vec2) layout the shared
         // triangle.vert/.frag shaders expect -- see awake-demo's VulkanApplication.kt for
         // the full rationale behind this exact vertex format/palette.

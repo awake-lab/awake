@@ -21,6 +21,12 @@ import kotlin.math.sin
  * Same "compute frame-to-frame drag delta by diffing pointer position" approach as
  * [PlayerMovementSystem]'s drag-origin tracking, since [Input] exposes absolute pointer
  * position, not a delta.
+ *
+ * [autoRotateSpeed] (radians/second, default 0 = off) advances yaw on its own whenever the
+ * pointer isn't actively dragging -- opt-in per instance (e.g. `sample-hello-cube`'s static
+ * single-cube demo, which has nothing else to animate) rather than a default-on behavior,
+ * since `awake-demo`'s interactive catalog-tool orbit shouldn't drift out from under a user
+ * who has let go of the mouse.
  */
 class OrbitCameraSystem(
     /** Mutable (not just constructor-set) so a caller can retarget the orbit (e.g. a
@@ -30,7 +36,8 @@ class OrbitCameraSystem(
     private val camera: Camera,
     private var distance: Float = DEFAULT_DISTANCE,
     private val rotateSpeed: Float = DEFAULT_ROTATE_SPEED,
-    private val zoomSpeed: Float = DEFAULT_ZOOM_SPEED
+    private val zoomSpeed: Float = DEFAULT_ZOOM_SPEED,
+    private val autoRotateSpeed: Float = 0f
 ) : System {
     private var yaw: Float = 0f
     private var pitch: Float = DEFAULT_PITCH
@@ -51,6 +58,7 @@ class OrbitCameraSystem(
             wasDragging = true
         } else {
             wasDragging = false
+            yaw += autoRotateSpeed * delta
         }
 
         if (Input.isKeyDown(Key.W)) distance = (distance - zoomSpeed * delta).coerceAtLeast(MIN_DISTANCE)
