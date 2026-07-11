@@ -79,14 +79,13 @@ kotlin {
         appMain.dependencies {
             implementation(project(":awake-engine"))
             implementation(project(":awake-backend-vulkan"))
+            // OrbitCameraSystem, for SampleApplication.onSceneReady()'s catalog-style camera
+            // wiring -- awake-backend-vulkan itself only depends on this as `implementation`,
+            // so it isn't visible transitively.
+            implementation(project(":awake-scene"))
         }
         named("desktopMain") {
             dependsOn(appMain)
-            dependencies {
-                // Provides Dispatchers.Main -- VulkanGameApplication.create() uses
-                // MainScope().launch internally.
-                implementation(libs.kotlinx.coroutines.swing)
-            }
         }
         named("androidMain") {
             dependsOn(appMain)
