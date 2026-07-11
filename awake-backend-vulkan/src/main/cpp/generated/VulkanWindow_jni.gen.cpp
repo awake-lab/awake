@@ -163,6 +163,46 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwGetFramebufferHei
 }
 
 
+extern "C" JNIEXPORT jint JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwGetWindowWidth(
+        JNIEnv* env,
+        jclass clazz,
+        jlong window) {
+    // --- Marshalling ---
+    void* window_ptr = reinterpret_cast<void*>(window);
+
+    // --- Error handling ---
+    if (!window_ptr) {
+        throw_illegal_state(env, "glfwGetWindowWidth: window not initialized");
+        return 0;
+    }
+
+    int width = 0, height = 0;
+    glfwGetWindowSize(reinterpret_cast<GLFWwindow*>(window_ptr), &width, &height);
+    return static_cast<jint>(width);
+}
+
+
+extern "C" JNIEXPORT jint JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwGetWindowHeight(
+        JNIEnv* env,
+        jclass clazz,
+        jlong window) {
+    // --- Marshalling ---
+    void* window_ptr = reinterpret_cast<void*>(window);
+
+    // --- Error handling ---
+    if (!window_ptr) {
+        throw_illegal_state(env, "glfwGetWindowHeight: window not initialized");
+        return 0;
+    }
+
+    int width = 0, height = 0;
+    glfwGetWindowSize(reinterpret_cast<GLFWwindow*>(window_ptr), &width, &height);
+    return static_cast<jint>(height);
+}
+
+
 extern "C" JNIEXPORT jlong JNICALL
 Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwCreateWindowSurface(
         JNIEnv* env,

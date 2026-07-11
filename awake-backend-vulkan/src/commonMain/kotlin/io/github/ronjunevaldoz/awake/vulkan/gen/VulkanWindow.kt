@@ -28,6 +28,15 @@ expect object VulkanWindow {
     fun glfwGetFramebufferWidth(window: Long): Int
     fun glfwGetFramebufferHeight(window: Long): Int
 
+    /** Window size in screen/logical coordinates (`glfwGetWindowSize`) -- NOT the same as
+     * [glfwGetFramebufferWidth]/[glfwGetFramebufferHeight] on a Retina/HiDPI display, where
+     * the framebuffer is a device-pixel-ratio multiple of this. Needed to scale raw
+     * `glfwGetCursorPos` screen coordinates (also logical points) up to the framebuffer-pixel
+     * space [io.github.ronjunevaldoz.awake.core.input.Input.pointerX]/[pointerY] and
+     * `UiContext.hitTest` are defined in. */
+    fun glfwGetWindowWidth(window: Long): Int
+    fun glfwGetWindowHeight(window: Long): Int
+
     /** Real `VkSurfaceKHR` handle for the given GLFW window on the given `VkInstance` --
      * the desktop equivalent of `Vulkan.vkCreateAndroidSurfaceKHR`. */
     fun glfwCreateWindowSurface(instance: Long, window: Long): Long

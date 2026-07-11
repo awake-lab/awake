@@ -23,6 +23,8 @@ actual object VulkanWindow {
     actual external fun glfwPollEvents()
     actual external fun glfwGetFramebufferWidth(window: Long): Int
     actual external fun glfwGetFramebufferHeight(window: Long): Int
+    actual external fun glfwGetWindowWidth(window: Long): Int
+    actual external fun glfwGetWindowHeight(window: Long): Int
     actual external fun glfwCreateWindowSurface(instance: Long, window: Long): Long
     actual external fun glfwGetRequiredInstanceExtensions(): Array<String>
     actual external fun glfwGetKey(window: Long, key: Int): Int

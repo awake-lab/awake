@@ -42,6 +42,14 @@ actual object VulkanWindow {
         TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
     }
 
+    actual fun glfwGetWindowWidth(window: Long): Int {
+        TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
+    }
+
+    actual fun glfwGetWindowHeight(window: Long): Int {
+        TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
+    }
+
     actual fun glfwCreateWindowSurface(instance: Long, window: Long): Long {
         TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
     }
