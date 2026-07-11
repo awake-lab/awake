@@ -1,18 +1,11 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,14 +13,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import demo.DemoApplication
 import demo.DemoDrawer
-import demo.DemoScene
 import demo.VulkanScene
 import io.github.ronjunevaldoz.awake.core.AwakeContext
 import io.github.ronjunevaldoz.awake.core.Greeting
@@ -35,18 +24,21 @@ import io.github.ronjunevaldoz.awake.core.utils.DebugHud
 import io.github.ronjunevaldoz.awake.core.utils.Time
 import kotlinx.coroutines.delay
 
+// The legacy OpenGL demo gallery (DemoApplication/DemoScene, plus the "Enable Vulkan"
+// switch that toggled between it and VulkanScene) is disabled for now: DemoApplication
+// .create() eagerly constructs every sample including FontBitmapSample, whose
+// NativeTrueType.createTexture() calls glGenTextures() before any GL context is current on
+// this thread, crashing the JVM with "FATAL ERROR ... No context is current" on desktop
+// launch. Not something this session's Vulkan/WebGPU catalog-tool work touches or needs --
+// this app now always renders VulkanScene(), so the crashing OpenGL path is never
+// constructed at all. Revisit (fix the OpenGL context bug, or drop the OpenGL gallery
+// entirely) as a separate, dedicated slice.
 @Composable
 fun App() {
     MaterialTheme {
         var greetingText by remember { mutableStateOf("Hello, World!") }
-        var vulkan by remember { mutableStateOf(true) }
         var fpsText by remember { mutableStateOf("") }
         var playerPositionText by remember { mutableStateOf("") }
-        // DemoApplication.drawableLabels only selects OpenGL demo scenes (DemoScene) --
-        // VulkanScene always renders the same cube regardless, so showing this catalog
-        // while Vulkan is enabled let you "select" items that silently did nothing. Empty
-        // it out instead of showing a catalog that doesn't apply to the active renderer.
-        val items = if (vulkan) emptyList() else DemoApplication.drawableLabels
         LaunchedEffect(Unit) {
             while (true) {
                 delay(16)
@@ -56,33 +48,14 @@ fun App() {
         }
         // init awake context
         AwakeContext.init()
-        DemoDrawer(items) {
+        DemoDrawer(emptyList()) {
             Button(onClick = {
                 greetingText = Greeting().greet()
             }) {
                 Text(greetingText)
             }
-            if (!vulkan) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Swipe right to open drawer samples")
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowRight,
-                        contentDescription = "Double Arrow",
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-            }
-            SwitchGraphics(true) { isVulkan ->
-                vulkan = isVulkan
-            }
             Box(modifier = Modifier.fillMaxSize()) {
-                if (vulkan) {
-                    VulkanScene()
-                } else {
-                    DemoScene {
-                        colorObject = Color.LightGray
-                    }
-                }
+                VulkanScene()
                 Text(
                     text = fpsText,
                     modifier = Modifier.fillMaxWidth(),
@@ -95,25 +68,5 @@ fun App() {
                 )
             }
         }
-    }
-}
-
-@Composable
-fun SwitchGraphics(default: Boolean, onStateChange: (Boolean) -> Unit) {
-    val checked = remember { mutableStateOf(default) }
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(16.dp)
-    ) {
-        Text("Enable Vulkan", fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.padding(start = 8.dp))
-        Switch(
-            checked = checked.value,
-            onCheckedChange = {
-                checked.value = it
-                onStateChange(checked.value)
-            },
-        )
     }
 }
