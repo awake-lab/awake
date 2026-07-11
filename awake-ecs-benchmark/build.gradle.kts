@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.kotlinx.benchmark)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
+    id("awake.spotless-convention")
 }
 
 kotlin {

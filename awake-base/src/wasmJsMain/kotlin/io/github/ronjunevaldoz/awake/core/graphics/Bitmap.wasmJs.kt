@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.graphics
 
 // Phase 2.5 (Web/WebGPU, decision D7) milestone 1: compile-only stub. A real

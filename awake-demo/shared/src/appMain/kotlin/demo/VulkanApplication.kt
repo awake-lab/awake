@@ -1,22 +1,5 @@
-/*
- * Awake
- * Awake.awake-demo.shared.commonMain
- *
- * Copyright (c) ronjunevaldoz 2023.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package demo
 
 import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
@@ -63,6 +46,11 @@ class VulkanApplication : Application {
      * graphics queue to already exist for its one-time upload commands), not eagerly like
      * [graphicsDevice]/[swapchainManager]. */
     private lateinit var mesh: Mesh
+    /** MVP1a ground-plane slice (see docs/MMORPG_ROADMAP.md): a second static mesh so the
+     * NavMesh-driven chase AI has a visible floor to move across -- shares [material]/
+     * [texture] with [mesh], same tiled-checkerboard look via the sampler's default REPEAT
+     * addressing (see [groundVertices]'s UV scaling). */
+    private lateinit var groundMesh: Mesh
     /** Phase 2: uniform buffer + descriptor set/pool/layout, extracted into a reusable
      * class -- see [Material]'s doc comment for why it's constructed in two phases. */
     private lateinit var material: Material
@@ -111,6 +99,21 @@ class VulkanApplication : Application {
             0, 4, 5, 5, 1, 0, // bottom
             3, 2, 6, 6, 7, 3, // top
         )
+
+        // MVP1a ground-plane slice (see docs/MMORPG_ROADMAP.md): a flat quad matching
+        // DemoNavMeshGeometry's invisible navmesh extent (half-extent 10, awake-scene's
+        // GROUND_HALF_EXTENT), so the visible floor lines up with the walkable area. Flat
+        // white vertex color (not the cube's per-corner RGB gradient) so the checkerboard
+        // texture reads as a plain floor rather than a color gradient; UVs scaled to 0..8 so
+        // the 2x2 checkerboard tiles via the sampler's default REPEAT addressing (see
+        // Texture.kt's VkSamplerCreateInfo() defaults).
+        val groundVertices = floatArrayOf(
+            -10f, 0f, -10f, 1f, 1f, 1f, 0f, 0f, // v0
+            10f, 0f, -10f, 1f, 1f, 1f, 8f, 0f, // v1
+            10f, 0f, 10f, 1f, 1f, 1f, 8f, 8f, // v2
+            -10f, 0f, 10f, 1f, 1f, 1f, 0f, 8f, // v3
+        )
+        val groundIndices = intArrayOf(0, 2, 1, 0, 3, 2)
 
         // A tiny 2x2 RGBA8 checkerboard (white/black) -- proves real texture sampling
         // without needing an image file loader (out of scope for this MVP phase).
@@ -179,6 +182,7 @@ class VulkanApplication : Application {
             MAX_FRAMES_IN_FLIGHT
         )
         mesh = Mesh(graphicsDevice, transferContext::runOneTimeCommands, cubeVertices, cubeIndices)
+        groundMesh = Mesh(graphicsDevice, transferContext::runOneTimeCommands, groundVertices, groundIndices)
         texture = Texture(
             graphicsDevice,
             transferContext::runOneTimeCommands,
@@ -202,6 +206,7 @@ class VulkanApplication : Application {
         transferContext.destroy()
 
         mesh.destroy()
+        groundMesh.destroy()
         texture.destroy()
         material.destroy()
 
@@ -211,12 +216,14 @@ class VulkanApplication : Application {
     }
 
     private fun resolveRenderable(request: io.github.ronjunevaldoz.awake.scene.runtime.SceneRenderableRequest): MeshRenderer {
-        require(request.meshRenderer.mesh == "cube") {
-            "Unsupported scene mesh '${request.meshRenderer.mesh}'."
+        val resolvedMesh = when (request.meshRenderer.mesh) {
+            "cube" -> mesh
+            "ground" -> groundMesh
+            else -> error("Unsupported scene mesh '${request.meshRenderer.mesh}'.")
         }
         require(request.meshRenderer.material == "textured-default") {
             "Unsupported scene material '${request.meshRenderer.material}'."
         }
-        return MeshRenderer(mesh, material)
+        return MeshRenderer(resolvedMesh, material)
     }
 }

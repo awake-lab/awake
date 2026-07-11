@@ -18,6 +18,16 @@
       }
     },
     {
+      "name": "ground",
+      "transform": {
+        "position": { "x": 0.0, "y": 0.0, "z": 0.0 }
+      },
+      "meshRenderer": {
+        "mesh": "ground",
+        "material": "textured-default"
+      }
+    },
+    {
       "name": "cube",
       "transform": {
         "position": { "x": 0.0, "y": 0.0, "z": 0.0 },

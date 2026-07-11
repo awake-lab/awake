@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.graphics
 
 class Pixmap(val width: Int, val height: Int, val format: Format = Format.RGBA) {

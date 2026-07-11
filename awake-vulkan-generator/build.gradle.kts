@@ -22,6 +22,7 @@ plugins {
     application
     id("awake.dokka-convention")
     id("awake.detekt-convention")
+    id("awake.spotless-convention")
 }
 
 sourceSets["main"].kotlin.srcDir("src/main/kotlin")

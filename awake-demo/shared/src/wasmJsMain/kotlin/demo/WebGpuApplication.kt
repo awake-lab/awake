@@ -1,22 +1,5 @@
-/*
- * Awake
- * Awake.awake-demo.shared.wasmJsMain
- *
- * Copyright (c) ronjunevaldoz 2023.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package demo
 
 import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
@@ -56,6 +39,9 @@ class WebGpuApplication : Application {
     private lateinit var renderPipeline: RenderPipeline
     private lateinit var renderer: Renderer
     private lateinit var mesh: Mesh
+    /** MVP1a ground-plane slice (see docs/MMORPG_ROADMAP.md) -- see VulkanApplication.kt's
+     * matching field doc comment. */
+    private lateinit var groundMesh: Mesh
     private lateinit var material: Material
     private lateinit var sceneHost: SceneRuntimeHost
     private val fixedTimestepLoop = FixedTimestepLoop()
@@ -89,6 +75,17 @@ class WebGpuApplication : Application {
             0, 4, 5, 5, 1, 0, // bottom
             3, 2, 6, 6, 7, 3, // top
         )
+
+        // MVP1a ground-plane slice (see docs/MMORPG_ROADMAP.md) -- see VulkanApplication.kt's
+        // matching companion-object fields for the full rationale (extent matches
+        // DemoNavMeshGeometry, flat white color, UVs scaled for tiling).
+        val groundVertices = floatArrayOf(
+            -10f, 0f, -10f, 1f, 1f, 1f, 0f, 0f, // v0
+            10f, 0f, -10f, 1f, 1f, 1f, 8f, 0f, // v1
+            10f, 0f, 10f, 1f, 1f, 1f, 8f, 8f, // v2
+            -10f, 0f, 10f, 1f, 1f, 1f, 0f, 8f, // v3
+        )
+        val groundIndices = intArrayOf(0, 2, 1, 0, 3, 2)
     }
 
     override fun create(surface: Any?) {
@@ -137,6 +134,7 @@ class WebGpuApplication : Application {
             MAX_FRAMES_IN_FLIGHT
         )
         mesh = Mesh(graphicsDevice, {}, cubeVertices, cubeIndices)
+        groundMesh = Mesh(graphicsDevice, {}, groundVertices, groundIndices)
         sceneHost = SceneRuntimeHost.create(renderer) { request ->
             resolveRenderable(request)
         }
@@ -147,17 +145,20 @@ class WebGpuApplication : Application {
         renderer.destroy()
         swapchainManager.destroy()
         mesh.destroy()
+        groundMesh.destroy()
         renderPipeline.destroy()
         graphicsDevice.destroy()
     }
 
     private fun resolveRenderable(request: SceneRenderableRequest): MeshRenderer {
-        require(request.meshRenderer.mesh == "cube") {
-            "Unsupported scene mesh '${request.meshRenderer.mesh}'."
+        val resolvedMesh = when (request.meshRenderer.mesh) {
+            "cube" -> mesh
+            "ground" -> groundMesh
+            else -> error("Unsupported scene mesh '${request.meshRenderer.mesh}'.")
         }
         require(request.meshRenderer.material == "textured-default") {
             "Unsupported scene material '${request.meshRenderer.material}'."
         }
-        return MeshRenderer(mesh, material)
+        return MeshRenderer(resolvedMesh, material)
     }
 }

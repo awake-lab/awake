@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.graphics.opengl
 
 import android.opengl.GLES20.GL_UNSIGNED_BYTE

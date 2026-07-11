@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 import demo.VulkanApplication
 import io.github.ronjunevaldoz.awake.core.AwakeContext
 import io.github.ronjunevaldoz.awake.core.application.DesktopGameLoop

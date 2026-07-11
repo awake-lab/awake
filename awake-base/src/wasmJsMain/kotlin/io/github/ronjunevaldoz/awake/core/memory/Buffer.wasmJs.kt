@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.memory
 
 // No java.nio on wasmJs -- plain Kotlin-array-backed buffers. Simpler than desktopMain's

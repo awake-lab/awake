@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.android.library)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
+    id("awake.spotless-convention")
 }
 
 android {

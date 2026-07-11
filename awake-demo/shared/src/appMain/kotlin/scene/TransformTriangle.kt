@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package scene
 
 import io.github.ronjunevaldoz.awake.core.AwakeContext.Companion.gl

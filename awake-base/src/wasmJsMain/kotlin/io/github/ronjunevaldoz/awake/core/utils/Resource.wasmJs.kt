@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
 package io.github.ronjunevaldoz.awake.core.utils

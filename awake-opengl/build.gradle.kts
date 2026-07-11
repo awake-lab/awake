@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.vanniktech.publish)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
+    id("awake.spotless-convention")
 }
 
 private val lwjglVersion = "3.3.6"

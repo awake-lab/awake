@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkApplicationInfo

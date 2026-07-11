@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation(libs.detekt.gradle.plugin)
+    implementation(libs.spotless.gradle.plugin)
     implementation(libs.dokka.gradle.plugin)
     implementation(libs.download.gradle.plugin)
 }

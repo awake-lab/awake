@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.android.library.kmp)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
+    id("awake.spotless-convention")
 }
 
 kotlin {
