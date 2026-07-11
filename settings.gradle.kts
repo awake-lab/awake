@@ -19,9 +19,6 @@
 
 rootProject.name = "Awake"
 
-include(":awake-demo:androidApp")
-include(":awake-demo:shared")
-include(":awake-demo:desktopApp")
 include(":awake-base")
 include(":awake-engine")
 include(":awake-opengl")
