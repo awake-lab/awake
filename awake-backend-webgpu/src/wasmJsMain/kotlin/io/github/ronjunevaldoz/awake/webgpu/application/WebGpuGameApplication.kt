@@ -2,23 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.application
 
-import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
-import io.github.ronjunevaldoz.awake.core.graphics.Application
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.engine.application.GenericGameApplication
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
-import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneRenderableRequest
-import io.github.ronjunevaldoz.awake.scene.runtime.attachRenderableComponents
-import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
-import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
-import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
-import io.github.ronjunevaldoz.awake.ui.UiContext
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
@@ -29,130 +16,51 @@ import io.github.ronjunevaldoz.awake.webgpu.renderer.Renderer
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 
 /**
  * Reusable WebGPU game bootstrap -- wasmJs counterpart to `VulkanGameApplication`
  * (`awake-backend-vulkan`), see that class's doc comment and docs/MVP_PLAN.md's Decision
- * Log ("reusable-Application gap fix") for the full rationale. Mirrors
- * `VulkanGameApplication`'s constructor/lifecycle shape exactly, but the bootstrap sequence
- * genuinely omits `TransferContext`/`Texture`/`Material.createResources` -- this backend's
- * `Material` is still a placeholder (`TODO()`-only) and `Mesh`'s upload doesn't need a
- * staging-buffer/command-buffer dance the way Vulkan's does, so [texture] is accepted for
- * constructor-shape parity with `VulkanGameApplication` but never actually used here.
+ * Log ("reusable-Application gap fix", and the later "GenericGameApplication" entry) for the
+ * full rationale. Mirrors `VulkanGameApplication`'s constructor/lifecycle shape exactly, but
+ * the bootstrap sequence genuinely omits `TransferContext`/`Texture`/
+ * `Material.createResources` -- this backend's `Material` is still a placeholder
+ * (`TODO()`-only) and `Mesh`'s upload doesn't need a staging-buffer/command-buffer dance the
+ * way Vulkan's does, so `texture` is accepted for constructor-shape parity with
+ * `VulkanGameApplication` but never actually used here.
  *
- * [create]'s `surface` parameter must be a pre-resolved `io.ygdrasil.webgpu.WGPUContext`,
+ * `create`'s `surface` parameter must be a pre-resolved `io.ygdrasil.webgpu.WGPUContext`,
  * not a raw canvas (see [GraphicsDevice]'s own doc comment) -- the platform entry point
  * (`main.kt`) resolves it via `canvasContextRenderer()` + `surface.configure()` in its own
- * coroutine before calling [create], since that resolution is itself `suspend`.
+ * coroutine before calling `create`, since that resolution is itself `suspend`.
  */
 abstract class WebGpuGameApplication(
-    private val vertexShaderResourcePath: String,
-    private val fragmentShaderResourcePath: String,
-    private val vertexStride: Int,
-    private val meshes: Map<String, MeshGeometry>,
-    private val texture: TextureAsset? = null,
-    private val scenePath: String
-) : Application {
-    private val graphicsDevice = GraphicsDevice()
-    private val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
+    vertexShaderResourcePath: String,
+    fragmentShaderResourcePath: String,
+    vertexStride: Int,
+    meshes: Map<String, MeshGeometry>,
+    texture: TextureAsset? = null,
+    scenePath: String
+) : GenericGameApplication(
+    vertexShaderResourcePath,
+    fragmentShaderResourcePath,
+    vertexStride,
+    meshes,
+    texture,
+    scenePath
+) {
+    private lateinit var graphicsDevice: GraphicsDevice
+    private lateinit var swapchainManager: SwapchainManager
     private lateinit var renderPipeline: RenderPipeline
     private lateinit var uiRenderPipeline: UiRenderPipeline
     private lateinit var uiGlyphRenderPipeline: UiGlyphRenderPipeline
     private lateinit var lineRenderPipeline: LineRenderPipeline
-    private lateinit var renderer: Renderer
-    private lateinit var material: Material
-    private val meshInstances = mutableMapOf<String, Mesh>()
 
-    /** Immediate-mode debug/catalog UI overlay -- see [onDrawUi]. */
-    protected val ui = UiContext()
-
-    /** Phase B (see docs/MVP_PLAN.md's custom-UI decision log): the minimal bitmap font
-     * atlas shared by [ui]'s `text()` calls. */
-    protected val font = BitmapFont()
-
-    protected lateinit var world: World
-        private set
-
-    /** The instantiated scene graph (root node names/entities) -- see [world]'s doc
-     * comment. */
-    protected lateinit var scene: SceneInstance
-        private set
-    private val transformSystem = TransformSystem()
-    private lateinit var renderSystem: RenderSystem
-    private val fixedTimestepLoop = FixedTimestepLoop()
-
-    /** Same "create() stays synchronous, launch internally" reasoning as
-     * `VulkanGameApplication` -- [update] is a no-op until [setupWebGpu] finishes. */
-    private var isReady = false
-
-    final override fun create(surface: Any?) {
-        surface?.let { window -> MainScope().launch { setupWebGpu(window) } }
-    }
-
-    final override fun update(delta: Float) {
-        if (!isReady) return
-        fixedTimestepLoop.advance(
-            frameDelta = delta,
-            fixedUpdate = ::onFixedUpdate,
-            render = { onRender() }
-        )
-    }
-
-    override fun pause() {}
-    override fun resume() {}
-    override fun resize(x: Int, y: Int, width: Int, height: Int) {}
-
-    final override fun dispose() {
-        if (isReady) destroy()
-    }
-
-    /** See `VulkanGameApplication.onFixedUpdate`'s doc comment -- identical contract. */
-    protected open fun onFixedUpdate(delta: Float) {
-        transformSystem.update(world, delta)
-    }
-
-    /** See `VulkanGameApplication.onRender`'s doc comment -- identical contract (including
-     * the ui.beginFrame/onDrawUi/drawUi-before-renderSystem.update ordering, and why it
-     * matters). */
-    protected open fun onRender() {
-        val renderingContext = graphicsDevice.wgpuContext.renderingContext
-        ui.beginFrame(renderingContext.width.toFloat(), renderingContext.height.toFloat())
-        onDrawUi(ui)
-        renderer.drawUi(ui.endFrame())
-        renderSystem.update(world, 0f)
-    }
-
-    /** See `VulkanGameApplication.onDrawUi`'s doc comment -- identical contract. */
-    protected open fun onDrawUi(ui: UiContext) {}
-
-    /** See `VulkanGameApplication.aspectRatio`'s doc comment -- identical contract. */
-    protected val aspectRatio: Float
-        get() {
-            val renderingContext = graphicsDevice.wgpuContext.renderingContext
-            return renderingContext.width.toFloat() / renderingContext.height.toFloat()
-        }
-
-    /** See `VulkanGameApplication.drawDebugLines`'s doc comment -- identical contract. */
-    protected fun drawDebugLines(lines: List<LineSegment>) {
-        renderer.drawDebugLines(lines)
-    }
-
-    /** See `VulkanGameApplication.resolveRenderable`'s doc comment -- identical contract. */
-    protected open fun resolveRenderable(request: SceneRenderableRequest): MeshRenderer {
-        val resolvedMesh = meshInstances[request.meshRenderer.mesh]
-            ?: error("Unsupported scene mesh '${request.meshRenderer.mesh}'.")
-        return MeshRenderer(resolvedMesh, material)
-    }
-
-    /** See `VulkanGameApplication.onSceneReady`'s doc comment -- identical contract. */
-    protected open fun onSceneReady() {}
-
-    private suspend fun setupWebGpu(window: Any) {
+    override suspend fun createBackendResources(window: Any): BackendResources {
+        graphicsDevice = GraphicsDevice()
         graphicsDevice.create(window)
+        swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
         swapchainManager.create()
-        material = Material(graphicsDevice)
+        val material = Material(graphicsDevice)
         renderPipeline = RenderPipeline(
             graphicsDevice,
             swapchainManager,
@@ -177,7 +85,7 @@ abstract class WebGpuGameApplication(
             readResourceBytes(UI_GLYPH_SHADER_RESOURCE_PATH),
             font
         )
-        renderer = Renderer(
+        val renderer = Renderer(
             graphicsDevice,
             swapchainManager,
             renderPipeline,
@@ -187,20 +95,22 @@ abstract class WebGpuGameApplication(
             0L,
             MAX_FRAMES_IN_FLIGHT
         )
-        meshes.forEach { (name, geometry) ->
-            meshInstances[name] = Mesh(graphicsDevice, {}, geometry.vertices, geometry.indices)
+        val meshInstances = meshes.mapValues { (_, geometry) ->
+            Mesh(graphicsDevice, {}, geometry.vertices, geometry.indices)
         }
 
-        world = World()
-        scene = SceneLoader.loadFromResource(scenePath).instantiate(world)
-        scene.attachRenderableComponents(::resolveRenderable)
-        renderSystem = RenderSystem(renderer)
-        onSceneReady()
-
-        isReady = true
+        return BackendResources(
+            renderer = renderer,
+            meshInstances = meshInstances,
+            material = material,
+            viewportSize = {
+                val renderingContext = graphicsDevice.wgpuContext.renderingContext
+                renderingContext.width.toFloat() to renderingContext.height.toFloat()
+            }
+        )
     }
 
-    private fun destroy() {
+    override fun destroyBackend() {
         renderer.destroy()
         swapchainManager.destroy()
         meshInstances.values.forEach { it.destroy() }

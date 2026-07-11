@@ -129,6 +129,11 @@ kotlin {
             implementation(project(":awake-engine"))
             implementation(project(":awake-scene"))
             implementation(libs.kotlinx.coroutines.core)
+            // VulkanGameApplication now extends GenericGameApplication (see
+            // docs/MVP_PLAN.md's decision log for the duplication this replaces). `api`,
+            // not `implementation`: it's a supertype of VulkanGameApplication, so consumers
+            // (sample-hello-cube, awake-demo) need it resolvable on their own classpath too.
+            api(project(":awake-engine-game"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
