@@ -14,6 +14,10 @@ kotlin {
     sourceSets {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
+            // See libs.versions.toml's kotlinx-coroutines-swing entry -- fixes a pre-existing
+            // "Dispatchers.Main is missing" crash on this module's own run tasks, unrelated
+            // to this session's NavMesh work but found while verifying it.
+            implementation(libs.kotlinx.coroutines.swing)
             // VulkanDesktopMain.kt needs Application/DesktopGameLoop (app-lifecycle glue).
             implementation(project(":awake-engine"))
             // runOpenGlFrameDemo() (main.kt) uses AwakeContext.init/createFrame, both now

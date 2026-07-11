@@ -25,6 +25,9 @@ vanniktech-publish = "0.36.0"
 # Phase 2.5 (Web/WebGPU) spike -- no stable release yet (last tag v0.1.1, June 2025), this
 # is a Sonatype snapshot build (see settings.gradle.kts's snapshot repo addition).
 wgpu4k = "0.2.0-SNAPSHOT"
+# MVP1a NavMesh slice -- pure-Java Recast/Detour port, JVM-only (desktop+Android), see
+# docs/MMORPG_ROADMAP.md's NavMesh decision.
+recast4j = "1.5.11"
 
 [libraries]
 wgpu4k = { module = "io.ygdrasil:wgpu4k", version.ref = "wgpu4k" }
@@ -49,6 +52,12 @@ kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+# Provides Dispatchers.Main on plain-JVM desktop -- without it, MainScope().launch (used by
+# VulkanApplication.create()/WebGpuApplication.create() since the suspend-scene-loading
+# refactor) throws "Module with the Main dispatcher is missing" at runtime. Not caught
+# earlier because that refactor's own verification used iOS Simulator, not this module's
+# actual desktop run tasks.
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 # Wraps browser fetch()/DOM APIs for Kotlin/Wasm -- used by awake-base's wasmJs
 # readResourceBytes actual (see docs/MVP_PLAN.md's web-demo decision log entry).
 kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinx-browser" }
@@ -60,6 +69,8 @@ lwjgl = { module = "org.lwjgl:lwjgl", version.ref = "lwjgl" }
 lwjgl-glfw = { module = "org.lwjgl:lwjgl-glfw", version.ref = "lwjgl" }
 lwjgl-opengl = { module = "org.lwjgl:lwjgl-opengl", version.ref = "lwjgl" }
 lwjgl-stb = { module = "org.lwjgl:lwjgl-stb", version.ref = "lwjgl" }
+recast4j-recast = { module = "org.recast4j:recast", version.ref = "recast4j" }
+recast4j-detour = { module = "org.recast4j:detour", version.ref = "recast4j" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

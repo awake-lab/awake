@@ -75,6 +75,24 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }
+        // MVP1a NavMesh slice (see docs/MMORPG_ROADMAP.md): recast4j is a plain-Java
+        // Recast/Detour port with zero native code -- it only runs on the JVM, so it's
+        // scoped to desktop+Android's own source sets rather than commonMain (the same
+        // "JVM-only dependency can't live in commonMain" lesson wgpu4k/kotlinx-browser
+        // already taught this project, just for the opposite platform set). iOS/wasmJs get
+        // a `null`-returning actual instead (see navigation/DemoNavMesh.kt).
+        named("desktopMain") {
+            dependencies {
+                implementation(libs.recast4j.recast)
+                implementation(libs.recast4j.detour)
+            }
+        }
+        named("androidMain") {
+            dependencies {
+                implementation(libs.recast4j.recast)
+                implementation(libs.recast4j.detour)
+            }
+        }
     }
 }
 

@@ -63,7 +63,7 @@ only *then* starts networking (MVP2).
 | Stage | Goal | Status |
 |---|---|---|
 | **MVP0 — Engine Foundation** | Single-player render loop: ECS, Vulkan + WebGPU rendering, fixed-timestep loop, `scene.json` loading | ✅ Done — this is `MVP_PLAN.md`'s entire scope |
-| **MVP1a — Playable Prototype** | One controllable character moving around one hand-built world with a simple NavMesh-driven AI to chase/avoid, using the *existing* renderer as-is (no skinning, no render-graph rewrite) | 🚧 In progress — kinematic movement + third-person follow camera done (2026-07-11); NavMesh/AI/HUD still open |
+| **MVP1a — Playable Prototype** | One controllable character moving around one hand-built world with a simple NavMesh-driven AI to chase/avoid, using the *existing* renderer as-is (no skinning, no render-graph rewrite) | 🚧 In progress — kinematic movement + third-person follow camera done (2026-07-11); NavMesh-driven chase AI done for desktop+Android (2026-07-11, `recast4j`); iOS/wasmJs NavMesh backend, dodge/avoid behavior, and a visible ground plane still open |
 | **MVP1b — Vertical Slice Polish** | Upgrade the renderer to support what a shippable slice actually needs: render graph, dynamic rendering, real animated (skinned) characters | 🔲 Not started — only worth doing once MVP1a proves the gameplay loop |
 | **MVP2 — Networked Prototype** | 2–10 players in the same world: client-server split, reliable transport, prediction/reconciliation — *layered on top of the now-proven single-player loop* | 🔲 Not started |
 | **MVP3 — Persistent Shard** | One authoritative server, database-backed state, basic anti-cheat, automated regression testing | 🔲 Not started |
@@ -114,8 +114,8 @@ used, so the categorical view (what kind of system is this) and the sequencing v
 
 | Item | Status | Priority | Stage | Approach |
 |---|---|---|---|---|
-| Recast/Detour NavMesh Generation & Dynamic Obstacle Avoidance | 🔲 Not started | P0 | MVP1a | — |
-| ECS-Coupled Behavior Trees | 🔲 Not started | P0 | MVP1a | — |
+| Recast/Detour NavMesh Generation & Dynamic Obstacle Avoidance | 🚧 Partial (2026-07-11) | P0 | MVP1a | `recast4j` (pure-Java Recast/Detour port, no JNI) generates a real navmesh and finds paths that route around a solid obstacle -- desktop + Android only (recast4j is JVM-only); iOS/wasmJs get `null` (deferred, no pre-built C wrapper like Jolt's `JoltC` exists for Recast yet). Dynamic obstacle avoidance (re-baking around moving obstacles) not done -- this slice repaths periodically toward a moving target, but the navmesh geometry itself is still static. |
+| ECS-Coupled Behavior Trees | 🚧 Partial (2026-07-11) | P0 | MVP1a | First real behavior via `ChaseAiSystem` (`awake-scene/.../systems/`) -- one fixed chase behavior (periodic repath + kinematic waypoint steering), not a general branching behavior-tree framework. Proves the ECS-coupled-AI pattern end-to-end; multiple/composable behaviors are a follow-up. |
 | Hierarchical Pathfinding / HPA* | 🔲 Not started | P1 | MVP4 | 🆕 (only pays off at world scale) |
 | Utility AI System Data Blocks | 🔲 Not started | P2 | MVP4 | 🆕 (vs. plain behavior trees) |
 
