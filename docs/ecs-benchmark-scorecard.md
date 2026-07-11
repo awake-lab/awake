@@ -68,23 +68,64 @@ With real sample size, three of the four previously-contested rows resolve in Aw
 the fourth (family churn at 100k) is a genuine statistical tie with overlapping confidence
 intervals -- not a clean Fleks win the way the 5-iteration run suggested.
 
+**This did not hold up on a second independent 30-sample run -- see "Second high-confidence
+run" below.** Two of these four "Awake ahead" calls reversed. Read this section as superseded
+history, not the current conclusion.
+
+## Second high-confidence run, full suite (2026-07-11)
+
+Ran the *entire* benchmark suite (not just the four contested rows) at the same 3-fork ×
+(8 warmup + 10 measurement) settings, in an isolated git worktree so it wasn't affected by
+unrelated concurrent work on this branch. Comparing against the rerun above (same settings,
+same sample size, different run) is the most rigorous check done in this doc so far --
+and it changes the honest conclusion.
+
+| Benchmark | Size | Run 1 (Awake / Artemis) | Run 2 (Awake / Artemis) | Verdict |
+|---|---:|---:|---:|---|
+| Component add/remove | 10k | 2,629.635 / 2,643.966 (near-tie) | 2,786.246 / **3,076.345** | **Inconclusive -- flips between runs** |
+| Family churn | 10k | 2,589.261 / 756.186 (Awake ahead) | 2,104.232 / **3,245.472** | **Inconclusive -- flips between runs** |
+| Family churn | 100k | 149.150 / Fleks 157.614 ahead | 110.268 / Fleks **146.135** ahead | Fleks ahead both runs -- looks real |
+
+Artemis-odb's score on `ComponentAddRemove@10k` and `FamilyChurn@10k` has now landed at four
+different values across the runs in this document (756 / 4,152 / 2,644 / 3,245 -- roughly a
+4x range on the same code, same benchmark parameters). That is not noise around a stable
+mean, that's an unreliable measurement in this setup. Neither "Awake wins" nor "Artemis wins"
+should be claimed on these two specific cells from any single run in this document, including
+this one.
+
+Everything else reproduced consistently across both 30-sample runs:
+
+| Benchmark | Size | Run 1 | Run 2 | Verdict |
+|---|---:|---:|---:|---|
+| Component add/remove | 100k | 260.152 (Awake) | 231.552 (Awake) | **Awake, decisive, both runs** |
+| Entity create/destroy | 10k/100k | Awake ahead, within noise vs Fleks | 6,501.025 / 755.558, same shape | **Awake ahead of Artemis/Ashley, ties Fleks -- both runs** |
+| Transform hierarchy | depth 10 | Awake ahead | 945,485.700 (Awake) vs 891,480.915 (Ashley) | **Awake, both runs** |
+| Transform hierarchy | depth 50 | Awake/Artemis tie | 183,932.934 / 181,145.313, overlapping | **Tie, both runs** |
+| Transform+MeshRenderer query | 10k/100k | Awake 5-10x ahead | 418,137.895 vs Fleks 74,141.276 (5.6x); 43,314.044 vs 6,542.695 (6.6x) | **Awake, decisive, both runs, larger margin** |
+
 ## Takeaway
 
-- **Artemis-odb's previously reported family-churn lead (4,152 ops/s at 10k) does not
-  reproduce.** Run solo, its own score for that benchmark came back at 756 ops/s -- an 82%
-  swing on the exact same code between two runs, which is noise (likely JIT/GC variance
-  under contention from a concurrent build in the prior run), not a real result. Read every
-  Artemis-odb number in the "prior run" history with that in mind.
-- **With the high-confidence rerun above, Awake now leads or statistically ties every row in
-  this suite.** No remaining row is a clean, reproducible loss.
-- Component add/remove at 100k and both Transform rows are Awake's clean, decisive,
-  reproducible wins, confirmed across multiple independent runs now.
-- Family churn at 100k against Fleks specifically is the one row left at a genuine tie rather
-  than a lead: `awakeFamilyChurn` was already on the fastest available Awake path (cached
-  `ComponentTypeId` + pooling) before the reified-generics fix, so that fix doesn't touch this
-  row -- see "Closing the component add/remove and family-churn gap" below for why closing
-  this specific remaining gap would need a different, deeper change than caller-side
-  reflection avoidance, and why a statistical tie is a reasonable place to stop.
+- **The honest claim is not "Awake leads or ties every row."** That was true of a single
+  30-sample run; it did not survive a second one. Two rows previously called Awake wins
+  (component add/remove @10k, family churn @10k) are actually too volatile to call at all in
+  this environment -- Artemis-odb's own number on those benchmarks has ranged roughly 4x
+  across the runs recorded in this document.
+- **What is real and reproduced across two independent 30-sample runs:** entity
+  create/destroy (ahead of Artemis/Ashley, tied with Fleks), component add/remove @100k
+  (decisive), transform hierarchy depth 10 (decisive) and depth 50 (tied with Artemis),
+  Transform+MeshRenderer query at both sizes (decisive, 5-16x). These are the claims this
+  doc actually stands behind.
+- **Family churn @100k now looks like a real, modest, reproducible Fleks lead**, not a
+  statistical tie -- it held direction (Fleks ahead) across both runs, even though the exact
+  margin moved (157.6 vs 149.2, then 146.1 vs 110.3). See "Family churn @100k follow-up
+  investigation" below for why: `awakeFamilyChurn` was already on the fastest available
+  Awake path before the reified-generics fix, and the remaining gap traces to a genuine
+  architectural difference (Fleks's lazy iteration-order rebuild vs Awake's eager dense-array
+  maintenance), not caller-side reflection cost.
+- Read every number in the sections below this one with the volatility finding in mind --
+  a single run, even at 30 samples, is not sufficient to call a close race in this
+  environment. Two independent runs at the same sample size is the minimum bar this doc now
+  holds itself to before calling a row decided.
 
 ## Family churn @100k follow-up investigation (2026-07-11)
 
