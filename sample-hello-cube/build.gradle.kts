@@ -107,6 +107,9 @@ kotlin {
             dependencies {
                 implementation(project(":awake-engine"))
                 implementation(project(":awake-backend-webgpu"))
+                // OrbitCameraSystem/FreeFlyCameraSystem, for WebGpuSampleApplication's
+                // catalog-tool camera wiring -- see appMain's matching dependency comment.
+                implementation(project(":awake-scene"))
                 implementation(libs.wgpu4k)
                 implementation(libs.wgpu4k.toolkit)
                 implementation(libs.kotlinx.browser)
