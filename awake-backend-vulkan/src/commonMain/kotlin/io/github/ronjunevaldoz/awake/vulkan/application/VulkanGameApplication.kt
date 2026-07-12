@@ -3,68 +3,59 @@
 package io.github.ronjunevaldoz.awake.vulkan.application
 
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
+import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.engine.application.GenericGameApplication
-import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
-import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
-import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
-import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
-import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
-import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
 
 /**
  * Reusable Vulkan game bootstrap (see docs/MVP_PLAN.md's Decision Log: "reusable-Application
- * gap fix", and the later "GenericGameApplication" entry documenting why the backend-neutral
- * parts moved out to `awake-engine-game`). A new game supplies its mesh geometry/texture/
- * scene path via the constructor and, if it needs game-specific per-frame logic (player
- * movement, AI, camera control), overrides `onFixedUpdate`/`onRender` -- calling `super`
- * first so [GenericGameApplication]'s scene systems still run.
- *
- * `texture` is optional: when `null`, a trivial 1x1 white pixel is bound instead, so the
- * existing shader/descriptor-set contract (always expects a combined-image-sampler) doesn't
- * need a second no-texture pipeline variant.
+ * gap fix", "GenericGameApplication", and "GenericGameApplication a standalone render
+ * bootstrap"). A new game supplies its shader/vertex-layout via the constructor and its own
+ * behavior via the injected [game] (`Game.ready(renderer)`/`Game.render(...)`) -- this class
+ * only builds/tears down Vulkan's GPU resources, it never knows what the game actually draws.
  */
-abstract class VulkanGameApplication(
+class VulkanGameApplication(
     vertexShaderResourcePath: String,
     fragmentShaderResourcePath: String,
     vertexStride: Int,
-    meshes: Map<String, MeshGeometry>,
-    texture: TextureAsset? = null,
-    scenePath: String
+    game: Game
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
     vertexStride,
-    meshes,
-    texture,
-    scenePath
+    game
 ) {
     private lateinit var graphicsDevice: GraphicsDevice
     private lateinit var swapchainManager: SwapchainManager
     private lateinit var renderPipeline: RenderPipeline
-    private lateinit var uiRenderPipeline: UiRenderPipeline
-    private lateinit var uiGlyphRenderPipeline: UiGlyphRenderPipeline
     private lateinit var lineRenderPipeline: LineRenderPipeline
-    private lateinit var fontTexture: Texture
     private lateinit var transferContext: TransferContext
-    private lateinit var textureInstance: Texture
+
+    /** Only its [Material.descriptorSetLayout] is ever used -- needed to build
+     * [renderPipeline]'s pipeline layout before any real material exists. `createResources`
+     * is deliberately never called on this instance (real materials are built on demand via
+     * `Renderer.createMaterial`), so [destroyBackend] must only tear down the layout, not the
+     * full [Material.destroy] (which would try to destroy a uniform buffer/descriptor pool
+     * that was never created). */
+    private lateinit var pipelineLayoutMaterial: Material
 
     override suspend fun createBackendResources(window: Any): BackendResources {
         graphicsDevice = GraphicsDevice()
         graphicsDevice.create(window)
         swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
         swapchainManager.create()
-        val material = Material(graphicsDevice)
+        pipelineLayoutMaterial = Material(graphicsDevice)
         renderPipeline = RenderPipeline(
             graphicsDevice,
             swapchainManager,
-            material.descriptorSetLayout,
+            pipelineLayoutMaterial.descriptorSetLayout,
             readResourceBytes(vertexShaderResourcePath),
             readResourceBytes(fragmentShaderResourcePath),
             vertexStride
@@ -76,61 +67,23 @@ abstract class VulkanGameApplication(
             readResourceBytes(DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH),
             readResourceBytes(DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH)
         )
-        uiRenderPipeline = UiRenderPipeline(
-            graphicsDevice,
-            swapchainManager,
-            readResourceBytes(UI_VERTEX_SHADER_RESOURCE_PATH),
-            readResourceBytes(UI_FRAGMENT_SHADER_RESOURCE_PATH)
-        )
         transferContext = TransferContext(graphicsDevice)
-        fontTexture = Texture(
-            graphicsDevice,
-            transferContext::runOneTimeCommands,
-            font.atlasPixelsRgba,
-            font.atlasWidth,
-            font.atlasHeight
-        )
-        uiGlyphRenderPipeline = UiGlyphRenderPipeline(
-            graphicsDevice,
-            swapchainManager,
-            uiRenderPipeline.renderPass,
-            readResourceBytes(UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH),
-            readResourceBytes(UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH),
-            fontTexture
-        )
         val renderer = Renderer(
             graphicsDevice,
             swapchainManager,
             renderPipeline,
-            uiRenderPipeline,
-            uiGlyphRenderPipeline,
             lineRenderPipeline,
-            transferContext.commandPool.handle,
+            transferContext,
+            readResourceBytes(UI_VERTEX_SHADER_RESOURCE_PATH),
+            readResourceBytes(UI_FRAGMENT_SHADER_RESOURCE_PATH),
+            readResourceBytes(UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH),
+            readResourceBytes(UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH),
             MAX_FRAMES_IN_FLIGHT
         )
-        val meshInstances = meshes.mapValues { (_, geometry) ->
-            Mesh(
-                graphicsDevice,
-                transferContext::runOneTimeCommands,
-                geometry.vertices,
-                geometry.indices
-            )
-        }
-        val effectiveTexture = texture ?: PLACEHOLDER_TEXTURE
-        textureInstance = Texture(
-            graphicsDevice,
-            transferContext::runOneTimeCommands,
-            effectiveTexture.data,
-            effectiveTexture.width,
-            effectiveTexture.height
-        )
-        material.createResources(textureInstance)
         swapchainManager.createSyncObjects()
 
         return BackendResources(
             renderer = renderer,
-            meshInstances = meshInstances,
-            material = material,
             viewportSize = { swapchainManager.extent.width.toFloat() to swapchainManager.extent.height.toFloat() }
         )
     }
@@ -140,20 +93,17 @@ abstract class VulkanGameApplication(
         swapchainManager.destroy()
         swapchainManager.destroySyncObjects()
         transferContext.destroy()
-        meshInstances.values.forEach { it.destroy() }
-        textureInstance.destroy()
-        material.destroy()
+        VulkanDescriptors.vkDestroyDescriptorSetLayout(
+            graphicsDevice.device,
+            pipelineLayoutMaterial.descriptorSetLayout.handle
+        )
         renderPipeline.destroy()
         lineRenderPipeline.destroy()
-        uiRenderPipeline.destroy()
-        uiGlyphRenderPipeline.destroy()
-        fontTexture.destroy()
         graphicsDevice.destroy()
     }
 
     private companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
-        val PLACEHOLDER_TEXTURE = TextureAsset(byteArrayOf(-1, -1, -1, -1), 1, 1)
 
         // Bundled once in this module (`awake-backend-vulkan/src/commonMain/resources`),
         // not duplicated per consumer -- these files are identical for every

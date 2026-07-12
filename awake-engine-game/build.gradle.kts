@@ -49,20 +49,19 @@ kotlin {
         browser()
     }
 
-    // GenericGameApplication.kt: the backend-neutral bootstrap (scene loading, fixed-
-    // timestep loop, UI/debug-line staging) that VulkanGameApplication (awake-backend-
-    // vulkan) and WebGpuGameApplication (awake-backend-webgpu) both extend, instead of
-    // hand-duplicating the same ~90% of each other's fields/lifecycle/hooks (see
-    // docs/MVP_PLAN.md's decision log for the duplication this replaces).
+    // GenericGameApplication.kt: the backend-neutral render bootstrap that
+    // VulkanGameApplication (awake-backend-vulkan) and WebGpuGameApplication
+    // (awake-backend-webgpu) both extend, plus the Game interface a game implements and
+    // injects into it -- deliberately has zero ECS/scene-graph/UI knowledge (see
+    // docs/MVP_PLAN.md's decision log, "GenericGameApplication a standalone render
+    // bootstrap").
     sourceSets {
         commonMain.dependencies {
             // Application, FixedTimestepLoop (via awake-base transitively).
             api(project(":awake-engine"))
-            // World, SceneLoader, TransformSystem, RenderSystem, MeshRenderer, SceneInstance,
-            // SceneRenderableRequest -- and transitively awake-engine-render-api's
-            // Renderer/Mesh/Material/MeshGeometry/TextureAsset/LineSegment interfaces +
-            // awake-engine-ui's UiContext/BitmapFont.
-            api(project(":awake-scene"))
+            // Renderer/LineSegment -- Game.ready(renderer)'s parameter type and
+            // drawDebugLines()'s plumbing, nothing scene/ECS-specific.
+            api(project(":awake-engine-render-api"))
             implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
