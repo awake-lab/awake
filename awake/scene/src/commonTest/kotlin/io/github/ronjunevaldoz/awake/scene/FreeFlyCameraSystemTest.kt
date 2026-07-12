@@ -114,6 +114,31 @@ class FreeFlyCameraSystemTest {
     }
 
     @Test
+    fun draggingPointerLeftTurnsLookDirectionLeft() {
+        // Regression test for a reported inverted-drag bug: dragging the pointer left was
+        // making the camera turn right. At yaw=0, forward=(0,0,-1) and right=(1,0,0), so +X is
+        // "right" from the camera's own point of view -- dragging left (pointerX decreasing)
+        // must make forward's X component decrease (swing toward -X/"left"), not increase.
+        val world = World()
+        val camera = newCamera()
+        val system = FreeFlyCameraSystem(camera, rotateSpeed = 0.01f)
+
+        Input.setPointer(down = true, x = 100f, y = 100f)
+        system.update(world, 0f)
+        val forwardXBefore = camera.camera.center.x - camera.camera.eye.x
+
+        // Pointer moves LEFT (x decreases).
+        Input.setPointer(down = true, x = 50f, y = 100f)
+        system.update(world, 0f)
+        val forwardXAfter = camera.camera.center.x - camera.camera.eye.x
+
+        assert(forwardXAfter < forwardXBefore) {
+            "expected dragging left to decrease forward's X component (turn left): " +
+                "before=$forwardXBefore after=$forwardXAfter"
+        }
+    }
+
+    @Test
     fun pointerCapturedByUiSuppressesLookButNotWhenReleased() {
         val world = World()
         val camera = newCamera()

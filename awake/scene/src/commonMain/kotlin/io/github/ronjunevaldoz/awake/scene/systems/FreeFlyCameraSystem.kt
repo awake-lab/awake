@@ -57,7 +57,13 @@ class FreeFlyCameraSystem(
             if (wasDragging) {
                 val dx = Input.pointerX - lastPointerX
                 val dy = Input.pointerY - lastPointerY
-                yaw -= dx * rotateSpeed
+                // At yaw=0, forward=(0,0,-1) and right=(1,0,0) -- i.e. +X is "right" from the
+                // camera's own point of view (see right/rightX below). Dragging left (dx<0)
+                // must turn the camera to look left (forwardX should decrease, toward -X), so
+                // yaw needs to DECREASE when dx is negative -- i.e. yaw += dx, not yaw -= dx
+                // (the latter was inverted: dragging left made yaw increase, swinging forward
+                // toward +X/"right" instead, the exact bug reported: "drag left, it goes right").
+                yaw += dx * rotateSpeed
                 pitch = (pitch - dy * rotateSpeed).coerceIn(MIN_PITCH, MAX_PITCH)
             }
             lastPointerX = Input.pointerX
