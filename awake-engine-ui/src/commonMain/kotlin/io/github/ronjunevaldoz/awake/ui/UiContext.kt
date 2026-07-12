@@ -37,8 +37,11 @@ class UiContext {
 
     /** Returns true exactly on the frame the button is released while still hovered
      * (press sets [activeId], release+hover fires the click -- standard immediate-mode
-     * semantics, avoids "click fires on press over a different widget than release"). */
-    fun button(id: String, x: Float, y: Float, w: Float, h: Float): Boolean {
+     * semantics, avoids "click fires on press over a different widget than release").
+     * [label]/[font] are optional -- when both are given, the label is drawn centered over
+     * the button's quad (a plain colored rectangle otherwise has no indication of what it
+     * does). */
+    fun button(id: String, x: Float, y: Float, w: Float, h: Float, label: String? = null, font: BitmapFont? = null): Boolean {
         val hovered = hitTest(x, y, w, h)
         var clicked = false
         if (hovered && Input.pointerDown && activeId == null) {
@@ -50,15 +53,25 @@ class UiContext {
         }
         val active = activeId == id
         primitives += UiDrawPrimitive.Quad(x, y, w, h, colorFor(hovered, active))
+        if (label != null && font != null) drawCenteredLabel(x, y, w, h, label, font)
         return clicked
     }
 
     /** Toggle/checkbox: returns the NEW checked value (flips on click). [checked] is
      * caller-owned (passed in, new value returned) -- [UiContext] itself stores no toggle
      * state, matching real ImGui idiom (`ImGui::Checkbox(&myBool)` minus the pointer, since
-     * Kotlin has no `&Boolean`). */
-    fun toggle(id: String, x: Float, y: Float, w: Float, h: Float, checked: Boolean): Boolean {
-        val clicked = button(id, x, y, w, h)
+     * Kotlin has no `&Boolean`). [label]/[font] are optional, same as [button]. */
+    fun toggle(
+        id: String,
+        x: Float,
+        y: Float,
+        w: Float,
+        h: Float,
+        checked: Boolean,
+        label: String? = null,
+        font: BitmapFont? = null
+    ): Boolean {
+        val clicked = button(id, x, y, w, h, label, font)
         val newChecked = if (clicked) !checked else checked
         if (newChecked) {
             val inset = minOf(w, h) * 0.2f
@@ -67,9 +80,11 @@ class UiContext {
         return newChecked
     }
 
-    /** Header renders as a [button]; when expanded (tracked per-[id] in [widgetStates]),
-     * one [button] per option is rendered below it. Returns the clicked option's index, or
-     * null if nothing was clicked this frame. */
+    /** Header renders as a [button] labeled with the currently-selected option; when
+     * expanded (tracked per-[id] in [widgetStates]), one [button] per option (labeled with
+     * its own text) is rendered below it. Returns the clicked option's index, or null if
+     * nothing was clicked this frame. [font] is optional -- omit it to fall back to the old
+     * unlabeled quad-only rendering. */
     fun dropdown(
         id: String,
         x: Float,
@@ -77,16 +92,17 @@ class UiContext {
         w: Float,
         h: Float,
         options: List<String>,
-        selectedIndex: Int
+        selectedIndex: Int,
+        font: BitmapFont? = null
     ): Int? {
         val state = widgetStates.getOrPut(id) { WidgetState() }
-        if (button(id, x, y, w, h)) {
+        if (button(id, x, y, w, h, options.getOrNull(selectedIndex), font)) {
             state.boolFlag = !state.boolFlag
         }
         var picked: Int? = null
         if (state.boolFlag) {
-            options.forEachIndexed { index, _ ->
-                if (button("$id.option$index", x, y + h * (index + 1), w, h)) {
+            options.forEachIndexed { index, option ->
+                if (button("$id.option$index", x, y + h * (index + 1), w, h, option, font)) {
                     picked = index
                 }
             }
@@ -120,6 +136,16 @@ class UiContext {
 
     fun endFrame(): List<UiDrawPrimitive> = primitives.toList()
 
+    /** Centers [label] (in [font]'s monospace cell metrics) within the ([x], [y], [w], [h])
+     * rect -- used by [button]/[toggle]/[dropdown] to draw their own label, since a plain
+     * colored quad gives no indication of what the widget does or which option is selected. */
+    private fun drawCenteredLabel(x: Float, y: Float, w: Float, h: Float, label: String, font: BitmapFont) {
+        val textWidth = label.length * font.cellSize
+        val labelX = x + (w - textWidth) / 2f
+        val labelY = y + (h - font.cellSize) / 2f
+        text(labelX, labelY, label, LABEL_COLOR, font)
+    }
+
     private fun hitTest(x: Float, y: Float, w: Float, h: Float): Boolean =
         Input.pointerX in x..(x + w) && Input.pointerY in y..(y + h)
 
@@ -134,5 +160,6 @@ class UiContext {
         val HOVER_COLOR = floatArrayOf(0.35f, 0.35f, 0.4f, 0.9f)
         val ACTIVE_COLOR = floatArrayOf(0.5f, 0.5f, 0.6f, 0.9f)
         val CHECK_COLOR = floatArrayOf(0.2f, 0.8f, 0.3f, 1f)
+        val LABEL_COLOR = floatArrayOf(1f, 1f, 1f, 1f)
     }
 }

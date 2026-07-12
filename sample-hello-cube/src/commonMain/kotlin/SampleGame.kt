@@ -120,16 +120,15 @@ class SampleGame : Game {
     }
 
     private fun drawCatalogUi(aspectRatio: Float) {
-        debugOverlayOn = ui.toggle("debug-toggle", 20f, 20f, 120f, 40f, debugOverlayOn)
-        val label = if (debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
-        ui.text(150f, 32f, label, floatArrayOf(1f, 1f, 1f, 1f), font)
+        val debugLabel = if (debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
+        debugOverlayOn = ui.toggle("debug-toggle", 20f, 20f, 120f, 40f, debugOverlayOn, debugLabel, font)
 
         val modeNames = CameraMode.entries.map { it.name }
-        ui.dropdown("camera-mode", 20f, 70f, 160f, 32f, modeNames, cameraMode.ordinal)?.let { picked ->
+        ui.dropdown("camera-mode", 20f, 70f, 160f, 32f, modeNames, cameraMode.ordinal, font)?.let { picked ->
             cameraMode = CameraMode.entries[picked]
         }
 
-        showFrustum = ui.toggle("show-frustum", 200f, 70f, 32f, 32f, showFrustum)
+        showFrustum = ui.toggle("show-frustum", 200f, 70f, 100f, 32f, showFrustum, "FRUSTUM", font)
         if (showFrustum) {
             val corners = Frustum.corners(homeCameraSnapshot, aspectRatio)
             val lines = Frustum.EDGES.map { (a, b) -> LineSegment(corners[a], corners[b], FRUSTUM_COLOR) }
