@@ -1,6 +1,5 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-
 import io.github.ronjunevaldoz.awake.core.application.DesktopGameLoop
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key

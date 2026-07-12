@@ -20,12 +20,23 @@ extensions.configure<SpotlessExtension> {
         // Broadened past Spotless's default `^(package |@file|import )` delimiter -- a few
         // files in this codebase have no package/import line at all (default-package,
         // top-level-only scripts), so the header would never find its end anchor otherwise.
+        // Also covers `expect `/`actual ` top-level declarations (e.g. DebugPng.kt and its
+        // platform actuals) -- without these, the regex can't find a boundary at all and
+        // Spotless throws `Unable to find delimiter regex` instead of applying the header.
+        //
+        // `/**` is included too, and deliberately listed first: Spotless's licenseHeader step
+        // replaces EVERYTHING before the first line matching this regex, not just recognized
+        // license text -- so on a file shaped like `// license\n\n/** doc comment */\nexpect
+        // fun foo()`, matching only on `expect ` would treat the doc comment as disposable old
+        // header content and silently delete it (confirmed: this happened for real on
+        // DebugPng.kt/DebugReadout.kt/etc). Matching `/**` first stops the boundary search
+        // right before the doc comment instead, so it's preserved as code.
         licenseHeader(
             """
             // Copyright (c) Ron June Valdoz
             // SPDX-License-Identifier: Apache-2.0
             """.trimIndent(),
-            "^(package |@file|import |fun |class |object |interface |val |var |private |internal |public )"
+            "^(/\\*\\*|package |@file|import |expect |actual |fun |class |object |interface |val |var |private |internal |public )"
         )
     }
 }

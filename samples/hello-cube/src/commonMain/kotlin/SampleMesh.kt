@@ -1,6 +1,5 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 
 // Same interleaved position(vec3) + color(vec3) + uv(vec2) layout the shared

@@ -1,6 +1,5 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-
 /**
  * Optional per-demo contribution to [DemoCatalog]'s debug HUD -- a demo (e.g. [CubeDemo])
  * implements this to report its own state (camera position/rotation, entity counts, whatever
