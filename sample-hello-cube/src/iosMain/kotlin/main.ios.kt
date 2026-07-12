@@ -3,6 +3,7 @@
 @file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 
 import io.github.ronjunevaldoz.awake.vulkan.VulkanMetalView
+import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 import platform.UIKit.UIScreen
 import platform.UIKit.UIViewController
 
@@ -10,10 +11,15 @@ import platform.UIKit.UIViewController
  * First plain-`UIViewController`-hosting-`VulkanMetalView` pattern in this repo -- awake-demo
  * always goes through Compose (`ComposeUIViewController` -> `AwakeCanvas.kt`'s `UIKitView`
  * wrapping this same [VulkanMetalView]). This sample has no UI chrome, so it wires the same
- * five lifecycle lambdas directly against [SampleApplication] instead.
+ * five lifecycle lambdas directly against a plain [VulkanGameApplication] instead.
  */
 fun makeSampleViewController(): UIViewController {
-    val app = SampleApplication()
+    val app = VulkanGameApplication(
+        vertexShaderResourcePath = "assets/shader/vulkan/triangle.vert.spv",
+        fragmentShaderResourcePath = "assets/shader/vulkan/triangle.frag.spv",
+        vertexStride = sampleVertexStride,
+        game = SampleGame()
+    )
     val controller = UIViewController()
     controller.view = VulkanMetalView(
         frame = UIScreen.mainScreen.bounds,

@@ -70,6 +70,18 @@ kotlin {
     }
 
     sourceSets {
+        // commonMain: SampleGame.kt/SampleMesh.kt -- the one commonMain Game implementation
+        // (see docs/MVP_PLAN.md's decision log, "GenericGameApplication a standalone render
+        // bootstrap") shared by both the appMain (Vulkan) and wasmJsMain (WebGPU) platform
+        // entry points below.
+        commonMain.dependencies {
+            // The Game interface SampleGame implements + Renderer.createMesh/createMaterial.
+            implementation(project(":awake-engine-game"))
+            // SceneRuntime/MeshRenderer/OrbitCameraSystem/FreeFlyCameraSystem, and
+            // transitively awake-engine-render-api's Renderer/Mesh/Material/MeshGeometry/
+            // TextureAsset/LineSegment interfaces + awake-engine-ui's UiContext/BitmapFont.
+            implementation(project(":awake-scene"))
+        }
         // appMain: shared by desktop/Android/iOS -- these three drive VulkanGameApplication
         // (awake-backend-vulkan), which doesn't publish a wasmJs variant. Same pattern
         // awake-demo/shared/build.gradle.kts already uses, for the same reason.
@@ -79,10 +91,6 @@ kotlin {
         appMain.dependencies {
             implementation(project(":awake-engine"))
             implementation(project(":awake-backend-vulkan"))
-            // OrbitCameraSystem, for SampleApplication.onSceneReady()'s catalog-style camera
-            // wiring -- awake-backend-vulkan itself only depends on this as `implementation`,
-            // so it isn't visible transitively.
-            implementation(project(":awake-scene"))
         }
         named("desktopMain") {
             dependsOn(appMain)

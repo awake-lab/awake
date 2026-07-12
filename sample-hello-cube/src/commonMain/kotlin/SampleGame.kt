@@ -1,33 +1,41 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
 
+import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
 import io.github.ronjunevaldoz.awake.core.math.Frustum
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
-import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.scene.components.Camera
+import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneRuntime
 import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
-import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 
 /**
- * The minimal "hello, cube" sample this whole module exists to demonstrate: everything a
- * new game needs to supply on top of [VulkanGameApplication] is geometry + a scene file --
- * no `GraphicsDevice`/`SwapchainManager`/`RenderPipeline`/`Mesh`/`Material` wiring, no
- * texture (passing `texture = null` uses the base class's built-in 1x1 white placeholder).
+ * The minimal "hello, cube" sample this whole module exists to demonstrate: a plain [Game]
+ * implementation (see docs/MVP_PLAN.md's decision log, "GenericGameApplication a standalone
+ * render bootstrap") -- constructible/testable independent of any backend, injected into
+ * `VulkanGameApplication`/`WebGpuGameApplication` at each platform entry point instead of
+ * hand-duplicated per backend (the now-deleted `SampleApplication.kt`/
+ * `WebGpuSampleApplication.kt`).
+ *
  * A single static cube, no player/NavMesh -- just the camera/frustum catalog tool (below),
  * scoped down to this sample's one entity: no catalog-target dropdown (nothing to switch
  * between) and no `FOLLOW` camera mode (nothing to follow).
  */
-class SampleApplication : VulkanGameApplication(
-    vertexShaderResourcePath = "assets/shader/vulkan/triangle.vert.spv",
-    fragmentShaderResourcePath = "assets/shader/vulkan/triangle.frag.spv",
-    vertexStride = 8 * Float.SIZE_BYTES,
-    meshes = mapOf("cube" to MeshGeometry(cubeVertices, cubeIndices)),
-    scenePath = "scenes/sample.scene.json"
-) {
+class SampleGame : Game {
+    private val ui = UiContext()
+    private val font = BitmapFont()
+    private val fixedTimestepLoop = FixedTimestepLoop()
+
+    private lateinit var renderer: Renderer
+    private lateinit var sceneRuntime: SceneRuntime
+
     // Smallest possible proof the custom UI overlay pipeline works end to end: a toggle
     // rendered top-left over the existing cube scene (see docs/MVP_PLAN.md's custom-UI
     // decision log entry).
@@ -46,7 +54,19 @@ class SampleApplication : VulkanGameApplication(
      * minus the moving-player part (this sample has no player). */
     private lateinit var homeCameraSnapshot: CoreCamera
 
-    override fun onSceneReady() {
+    override suspend fun ready(renderer: Renderer) {
+        this.renderer = renderer
+        val cubeMesh = renderer.createMesh(sampleCubeGeometry)
+        val material = renderer.createMaterial()
+        sceneRuntime = SceneRuntime(renderer)
+        sceneRuntime.load(SCENE_PATH) { request ->
+            val mesh = cubeMesh.takeIf { request.meshRenderer.mesh == "cube" }
+                ?: error("Unsupported scene mesh '${request.meshRenderer.mesh}'.")
+            MeshRenderer(mesh, material)
+        }
+
+        val world = sceneRuntime.world
+        val scene = sceneRuntime.scene
         val cubeEntity = scene.roots.firstOrNull { it.name == "cube" }?.entity
             ?: error("sample.scene.json is missing a root node named 'cube'.")
         val cameraEntity = scene.roots.firstOrNull { it.name == "camera" }?.entity
@@ -77,15 +97,29 @@ class SampleApplication : VulkanGameApplication(
         freeFlyCameraSystem = FreeFlyCameraSystem(camera = cameraComponent)
     }
 
-    override fun onFixedUpdate(delta: Float) {
-        super.onFixedUpdate(delta)
-        when (cameraMode) {
-            CameraMode.ORBIT -> orbitCameraSystem.update(world, delta)
-            CameraMode.FREE_FLY -> freeFlyCameraSystem.update(world, delta)
-        }
+    override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
+        // SampleGame is the one place that still wants a fixed-step camera update --
+        // FixedTimestepLoop is now an implementation detail SampleGame opts into itself, not
+        // something GenericGameApplication imposes on every Game.
+        fixedTimestepLoop.advance(
+            frameDelta = delta,
+            fixedUpdate = { step ->
+                val world = sceneRuntime.world
+                when (cameraMode) {
+                    CameraMode.ORBIT -> orbitCameraSystem.update(world, step)
+                    CameraMode.FREE_FLY -> freeFlyCameraSystem.update(world, step)
+                }
+            },
+            render = {
+                ui.beginFrame(viewportWidth, viewportHeight)
+                drawCatalogUi(viewportWidth / viewportHeight)
+                renderer.drawUi(ui.endFrame(), font)
+                sceneRuntime.render(delta)
+            }
+        )
     }
 
-    override fun onDrawUi(ui: UiContext) {
+    private fun drawCatalogUi(aspectRatio: Float) {
         debugOverlayOn = ui.toggle("debug-toggle", 20f, 20f, 120f, 40f, debugOverlayOn)
         val label = if (debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
         ui.text(150f, 32f, label, floatArrayOf(1f, 1f, 1f, 1f), font)
@@ -99,37 +133,17 @@ class SampleApplication : VulkanGameApplication(
         if (showFrustum) {
             val corners = Frustum.corners(homeCameraSnapshot, aspectRatio)
             val lines = Frustum.EDGES.map { (a, b) -> LineSegment(corners[a], corners[b], FRUSTUM_COLOR) }
-            drawDebugLines(lines)
+            renderer.drawDebugLines(lines)
         }
     }
 
     private enum class CameraMode { ORBIT, FREE_FLY }
 
     companion object {
+        private const val SCENE_PATH = "scenes/sample.scene.json"
+
         // Radians/second -- a full 2*PI orbit takes about 21 seconds at this speed.
         private const val AUTO_ROTATE_SPEED = 0.3f
         private val FRUSTUM_COLOR = floatArrayOf(1f, 0.9f, 0.2f, 1f)
-
-        // Same interleaved position(vec3) + color(vec3) + uv(vec2) layout the shared
-        // triangle.vert/.frag shaders expect -- see the (now-retired) awake-demo's
-        // VulkanApplication.kt for the full rationale behind this exact vertex format/palette.
-        val cubeVertices = floatArrayOf(
-            -0.5f, -0.5f, -0.5f, 0f, 0f, 0f, 0f, 0f, // v0
-            0.5f, -0.5f, -0.5f, 1f, 0f, 0f, 1f, 0f, // v1
-            0.5f, 0.5f, -0.5f, 1f, 1f, 0f, 1f, 1f, // v2
-            -0.5f, 0.5f, -0.5f, 0f, 1f, 0f, 0f, 1f, // v3
-            -0.5f, -0.5f, 0.5f, 0f, 0f, 1f, 0f, 0f, // v4
-            0.5f, -0.5f, 0.5f, 1f, 0f, 1f, 1f, 0f, // v5
-            0.5f, 0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f, // v6
-            -0.5f, 0.5f, 0.5f, 0f, 1f, 1f, 0f, 1f, // v7
-        )
-        val cubeIndices = intArrayOf(
-            0, 1, 2, 2, 3, 0, // back
-            4, 5, 6, 6, 7, 4, // front
-            0, 3, 7, 7, 4, 0, // left
-            1, 5, 6, 6, 2, 1, // right
-            0, 4, 5, 5, 1, 0, // bottom
-            3, 2, 6, 6, 7, 3, // top
-        )
     }
 }

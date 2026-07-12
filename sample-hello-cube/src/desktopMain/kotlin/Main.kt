@@ -4,6 +4,7 @@
 import io.github.ronjunevaldoz.awake.core.application.DesktopGameLoop
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
+import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
 
 // GLFW key/mouse codes this sample cares about -- see glfw3.h. A small, hand-picked subset
@@ -71,11 +72,11 @@ private fun pollDesktopInput(window: Long) {
 }
 
 /**
- * A bare GLFW window running [SampleApplication] -- same shape as `awake-demo:desktopApp`'s
- * (now-retired) `VulkanDesktopMain.kt`, since that's the minimal pattern any new consumer's
- * own desktop entry point would follow too. Polls keyboard/pointer input into [Input] once
- * per frame (see [pollDesktopInput]) so `SampleApplication`'s UI widgets (e.g. the
- * debug-toggle) are actually clickable.
+ * A bare GLFW window running a plain `VulkanGameApplication` injected with [SampleGame] --
+ * same shape as `awake-demo:desktopApp`'s (now-retired) `VulkanDesktopMain.kt`, since that's
+ * the minimal pattern any new consumer's own desktop entry point would follow too. Polls
+ * keyboard/pointer input into [Input] once per frame (see [pollDesktopInput]) so
+ * [SampleGame]'s UI widgets (e.g. the debug-toggle) are actually clickable.
  *
  * Unlike `VulkanDesktopMain.kt`, this doesn't call `AwakeContext.init()` -- that class lives
  * in `awake-opengl` (legacy backend) purely to mirror fps/ups into `EngineConfigHolder` for
@@ -89,7 +90,12 @@ fun main() {
     val window = VulkanWindow.glfwCreateWindow(800, 600, "Awake Sample - Hello Cube")
     check(window != 0L) { "glfwCreateWindow returned null" }
 
-    val app = SampleApplication()
+    val app = VulkanGameApplication(
+        vertexShaderResourcePath = "assets/shader/vulkan/triangle.vert.spv",
+        fragmentShaderResourcePath = "assets/shader/vulkan/triangle.frag.spv",
+        vertexStride = sampleVertexStride,
+        game = SampleGame()
+    )
     app.create(window)
 
     while (!VulkanWindow.glfwWindowShouldClose(window)) {
