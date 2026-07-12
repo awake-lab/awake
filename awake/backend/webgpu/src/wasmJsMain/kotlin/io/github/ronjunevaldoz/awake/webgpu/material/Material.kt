@@ -55,7 +55,14 @@ class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
         TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
     }
 
+    /** Unlike Vulkan, WebGPU objects (`GPUSampler`/`GPUTextureView`) are garbage-collected by
+     * the JS runtime -- there's no native handle to explicitly release here. This must be
+     * safe to call unconditionally (every [io.github.ronjunevaldoz.awake.engine.application.Game.dispose]
+     * calls its own `Material.destroy()` regardless of whether the general 3D texture-binding
+     * path above was ever used), so it just drops the references rather than throwing the
+     * same `TODO()` as the genuinely-unimplemented methods above. */
     override fun destroy() {
-        TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
+        previewTextureView = null
+        previewSampler = null
     }
 }
