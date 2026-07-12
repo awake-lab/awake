@@ -146,4 +146,35 @@ class OrbitCameraSystemTest {
                 "yaw before=$yawAfterRelease after=${system.yaw}, pitch before=$pitchAfterRelease after=${system.pitch}"
         }
     }
+
+    @Test
+    fun pointerCapturedByUiAlsoSuppressesAutoRotate() {
+        // Regression test for a bug the previous pointerCapturedByUiSuppressesDragButNotWhenReleased
+        // test missed entirely, since it used the default autoRotateSpeed = 0f (a no-op):
+        // dragging a UI slider (which sets pointerCapturedByUi = true) still visibly spun the
+        // camera in CubeDemo, which constructs this system with a non-zero autoRotateSpeed --
+        // the old `else` branch ran auto-rotate whenever the drag path wasn't active, which
+        // included "pointer down but claimed by UI," not just "pointer genuinely idle."
+        val world = World()
+        val target = Transform(position = Vec3(0f, 0f, 0f))
+        val camera = newCamera()
+        val system = OrbitCameraSystem(target, camera, initialDistance = 5f, autoRotateSpeed = 1f)
+
+        Input.pointerCapturedByUi = true
+        Input.setPointer(down = true, x = 100f, y = 100f)
+        system.update(world, 1f)
+        val yawAfterFirstFrame = system.yaw
+        system.update(world, 1f)
+
+        assertEquals(yawAfterFirstFrame, system.yaw, "yaw must not auto-rotate while pointer is captured by UI")
+
+        // Once genuinely idle (no drag, not captured), auto-rotate resumes.
+        Input.pointerCapturedByUi = false
+        Input.setPointer(down = false, x = 100f, y = 100f)
+        system.update(world, 1f)
+
+        assert(system.yaw != yawAfterFirstFrame) {
+            "expected auto-rotate to resume once the pointer is idle and no longer captured by UI"
+        }
+    }
 }

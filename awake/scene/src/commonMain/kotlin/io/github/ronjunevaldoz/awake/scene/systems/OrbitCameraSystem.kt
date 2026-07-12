@@ -66,11 +66,16 @@ class OrbitCameraSystem(
     private var wasDragging = false
 
     override fun update(world: World, delta: Float) {
-        // A UI widget (button/toggle/slider) already claimed this drag -- see
-        // Input.pointerCapturedByUi's doc comment. Treat the pointer as "not down" for
-        // drag-derived yaw/pitch purposes only; W/S zoom and auto-rotate below are
-        // independent of dragging and must keep working while a widget is being dragged.
-        val draggingPointer = Input.pointerDown && !Input.pointerCapturedByUi
+        // A UI widget (button/toggle/slider) already claimed this pointer -- see
+        // Input.pointerCapturedByUi's doc comment. Gate BOTH the drag-derived yaw/pitch AND
+        // auto-rotate on this, not just the drag path: auto-rotate previously ran whenever
+        // `draggingPointer` was false for ANY reason, which included "the pointer is down
+        // but a UI slider claimed it" -- so dragging a slider still visibly spun the camera
+        // via auto-rotate even after drag-delta itself was correctly suppressed (confirmed
+        // by real user testing after the initial pointerCapturedByUi fix landed). W/S zoom
+        // stays independent of pointer state entirely, since it's keyboard-driven.
+        val pointerCapturedByUi = Input.pointerCapturedByUi
+        val draggingPointer = Input.pointerDown && !pointerCapturedByUi
         if (draggingPointer) {
             if (wasDragging) {
                 val dx = Input.pointerX - lastPointerX
@@ -83,7 +88,9 @@ class OrbitCameraSystem(
             wasDragging = true
         } else {
             wasDragging = false
-            yaw += autoRotateSpeed * delta
+            if (!pointerCapturedByUi) {
+                yaw += autoRotateSpeed * delta
+            }
         }
 
         if (Input.isKeyDown(Key.W)) distance = (distance - zoomSpeed * delta).coerceAtLeast(MIN_DISTANCE)
