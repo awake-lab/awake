@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.engine.application.GenericGameApplication
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
@@ -91,6 +92,14 @@ class VulkanGameApplication(
     }
 
     override fun destroyBackend() {
+        // The GPU may still have the last frame's work in flight the instant the app's
+        // window-close loop exits -- destroying framebuffers/image views/pipelines while
+        // they're still in use is undefined behavior (confirmed by a real desktop
+        // close-triggered crash without this wait). Renderer.draw() already waits idle at
+        // the end of every frame it successfully completes, but a frame that bailed out
+        // early (e.g. mid-resize, see Renderer.recreateSwapChain's doc comment) skips that
+        // wait, so this can't rely on the last draw() call alone.
+        VulkanBuffers.vkDeviceWaitIdle(graphicsDevice.device)
         renderer.destroy()
         swapchainManager.destroy()
         swapchainManager.destroySyncObjects()

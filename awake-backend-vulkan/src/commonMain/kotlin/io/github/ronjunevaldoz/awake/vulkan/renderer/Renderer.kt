@@ -310,19 +310,24 @@ class Renderer(
         if (uiRenderPipeline != null) return
         val pipeline = UiRenderPipeline(graphicsDevice, swapchainManager, uiVertexShaderCode, uiFragmentShaderCode)
         uiRenderPipeline = pipeline
-        uiFramebuffers = swapchainManager.imageViews.map { imageView ->
-            Vulkan.vkCreateFramebuffer(
-                device,
-                VkFramebufferCreateInfo(
-                    renderPass = pipeline.renderPass,
-                    pAttachments = arrayOf(imageView),
-                    width = swapchainManager.extent.width,
-                    height = swapchainManager.extent.height,
-                    layers = 1
-                )
-            )
-        }.toList()
+        uiFramebuffers = buildUiFramebuffers(pipeline.renderPass)
     }
+
+    /** One framebuffer per swapchain image view, against [renderPass] -- shared by
+     * [ensureUiQuadPipeline] (first build) and [recreateSwapChain] (rebuild after the
+     * swapchain's image views change). */
+    private fun buildUiFramebuffers(renderPass: Long): List<Long> = swapchainManager.imageViews.map { imageView ->
+        Vulkan.vkCreateFramebuffer(
+            device,
+            VkFramebufferCreateInfo(
+                renderPass = renderPass,
+                pAttachments = arrayOf(imageView),
+                width = swapchainManager.extent.width,
+                height = swapchainManager.extent.height,
+                layers = 1
+            )
+        )
+    }.toList()
 
     /** Builds [uiGlyphRenderPipeline]/[fontTexture] on the first [drawUi] call that passes a
      * non-null [font] -- cached after that (a game calls [drawUi] with the same font every
@@ -483,15 +488,33 @@ class Renderer(
             true,
             Long.MAX_VALUE
         )
+        // Reset only AFTER a successful acquire (not before) -- if acquire throws and this
+        // frame bails out early (see the catch below), an already-reset-but-never-submitted
+        // fence would stay unsignaled forever, hanging the NEXT draw() call's
+        // vkWaitForFences on this same frame-in-flight slot indefinitely.
+        val imageIndex: Int
+        try {
+            imageIndex = Vulkan.vkAcquireNextImageKHR(
+                device,
+                swapchainManager.swapChain,
+                Int.MAX_VALUE.toLong(),
+                swapchainManager.imageAvailableSemaphores[currentFrame],
+                0
+            )
+        } catch (e: VkResultException) {
+            when (e.result) {
+                // A resized/minimized/moved-to-another-display window makes the swapchain
+                // stale before this frame's acquire even runs (not just after present, see
+                // the catch around vkQueuePresentKHR below) -- recreate and skip this frame
+                // entirely: there's no valid acquired image to record/submit/present against.
+                VkResult.VK_SUBOPTIMAL_KHR, VkResult.VK_ERROR_OUT_OF_DATE_KHR -> {
+                    recreateSwapChain()
+                    return
+                }
+                else -> throw e
+            }
+        }
         Vulkan.vkResetFences(device, longArrayOf(swapchainManager.inFlightFences[currentFrame]))
-
-        val imageIndex = Vulkan.vkAcquireNextImageKHR(
-            device,
-            swapchainManager.swapChain,
-            Int.MAX_VALUE.toLong(),
-            swapchainManager.imageAvailableSemaphores[currentFrame],
-            0
-        )
 
         val aspect = swapchainManager.extent.width.toFloat() / swapchainManager.extent.height.toFloat()
         val viewProjection = camera.viewProjectionMatrix(aspect)
@@ -665,8 +688,51 @@ class Renderer(
         out[offset + 7] = if (color.size > 3) color[3] else 1f
     }
 
+    /** Rebuilds the swapchain (and everything sized off it -- depth image, main + UI
+     * framebuffers) after `vkAcquireNextImageKHR`/`vkQueuePresentKHR` reports
+     * `VK_SUBOPTIMAL_KHR`/`VK_ERROR_OUT_OF_DATE_KHR` (typically a window resize/maximize).
+     * Doesn't touch any graphics pipeline (main, UI-quad, glyph, or texture-quad): all of
+     * them declare `VK_DYNAMIC_STATE_VIEWPORT`/`SCISSOR`, so [recordCommandBuffer] already
+     * sets the correct viewport/scissor from the live (post-recreate) [swapchainManager]
+     * .extent] every frame -- only the UI pipelines' screen-size uniform buffers (used for
+     * their vertex shaders' pixel-to-NDC math, not dynamic state) need rewriting here. */
     private fun recreateSwapChain() {
-        // TODO process recreation of swapchain here
+        // Nothing may still be reading/writing swapchain-derived resources (framebuffers,
+        // depth image, image views) while they're torn down and rebuilt below.
+        VulkanBuffers.vkDeviceWaitIdle(device)
+
+        var index = 0
+        while (index < framebuffers.size) {
+            Vulkan.vkDestroyFramebuffer(device, framebuffers[index])
+            index += 1
+        }
+        uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
+        Vulkan.vkDestroyImageView(device, depthImageView)
+        VulkanImages.vkDestroyImage(device, depthImage)
+        VulkanBuffers.vkFreeMemory(device, depthImageMemory)
+
+        swapchainManager.destroy()
+        // oldSwapchain (read by swapchainManager.create() below) must not reference an
+        // already-destroyed handle -- VK_NULL_HANDLE is the well-defined "no chaining" case.
+        swapchainManager.swapChain = 0
+
+        swapchainManager.create()
+        createDepthResources()
+        createFramebuffers()
+
+        val uiPipeline = uiRenderPipeline
+        if (uiPipeline != null) {
+            uiFramebuffers = buildUiFramebuffers(uiPipeline.renderPass)
+            uiPipeline.writeScreenSize(swapchainManager.extent.width.toFloat(), swapchainManager.extent.height.toFloat())
+        }
+        uiGlyphRenderPipeline?.writeScreenSize(
+            swapchainManager.extent.width.toFloat(),
+            swapchainManager.extent.height.toFloat()
+        )
+        uiTextureRenderPipeline?.writeScreenSize(
+            swapchainManager.extent.width.toFloat(),
+            swapchainManager.extent.height.toFloat()
+        )
     }
 
     /** Binds+draws each [drawCalls] entry against whatever render pass/pipeline is already
