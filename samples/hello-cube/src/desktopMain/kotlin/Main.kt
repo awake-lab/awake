@@ -6,6 +6,8 @@ import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 // GLFW key/mouse codes this sample cares about -- see glfw3.h. A small, hand-picked subset
 // (matching io.github.ronjunevaldoz.awake.core.input.Key), not a full GLFW key table;
@@ -114,11 +116,15 @@ fun main() {
     )
     app.create(window)
 
-    // Desktop-only debug-control channel (see DebugControlServer.kt) -- lets an AI agent
-    // drive/inspect this running demo over a WebSocket instead of simulating mouse input on
-    // a real GLFW window. Started only after app.create(window) so the first getState
-    // already reflects a fully-initialized demo.
-    val debugServer = DebugControlServer()
+    // Desktop-only debug-control channel (DebugControlServer lives in :samples:server, a
+    // small reusable module generic over command/response types -- see its own doc comment)
+    // -- lets an AI agent drive/inspect this running demo over a WebSocket instead of
+    // simulating mouse input on a real GLFW window. Started only after app.create(window)
+    // so the first getState already reflects a fully-initialized demo.
+    val debugServer = DebugControlServer<DebugCommand, DebugSnapshot>(
+        parseCommand = ::parseDebugCommand,
+        encodeResponse = { Json.encodeToString(it) }
+    )
     debugServer.start()
 
     while (!VulkanWindow.glfwWindowShouldClose(window)) {

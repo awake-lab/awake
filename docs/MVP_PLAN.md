@@ -2905,6 +2905,27 @@ enabled Vulkan validation layers for the first time on this repro.
   `true` to keep exercising this path, and re-open the investigation if `VK_SUBOPTIMAL_KHR`
   resurfaces now that the dispose-order crash it may have been masquerading as is gone.
 
+#### D24 follow-up (2026-07-12): `DebugControlServer` moved into its own `:samples:server` module
+
+Pulled `DebugControlServer` out of `samples:hello-cube`'s `desktopMain` into a new, small,
+plain-JVM module (`kotlin.jvm` plugin, same shape as `awake:ecs:benchmark`) so it's reusable
+by any future desktop sample without depending on `hello-cube`'s own demo/command types.
+Genericized over `TCommand`/`TResponse` (`DebugControlServer<TCommand, TResponse>(port,
+parseCommand, encodeResponse)`) — the module now knows nothing about `DebugCommand`/
+`DebugSnapshot`'s shape; those stay in `hello-cube`'s `commonMain` as before (still
+cross-platform-safe pure logic, still unit-testable without a GPU/WebSocket), and `Main.kt`
+supplies the parse/encode functions when constructing the server. This also drops the Ktor
+`content-negotiation`/`kotlinx.serialization` dependency this module never actually needed
+(the server sends/receives raw text frames only; JSON encode/decode is the caller's job).
+Dependency direction: `hello-cube` → `samples:server` (desktop source set only), never the
+reverse — same shape as `hello-cube:androidApp` → `hello-cube`.
+
+Verified with the same real WebSocket round trip as D24's original verification, against the
+module boundary this time: `getState`/`setMinimap` both round-tripped correctly through
+`:samples:server`'s generic server + `hello-cube`'s own `DebugCommand`/`DebugSnapshot`
+parse/encode functions. `awake:scene:desktopTest`, `:samples:hello-cube:androidApp:
+assembleDebug`, and `spotlessCheck` on both modules all pass.
+
 ### D4 — Editor base
 **Decided: build on [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor)**
 (Compose Desktop shell + design system) rather than building from scratch.

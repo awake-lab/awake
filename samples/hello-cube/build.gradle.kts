@@ -127,13 +127,11 @@ kotlin {
                 // falling-cube-onto-ground scene. Desktop+Android only; iOS/wasmJs stay
                 // null via PhysicsWorldFactory's stub actuals (see that file's comment).
                 implementation(project(":awake:backend:jolt"))
-                // DebugControlServer.kt -- desktop-only Ktor WebSocket debug-control channel
-                // (see docs/MVP_PLAN.md's decision log). CIO engine: fewer transitive deps
-                // than Netty, fine for a single dev-tooling endpoint.
-                implementation(libs.ktor.server.core)
-                implementation(libs.ktor.server.cio)
-                implementation(libs.ktor.server.websockets)
-                implementation(libs.ktor.serialization.kotlinx.json)
+                // DebugControlServer -- desktop-only Ktor WebSocket debug-control channel,
+                // pulled out into its own reusable module (see docs/MVP_PLAN.md's decision
+                // log). Generic over command/response types; this module supplies the actual
+                // DebugCommand/DebugSnapshot parsing/encoding in Main.kt.
+                implementation(project(":samples:server"))
             }
         }
         named("androidMain") {

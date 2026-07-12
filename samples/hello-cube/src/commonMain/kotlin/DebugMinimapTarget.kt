@@ -1,9 +1,8 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-
 /**
  * Optional per-demo contribution to [DemoCatalog]'s desktop-only debug-control WebSocket
- * channel (see `DebugControlServer.kt`, desktopMain) -- a demo (e.g. [CubeDemo]) implements
+ * channel (see `DebugControlServer` in `:samples:server`) -- a demo (e.g. [CubeDemo]) implements
  * this to let a WebSocket client toggle its own minimap/render-target-preview feature on or
  * off deterministically, without simulating a click on the demo's `show-minimap` UI toggle.
  * Mirrors [DebugCameraTarget]/[DebugReadout]/[OffscreenPreviewSource]'s shape/rationale: not

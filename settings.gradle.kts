@@ -36,6 +36,7 @@ include(":awake:physics:api")
 include(":awake:backend:jolt")
 include(":samples:hello-cube")
 include(":samples:hello-cube:androidApp")
+include(":samples:server")
 
 
 pluginManagement {
