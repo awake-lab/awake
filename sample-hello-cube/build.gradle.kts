@@ -115,13 +115,23 @@ kotlin {
             dependencies {
                 implementation(project(":awake-engine"))
                 implementation(project(":awake-backend-webgpu"))
-                // OrbitCameraSystem/FreeFlyCameraSystem, for WebGpuSampleApplication's
-                // catalog-tool camera wiring -- see appMain's matching dependency comment.
+                // OrbitCameraSystem/FreeFlyCameraSystem, for SampleGame's catalog-tool
+                // camera wiring -- see appMain's matching dependency comment.
                 implementation(project(":awake-scene"))
                 implementation(libs.wgpu4k)
                 implementation(libs.wgpu4k.toolkit)
                 implementation(libs.kotlinx.browser)
             }
+            // wasmJs library resources aren't merged into a consuming app's own
+            // processedResources/webpack-dev-server static output by default -- only a
+            // module's OWN commonMain/wasmJsMain resources get served at their relative
+            // path (see Resource.wasmJs.kt's doc comment for that assumption). This was
+            // silently broken since D13 moved the UI/glyph/debug-line WGSL shaders into
+            // awake-backend-webgpu's own resources -- flagged in D19/D20/D21 as a known gap,
+            // fixed here by pointing this source set's resources directly at that module's
+            // resource directory so Gradle's own wasmJsProcessResources task picks them up
+            // and copies them into this app's served output, no manual copy task needed.
+            resources.srcDir(project(":awake-backend-webgpu").file("src/wasmJsMain/resources"))
         }
     }
 }

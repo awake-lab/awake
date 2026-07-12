@@ -22,6 +22,15 @@ engine with ECS, a Compose-style scene API, and a desktop editor. Read
 the roadmap, module graph, and open decisions (D1-D4) live there and take priority over
 assumptions made here.
 
+For Vulkan/swapchain fundamentals (swapchain creation, framebuffer/image-view setup, and
+especially window-resize/swapchain-recreation handling), check
+[vulkan-tutorial.com](https://vulkan-tutorial.com/) first before improvising a fix — a
+canvas/swapchain's backing size must be explicitly derived from the actual window/canvas
+size at configure time and reconfigured on resize, it never just follows CSS/window
+dimensions automatically. This exact class of bug (surface/canvas backing-buffer never
+explicitly sized before configure, so it silently renders at 0x0) surfaced in
+`awake-backend-webgpu`'s wasmJs canvas setup during the D21 refactor.
+
 ## What makes this different from app-feature work
 
 Engine modules (`awake-core`, `awake-vulkan`) do **not** follow the app's 6-layer clean
