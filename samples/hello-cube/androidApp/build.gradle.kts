@@ -2,7 +2,10 @@
 // com.android.application with the Kotlin Multiplatform plugin.
 plugins {
     alias(libs.plugins.android.application)
-    id("awake.dokka-convention")
+    // No awake.dokka-convention here: Dokka's Android integration only reads the classic
+    // com.android.library's LibraryExtension, not com.android.application's -- applying it
+    // anyway just logs "could not get Android Extension" during every configuration phase
+    // for no benefit, since this is a runnable app, not a published library needing API docs.
     id("awake.detekt-convention")
     id("awake.spotless-convention")
 }
