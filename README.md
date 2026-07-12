@@ -60,18 +60,20 @@ frustum-wireframe overlay.
 
 ### Building a New Game
 
-The reusable engine bootstrap lives in `VulkanGameApplication`
-(`awake-backend-vulkan`) and `WebGpuGameApplication` (`awake-backend-webgpu`) — both extend
-`GenericGameApplication` (`awake-engine-game`), which owns everything backend-neutral (scene
-loading, the fixed-timestep loop, UI/debug-line staging). A new game subclasses
-`VulkanGameApplication`/`WebGpuGameApplication`, supplying mesh geometry, an optional
-texture, and a scene JSON path through the constructor —
-`GraphicsDevice`/`SwapchainManager`/`RenderPipeline`/`Mesh`/`Material`/`Renderer`
-construction is handled generically. Game-specific behavior (player movement, camera
-control, AI) is added by overriding `onSceneReady()` (resolve your entities once the scene
-loads) and `onFixedUpdate()`/`onRender()` (per-frame logic) — see `sample-hello-cube`'s own
-`SampleApplication.kt`/`WebGpuSampleApplication.kt` for a worked example with an orbit/
-free-fly camera and a frustum-wireframe debug overlay layered on top of the same base class.
+The reusable engine bootstrap is `VulkanGameApplication` (`awake-backend-vulkan`) /
+`WebGpuGameApplication` (`awake-backend-webgpu`), which extend `GenericGameApplication`
+(`awake-engine-game`) — a pure render bootstrap with no ECS/UI/asset opinions of its own.
+Construct one with your shader/vertex-layout paths plus a `Game` implementation (`awake-
+engine-game`'s `Game` interface: `suspend fun ready(renderer)`, `fun render(delta,
+viewportWidth, viewportHeight)`, plus optional `resize`/`pause`/`resume`/`dispose`) —
+`GraphicsDevice`/`SwapchainManager`/`RenderPipeline`/`Renderer` construction is handled
+generically, and every `Application` lifecycle callback forwards straight to your `Game`.
+Your `Game` calls `renderer.createMesh(geometry)`/`createMaterial(texture)` for whatever
+assets it wants, and — if it wants an ECS/scene graph — constructs its own `SceneRuntime`
+(`awake-scene`) to load a scene JSON and drive `TransformSystem`/`RenderSystem`. See
+`sample-hello-cube`'s own `SampleGame.kt` (commonMain, injected identically into both
+backends at each platform's entry point) for a worked example with an orbit/free-fly
+camera, a frustum-wireframe debug overlay, and its own `SceneRuntime`.
 
 ### Tools
 

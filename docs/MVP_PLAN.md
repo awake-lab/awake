@@ -2246,6 +2246,89 @@ subprocess — had already proven simpler and more reliable to verify throughout
   due to the separate pre-existing `sample-hello-cube` wasmJs shader-bundling gap (D19's
   other flagged follow-up).
 
+### D21 — `GenericGameApplication` becomes a standalone render bootstrap; `Game` injected, not inherited
+
+**Decided (2026-07-12): `GenericGameApplication` no longer knows about ECS, UI, or game
+assets at all — a game is a plain `Game` implementation, constructor-injected into
+`VulkanGameApplication`/`WebGpuGameApplication`, not a subclass overriding lifecycle hooks.**
+D19's dedup correctly identified that `VulkanGameApplication`/`WebGpuGameApplication`
+duplicated ~90% of their bootstrap fields/lifecycle, but the resulting
+`GenericGameApplication` still hard-baked in `awake-scene` (`World`/`SceneInstance`/
+`SceneLoader`/`TransformSystem`/`RenderSystem`) and `awake-engine-ui` (`UiContext`,
+`BitmapFont`), forcing every game onto one specific ECS and one specific immediate-mode UI
+system whether it wanted them or not — the same problem the earlier deferred
+`GameApplication { scene { }; ui { } }` DSL discussion was pointing at (see the
+`decision_defer_gameapplication_dsl` memory note: a DSL's `scene { }`/`ui { }` blocks would
+need to be optional/composable under the hood; they weren't).
+
+- **`Renderer`'s UI-glyph pipeline is now lazy/opt-in.** Both backends previously built a
+  font texture + glyph render pipeline unconditionally inside `createBackendResources()`,
+  passed into `Renderer`'s constructor as required params — so no game could avoid the
+  UI/text machinery even if it never called `drawUi`. `Renderer.drawUi(primitives, font)`
+  now lazily builds its (colored-quad) UI pipeline on the first call of any kind, and its
+  glyph pipeline on the first call that passes a non-null `font`, caching both after that.
+  Vulkan's `recordCommandBuffer()` gained the same "skip the UI pass when nothing's ever
+  been drawn" guard WebGPU's `draw()` already had.
+- **`Renderer` gained `createMesh(geometry)`/`createMaterial(texture)` as on-demand
+  methods**, replacing `GenericGameApplication`'s old `meshes: Map<String, MeshGeometry>`/
+  `texture: TextureAsset?` constructor params (and the `meshInstances`/`material` fields
+  built from them at bootstrap-construction time). Uploading a mesh isn't a
+  Vulkan-vs-WebGPU backend concern — it's a "does this game want this asset, and when"
+  concern, so it moved to the game.
+- **New `SceneRuntime` class in `awake-scene`** — a plain class encapsulating exactly what
+  `GenericGameApplication` used to do for scene handling (`World`/`SceneInstance`/
+  `TransformSystem`/`RenderSystem`, driven via `load(scenePath, resolveRenderable)` +
+  `render(delta)`), constructed and driven by a game that wants it, not baked into the
+  bootstrap.
+- **New `Game` interface in `awake-engine-game`**, injected via `GenericGameApplication`'s
+  constructor: `suspend fun ready(renderer)`, `fun render(delta, viewportWidth,
+  viewportHeight)`, plus `resize`/`pause`/`resume`/`dispose` (all default no-op) — mirroring
+  libGDX's `Game`→`Screen` delegation (its `Game` class forwards every
+  `ApplicationListener` callback to the active `Screen`). No `fixedUpdate`: forcing every
+  `Game` to reason about a fixed-vs-variable timestep split would itself be a form of
+  coupling; `FixedTimestepLoop` (already in `awake-engine`) becomes an optional tool a
+  `Game` opts into internally if it wants deterministic stepping (`SampleGame` does, for its
+  camera systems), not something the bootstrap imposes on every game.
+- **`GenericGameApplication` is now `final` with respect to lifecycle wiring** — every
+  `Application` callback either builds/tears down backend GPU resources
+  (`createBackendResources`/`destroyBackend`, still abstract, still backend-specific) or
+  forwards verbatim to the injected `game`. Zero game-specific logic lives in this class.
+  `VulkanGameApplication`/`WebGpuGameApplication` are now concrete (not abstract) classes —
+  with `Game` injected rather than overridden, they have no reason to stay open for
+  subclassing.
+- **`SampleApplication.kt`/`WebGpuSampleApplication.kt` deleted entirely** — once
+  `VulkanGameApplication`/`WebGpuGameApplication` take `game: Game` as a plain constructor
+  parameter, these two files did nothing but forward constructor args (confirmed: no
+  overrides, no body). `sample-hello-cube`'s camera/UI/catalog logic (previously
+  copy-pasted between the two files, including a byte-for-byte duplicated cube mesh) now
+  lives once, in a new commonMain `SampleGame : Game`, constructed directly at each of the
+  4 platform entry points (`Main.kt`/`main.ios.kt`/`MainActivity.kt`/wasmJs `main.kt`) via
+  `VulkanGameApplication(..., game = SampleGame())` / `WebGpuGameApplication(...)`.
+- **Explicitly out of scope**: unifying the SPIR-V (Vulkan) vs. WGSL (WebGPU) shader
+  sources so a game author writes one shader instead of two — a real KMP-boilerplate gap,
+  but a build-tooling problem (shader cross-compilation or a small Kotlin shader DSL),
+  orthogonal to the application-layer coupling this entry fixes. Tracked as a follow-up
+  decision, not bundled here.
+- **A real bug was caught during real-run verification, not compile-checking**: after the
+  refactor, `sample-hello-cube:run` crashed on exit with `vkDestroyBuffer: buffer not
+  initialized`. Cause: `VulkanGameApplication` still constructs a template `Material` purely
+  to get its `descriptorSetLayout` before `RenderPipeline` exists (needed before any real
+  material can be built) — `createResources(texture)` is deliberately never called on this
+  instance (real materials now come from `Renderer.createMaterial()`), so its
+  `uniformBuffer`/`descriptorPool` are never allocated. `destroyBackend()` was still calling
+  this template's full `Material.destroy()`, which tried to destroy those never-allocated
+  handles. Fixed by renaming the field to `pipelineLayoutMaterial` (documenting why it's
+  special) and destroying only its `descriptorSetLayout` directly in `destroyBackend()`,
+  not the whole `Material`.
+- **Verified**: `awake-engine-render-api`/`awake-scene`/`awake-engine-game`/
+  `awake-backend-vulkan`/`awake-backend-webgpu` compile clean; all 5 `sample-hello-cube`
+  targets (desktop, `androidApp`, iOS, wasmJs) compile clean; `awake-scene:desktopTest`
+  passes. Real desktop run: the app stays up and renders continuously (previously crashed
+  on close before the `pipelineLayoutMaterial` fix, confirmed fixed after). wasmJs
+  console-checked via `preview_start` — clean apart from the same pre-existing
+  `debug_line.wgsl` 404 flagged in D20 (unrelated to this change; the file exists on disk,
+  the dev server just doesn't serve it — separate follow-up, not fixed here).
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).
