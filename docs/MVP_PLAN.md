@@ -2497,6 +2497,55 @@ on a JVM-physics-binding repo mostly reflects a small market, not neglect):
   `awake:base`'s iOS/wasmJs test compilation and `samples:hello-cube`'s spotless check —
   none of which touch physics code) has no new failures from this slice.
 
+**D5 slice 2 (2026-07-12): ECS wiring (`PhysicsBody`/`PhysicsSystem`) + `sample-hello-cube`
+falling-cube demo.**
+
+- `awake:scene` gained `PhysicsBody` (shape/motionType/nullable `BodyHandle`, same
+  "declared-before-the-live-resource-exists" shape as `MeshRenderer`) and `PhysicsSystem`
+  (externally driven `update(world, delta)`, same pattern as `OrbitCameraSystem`/
+  `ChaseAiSystem` — constructed and called by game code, never wired into `SceneRuntime`
+  itself, since only the caller knows which concrete `PhysicsWorld` to construct). Body
+  creation is lazy/one-shot per entity (first `update` that sees a `null` handle creates the
+  body); `step`/`syncTransforms` are each called exactly once per `update`, matching
+  `PhysicsWorld.syncTransforms`'s batched-readback contract. Covered by
+  `PhysicsSystemTest` using a fake `PhysicsWorld` (pure ECS-wiring logic, no jolt-jni needed).
+  There's still no scene-JSON authoring for `PhysicsBody` (no `"physicsBody"` key in
+  `SceneDocument`/`SceneLoader` yet) — the demo below attaches it in code via `world.add`
+  after `SceneRuntime.load`, once the entity's authored `Transform` is available to derive a
+  matching `BoxShape`. Scene-JSON authoring is left for whenever the editor needs it.
+- `sample-hello-cube` gained a new `PhysicsDemo` catalog entry (`DemoCatalog`'s "PHYSICS"
+  dropdown option) rather than bolting physics onto the existing `CubeDemo` — `CubeDemo`
+  already juggles two camera modes, a frustum toggle, and a minimap, and this demo wanted its
+  own fixed (non-orbiting) camera so settling is easy to observe without a moving viewpoint
+  fighting it. Scene: `physics.scene.json` — a static "ground" node (unit cube mesh scaled to
+  10×0.5×10, `BoxShape` half-extents derived from that same authored scale, `MotionType.STATIC`)
+  and a dynamic "cube" node (unit `BoxShape`, `MotionType.DYNAMIC`) dropped from y=5.
+  `PhysicsSystem.update` runs inside `FixedTimestepLoop.advance`'s `fixedUpdate` step, before
+  `sceneRuntime.render(delta)` in the `render` step — same ordering `CubeDemo`'s own camera
+  systems already use. The falling cube's Y position is logged to console once a second (a
+  plain per-frame accumulator, not tied to `DemoCatalog`'s own once-a-second HUD log) so a
+  real run's settling behavior is verifiable from console output alone.
+- **iOS/wasmJs handling**: a small `expect fun createPhysicsWorld(): PhysicsWorld?` in
+  `sample-hello-cube`'s own `commonMain` (same "return `null` on an unsupported platform"
+  shape as `awake:scene`'s `createDemoNavMesh()`) — `desktopMain`/`androidMain` actuals
+  construct a real `JoltPhysicsWorld`, `iosMain`/`wasmJsMain` actuals return `null` since
+  `awake:backend:jolt`'s backends there are still `TODO()`-throwing stubs (per D5's binding
+  plan). `PhysicsDemo` degrades gracefully on a `null` `PhysicsWorld`: it still loads/renders
+  the ground+cube scene, just never steps physics, instead of crashing. **iOS/wasmJs real
+  Jolt bindings (`JoltC` cinterop, `JoltPhysics.js`) remain fully deferred** — nothing in this
+  slice or slice 1 implements either, matching how RenderTarget's iOS/WebGPU slices were
+  flagged previously.
+- **Confirmed on real hardware (desktop, this dev machine, macOS Apple Silicon)**: ran
+  `:samples:hello-cube:run` with `PhysicsDemo` selected and watched the console log. The cube
+  starts at y=5, falls, and settles: `cube Y = 0.45309728` on the first ~1s sample, then
+  stable at `cube Y = 0.47999978` for the remainder of a 20-second observation window (FPS
+  54-55, frame time 16-19ms throughout) — expected rest height is 0.5 (ground top at y=0 plus
+  the cube's own half-height), so this settles right at the ground surface within Jolt's
+  normal contact-penetration tolerance, not through the floor and not floating. Both
+  `:samples:hello-cube:compileKotlinDesktop` and `:compileAndroidMain` (plus
+  `:compileKotlinIosArm64`/`:compileKotlinWasmJs`, to confirm the `null`-returning stub
+  actuals compile) pass clean.
+
 ### D4 — Editor base
 **Decided: build on [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor)**
 (Compose Desktop shell + design system) rather than building from scratch.

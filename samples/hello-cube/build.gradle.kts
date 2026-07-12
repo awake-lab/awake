@@ -97,6 +97,12 @@ kotlin {
         }
         named("desktopMain") {
             dependsOn(appMain)
+            dependencies {
+                // JoltPhysicsWorld -- real jolt-jni-backed PhysicsWorld for PhysicsDemo's
+                // falling-cube-onto-ground scene. Desktop+Android only; iOS/wasmJs stay
+                // null via PhysicsWorldFactory's stub actuals (see that file's comment).
+                implementation(project(":awake:backend:jolt"))
+            }
         }
         named("androidMain") {
             dependsOn(appMain)
@@ -110,6 +116,7 @@ kotlin {
                 // when these stay `implementation` there, matching awake-demo/shared.
                 api(project(":awake:engine"))
                 api(project(":awake:backend:vulkan"))
+                implementation(project(":awake:backend:jolt"))
             }
         }
         named("iosMain") { dependsOn(appMain) }

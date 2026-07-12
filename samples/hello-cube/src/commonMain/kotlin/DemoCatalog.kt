@@ -49,10 +49,10 @@ class DemoCatalog : Game {
     private lateinit var renderer: Renderer
 
     private val demos: List<Pair<String, () -> Game>> = listOf(
-        "CUBE" to { CubeDemo(ui, font) }
-        // Add new demos here as they land -- e.g. "MINIMAP" to { MinimapDemo(ui, font) }
-        // once render-to-texture exists, "PHYSICS" to { PhysicsDemo(ui, font) } once Jolt
-        // bindings land. Each factory closure defers construction until actually selected.
+        "CUBE" to { CubeDemo(ui, font) },
+        // PhysicsDemo takes no (ui, font) -- see its own doc comment for why it doesn't need
+        // either. Each factory closure defers construction until actually selected.
+        "PHYSICS" to { PhysicsDemo() }
     )
 
     private var currentIndex = 0
