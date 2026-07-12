@@ -4,11 +4,17 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
+import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
+import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
+import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
@@ -23,6 +29,8 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
+import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
@@ -40,6 +48,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
+import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
@@ -70,10 +79,12 @@ class Renderer(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     renderPipeline: RenderPipeline,
-    private val uiRenderPipeline: UiRenderPipeline,
-    private val uiGlyphRenderPipeline: UiGlyphRenderPipeline,
     private val lineRenderPipeline: LineRenderPipeline,
-    commandPool: Long,
+    private val transferContext: TransferContext,
+    private val uiVertexShaderCode: ByteArray,
+    private val uiFragmentShaderCode: ByteArray,
+    private val uiGlyphVertexShaderCode: ByteArray,
+    private val uiGlyphFragmentShaderCode: ByteArray,
     maxFramesInFlight: Int
 ) : RenderRenderer {
     private val graphicsDevice = graphicsDevice
@@ -88,8 +99,20 @@ class Renderer(
     private var depthImageMemory: Long = 0
     private var depthImageView: Long = 0
     private var framebuffers: List<Long> = emptyList()
-    private var uiFramebuffers: List<Long> = emptyList()
     private var commandBuffers: LongArray = LongArray(maxFramesInFlight)
+
+    // Lazily built on the first drawUi() call of any kind (uiRenderPipeline/uiFramebuffers)
+    // and on the first call that passes a non-null font (uiGlyphRenderPipeline/fontTexture)
+    // -- see ensureUiQuadPipeline()/ensureGlyphPipeline()'s doc comments. A game that never
+    // calls drawUi never builds either pipeline at all.
+    private var uiRenderPipeline: UiRenderPipeline? = null
+    private var uiFramebuffers: List<Long> = emptyList()
+    private var uiGlyphRenderPipeline: UiGlyphRenderPipeline? = null
+    private var fontTexture: Texture? = null
+
+    // Textures created on demand by createMaterial() -- Renderer (not Material) owns their
+    // teardown, mirroring how it already owns uiMesh/uiGlyphMesh/lineMesh.
+    private val createdTextures = mutableListOf<Texture>()
 
     // Rewritten every frame by drawUi() (called before draw() -- see VulkanGameApplication
     // .onRender()'s ordering) so recordCommandBuffer's UI pass, later in the SAME command
@@ -105,8 +128,75 @@ class Renderer(
     init {
         createDepthResources()
         createFramebuffers()
-        createUiFramebuffers()
-        createCommandBuffers(commandPool, maxFramesInFlight)
+        createCommandBuffers(transferContext.commandPool.handle, maxFramesInFlight)
+    }
+
+    /** Uploads [geometry] as a GPU mesh, on demand -- see [RenderRenderer.createMesh]'s doc
+     * comment. */
+    override fun createMesh(geometry: MeshGeometry): RenderMesh =
+        Mesh(graphicsDevice, transferContext::runOneTimeCommands, geometry.vertices, geometry.indices)
+
+    /** Builds a [Material] bound to this [renderPipeline], uploading [texture] (or a 1x1
+     * white placeholder when null) -- see [RenderRenderer.createMaterial]'s doc comment. The
+     * created [Texture] is tracked in [createdTextures] for teardown in [destroy]. */
+    override fun createMaterial(texture: TextureAsset?): RenderMaterial {
+        val material = Material(graphicsDevice)
+        val effectiveTexture = texture ?: PLACEHOLDER_TEXTURE
+        val textureInstance = Texture(
+            graphicsDevice,
+            transferContext::runOneTimeCommands,
+            effectiveTexture.data,
+            effectiveTexture.width,
+            effectiveTexture.height
+        )
+        createdTextures += textureInstance
+        material.createResources(textureInstance)
+        return material
+    }
+
+    /** Builds [uiRenderPipeline]/[uiFramebuffers] on the first [drawUi] call of any kind --
+     * quad rendering doesn't need a font, so this doesn't wait for one. Cached after the
+     * first build (a game calls [drawUi] every frame). */
+    private fun ensureUiQuadPipeline() {
+        if (uiRenderPipeline != null) return
+        val pipeline = UiRenderPipeline(graphicsDevice, swapchainManager, uiVertexShaderCode, uiFragmentShaderCode)
+        uiRenderPipeline = pipeline
+        uiFramebuffers = swapchainManager.imageViews.map { imageView ->
+            Vulkan.vkCreateFramebuffer(
+                device,
+                VkFramebufferCreateInfo(
+                    renderPass = pipeline.renderPass,
+                    pAttachments = arrayOf(imageView),
+                    width = swapchainManager.extent.width,
+                    height = swapchainManager.extent.height,
+                    layers = 1
+                )
+            )
+        }.toList()
+    }
+
+    /** Builds [uiGlyphRenderPipeline]/[fontTexture] on the first [drawUi] call that passes a
+     * non-null [font] -- cached after that (a game calls [drawUi] with the same font every
+     * frame). Requires [ensureUiQuadPipeline] to already have run (needs its render pass). */
+    private fun ensureGlyphPipeline(font: BitmapFont) {
+        if (uiGlyphRenderPipeline != null) return
+        val renderPass = requireNotNull(uiRenderPipeline) { "ensureUiQuadPipeline() must run first." }.renderPass
+        val texture = Texture(
+            graphicsDevice,
+            transferContext::runOneTimeCommands,
+            font.atlasPixelsRgba,
+            font.atlasWidth,
+            font.atlasHeight
+        )
+        fontTexture = texture
+        uiGlyphRenderPipeline = UiGlyphRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            renderPass,
+            uiGlyphVertexShaderCode,
+            uiGlyphFragmentShaderCode,
+            texture
+        )
     }
 
     private fun createDepthResources() {
@@ -164,24 +254,6 @@ class Renderer(
                 layers = 1
             )
             Vulkan.vkCreateFramebuffer(device, frameBufferInfo)
-        }.toList()
-    }
-
-    /** Separate from [createFramebuffers]: the UI pass's render pass object differs from
-     * the 3D pass's (single color attachment, no depth), so Vulkan requires its own
-     * framebuffer even though both wrap the identical swapchain image view. */
-    private fun createUiFramebuffers() {
-        uiFramebuffers = swapchainManager.imageViews.map { imageView ->
-            Vulkan.vkCreateFramebuffer(
-                device,
-                VkFramebufferCreateInfo(
-                    renderPass = uiRenderPipeline.renderPass,
-                    pAttachments = arrayOf(imageView),
-                    width = swapchainManager.extent.width,
-                    height = swapchainManager.extent.height,
-                    layers = 1
-                )
-            )
         }.toList()
     }
 
@@ -281,8 +353,12 @@ class Renderer(
      * GPU commands itself. Must be called BEFORE [draw] (see `VulkanGameApplication
      * .onRender()`'s ordering) so [recordCommandBuffer]'s UI pass, appended to the SAME
      * command buffer as the 3D pass inside that same [draw] call, draws this frame's
-     * widgets rather than lagging a frame behind. */
-    override fun drawUi(primitives: List<UiDrawPrimitive>) {
+     * widgets rather than lagging a frame behind. Lazily builds the (quad) UI pipeline on
+     * first call, and the glyph pipeline on the first call that passes a non-null [font] --
+     * see [ensureUiQuadPipeline]/[ensureGlyphPipeline]'s doc comments. */
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) {
+        ensureUiQuadPipeline()
+        if (font != null) ensureGlyphPipeline(font)
         val quads = primitives.filterIsInstance<UiDrawPrimitive.Quad>()
         require(quads.size <= MAX_UI_QUADS) {
             "UI quad count (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
@@ -445,27 +521,37 @@ class Renderer(
         // Second pass, same command buffer, drawn on top of the 3D pass's output (that
         // pass's finalLayout leaves the image in COLOR_ATTACHMENT_OPTIMAL specifically so
         // this pass can pick up from there -- see RenderPipeline.kt's createRenderPass).
-        val uiRenderPassInfo = VkRenderPassBeginInfo(
-            renderPass = uiRenderPipeline.renderPass,
-            framebuffer = uiFramebuffers[acquiredImageIndex],
-            renderArea = VkRect2D(extent = swapchainManager.extent)
-        )
-        Vulkan.vkCmdBeginRenderPass(commandBuffer, uiRenderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
-        uiRenderPipeline.bind(commandBuffer)
-        Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
-        Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
-        uiMesh.bind(commandBuffer)
-        uiMesh.draw(commandBuffer)
+        // Only recorded once drawUi() has actually built a UI pipeline at least once (a game
+        // that never calls drawUi never pays for this pass at all) -- mirrors WebGPU's
+        // Renderer.draw()'s equivalent `uiMesh.drawIndexCount > 0` guard.
+        val uiPipeline = uiRenderPipeline
+        if (uiPipeline != null) {
+            val uiRenderPassInfo = VkRenderPassBeginInfo(
+                renderPass = uiPipeline.renderPass,
+                framebuffer = uiFramebuffers[acquiredImageIndex],
+                renderArea = VkRect2D(extent = swapchainManager.extent)
+            )
+            Vulkan.vkCmdBeginRenderPass(commandBuffer, uiRenderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
+            uiPipeline.bind(commandBuffer)
+            Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
+            Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+            uiMesh.bind(commandBuffer)
+            uiMesh.draw(commandBuffer)
 
-        // Phase B: glyph quads drawn with a second, textured pipeline, same render pass/
-        // subpass, after the colored quads (so text composites on top of button fills).
-        uiGlyphRenderPipeline.bind(commandBuffer)
-        Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
-        Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
-        uiGlyphMesh.bind(commandBuffer)
-        uiGlyphMesh.draw(commandBuffer)
+            // Phase B: glyph quads drawn with a second, textured pipeline, same render
+            // pass/subpass, after the colored quads (so text composites on top of button
+            // fills) -- only bound once a caller has actually passed a font to drawUi().
+            val glyphPipeline = uiGlyphRenderPipeline
+            if (glyphPipeline != null) {
+                glyphPipeline.bind(commandBuffer)
+                Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
+                Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+                uiGlyphMesh.bind(commandBuffer)
+                uiGlyphMesh.draw(commandBuffer)
+            }
 
-        Vulkan.vkCmdEndRenderPass(commandBuffer)
+            Vulkan.vkCmdEndRenderPass(commandBuffer)
+        }
 
         Vulkan.vkEndCommandBuffer(commandBuffer)
     }
@@ -478,6 +564,10 @@ class Renderer(
             index += 1
         }
         uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
+        uiRenderPipeline?.destroy()
+        uiGlyphRenderPipeline?.destroy()
+        fontTexture?.destroy()
+        createdTextures.forEach { it.destroy() }
         uiMesh.destroy()
         uiGlyphMesh.destroy()
         lineMesh.destroy()
@@ -492,5 +582,9 @@ class Renderer(
         const val MAX_DEBUG_LINES = 64
         val clearColorValue = VkClearColorValue.rgba(0f, 0f, 0f, 1f)
         val clearDepthValue = VkClearDepthStencilValue(depth = 1f, stencil = 0)
+
+        /** [createMaterial]'s fallback when called with a null texture -- same 1x1 white
+         * pixel `VulkanGameApplication` used to bind unconditionally. */
+        private val PLACEHOLDER_TEXTURE = TextureAsset(byteArrayOf(-1, -1, -1, -1), 1, 1)
     }
 }

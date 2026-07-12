@@ -4,13 +4,19 @@ package io.github.ronjunevaldoz.awake.webgpu.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
+import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
+import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
@@ -54,17 +60,25 @@ class Renderer(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     renderPipeline: RenderPipeline,
-    private val uiRenderPipeline: UiRenderPipeline,
-    private val uiGlyphRenderPipeline: UiGlyphRenderPipeline,
     private val lineRenderPipeline: LineRenderPipeline,
+    private val uiShaderCode: ByteArray,
+    private val uiGlyphShaderCode: ByteArray,
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
     private val graphicsDevice = graphicsDevice
+    private val swapchainManager = swapchainManager
     private val renderPipeline = renderPipeline
 
     private var uniformBuffer: GPUBuffer? = null
     private var uniformBindGroup: GPUBindGroup? = null
+
+    // Lazily built on the first drawUi() call of any kind (uiRenderPipeline) and on the
+    // first call that passes a non-null font (uiGlyphRenderPipeline) -- see
+    // ensureUiQuadPipeline()/ensureGlyphPipeline()'s doc comments. A game that never calls
+    // drawUi never builds either pipeline at all.
+    private var uiRenderPipeline: UiRenderPipeline? = null
+    private var uiGlyphRenderPipeline: UiGlyphRenderPipeline? = null
 
     // Rewritten by drawUi() (called before draw() -- see WebGpuGameApplication.onRender()'s
     // ordering) so the UI pass, appended to the SAME command encoder as the 3D pass inside
@@ -74,6 +88,33 @@ class Renderer(
 
     // Rewritten by drawDebugLines() (staged before draw(), same pattern as uiMesh above).
     private val lineMesh = LineMesh(graphicsDevice, MAX_DEBUG_LINES)
+
+    /** Uploads [geometry] as a GPU mesh, on demand -- see [RenderRenderer.createMesh]'s doc
+     * comment. `runOneTimeCommands` is unused by this backend's `Mesh` (see its own doc
+     * comment), so an empty lambda is passed. */
+    override fun createMesh(geometry: MeshGeometry): RenderMesh =
+        Mesh(graphicsDevice, {}, geometry.vertices, geometry.indices)
+
+    /** Builds a [Material] -- this backend's `Material` is still a compile-only stub (see
+     * its own doc comment), so this just constructs it, matching this backend's existing
+     * (pre-refactor) behavior of never calling `createResources`. [texture] is accepted for
+     * interface parity with the Vulkan backend but otherwise unused here. */
+    override fun createMaterial(texture: TextureAsset?): RenderMaterial = Material(graphicsDevice)
+
+    /** Builds [uiRenderPipeline] on the first [drawUi] call of any kind -- quad rendering
+     * doesn't need a font, so this doesn't wait for one. Cached after the first build (a
+     * game calls [drawUi] every frame). */
+    private fun ensureUiQuadPipeline() {
+        if (uiRenderPipeline != null) return
+        uiRenderPipeline = UiRenderPipeline(graphicsDevice, swapchainManager, uiShaderCode)
+    }
+
+    /** Builds [uiGlyphRenderPipeline] on the first [drawUi] call that passes a non-null
+     * [font] -- cached after that (a game calls [drawUi] with the same font every frame). */
+    private fun ensureGlyphPipeline(font: BitmapFont) {
+        if (uiGlyphRenderPipeline != null) return
+        uiGlyphRenderPipeline = UiGlyphRenderPipeline(graphicsDevice, swapchainManager, uiGlyphShaderCode, font)
+    }
 
     private fun ensureUniformResources(pipeline: GPURenderPipeline) {
         if (uniformBuffer != null) return
@@ -98,8 +139,12 @@ class Renderer(
     /** Stages this frame's UI overlay content -- rewrites [uiMesh]'s buffers but issues no
      * GPU commands itself. Must be called BEFORE [draw] (see `WebGpuGameApplication
      * .onRender()`'s ordering) so [draw]'s UI pass draws this frame's widgets rather than
-     * lagging a frame behind. */
-    override fun drawUi(primitives: List<UiDrawPrimitive>) {
+     * lagging a frame behind. Lazily builds the (quad) UI pipeline on first call, and the
+     * glyph pipeline on the first call that passes a non-null [font] -- see
+     * [ensureUiQuadPipeline]/[ensureGlyphPipeline]'s doc comments. */
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) {
+        ensureUiQuadPipeline()
+        if (font != null) ensureGlyphPipeline(font)
         val quads = primitives.filterIsInstance<UiDrawPrimitive.Quad>()
         require(quads.size <= MAX_UI_QUADS) {
             "UI quad count (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
@@ -267,8 +312,10 @@ class Renderer(
         // Second pass, same encoder, drawn on top of the 3D pass's output --
         // `loadOp = Load` (not `Clear`) is the whole trick, no separate framebuffer object
         // needed at all (WebGPU has no framebuffer object; a render pass just names a
-        // texture view directly).
-        if (uiMesh.drawIndexCount > 0 || uiGlyphMesh.drawIndexCount > 0) {
+        // texture view directly). Only recorded once drawUi() has actually built a UI
+        // pipeline at least once -- a game that never calls drawUi never pays for this pass.
+        val quadPipeline = uiRenderPipeline
+        if (quadPipeline != null && (uiMesh.drawIndexCount > 0 || uiGlyphMesh.drawIndexCount > 0)) {
             encoder.beginRenderPass(
                 RenderPassDescriptor(
                     colorAttachments = listOf(
@@ -280,15 +327,16 @@ class Renderer(
                     )
                 )
             ) {
-                setPipeline(uiRenderPipeline.pipeline)
-                setBindGroup(0u, uiRenderPipeline.screenSizeBindGroup)
+                setPipeline(quadPipeline.pipeline)
+                setBindGroup(0u, quadPipeline.screenSizeBindGroup)
                 setVertexBuffer(0u, uiMesh.vertexBufferRef())
                 setIndexBuffer(uiMesh.indexBufferRef(), DynamicMesh.indexFormat)
                 drawIndexed(uiMesh.drawIndexCount.toUInt())
 
-                if (uiGlyphMesh.drawIndexCount > 0) {
-                    setPipeline(uiGlyphRenderPipeline.pipeline)
-                    setBindGroup(0u, uiGlyphRenderPipeline.bindGroup)
+                val glyphPipeline = uiGlyphRenderPipeline
+                if (glyphPipeline != null && uiGlyphMesh.drawIndexCount > 0) {
+                    setPipeline(glyphPipeline.pipeline)
+                    setBindGroup(0u, glyphPipeline.bindGroup)
                     setVertexBuffer(0u, uiGlyphMesh.vertexBufferRef())
                     setIndexBuffer(uiGlyphMesh.indexBufferRef(), DynamicMesh.indexFormat)
                     drawIndexed(uiGlyphMesh.drawIndexCount.toUInt())
@@ -304,6 +352,8 @@ class Renderer(
         uniformBuffer?.close()
         uniformBuffer = null
         uniformBindGroup = null
+        uiRenderPipeline?.destroy()
+        uiGlyphRenderPipeline?.destroy()
         uiMesh.destroy()
         uiGlyphMesh.destroy()
         lineMesh.destroy()
