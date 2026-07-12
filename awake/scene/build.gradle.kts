@@ -69,6 +69,10 @@ kotlin {
             // interface module (instead of all of awake-vulkan) is the actual point of this
             // restructuring.
             api(project(":awake:engine:render-api"))
+            // PhysicsBody/PhysicsSystem only ever touch the backend-neutral PhysicsWorld
+            // contract, never a concrete backend (`awake:backend:jolt`) -- same restructuring
+            // rationale as the render-api dependency above.
+            api(project(":awake:physics:api"))
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
         }
