@@ -17,9 +17,12 @@ import cnames.structs.VkBuffer_T
 import cnames.structs.VkDeviceMemory_T
 import cnames.structs.VkImage_T
 import cnames.structs.VkSampler_T
+import platform.MoltenVK.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
 import platform.MoltenVK.VK_ACCESS_SHADER_READ_BIT
+import platform.MoltenVK.VK_ACCESS_TRANSFER_READ_BIT
 import platform.MoltenVK.VK_ACCESS_TRANSFER_WRITE_BIT
 import platform.MoltenVK.VK_IMAGE_ASPECT_COLOR_BIT
+import platform.MoltenVK.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
 import platform.MoltenVK.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
 import platform.MoltenVK.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
 import platform.MoltenVK.VK_PIPELINE_STAGE_TRANSFER_BIT
@@ -32,6 +35,7 @@ import platform.MoltenVK.VkImageVar
 import platform.MoltenVK.VkSamplerVar
 import platform.MoltenVK.vkBindImageMemory as nativeVkBindImageMemory
 import platform.MoltenVK.vkCmdCopyBufferToImage as nativeVkCmdCopyBufferToImage
+import platform.MoltenVK.vkCmdCopyImageToBuffer as nativeVkCmdCopyImageToBuffer
 import platform.MoltenVK.vkCmdPipelineBarrier as nativeVkCmdPipelineBarrier
 import platform.MoltenVK.vkCreateImage as nativeVkCreateImage
 import platform.MoltenVK.vkCreateSampler as nativeVkCreateSampler
@@ -162,11 +166,40 @@ actual object VulkanImages {
             barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT.toUInt()
             srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT.toUInt()
             dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT.toUInt()
-        } else {
+        } else if (oldLayout == VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
+            newLayout == VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        ) {
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT.toUInt()
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT.toUInt()
             srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT.toUInt()
             dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT.toUInt()
+        } else if (oldLayout == VkImageLayout2.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL &&
+            newLayout == VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        ) {
+            // Offscreen render-target post-render transition (Renderer.renderToTexture).
+            barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.toUInt()
+            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT.toUInt()
+            srcStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.toUInt()
+            dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT.toUInt()
+        } else if (oldLayout == VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL &&
+            newLayout == VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
+        ) {
+            // Offscreen render-target readback (Renderer.readPixels): temporarily leave the
+            // sampleable resting state to let vkCmdCopyImageToBuffer read the image.
+            barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT.toUInt()
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT.toUInt()
+            srcStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT.toUInt()
+            dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT.toUInt()
+        } else if (oldLayout == VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL &&
+            newLayout == VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        ) {
+            // Restores the sampleable resting state after readPixels' copy completes.
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT.toUInt()
+            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT.toUInt()
+            srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT.toUInt()
+            dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT.toUInt()
+        } else {
+            error("vkTransitionImageLayout: unsupported layout transition ($oldLayout -> $newLayout)")
         }
         nativeVkCmdPipelineBarrier(
             commandBuffer.toCPointer(),
@@ -219,14 +252,43 @@ actual object VulkanImages {
         )
     }
 
-    // Offscreen render-target CPU readback (Renderer.readPixels) -- not implemented on iOS
-    // yet (desktop-first per this feature's scoping decision; see docs/MVP_PLAN.md's
-    // RenderTarget decision log entry). Real desktop verification exists; this stub keeps
-    // iOS compiling without a claim of unverified cinterop correctness.
+    /** Inverse of [vkCmdCopyBufferToImage] -- for offscreen render-target CPU readback
+     * (`Renderer.readPixels`). [srcImage] is expected in `TRANSFER_SRC_OPTIMAL` layout (the
+     * caller transitions it there before this call). */
     actual fun vkCmdCopyImageToBuffer(
         commandBuffer: Long,
         srcImage: Long,
         dstBuffer: Long,
         copy: VkBufferImageCopy
-    ): Unit = TODO("vkCmdCopyImageToBuffer not yet implemented on iOS -- see RenderTarget decision log")
+    ): Unit = memScoped {
+        val region = alloc<NativeVkBufferImageCopy>().apply {
+            bufferOffset = copy.bufferOffset.toULong()
+            bufferRowLength = copy.bufferRowLength.toUInt()
+            bufferImageHeight = copy.bufferImageHeight.toUInt()
+            imageSubresource.apply {
+                aspectMask = VK_IMAGE_ASPECT_COLOR_BIT.toUInt()
+                mipLevel = copy.mipLevel.toUInt()
+                baseArrayLayer = copy.baseArrayLayer.toUInt()
+                layerCount = copy.layerCount.toUInt()
+            }
+            imageOffset.apply {
+                x = 0
+                y = 0
+                z = 0
+            }
+            imageExtent.apply {
+                width = copy.imageWidth.toUInt()
+                height = copy.imageHeight.toUInt()
+                depth = 1u
+            }
+        }
+        nativeVkCmdCopyImageToBuffer(
+            commandBuffer.toCPointer(),
+            srcImage.toCPointer<VkImage_T>(),
+            VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.toUInt(),
+            dstBuffer.toCPointer<VkBuffer_T>(),
+            1u,
+            region.ptr
+        )
+    }
 }

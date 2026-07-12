@@ -216,10 +216,20 @@ actual object VulkanBuffers {
         nativeVkDeviceWaitIdle(device.toCPointer())
     }
 
-    // Offscreen render-target CPU readback (Renderer.readPixels) -- not implemented on iOS
-    // yet (desktop-first per this feature's scoping decision; see docs/MVP_PLAN.md's
-    // RenderTarget decision log entry). Real desktop verification exists; this stub keeps
-    // iOS compiling without a claim of unverified cinterop correctness.
-    actual fun readBufferMemoryBytes(device: Long, memory: Long, offset: Long, size: Int): ByteArray =
-        TODO("readBufferMemoryBytes not yet implemented on iOS -- see RenderTarget decision log")
+    /** Inverse of [writeBufferMemoryBytes] -- map->memcpy-out->unmap, for offscreen
+     * render-target CPU readback (`Renderer.readPixels`). */
+    actual fun readBufferMemoryBytes(device: Long, memory: Long, offset: Long, size: Int): ByteArray = memScoped {
+        val dataVar = alloc<kotlinx.cinterop.COpaquePointerVar>()
+        val nativeDevice = device.toCPointer<VkDevice_T>()
+        val nativeMemory = memory.toCPointer<VkDeviceMemory_T>()
+        val byteSize = size.toULong()
+        val result = nativeVkMapMemory(nativeDevice, nativeMemory, offset.toULong(), byteSize, 0u, dataVar.ptr)
+        check(result == VK_SUCCESS) { "vkMapMemory failed: $result" }
+        val out = ByteArray(size)
+        out.usePinned { pinned ->
+            memcpy(pinned.addressOf(0), dataVar.value, byteSize)
+        }
+        nativeVkUnmapMemory(nativeDevice, nativeMemory)
+        out
+    }
 }

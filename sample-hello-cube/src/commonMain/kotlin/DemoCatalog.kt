@@ -74,40 +74,35 @@ class DemoCatalog : Game {
     }
 
     /** One-shot proof that `Renderer.createRenderTarget`/`renderToTexture`/`readPixels`
-     * actually work end to end -- clears a tiny offscreen target to a known color, reads it
-     * back, and logs the sampled pixel. Console-verifiable without any screenshot pipeline
-     * (same rationale as the debug HUD above); the offscreen render pass draws no geometry
-     * (empty `drawCalls`), so this only proves the clear+framebuffer+readback path, not
-     * scene rendering into a target -- that's exercised for real once a demo actually calls
-     * `renderToTexture` with real draw calls (e.g. a future minimap demo).
-     *
-     * Only implemented on Vulkan so far (WebGPU's is still `TODO()` -- see
-     * docs/MVP_PLAN.md's `RenderTarget` decision log) -- caught rather than left to crash the
-     * whole app on wasmJs, since this is a diagnostic check, not something any demo actually
-     * depends on yet. */
+     * actually work end to end -- renders the current demo's own geometry (via the optional
+     * [OffscreenPreviewSource] a demo can implement, e.g. [CubeDemo]) into a small offscreen
+     * target from a second camera angle, reads it back, logs the sampled center pixel, and
+     * saves it as a real viewable PNG (`saveDebugPng`) -- since a raw RGBA pixel log alone
+     * doesn't prove much once real geometry (not just a flat clear color) is involved. Falls
+     * back to an empty draw list (clear-color-only) if the current demo doesn't implement
+     * [OffscreenPreviewSource]. */
     private suspend fun verifyOffscreenReadback(renderer: Renderer) {
-        try {
-            val target = renderer.createRenderTarget(64, 64)
-            val camera = Camera(
-                eye = Vec3(0f, 0f, 3f),
-                center = Vec3(0f, 0f, 0f),
-                fovYRadians = 1f,
-                near = 0.1f,
-                far = 10f
-            )
-            renderer.renderToTexture(target, camera, emptyList())
-            val pixels = renderer.readPixels(target)
-            val centerOffset = ((target.height / 2) * target.width + target.width / 2) * 4
-            println(
-                "OFFSCREEN READBACK: ${target.width}x${target.height} center pixel RGBA = " +
-                    "${pixels.data[centerOffset].toInt() and 0xFF}," +
-                    "${pixels.data[centerOffset + 1].toInt() and 0xFF}," +
-                    "${pixels.data[centerOffset + 2].toInt() and 0xFF}," +
-                    "${pixels.data[centerOffset + 3].toInt() and 0xFF}"
-            )
-        } catch (e: NotImplementedError) {
-            println("OFFSCREEN READBACK: not implemented on this backend yet (${e.message})")
-        }
+        val target = renderer.createRenderTarget(128, 128)
+        val camera = Camera(
+            eye = Vec3(2.5f, 2f, 4f),
+            center = Vec3(0f, 0f, 0f),
+            fovYRadians = 1f,
+            near = 0.1f,
+            far = 10f
+        )
+        val drawCalls = (current as? OffscreenPreviewSource)?.sampleDrawCalls() ?: emptyList()
+        renderer.renderToTexture(target, camera, drawCalls)
+        val pixels = renderer.readPixels(target)
+        val centerOffset = ((target.height / 2) * target.width + target.width / 2) * 4
+        println(
+            "OFFSCREEN READBACK: ${target.width}x${target.height} (${drawCalls.size} draw calls) " +
+                "center pixel RGBA = " +
+                "${pixels.data[centerOffset].toInt() and 0xFF}," +
+                "${pixels.data[centerOffset + 1].toInt() and 0xFF}," +
+                "${pixels.data[centerOffset + 2].toInt() and 0xFF}," +
+                "${pixels.data[centerOffset + 3].toInt() and 0xFF}"
+        )
+        saveDebugPng(pixels.data, target.width, target.height, "offscreen-debug.png")
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {

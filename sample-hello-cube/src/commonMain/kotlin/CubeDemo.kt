@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
+import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.scene.components.Camera
@@ -35,7 +36,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
  * demo just appends its own widgets to the same [ui] instance [DemoCatalog]'s own
  * demo-picker dropdown already staged this frame.
  */
-class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, DebugReadout {
+class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, DebugReadout, OffscreenPreviewSource {
     private val fixedTimestepLoop = FixedTimestepLoop()
 
     private lateinit var renderer: Renderer
@@ -149,6 +150,8 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
         cubeMesh.destroy()
         material.destroy()
     }
+
+    override fun sampleDrawCalls(): List<DrawCall> = listOf(DrawCall(cubeMesh, material))
 
     override fun debugLines(): List<String> {
         val eye = cameraComponent.camera.eye

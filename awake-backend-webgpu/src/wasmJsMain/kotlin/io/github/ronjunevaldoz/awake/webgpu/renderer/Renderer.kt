@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
+import io.github.ronjunevaldoz.awake.webgpu.texture.OffscreenRenderTarget
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
@@ -32,14 +33,18 @@ import io.ygdrasil.webgpu.BindGroupEntry
 import io.ygdrasil.webgpu.BufferBinding
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.Color
+import io.ygdrasil.webgpu.Extent3D
 import io.ygdrasil.webgpu.GPUBindGroup
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
 import io.ygdrasil.webgpu.GPULoadOp
 import io.ygdrasil.webgpu.GPURenderPipeline
 import io.ygdrasil.webgpu.GPUStoreOp
+import io.ygdrasil.webgpu.GPUMapMode
 import io.ygdrasil.webgpu.RenderPassColorAttachment
 import io.ygdrasil.webgpu.RenderPassDescriptor
+import io.ygdrasil.webgpu.TexelCopyBufferInfo
+import io.ygdrasil.webgpu.TexelCopyTextureInfo
 import io.ygdrasil.webgpu.beginRenderPass
 
 /**
@@ -103,19 +108,103 @@ class Renderer(
     override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): RenderMaterial =
         Material(graphicsDevice)
 
-    /** Not yet implemented on this backend -- see docs/MVP_PLAN.md's `RenderTarget` decision
-     * log entry (Vulkan-first rollout, WebGPU is a follow-up slice). */
-    override fun createRenderTarget(width: Int, height: Int): RenderTarget =
-        TODO("createRenderTarget not yet implemented on WebGPU -- see RenderTarget decision log")
+    // RenderTargets created on demand by createRenderTarget() -- same ownership pattern as
+    // Vulkan's Renderer.createdRenderTargets.
+    private val createdRenderTargets = mutableListOf<OffscreenRenderTarget>()
 
-    /** Not yet implemented on this backend -- see [createRenderTarget]'s doc comment. */
+    /** Creates an offscreen [width]x[height] color render destination -- see
+     * [RenderRenderer.createRenderTarget]'s doc comment. Tracked in [createdRenderTargets]
+     * for teardown in [destroy]. */
+    override fun createRenderTarget(width: Int, height: Int): RenderTarget =
+        OffscreenRenderTarget(graphicsDevice, width, height).also { createdRenderTargets += it }
+
+    /** Renders [drawCalls] against [camera] into [target] -- see
+     * [RenderRenderer.renderToTexture]'s doc comment. This is [draw]'s 3D-pass body, minus
+     * the `getCurrentTexture()` call, targeting [target]'s own [OffscreenRenderTarget.colorView]
+     * instead -- no explicit layout-transition step needed (unlike Vulkan): WebGPU manages
+     * texture state transitions implicitly per-encoder. */
     override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) {
-        TODO("renderToTexture not yet implemented on WebGPU -- see RenderTarget decision log")
+        val offscreen = target as OffscreenRenderTarget
+        val device = graphicsDevice.wgpuContext.device
+        val pipeline = WebGpuHandles.resolve<GPURenderPipeline>(renderPipeline.graphicsPipeline[0])
+        ensureUniformResources(pipeline)
+
+        val aspect = offscreen.width.toFloat() / offscreen.height.toFloat()
+        val viewProjection = camera.viewProjectionMatrix(aspect)
+
+        val encoder = device.createCommandEncoder()
+        encoder.beginRenderPass(
+            RenderPassDescriptor(
+                colorAttachments = listOf(
+                    RenderPassColorAttachment(
+                        view = offscreen.colorView,
+                        loadOp = GPULoadOp.Clear,
+                        clearValue = Color(0.0, 0.0, 0.0, 1.0),
+                        storeOp = GPUStoreOp.Store
+                    )
+                )
+            )
+        ) {
+            setPipeline(pipeline)
+            var drawIndex = 0
+            while (drawIndex < drawCalls.size) {
+                val drawCall = drawCalls[drawIndex]
+                val mvp = drawCall.model * viewProjection
+                device.queue.writeBuffer(uniformBuffer!!, 0uL, ArrayBuffer.of(mvp.data))
+                setBindGroup(0u, uniformBindGroup!!)
+                val mesh = drawCall.mesh as Mesh
+                setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))
+                setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
+                drawIndexed(mesh.indexCount.toUInt())
+                drawIndex += 1
+            }
+            end()
+        }
+        device.queue.submit(listOf(encoder.finish()))
     }
 
-    /** Not yet implemented on this backend -- see [createRenderTarget]'s doc comment. */
-    override suspend fun readPixels(target: RenderTarget): TextureAsset =
-        TODO("readPixels not yet implemented on WebGPU -- see RenderTarget decision log")
+    /** Reads [target]'s color attachment back to the CPU -- see
+     * [RenderRenderer.readPixels]'s doc comment. Genuinely `suspend`s here (unlike Vulkan's
+     * synchronous fence-wait implementation): `GPUBuffer.mapAsync` is asynchronous, no
+     * synchronous CPU-visible readback exists in this API. WebGPU requires `bytesPerRow` in
+     * a `copyTextureToBuffer` to be a multiple of 256 -- [target]'s width is padded up to
+     * satisfy that, then the padding is stripped back out before returning a tightly-packed
+     * [TextureAsset] (the same layout Vulkan's implementation already returns). */
+    override suspend fun readPixels(target: RenderTarget): TextureAsset {
+        val offscreen = target as OffscreenRenderTarget
+        val device = graphicsDevice.wgpuContext.device
+        val unpaddedBytesPerRow = offscreen.width * 4
+        val bytesPerRow = ((unpaddedBytesPerRow + 255) / 256) * 256
+        val bufferSize = (bytesPerRow * offscreen.height).toULong()
+        val readbackBuffer = device.createBuffer(
+            BufferDescriptor(size = bufferSize, usage = GPUBufferUsage.CopyDst or GPUBufferUsage.MapRead)
+        )
+        val encoder = device.createCommandEncoder()
+        encoder.copyTextureToBuffer(
+            source = TexelCopyTextureInfo(texture = offscreen.colorTexture),
+            destination = TexelCopyBufferInfo(buffer = readbackBuffer, bytesPerRow = bytesPerRow.toUInt()),
+            copySize = Extent3D(width = offscreen.width.toUInt(), height = offscreen.height.toUInt())
+        )
+        device.queue.submit(listOf(encoder.finish()))
+
+        readbackBuffer.mapAsync(GPUMapMode.Read).getOrThrow()
+        val mapped = readbackBuffer.getMappedRange()
+        val paddedBytes = mapped.toByteArray()
+        val packed = ByteArray(unpaddedBytesPerRow * offscreen.height)
+        var row = 0
+        while (row < offscreen.height) {
+            paddedBytes.copyInto(
+                destination = packed,
+                destinationOffset = row * unpaddedBytesPerRow,
+                startIndex = row * bytesPerRow,
+                endIndex = row * bytesPerRow + unpaddedBytesPerRow
+            )
+            row += 1
+        }
+        readbackBuffer.unmap()
+        readbackBuffer.close()
+        return TextureAsset(packed, offscreen.width, offscreen.height)
+    }
 
     /** Builds [uiRenderPipeline] on the first [drawUi] call of any kind -- quad rendering
      * doesn't need a font, so this doesn't wait for one. Cached after the first build (a
@@ -370,6 +459,7 @@ class Renderer(
         uniformBindGroup = null
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
+        createdRenderTargets.forEach { it.destroy() }
         uiMesh.destroy()
         uiGlyphMesh.destroy()
         lineMesh.destroy()
