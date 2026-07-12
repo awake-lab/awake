@@ -146,6 +146,38 @@ class FreeFlyCameraSystemTest {
         }
     }
 
+    @Test
+    fun setOrientationMakesForwardPointOppositeOrbitEyeOffset() {
+        // Simulates CubeDemo's ORBIT -> FREE_FLY handoff: an orbit camera sitting at some
+        // yaw/pitch offset from a target has an eye-to-target direction that is the exact
+        // negation of its own target-to-eye offset. setOrientation(-orbitYaw, -orbitPitch)
+        // should make FreeFlyCameraSystem's forward vector equal that eye-to-target
+        // direction, so the handoff doesn't visibly snap the look direction.
+        val world = World()
+        val orbitYaw = 0.7f
+        val orbitPitch = 0.3f
+        val cosPitch = kotlin.math.cos(orbitPitch)
+        // Orbit's target-to-eye offset direction (see OrbitCameraSystem.update()).
+        val offsetX = cosPitch * kotlin.math.sin(orbitYaw)
+        val offsetY = kotlin.math.sin(orbitPitch)
+        val offsetZ = cosPitch * kotlin.math.cos(orbitYaw)
+
+        val camera = newCamera()
+        val system = FreeFlyCameraSystem(camera)
+        system.setOrientation(-orbitYaw, -orbitPitch)
+        system.update(world, 0f)
+
+        val eye = camera.camera.eye
+        val center = camera.camera.center
+        val forwardX = center.x - eye.x
+        val forwardY = center.y - eye.y
+        val forwardZ = center.z - eye.z
+
+        assertEquals(-offsetX, forwardX, absoluteTolerance = 1e-4f)
+        assertEquals(-offsetY, forwardY, absoluteTolerance = 1e-4f)
+        assertEquals(-offsetZ, forwardZ, absoluteTolerance = 1e-4f)
+    }
+
     private fun assertEquals(expected: Float, actual: Float, absoluteTolerance: Float) {
         assert(kotlin.math.abs(expected - actual) <= absoluteTolerance) {
             "expected $expected, got $actual (tolerance $absoluteTolerance)"

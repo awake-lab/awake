@@ -195,7 +195,17 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
 
         val modeNames = CameraMode.entries.map { it.name }
         ui.dropdown("camera-mode", panelX, PANEL_ROW_CAMERA_MODE_Y, PANEL_WIDTH, 32f, modeNames, cameraMode.ordinal, font)?.let { picked ->
-            cameraMode = CameraMode.entries[picked]
+            val newMode = CameraMode.entries[picked]
+            if (newMode == CameraMode.FREE_FLY && cameraMode == CameraMode.ORBIT) {
+                // Hand off orbit's current look orientation so switching modes doesn't snap
+                // free-fly to its yaw=0/pitch=0 default (looking down -Z) -- orbit's yaw/pitch
+                // describe the target-to-eye offset direction; free-fly's describe the
+                // eye-to-look-target forward direction, the exact opposite vector, which
+                // works out to negating both angles (eye position itself is already shared
+                // via the same live Camera component, so only orientation needs handing off).
+                freeFlyCameraSystem.setOrientation(-orbitCameraSystem.yaw, -orbitCameraSystem.pitch)
+            }
+            cameraMode = newMode
         }
 
         showFrustum = ui.toggle("show-frustum", panelX, PANEL_ROW_FRUSTUM_Y, PANEL_WIDTH, 32f, showFrustum, "FRUSTUM", font)

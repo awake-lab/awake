@@ -30,6 +30,24 @@ class FreeFlyCameraSystem(
     private var lastPointerY = 0f
     private var wasDragging = false
 
+    /** Sets this system's look orientation directly -- used when a caller switches into
+     * FREE_FLY mode mid-scene (e.g. `CubeDemo`'s camera-mode dropdown) so the spectator
+     * camera continues looking the same direction the previous mode left off, instead of
+     * snapping to [yaw]/[pitch]'s `0f` default (looking down -Z, see [update]'s own doc
+     * comment on that convention).
+     *
+     * Not [OrbitCameraSystem]-aware -- takes plain yaw/pitch so this system stays decoupled
+     * from any specific "previous mode"; the caller is responsible for converting from
+     * whatever convention it's handing off from. In particular, [OrbitCameraSystem]'s yaw/
+     * pitch describe the target-to-eye offset direction, while this system's yaw/pitch
+     * describe the eye-to-look-target forward direction -- the exact opposite vector, which
+     * works out to simply negating both angles (see `CubeDemo`'s camera-mode switch for the
+     * derivation). */
+    fun setOrientation(yaw: Float, pitch: Float) {
+        this.yaw = yaw
+        this.pitch = pitch.coerceIn(MIN_PITCH, MAX_PITCH)
+    }
+
     override fun update(world: World, delta: Float) {
         // A UI widget already claimed this drag -- see Input.pointerCapturedByUi's doc
         // comment. Only the drag-derived look (yaw/pitch) is skipped; WASD movement below is
