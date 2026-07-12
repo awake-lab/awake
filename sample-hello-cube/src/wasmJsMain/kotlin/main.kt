@@ -56,8 +56,25 @@ fun main() {
             (mouseEvent.offsetY * window.devicePixelRatio).toFloat()
         )
     }
+    // A <canvas>'s backing-buffer size (.width/.height) never follows its CSS/client size
+    // automatically -- unlike most elements, it has to be set explicitly, or WebGPU configures
+    // the swapchain at whatever the attributes' default value is (300x150, the HTML spec's
+    // own canvas default, if index.html never sets width="…" height="…"). Passed as
+    // `canvasContextRenderer`'s own `width`/`height` params below, NOT set directly on
+    // `canvas.width`/`height` first -- `canvasContextRenderer` unconditionally re-reads
+    // `canvas.clientWidth`/`clientHeight` itself when those params are omitted, silently
+    // overwriting whatever the caller set beforehand (confirmed by reading wgpu4k-toolkit's
+    // own `Surface.kt` source). `.coerceAtLeast(1)` guards against a genuinely zero-sized
+    // window (WebGPU rejects a 0x0 surface configuration outright) -- window size should
+    // never actually be 0 in a real browser tab, this is a defensive floor, not the expected
+    // path. There's no swapchain-recreation path here (see vulkan-tutorial.com's
+    // swapchain-recreation chapter for the canonical pattern this project's Vulkan/WebGPU
+    // backends don't yet implement), so this is also the ONLY size the canvas will ever
+    // render at for this session.
+    val canvasWidth = (window.innerWidth * window.devicePixelRatio).toInt().coerceAtLeast(1)
+    val canvasHeight = (window.innerHeight * window.devicePixelRatio).toInt().coerceAtLeast(1)
     MainScope().launch {
-        val canvasContext = canvasContextRenderer(htmlCanvas = canvas)
+        val canvasContext = canvasContextRenderer(htmlCanvas = canvas, width = canvasWidth, height = canvasHeight)
         val wgpuContext = canvasContext.wgpuContext
         // canvasContextRenderer() never calls Surface.configure() itself -- see
         // awake-demo's main.kt for the full "getCurrentTexture() throws" story.
