@@ -21,6 +21,10 @@ import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.math.PI
+import kotlin.math.asin
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * The minimal "hello, cube" demo this module was originally built to showcase -- a plain
@@ -96,20 +100,31 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
     // fixed, only ruled out as NOT being (solely) this dispose-order bug. Flip to `true`
     // to keep exercising this path; re-open the investigation if VK_SUBOPTIMAL_KHR
     // resurfaces now that the dispose-order crash it may have been masquerading as is gone.
+    // Minimap now renders from homeCameraSnapshot (the frustum camera), not a separate fixed
+    // overhead camera -- previously it showed an unrelated top-down view, which didn't match
+    // what the FRUSTUM wireframe toggle actually visualizes.
     private var showMinimap = false
     private lateinit var minimapTarget: RenderTarget
     private lateinit var minimapMaterial: Material
-    // Constructed in ready() rather than at declaration -- flipYForClipSpace needs the
-    // Renderer instance, which isn't available until then.
-    private lateinit var minimapCamera: CoreCamera
 
-    /** The scene-authored view (`eye`/`center` etc. from `sample.scene.json`), captured
-     * before [OrbitCameraSystem]/[FreeFlyCameraSystem] start mutating the live `Camera`
-     * component in place -- the frustum toggle visualizes this fixed "home" view while
-     * Orbit/Free-fly drives the actual render camera, the same role
+    /** The frustum/minimap camera's view (`eye`/`center` etc., initially seeded from
+     * `sample.scene.json`), captured/mutated separately from the live render camera --
+     * [OrbitCameraSystem]/[FreeFlyCameraSystem] drive the actual render camera, while this
+     * one is now independently orbitable via [frustumYaw]/[frustumPitch]/[frustumDistance]
+     * (see the FRUSTUM AZIMUTH/ELEVATION/ZOOM sliders in [drawCatalogUi]), the same role
      * `demo.SceneRuntimeHost.followCameraSnapshot()` played in the now-retired `awake-demo`,
      * minus the moving-player part (this sample has no player). */
     private lateinit var homeCameraSnapshot: CoreCamera
+    private lateinit var cubeTransform: Transform
+
+    // Frustum camera's own orbit state -- same yaw/pitch/distance-around-a-target idea as
+    // OrbitCameraSystem, but driven only by sliders (no drag/WASD/pinch), so it's plain
+    // fields recomputed into homeCameraSnapshot.eye/center each frame rather than a full
+    // OrbitCameraSystem instance (which would also need a live scene.components.Camera to
+    // write into, not a bare CoreCamera).
+    private var frustumYaw = 0f
+    private var frustumPitch = 0f
+    private var frustumDistance = 0f
 
     override suspend fun ready(renderer: Renderer) {
         this.renderer = renderer
@@ -128,7 +143,7 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
             ?: error("sample.scene.json is missing a root node named 'cube'.")
         val cameraEntity = scene.roots.firstOrNull { it.name == "camera" }?.entity
             ?: error("sample.scene.json is missing a root node named 'camera'.")
-        val cubeTransform: Transform = world.get(cubeEntity)
+        cubeTransform = world.get(cubeEntity)
             ?: error("'cube' node has no Transform.")
         cameraComponent = world.get(cameraEntity)
             ?: error("'camera' node has no Camera component.")
@@ -144,14 +159,16 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
             flipYForClipSpace = renderer.flipYForClipSpace
         )
 
-        minimapCamera = CoreCamera(
-            eye = Vec3(0f, 6f, 0.01f),
-            center = Vec3(0f, 0f, 0f),
-            fovYRadians = 1f,
-            near = 0.1f,
-            far = 10f,
-            flipYForClipSpace = renderer.flipYForClipSpace
-        )
+        // Derive the frustum camera's initial yaw/pitch/distance from its scene-authored
+        // eye/center (inverse of OrbitCameraSystem.update()'s own offset formula) so the
+        // first frame's frustum/minimap view matches the scene JSON exactly, before any
+        // slider has been touched.
+        val offset = homeCameraSnapshot.eye - cubeTransform.position
+        frustumDistance = offset.length3()
+        if (frustumDistance > 0f) {
+            frustumPitch = asin((offset.y / frustumDistance).coerceIn(-1f, 1f))
+            frustumYaw = atan2(offset.x, offset.z)
+        }
 
         orbitCameraSystem = OrbitCameraSystem(
             target = cubeTransform,
@@ -210,6 +227,38 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
 
         showFrustum = ui.toggle("show-frustum", panelX, PANEL_ROW_FRUSTUM_Y, PANEL_WIDTH, 32f, showFrustum, "FRUSTUM", font)
         showGrid = ui.toggle("show-grid", panelX, PANEL_ROW_GRID_Y, PANEL_WIDTH, 32f, showGrid, "GRID", font)
+
+        // Frustum camera sliders -- only shown while FRUSTUM is on, since that's the only
+        // time this camera's position is visible/meaningful to adjust. Recomputes
+        // homeCameraSnapshot.eye/center every frame regardless (cheap trig), not just while
+        // the sliders are visible, since the minimap (below) always renders from this camera
+        // and must stay in sync even if the FRUSTUM wireframe itself is toggled off.
+        if (showFrustum) {
+            frustumYaw = ui.slider(
+                "frustum-azimuth", panelX, PANEL_ROW_FRUSTUM_AZIMUTH_Y, PANEL_WIDTH, 28f,
+                min = -PI.toFloat(), max = PI.toFloat(), value = frustumYaw,
+                font = font, label = "F.AZIMUTH"
+            )
+            frustumPitch = ui.slider(
+                "frustum-elevation", panelX, PANEL_ROW_FRUSTUM_ELEVATION_Y, PANEL_WIDTH, 28f,
+                min = OrbitCameraSystem.MIN_PITCH, max = OrbitCameraSystem.MAX_PITCH, value = frustumPitch,
+                font = font, label = "F.ELEVATION"
+            )
+            frustumDistance = ui.slider(
+                "frustum-zoom", panelX, PANEL_ROW_FRUSTUM_ZOOM_Y, PANEL_WIDTH, 28f,
+                min = OrbitCameraSystem.MIN_DISTANCE, max = MAX_ZOOM_DISTANCE, value = frustumDistance,
+                font = font, label = "F.ZOOM"
+            )
+        }
+        val frustumCosPitch = cos(frustumPitch)
+        val target = cubeTransform.position
+        homeCameraSnapshot.eye.x = target.x + frustumDistance * frustumCosPitch * sin(frustumYaw)
+        homeCameraSnapshot.eye.y = target.y + frustumDistance * sin(frustumPitch)
+        homeCameraSnapshot.eye.z = target.z + frustumDistance * frustumCosPitch * cos(frustumYaw)
+        homeCameraSnapshot.center.x = target.x
+        homeCameraSnapshot.center.y = target.y
+        homeCameraSnapshot.center.z = target.z
+
         // drawDebugLines stages (replaces, doesn't accumulate) the lines for the next draw()
         // call -- see its own doc comment -- so both toggles' lines must be combined into one
         // call rather than each calling drawDebugLines separately (a second call would
@@ -227,7 +276,9 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
 
         showMinimap = ui.toggle("show-minimap", panelX, PANEL_ROW_MINIMAP_Y, PANEL_WIDTH, 32f, showMinimap, "MINIMAP", font)
         if (showMinimap) {
-            renderer.renderToTexture(minimapTarget, minimapCamera, sampleDrawCalls())
+            // Same camera the FRUSTUM wireframe visualizes -- the minimap now shows exactly
+            // what the frustum camera sees, not an unrelated fixed overhead view.
+            renderer.renderToTexture(minimapTarget, homeCameraSnapshot, sampleDrawCalls())
             val size = MINIMAP_SIZE.toFloat()
             // Top-left, not top-right -- the whole right edge is now the settings panel
             // column above, so the minimap preview has the top-left corner free instead.

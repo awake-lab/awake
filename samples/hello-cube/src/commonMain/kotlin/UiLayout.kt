@@ -27,6 +27,9 @@ const val PANEL_ROW_MINIMAP_Y = 144f
 const val PANEL_ROW_AZIMUTH_Y = 186f
 const val PANEL_ROW_ELEVATION_Y = 222f
 const val PANEL_ROW_ZOOM_Y = 258f
+const val PANEL_ROW_FRUSTUM_AZIMUTH_Y = 294f
+const val PANEL_ROW_FRUSTUM_ELEVATION_Y = 330f
+const val PANEL_ROW_FRUSTUM_ZOOM_Y = 366f
 // 2 options * 32f row height below its own header -- next row must start past that.
-const val PANEL_ROW_DEMO_PICKER_Y = 296f
-const val PANEL_ROW_CAMERA_MODE_Y = 400f
+const val PANEL_ROW_DEMO_PICKER_Y = 404f
+const val PANEL_ROW_CAMERA_MODE_Y = 508f
