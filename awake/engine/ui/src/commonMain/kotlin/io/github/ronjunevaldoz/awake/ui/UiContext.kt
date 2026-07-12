@@ -80,6 +80,57 @@ class UiContext {
         return newChecked
     }
 
+    /** Continuous drag control: returns the (possibly updated) value for this frame, same
+     * caller-owns-the-state idiom [toggle] already uses ([value] passed in, new value
+     * returned -- [UiContext] itself stores no slider state beyond the drag-tracking
+     * [activeId], reused from [button]/[toggle] rather than a second parallel field, since
+     * "which widget owns the pointer right now" is the same concept for a press-release
+     * button and a continuous drag).
+     *
+     * Hit-testing/dragging: on the frame the pointer is pressed down inside the track's
+     * bounds, [activeId] latches to [id] (same as [button]'s press edge) so a drag that
+     * briefly carries the pointer outside the track's X range (but the button is still held)
+     * doesn't let go of the drag -- every frame [activeId] == [id] and the pointer is still
+     * down, [Input.pointerX] is remapped to a value in `[min, max]` regardless of Y or
+     * whether X is still within the track. [activeId] is cleared on release, same as
+     * [button].
+     *
+     * Draws a track background [UiDrawPrimitive.Quad] the full `[x, y, w, h]] rect, a filled
+     * handle [UiDrawPrimitive.Quad] from the track's left edge up to [value]'s proportional
+     * position, and (if [label]/[font] are both given) a centered label via
+     * [drawCenteredLabel], same optional-label convention [button]/[toggle] already use. */
+    fun slider(
+        id: String,
+        x: Float,
+        y: Float,
+        w: Float,
+        h: Float,
+        min: Float,
+        max: Float,
+        value: Float,
+        font: BitmapFont? = null,
+        label: String? = null
+    ): Float {
+        val hovered = hitTest(x, y, w, h)
+        if (hovered && Input.pointerDown && activeId == null) {
+            activeId = id
+        }
+        val dragging = activeId == id && Input.pointerDown
+        val newValue = if (dragging) sliderValueFromPointerX(Input.pointerX, x, w, min, max) else value
+        if (!Input.pointerDown && activeId == id) {
+            activeId = null
+        }
+
+        primitives += UiDrawPrimitive.Quad(x, y, w, h, colorFor(hovered, dragging))
+        val fraction = ((newValue - min) / (max - min)).coerceIn(0f, 1f)
+        val handleWidth = (w * fraction).coerceAtLeast(0f)
+        if (handleWidth > 0f) {
+            primitives += UiDrawPrimitive.Quad(x, y, handleWidth, h, CHECK_COLOR)
+        }
+        if (label != null && font != null) drawCenteredLabel(x, y, w, h, label, font)
+        return newValue
+    }
+
     /** Header renders as a [button] labeled with the currently-selected option; when
      * expanded (tracked per-[id] in [widgetStates]), one [button] per option (labeled with
      * its own text) is rendered below it. Returns the clicked option's index, or null if
@@ -171,4 +222,17 @@ class UiContext {
         val CHECK_COLOR = floatArrayOf(0.2f, 0.8f, 0.3f, 1f)
         val LABEL_COLOR = floatArrayOf(1f, 1f, 1f, 1f)
     }
+}
+
+/** Pure value-from-pointer-position math for [UiContext.slider], pulled out to a top-level
+ * function so it's unit-testable without an [Input]/GPU-backed [UiContext] instance (see
+ * this project's "no app-layer test doubles, push logic into pure functions" convention).
+ * Maps [pointerX]'s position within the track `[trackX, trackX + trackW]` to a value in
+ * `[min, max]`, clamping (not extrapolating) for a [pointerX] outside the track's bounds --
+ * a drag that overshoots the track while still held should pin at [min]/[max], not keep
+ * increasing past them. */
+fun sliderValueFromPointerX(pointerX: Float, trackX: Float, trackW: Float, min: Float, max: Float): Float {
+    if (trackW <= 0f) return min
+    val fraction = ((pointerX - trackX) / trackW).coerceIn(0f, 1f)
+    return min + fraction * (max - min)
 }

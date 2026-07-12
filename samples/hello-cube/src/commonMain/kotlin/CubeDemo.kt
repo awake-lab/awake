@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import kotlin.math.PI
 
 /**
  * The minimal "hello, cube" demo this module was originally built to showcase -- a plain
@@ -201,6 +202,27 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
             val size = MINIMAP_SIZE.toFloat()
             ui.textureQuad(viewportWidth - size - 20f, 20f, size, size, minimapMaterial)
         }
+
+        // Orbit-only: FREE_FLY drives the same live Camera component with its own
+        // WASD/mouse-look controls (FreeFlyCameraSystem), so these sliders would fight it --
+        // only ORBIT's yaw/pitch/distance are meaningful slider targets.
+        if (cameraMode == CameraMode.ORBIT) {
+            orbitCameraSystem.yaw = ui.slider(
+                "orbit-azimuth", 20f, 112f, 200f, 28f,
+                min = -PI.toFloat(), max = PI.toFloat(), value = orbitCameraSystem.yaw,
+                font = font, label = "AZIMUTH"
+            )
+            orbitCameraSystem.pitch = ui.slider(
+                "orbit-elevation", 20f, 150f, 200f, 28f,
+                min = OrbitCameraSystem.MIN_PITCH, max = OrbitCameraSystem.MAX_PITCH, value = orbitCameraSystem.pitch,
+                font = font, label = "ELEVATION"
+            )
+            orbitCameraSystem.distance = ui.slider(
+                "orbit-zoom", 20f, 188f, 200f, 28f,
+                min = OrbitCameraSystem.MIN_DISTANCE, max = MAX_ZOOM_DISTANCE, value = orbitCameraSystem.distance,
+                font = font, label = "ZOOM"
+            )
+        }
     }
 
     /** Releases the mesh/material this demo created in [ready] -- required now that
@@ -248,5 +270,9 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         private const val AUTO_ROTATE_SPEED = 0.3f
         private val FRUSTUM_COLOR = floatArrayOf(1f, 0.9f, 0.2f, 1f)
         private const val MINIMAP_SIZE = 160
+
+        // Upper bound for the orbit-zoom slider -- well past OrbitCameraSystem's own
+        // DEFAULT_DISTANCE (8f), enough room to zoom out and see the whole cube+frustum.
+        private const val MAX_ZOOM_DISTANCE = 20f
     }
 }

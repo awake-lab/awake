@@ -30,7 +30,7 @@ class OrbitCameraSystemTest {
         val world = World()
         val target = Transform(position = Vec3(2f, 0f, 3f))
         val camera = newCamera()
-        val system = OrbitCameraSystem(target, camera, distance = 5f)
+        val system = OrbitCameraSystem(target, camera, initialDistance = 5f)
 
         system.update(world, 0f)
 
@@ -44,7 +44,7 @@ class OrbitCameraSystemTest {
         val world = World()
         val target = Transform(position = Vec3(0f, 0f, 0f))
         val camera = newCamera()
-        val system = OrbitCameraSystem(target, camera, distance = 5f)
+        val system = OrbitCameraSystem(target, camera, initialDistance = 5f)
 
         system.update(world, 0f)
         val firstEye = Vec3(camera.camera.eye.x, camera.camera.eye.y, camera.camera.eye.z)
@@ -60,7 +60,7 @@ class OrbitCameraSystemTest {
         val world = World()
         val target = Transform(position = Vec3(0f, 0f, 0f))
         val camera = newCamera()
-        val system = OrbitCameraSystem(target, camera, distance = 10f, zoomSpeed = 2f)
+        val system = OrbitCameraSystem(target, camera, initialDistance = 10f, zoomSpeed = 2f)
 
         // 'W' zooms in -- distance shrinks, so the eye moves closer to the target (smaller
         // distance from origin, since the camera starts directly on the +Z axis at pitch's
@@ -85,7 +85,7 @@ class OrbitCameraSystemTest {
         val world = World()
         val target = Transform(position = Vec3(0f, 0f, 0f))
         val camera = newCamera()
-        val system = OrbitCameraSystem(target, camera, distance = 5f)
+        val system = OrbitCameraSystem(target, camera, initialDistance = 5f)
 
         // First frame with the pointer down only records the drag origin, no rotation yet.
         Input.setPointer(down = true, x = 100f, y = 100f)

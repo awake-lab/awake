@@ -2926,6 +2926,59 @@ module boundary this time: `getState`/`setMinimap` both round-tripped correctly 
 parse/encode functions. `awake:scene:desktopTest`, `:samples:hello-cube:androidApp:
 assembleDebug`, and `spotlessCheck` on both modules all pass.
 
+### D25 — `UiContext.slider`, and public `OrbitCameraSystem.yaw`/`pitch`/`distance`
+
+Added a `slider` widget to `awake:engine:ui`'s custom immediate-mode UI (`UiContext.kt`),
+same idiom as `toggle`/`button` — caller-owned value in, updated value returned, built
+entirely out of `UiDrawPrimitive.Quad` (track background + proportional filled handle, no
+new GPU pipeline work). Drag interaction reuses `button`'s existing `activeId` field rather
+than adding a second parallel piece of state — the press-latch/release-clear semantics are
+identical for a continuous drag and a press-release click, only the per-frame value
+computation differs. The pointer-position-to-value math (`sliderValueFromPointerX`) is a
+top-level pure function, not a method on `UiContext`, specifically so it's unit-testable
+without an `Input`/GPU-backed instance (see this project's "push logic into pure functions"
+convention) — covered by `UiContextTest`: track-edge-to-min/max mapping, midpoint, and
+clamping (not extrapolating) for pointer positions outside the track.
+
+`OrbitCameraSystem`'s previously-private `yaw`/`pitch`/`distance` became public `var`s so a
+UI slider can read the current value (to draw the handle) and write a new one (when
+dragged), without changing `update()`'s own drag/auto-rotate/zoom logic at all. `pitch` and
+`distance` keep the same `MIN_PITCH`/`MAX_PITCH`/`MIN_DISTANCE` clamps enforced via a custom
+property setter now (rather than only inline in `update()`), so a slider-driven write can't
+push the camera past the same limits `update()` itself already enforces. The distance
+constructor parameter was renamed `initialDistance` (was `distance`) to avoid shadowing the
+new class-body property of the same name — call sites (`OrbitCameraSystemTest`) updated
+accordingly, no behavior change. `MIN_PITCH`/`MAX_PITCH`/`MIN_DISTANCE`/`DEFAULT_DISTANCE`
+moved from a `private companion object` to a plain (non-private) one, specifically so
+`CubeDemo`'s elevation/zoom sliders can size their range off the system's own constants
+instead of inventing a separate range that could fight its clamping.
+
+Wired 3 sliders (azimuth `[-PI, PI]`, elevation `[MIN_PITCH, MAX_PITCH]`, zoom/distance
+`[MIN_DISTANCE, 20f]`) into `CubeDemo.drawCatalogUi`, below the existing toggle row, visible
+only when `cameraMode == CameraMode.ORBIT` (`FREE_FLY` drives the same live `Camera` via its
+own independent WASD/mouse-look controls, so these sliders would fight it there).
+
+**Verified:** `:awake:engine:ui:compileKotlinDesktop`, `:awake:scene:compileKotlinDesktop`,
+`:samples:hello-cube:compileKotlinDesktop` all compile clean. New `UiContextTest` slider
+cases (edge/midpoint mapping, clamping, drag-then-release) pass (5/5 tests in that class, 0
+failures). `:awake:scene:desktopTest`'s `OrbitCameraSystemTest` (4/4) and the rest of that
+module's suite pass unchanged after the visibility change. `spotlessCheck` passes on both
+`awake:engine:ui` and `samples:hello-cube`.
+
+Confirmed on real hardware (desktop, `:samples:hello-cube:run`, real Vulkan window) via the
+D24 WebSocket debug channel — **this only proves the `OrbitCameraSystem` property-visibility
+change didn't regress the render-camera wiring, not that the slider widget itself
+renders/drags correctly** (no GUI-interaction tool available in this sandbox to actually drag
+a slider with a real mouse). Repeated `{"type":"getState"}` calls while the CUBE demo's
+auto-rotate ran showed `cameraEye` changing frame to frame (e.g. `x:1.18, z:-1.55` →
+`x:1.04, z:-1.65` three seconds later, with `y` held exactly constant at `-5.70` across that
+same window) — yaw continuing to auto-rotate while pitch/distance stayed put is exactly the
+expected behavior post-change, confirming `yaw` is still being written and read correctly as
+a public `var`. (Early in this same run, before the window had focus, `cameraEye` swung
+erratically across polls with FPS dropping to 1 — consistent with the host's real cursor
+transiently interacting with the unfocused GLFW window, not a regression in this change;
+behavior stabilized once left alone, as the numbers above show.)
+
 ### D4 — Editor base
 **Decided: build on [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor)**
 (Compose Desktop shell + design system) rather than building from scratch.
