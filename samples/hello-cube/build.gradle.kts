@@ -154,6 +154,10 @@ kotlin {
                 implementation(libs.wgpu4k)
                 implementation(libs.wgpu4k.toolkit)
                 implementation(libs.kotlinx.browser)
+                // JoltPhysicsWorld -- real jolt-physics(JoltPhysics.js)-backed PhysicsWorld
+                // for PhysicsDemo's falling-cube-onto-ground scene (see
+                // PhysicsWorldFactory.wasmJs.kt).
+                implementation(project(":awake:backend:jolt"))
             }
             // wasmJs library resources aren't merged into a consuming app's own
             // processedResources/webpack-dev-server static output by default -- only a

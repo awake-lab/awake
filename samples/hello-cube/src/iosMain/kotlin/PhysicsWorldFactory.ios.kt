@@ -6,4 +6,4 @@ import io.github.ronjunevaldoz.awake.physics.jolt.JoltPhysicsWorld
 // Jolt Physics integration slice 2 (see docs/MVP_PLAN.md's decision log): awake:backend:jolt's
 // iosMain JoltPhysicsWorld is now a real JoltC cinterop backend, not a TODO() stub -- mirrors
 // desktop/Android's own factory.
-actual fun createPhysicsWorld(): PhysicsWorld? = JoltPhysicsWorld()
+actual suspend fun createPhysicsWorld(): PhysicsWorld? = JoltPhysicsWorld()

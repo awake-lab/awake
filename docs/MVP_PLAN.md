@@ -2641,6 +2641,84 @@ falling-cube demo.**
   `:compileKotlinIosArm64`/`:compileKotlinWasmJs`, to confirm the `null`-returning stub
   actuals compile) pass clean.
 
+**D5 slice 3 (2026-07-12): real wasmJs `JoltPhysicsWorld` via `jolt-physics` (JoltPhysics.js).**
+
+- **npm wiring**: `awake:backend:jolt/build.gradle.kts`'s `wasmJsMain` source set adds
+  `implementation(npm("jolt-physics", "1.1.0"))`. Default entrypoint (not `/wasm`) resolves to
+  the `wasm-compat` flavour, whose `.wasm` binary is base64-embedded in the JS bundle —
+  avoids a `locateFile`/separate-`.wasm`-fetch dance under Kotlin/Wasm's webpack dev server,
+  at the cost of bundle size. Single-threaded, not `-multithread` (that flavour needs
+  SharedArrayBuffer + COOP/COEP headers the default webpack-dev-server task doesn't set).
+- **Interop shape — no `dynamic`, so no typed per-class `external class` bindings**:
+  `jolt-physics`'s default export is `declare function Jolt<T>(target?: T): Promise<T &
+  typeof Jolt>` — calling it resolves one namespace object holding every `Jolt.XXX`
+  class/constant as a runtime property, not separate ES module exports Kotlin/Wasm's
+  `@JsModule` could bind per-declaration at compile time. Kotlin/Wasm has no `dynamic` type
+  (unlike Kotlin/JS), so the resolved object's shape can't be described the way
+  `kotlinx-browser`'s DOM bindings are. Every actual Jolt call instead goes through an
+  `@JsFun("...")`-annotated `external fun` (the Kotlin/Wasm-idiomatic substitute for
+  `dynamic`/`js()`, neither of which exist for this target) — each one inline JS mirroring
+  `jrouwe/JoltPhysics.js`'s own `Examples/js/example.js` boilerplate
+  (`setupCollisionFiltering`/`initPhysics`/`createBox`/`updatePhysics`), taking the resolved
+  namespace object as an opaque `JsAny` parameter and indexing into it by property name at
+  runtime. `@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)` silences the (currently
+  experimental) opt-in this whole approach requires.
+- **Async→suspend bridge**: `expect fun createPhysicsWorld(): PhysicsWorld?` became `expect
+  suspend fun createPhysicsWorld(): PhysicsWorld?` across **all four** platforms (not just
+  wasmJs) — `JoltPhysicsWorld`'s wasmJs `companion object` factory (`JoltPhysicsWorld.create()`)
+  awaits `jolt-physics`'s own `Promise`-returning module bootstrap
+  (`kotlinx.coroutines.await()`) before constructing; the other three platforms' actuals
+  stay plain synchronous constructor calls wrapped in a no-op `suspend`. `PhysicsDemo.ready()`
+  was already `suspend`, so the ripple stopped at that one call site as anticipated.
+- **`JoltPhysicsWorld` (wasmJs)** mirrors the desktop/iOS backends' exact semantics
+  (2 object layers → 2 broadphase layers here, copied verbatim from JoltPhysics.js's own
+  example rather than collapsed to 1 broadphase layer like desktop/iOS, specifically to stay
+  faithful to the upstream reference boilerplate), Kotlin-side `trackedBodyIds: MutableList<Int>`
+  (same "no cheap bulk body query" reasoning as the other two backends), raycast via
+  `NarrowPhaseQuery.CastRay` with accept-everything base-class filters (`new
+  jolt.BroadPhaseLayerFilter()` etc. — the JS-side equivalent of passing `null` filters on
+  desktop/iOS).
+- **Build-time bundling gap found and fixed, unrelated to the physics API itself**:
+  `jolt-physics`'s bundled Emscripten output contains a dead `if (isNode) { await
+  import("node:module") ... }` fallback branch (never taken in a browser) that webpack's
+  browser target still statically resolves and fails on (`UnhandledSchemeError`) since it has
+  no loader for the `node:` URI scheme — `resolve.fallback: { "node:module": false, ... }`
+  compiles but does **not** fix this specific error class (confirmed by trying it first; the
+  same error persisted), because `UnhandledSchemeError` is raised by webpack's scheme-handling
+  step, before normal resolution/fallback is even consulted. Fixed with `new
+  webpack.IgnorePlugin({ resourceRegExp: /^node:/ })` in a new
+  `samples/hello-cube/webpack.config.d/jolt-physics-node-fallback.js` (Kotlin/Wasm's `browser()`
+  webpack task auto-merges any `*.js` under a module's own `webpack.config.d/`, same
+  convention Kotlin/JS's webpack DSL already documents — confirmed by inspecting the
+  generated `webpack.config.js` and the `KotlinWebpack`/`KotlinWebpackConfig` Gradle-plugin
+  classes directly).
+- **Found and fixed a second, pre-existing, unrelated bug while setting up browser
+  verification**: `samples/hello-cube/src/wasmJsMain/resources/index.html` referenced
+  `<script src="sample-hello-cube.js">`, stale from the `sample-hello-cube` → `samples/hello-cube`
+  directory rename (the actual webpack output/module name is `hello-cube.js`) — silently
+  404'd, so the wasmJs sample has not actually been loadable in a browser since that rename.
+  Fixed to `hello-cube.js`.
+- **Confirmed in a real browser (headless Chromium via Playwright, `wasmJsBrowserDevelopmentRun`'s
+  webpack-dev-server at `localhost:8080`, this dev machine)**: `PhysicsDemo`'s console log
+  shows the cube falling and settling for real, not just compiling —
+  `PHYSICS DEMO: cube Y = 3.98` (early, mid-fall) → `... Y = 1.0156326` → `... Y = 0.47999975`
+  (settled, stable across many subsequent samples) — same ~0.48 rest height (ground top at
+  y=0 plus the cube's own 0.5 half-height, within Jolt's normal contact-penetration
+  tolerance) the desktop backend's own real-hardware run in slice 2's log entry settled at.
+  Screenshots taken ~6s apart show the cube high up mid-air vs. resting on the ground plane
+  at the same on-screen position, with the on-screen `PHYSICS: Y` HUD readout matching the
+  console log at each point. FPS 100-120 throughout, no console errors from the physics path
+  itself (a pre-existing, unrelated WebGPU attachment-format warning — `RenderPipeline`
+  configured for `RGBA8Unorm` vs. the swapchain's actual `BGRA8Unorm` — appears in the same
+  log and predates this slice; out of scope here).
+  `:awake:backend:jolt:compileKotlinWasmJs`, `:samples:hello-cube:compileKotlinWasmJs`, and
+  the desktop/Android/iOS-simulator compiles of both modules all pass clean; `awake:backend:
+  jolt:desktopTest` (the existing free-fall regression test) still passes, confirming no
+  regression to the desktop/Android backend from the `suspend` signature change. New
+  `kotlin-js-store/wasm/yarn.lock` committed alongside for reproducible npm dependency
+  resolution (Kotlin/Wasm's npm-dependency mechanism generates this the same way Kotlin/JS's
+  does).
+
 ### D4 — Editor base
 **Decided: build on [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor)**
 (Compose Desktop shell + design system) rather than building from scratch.

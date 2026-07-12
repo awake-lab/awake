@@ -190,5 +190,22 @@ kotlin {
                 implementation("com.github.stephengold:jolt-jni-Android:5.2.0:SpDebug@aar")
             }
         }
+        // jolt-physics (jrouwe/JoltPhysics.js) -- the official Emscripten/WASM build of the
+        // same jrouwe/JoltPhysics C++ engine jolt-jni (desktop/Android) and JoltC (iOS) both
+        // wrap. The default entrypoint ("jolt-physics", not "jolt-physics/wasm") resolves to
+        // its "wasm-compat" flavour, whose .wasm binary is base64-embedded directly in the
+        // bundle -- avoids a `locateFile`/separate-.wasm-fetch dance under Kotlin/Wasm's
+        // webpack-based dev server, at the cost of a larger bundle (acceptable for a physics
+        // demo). Single-threaded (not "-multithread"): the multithread flavour needs
+        // SharedArrayBuffer + COOP/COEP response headers, which Kotlin/Wasm's default
+        // `browser()` webpack-dev-server task doesn't set.
+        named("wasmJsMain") {
+            dependencies {
+                implementation(npm("jolt-physics", "1.1.0"))
+                // Promise<JsAny>.await() -- bridges jolt-physics's async Emscripten module
+                // bootstrap into JoltPhysicsWorld.create()'s suspend factory.
+                implementation(libs.kotlinx.coroutines.core)
+            }
+        }
     }
 }

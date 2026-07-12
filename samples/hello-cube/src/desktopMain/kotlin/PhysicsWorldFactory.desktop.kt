@@ -3,4 +3,4 @@
 import io.github.ronjunevaldoz.awake.physics.PhysicsWorld
 import io.github.ronjunevaldoz.awake.physics.jolt.JoltPhysicsWorld
 
-actual fun createPhysicsWorld(): PhysicsWorld? = JoltPhysicsWorld()
+actual suspend fun createPhysicsWorld(): PhysicsWorld? = JoltPhysicsWorld()
