@@ -33,6 +33,13 @@ import kotlinx.coroutines.launch
  * own coroutine (mirroring how `GenericGameApplication.create()` already does this) and swaps
  * [current] only once the new demo's [Game.ready] actually completes, so the outgoing demo
  * keeps rendering its last frame during the switch instead of a blank/broken frame.
+ *
+ * Also draws a debug HUD (FPS, frame time, plus whatever the current demo reports via
+ * [DebugReadout]) bottom-left every frame, and logs the same lines to console once a second --
+ * chosen over interactive sliders (rotation/position/frame-time drag handles) specifically
+ * because a rendered+logged text readout is verifiable by an agent through console output
+ * alone, whereas a slider's state only exists visually and can't be confirmed without a
+ * working screenshot pipeline.
  */
 class DemoCatalog : Game {
     private val ui = UiContext()
@@ -50,6 +57,14 @@ class DemoCatalog : Game {
     private var current: Game = demos[0].second()
     private var switching = false
 
+    // Debug HUD: FPS/frame-time are generic (every demo has a delta), the current demo's own
+    // state (camera position/rotation, etc.) comes from an optional DebugReadout instead --
+    // see that interface's doc comment for why this isn't just baked into Game itself.
+    private var fps = 0f
+    private var frameTimeMs = 0f
+    private var fpsAccumulator = 0f
+    private var fpsFrameCount = 0
+
     override suspend fun ready(renderer: Renderer) {
         this.renderer = renderer
         current.ready(renderer)
@@ -59,6 +74,7 @@ class DemoCatalog : Game {
         ui.beginFrame(viewportWidth, viewportHeight)
         drawDemoPicker(viewportWidth)
         current.render(delta, viewportWidth, viewportHeight)
+        drawDebugHud(delta, viewportHeight)
         renderer.drawUi(ui.endFrame(), font)
     }
 
@@ -66,6 +82,36 @@ class DemoCatalog : Game {
         val names = demos.map { it.first }
         ui.dropdown("demo-picker", viewportWidth - 180f, 20f, 160f, 32f, names, currentIndex, font)
             ?.let { picked -> if (picked != currentIndex) switchTo(picked) }
+    }
+
+    /** Draws FPS/frame-time + whatever [current] reports via [DebugReadout], bottom-left
+     * (out of the demo-picker/catalog UI's way up top). Also logs the same lines to
+     * console once per second, via [logDebugState] -- readable without a working screenshot
+     * pipeline, which is the whole point (see the conversation this was designed in). */
+    private fun drawDebugHud(delta: Float, viewportHeight: Float) {
+        frameTimeMs = delta * 1000f
+        fpsAccumulator += delta
+        fpsFrameCount++
+        if (fpsAccumulator >= 1f) {
+            fps = fpsFrameCount / fpsAccumulator
+            fpsAccumulator = 0f
+            fpsFrameCount = 0
+            logDebugState()
+        }
+        val lines = debugLines()
+        lines.forEachIndexed { index, line ->
+            ui.text(20f, viewportHeight - (lines.size - index) * 14f, line, HUD_COLOR, font)
+        }
+    }
+
+    private fun debugLines(): List<String> = buildList {
+        add("FPS: ${fps.toInt()}  FRAME: ${frameTimeMs.toInt()}MS")
+        (current as? DebugReadout)?.debugLines()?.let(::addAll)
+    }
+
+    private fun logDebugState() {
+        println("DEBUG HUD [${demos[currentIndex].first}]")
+        debugLines().forEach { println("DEBUG HUD:   $it") }
     }
 
     /** Constructs the picked demo, awaits its (suspend) [Game.ready] on its own coroutine,
@@ -89,4 +135,8 @@ class DemoCatalog : Game {
     override fun pause() = current.pause()
     override fun resume() = current.resume()
     override fun dispose() = current.dispose()
+
+    private companion object {
+        val HUD_COLOR = floatArrayOf(0.4f, 1f, 0.4f, 1f)
+    }
 }

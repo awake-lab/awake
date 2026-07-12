@@ -35,13 +35,14 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
  * demo just appends its own widgets to the same [ui] instance [DemoCatalog]'s own
  * demo-picker dropdown already staged this frame.
  */
-class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game {
+class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, DebugReadout {
     private val fixedTimestepLoop = FixedTimestepLoop()
 
     private lateinit var renderer: Renderer
     private lateinit var sceneRuntime: SceneRuntime
     private lateinit var cubeMesh: Mesh
     private lateinit var material: Material
+    private lateinit var cameraComponent: Camera
 
     // Smallest possible proof the custom UI overlay pipeline works end to end: a toggle
     // rendered top-left over the existing cube scene (see docs/MVP_PLAN.md's custom-UI
@@ -80,7 +81,7 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game {
             ?: error("sample.scene.json is missing a root node named 'camera'.")
         val cubeTransform: Transform = world.get(cubeEntity)
             ?: error("'cube' node has no Transform.")
-        val cameraComponent: Camera = world.get(cameraEntity)
+        cameraComponent = world.get(cameraEntity)
             ?: error("'camera' node has no Camera component.")
 
         val liveCamera = cameraComponent.camera
@@ -148,6 +149,16 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game {
         cubeMesh.destroy()
         material.destroy()
     }
+
+    override fun debugLines(): List<String> {
+        val eye = cameraComponent.camera.eye
+        return listOf(
+            "MODE: ${cameraMode.name}",
+            "X:${eye.x.format1()} Y:${eye.y.format1()} Z:${eye.z.format1()}"
+        )
+    }
+
+    private fun Float.format1(): String = (kotlin.math.round(this * 10f) / 10f).toString()
 
     private enum class CameraMode { ORBIT, FREE_FLY }
 
