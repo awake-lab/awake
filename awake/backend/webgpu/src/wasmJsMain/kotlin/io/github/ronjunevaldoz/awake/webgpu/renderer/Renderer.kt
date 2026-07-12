@@ -75,6 +75,11 @@ class Renderer(
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
+    // WebGPU's NDC has +Y up, same as the OpenGL convention Camera.viewProjectionMatrix()
+    // assumes natively -- confirmed by this module's own ui_quad.wgsl comment ("pixel-space
+    // is Y-down, NDC is Y-up"). Unlike Vulkan (+Y down NDC), no flip is needed here.
+    override val flipYForClipSpace: Boolean = false
+
     private val graphicsDevice = graphicsDevice
     private val swapchainManager = swapchainManager
     private val renderPipeline = renderPipeline

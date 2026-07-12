@@ -74,13 +74,9 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
     private var showMinimap = false
     private lateinit var minimapTarget: RenderTarget
     private lateinit var minimapMaterial: Material
-    private val minimapCamera = CoreCamera(
-        eye = Vec3(0f, 6f, 0.01f),
-        center = Vec3(0f, 0f, 0f),
-        fovYRadians = 1f,
-        near = 0.1f,
-        far = 10f
-    )
+    // Constructed in ready() rather than at declaration -- flipYForClipSpace needs the
+    // Renderer instance, which isn't available until then.
+    private lateinit var minimapCamera: CoreCamera
 
     /** The scene-authored view (`eye`/`center` etc. from `sample.scene.json`), captured
      * before [OrbitCameraSystem]/[FreeFlyCameraSystem] start mutating the live `Camera`
@@ -119,7 +115,17 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
             up = liveCamera.up.copy(),
             fovYRadians = liveCamera.fovYRadians,
             near = liveCamera.near,
-            far = liveCamera.far
+            far = liveCamera.far,
+            flipYForClipSpace = renderer.flipYForClipSpace
+        )
+
+        minimapCamera = CoreCamera(
+            eye = Vec3(0f, 6f, 0.01f),
+            center = Vec3(0f, 0f, 0f),
+            fovYRadians = 1f,
+            near = 0.1f,
+            far = 10f,
+            flipYForClipSpace = renderer.flipYForClipSpace
         )
 
         orbitCameraSystem = OrbitCameraSystem(

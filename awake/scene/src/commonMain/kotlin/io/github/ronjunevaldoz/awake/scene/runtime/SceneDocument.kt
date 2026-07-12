@@ -42,8 +42,10 @@ data class SceneCamera(
     val fovYDegrees: Float = 60f,
     val near: Float = 0.1f,
     val far: Float = 100f,
-    val primary: Boolean = true,
-    val flipYForClipSpace: Boolean = true
+    val primary: Boolean = true
+    // No flipYForClipSpace field here -- that's a backend clip-space convention (Vulkan vs
+    // WebGPU), not scene-authored content. SceneRuntime.load() supplies it from the active
+    // Renderer.flipYForClipSpace instead (see that property's own doc comment).
 )
 
 @Serializable

@@ -13,8 +13,7 @@
         "fovYDegrees": 45.0,
         "near": 0.1,
         "far": 100.0,
-        "primary": true,
-        "flipYForClipSpace": true
+        "primary": true
       }
     },
     {

@@ -2402,6 +2402,47 @@ sample-test proof above) is fully verified stable — this issue is specific to 
   no regression to the existing demo (HUD/toggle/dropdown/frustum) — see the known-issue
   note above for the one limitation surfaced by testing that remains open.
 
+### D23 — Fixed: every 3D scene rendered via WebGPU was vertically mirrored
+
+**Found (2026-07-12) via the Jolt Physics falling-cube demo**: the user reported the cube
+looked like it rose from the ground to rest height instead of falling onto it. Root cause:
+`Camera.viewProjectionMatrix()`'s `flipYForClipSpace` correction (`awake/base/.../Camera.kt`)
+exists specifically because Vulkan's NDC has +Y down, needing a sign flip against
+`Mat4.perspective()`'s native OpenGL-convention (+Y up) matrix. WebGPU's NDC is *also* +Y up
+(confirmed by this repo's own `ui_quad.wgsl` comment: "pixel-space is Y-down, NDC is Y-up")
+— i.e. the opposite of Vulkan, needing no flip at all. But every scene JSON hardcoded
+`"flipYForClipSpace": true` (the `SceneCamera` schema default), applied uniformly to
+whichever backend loaded it, so WebGPU always got an extra, incorrect Y-flip. Invisible
+until now because the only prior WebGPU content (`CubeDemo`'s spinning cube) is rotationally
+symmetric — a falling/rising cube is the first content with an unambiguous vertical motion
+cue, which is why this surfaced only now, not during any earlier WebGPU work.
+
+**Fix**: `flipYForClipSpace` is a backend clip-space convention, not scene-authored content,
+so it no longer lives in scene JSON at all. Added `val flipYForClipSpace: Boolean` to the
+`Renderer` interface (`awake:engine:render-api`) — `true` for Vulkan, `false` for WebGPU.
+`SceneLoader.instantiate`/`SceneRuntime.load` now take this from the active `Renderer`
+instead of trusting the document. Removed the field from `SceneCamera`'s schema and from
+`sample.scene.json`/`physics.scene.json`/the `awake:scene` test fixture. Also fixed the two
+manually-constructed `Camera` instances in `sample-hello-cube` (`CubeDemo`'s minimap camera
+and `DemoCatalog`'s offscreen-readback verify camera) to pass `renderer.flipYForClipSpace`
+explicitly instead of relying on `Camera`'s own `true` default.
+
+- **Verified**: `awake:scene:desktopTest` (including the updated `SceneLoaderTest`) passes;
+  `awake:backend:vulkan`/`awake:backend:webgpu`/`sample-hello-cube` compile clean across
+  desktop, Android, iOS-simulator, and wasmJs. Confirmed visually in a real browser
+  (`wasmJsBrowserDevelopmentRun`): `CubeDemo`'s rendered cube face colors are now vertically
+  mirrored relative to pre-fix screenshots, as expected for a real Y-axis correction (a
+  symmetric spinning cube gives no independent "which way is up" signal on its own, but the
+  two screenshots directly show the flip took effect). Vulkan's `flipYForClipSpace` value is
+  unchanged (`true`), so desktop/Android rendering has zero behavioral change from this fix.
+  A live mid-fall screenshot of the physics demo on WebGPU was not obtained (this sandbox's
+  browser automation throttles `requestAnimationFrame` heavily when not actively driven,
+  making the ~1-2 second fall too fast to reliably catch — confirmed by repeated attempts
+  showing `FPS: 0` between polls) — the fix's correctness rests on the two independent,
+  pre-existing doc-comment sources above (`Camera.kt`'s Vulkan-specific rationale,
+  `ui_quad.wgsl`'s Y-up-NDC comment) plus the confirmed visual mirroring, not a live capture
+  of the physics scene specifically.
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).

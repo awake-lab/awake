@@ -19,6 +19,15 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
  * change `VulkanApplication.kt`'s construction pattern.
  */
 interface Renderer {
+    /** Whether this backend's clip space needs [Camera.viewProjectionMatrix]'s Y-flip
+     * correction -- see that method's own doc comment. Vulkan's NDC has +Y down (needs the
+     * flip); WebGPU's NDC has +Y up, same as the OpenGL convention [Camera] assumes natively
+     * (confirmed by this repo's own `ui_quad.wgsl`: "pixel-space is Y-down, NDC is Y-up"), so
+     * it needs no flip. This is a backend implementation detail, not scene-authored content --
+     * callers building a [Camera] (manually, or via `SceneRuntime`/`SceneLoader` from scene
+     * JSON) should read this rather than hardcoding `true` for every backend. */
+    val flipYForClipSpace: Boolean
+
     /** Uploads [geometry] as a GPU mesh, on demand -- a game calls this itself for whatever
      * assets it wants, whenever it wants (not something the render bootstrap decides upfront
      * from a constructor-supplied asset list). */

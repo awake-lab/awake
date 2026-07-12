@@ -98,6 +98,8 @@ class Renderer(
     private val uiTextureFragmentShaderCode: ByteArray,
     maxFramesInFlight: Int
 ) : RenderRenderer {
+    override val flipYForClipSpace: Boolean = true
+
     private val graphicsDevice = graphicsDevice
     private val swapchainManager = swapchainManager
     private val renderPipeline = renderPipeline

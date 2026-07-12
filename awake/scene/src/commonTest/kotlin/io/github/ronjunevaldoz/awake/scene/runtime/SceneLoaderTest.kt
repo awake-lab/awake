@@ -66,7 +66,7 @@ class SceneLoaderTest {
             )
         )
 
-        val instance = document.instantiate(World())
+        val instance = document.instantiate(flipYForClipSpace = true, world = World())
 
         assertEquals(2, instance.roots.size)
         assertEquals(1, instance.renderableRequests.size)

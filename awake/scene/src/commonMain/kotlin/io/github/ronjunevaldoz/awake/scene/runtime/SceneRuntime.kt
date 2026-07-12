@@ -31,7 +31,7 @@ class SceneRuntime(private val renderer: Renderer) {
      * is ever invoked. */
     suspend fun load(scenePath: String, resolveRenderable: (SceneRenderableRequest) -> MeshRenderer) {
         world = World()
-        scene = SceneLoader.loadFromResource(scenePath).instantiate(world)
+        scene = SceneLoader.loadFromResource(scenePath).instantiate(world = world, flipYForClipSpace = renderer.flipYForClipSpace)
         scene.attachRenderableComponents(resolveRenderable)
         renderSystem = RenderSystem(renderer)
     }

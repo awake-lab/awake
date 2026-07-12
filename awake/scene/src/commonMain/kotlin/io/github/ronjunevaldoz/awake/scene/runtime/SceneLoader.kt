@@ -51,10 +51,12 @@ object SceneLoader {
         return decode(readResourceBytes(path).decodeToString(), json)
     }
 
-    fun instantiate(document: SceneDocument, world: World = World()): SceneInstance {
+    /** [flipYForClipSpace] comes from the active `Renderer` (see its own doc comment) --
+     * a scene document itself carries no opinion on backend clip-space convention. */
+    fun instantiate(document: SceneDocument, flipYForClipSpace: Boolean, world: World = World()): SceneInstance {
         val renderableRequests = mutableListOf<SceneRenderableRequest>()
         val roots = document.nodes.map { node ->
-            instantiateNode(world, node, null, renderableRequests)
+            instantiateNode(world, node, null, flipYForClipSpace, renderableRequests)
         }
         return SceneInstance(world, roots, renderableRequests)
     }
@@ -63,17 +65,18 @@ object SceneLoader {
         world: World,
         node: SceneNode,
         parent: Entity?,
+        flipYForClipSpace: Boolean,
         renderableRequests: MutableList<SceneRenderableRequest>
     ): SceneNodeInstance {
         val entity = world.create()
         world.add(entity, node.transform.toTransform(parent))
         node.name?.takeIf { it.isNotBlank() }?.let { world.add(entity, Name(it)) }
-        node.camera?.let { world.add(entity, it.toComponent()) }
+        node.camera?.let { world.add(entity, it.toComponent(flipYForClipSpace)) }
         node.light?.let { world.add(entity, it.toComponent()) }
         node.meshRenderer?.let { renderableRequests += SceneRenderableRequest(entity, it) }
 
         val children = node.children.map { child ->
-            instantiateNode(world, child, entity, renderableRequests)
+            instantiateNode(world, child, entity, flipYForClipSpace, renderableRequests)
         }
         return SceneNodeInstance(node.name, entity, children)
     }
@@ -87,7 +90,7 @@ object SceneLoader {
         )
     }
 
-    private fun SceneCamera.toComponent(): SceneCameraComponent {
+    private fun SceneCamera.toComponent(flipYForClipSpace: Boolean): SceneCameraComponent {
         return SceneCameraComponent(
             camera = Camera(
                 eye = eye.toVec3(),
@@ -122,8 +125,8 @@ object SceneLoader {
     }
 }
 
-fun SceneDocument.instantiate(world: World = World()): SceneInstance {
-    return SceneLoader.instantiate(this, world)
+fun SceneDocument.instantiate(flipYForClipSpace: Boolean, world: World = World()): SceneInstance {
+    return SceneLoader.instantiate(this, flipYForClipSpace, world)
 }
 
 fun SceneInstance.attachRenderableComponents(

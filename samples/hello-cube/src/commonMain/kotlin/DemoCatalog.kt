@@ -87,7 +87,8 @@ class DemoCatalog : Game {
             center = Vec3(0f, 0f, 0f),
             fovYRadians = 1f,
             near = 0.1f,
-            far = 10f
+            far = 10f,
+            flipYForClipSpace = renderer.flipYForClipSpace
         )
         val drawCalls = (current as? OffscreenPreviewSource)?.sampleDrawCalls() ?: emptyList()
         renderer.renderToTexture(target, camera, drawCalls)
