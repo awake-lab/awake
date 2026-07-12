@@ -59,6 +59,7 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.ui.UiTextureRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 
 /**
@@ -92,6 +93,8 @@ class Renderer(
     private val uiFragmentShaderCode: ByteArray,
     private val uiGlyphVertexShaderCode: ByteArray,
     private val uiGlyphFragmentShaderCode: ByteArray,
+    private val uiTextureVertexShaderCode: ByteArray,
+    private val uiTextureFragmentShaderCode: ByteArray,
     maxFramesInFlight: Int
 ) : RenderRenderer {
     private val graphicsDevice = graphicsDevice
@@ -116,6 +119,13 @@ class Renderer(
     private var uiFramebuffers: List<Long> = emptyList()
     private var uiGlyphRenderPipeline: UiGlyphRenderPipeline? = null
     private var fontTexture: Texture? = null
+
+    // Lazily built on the first drawUi() call that has any Texture primitives -- see
+    // ensureTextureQuadPipeline()'s doc comment. Reused every frame after that; a game that
+    // never composites a RenderTarget never pays for this pipeline or textureQuadMesh.
+    private var uiTextureRenderPipeline: UiTextureRenderPipeline? = null
+    private var textureQuadMesh: DynamicMesh? = null
+    private var texturePrimitives: List<UiDrawPrimitive.Texture> = emptyList()
 
     // Textures created on demand by createMaterial() -- Renderer (not Material) owns their
     // teardown, mirroring how it already owns uiMesh/uiGlyphMesh/lineMesh.
@@ -327,6 +337,23 @@ class Renderer(
         )
     }
 
+    /** Builds [uiTextureRenderPipeline]/[textureQuadMesh] on the first [drawUi] call that
+     * has any [UiDrawPrimitive.Texture] primitives -- cached after that. Requires
+     * [ensureUiQuadPipeline] to already have run (needs its render pass), same precondition
+     * [ensureGlyphPipeline] has. */
+    private fun ensureTextureQuadPipeline() {
+        if (uiTextureRenderPipeline != null) return
+        val renderPass = requireNotNull(uiRenderPipeline) { "ensureUiQuadPipeline() must run first." }.renderPass
+        uiTextureRenderPipeline = UiTextureRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            renderPass,
+            uiTextureVertexShaderCode,
+            uiTextureFragmentShaderCode
+        )
+        textureQuadMesh = DynamicMesh(graphicsDevice, 1, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+    }
+
     private fun createDepthResources() {
         depthImage = VulkanImages.vkCreateImage(
             device,
@@ -487,6 +514,8 @@ class Renderer(
     override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) {
         ensureUiQuadPipeline()
         if (font != null) ensureGlyphPipeline(font)
+        texturePrimitives = primitives.filterIsInstance<UiDrawPrimitive.Texture>()
+        if (texturePrimitives.isNotEmpty()) ensureTextureQuadPipeline()
         val quads = primitives.filterIsInstance<UiDrawPrimitive.Quad>()
         require(quads.size <= MAX_UI_QUADS) {
             "UI quad count (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
@@ -685,6 +714,32 @@ class Renderer(
                 uiGlyphMesh.draw(commandBuffer)
             }
 
+            // Render-target-backed textured quads (e.g. a minimap), one draw call per
+            // primitive -- each rewrites the texture pipeline's one shared descriptor set
+            // (see UiTextureRenderPipeline's doc comment for why that's safe here).
+            val texturePipeline = uiTextureRenderPipeline
+            val quadMesh = textureQuadMesh
+            if (texturePipeline != null && quadMesh != null) {
+                Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
+                Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+                var textureIndex = 0
+                while (textureIndex < texturePrimitives.size) {
+                    val primitive = texturePrimitives[textureIndex]
+                    val material = primitive.material as Material
+                    texturePipeline.bindMaterial(commandBuffer, material.samplerHandle, material.imageViewHandle)
+                    val vertices = floatArrayOf(
+                        primitive.x, primitive.y, 0f, 0f, 1f, 1f, 1f, 1f,
+                        primitive.x + primitive.w, primitive.y, 1f, 0f, 1f, 1f, 1f, 1f,
+                        primitive.x + primitive.w, primitive.y + primitive.h, 1f, 1f, 1f, 1f, 1f, 1f,
+                        primitive.x, primitive.y + primitive.h, 0f, 1f, 1f, 1f, 1f, 1f
+                    )
+                    quadMesh.update(vertices, TEXTURE_QUAD_INDICES)
+                    quadMesh.bind(commandBuffer)
+                    quadMesh.draw(commandBuffer)
+                    textureIndex += 1
+                }
+            }
+
             Vulkan.vkCmdEndRenderPass(commandBuffer)
         }
 
@@ -701,6 +756,8 @@ class Renderer(
         uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
+        uiTextureRenderPipeline?.destroy()
+        textureQuadMesh?.destroy()
         fontTexture?.destroy()
         createdTextures.forEach { it.destroy() }
         createdRenderTargets.forEach { it.destroy() }
@@ -718,6 +775,10 @@ class Renderer(
         const val MAX_DEBUG_LINES = 64
         val clearColorValue = VkClearColorValue.rgba(0f, 0f, 0f, 1f)
         val clearDepthValue = VkClearDepthStencilValue(depth = 1f, stencil = 0)
+
+        /** Triangle-list quad, corners in TL/TR/BR/BL order -- same winding [drawUi]'s own
+         * colored/glyph quads use. */
+        private val TEXTURE_QUAD_INDICES = intArrayOf(0, 1, 2, 2, 3, 0)
 
         /** [createMaterial]'s fallback when called with a null texture -- same 1x1 white
          * pixel `VulkanGameApplication` used to bind unconditionally. */

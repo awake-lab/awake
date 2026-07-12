@@ -67,4 +67,25 @@ sealed class UiDrawPrimitive {
             return result
         }
     }
+
+    /** One screen-space quad sampling an arbitrary render-target-backed material -- e.g. a
+     * minimap or portal-camera preview composited into the UI overlay. [material] is typed
+     * as [Any] rather than `awake-engine-render-api`'s `Material` interface: THAT module
+     * already depends on this one (`Renderer.drawUi(primitives: List<UiDrawPrimitive>, ...)`),
+     * so a `Material` reference here would create a module dependency cycle. [material] is
+     * expected to be whatever `Renderer.createMaterial(renderTarget = ...)` returned;
+     * `UiContext` never inspects it, just carries it back to the backend's own `Renderer
+     * .drawUi()`, which casts it to its own concrete `Material` type -- the same "opaque
+     * handle round-tripped back to the one place that knows its real type" pattern
+     * `DrawCall.mesh`/`.material` already use across the render-api/backend boundary.
+     * Unlike [Glyph] (which always samples the one fixed font atlas), each [Texture]
+     * primitive carries its own [material], so a backend's UI pass must bind a DIFFERENT
+     * sampled image per primitive instead of one baked in at pipeline-construction time. */
+    data class Texture(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val material: Any
+    ) : UiDrawPrimitive()
 }

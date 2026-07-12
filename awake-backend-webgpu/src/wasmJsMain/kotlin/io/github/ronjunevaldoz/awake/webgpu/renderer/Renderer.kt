@@ -26,6 +26,7 @@ import io.github.ronjunevaldoz.awake.webgpu.texture.OffscreenRenderTarget
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
+import io.github.ronjunevaldoz.awake.webgpu.ui.UiTextureRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.ygdrasil.webgpu.ArrayBuffer
 import io.ygdrasil.webgpu.BindGroupDescriptor
@@ -43,6 +44,7 @@ import io.ygdrasil.webgpu.GPUStoreOp
 import io.ygdrasil.webgpu.GPUMapMode
 import io.ygdrasil.webgpu.RenderPassColorAttachment
 import io.ygdrasil.webgpu.RenderPassDescriptor
+import io.ygdrasil.webgpu.SamplerDescriptor
 import io.ygdrasil.webgpu.TexelCopyBufferInfo
 import io.ygdrasil.webgpu.TexelCopyTextureInfo
 import io.ygdrasil.webgpu.beginRenderPass
@@ -69,6 +71,7 @@ class Renderer(
     private val lineRenderPipeline: LineRenderPipeline,
     private val uiShaderCode: ByteArray,
     private val uiGlyphShaderCode: ByteArray,
+    private val uiTextureShaderCode: ByteArray,
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
@@ -86,11 +89,17 @@ class Renderer(
     private var uiRenderPipeline: UiRenderPipeline? = null
     private var uiGlyphRenderPipeline: UiGlyphRenderPipeline? = null
 
+    // Lazily built on the first drawUi() call that has any Texture primitives -- see
+    // ensureTextureQuadPipeline()'s doc comment.
+    private var uiTextureRenderPipeline: UiTextureRenderPipeline? = null
+    private var texturePrimitives: List<UiDrawPrimitive.Texture> = emptyList()
+
     // Rewritten by drawUi() (called before draw() -- see WebGpuGameApplication.onRender()'s
     // ordering) so the UI pass, appended to the SAME command encoder as the 3D pass inside
     // draw(), always draws this frame's widgets, not last frame's.
     private val uiMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS)
     private val uiGlyphMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+    private val textureQuadMesh = DynamicMesh(graphicsDevice, 1, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
 
     // Rewritten by drawDebugLines() (staged before draw(), same pattern as uiMesh above).
     private val lineMesh = LineMesh(graphicsDevice, MAX_DEBUG_LINES)
@@ -105,8 +114,16 @@ class Renderer(
      * its own doc comment), so this just constructs it, matching this backend's existing
      * (pre-refactor) behavior of never calling `createResources`. [texture]/[renderTarget]
      * are accepted for interface parity with the Vulkan backend but otherwise unused here. */
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): RenderMaterial =
-        Material(graphicsDevice)
+    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): RenderMaterial {
+        require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
+        val material = Material(graphicsDevice)
+        if (renderTarget != null) {
+            val offscreen = renderTarget as OffscreenRenderTarget
+            val sampler = graphicsDevice.wgpuContext.device.createSampler(SamplerDescriptor())
+            material.createResourcesFromRenderTarget(offscreen.colorView, sampler)
+        }
+        return material
+    }
 
     // RenderTargets created on demand by createRenderTarget() -- same ownership pattern as
     // Vulkan's Renderer.createdRenderTargets.
@@ -221,6 +238,13 @@ class Renderer(
         uiGlyphRenderPipeline = UiGlyphRenderPipeline(graphicsDevice, swapchainManager, uiGlyphShaderCode, font)
     }
 
+    /** Builds [uiTextureRenderPipeline] on the first [drawUi] call that has any
+     * [UiDrawPrimitive.Texture] primitives -- cached after that. */
+    private fun ensureTextureQuadPipeline() {
+        if (uiTextureRenderPipeline != null) return
+        uiTextureRenderPipeline = UiTextureRenderPipeline(graphicsDevice, swapchainManager, uiTextureShaderCode)
+    }
+
     private fun ensureUniformResources(pipeline: GPURenderPipeline) {
         if (uniformBuffer != null) return
         val device = graphicsDevice.wgpuContext.device
@@ -250,6 +274,8 @@ class Renderer(
     override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) {
         ensureUiQuadPipeline()
         if (font != null) ensureGlyphPipeline(font)
+        texturePrimitives = primitives.filterIsInstance<UiDrawPrimitive.Texture>()
+        if (texturePrimitives.isNotEmpty()) ensureTextureQuadPipeline()
         val quads = primitives.filterIsInstance<UiDrawPrimitive.Quad>()
         require(quads.size <= MAX_UI_QUADS) {
             "UI quad count (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
@@ -420,7 +446,7 @@ class Renderer(
         // texture view directly). Only recorded once drawUi() has actually built a UI
         // pipeline at least once -- a game that never calls drawUi never pays for this pass.
         val quadPipeline = uiRenderPipeline
-        if (quadPipeline != null && (uiMesh.drawIndexCount > 0 || uiGlyphMesh.drawIndexCount > 0)) {
+        if (quadPipeline != null && (uiMesh.drawIndexCount > 0 || uiGlyphMesh.drawIndexCount > 0 || texturePrimitives.isNotEmpty())) {
             encoder.beginRenderPass(
                 RenderPassDescriptor(
                     colorAttachments = listOf(
@@ -446,6 +472,33 @@ class Renderer(
                     setIndexBuffer(uiGlyphMesh.indexBufferRef(), DynamicMesh.indexFormat)
                     drawIndexed(uiGlyphMesh.drawIndexCount.toUInt())
                 }
+
+                // Render-target-backed textured quads (e.g. a minimap), one draw call per
+                // primitive -- each binds that material's own (lazily-cached) bind group,
+                // see UiTextureRenderPipeline's doc comment for why bind groups are cached
+                // per material instead of rewritten like Vulkan's descriptor set.
+                val texturePipeline = uiTextureRenderPipeline
+                if (texturePipeline != null) {
+                    setPipeline(texturePipeline.pipeline)
+                    var textureIndex = 0
+                    while (textureIndex < texturePrimitives.size) {
+                        val primitive = texturePrimitives[textureIndex]
+                        val material = primitive.material as Material
+                        setBindGroup(0u, texturePipeline.bindGroupFor(material))
+                        val p = primitive
+                        val vertices = floatArrayOf(
+                            p.x, p.y, 0f, 0f, 1f, 1f, 1f, 1f,
+                            p.x + p.w, p.y, 1f, 0f, 1f, 1f, 1f, 1f,
+                            p.x + p.w, p.y + p.h, 1f, 1f, 1f, 1f, 1f, 1f,
+                            p.x, p.y + p.h, 0f, 1f, 1f, 1f, 1f, 1f
+                        )
+                        textureQuadMesh.update(vertices, TEXTURE_QUAD_INDICES)
+                        setVertexBuffer(0u, textureQuadMesh.vertexBufferRef())
+                        setIndexBuffer(textureQuadMesh.indexBufferRef(), DynamicMesh.indexFormat)
+                        drawIndexed(textureQuadMesh.drawIndexCount.toUInt())
+                        textureIndex += 1
+                    }
+                }
                 end()
             }
         }
@@ -459,14 +512,20 @@ class Renderer(
         uniformBindGroup = null
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
+        uiTextureRenderPipeline?.destroy()
         createdRenderTargets.forEach { it.destroy() }
         uiMesh.destroy()
         uiGlyphMesh.destroy()
+        textureQuadMesh.destroy()
         lineMesh.destroy()
     }
 
     private companion object {
         const val MAX_UI_QUADS = 256
         const val MAX_DEBUG_LINES = 64
+
+        /** Triangle-list quad, corners in TL/TR/BR/BL order -- same winding [drawUi]'s own
+         * colored/glyph quads use. */
+        val TEXTURE_QUAD_INDICES = intArrayOf(0, 1, 2, 2, 3, 0)
     }
 }

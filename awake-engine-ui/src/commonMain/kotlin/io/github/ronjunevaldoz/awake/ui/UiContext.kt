@@ -134,6 +134,15 @@ class UiContext {
         }
     }
 
+    /** Draws [material]'s sampled image (typically a `RenderTarget`-backed `Material` --
+     * see [UiDrawPrimitive.Texture]'s doc comment for why this is untyped) as a screen-space
+     * quad at ([x], [y], [w], [h]). Unlike [text]/[button]/[toggle], this has no
+     * hit-testing/interaction state -- purely a draw call, matching the "quad" half of
+     * [UiDrawPrimitive]'s existing kinds. */
+    fun textureQuad(x: Float, y: Float, w: Float, h: Float, material: Any) {
+        primitives += UiDrawPrimitive.Texture(x, y, w, h, material)
+    }
+
     fun endFrame(): List<UiDrawPrimitive> = primitives.toList()
 
     /** Centers [label] (in [font]'s monospace cell metrics) within the ([x], [y], [w], [h])

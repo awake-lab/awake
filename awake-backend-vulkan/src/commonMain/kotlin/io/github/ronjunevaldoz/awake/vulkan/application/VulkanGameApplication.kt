@@ -78,6 +78,8 @@ class VulkanGameApplication(
             readResourceBytes(UI_FRAGMENT_SHADER_RESOURCE_PATH),
             readResourceBytes(UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH),
             readResourceBytes(UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH),
+            readResourceBytes(UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH),
+            readResourceBytes(UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH),
             MAX_FRAMES_IN_FLIGHT
         )
         swapchainManager.createSyncObjects()
@@ -117,6 +119,8 @@ class VulkanGameApplication(
         const val UI_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.frag.spv"
         const val UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.vert.spv"
         const val UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.frag.spv"
+        const val UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_texture.vert.spv"
+        const val UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_texture.frag.spv"
         const val DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/debug_line.vert.spv"
         const val DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/debug_line.frag.spv"
     }

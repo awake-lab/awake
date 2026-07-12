@@ -52,6 +52,15 @@ class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
     var uniformBuffer: BufferHandle = BufferHandle(0)
     var uniformBufferMemory: DeviceMemoryHandle = DeviceMemoryHandle(0)
 
+    /** The sampler/image view this material was built with -- exposed (read-only) so
+     * `UiTextureRenderPipeline` can bind the SAME sampled image into its own (screen-space
+     * quad) descriptor set for on-screen compositing, without re-deriving them from whatever
+     * [Texture]/`OffscreenRenderTarget` this material was created from. */
+    var samplerHandle: Long = 0
+        private set
+    var imageViewHandle: Long = 0
+        private set
+
     init {
         descriptorSetLayout = DescriptorSetLayoutHandle(
             VulkanDescriptors.vkCreateDescriptorSetLayout(
@@ -94,6 +103,8 @@ class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
     }
 
     private fun createResources(sampler: Long, imageView: Long) {
+        samplerHandle = sampler
+        imageViewHandle = imageView
         val bufferSize = (16 * Float.SIZE_BYTES).toLong()
         val rawUniformBuffer = VulkanBuffers.vkCreateBuffer(
             device,
