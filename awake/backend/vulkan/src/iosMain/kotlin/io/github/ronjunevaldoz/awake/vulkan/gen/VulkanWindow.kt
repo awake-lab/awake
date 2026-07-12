@@ -69,4 +69,12 @@ actual object VulkanWindow {
     actual fun glfwGetCursorPos(window: Long): DoubleArray {
         TODO("Not applicable on iOS -- see VulkanWindow.kt's doc comment.")
     }
+
+    actual fun glfwSetScrollCallback(window: Long) {
+        TODO("Not applicable on iOS -- see VulkanWindow.kt's doc comment.")
+    }
+
+    actual fun glfwConsumeScrollDeltaY(window: Long): Double {
+        TODO("Not applicable on iOS -- see VulkanWindow.kt's doc comment.")
+    }
 }

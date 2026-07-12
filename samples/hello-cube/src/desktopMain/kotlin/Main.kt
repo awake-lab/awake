@@ -71,6 +71,12 @@ private fun pollDesktopInput(window: Long) {
         x = cursor[0].toFloat() * scaleX,
         y = cursor[1].toFloat() * scaleY
     )
+
+    // Drains the native scroll accumulator glfwSetScrollCallback (registered once in main(),
+    // right after glfwCreateWindow) feeds -- see Input.scrollDeltaY's doc comment for why
+    // this is a plain assignment (the native getter itself resets to 0) rather than a `+=`:
+    // exactly one poll happens per frame here, so there's nothing to accumulate on top of.
+    Input.scrollDeltaY = VulkanWindow.glfwConsumeScrollDeltaY(window).toFloat()
 }
 
 /**
@@ -106,6 +112,10 @@ fun main() {
     VulkanWindow.glfwWindowHint(0x00022001, 0) // GLFW_CLIENT_API, GLFW_NO_API
     val window = VulkanWindow.glfwCreateWindow(800, 600, "Awake Sample - Hello Cube")
     check(window != 0L) { "glfwCreateWindow returned null" }
+    // Registers GLFW's scroll callback once, before the main loop's first glfwPollEvents --
+    // trackpad pinch-to-zoom (see VulkanWindow.glfwSetScrollCallback's doc comment) surfaces
+    // through this exact callback on macOS.
+    VulkanWindow.glfwSetScrollCallback(window)
 
     val demoCatalog = DemoCatalog()
     val app = VulkanGameApplication(

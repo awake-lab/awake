@@ -64,6 +64,36 @@ object Input {
     @Volatile
     var pointerCapturedByUi: Boolean = false
 
+    /** Accumulated scroll/pinch delta along GLFW's `yoffset` axis (trackpad pinch surfaces
+     * through GLFW's scroll callback on macOS, with a different feel than a mouse wheel but
+     * the same callback/API -- see this project's `.claude/AGENTS.md`), since the last
+     * [consumeScrollDeltaY] call. Unlike [pointerX]/[pointerY] (absolute, re-polled every
+     * frame), this is event-driven: GLFW's scroll callback only fires on an actual scroll/
+     * pinch tick, so deltas must accumulate here between polls rather than being overwritten,
+     * or a single pinch tick landing between two polls would be lost. `@Volatile` for the
+     * same cross-thread-write reason as the other fields in this object, even though in
+     * practice the GLFW scroll callback fires synchronously inside `glfwPollEvents()` on the
+     * same render thread that later reads it (see the class doc comment). Not `private set`
+     * -- the platform polling function (`pollDesktopInput` in `samples/hello-cube`) is the
+     * writer here, same as [setPointer]/[setKeyDown] elsewhere in this file, just expressed
+     * as a plain field instead of a setter function since it accumulates rather than
+     * replaces. */
+    @Volatile
+    var scrollDeltaY: Float = 0f
+
+    /** Drains [scrollDeltaY]: returns the value accumulated since the last call and resets it
+     * to 0f. Exactly one reader should call this per frame (see [OrbitCameraSystem]/
+     * [FreeFlyCameraSystem] -- only one of the two runs its `update()` in a given frame per
+     * the active [io.github.ronjunevaldoz.awake.scene.systems] camera-mode toggle, but this
+     * consume-once contract lives here, in [Input] itself, rather than being a coordination
+     * responsibility each camera system has to remember, so it stays correct even if that
+     * assumption ever changes. */
+    fun consumeScrollDeltaY(): Float {
+        val value = scrollDeltaY
+        scrollDeltaY = 0f
+        return value
+    }
+
     fun isKeyDown(key: Key): Boolean = keysDown.contains(key)
 
     /** Called only by platform input callbacks (GLFW key callback, Android

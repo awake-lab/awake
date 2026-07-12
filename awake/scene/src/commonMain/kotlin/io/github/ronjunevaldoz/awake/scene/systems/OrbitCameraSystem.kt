@@ -37,7 +37,8 @@ class OrbitCameraSystem(
     initialDistance: Float = DEFAULT_DISTANCE,
     private val rotateSpeed: Float = DEFAULT_ROTATE_SPEED,
     private val zoomSpeed: Float = DEFAULT_ZOOM_SPEED,
-    private val autoRotateSpeed: Float = 0f
+    private val autoRotateSpeed: Float = 0f,
+    private val pinchZoomSpeed: Float = DEFAULT_PINCH_ZOOM_SPEED
 ) : System {
     /** Orbit yaw in radians. Public (not just internally mutated by drag/auto-rotate) so a
      * UI slider can both read it (to draw the handle's current position) and write it
@@ -96,6 +97,14 @@ class OrbitCameraSystem(
         if (Input.isKeyDown(Key.W)) distance = (distance - zoomSpeed * delta).coerceAtLeast(MIN_DISTANCE)
         if (Input.isKeyDown(Key.S)) distance += zoomSpeed * delta
 
+        // Trackpad pinch (surfaced through GLFW's scroll callback on macOS -- see
+        // Input.scrollDeltaY's doc comment). Sign convention: GLFW's positive yoffset is
+        // "scroll up" / pinch-out, which this maps to zooming IN (distance decreases),
+        // matching W's existing "zoom in decreases distance" convention above -- the
+        // intuitive default for a trackpad pinch-out gesture (spreading fingers apart, as if
+        // pulling the subject closer).
+        distance = (distance - Input.consumeScrollDeltaY() * pinchZoomSpeed).coerceAtLeast(MIN_DISTANCE)
+
         val cosPitch = cos(pitch)
         val coreCamera = camera.camera
         coreCamera.eye.x = target.position.x + distance * cosPitch * sin(yaw)
@@ -115,6 +124,7 @@ class OrbitCameraSystem(
         const val MIN_DISTANCE = 1f
         private const val DEFAULT_ROTATE_SPEED = 0.01f
         private const val DEFAULT_ZOOM_SPEED = 4f
+        private const val DEFAULT_PINCH_ZOOM_SPEED = 0.5f
         private const val DEFAULT_PITCH = 0.4f
         val MIN_PITCH = (-89.0 * PI / 180.0).toFloat()
         val MAX_PITCH = (89.0 * PI / 180.0).toFloat()

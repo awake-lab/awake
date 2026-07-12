@@ -83,7 +83,12 @@ add_library(awake-vulkan SHARED
 
 target_include_directories(awake-vulkan PRIVATE
         ${JNI_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../tools/jni-binding-generator/scripts)
+        # Fixed stale relative depth left over from the awake-backend-vulkan -> awake/backend/
+        # vulkan module rename (see git history) -- this CMakeLists.txt lives 4 directories
+        # under the repo root (desktop-native/ -> vulkan/ -> backend/ -> awake/ -> root), not
+        # 2, matching the depth already fixed in ../src/main/cpp/CMakeLists.txt (6 levels from
+        # its own, deeper, location) for the same reason.
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../tools/jni-binding-generator/scripts)
 
 target_compile_definitions(awake-vulkan PRIVATE GLFW_INCLUDE_VULKAN)
 

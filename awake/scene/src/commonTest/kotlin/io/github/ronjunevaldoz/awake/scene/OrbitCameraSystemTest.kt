@@ -20,6 +20,7 @@ class OrbitCameraSystemTest {
         Input.clearKeys()
         Input.setPointer(down = false, x = 0f, y = 0f)
         Input.pointerCapturedByUi = false
+        Input.scrollDeltaY = 0f
     }
 
     private fun newCamera() = Camera(
@@ -79,6 +80,24 @@ class OrbitCameraSystemTest {
         assert(distanceAfterZoomOut > distanceAfterZoomIn) {
             "expected zoom-out distance ($distanceAfterZoomOut) > zoom-in distance ($distanceAfterZoomIn)"
         }
+    }
+
+    @Test
+    fun pinchScrollDecreasesDistanceAndIsConsumed() {
+        val world = World()
+        val target = Transform(position = Vec3(0f, 0f, 0f))
+        val camera = newCamera()
+        val system = OrbitCameraSystem(target, camera, initialDistance = 10f, pinchZoomSpeed = 2f)
+
+        Input.scrollDeltaY = 3f
+        system.update(world, 0f)
+
+        assertEquals(4f, system.distance)
+        // Consumed -- a leftover delta must not double-apply on the next frame with no new
+        // scroll input.
+        val distanceAfterConsuming = system.distance
+        system.update(world, 0f)
+        assertEquals(distanceAfterConsuming, system.distance)
     }
 
     @Test

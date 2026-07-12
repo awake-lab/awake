@@ -21,7 +21,8 @@ import kotlin.math.sin
 class FreeFlyCameraSystem(
     private val camera: Camera,
     private val moveSpeed: Float = DEFAULT_MOVE_SPEED,
-    private val rotateSpeed: Float = DEFAULT_ROTATE_SPEED
+    private val rotateSpeed: Float = DEFAULT_ROTATE_SPEED,
+    private val pinchZoomSpeed: Float = DEFAULT_PINCH_ZOOM_SPEED
 ) : System {
     private var yaw: Float = 0f
     private var pitch: Float = 0f
@@ -77,6 +78,15 @@ class FreeFlyCameraSystem(
             moveX -= rightX * step; moveZ -= rightZ * step
         }
 
+        // Trackpad pinch (surfaced through GLFW's scroll callback on macOS -- see
+        // Input.scrollDeltaY's doc comment) dollies the spectator camera forward/back along
+        // its own look direction, same forward vector WASD already uses above. No min-
+        // distance clamp here -- unlike OrbitCameraSystem.distance, this camera has no
+        // orbit target to avoid crossing, so it moves freely, same as WASD movement already
+        // does.
+        val pinchStep = Input.consumeScrollDeltaY() * pinchZoomSpeed
+        moveX += forwardX * pinchStep; moveY += forwardY * pinchStep; moveZ += forwardZ * pinchStep
+
         val coreCamera = camera.camera
         coreCamera.eye.x += moveX
         coreCamera.eye.y += moveY
@@ -89,6 +99,7 @@ class FreeFlyCameraSystem(
     private companion object {
         const val DEFAULT_MOVE_SPEED = 5f
         const val DEFAULT_ROTATE_SPEED = 0.01f
+        const val DEFAULT_PINCH_ZOOM_SPEED = 0.5f
         val MIN_PITCH = (-89.0 * PI / 180.0).toFloat()
         val MAX_PITCH = (89.0 * PI / 180.0).toFloat()
     }

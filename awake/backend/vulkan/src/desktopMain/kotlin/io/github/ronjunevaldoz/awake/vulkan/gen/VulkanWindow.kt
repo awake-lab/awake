@@ -30,4 +30,6 @@ actual object VulkanWindow {
     actual external fun glfwGetKey(window: Long, key: Int): Int
     actual external fun glfwGetMouseButton(window: Long, button: Int): Int
     actual external fun glfwGetCursorPos(window: Long): DoubleArray
+    actual external fun glfwSetScrollCallback(window: Long)
+    actual external fun glfwConsumeScrollDeltaY(window: Long): Double
 }

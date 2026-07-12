@@ -59,4 +59,21 @@ expect object VulkanWindow {
 
     /** Cursor position in screen coordinates as `[x, y]`. */
     fun glfwGetCursorPos(window: Long): DoubleArray
+
+    /** Registers GLFW's scroll callback (`glfwSetScrollCallback`) for [window], which
+     * accumulates every `yoffset` tick (trackpad pinch on macOS surfaces through this exact
+     * callback, with different-feeling deltas than a mouse wheel but the same callback/API)
+     * into a native accumulator -- see [glfwConsumeScrollDeltaY]. Must be called once, after
+     * [glfwCreateWindow] succeeds and before the first [glfwPollEvents] of the main loop; the
+     * callback itself fires synchronously inside `glfwPollEvents()`, same thread, so no
+     * further synchronization is needed once wired (see this project's `.claude/AGENTS.md`
+     * "Threading model" section). This does NOT fit [glfwGetKey]'s polled-getter pattern --
+     * GLFW scroll input is push/callback-based, not a simple state query. */
+    fun glfwSetScrollCallback(window: Long)
+
+    /** Polled getter, same per-frame-poll contract as [glfwGetKey]/[glfwGetCursorPos]:
+     * returns the native scroll accumulator [glfwSetScrollCallback] feeds and resets it to
+     * `0.0`, so a caller polling this once per frame gets exactly the ticks that happened
+     * since its last poll (no double-counting, no dropped ticks between polls). */
+    fun glfwConsumeScrollDeltaY(window: Long): Double
 }

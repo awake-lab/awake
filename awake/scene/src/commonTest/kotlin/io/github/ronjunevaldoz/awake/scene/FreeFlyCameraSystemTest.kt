@@ -19,6 +19,7 @@ class FreeFlyCameraSystemTest {
         Input.clearKeys()
         Input.setPointer(down = false, x = 0f, y = 0f)
         Input.pointerCapturedByUi = false
+        Input.scrollDeltaY = 0f
     }
 
     private fun newCamera() = Camera(
@@ -70,6 +71,27 @@ class FreeFlyCameraSystemTest {
         val dz = center.z - eye.z
         val lookDistance = kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
         assertEquals(1f, lookDistance, absoluteTolerance = 1e-4f)
+    }
+
+    @Test
+    fun pinchScrollDollysEyeAlongForwardAndIsConsumed() {
+        val world = World()
+        val camera = newCamera()
+        val system = FreeFlyCameraSystem(camera, pinchZoomSpeed = 2f)
+
+        // Default yaw/pitch (both 0) points forward along -Z (same convention as
+        // forwardKeyMovesEyeAlongLookDirection).
+        Input.scrollDeltaY = 3f
+        system.update(world, 0f)
+
+        assertEquals(0f, camera.camera.eye.x, absoluteTolerance = 1e-4f)
+        assertEquals(0f, camera.camera.eye.y, absoluteTolerance = 1e-4f)
+        assertEquals(-6f, camera.camera.eye.z, absoluteTolerance = 1e-4f)
+
+        // Consumed -- a leftover delta must not double-apply on the next frame.
+        val eyeZAfterConsuming = camera.camera.eye.z
+        system.update(world, 0f)
+        assertEquals(eyeZAfterConsuming, camera.camera.eye.z, absoluteTolerance = 1e-4f)
     }
 
     @Test
