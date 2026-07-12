@@ -47,11 +47,27 @@ kotlin {
         "-framework", "Foundation",
         "-framework", "UIKit",
     )
+    // Same linker-opts-repetition pattern as MoltenVK above, for JoltC (see
+    // awake/backend/jolt/build.gradle.kts's own comment for why): this module's own static
+    // libs don't propagate through the project() dependency to this app's final framework
+    // link step, so the flags need to be repeated here too.
+    val joltCNativeBuildDir = mapOf(
+        "iosArm64" to project(":awake:backend:jolt").layout.buildDirectory.dir("joltc-native/iosArm64").get().asFile,
+        "iosSimulatorArm64" to project(":awake:backend:jolt").layout.buildDirectory.dir("joltc-native/iosSimulatorArm64").get().asFile,
+    )
+    fun joltCLinkerOpts(targetName: String): List<String> {
+        val nativeBuildDir = joltCNativeBuildDir.getValue(targetName)
+        return listOf(
+            "-L${nativeBuildDir.path}", "-ljoltc",
+            "-L${nativeBuildDir.resolve("JoltPhysics/Build").path}", "-lJolt",
+            "-lc++",
+        )
+    }
     iosArm64 {
         binaries.framework {
             baseName = "Sample"
             isStatic = true
-            linkerOpts(moltenVkLinkerOpts("iosArm64"))
+            linkerOpts(moltenVkLinkerOpts("iosArm64") + joltCLinkerOpts("iosArm64"))
             xcf.add(this)
         }
     }
@@ -59,7 +75,7 @@ kotlin {
         binaries.framework {
             baseName = "Sample"
             isStatic = true
-            linkerOpts(moltenVkLinkerOpts("iosSimulatorArm64"))
+            linkerOpts(moltenVkLinkerOpts("iosSimulatorArm64") + joltCLinkerOpts("iosSimulatorArm64"))
             xcf.add(this)
         }
     }
@@ -119,7 +135,14 @@ kotlin {
                 implementation(project(":awake:backend:jolt"))
             }
         }
-        named("iosMain") { dependsOn(appMain) }
+        named("iosMain") {
+            dependsOn(appMain)
+            dependencies {
+                // JoltPhysicsWorld -- real JoltC-cinterop-backed PhysicsWorld for
+                // PhysicsDemo's falling-cube-onto-ground scene (see PhysicsWorldFactory.ios.kt).
+                implementation(project(":awake:backend:jolt"))
+            }
+        }
 
         named("wasmJsMain") {
             dependencies {

@@ -1,0 +1,17 @@
+package = platform.joltc
+headers = JoltC/JoltC.h
+headerFilter = JoltC/**
+
+# JoltC (SecondHalfGames/JoltC, vendored as a git submodule at ios-native/JoltC) is a plain C
+# wrapper around Jolt Physics (JoltC/JoltCImpl, itself linking JoltC/JoltPhysics -- the same
+# C++ physics engine jolt-jni wraps for the JVM desktop/Android backend in this module). Only
+# JoltC/JoltC.h (which pulls in Enums.h/Functions.h) needs to be exposed here -- it's a pure C
+# API surface (opaque handles + POD structs), no C++ name mangling to worry about, unlike a
+# raw JoltPhysics C++ header would be.
+#
+# ENSURE_TESTS is deliberately left undefined (see JoltC.h) so the ENSURE_EQUAL/ENSURE_ENUM_EQ/
+# ENSURE_SIZE_ALIGN/ENSURE_FIELD/ENSURE_NORMAL_FIELD static_assert macros JoltC's own C++
+# implementation file (JoltCImpl/JoltC.cpp) uses to verify struct-layout compatibility expand
+# to no-ops for cinterop's own header parse -- those checks already ran once, for real, as part
+# of building libjoltc.a itself (see this module's build.gradle.kts comment for how).
+compilerOpts = -DJPC_OBJECT_LAYER_BITS=16

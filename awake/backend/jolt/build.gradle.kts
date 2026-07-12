@@ -34,17 +34,108 @@ kotlin {
         minSdk = (findProperty("android.minSdk") as String).toInt()
     }
 
-    // Jolt Physics integration slice 1 (see docs/MVP_PLAN.md's decision log): jolt-jni
-    // covers desktop+Android for real this slice. iOS (JoltC cinterop) and wasmJs
-    // (JoltPhysics.js) are deferred -- these two targets get an explicit TODO()-throwing
-    // stub `JoltPhysicsWorld` here just so the module compiles on every target, no cinterop
-    // or JS interop of any kind lives here yet.
+    // Jolt Physics integration slice 2 (see docs/MVP_PLAN.md's decision log): real iOS
+    // backend via JoltC (SecondHalfGames/JoltC, a plain-C wrapper around Jolt Physics),
+    // vendored as a git submodule at ios-native/JoltC -- mirrors awake-backend-vulkan's
+    // MoltenVK cinterop precedent (a vendored C/C++ library built from source, not a
+    // committed prebuilt binary). JoltC itself depends on JoltPhysics as its own nested
+    // submodule (ios-native/JoltC/JoltPhysics) and its own CMakeLists.txt builds both
+    // `joltc` (the C wrapper) and `Jolt` (the physics engine itself, via
+    // `add_subdirectory(JoltPhysics/Build)`) as separate static libraries in one configure.
+    // wasmJs (JoltPhysics.js) is still deferred -- that target keeps its explicit
+    // TODO()-throwing stub `JoltPhysicsWorld` just so the module compiles there, no JS
+    // interop of any kind lives here yet.
+    //
+    // One-time setup, from awake/backend/jolt/ios-native/JoltC:
+    //   git submodule update --init --recursive
+    // Then build both target slices (device + simulator) via the Gradle tasks below:
+    //   ./gradlew :awake:backend:jolt:buildJoltCIosArm64 :awake:backend:jolt:buildJoltCIosSimulatorArm64
+    val joltCDir = file("ios-native/JoltC")
+    val joltCBuildDir = mapOf(
+        "iosArm64" to layout.buildDirectory.dir("joltc-native/iosArm64").get().asFile,
+        "iosSimulatorArm64" to layout.buildDirectory.dir("joltc-native/iosSimulatorArm64").get().asFile,
+    )
+    // CMAKE_OSX_SYSROOT per target -- device builds against the iphoneos SDK, the
+    // Apple-Silicon simulator against iphonesimulator; CMake's iOS cross-compile support
+    // (CMAKE_SYSTEM_NAME=iOS) picks the matching clang -isysroot/-arch flags from these two
+    // settings without needing a separate hand-written toolchain file.
+    val joltCSysroot = mapOf(
+        "iosArm64" to "iphoneos",
+        "iosSimulatorArm64" to "iphonesimulator",
+    )
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
+    ).forEach { target ->
+        val targetName = target.name
+        val nativeBuildDir = joltCBuildDir.getValue(targetName)
+        val sysroot = joltCSysroot.getValue(targetName)
+        val capitalizedTargetName = targetName.replaceFirstChar { it.uppercase() }
+
+        val configureTask = tasks.register<Exec>("configureJoltC$capitalizedTargetName") {
+            group = "native"
+            description = "Configure the JoltC iOS ($targetName) native build (CMake) -- " +
+                "run after any JoltC/JoltPhysics source change."
+            doFirst { nativeBuildDir.mkdirs() }
+            commandLine(
+                "cmake",
+                "-S", joltCDir.absolutePath,
+                "-B", nativeBuildDir.absolutePath,
+                "-DCMAKE_SYSTEM_NAME=iOS",
+                "-DCMAKE_OSX_SYSROOT=$sysroot",
+                "-DCMAKE_OSX_ARCHITECTURES=arm64",
+                "-DCMAKE_OSX_DEPLOYMENT_TARGET=13.0",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DUSE_ASSERTS=OFF",
+            )
+        }
+
+        tasks.register<Exec>("buildJoltC$capitalizedTargetName") {
+            group = "native"
+            description = "Build the JoltC + JoltPhysics static libraries for iOS ($targetName) -- " +
+                "manual/on-demand, like desktop-native's buildDesktopNative: CMake configure+build " +
+                "is too slow to run on every Kotlin edit, and these libraries only change when the " +
+                "vendored JoltC/JoltPhysics C++ sources themselves change."
+            dependsOn(configureTask)
+            commandLine(
+                "cmake", "--build", nativeBuildDir.absolutePath,
+                "--target", "joltc", "--", "-j", Runtime.getRuntime().availableProcessors().toString()
+            )
+        }
+
+        // Gradle's binaries.X { linkerOpts(...) } only affects binaries THIS module builds
+        // directly, not a downstream consumer's own final link step -- same lesson already
+        // documented in awake-backend-vulkan/build.gradle.kts for MoltenVK. So the real
+        // linker flags live in a generated per-target .def file (paths differ: each target's
+        // static libs land under a different build dir), not in
+        // target.binaries.framework { linkerOpts(...) }. Generated eagerly at configuration
+        // time (like MoltenVK's own per-target .def) since the linker flags are just build
+        // directory paths -- known before the native libraries are actually built, same as
+        // MoltenVK's own generated .def doesn't need the xcframework to exist yet either.
+        target.binaries.framework {
             baseName = "awake-backend-jolt"
+        }
+        val joltcLibDir = nativeBuildDir
+        val joltLibDir = nativeBuildDir.resolve("JoltPhysics/Build")
+        val generatedDefFile = layout.buildDirectory.file("cinterop/JoltC-$targetName.def").get().asFile
+        generatedDefFile.parentFile.mkdirs()
+        val joltCLinkerOpts = listOf(
+            "-L${joltcLibDir.path}", "-ljoltc",
+            "-L${joltLibDir.path}", "-lJolt",
+            "-lc++",
+        ).joinToString(" ")
+        generatedDefFile.writeText(
+            project.file("src/nativeInterop/cinterop/JoltC.def").readText() +
+                "\nlinkerOpts = $joltCLinkerOpts\n"
+        )
+        target.compilations.getByName("main") {
+            cinterops {
+                create("JoltC") {
+                    defFile(generatedDefFile)
+                    includeDirs(joltCDir)
+                }
+            }
         }
     }
 

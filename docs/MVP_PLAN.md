@@ -2497,6 +2497,101 @@ on a JVM-physics-binding repo mostly reflects a small market, not neglect):
   `awake:base`'s iOS/wasmJs test compilation and `samples:hello-cube`'s spotless check —
   none of which touch physics code) has no new failures from this slice.
 
+**D5 slice 2 (2026-07-12): real iOS `JoltPhysicsWorld` via JoltC cinterop.**
+
+- **Vendored `SecondHalfGames/JoltC`** as a git submodule at
+  `awake/backend/jolt/ios-native/JoltC` (same convention as `awake:backend:vulkan`'s
+  MoltenVK submodule). JoltC itself nests `jrouwe/JoltPhysics` as its own submodule
+  (`ios-native/JoltC/JoltPhysics`) and its own `CMakeLists.txt` builds both `joltc` (the C
+  wrapper) and `Jolt` (the engine itself, via `add_subdirectory(JoltPhysics/Build)`) as
+  separate static libs in one configure — no separate JoltPhysics build step needed.
+- **Built for both iOS target slices via plain CMake iOS cross-compilation**
+  (`-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos|iphonesimulator
+  -DCMAKE_OSX_ARCHITECTURES=arm64`), no separate toolchain file needed (Apple's CMake
+  supports this directly) — new `configureJoltC<Target>`/`buildJoltC<Target>` Gradle tasks
+  in `awake:backend:jolt/build.gradle.kts` (manual/on-demand, same convention as
+  `awake:backend:vulkan`'s `configureDesktopNative`/`buildDesktopNative`), output under
+  `build/joltc-native/<target>/{libjoltc.a, JoltPhysics/Build/libJolt.a}`. Confirmed both
+  slices build clean (Xcode 26.5 / CMake 4.3.2 on this machine).
+- **Cinterop `.def`** (`awake/backend/jolt/src/nativeInterop/cinterop/JoltC.def`) exposes
+  just `JoltC/JoltC.h` (pulls in `Enums.h`/`Functions.h`) — a pure C API surface, no C++
+  name-mangling concerns unlike a raw JoltPhysics header would have. Same static-base-def +
+  per-target-generated-def-with-linkerOpts pattern as MoltenVK (`-ljoltc -lJolt -lc++`,
+  paths pointing at each target's own `build/joltc-native/<target>` dir).
+- **`JoltPhysicsWorld.kt` (iosMain)** mirrors the desktop/Android `jolt-jni` backend's exact
+  semantics: 2 object layers (moving/non-moving) mapped to 1 broadphase layer, tracked
+  body-ID list for batched `syncTransforms`/`destroy`, same gravity default. JoltC's C API
+  differs from jolt-jni's OO one in two structural ways that shaped the Kotlin code:
+  - **Opaque C structs** (`JPC_PhysicsSystem`, `JPC_BodyInterface`, `JPC_Shape`, `JPC_String`,
+    `JPC_JobSystem`, ...) map to `cnames.structs.*`, not `platform.joltc.*` — same as
+    `awake:backend:vulkan`'s `VkBuffer_T`-style opaque Vulkan handles.
+  - **Struct fields that are themselves structs** (e.g. `JPC_BodyCreationSettings.Position`)
+    expose a read-only `val` returning a *live view* into the parent's memory, not a
+    settable `CValue` property — writing one means setting the view's own scalar fields
+    (`.Position.x = ...`), whereas the *same* vector type used as a plain **function
+    parameter** (e.g. `JPC_PhysicsSystem_SetGravity`) *does* take a `CValue<JPC_Vec3>`.
+    `JPC_Vec3.write(Vec3)`/`JPC_Quat.write(...)` extension functions handle the former;
+    `vec3Value(Vec3)`/`quatValue(...)` (via `cValue { }`) handle the latter.
+  - JoltC's `JPC_MotionType` is a real Kotlin `enum class` (entries `JPC_MotionType.
+    JPC_MOTION_TYPE_STATIC` etc., dot-accessed) despite looking identical in the C header to
+    `JPC_Activation`, which cinterop instead represents as a plain `UInt` typealias with
+    top-level `const val`s — an inconsistency discovered only by inspecting the generated
+    klib metadata (`klib dump-metadata`), not documented anywhere obvious in advance.
+  - JoltC's callback-based `BroadPhaseLayerInterfaceFns`/`ObjectVsBroadPhaseLayerFilterFns`/
+    `ObjectLayerPairFilterFns` (C function-pointer tables, no vtable) are filled via
+    top-level `staticCFunction(::fn)` references — this class's 2-object-layer/1-broadphase-
+    layer scheme is a compile-time constant, so no captured state was ever needed.
+  - Added `eulerVec3ToQuatWxyz` to `QuatEuler.kt` (pure function, inverse of the existing
+    `quatToEulerVec3`) since JoltC exposes no `Quat.sEulerAngles`-style helper the way
+    jolt-jni does.
+- **`samples/hello-cube`'s iOS `PhysicsWorldFactory` actual** now constructs a real
+  `JoltPhysicsWorld()` instead of returning `null`; `build.gradle.kts` wires
+  `awake:backend:jolt` into `iosMain` and repeats JoltC's linker flags on the app's own
+  framework link step (same linker-opts-repetition requirement as MoltenVK — flags embedded
+  in a module's own binary don't propagate through a `project()` dependency to a downstream
+  consumer's link step).
+- **Verified:** `:awake:backend:jolt:compileKotlinIosArm64` /
+  `compileKotlinIosSimulatorArm64` and `:samples:hello-cube:compileKotlinIosArm64` /
+  `compileKotlinIosSimulatorArm64` all pass clean. `:samples:hello-cube:
+  assembleSampleDebugXCFramework` (Xcode 26.5, iOS Simulator SDK 26.5) links successfully —
+  JoltC's static libs resolve at the framework's own link step, not just at Kotlin
+  compile time. `awake:backend:jolt:desktopTest` (the existing free-fall regression test)
+  still passes, confirming no regression to the desktop/Android backend.
+  - **Found and fixed, while trying to get an actual simulator run, a real pre-existing bug
+    unrelated to this slice**: `samples/hello-cube/iosApp/iosApp.xcodeproj`'s
+    `LIBRARY_SEARCH_PATHS` for MoltenVK pointed at `$(SRCROOT)/../../awake-backend-vulkan/...`
+    — stale from *two* separate renames (the flat-to-nested `awake-backend-vulkan` →
+    `awake/backend/vulkan` module rename, and `sample-hello-cube` moving under `samples/`),
+    silently broken (Xcode's own live-preview "debug dylib" re-link step needs this path
+    independently of the XCFramework's own already-correct embedded linker flags). Fixed to
+    `$(SRCROOT)/../../../awake/backend/vulkan/...` (3 levels up, matching the current
+    directory depth) for both Debug/Release configs, and added JoltC's equivalent
+    `LIBRARY_SEARCH_PATHS`/`OTHER_LDFLAGS` entries alongside it.
+  - **Real simulator run attempted, got partway, blocked by an unrelated, pre-existing iOS
+    resource-bundling gap — not a JoltC/physics issue**: booted an iPhone 17 Pro simulator,
+    installed and launched the app. Console log shows MoltenVK successfully creating a real
+    `VkInstance`/`VkDevice`/swapchain (3 images, real GPU-backed Metal device) — proof the
+    JoltC-linked binary runs at all — but the app then crashes with `IllegalStateException:
+    Resource not found: .../assets/shader/vulkan/debug_line.vert.spv` inside
+    `VulkanGameApplication.createBackendResources`, before any demo's `render()` loop (and
+    therefore before `PhysicsDemo`'s physics stepping) ever runs. Root cause: `debug_line.
+    {vert,frag}.spv` live under `awake:backend:vulkan`'s own `src/commonMain/resources/`,
+    but `iosApp.xcodeproj`'s Resources build phase only bundles `samples/hello-cube/src/
+    appMain/resources/assets` (confirmed: the built `.app`'s `assets/shader/vulkan/`
+    contains only `triangle.{vert,frag}.spv`) — the exact same class of gap already
+    documented for wasmJs in this doc (D19–D21: a module's own resources don't automatically
+    merge into a downstream consumer's bundled output) and in Phase 0's still-unresolved iOS
+    compile-target backlog, affecting every demo on iOS, not something introduced by this
+    slice. Fixing it (adding another Xcode folder reference, or moving debug-line drawing
+    behind a capability check) is out of scope for this Jolt slice.
+  - **Honest bottom line**: JoltC's cinterop/native-linking integration is verified as far as
+    is possible without that unrelated resource-bundling fix — compiles, links (both into
+    the XCFramework and into the app's own re-link step), and the binary runs far enough to
+    prove the linked JoltC symbols don't themselves crash anything. The specific "cube Y
+    settles" runtime proof (the same bar the desktop free-fall test and this doc's other
+    entries hold to) was **not** obtained this round, and is blocked on the resource-bundling
+    gap above, not on anything Jolt/JoltC-specific.
+
 **D5 slice 2 (2026-07-12): ECS wiring (`PhysicsBody`/`PhysicsSystem`) + `sample-hello-cube`
 falling-cube demo.**
 

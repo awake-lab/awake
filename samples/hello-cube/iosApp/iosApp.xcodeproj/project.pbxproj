@@ -328,16 +328,22 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
 					"$(inherited)",
-					"$(SRCROOT)/../../awake-backend-vulkan/ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64",
+					"$(SRCROOT)/../../../awake/backend/vulkan/ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64",
+					"$(SRCROOT)/../../../awake/backend/jolt/build/joltc-native/iosArm64",
+					"$(SRCROOT)/../../../awake/backend/jolt/build/joltc-native/iosArm64/JoltPhysics/Build",
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
 					"$(inherited)",
-					"$(SRCROOT)/../../awake-backend-vulkan/ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64_x86_64-simulator",
+					"$(SRCROOT)/../../../awake/backend/vulkan/ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64_x86_64-simulator",
+					"$(SRCROOT)/../../../awake/backend/jolt/build/joltc-native/iosSimulatorArm64",
+					"$(SRCROOT)/../../../awake/backend/jolt/build/joltc-native/iosSimulatorArm64/JoltPhysics/Build",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lMoltenVK",
 					"-lc++",
+					"-ljoltc",
+					"-lJolt",
 					"-framework",
 					Metal,
 					"-framework",
@@ -376,16 +382,22 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
 					"$(inherited)",
-					"$(SRCROOT)/../../awake-backend-vulkan/ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64",
+					"$(SRCROOT)/../../../awake/backend/vulkan/ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64",
+					"$(SRCROOT)/../../../awake/backend/jolt/build/joltc-native/iosArm64",
+					"$(SRCROOT)/../../../awake/backend/jolt/build/joltc-native/iosArm64/JoltPhysics/Build",
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
 					"$(inherited)",
-					"$(SRCROOT)/../../awake-backend-vulkan/ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64_x86_64-simulator",
+					"$(SRCROOT)/../../../awake/backend/vulkan/ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64_x86_64-simulator",
+					"$(SRCROOT)/../../../awake/backend/jolt/build/joltc-native/iosSimulatorArm64",
+					"$(SRCROOT)/../../../awake/backend/jolt/build/joltc-native/iosSimulatorArm64/JoltPhysics/Build",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lMoltenVK",
 					"-lc++",
+					"-ljoltc",
+					"-lJolt",
 					"-framework",
 					Metal,
 					"-framework",
