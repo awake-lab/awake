@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
 import io.github.ronjunevaldoz.awake.core.math.Frustum
+import io.github.ronjunevaldoz.awake.core.math.Grid
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.engine.application.Game
@@ -57,6 +58,12 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
     private lateinit var orbitCameraSystem: OrbitCameraSystem
     private lateinit var freeFlyCameraSystem: FreeFlyCameraSystem
     private var showFrustum = false
+
+    // Reference/floor grid on the XZ plane at y=0 -- this demo has no ground mesh (a single
+    // static cube, no floor), but a subtle spatial reference grid is still useful for judging
+    // orbit distance/orientation. Reuses Renderer.drawDebugLines, same as showFrustum -- see
+    // Grid's own doc comment.
+    private var showGrid = false
 
     // Minimap: proof that RenderTarget compositing (Renderer.renderToTexture +
     // UiContext.textureQuad) actually renders on screen, not just a clear color -- an
@@ -190,13 +197,23 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         }
 
         showFrustum = ui.toggle("show-frustum", 200f, 70f, 100f, 32f, showFrustum, "FRUSTUM", font)
-        if (showFrustum) {
-            val corners = Frustum.corners(homeCameraSnapshot, aspectRatio)
-            val lines = Frustum.EDGES.map { (a, b) -> LineSegment(corners[a], corners[b], FRUSTUM_COLOR) }
-            renderer.drawDebugLines(lines)
+        showGrid = ui.toggle("show-grid", 320f, 70f, 100f, 32f, showGrid, "GRID", font)
+        // drawDebugLines stages (replaces, doesn't accumulate) the lines for the next draw()
+        // call -- see its own doc comment -- so both toggles' lines must be combined into one
+        // call rather than each calling drawDebugLines separately (a second call would
+        // overwrite the first's lines rather than adding to them).
+        val debugLines = buildList {
+            if (showFrustum) {
+                val corners = Frustum.corners(homeCameraSnapshot, aspectRatio)
+                addAll(Frustum.EDGES.map { (a, b) -> LineSegment(corners[a], corners[b], FRUSTUM_COLOR) })
+            }
+            if (showGrid) {
+                addAll(Grid.lines(size = GRID_SIZE, divisions = GRID_DIVISIONS).map { (a, b) -> LineSegment(a, b, GRID_COLOR) })
+            }
         }
+        renderer.drawDebugLines(debugLines)
 
-        showMinimap = ui.toggle("show-minimap", 320f, 70f, 100f, 32f, showMinimap, "MINIMAP", font)
+        showMinimap = ui.toggle("show-minimap", 440f, 70f, 100f, 32f, showMinimap, "MINIMAP", font)
         if (showMinimap) {
             renderer.renderToTexture(minimapTarget, minimapCamera, sampleDrawCalls())
             val size = MINIMAP_SIZE.toFloat()
@@ -269,6 +286,11 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         // Radians/second -- a full 2*PI orbit takes about 21 seconds at this speed.
         private const val AUTO_ROTATE_SPEED = 0.3f
         private val FRUSTUM_COLOR = floatArrayOf(1f, 0.9f, 0.2f, 1f)
+        // Dim gray, deliberately subtle -- shouldn't fight the cube's colorful face gradient
+        // or the frustum's yellow wireframe.
+        private val GRID_COLOR = floatArrayOf(0.4f, 0.4f, 0.4f, 1f)
+        private const val GRID_SIZE = 10f
+        private const val GRID_DIVISIONS = 10
         private const val MINIMAP_SIZE = 160
 
         // Upper bound for the orbit-zoom slider -- well past OrbitCameraSystem's own

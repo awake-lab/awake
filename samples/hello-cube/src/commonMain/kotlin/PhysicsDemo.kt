@@ -1,6 +1,7 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
 import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
+import io.github.ronjunevaldoz.awake.core.math.Grid
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.physics.BoxShape
@@ -8,6 +9,7 @@ import io.github.ronjunevaldoz.awake.physics.MotionType
 import io.github.ronjunevaldoz.awake.physics.PhysicsWorld
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
@@ -15,6 +17,8 @@ import io.github.ronjunevaldoz.awake.scene.components.PhysicsBody
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRuntime
 import io.github.ronjunevaldoz.awake.scene.systems.PhysicsSystem
+import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 
 /**
  * A dedicated Jolt Physics demo -- a static ground box and a dynamic cube dropped from a
@@ -32,11 +36,13 @@ import io.github.ronjunevaldoz.awake.scene.systems.PhysicsSystem
  * platforms this demo still loads/renders the scene (ground + cube at rest height) but never
  * steps physics, so it degrades to a static diorama instead of crashing.
  *
- * Unlike [CubeDemo], this demo has no widgets of its own, so (unlike [CubeDemo]) it doesn't
- * take [io.github.ronjunevaldoz.awake.ui.UiContext]/[io.github.ronjunevaldoz.awake.ui.font.BitmapFont]
- * from [DemoCatalog] -- nothing here calls into either.
+ * Takes [ui]/[font] from [DemoCatalog], same as [CubeDemo] does -- this is the first widget
+ * [PhysicsDemo] needs (a GRID toggle for the reference floor grid), so it now needs the same
+ * shared [UiContext]/[BitmapFont] instance [CubeDemo] already appends its own widgets to (see
+ * [CubeDemo]'s own doc comment for why only [DemoCatalog] may call `ui.beginFrame`/
+ * `renderer.drawUi`).
  */
-class PhysicsDemo : Game, DebugReadout, DebugCameraTarget {
+class PhysicsDemo(private val ui: UiContext, private val font: BitmapFont) : Game, DebugReadout, DebugCameraTarget {
     private val fixedTimestepLoop = FixedTimestepLoop()
 
     private lateinit var renderer: Renderer
@@ -49,6 +55,12 @@ class PhysicsDemo : Game, DebugReadout, DebugCameraTarget {
     private var physicsSystem: PhysicsSystem? = null
 
     private lateinit var cubeTransform: Transform
+
+    // Reference/floor grid at the ground plane's top surface (ground's authored
+    // position.y=-0.25 + half its scale.y=0.25 == 0f, see physics.scene.json) -- makes the
+    // ground box's extent and the falling cube's landing spot easier to judge visually.
+    // Off by default, same as CubeDemo's own toggles.
+    private var showGrid = false
 
     // Logs the falling cube's Y position once a second (not every frame) -- enough to
     // observe it fall then settle, matching DemoCatalog's own "log HUD state once a second"
@@ -104,6 +116,18 @@ class PhysicsDemo : Game, DebugReadout, DebugCameraTarget {
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
+        showGrid = ui.toggle("show-grid", 20f, 70f, 100f, 32f, showGrid, "GRID", font)
+        // Always call drawDebugLines (with an empty list when off) rather than only when
+        // showGrid is true -- drawDebugLines replaces (doesn't accumulate) the staged lines
+        // each call, see its own doc comment, so skipping the call on the "off" frame would
+        // leave the previous frame's grid lines staged and re-drawn indefinitely.
+        val lines = if (showGrid) {
+            Grid.lines(size = GRID_SIZE, divisions = GRID_DIVISIONS).map { (a, b) -> LineSegment(a, b, GRID_COLOR) }
+        } else {
+            emptyList()
+        }
+        renderer.drawDebugLines(lines)
+
         fixedTimestepLoop.advance(
             frameDelta = delta,
             fixedUpdate = { step ->
@@ -146,5 +170,12 @@ class PhysicsDemo : Game, DebugReadout, DebugCameraTarget {
 
     companion object {
         private const val SCENE_PATH = "scenes/physics.scene.json"
+
+        // Matches physics.scene.json's ground node scale (10x10 on X/Z) -- the grid spans
+        // exactly the ground box's footprint.
+        private const val GRID_SIZE = 10f
+        private const val GRID_DIVISIONS = 10
+        // Dim gray, same subtle-reference-line color CubeDemo's own grid toggle uses.
+        private val GRID_COLOR = floatArrayOf(0.4f, 0.4f, 0.4f, 1f)
     }
 }

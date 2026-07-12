@@ -50,9 +50,10 @@ class DemoCatalog : Game {
 
     private val demos: List<Pair<String, () -> Game>> = listOf(
         "CUBE" to { CubeDemo(ui, font) },
-        // PhysicsDemo takes no (ui, font) -- see its own doc comment for why it doesn't need
-        // either. Each factory closure defers construction until actually selected.
-        "PHYSICS" to { PhysicsDemo() }
+        // PhysicsDemo now also takes (ui, font) -- its GRID toggle needs the same shared
+        // UiContext/BitmapFont instance CubeDemo already appends its own widgets to. Each
+        // factory closure defers construction until actually selected.
+        "PHYSICS" to { PhysicsDemo(ui, font) }
     )
 
     private var currentIndex = 0
