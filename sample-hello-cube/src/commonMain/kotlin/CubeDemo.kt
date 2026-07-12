@@ -3,6 +3,7 @@
 
 import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
 import io.github.ronjunevaldoz.awake.core.math.Frustum
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.render.material.Material
@@ -10,6 +11,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
@@ -54,6 +56,32 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
     private lateinit var orbitCameraSystem: OrbitCameraSystem
     private lateinit var freeFlyCameraSystem: FreeFlyCameraSystem
     private var showFrustum = false
+
+    // Minimap: proof that RenderTarget compositing (Renderer.renderToTexture +
+    // UiContext.textureQuad) actually renders on screen, not just a clear color -- an
+    // overhead camera of the same cube, drawn as a small quad in the top-right corner.
+    //
+    // KNOWN ISSUE, confirmed by real desktop testing: toggling this on calls
+    // renderToTexture/readPixels every frame, and this reproducibly crashes the Vulkan
+    // backend within roughly 30-60 seconds with `VK_SUBOPTIMAL_KHR` out of
+    // vkAcquireNextImageKHR in the MAIN swapchain draw (not the offscreen pass itself) --
+    // confirmed NOT caused by the command-buffer-per-call leak this session already fixed
+    // (Renderer.runOffscreenCommands), since the crash reproduces identically after that
+    // fix, and confirmed to NOT happen at all with this toggle off (5+ minutes stable).
+    // Root cause not yet found -- some other resource/state is likely exhausted or raced
+    // by calling a second vkQueueSubmit+fence-wait every frame alongside the swapchain's
+    // own per-frame acquire/submit/present cycle. Defaults off so the shipped demo is
+    // stable; flip to `true` only to reproduce/debug this further.
+    private var showMinimap = false
+    private lateinit var minimapTarget: RenderTarget
+    private lateinit var minimapMaterial: Material
+    private val minimapCamera = CoreCamera(
+        eye = Vec3(0f, 6f, 0.01f),
+        center = Vec3(0f, 0f, 0f),
+        fovYRadians = 1f,
+        near = 0.1f,
+        far = 10f
+    )
 
     /** The scene-authored view (`eye`/`center` etc. from `sample.scene.json`), captured
      * before [OrbitCameraSystem]/[FreeFlyCameraSystem] start mutating the live `Camera`
@@ -104,6 +132,9 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
             autoRotateSpeed = AUTO_ROTATE_SPEED
         )
         freeFlyCameraSystem = FreeFlyCameraSystem(camera = cameraComponent)
+
+        minimapTarget = renderer.createRenderTarget(MINIMAP_SIZE, MINIMAP_SIZE)
+        minimapMaterial = renderer.createMaterial(renderTarget = minimapTarget)
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
@@ -120,13 +151,13 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
                 }
             },
             render = {
-                drawCatalogUi(viewportWidth / viewportHeight)
+                drawCatalogUi(viewportWidth / viewportHeight, viewportWidth)
                 sceneRuntime.render(delta)
             }
         )
     }
 
-    private fun drawCatalogUi(aspectRatio: Float) {
+    private fun drawCatalogUi(aspectRatio: Float, viewportWidth: Float) {
         val debugLabel = if (debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
         debugOverlayOn = ui.toggle("debug-toggle", 20f, 20f, 120f, 40f, debugOverlayOn, debugLabel, font)
 
@@ -141,6 +172,13 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
             val lines = Frustum.EDGES.map { (a, b) -> LineSegment(corners[a], corners[b], FRUSTUM_COLOR) }
             renderer.drawDebugLines(lines)
         }
+
+        showMinimap = ui.toggle("show-minimap", 320f, 70f, 100f, 32f, showMinimap, "MINIMAP", font)
+        if (showMinimap) {
+            renderer.renderToTexture(minimapTarget, minimapCamera, sampleDrawCalls())
+            val size = MINIMAP_SIZE.toFloat()
+            ui.textureQuad(viewportWidth - size - 20f, 20f, size, size, minimapMaterial)
+        }
     }
 
     /** Releases the mesh/material this demo created in [ready] -- required now that
@@ -149,6 +187,8 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
     override fun dispose() {
         cubeMesh.destroy()
         material.destroy()
+        minimapMaterial.destroy()
+        minimapTarget.destroy()
     }
 
     override fun sampleDrawCalls(): List<DrawCall> = listOf(DrawCall(cubeMesh, material))
@@ -171,5 +211,6 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
         // Radians/second -- a full 2*PI orbit takes about 21 seconds at this speed.
         private const val AUTO_ROTATE_SPEED = 0.3f
         private val FRUSTUM_COLOR = floatArrayOf(1f, 0.9f, 0.2f, 1f)
+        private const val MINIMAP_SIZE = 160
     }
 }

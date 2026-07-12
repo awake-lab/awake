@@ -39,6 +39,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFenceCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFramebufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageLayout2
@@ -108,6 +109,16 @@ class Renderer(
     private var depthImage: Long = 0
     private var depthImageMemory: Long = 0
     private var depthImageView: Long = 0
+
+    // Reused every call by renderToTexture()/readPixels() -- NOT transferContext
+    // .runOneTimeCommands(), which allocates a fresh command buffer from the shared pool
+    // and never frees it (fine for its own callers, a handful of one-time uploads at
+    // startup, but renderToTexture is expected to run every frame for e.g. a minimap, and
+    // that leak destabilized the whole Vulkan instance within under a minute of real
+    // testing -- confirmed by a real desktop run crashing with VK_SUBOPTIMAL_KHR after
+    // ~1500-3000 leaked command buffers). Built lazily on first use.
+    private var offscreenCommandBuffer: Long = 0
+    private var offscreenFence: Long = 0
     private var framebuffers: List<Long> = emptyList()
     private var commandBuffers: LongArray = LongArray(maxFramesInFlight)
 
@@ -218,7 +229,7 @@ class Renderer(
             drawIndex += 1
         }
 
-        transferContext.runOneTimeCommands { commandBuffer ->
+        runOffscreenCommands { commandBuffer ->
             val renderPassInfo = VkRenderPassBeginInfo(
                 renderPass = renderPipeline.renderPass,
                 framebuffer = offscreen.framebuffer,
@@ -264,7 +275,7 @@ class Renderer(
 
         val pixels: ByteArray
         try {
-            transferContext.runOneTimeCommands { commandBuffer ->
+            runOffscreenCommands { commandBuffer ->
                 VulkanImages.vkTransitionImageLayout(
                     commandBuffer,
                     offscreen.colorImage,
@@ -421,6 +432,39 @@ class Renderer(
         for (i in 0 until maxFramesInFlight) {
             commandBuffers[i] = Vulkan.vkAllocateCommandBuffers(device, allocInfo)
         }
+    }
+
+    /** [renderToTexture]/[readPixels]'s own one-time-command runner -- see
+     * [offscreenCommandBuffer]'s doc comment for why this doesn't use
+     * `transferContext.runOneTimeCommands`. Allocates its command buffer/fence once, on
+     * first use, then resets and reuses both every call after that. */
+    private fun runOffscreenCommands(block: (Long) -> Unit) {
+        if (offscreenCommandBuffer == 0L) {
+            offscreenCommandBuffer = Vulkan.vkAllocateCommandBuffers(
+                device,
+                VkCommandBufferAllocateInfo(
+                    commandPool = transferContext.commandPool.handle,
+                    level = VkCommandBufferLevel.VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                    commandBufferCount = 1
+                )
+            )
+            offscreenFence = Vulkan.vkCreateFence(device, VkFenceCreateInfo())
+        }
+        Vulkan.vkResetCommandBuffer(offscreenCommandBuffer, 0)
+        Vulkan.vkBeginCommandBuffer(
+            offscreenCommandBuffer,
+            VkCommandBufferBeginInfo(flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value)
+        )
+        block(offscreenCommandBuffer)
+        Vulkan.vkEndCommandBuffer(offscreenCommandBuffer)
+
+        Vulkan.vkResetFences(device, longArrayOf(offscreenFence))
+        Vulkan.vkQueueSubmit(
+            graphicsQueue,
+            arrayOf(VkSubmitInfo(pCommandBuffers = arrayOf(offscreenCommandBuffer))),
+            offscreenFence
+        )
+        Vulkan.vkWaitForFences(device, longArrayOf(offscreenFence), true, Long.MAX_VALUE)
     }
 
     /** Renders one frame: waits for this frame-in-flight slot, acquires a swapchain image,
@@ -761,6 +805,7 @@ class Renderer(
         fontTexture?.destroy()
         createdTextures.forEach { it.destroy() }
         createdRenderTargets.forEach { it.destroy() }
+        if (offscreenFence != 0L) Vulkan.vkDestroyFence(device, offscreenFence)
         uiMesh.destroy()
         uiGlyphMesh.destroy()
         lineMesh.destroy()

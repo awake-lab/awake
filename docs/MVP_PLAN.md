@@ -2329,6 +2329,79 @@ need to be optional/composable under the hood; they weren't).
   `debug_line.wgsl` 404 flagged in D20 (unrelated to this change; the file exists on disk,
   the dev server just doesn't serve it — separate follow-up, not fixed here).
 
+### D22 — Offscreen render-to-texture (`RenderTarget`): CPU readback + on-screen compositing
+
+**Decided (2026-07-12): `Renderer` gains `createRenderTarget`/`renderToTexture`/`readPixels`
+plus a `renderTarget` param on `createMaterial`, so a game can render a scene into an
+offscreen GPU texture instead of the swapchain/canvas — for future golden-image testing
+(CPU pixel readback) and on-screen compositing (minimap/portal-camera quads).**
+
+Landed in 3 slices:
+
+1. **`RenderTarget` interface + Vulkan implementation.** `RenderTarget` (narrow, like
+   `Mesh`/`Material` — no raw GPU handle crosses the module boundary) lives in
+   `awake-engine-render-api` alongside the extended `Renderer` signatures. Vulkan's
+   `OffscreenRenderTarget` reuses the existing swapchain `renderPipeline`/render pass
+   unmodified by giving the offscreen color image the SAME format as the swapchain
+   (`swapchainManager.imageFormat`), rather than forcing `R8G8B8A8_UNORM` — Vulkan requires
+   a framebuffer's attachment format to exactly match the render pass it's used with, so a
+   different format would have forced building an entire second render pass + graphics
+   pipeline. CPU readback needed two new native Vulkan bindings
+   (`VulkanBuffers.readBufferMemoryBytes`, `VulkanImages.vkCmdCopyImageToBuffer`, both
+   hand-written JNI C++ mirroring the existing upload-direction bindings) plus three new
+   `vkTransitionImageLayout` cases (`COLOR_ATTACHMENT_OPTIMAL` ↔ `SHADER_READ_ONLY_OPTIMAL`
+   ↔ `TRANSFER_SRC_OPTIMAL`). Verified via a real desktop run: `createRenderTarget` →
+   `renderToTexture` (clear only) → `readPixels` returned the exact clear color.
+2. **iOS + WebGPU real implementations.** iOS: the same two native operations via direct
+   MoltenVK cinterop (mirrors `writeBufferMemoryBytes`/`vkCmdCopyBufferToImage`'s existing
+   pattern), plus the same three transition cases. WebGPU: a real `GPUTexture`-based
+   `OffscreenRenderTarget`, `mapAsync`/`getMappedRange` readback with WebGPU's mandatory
+   256-byte `bytesPerRow` padding stripped back out before returning a tightly-packed
+   `TextureAsset`. Verified end-to-end on desktop: rendering `CubeDemo`'s actual cube (not
+   just a clear color) into a 128×128 target and saving the readback via a new
+   `saveDebugPng` helper (desktop-only, `javax.imageio`) produced a real, visually-confirmed
+   image of the cube from a second camera angle.
+3. **On-screen compositing (`UiDrawPrimitive.Texture`/`UiContext.textureQuad`).**
+   `awake-engine-render-api` already depends on `awake-engine-ui` (`Renderer.drawUi` takes
+   `List<UiDrawPrimitive>`), so `UiDrawPrimitive.Texture` carries its material as `Any`
+   rather than the `Material` interface, to avoid a module dependency cycle — each backend
+   casts it back to its own concrete `Material`, the same "opaque handle" pattern
+   `DrawCall.mesh`/`.material` already use across that boundary. Vulkan: a fourth UI
+   pipeline (`UiTextureRenderPipeline`) with ONE shared descriptor set, rewritten via
+   `vkUpdateDescriptorSetImage` immediately before each quad's draw call — safe because
+   this codebase already fully serializes frames. WebGPU: bind groups are immutable once
+   created, so that backend instead caches one bind group per distinct `Material`; this
+   also required the minimum `Material`/`Texture` completion needed to expose a render
+   target's view+sampler for this path specifically (the general 3D `DrawCall.material`
+   texture-binding case remains out of scope — it'd need the shared cube shader to declare
+   a second bind group, real scope creep beyond offscreen rendering itself).
+
+**Bug found + fixed during this work**: `TransferContext.runOneTimeCommands` allocates a
+fresh command buffer from the shared pool on every call and never frees it — fine for its
+existing callers (a handful of one-time uploads at startup), but `renderToTexture` calling
+it every frame (as a live minimap would) leaked a command buffer every frame and
+destabilized the Vulkan instance within under a minute of real testing (confirmed by a
+real desktop run crashing with `VK_SUBOPTIMAL_KHR`). Fixed by giving `Renderer` its own
+`runOffscreenCommands`, which allocates its command buffer/fence once and reuses both
+every call, instead of going through `TransferContext`.
+
+**Known remaining issue, NOT fixed**: even after that leak fix, calling
+`renderToTexture`/`readPixels` every single frame (e.g. a live-updating minimap) still
+reproducibly crashes the Vulkan backend within ~30-60 seconds with the same
+`VK_SUBOPTIMAL_KHR` error — confirmed via real desktop testing to be specific to the
+per-frame offscreen render (5+ minutes stable with it off, crashes consistently with it on
+every frame). Root cause not yet found. `sample-hello-cube`'s `CubeDemo` has a `MINIMAP`
+toggle wired to reproduce this on demand, defaulting off so the shipped demo is stable.
+Infrequent/one-shot `RenderTarget` usage (the golden-image-testing use case, and the PNG
+sample-test proof above) is fully verified stable — this issue is specific to the
+"render every frame" on-screen-compositing use case.
+
+- **Verified**: all 5 `sample-hello-cube` targets (desktop, `androidApp`, iOS, wasmJs)
+  compile clean across all 3 slices; `awake-scene:desktopTest` passes. Real desktop runs
+  confirmed the readback pipeline (exact clear color, then a real rendered cube image) and
+  no regression to the existing demo (HUD/toggle/dropdown/frustum) — see the known-issue
+  note above for the one limitation surfaced by testing that remains open.
+
 ### D5 — Physics engine
 **Decided (2026-07-07): Jolt Physics for 3D, post-MVP (Phase 8).**
 - Jolt (MIT, C++) over Bullet (aging), PhysX (heavyweight), Rapier (Rust toolchain cost).
