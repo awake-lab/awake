@@ -35,6 +35,10 @@ recast4j = "1.5.11"
 jolt-jni = "5.2.0"
 snaploader = "1.1.1-stable"
 oshi-core = "7.4.0"
+# Desktop-only Ktor WebSocket debug-control channel for sample-hello-cube (see
+# docs/MVP_PLAN.md's debug-control-channel decision log entry) -- 3.5.1 is the latest stable
+# release compatible with this repo's Kotlin 2.4.0 (Ktor 3.x requires Kotlin 2.0+).
+ktor = "3.5.1"
 
 [libraries]
 wgpu4k = { module = "io.ygdrasil:wgpu4k", version.ref = "wgpu4k" }
@@ -94,6 +98,13 @@ jolt-jni-android = { module = "com.github.stephengold:jolt-jni-Android", version
 snaploader = { module = "io.github.electrostat-lab:snaploader", version.ref = "snaploader" }
 # snaploader's own platform-detection dependency (see its "add to an existing project" doc).
 oshi-core = { module = "com.github.oshi:oshi-core", version.ref = "oshi-core" }
+# Desktop-only debug-control WebSocket server (sample-hello-cube's DebugControlServer) --
+# CIO engine chosen over Netty for fewer transitive deps, since this is a single dev-tooling
+# endpoint, not a production server.
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
+ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

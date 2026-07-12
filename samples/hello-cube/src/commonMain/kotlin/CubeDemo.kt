@@ -37,7 +37,8 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
  * demo just appends its own widgets to the same [ui] instance [DemoCatalog]'s own
  * demo-picker dropdown already staged this frame.
  */
-class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, DebugReadout, OffscreenPreviewSource {
+class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
+    Game, DebugReadout, OffscreenPreviewSource, DebugCameraTarget {
     private val fixedTimestepLoop = FixedTimestepLoop()
 
     private lateinit var renderer: Renderer
@@ -207,6 +208,15 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game, 
     }
 
     private fun Float.format1(): String = (kotlin.math.round(this * 10f) / 10f).toString()
+
+    override fun getCameraEye(): Vec3 = cameraComponent.camera.eye
+    override fun setCameraEye(eye: Vec3) {
+        cameraComponent.camera.eye = eye
+    }
+    override fun getCameraCenter(): Vec3 = cameraComponent.camera.center
+    override fun setCameraCenter(center: Vec3) {
+        cameraComponent.camera.center = center
+    }
 
     private enum class CameraMode { ORBIT, FREE_FLY }
 

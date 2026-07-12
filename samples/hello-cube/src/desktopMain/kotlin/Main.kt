@@ -3,6 +3,7 @@
 import io.github.ronjunevaldoz.awake.core.application.DesktopGameLoop
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
 
@@ -83,27 +84,56 @@ private fun pollDesktopInput(window: Long) {
  * `EngineConfigHolder.config` without it, and a Vulkan-only sample has no reason to depend
  * on the OpenGL module at all.
  */
+/** Applies one drained [DebugCommand] to [demoCatalog] -- called from `main()`'s per-frame
+ * loop, on the render thread (see [DebugControlServer]'s own doc comment for why this must
+ * never happen from the WebSocket handler coroutine directly). [DebugCommand.GetState] needs
+ * no mutation -- the caller always reads a fresh [DemoCatalog.debugSnapshot] afterward
+ * regardless of which command ran. */
+private fun applyDebugCommand(demoCatalog: DemoCatalog, command: DebugCommand) {
+    when (command) {
+        is DebugCommand.SwitchDemo -> demoCatalog.debugSwitchDemo(command.index)
+        is DebugCommand.SetCameraEye -> demoCatalog.debugSetCameraEye(Vec3(command.x, command.y, command.z))
+        is DebugCommand.SetCameraCenter -> demoCatalog.debugSetCameraCenter(Vec3(command.x, command.y, command.z))
+        DebugCommand.GetState -> Unit
+    }
+}
+
 fun main() {
     check(VulkanWindow.glfwInit()) { "glfwInit failed" }
     VulkanWindow.glfwWindowHint(0x00022001, 0) // GLFW_CLIENT_API, GLFW_NO_API
     val window = VulkanWindow.glfwCreateWindow(800, 600, "Awake Sample - Hello Cube")
     check(window != 0L) { "glfwCreateWindow returned null" }
 
+    val demoCatalog = DemoCatalog()
     val app = VulkanGameApplication(
         vertexShaderResourcePath = "assets/shader/vulkan/triangle.vert.spv",
         fragmentShaderResourcePath = "assets/shader/vulkan/triangle.frag.spv",
         vertexStride = sampleVertexStride,
-        game = DemoCatalog()
+        game = demoCatalog
     )
     app.create(window)
+
+    // Desktop-only debug-control channel (see DebugControlServer.kt) -- lets an AI agent
+    // drive/inspect this running demo over a WebSocket instead of simulating mouse input on
+    // a real GLFW window. Started only after app.create(window) so the first getState
+    // already reflects a fully-initialized demo.
+    val debugServer = DebugControlServer()
+    debugServer.start()
 
     while (!VulkanWindow.glfwWindowShouldClose(window)) {
         VulkanWindow.glfwPollEvents()
         pollDesktopInput(window)
+        // Drain+apply queued debug commands here -- same render thread as app.update(...)
+        // below, per this project's "one thread owns every Vulkan call" rule.
+        debugServer.drainCommands().forEach { (command, deferred) ->
+            applyDebugCommand(demoCatalog, command)
+            deferred.complete(demoCatalog.debugSnapshot())
+        }
         DesktopGameLoop.startLoop { deltaTime ->
             app.update(deltaTime.toFloat())
         }
     }
 
+    debugServer.stop()
     app.dispose()
 }

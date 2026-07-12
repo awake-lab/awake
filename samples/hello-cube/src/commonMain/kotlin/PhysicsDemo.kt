@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.physics.PhysicsWorld
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.PhysicsBody
 import io.github.ronjunevaldoz.awake.scene.components.Transform
@@ -35,13 +36,14 @@ import io.github.ronjunevaldoz.awake.scene.systems.PhysicsSystem
  * take [io.github.ronjunevaldoz.awake.ui.UiContext]/[io.github.ronjunevaldoz.awake.ui.font.BitmapFont]
  * from [DemoCatalog] -- nothing here calls into either.
  */
-class PhysicsDemo : Game, DebugReadout {
+class PhysicsDemo : Game, DebugReadout, DebugCameraTarget {
     private val fixedTimestepLoop = FixedTimestepLoop()
 
     private lateinit var renderer: Renderer
     private lateinit var sceneRuntime: SceneRuntime
     private lateinit var cubeMesh: Mesh
     private lateinit var material: Material
+    private lateinit var cameraComponent: Camera
 
     private var physicsWorld: PhysicsWorld? = null
     private var physicsSystem: PhysicsSystem? = null
@@ -70,9 +72,12 @@ class PhysicsDemo : Game, DebugReadout {
             ?: error("physics.scene.json is missing a root node named 'ground'.")
         val cubeEntity = scene.roots.firstOrNull { it.name == "cube" }?.entity
             ?: error("physics.scene.json is missing a root node named 'cube'.")
+        val cameraEntity = scene.roots.firstOrNull { it.name == "camera" }?.entity
+            ?: error("physics.scene.json is missing a root node named 'camera'.")
 
         cubeTransform = world.get(cubeEntity) ?: error("'cube' node has no Transform.")
         val groundTransform: Transform = world.get(groundEntity) ?: error("'ground' node has no Transform.")
+        cameraComponent = world.get(cameraEntity) ?: error("'camera' node has no Camera component.")
 
         // Half-extents matching each node's authored render scale (unit cube mesh * scale),
         // NOT the render scale itself -- BoxShape wants half the box's total size per axis.
@@ -128,6 +133,15 @@ class PhysicsDemo : Game, DebugReadout {
     override fun debugLines(): List<String> {
         val y = cubeTransform.position.y
         return listOf("PHYSICS: cube Y=${(kotlin.math.round(y * 100f) / 100f)}")
+    }
+
+    override fun getCameraEye(): Vec3 = cameraComponent.camera.eye
+    override fun setCameraEye(eye: Vec3) {
+        cameraComponent.camera.eye = eye
+    }
+    override fun getCameraCenter(): Vec3 = cameraComponent.camera.center
+    override fun setCameraCenter(center: Vec3) {
+        cameraComponent.camera.center = center
     }
 
     companion object {

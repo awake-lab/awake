@@ -3,6 +3,10 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library.kmp)
+    // DebugSnapshot/DebugCommand (DebugControlServer.kt, desktop-only) -- see that file's
+    // doc comment. Applied module-wide (cheap, same as awake:scene's own usage) rather than
+    // scoped to just desktopMain, since Gradle KMP plugins apply per-module, not per-source-set.
+    alias(libs.plugins.kotlin.serialization)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
@@ -100,6 +104,11 @@ kotlin {
             // DemoCatalog.switchTo launches its own coroutine to await a demo's suspend
             // Game.ready() off render()'s non-suspend call site.
             implementation(libs.kotlinx.coroutines.core)
+            // DebugSnapshot (DemoCatalog.debugSnapshot) is @Serializable so
+            // DebugControlServer.kt (desktop-only) can JSON-encode it -- the annotation and
+            // Json runtime live in commonMain since the data class itself does, matching
+            // awake:scene's SceneLoader.kt convention.
+            implementation(libs.kotlinx.serialization.json)
         }
         // appMain: shared by desktop/Android/iOS -- these three drive VulkanGameApplication
         // (awake-backend-vulkan), which doesn't publish a wasmJs variant. Same pattern
@@ -118,6 +127,13 @@ kotlin {
                 // falling-cube-onto-ground scene. Desktop+Android only; iOS/wasmJs stay
                 // null via PhysicsWorldFactory's stub actuals (see that file's comment).
                 implementation(project(":awake:backend:jolt"))
+                // DebugControlServer.kt -- desktop-only Ktor WebSocket debug-control channel
+                // (see docs/MVP_PLAN.md's decision log). CIO engine: fewer transitive deps
+                // than Netty, fine for a single dev-tooling endpoint.
+                implementation(libs.ktor.server.core)
+                implementation(libs.ktor.server.cio)
+                implementation(libs.ktor.server.websockets)
+                implementation(libs.ktor.serialization.kotlinx.json)
             }
         }
         named("androidMain") {

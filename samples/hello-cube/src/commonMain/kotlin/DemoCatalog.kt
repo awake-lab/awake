@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 /**
  * A [Game] that holds another [Game] and swaps it on demand -- the composition this whole
@@ -171,7 +172,58 @@ class DemoCatalog : Game {
     override fun resume() = current.resume()
     override fun dispose() = current.dispose()
 
+    // --- Desktop-only debug-control channel API (see DebugControlServer.kt, desktopMain) ---
+    // Callers must only invoke these from the same thread that owns this Game instance's
+    // Vulkan/scene state (see this project's .claude/AGENTS.md "Threading model" section) --
+    // DebugControlServer's WebSocket handler enqueues commands instead of calling these
+    // directly; Main.kt's per-frame loop is the only real caller.
+
+    /** Reuses [switchTo]'s existing suspend/coroutine swap logic -- just exposes it publicly
+     * under a name that makes clear it's the debug-channel entry point, not a duplicate. */
+    fun debugSwitchDemo(index: Int) = switchTo(index)
+
+    fun debugSetCameraEye(eye: Vec3) {
+        (current as? DebugCameraTarget)?.setCameraEye(eye)
+    }
+
+    fun debugSetCameraCenter(center: Vec3) {
+        (current as? DebugCameraTarget)?.setCameraCenter(center)
+    }
+
+    /** A snapshot of the current demo's name/HUD lines/camera -- see [DebugSnapshot]'s own
+     * doc comment. `cameraEye`/`cameraCenter` are `null` only if [current] doesn't implement
+     * [DebugCameraTarget] (neither shipped demo hits this today; both do). */
+    fun debugSnapshot(): DebugSnapshot {
+        val cameraTarget = current as? DebugCameraTarget
+        return DebugSnapshot(
+            demoName = demos[currentIndex].first,
+            debugLines = debugLines(),
+            cameraEye = cameraTarget?.getCameraEye()?.toDebugVec3(),
+            cameraCenter = cameraTarget?.getCameraCenter()?.toDebugVec3()
+        )
+    }
+
+    private fun Vec3.toDebugVec3() = DebugVec3(x, y, z)
+
     private companion object {
         val HUD_COLOR = floatArrayOf(0.4f, 1f, 0.4f, 1f)
     }
 }
+
+/** Plain, JSON-serializable mirror of [Vec3] -- [Vec3] itself isn't `@Serializable` (it's an
+ * `awake:base` engine type, not owned by this debug-only sample feature), so this small DTO
+ * stands in for it on the wire. */
+@Serializable
+data class DebugVec3(val x: Float, val y: Float, val z: Float)
+
+/** Wire shape for [DemoCatalog]'s desktop-only debug-control WebSocket channel (see
+ * `DebugControlServer.kt`) -- sent back after every command (including mutating ones), so a
+ * client can confirm a mutation actually took effect rather than trusting an echo of its own
+ * input. */
+@Serializable
+data class DebugSnapshot(
+    val demoName: String,
+    val debugLines: List<String>,
+    val cameraEye: DebugVec3?,
+    val cameraCenter: DebugVec3?
+)

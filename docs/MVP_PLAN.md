@@ -2760,6 +2760,100 @@ falling-cube demo.**
   resolution (Kotlin/Wasm's npm-dependency mechanism generates this the same way Kotlin/JS's
   does).
 
+### D24 — Desktop-only Ktor WebSocket debug-control channel for `sample-hello-cube`
+**Decided and implemented (2026-07-12).** Verifying UI interactions on the desktop (Vulkan/
+GLFW) build has no automation hook at all — no browser-automation-style tool can click,
+screenshot, or read state from a real GLFW window the way the wasmJs build can be driven via
+arbitrary JS in the running page. Added a small Ktor WebSocket server so an agent can send a
+JSON command and get a JSON state snapshot back, deterministically, with no pixels or
+frame-timing races involved.
+
+- **Ktor 3.5.1** (`ktor-server-core`/`ktor-server-cio`/`ktor-server-websockets`/
+  `ktor-serialization-kotlinx-json`, new `gradle/libs.versions.toml` entries), CIO engine —
+  fewer transitive deps than Netty, fine for a single dev-tooling endpoint. 3.5.1 is the
+  latest stable release compatible with this repo's Kotlin 2.4.0 (Ktor 3.x requires Kotlin
+  2.0+; confirmed via Maven Central's `ktor-server-cio` metadata). All four dependencies
+  scoped to `samples/hello-cube/build.gradle.kts`'s `desktopMain` source set only — this is
+  desktop-only, wasmJs/Android don't need it (wasmJs already has a JS-execution hook via
+  browser automation; Android has no equivalent network-reachable dev loop today either).
+- **`kotlin.serialization` plugin applied module-wide**, not scoped to desktopMain, since a
+  Gradle KMP plugin applies per-module, not per-source-set. `DebugSnapshot`/`DebugCommand`
+  (see below) live in `commonMain` even though only the desktop debug server currently uses
+  them, for two reasons: (a) parsing a `DebugCommand` from JSON is pure logic with no GPU/
+  WebSocket dependency, so it's unit-testable per this project's "no app-layer test doubles"
+  rule (push logic into small pure functions specifically so it's testable); (b) it keeps the
+  door open for another platform's debug hook to reuse the same wire shape later.
+- **New common seam, `DebugCameraTarget`** (`samples/hello-cube/src/commonMain/kotlin/
+  DebugCameraTarget.kt`) — `getCameraEye`/`setCameraEye`/`getCameraCenter`/`setCameraCenter`,
+  same "optional capability a demo can implement" pattern `DebugReadout`/
+  `OffscreenPreviewSource` already use (`(current as? DebugCameraTarget)?...` in
+  `DemoCatalog`). `CubeDemo` already held its `cameraComponent: Camera` field privately;
+  exposed it via this interface instead of widening its visibility for no other reason.
+  `PhysicsDemo` didn't hold a camera reference at all before this — added a `cameraComponent`
+  field, looked up the same way `CubeDemo.ready()` already does
+  (`scene.roots.firstOrNull { it.name == "camera" }?.entity` → `world.get<Camera>(...)`);
+  `physics.scene.json` already had a `camera` root node shaped exactly like
+  `sample.scene.json`'s, so no scene-JSON change was needed.
+- **`DemoCatalog` debug API**: `debugSwitchDemo(index)` (thin wrapper reusing the existing
+  private `switchTo`'s suspend/coroutine swap logic, not a duplicate), `debugSetCameraEye`/
+  `debugSetCameraCenter` (no-ops if `current` doesn't implement `DebugCameraTarget` — neither
+  shipped demo hits this today), and `debugSnapshot(): DebugSnapshot` (demo name, the same
+  `debugLines()` the on-screen/console HUD already produces, and the current demo's camera
+  eye/center via a small `@Serializable` `DebugVec3` DTO — `Vec3` itself isn't `@Serializable`
+  since it's an `awake:base` engine type this sample-only feature has no business annotating).
+- **`DebugCommand` parsing** (`samples/hello-cube/src/commonMain/kotlin/DebugCommand.kt`): a
+  hand-rolled `type`-discriminator `when`, not kotlinx.serialization's polymorphic/sealed-class
+  JSON support — for a 4-command protocol this small, a manual `when` is less machinery than a
+  `SerializersModule` + per-subclass registration, and makes "unknown/malformed command"
+  (returns `null`, caller skips the frame) an explicit branch rather than a caught exception.
+- **`DebugControlServer`** (`samples/hello-cube/src/desktopMain/kotlin/
+  DebugControlServer.kt`): `embeddedServer(CIO, port = 8090) { ... }.start(wait = false)` —
+  non-blocking, runs on Ktor's own engine thread/coroutines, per this project's
+  `.claude/AGENTS.md` "one thread owns every Vulkan call" rule. The WebSocket handler never
+  touches `DemoCatalog`/ECS state directly: each incoming command is enqueued as a
+  `(DebugCommand, CompletableDeferred<DebugSnapshot>)` pair onto a `ConcurrentLinkedQueue`,
+  and the handler `await()`s the deferred before sending a response. `Main.kt`'s existing
+  per-frame `while (!glfwWindowShouldClose(window))` loop — the one real render-thread owner —
+  calls `drainCommands()` once per frame (right before `DesktopGameLoop.startLoop { app.update
+  (...) }`), applies each command's effect (`applyDebugCommand`), and completes the paired
+  deferred with a fresh `demoCatalog.debugSnapshot()` — the only place any mutation or state
+  read actually happens. Completing a `CompletableDeferred` from one thread and awaiting it
+  from a coroutine on another is a normal cross-thread synchronization primitive; it never
+  touches a Vulkan handle itself, so it doesn't violate the threading rule. Server started
+  right after `app.create(window)` (so the first `getState` already reflects a fully-
+  initialized demo) and stopped after the render loop exits, before `app.dispose()`.
+- **Confirmed with a real WebSocket round trip** (Python 3, `websockets` 16.0 — installed and
+  available in this sandbox, no fallback needed), against the actual `./gradlew :samples:
+  hello-cube:run` process (`MainKt`, backgrounded):
+  - `{"type":"getState"}` → `{"demoName":"CUBE","debugLines":["FPS: 1  FRAME: 17MS","MODE:
+    ORBIT","X:-7.3 Y:3.1 Z:0.6"],"cameraEye":{"x":-7.346...,"y":3.115...,"z":0.571...},
+    "cameraCenter":{"x":0.0,"y":0.0,"z":0.0}}` — real, non-zero orbiting-camera values, not
+    placeholders.
+  - `{"type":"switchDemo","index":1}` → `demoName":"PHYSICS"` in the response itself, with
+    `cameraEye`/`cameraCenter` immediately reflecting `physics.scene.json`'s authored camera
+    (`4,3,8` / `0,0.5,0`) rather than CUBE's leftover values — proves the switch actually
+    completed (not just accepted) by the time this same command's response was sent, and
+    `debugLines` shows the real Jolt-driven falling cube: `"PHYSICS: cube Y=5.0"` →
+    (a follow-up `getState`) `"cube Y=4.96"` — the cube is really falling under physics, not a
+    static echo.
+  - `{"type":"setCameraEye","x":10,"y":10,"z":10}` → response's `cameraEye` is exactly
+    `{"x":10.0,"y":10.0,"z":10.0}`, and `PHYSICS: cube Y=4.85` in the same response confirms
+    the physics simulation kept running normally throughout (server traffic didn't stall the
+    render loop).
+  - `{"type":"switchDemo","index":0}` → back to `"demoName":"CUBE"`, camera reset to a fresh
+    `CubeDemo` instance's scene-authored home position (`0,0,5`), then a follow-up `getState`
+    shows the orbit auto-rotate already moved it (`0.2, 3.1, 7.4`) — confirms `CubeDemo` was
+    genuinely re-constructed/re-`ready()`'d (old camera mutation from the first CUBE session
+    didn't leak across the switch-away-and-back).
+  - Desktop process's own console log (`DEBUG HUD [...]`/`PHYSICS DEMO: cube Y = ...` lines)
+    kept flowing throughout, and the `MainKt` process (confirmed via `jps -l`) was still alive
+    and cleanly killable after the test — WebSocket traffic didn't stall or crash the render
+    loop.
+- Compiles clean: `:samples:hello-cube:compileKotlinDesktop` and `:compileAndroidMain` both
+  `BUILD SUCCESSFUL`, no new warnings attributable to this change. `spotlessCheck` passes.
+  (`detekt` fails on this module, but identically on a stashed pre-change tree too — a
+  pre-existing, unrelated environment issue, not a regression from this feature.)
+
 ### D4 — Editor base
 **Decided: build on [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor)**
 (Compose Desktop shell + design system) rather than building from scratch.
