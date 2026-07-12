@@ -1,6 +1,8 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
 
+import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiContext
@@ -68,6 +70,44 @@ class DemoCatalog : Game {
     override suspend fun ready(renderer: Renderer) {
         this.renderer = renderer
         current.ready(renderer)
+        verifyOffscreenReadback(renderer)
+    }
+
+    /** One-shot proof that `Renderer.createRenderTarget`/`renderToTexture`/`readPixels`
+     * actually work end to end -- clears a tiny offscreen target to a known color, reads it
+     * back, and logs the sampled pixel. Console-verifiable without any screenshot pipeline
+     * (same rationale as the debug HUD above); the offscreen render pass draws no geometry
+     * (empty `drawCalls`), so this only proves the clear+framebuffer+readback path, not
+     * scene rendering into a target -- that's exercised for real once a demo actually calls
+     * `renderToTexture` with real draw calls (e.g. a future minimap demo).
+     *
+     * Only implemented on Vulkan so far (WebGPU's is still `TODO()` -- see
+     * docs/MVP_PLAN.md's `RenderTarget` decision log) -- caught rather than left to crash the
+     * whole app on wasmJs, since this is a diagnostic check, not something any demo actually
+     * depends on yet. */
+    private suspend fun verifyOffscreenReadback(renderer: Renderer) {
+        try {
+            val target = renderer.createRenderTarget(64, 64)
+            val camera = Camera(
+                eye = Vec3(0f, 0f, 3f),
+                center = Vec3(0f, 0f, 0f),
+                fovYRadians = 1f,
+                near = 0.1f,
+                far = 10f
+            )
+            renderer.renderToTexture(target, camera, emptyList())
+            val pixels = renderer.readPixels(target)
+            val centerOffset = ((target.height / 2) * target.width + target.width / 2) * 4
+            println(
+                "OFFSCREEN READBACK: ${target.width}x${target.height} center pixel RGBA = " +
+                    "${pixels.data[centerOffset].toInt() and 0xFF}," +
+                    "${pixels.data[centerOffset + 1].toInt() and 0xFF}," +
+                    "${pixels.data[centerOffset + 2].toInt() and 0xFF}," +
+                    "${pixels.data[centerOffset + 3].toInt() and 0xFF}"
+            )
+        } catch (e: NotImplementedError) {
+            println("OFFSCREEN READBACK: not implemented on this backend yet (${e.message})")
+        }
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {

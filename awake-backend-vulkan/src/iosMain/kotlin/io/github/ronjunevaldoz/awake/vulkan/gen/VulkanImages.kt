@@ -218,4 +218,15 @@ actual object VulkanImages {
             region.ptr
         )
     }
+
+    // Offscreen render-target CPU readback (Renderer.readPixels) -- not implemented on iOS
+    // yet (desktop-first per this feature's scoping decision; see docs/MVP_PLAN.md's
+    // RenderTarget decision log entry). Real desktop verification exists; this stub keeps
+    // iOS compiling without a claim of unverified cinterop correctness.
+    actual fun vkCmdCopyImageToBuffer(
+        commandBuffer: Long,
+        srcImage: Long,
+        dstBuffer: Long,
+        copy: VkBufferImageCopy
+    ): Unit = TODO("vkCmdCopyImageToBuffer not yet implemented on iOS -- see RenderTarget decision log")
 }

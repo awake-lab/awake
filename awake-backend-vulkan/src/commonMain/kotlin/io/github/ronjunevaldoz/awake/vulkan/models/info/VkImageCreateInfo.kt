@@ -43,7 +43,9 @@ object VkImageTiling {
  */
 object VkImageLayout2 {
     const val VK_IMAGE_LAYOUT_UNDEFINED = 0
+    const val VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL = 2
     const val VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL = 5
+    const val VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL = 6
     const val VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL = 7
 }
 
@@ -53,8 +55,10 @@ object VkSharingMode2 {
 }
 
 object VkImageUsageFlagBits2 {
+    const val VK_IMAGE_USAGE_TRANSFER_SRC_BIT = 0x00000001
     const val VK_IMAGE_USAGE_TRANSFER_DST_BIT = 0x00000002
     const val VK_IMAGE_USAGE_SAMPLED_BIT = 0x00000004
+    const val VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT = 0x00000010
     const val VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT = 0x00000020
 }
 

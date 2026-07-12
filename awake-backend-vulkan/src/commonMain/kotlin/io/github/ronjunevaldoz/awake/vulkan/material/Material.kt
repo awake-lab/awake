@@ -79,6 +79,21 @@ class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
      * both [uniformBuffer] and [texture]'s sampler/view). Must be called once, after a real
      * [Texture] exists. */
     fun createResources(texture: Texture) {
+        createResources(texture.sampler.handle, texture.imageView.handle)
+    }
+
+    /** Same as [createResources] but binds an
+     * [io.github.ronjunevaldoz.awake.vulkan.texture.OffscreenRenderTarget]'s color
+     * attachment directly instead of a [Texture]'s -- the on-screen compositing/portal-camera
+     * use case (`Renderer.createMaterial(renderTarget = ...)`). Same descriptor-writing code
+     * either way: a `VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER` binding doesn't care whether
+     * the sampler/image view it's given came from a CPU-uploaded texture or a GPU-only
+     * render target. */
+    fun createResourcesFromRenderTarget(sampler: Long, imageView: Long) {
+        createResources(sampler, imageView)
+    }
+
+    private fun createResources(sampler: Long, imageView: Long) {
         val bufferSize = (16 * Float.SIZE_BYTES).toLong()
         val rawUniformBuffer = VulkanBuffers.vkCreateBuffer(
             device,
@@ -145,8 +160,8 @@ class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
             1,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             VkDescriptorImageInfo(
-                sampler = texture.sampler.handle,
-                imageView = texture.imageView.handle
+                sampler = sampler,
+                imageView = imageView
             )
         )
     }

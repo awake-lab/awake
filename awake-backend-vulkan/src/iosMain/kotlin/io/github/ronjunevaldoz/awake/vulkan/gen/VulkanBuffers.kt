@@ -215,4 +215,11 @@ actual object VulkanBuffers {
     actual fun vkDeviceWaitIdle(device: Long) {
         nativeVkDeviceWaitIdle(device.toCPointer())
     }
+
+    // Offscreen render-target CPU readback (Renderer.readPixels) -- not implemented on iOS
+    // yet (desktop-first per this feature's scoping decision; see docs/MVP_PLAN.md's
+    // RenderTarget decision log entry). Real desktop verification exists; this stub keeps
+    // iOS compiling without a claim of unverified cinterop correctness.
+    actual fun readBufferMemoryBytes(device: Long, memory: Long, offset: Long, size: Int): ByteArray =
+        TODO("readBufferMemoryBytes not yet implemented on iOS -- see RenderTarget decision log")
 }

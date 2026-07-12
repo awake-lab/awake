@@ -27,4 +27,11 @@ actual object VulkanImages {
         dstImage: Long,
         copy: VkBufferImageCopy
     )
+
+    actual external fun vkCmdCopyImageToBuffer(
+        commandBuffer: Long,
+        srcImage: Long,
+        dstBuffer: Long,
+        copy: VkBufferImageCopy
+    )
 }

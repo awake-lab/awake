@@ -26,6 +26,8 @@ actual object VulkanBuffers {
 
     actual external fun writeBufferMemoryBytes(device: Long, memory: Long, offset: Long, data: ByteArray)
 
+    actual external fun readBufferMemoryBytes(device: Long, memory: Long, offset: Long, size: Int): ByteArray
+
     actual external fun vkCmdBindVertexBuffers(
         commandBuffer: Long,
         firstBinding: Int,

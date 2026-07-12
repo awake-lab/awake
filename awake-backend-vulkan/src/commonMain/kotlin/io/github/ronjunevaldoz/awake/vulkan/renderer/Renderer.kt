@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
+import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -33,12 +34,14 @@ import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
+import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFramebufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageLayout2
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageSubresourceRange
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageUsageFlagBits2
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageViewCreateInfo
@@ -46,8 +49,12 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkPresentInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferImageCopy
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
+import io.github.ronjunevaldoz.awake.vulkan.texture.OffscreenRenderTarget
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
@@ -114,6 +121,10 @@ class Renderer(
     // teardown, mirroring how it already owns uiMesh/uiGlyphMesh/lineMesh.
     private val createdTextures = mutableListOf<Texture>()
 
+    // RenderTargets created on demand by createRenderTarget() -- same ownership pattern as
+    // createdTextures.
+    private val createdRenderTargets = mutableListOf<OffscreenRenderTarget>()
+
     // Rewritten every frame by drawUi() (called before draw() -- see VulkanGameApplication
     // .onRender()'s ordering) so recordCommandBuffer's UI pass, later in the SAME command
     // buffer as the 3D pass, always draws this frame's widgets, not last frame's.
@@ -137,21 +148,138 @@ class Renderer(
         Mesh(graphicsDevice, transferContext::runOneTimeCommands, geometry.vertices, geometry.indices)
 
     /** Builds a [Material] bound to this [renderPipeline], uploading [texture] (or a 1x1
-     * white placeholder when null) -- see [RenderRenderer.createMaterial]'s doc comment. The
-     * created [Texture] is tracked in [createdTextures] for teardown in [destroy]. */
-    override fun createMaterial(texture: TextureAsset?): RenderMaterial {
+     * white placeholder when both [texture]/[renderTarget] are null) -- see
+     * [RenderRenderer.createMaterial]'s doc comment. The created [Texture] is tracked in
+     * [createdTextures] for teardown in [destroy]; a [renderTarget] is NOT re-tracked here
+     * (it's already tracked in [createdRenderTargets] from its own [createRenderTarget]
+     * call). */
+    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): RenderMaterial {
+        require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
         val material = Material(graphicsDevice)
-        val effectiveTexture = texture ?: PLACEHOLDER_TEXTURE
-        val textureInstance = Texture(
-            graphicsDevice,
-            transferContext::runOneTimeCommands,
-            effectiveTexture.data,
-            effectiveTexture.width,
-            effectiveTexture.height
-        )
-        createdTextures += textureInstance
-        material.createResources(textureInstance)
+        if (renderTarget != null) {
+            val offscreen = renderTarget as OffscreenRenderTarget
+            material.createResourcesFromRenderTarget(offscreen.sampler, offscreen.colorImageView)
+        } else {
+            val effectiveTexture = texture ?: PLACEHOLDER_TEXTURE
+            val textureInstance = Texture(
+                graphicsDevice,
+                transferContext::runOneTimeCommands,
+                effectiveTexture.data,
+                effectiveTexture.width,
+                effectiveTexture.height
+            )
+            createdTextures += textureInstance
+            material.createResources(textureInstance)
+        }
         return material
+    }
+
+    /** Creates an offscreen [width]x[height] color+depth render destination -- see
+     * [RenderRenderer.createRenderTarget]'s doc comment. Reuses this [renderPipeline]'s own
+     * render pass unmodified (see [OffscreenRenderTarget]'s doc comment for why that's
+     * possible without a second graphics pipeline). Tracked in [createdRenderTargets] for
+     * teardown in [destroy]. */
+    override fun createRenderTarget(width: Int, height: Int): RenderTarget {
+        val target = OffscreenRenderTarget(
+            graphicsDevice,
+            renderPipeline.renderPass,
+            width,
+            height,
+            swapchainManager.imageFormat.value
+        )
+        createdRenderTargets += target
+        return target
+    }
+
+    /** Renders [drawCalls] against [camera] into [target] -- see
+     * [RenderRenderer.renderToTexture]'s doc comment. Uses a one-time command buffer (this
+     * isn't part of the swapchain frame-in-flight cadence [draw] serializes around), and
+     * leaves [target] in its [OffscreenRenderTarget] resting layout (`SHADER_READ_ONLY_OPTIMAL`)
+     * afterward. */
+    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) {
+        val offscreen = target as OffscreenRenderTarget
+        val aspect = offscreen.width.toFloat() / offscreen.height.toFloat()
+        val viewProjection = camera.viewProjectionMatrix(aspect)
+        var drawIndex = 0
+        while (drawIndex < drawCalls.size) {
+            val drawCall = drawCalls[drawIndex]
+            val mvp = drawCall.model * viewProjection
+            drawCall.material.updateUniformBuffer(mvp.data)
+            drawIndex += 1
+        }
+
+        transferContext.runOneTimeCommands { commandBuffer ->
+            val renderPassInfo = VkRenderPassBeginInfo(
+                renderPass = renderPipeline.renderPass,
+                framebuffer = offscreen.framebuffer,
+                renderArea = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height)),
+                pClearValues = arrayOf(clearColorValue, clearDepthValue)
+            )
+            Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
+            renderPipeline.bind(commandBuffer)
+            val viewport = VkViewport(width = offscreen.width.toFloat(), height = offscreen.height.toFloat())
+            Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
+            val scissor = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height))
+            Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+            recordDrawCalls(commandBuffer, drawCalls)
+            Vulkan.vkCmdEndRenderPass(commandBuffer)
+            offscreen.transitionToShaderReadOnly(commandBuffer)
+        }
+    }
+
+    /** Reads [target]'s color attachment back to the CPU -- see
+     * [RenderRenderer.readPixels]'s doc comment. Synchronous under the hood (a staging
+     * buffer + [TransferContext.runOneTimeCommands]'s own fence wait), a valid `suspend fun`
+     * implementation even though it never actually suspends (see that method's doc comment
+     * for why WebGPU's implementation genuinely needs to). */
+    override suspend fun readPixels(target: RenderTarget): TextureAsset {
+        val offscreen = target as OffscreenRenderTarget
+        val byteSize = (offscreen.width * offscreen.height * 4).toLong()
+        val stagingBuffer = VulkanBuffers.vkCreateBuffer(
+            device,
+            VkBufferCreateInfo(size = byteSize, usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+        )
+        val stagingRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, stagingBuffer)
+        val stagingMemoryTypeIndex = VulkanBuffers.findMemoryType(
+            physicalDevice,
+            stagingRequirements.memoryTypeBits,
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        )
+        val stagingMemory = VulkanBuffers.vkAllocateMemory(
+            device,
+            VkMemoryAllocateInfo(allocationSize = stagingRequirements.size, memoryTypeIndex = stagingMemoryTypeIndex)
+        )
+        VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
+
+        val pixels: ByteArray
+        try {
+            transferContext.runOneTimeCommands { commandBuffer ->
+                VulkanImages.vkTransitionImageLayout(
+                    commandBuffer,
+                    offscreen.colorImage,
+                    VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                    VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
+                )
+                VulkanImages.vkCmdCopyImageToBuffer(
+                    commandBuffer,
+                    offscreen.colorImage,
+                    stagingBuffer,
+                    VkBufferImageCopy(imageWidth = offscreen.width, imageHeight = offscreen.height)
+                )
+                VulkanImages.vkTransitionImageLayout(
+                    commandBuffer,
+                    offscreen.colorImage,
+                    VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                )
+            }
+            pixels = VulkanBuffers.readBufferMemoryBytes(device, stagingMemory, 0, byteSize.toInt())
+        } finally {
+            VulkanBuffers.vkDestroyBuffer(device, stagingBuffer)
+            VulkanBuffers.vkFreeMemory(device, stagingMemory)
+        }
+        return TextureAsset(pixels, offscreen.width, offscreen.height)
     }
 
     /** Builds [uiRenderPipeline]/[uiFramebuffers] on the first [drawUi] call of any kind --
@@ -468,6 +596,21 @@ class Renderer(
         // TODO process recreation of swapchain here
     }
 
+    /** Binds+draws each [drawCalls] entry against whatever render pass/pipeline is already
+     * bound on [commandBuffer] -- shared by [recordCommandBuffer] (the swapchain frame) and
+     * [renderToTexture] (an offscreen frame), so the two don't duplicate this loop. */
+    private fun recordDrawCalls(commandBuffer: Long, drawCalls: List<DrawCall>) {
+        var drawIndex = 0
+        val drawCount = drawCalls.size
+        while (drawIndex < drawCount) {
+            val drawCall = drawCalls[drawIndex]
+            drawCall.mesh.bind(commandBuffer)
+            drawCall.material.bind(commandBuffer, renderPipeline.pipelineLayout)
+            drawCall.mesh.draw(commandBuffer)
+            drawIndex += 1
+        }
+    }
+
     private fun recordCommandBuffer(commandBuffer: Long, acquiredImageIndex: Int, drawCalls: List<DrawCall>) {
         val beginInfo = VkCommandBufferBeginInfo(
             flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value,
@@ -499,15 +642,7 @@ class Renderer(
         )
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
 
-        var drawIndex = 0
-        val drawCount = drawCalls.size
-        while (drawIndex < drawCount) {
-            val drawCall = drawCalls[drawIndex]
-            drawCall.mesh.bind(commandBuffer)
-            drawCall.material.bind(commandBuffer, renderPipeline.pipelineLayout)
-            drawCall.mesh.draw(commandBuffer)
-            drawIndex += 1
-        }
+        recordDrawCalls(commandBuffer, drawCalls)
 
         // Debug lines (e.g. a frustum wireframe), same render pass/depth attachment as
         // the 3D draw calls above -- real depth-testing against scene geometry, not an
@@ -568,6 +703,7 @@ class Renderer(
         uiGlyphRenderPipeline?.destroy()
         fontTexture?.destroy()
         createdTextures.forEach { it.destroy() }
+        createdRenderTargets.forEach { it.destroy() }
         uiMesh.destroy()
         uiGlyphMesh.destroy()
         lineMesh.destroy()

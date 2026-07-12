@@ -491,6 +491,27 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanImages_vkTransitionImageLayo
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
         srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
         dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    } else if (oldVkLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL && newVkLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+        // Offscreen render-target post-render transition (Renderer.renderToTexture): the
+        // color attachment just finished being written by the render pass, now made
+        // sampleable for compositing (Renderer.createMaterial(renderTarget=...)).
+        barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        srcStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    } else if (oldVkLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && newVkLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
+        // Offscreen render-target readback (Renderer.readPixels): temporarily leave the
+        // sampleable resting state to let vkCmdCopyImageToBuffer read the image.
+        barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        srcStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    } else if (oldVkLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL && newVkLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+        // Restores the sampleable resting state after readPixels' copy completes.
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     } else {
         throw_illegal_argument(env, "vkTransitionImageLayout: unsupported layout transition");
         return;
@@ -559,4 +580,61 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanImages_vkCmdCopyBufferToImag
         reinterpret_cast<VkImage>(dstImage_ptr),
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
         1, &region);
+}
+
+
+// Hand-written (not jni-binding-generator output): inverse of vkCmdCopyBufferToImage above,
+// for offscreen render-target CPU readback (Renderer.readPixels). srcImage is expected in
+// TRANSFER_SRC_OPTIMAL layout (the caller transitions it there before this call).
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanImages_vkCmdCopyImageToBuffer(
+        JNIEnv* env,
+        jclass clazz,
+        jlong commandBuffer,
+        jlong srcImage,
+        jlong dstBuffer,
+        jobject copy) {
+    void* commandBuffer_ptr = reinterpret_cast<void*>(commandBuffer);
+    void* srcImage_ptr = reinterpret_cast<void*>(srcImage);
+    void* dstBuffer_ptr = reinterpret_cast<void*>(dstBuffer);
+    JNI_VkBufferImageCopy copy_val = extract_VkBufferImageCopy(env, copy);
+
+    if (!commandBuffer_ptr) {
+        throw_illegal_state(env, "vkCmdCopyImageToBuffer: commandBuffer not initialized");
+        return;
+    }
+    if (!srcImage_ptr) {
+        throw_illegal_state(env, "vkCmdCopyImageToBuffer: srcImage not initialized");
+        return;
+    }
+    if (!dstBuffer_ptr) {
+        throw_illegal_state(env, "vkCmdCopyImageToBuffer: dstBuffer not initialized");
+        return;
+    }
+    if (!copy) {
+        throw_illegal_argument(env, "vkCmdCopyImageToBuffer: copy must not be null");
+        return;
+    }
+
+    VkBufferImageCopy region2{};
+    region2.bufferOffset = static_cast<VkDeviceSize>(copy_val.bufferOffset);
+    region2.bufferRowLength = static_cast<uint32_t>(copy_val.bufferRowLength);
+    region2.bufferImageHeight = static_cast<uint32_t>(copy_val.bufferImageHeight);
+    region2.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region2.imageSubresource.mipLevel = static_cast<uint32_t>(copy_val.mipLevel);
+    region2.imageSubresource.baseArrayLayer = static_cast<uint32_t>(copy_val.baseArrayLayer);
+    region2.imageSubresource.layerCount = static_cast<uint32_t>(copy_val.layerCount);
+    region2.imageOffset = {0, 0, 0};
+    region2.imageExtent = {
+        static_cast<uint32_t>(copy_val.imageWidth),
+        static_cast<uint32_t>(copy_val.imageHeight),
+        1
+    };
+
+    vkCmdCopyImageToBuffer(
+        reinterpret_cast<VkCommandBuffer>(commandBuffer_ptr),
+        reinterpret_cast<VkImage>(srcImage_ptr),
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        reinterpret_cast<VkBuffer>(dstBuffer_ptr),
+        1, &region2);
 }

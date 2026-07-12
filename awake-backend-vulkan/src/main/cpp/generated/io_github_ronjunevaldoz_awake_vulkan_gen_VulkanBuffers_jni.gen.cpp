@@ -660,3 +660,47 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_vkDeviceWaitIdle(
 
     vkDeviceWaitIdle(reinterpret_cast<VkDevice>(device_ptr));
 }
+
+
+// Hand-written (not jni-binding-generator output): inverse of writeBufferMemoryBytes above
+// (map->memcpy-out->unmap instead of map->memcpy-in->unmap), for offscreen render-target
+// CPU readback (Renderer.readPixels). Returns a fresh jbyteArray of `size` bytes.
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanBuffers_readBufferMemoryBytes(
+        JNIEnv* env,
+        jclass clazz,
+        jlong device,
+        jlong memory,
+        jlong offset,
+        jint size) {
+    void* device_ptr = reinterpret_cast<void*>(device);
+    void* memory_ptr = reinterpret_cast<void*>(memory);
+
+    if (!device_ptr) {
+        throw_illegal_state(env, "readBufferMemoryBytes: device not initialized");
+        return nullptr;
+    }
+    if (!memory_ptr) {
+        throw_illegal_state(env, "readBufferMemoryBytes: memory not initialized");
+        return nullptr;
+    }
+
+    void* mapped = nullptr;
+    VkDeviceSize sizeBytes = static_cast<VkDeviceSize>(size);
+    VkResult result = vkMapMemory(
+        reinterpret_cast<VkDevice>(device_ptr),
+        reinterpret_cast<VkDeviceMemory>(memory_ptr),
+        static_cast<VkDeviceSize>(offset),
+        sizeBytes,
+        0,
+        &mapped);
+    if (result != VK_SUCCESS) {
+        exception_utils::resultException(env, result,
+            "There was a problem executing vkMapMemory");
+        return nullptr;
+    }
+    jbyteArray out = env->NewByteArray(size);
+    env->SetByteArrayRegion(out, 0, size, reinterpret_cast<const jbyte*>(mapped));
+    vkUnmapMemory(reinterpret_cast<VkDevice>(device_ptr), reinterpret_cast<VkDeviceMemory>(memory_ptr));
+    return out;
+}

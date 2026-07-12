@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
+import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -97,9 +98,24 @@ class Renderer(
 
     /** Builds a [Material] -- this backend's `Material` is still a compile-only stub (see
      * its own doc comment), so this just constructs it, matching this backend's existing
-     * (pre-refactor) behavior of never calling `createResources`. [texture] is accepted for
-     * interface parity with the Vulkan backend but otherwise unused here. */
-    override fun createMaterial(texture: TextureAsset?): RenderMaterial = Material(graphicsDevice)
+     * (pre-refactor) behavior of never calling `createResources`. [texture]/[renderTarget]
+     * are accepted for interface parity with the Vulkan backend but otherwise unused here. */
+    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): RenderMaterial =
+        Material(graphicsDevice)
+
+    /** Not yet implemented on this backend -- see docs/MVP_PLAN.md's `RenderTarget` decision
+     * log entry (Vulkan-first rollout, WebGPU is a follow-up slice). */
+    override fun createRenderTarget(width: Int, height: Int): RenderTarget =
+        TODO("createRenderTarget not yet implemented on WebGPU -- see RenderTarget decision log")
+
+    /** Not yet implemented on this backend -- see [createRenderTarget]'s doc comment. */
+    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) {
+        TODO("renderToTexture not yet implemented on WebGPU -- see RenderTarget decision log")
+    }
+
+    /** Not yet implemented on this backend -- see [createRenderTarget]'s doc comment. */
+    override suspend fun readPixels(target: RenderTarget): TextureAsset =
+        TODO("readPixels not yet implemented on WebGPU -- see RenderTarget decision log")
 
     /** Builds [uiRenderPipeline] on the first [drawUi] call of any kind -- quad rendering
      * doesn't need a font, so this doesn't wait for one. Cached after the first build (a

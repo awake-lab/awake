@@ -39,6 +39,12 @@ expect object VulkanBuffers {
      * (e.g. texture pixels) instead of float uniform/vertex data. */
     fun writeBufferMemoryBytes(device: Long, memory: Long, offset: Long, data: ByteArray)
 
+    /** Inverse of [writeBufferMemoryBytes] -- map->memcpy-out->unmap, returning [size] bytes
+     * starting at [offset]. Used for offscreen render-target readback (`Renderer.readPixels`):
+     * a HOST_VISIBLE staging buffer is copied into via `vkCmdCopyImageToBuffer`
+     * ([VulkanImages.vkCmdCopyImageToBuffer]), then read out here. */
+    fun readBufferMemoryBytes(device: Long, memory: Long, offset: Long, size: Int): ByteArray
+
     /** `bindingCount` is implicit (`buffers.size`); `offsets` must be the same size. */
     fun vkCmdBindVertexBuffers(
         commandBuffer: Long,
