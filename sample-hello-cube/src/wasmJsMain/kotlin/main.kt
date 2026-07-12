@@ -71,8 +71,27 @@ fun main() {
     // swapchain-recreation chapter for the canonical pattern this project's Vulkan/WebGPU
     // backends don't yet implement), so this is also the ONLY size the canvas will ever
     // render at for this session.
-    val canvasWidth = (window.innerWidth * window.devicePixelRatio).toInt().coerceAtLeast(1)
-    val canvasHeight = (window.innerHeight * window.devicePixelRatio).toInt().coerceAtLeast(1)
+    fun currentCanvasSize(): Pair<Int, Int> {
+        val width = (window.innerWidth * window.devicePixelRatio).toInt().coerceAtLeast(1)
+        val height = (window.innerHeight * window.devicePixelRatio).toInt().coerceAtLeast(1)
+        return width to height
+    }
+    val (canvasWidth, canvasHeight) = currentCanvasSize()
+    // Without this, canvas.width/height (the actual GPU backing-buffer size) stay fixed at
+    // whatever they were on first paint forever -- CSS (index.html's `width:100vw;
+    // height:100vh`) DOES react to a window resize, but the backing buffer doesn't unless
+    // something explicitly updates it. That mismatch is exactly what makes the cube look
+    // "not square": the browser stretches the (correctly-proportioned, fixed-aspect) rendered
+    // image to fill the CSS box, whose aspect ratio has since changed. `Renderer.draw()`
+    // already re-reads `renderingContext.width`/`height` (== `canvas.width`/`height`) live
+    // every frame for its projection aspect, and WebGPU auto-resizes the presentation
+    // texture to match the canvas's current pixel size on the next `getCurrentTexture()` --
+    // updating `canvas.width`/`height` here is the only piece actually missing.
+    window.addEventListener("resize") {
+        val (width, height) = currentCanvasSize()
+        canvas.width = width
+        canvas.height = height
+    }
     MainScope().launch {
         val canvasContext = canvasContextRenderer(htmlCanvas = canvas, width = canvasWidth, height = canvasHeight)
         val wgpuContext = canvasContext.wgpuContext
