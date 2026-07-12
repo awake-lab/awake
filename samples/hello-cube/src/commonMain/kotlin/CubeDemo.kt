@@ -188,16 +188,18 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
     }
 
     private fun drawCatalogUi(aspectRatio: Float, viewportWidth: Float) {
+        val panelX = panelX(viewportWidth)
+
         val debugLabel = if (debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
-        debugOverlayOn = ui.toggle("debug-toggle", 20f, 20f, 120f, 40f, debugOverlayOn, debugLabel, font)
+        debugOverlayOn = ui.toggle("debug-toggle", panelX, PANEL_ROW_DEBUG_TOGGLE_Y, PANEL_WIDTH, 40f, debugOverlayOn, debugLabel, font)
 
         val modeNames = CameraMode.entries.map { it.name }
-        ui.dropdown("camera-mode", 20f, 70f, 160f, 32f, modeNames, cameraMode.ordinal, font)?.let { picked ->
+        ui.dropdown("camera-mode", panelX, PANEL_ROW_CAMERA_MODE_Y, PANEL_WIDTH, 32f, modeNames, cameraMode.ordinal, font)?.let { picked ->
             cameraMode = CameraMode.entries[picked]
         }
 
-        showFrustum = ui.toggle("show-frustum", 200f, 70f, 100f, 32f, showFrustum, "FRUSTUM", font)
-        showGrid = ui.toggle("show-grid", 320f, 70f, 100f, 32f, showGrid, "GRID", font)
+        showFrustum = ui.toggle("show-frustum", panelX, PANEL_ROW_FRUSTUM_Y, PANEL_WIDTH, 32f, showFrustum, "FRUSTUM", font)
+        showGrid = ui.toggle("show-grid", panelX, PANEL_ROW_GRID_Y, PANEL_WIDTH, 32f, showGrid, "GRID", font)
         // drawDebugLines stages (replaces, doesn't accumulate) the lines for the next draw()
         // call -- see its own doc comment -- so both toggles' lines must be combined into one
         // call rather than each calling drawDebugLines separately (a second call would
@@ -213,11 +215,13 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         }
         renderer.drawDebugLines(debugLines)
 
-        showMinimap = ui.toggle("show-minimap", 440f, 70f, 100f, 32f, showMinimap, "MINIMAP", font)
+        showMinimap = ui.toggle("show-minimap", panelX, PANEL_ROW_MINIMAP_Y, PANEL_WIDTH, 32f, showMinimap, "MINIMAP", font)
         if (showMinimap) {
             renderer.renderToTexture(minimapTarget, minimapCamera, sampleDrawCalls())
             val size = MINIMAP_SIZE.toFloat()
-            ui.textureQuad(viewportWidth - size - 20f, 20f, size, size, minimapMaterial)
+            // Top-left, not top-right -- the whole right edge is now the settings panel
+            // column above, so the minimap preview has the top-left corner free instead.
+            ui.textureQuad(20f, 20f, size, size, minimapMaterial)
         }
 
         // Orbit-only: FREE_FLY drives the same live Camera component with its own
@@ -225,17 +229,17 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         // only ORBIT's yaw/pitch/distance are meaningful slider targets.
         if (cameraMode == CameraMode.ORBIT) {
             orbitCameraSystem.yaw = ui.slider(
-                "orbit-azimuth", 20f, 112f, 200f, 28f,
+                "orbit-azimuth", panelX, PANEL_ROW_AZIMUTH_Y, PANEL_WIDTH, 28f,
                 min = -PI.toFloat(), max = PI.toFloat(), value = orbitCameraSystem.yaw,
                 font = font, label = "AZIMUTH"
             )
             orbitCameraSystem.pitch = ui.slider(
-                "orbit-elevation", 20f, 150f, 200f, 28f,
+                "orbit-elevation", panelX, PANEL_ROW_ELEVATION_Y, PANEL_WIDTH, 28f,
                 min = OrbitCameraSystem.MIN_PITCH, max = OrbitCameraSystem.MAX_PITCH, value = orbitCameraSystem.pitch,
                 font = font, label = "ELEVATION"
             )
             orbitCameraSystem.distance = ui.slider(
-                "orbit-zoom", 20f, 188f, 200f, 28f,
+                "orbit-zoom", panelX, PANEL_ROW_ZOOM_Y, PANEL_WIDTH, 28f,
                 min = OrbitCameraSystem.MIN_DISTANCE, max = MAX_ZOOM_DISTANCE, value = orbitCameraSystem.distance,
                 font = font, label = "ZOOM"
             )

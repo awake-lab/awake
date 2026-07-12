@@ -117,8 +117,10 @@ class DemoCatalog : Game {
 
     private fun drawDemoPicker(viewportWidth: Float) {
         val names = demos.map { it.first }
-        ui.dropdown("demo-picker", viewportWidth - 180f, 20f, 160f, 32f, names, currentIndex, font)
-            ?.let { picked -> if (picked != currentIndex) switchTo(picked) }
+        ui.dropdown(
+            "demo-picker", panelX(viewportWidth), PANEL_ROW_DEMO_PICKER_Y, PANEL_WIDTH, 32f,
+            names, currentIndex, font
+        )?.let { picked -> if (picked != currentIndex) switchTo(picked) }
     }
 
     /** Draws FPS/frame-time + whatever [current] reports via [DebugReadout], bottom-left

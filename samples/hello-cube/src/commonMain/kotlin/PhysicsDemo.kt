@@ -116,7 +116,10 @@ class PhysicsDemo(private val ui: UiContext, private val font: BitmapFont) : Gam
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
-        showGrid = ui.toggle("show-grid", 20f, 70f, 100f, 32f, showGrid, "GRID", font)
+        // First row this demo contributes to the shared panel column, right below
+        // DemoCatalog's own demo-picker dropdown (this demo has no debug-toggle/camera-mode
+        // rows of its own, unlike CubeDemo).
+        showGrid = ui.toggle("show-grid", panelX(viewportWidth), PANEL_ROW_DEBUG_TOGGLE_Y, PANEL_WIDTH, 32f, showGrid, "GRID", font)
         // Always call drawDebugLines (with an empty list when off) rather than only when
         // showGrid is true -- drawDebugLines replaces (doesn't accumulate) the staged lines
         // each call, see its own doc comment, so skipping the call on the "off" frame would
