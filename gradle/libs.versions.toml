@@ -29,6 +29,12 @@ wgpu4k = "0.2.0-SNAPSHOT"
 # MVP1a NavMesh slice -- pure-Java Recast/Detour port, JVM-only (desktop+Android), see
 # docs/MMORPG_ROADMAP.md's NavMesh decision.
 recast4j = "1.5.11"
+# Jolt Physics integration slice 1 (see docs/MVP_PLAN.md's decision log) -- stephengold's
+# jolt-jni provides JVM bindings for desktop+Android; confirmed current coordinates/version
+# via repo1.maven.org's maven-metadata.xml for jolt-jni-MacOSX_ARM64 (2026-07-07).
+jolt-jni = "5.2.0"
+snaploader = "1.1.1-stable"
+oshi-core = "7.4.0"
 
 [libraries]
 wgpu4k = { module = "io.ygdrasil:wgpu4k", version.ref = "wgpu4k" }
@@ -73,6 +79,21 @@ lwjgl-opengl = { module = "org.lwjgl:lwjgl-opengl", version.ref = "lwjgl" }
 lwjgl-stb = { module = "org.lwjgl:lwjgl-stb", version.ref = "lwjgl" }
 recast4j-recast = { module = "org.recast4j:recast", version.ref = "recast4j" }
 recast4j-detour = { module = "org.recast4j:detour", version.ref = "recast4j" }
+# JVM library (platform-independent Java classes) -- desktop build only, this machine is
+# macOS ARM64. jolt-jni's desktop JVM library is released under 8 interchangeable artifact
+# IDs (one per native platform); MacOSX_ARM64 is the one whose matching native classifier
+# jar this dev machine also needs, so it's reused for both here.
+jolt-jni-desktop = { module = "com.github.stephengold:jolt-jni-MacOSX_ARM64", version.ref = "jolt-jni" }
+# Android ships a single self-contained AAR per build type (Java classes + all native ABIs),
+# unlike desktop's split JVM-library/native-library artifacts.
+jolt-jni-android = { module = "com.github.stephengold:jolt-jni-Android", version.ref = "jolt-jni" }
+# Extracts jolt-jni's native library (bundled inside the classified jar under
+# osx/aarch64/... etc.) to a temp dir and loads it -- see jolt-jni's own "add to an existing
+# project" doc for why this (rather than a bare System.loadLibrary) is the desktop-supported
+# loading mechanism.
+snaploader = { module = "io.github.electrostat-lab:snaploader", version.ref = "snaploader" }
+# snaploader's own platform-detection dependency (see its "add to an existing project" doc).
+oshi-core = { module = "com.github.oshi:oshi-core", version.ref = "oshi-core" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

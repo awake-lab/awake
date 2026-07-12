@@ -2449,6 +2449,54 @@ on a JVM-physics-binding repo mostly reflects a small market, not neglect):
   vendored as a submodule regardless of binding choice, since it's the upstream C++ library
   every option above ultimately wraps.
 
+**D5 slice 1 (2026-07-12): `awake:physics:api` + real desktop/Android `awake:backend:jolt`.**
+
+- `awake:physics:api` (`awake/physics/api/`) landed exactly as scoped above: `PhysicsWorld`,
+  `PhysicsShape` (`BoxShape`/`SphereShape`), `MotionType`, `BodyHandle` (a `value class`,
+  not a raw `Long` — new public API surface), `BodyTransform`, `RaycastHit`. Same 4-target
+  shape as `awake:engine:render-api` even though only desktop+Android have a real backend
+  yet — iOS/wasmJs just need to compile.
+- `awake:backend:jolt` (`awake/backend/jolt/`) implements `JoltPhysicsWorld` for real on
+  desktop + Android via `stephengold/jolt-jni` 5.2.0 (confirmed current via
+  `repo1.maven.org`'s `maven-metadata.xml`, not guessed). Desktop uses the JVM library
+  (`jolt-jni-MacOSX_ARM64`, no classifier) plus the matching native classifier jar
+  (`ReleaseSp`, loaded at runtime via `electrostatic4j:snaploader` per jolt-jni's own
+  onboarding doc). Android uses the self-contained `jolt-jni-Android` AAR.
+  - **Confirmed the hard way**: the published 5.2.0 `jolt-jni-Android:SpRelease` AAR's
+    `classes.jar` has been R8-shrunk to zero `.class` files (only its bundled Metal/Vulkan
+    shader resources for an unrelated soft-body demo survive) — presumably built with no
+    consumer keep-rules, so R8 treated the whole public API as unreachable. Switched to the
+    `SpDebug` AAR, which jolt-jni's own doc suggests as the starting point anyway.
+  - **Confirmed the hard way**: Kotlin executes property initializers and instance `init {}`
+    blocks in textual declaration order. An early version put `JoltNative.ensureLoaded()`
+    (native library load + `Jolt.newFactory()`/`registerTypes()`) inside the instance
+    `init {}` block, textually *below* the `tempAllocator: TempAllocator = TempAllocatorMalloc()`
+    property — so `TempAllocatorMalloc()`'s own native constructor ran first and threw
+    `UnsatisfiedLinkError` before the library was ever loaded. Fixed by moving the load call
+    into a `private companion object { init { ... } }`, which Kotlin always runs before any
+    instance member.
+  - iOS/wasmJs get an explicit `TODO()`-throwing `JoltPhysicsWorld` stub (per the binding
+    plan above, JoltC/JoltPhysics.js are separate, deferred slices) — just enough for those
+    targets to compile.
+  - `QuatEuler.kt`'s quaternion-to-Euler conversion (for `BodyTransform.rotation`) is a pure
+    function in `commonMain` (no jolt-jni type in its signature) so it's usable/derivable
+    without native bindings; its rotation order was derived to match the exact inverse of
+    jolt-jni's own `Quat.sEulerAngles(x, y, z)` construction (confirmed by symbolically
+    expanding jolt-jni's quaternion-multiply operator against `sEulerAngles`'s formula, then
+    numerically round-tripping arbitrary angles).
+- **Confirmed on real hardware (desktop, this dev machine, macOS Apple Silicon)**: a new
+  `awake:backend:jolt:desktopTest` (`JoltPhysicsWorldTest`) creates a real `JoltPhysicsWorld`,
+  drops a dynamic sphere from y=10 with no ground, steps it 60 times at a fixed 1/60s
+  timestep, and asserts the resulting fall distance is within 20% of the closed-form
+  semi-implicit-Euler estimate (`g·dt²·steps·(steps+1)/2` ≈ 4.987 m). Actual measured fall:
+  4.902 m — passes for real, not just compiles; this is the real jolt-jni step/readback loop
+  running end to end. All 4 targets of both new modules compile
+  (`compileKotlinDesktop`/`compileAndroidMain`/`compileKotlinIosArm64`/
+  `compileKotlinIosSimulatorArm64`/`compileKotlinWasmJs`), and a full `./gradlew build`
+  (excluding this repo's pre-existing, unrelated JDK-25-vs-toolchain-17 failures in
+  `awake:base`'s iOS/wasmJs test compilation and `samples:hello-cube`'s spotless check —
+  none of which touch physics code) has no new failures from this slice.
+
 ### D4 — Editor base
 **Decided: build on [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor)**
 (Compose Desktop shell + design system) rather than building from scratch.

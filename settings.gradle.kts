@@ -32,6 +32,8 @@ include(":awake:backend:vulkan")
 include(":awake:backend:vulkan:android-native")
 include(":awake:backend:webgpu")
 include(":awake:backend:vulkan-generator")
+include(":awake:physics:api")
+include(":awake:backend:jolt")
 include(":samples:hello-cube")
 include(":samples:hello-cube:androidApp")
 
