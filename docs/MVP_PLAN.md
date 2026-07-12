@@ -2854,6 +2854,57 @@ frame-timing races involved.
   (`detekt` fails on this module, but identically on a stashed pre-change tree too — a
   pre-existing, unrelated environment issue, not a regression from this feature.)
 
+#### D24 follow-up (2026-07-12): minimap-crash re-investigation using the debug channel
+
+Re-opened `CubeDemo`'s known, unresolved `showMinimap` crash (see the field's own doc comment
+history: toggling it on calls `renderToTexture` every frame and previously crashed within
+~30-60s with `VK_SUBOPTIMAL_KHR` out of `vkAcquireNextImageKHR` in the main swapchain — a
+prior session ruled out a command-buffer leak as the cause but never found the real one).
+Used the new `DebugControlServer` to drive the toggle live instead of a GUI click, and
+enabled Vulkan validation layers for the first time on this repro.
+
+- **Extended the debug protocol**: `{"type":"setMinimap","enabled":true}` (`DebugCommand.
+  SetMinimap`, `DemoCatalog.debugSetMinimap`, a new `DebugMinimapTarget` seam `CubeDemo`
+  implements, `minimapEnabled` added to `DebugSnapshot`) — same pattern as `DebugCameraTarget`.
+- **Enabling validation layers surfaced a real, unrelated, pre-existing bug first**:
+  `GraphicsDevice`'s device-creation path queried `vkEnumerateDeviceExtensionProperties`
+  per-instance-layer (a deprecated Vulkan 1.0 pattern the loader/ICD already ignore in
+  practice). As soon as any instance layer became discoverable on the host (validation layers
+  installed via `brew install vulkan-validationlayers`, scanned by the loader on macOS even
+  without `VK_LAYER_PATH` set), that per-layer query failed loader-side ("pLayerName is too
+  long or is badly formed"), cascading into `vkCreateDevice` itself failing with
+  `VK_ERROR_EXTENSION_NOT_PRESENT` — the app couldn't even start. Fixed by dropping the
+  per-layer query entirely (the plain, no-layer `deviceExtensions` query already returns the
+  physical device's real extension list; device-level layers are a legacy concept modern
+  loaders don't need this for).
+- **Found a second, real, independently-confirmed bug**: `GenericGameApplication.dispose()`
+  called `destroyBackend()` (destroying the `VkDevice`) *before* `game.dispose()`. But
+  `CubeDemo.dispose()`'s own teardown (`cubeMesh.destroy()`/`minimapMaterial.destroy()`/etc.,
+  all `vkDestroyBuffer`/`vkDestroyImage` calls) needs that device to still be alive — calling
+  them after it's destroyed is undefined behavior. Confirmed as a **real, reproducible
+  SIGSEGV** (not theoretical) via a validation-layer-instrumented run: the crash happened
+  natively inside `libvulkan.dylib`'s own `vkDestroyBuffer`, with the validation layer's log
+  immediately prior showing 14 objects the loader "couldn't find" — i.e. already-destroyed
+  device state. **Fixed by reversing the order** (`game.dispose()` first, `destroyBackend()`
+  second) in `GenericGameApplication.dispose()`.
+- **This dispose-order bug is very likely the actual cause of this session's earlier,
+  separately-reported "still crash on close" issue** (a prior `vkDeviceWaitIdle`-in-
+  `destroyBackend()` fix did not fully resolve that report) — the ordering bug reproduces on
+  *any* app close where `game.dispose()` owns live GPU resources, not specifically the
+  minimap. Not yet confirmed against that original report (would need the user to re-test),
+  but it is the first concretely-reproduced, root-caused close-time crash found this session.
+- **Minimap-toggle verification after both fixes**: driving `setMinimap: true` live via the
+  WebSocket channel and leaving it on ran **130+ seconds with no crash, no
+  `VK_SUBOPTIMAL_KHR`** — well past the originally-reported 30-60s window. However, the
+  validation-layer-enabled run's window closed unexpectedly early on repeated attempts (tens
+  of seconds in, cause not conclusively identified — a later run *without* validation layers
+  did not exhibit this early-closing behavior at all, suggesting validation-layer log-spam
+  overhead stalling the render thread rather than a real bug). **Because of that, the original
+  `VK_SUBOPTIMAL_KHR` trigger is not conclusively confirmed fixed** — only ruled out as *not*
+  being (solely) the dispose-order bug above. `showMinimap` stays `false` by default; flip to
+  `true` to keep exercising this path, and re-open the investigation if `VK_SUBOPTIMAL_KHR`
+  resurfaces now that the dispose-order crash it may have been masquerading as is gone.
+
 ### D4 — Editor base
 **Decided: build on [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor)**
 (Compose Desktop shell + design system) rather than building from scratch.

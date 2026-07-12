@@ -72,9 +72,24 @@ abstract class GenericGameApplication(
         game.resize(width.toFloat(), height.toFloat())
     }
 
+    /** [game] first, [destroyBackend] second -- reversed from an earlier version of this
+     * class. `game.dispose()` (e.g. `CubeDemo.dispose()`) tears down GAME-OWNED GPU
+     * resources (meshes/materials/render targets, all created via `Renderer.createMesh`/
+     * `createMaterial`/`createRenderTarget`) that were allocated against the *live*
+     * `GraphicsDevice` -- those teardown calls (`vkDestroyBuffer`/`vkDestroyImage`/etc.) are
+     * undefined behavior once [destroyBackend] has already destroyed the `VkDevice` they
+     * belong to. Confirmed as a **real, reproducible SIGSEGV** (not theoretical) via a
+     * Vulkan-validation-layer-instrumented run: `CubeDemo.dispose() -> Mesh.destroy() ->
+     * VulkanBuffers.vkDestroyBuffer` crashed the JVM natively inside `libvulkan.dylib`, with
+     * the validation layer's own log immediately prior showing 14 objects "couldn't find"/
+     * leaked against a device that had *already* been torn down by the old
+     * `destroyBackend()`-then-`game.dispose()` order. See docs/MVP_PLAN.md's D24 minimap-
+     * crash investigation entry for the full account (this was found while chasing a
+     * different, still-unresolved bug -- the two are not confirmed to be the same root
+     * cause, but this ordering bug is independently real and now fixed regardless). */
     final override fun dispose() {
-        if (isReady) destroyBackend()
         game.dispose()
+        if (isReady) destroyBackend()
     }
 
     /** Draws world-space debug lines (e.g. a frustum wireframe) this frame -- see

@@ -38,7 +38,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
  * demo-picker dropdown already staged this frame.
  */
 class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
-    Game, DebugReadout, OffscreenPreviewSource, DebugCameraTarget {
+    Game, DebugReadout, OffscreenPreviewSource, DebugCameraTarget, DebugMinimapTarget {
     private val fixedTimestepLoop = FixedTimestepLoop()
 
     private lateinit var renderer: Renderer
@@ -61,17 +61,33 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
     // UiContext.textureQuad) actually renders on screen, not just a clear color -- an
     // overhead camera of the same cube, drawn as a small quad in the top-right corner.
     //
-    // KNOWN ISSUE, confirmed by real desktop testing: toggling this on calls
-    // renderToTexture/readPixels every frame, and this reproducibly crashes the Vulkan
-    // backend within roughly 30-60 seconds with `VK_SUBOPTIMAL_KHR` out of
-    // vkAcquireNextImageKHR in the MAIN swapchain draw (not the offscreen pass itself) --
-    // confirmed NOT caused by the command-buffer-per-call leak this session already fixed
-    // (Renderer.runOffscreenCommands), since the crash reproduces identically after that
-    // fix, and confirmed to NOT happen at all with this toggle off (5+ minutes stable).
-    // Root cause not yet found -- some other resource/state is likely exhausted or raced
-    // by calling a second vkQueueSubmit+fence-wait every frame alongside the swapchain's
-    // own per-frame acquire/submit/present cycle. Defaults off so the shipped demo is
-    // stable; flip to `true` only to reproduce/debug this further.
+    // KNOWN ISSUE, previously confirmed by real desktop testing: toggling this on calls
+    // renderToTexture every frame, and this reportedly crashed the Vulkan backend within
+    // roughly 30-60 seconds with `VK_SUBOPTIMAL_KHR` out of vkAcquireNextImageKHR in the
+    // MAIN swapchain draw (not the offscreen pass itself) -- confirmed NOT caused by the
+    // command-buffer-per-call leak an earlier session fixed (Renderer.runOffscreenCommands).
+    //
+    // Re-investigated (see docs/MVP_PLAN.md's D24 entry) by driving this toggle live via
+    // DebugControlServer's `setMinimap` WebSocket command instead of a GUI click, with
+    // Vulkan validation layers enabled for the first time on this repro. That run did NOT
+    // reproduce the VK_SUBOPTIMAL_KHR message verbatim, but DID find a real, independent,
+    // reproducible bug: `GenericGameApplication.dispose()` was destroying the backend
+    // (VkDevice included) BEFORE calling `game.dispose()` -- so `CubeDemo.dispose()`'s
+    // `cubeMesh.destroy()`/etc. (which call vkDestroyBuffer/vkDestroyImage against a
+    // now-dead device) were undefined behavior, confirmed to reproducibly SIGSEGV inside
+    // libvulkan's own vkDestroyBuffer. Fixed (dispose order reversed -- see that class's
+    // doc comment). After the fix, driving this toggle on via the WebSocket channel and
+    // leaving it on ran stable for 130+ seconds (no crash, no VK_SUBOPTIMAL_KHR) under
+    // this investigation's conditions, well past the originally-reported 30-60s window.
+    //
+    // Left OFF by default anyway: the validation-layer run's window closed unexpectedly
+    // early each time (tens of seconds in, cause not conclusively identified -- possibly an
+    // artifact of validation-layer log-spam overhead stalling the render thread, since a
+    // later run WITHOUT validation layers did not exhibit early closing at all), so the
+    // exact original trigger for the reported VK_SUBOPTIMAL_KHR message is not confirmed
+    // fixed, only ruled out as NOT being (solely) this dispose-order bug. Flip to `true`
+    // to keep exercising this path; re-open the investigation if VK_SUBOPTIMAL_KHR
+    // resurfaces now that the dispose-order crash it may have been masquerading as is gone.
     private var showMinimap = false
     private lateinit var minimapTarget: RenderTarget
     private lateinit var minimapMaterial: Material
@@ -216,6 +232,11 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
     override fun getCameraCenter(): Vec3 = cameraComponent.camera.center
     override fun setCameraCenter(center: Vec3) {
         cameraComponent.camera.center = center
+    }
+
+    override fun isMinimapEnabled(): Boolean = showMinimap
+    override fun setMinimapEnabled(enabled: Boolean) {
+        showMinimap = enabled
     }
 
     private enum class CameraMode { ORBIT, FREE_FLY }

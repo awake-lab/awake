@@ -151,17 +151,23 @@ class GraphicsDevice {
         val deviceExtensions =
             Vulkan.vkEnumerateDeviceExtensionProperties(physicalDevice)
                 .map { it.extensionName }.toList()
-        val layerProperties = getAppLayerProps()
-        val layerDeviceExtProps = layerProperties.map { layer ->
-            Vulkan.vkEnumerateDeviceExtensionProperties(physicalDevice, layer)
-                .map { it.extensionName }.toList()
-        }.flatten()
-
+        // Deliberately NOT also querying vkEnumerateDeviceExtensionProperties(physicalDevice,
+        // layerName) per-layer (as an earlier version of this function did) -- device-level
+        // layers are a deprecated Vulkan 1.0 concept the loader/ICD already ignore in
+        // practice (a device's real extension list is layer-independent), and querying them
+        // per-layer is actively broken on at least this project's own dev/CI setup: found
+        // (2026-07-12, D24 minimap-crash investigation) that as soon as ANY instance layer
+        // is discoverable on the host (e.g. `brew install vulkan-validationlayers`, which on
+        // macOS ends up scanned even without VK_LAYER_PATH set), this call fails loader-side
+        // with "pLayerName is too long or is badly formed", which cascades into
+        // `vkCreateDevice` itself failing with VK_ERROR_EXTENSION_NOT_PRESENT -- i.e. the
+        // app couldn't even start. Skipping the per-layer query entirely avoids this without
+        // losing anything real (the plain, no-layer `deviceExtensions` query above already
+        // returns the physical device's actual extension list).
         val deviceInfo = VkDeviceCreateInfo(
             pQueueCreateInfos = queueInfos.toTypedArray(),
             pEnabledFeatures = arrayOf(features),
-            ppEnabledExtensionNames = (deviceExtensions + layerDeviceExtProps).distinct()
-                .toTypedArray()
+            ppEnabledExtensionNames = deviceExtensions.distinct().toTypedArray()
         )
         device = Vulkan.vkCreateDevice(physicalDevice, deviceInfo)
 

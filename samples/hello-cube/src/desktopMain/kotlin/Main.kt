@@ -94,6 +94,7 @@ private fun applyDebugCommand(demoCatalog: DemoCatalog, command: DebugCommand) {
         is DebugCommand.SwitchDemo -> demoCatalog.debugSwitchDemo(command.index)
         is DebugCommand.SetCameraEye -> demoCatalog.debugSetCameraEye(Vec3(command.x, command.y, command.z))
         is DebugCommand.SetCameraCenter -> demoCatalog.debugSetCameraCenter(Vec3(command.x, command.y, command.z))
+        is DebugCommand.SetMinimap -> demoCatalog.debugSetMinimap(command.enabled)
         DebugCommand.GetState -> Unit
     }
 }

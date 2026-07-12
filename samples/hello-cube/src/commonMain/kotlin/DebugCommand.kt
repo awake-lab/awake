@@ -24,6 +24,7 @@ sealed interface DebugCommand {
     data class SwitchDemo(val index: Int) : DebugCommand
     data class SetCameraEye(val x: Float, val y: Float, val z: Float) : DebugCommand
     data class SetCameraCenter(val x: Float, val y: Float, val z: Float) : DebugCommand
+    data class SetMinimap(val enabled: Boolean) : DebugCommand
     data object GetState : DebugCommand
 }
 
@@ -36,6 +37,8 @@ fun parseDebugCommand(text: String): DebugCommand? {
         "switchDemo" -> obj["index"]?.jsonPrimitive?.int?.let { DebugCommand.SwitchDemo(it) }
         "setCameraEye" -> obj.readVec3()?.let { (x, y, z) -> DebugCommand.SetCameraEye(x, y, z) }
         "setCameraCenter" -> obj.readVec3()?.let { (x, y, z) -> DebugCommand.SetCameraCenter(x, y, z) }
+        "setMinimap" -> obj["enabled"]?.jsonPrimitive?.contentOrNull?.toBooleanStrictOrNull()
+            ?.let { DebugCommand.SetMinimap(it) }
         "getState" -> DebugCommand.GetState
         else -> null
     }

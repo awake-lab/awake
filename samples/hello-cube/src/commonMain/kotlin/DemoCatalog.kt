@@ -190,6 +190,10 @@ class DemoCatalog : Game {
         (current as? DebugCameraTarget)?.setCameraCenter(center)
     }
 
+    fun debugSetMinimap(enabled: Boolean) {
+        (current as? DebugMinimapTarget)?.setMinimapEnabled(enabled)
+    }
+
     /** A snapshot of the current demo's name/HUD lines/camera -- see [DebugSnapshot]'s own
      * doc comment. `cameraEye`/`cameraCenter` are `null` only if [current] doesn't implement
      * [DebugCameraTarget] (neither shipped demo hits this today; both do). */
@@ -199,7 +203,8 @@ class DemoCatalog : Game {
             demoName = demos[currentIndex].first,
             debugLines = debugLines(),
             cameraEye = cameraTarget?.getCameraEye()?.toDebugVec3(),
-            cameraCenter = cameraTarget?.getCameraCenter()?.toDebugVec3()
+            cameraCenter = cameraTarget?.getCameraCenter()?.toDebugVec3(),
+            minimapEnabled = (current as? DebugMinimapTarget)?.isMinimapEnabled()
         )
     }
 
@@ -225,5 +230,6 @@ data class DebugSnapshot(
     val demoName: String,
     val debugLines: List<String>,
     val cameraEye: DebugVec3?,
-    val cameraCenter: DebugVec3?
+    val cameraCenter: DebugVec3?,
+    val minimapEnabled: Boolean?
 )
