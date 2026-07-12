@@ -14,12 +14,19 @@ const val PANEL_WIDTH = 200f
 const val PANEL_MARGIN = 20f
 fun panelX(viewportWidth: Float): Float = viewportWidth - PANEL_WIDTH - PANEL_MARGIN
 
-const val PANEL_ROW_DEMO_PICKER_Y = 20f
-const val PANEL_ROW_DEBUG_TOGGLE_Y = 60f
-const val PANEL_ROW_CAMERA_MODE_Y = 108f
-const val PANEL_ROW_FRUSTUM_Y = 148f
-const val PANEL_ROW_GRID_Y = 186f
-const val PANEL_ROW_MINIMAP_Y = 224f
-const val PANEL_ROW_AZIMUTH_Y = 266f
-const val PANEL_ROW_ELEVATION_Y = 302f
-const val PANEL_ROW_ZOOM_Y = 338f
+// Non-expanding rows (toggles/sliders) come first, both dropdowns last -- a UiContext
+// dropdown draws its option list BELOW its own header when expanded (one row per option,
+// same row height as the header), so placing a dropdown above other fixed-position widgets
+// meant its expanded list landed directly on top of them. Putting both dropdowns at the
+// bottom, with enough gap for each one's own max expansion (2 options here), means an open
+// dropdown only ever overlaps empty space below the panel, not another widget.
+const val PANEL_ROW_DEBUG_TOGGLE_Y = 20f
+const val PANEL_ROW_FRUSTUM_Y = 68f
+const val PANEL_ROW_GRID_Y = 106f
+const val PANEL_ROW_MINIMAP_Y = 144f
+const val PANEL_ROW_AZIMUTH_Y = 186f
+const val PANEL_ROW_ELEVATION_Y = 222f
+const val PANEL_ROW_ZOOM_Y = 258f
+// 2 options * 32f row height below its own header -- next row must start past that.
+const val PANEL_ROW_DEMO_PICKER_Y = 296f
+const val PANEL_ROW_CAMERA_MODE_Y = 400f
