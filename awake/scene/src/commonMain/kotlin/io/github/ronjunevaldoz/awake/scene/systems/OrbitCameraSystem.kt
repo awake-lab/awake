@@ -66,7 +66,12 @@ class OrbitCameraSystem(
     private var wasDragging = false
 
     override fun update(world: World, delta: Float) {
-        if (Input.pointerDown) {
+        // A UI widget (button/toggle/slider) already claimed this drag -- see
+        // Input.pointerCapturedByUi's doc comment. Treat the pointer as "not down" for
+        // drag-derived yaw/pitch purposes only; W/S zoom and auto-rotate below are
+        // independent of dragging and must keep working while a widget is being dragged.
+        val draggingPointer = Input.pointerDown && !Input.pointerCapturedByUi
+        if (draggingPointer) {
             if (wasDragging) {
                 val dx = Input.pointerX - lastPointerX
                 val dy = Input.pointerY - lastPointerY

@@ -194,7 +194,26 @@ class UiContext {
         primitives += UiDrawPrimitive.Texture(x, y, w, h, material)
     }
 
-    fun endFrame(): List<UiDrawPrimitive> = primitives.toList()
+    /** Publishes this frame's [activeId] state to [Input.pointerCapturedByUi] before handing
+     * back the frame's draw primitives, so scene-facing drag consumers (
+     * [io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem]/`FreeFlyCameraSystem`)
+     * know a widget already claimed the pointer this frame. Done here (end of the UI's own
+     * frame) rather than in [beginFrame] (start of the *next* UI frame) so the flag reflects
+     * "as of the widgets that just ran," not a stale value carried from two frames ago.
+     *
+     * This still isn't perfectly synchronous with the camera system's own read: `CubeDemo`'s
+     * `fixedTimestepLoop.advance` runs `fixedUpdate` (which is where `OrbitCameraSystem.update`
+     * reads [Input.pointerCapturedByUi]) *before* `render` (which is where `drawCatalogUi`
+     * calls the widgets that write it here). So a widget that first claims the pointer on
+     * frame N only suppresses the camera drag starting on frame N+1's fixed-update -- one
+     * tick of camera drag can still slip through on the very first frame a drag starts. This
+     * is the same well-known one-frame-of-lag trade-off any immediate-mode UI accepts when
+     * its output feeds a separately-ticked consumer; not worth restructuring the fixed/render
+     * split to close for a single frame's worth of drift. */
+    fun endFrame(): List<UiDrawPrimitive> {
+        Input.pointerCapturedByUi = activeId != null
+        return primitives.toList()
+    }
 
     /** Centers [label] (in [font]'s monospace cell metrics) within the ([x], [y], [w], [h])
      * rect -- used by [button]/[toggle]/[dropdown] to draw their own label, since a plain

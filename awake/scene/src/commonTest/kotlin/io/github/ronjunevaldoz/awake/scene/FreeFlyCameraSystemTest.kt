@@ -18,6 +18,7 @@ class FreeFlyCameraSystemTest {
     fun resetInput() {
         Input.clearKeys()
         Input.setPointer(down = false, x = 0f, y = 0f)
+        Input.pointerCapturedByUi = false
     }
 
     private fun newCamera() = Camera(
@@ -87,6 +88,39 @@ class FreeFlyCameraSystemTest {
 
         assert(camera.camera.center.x != centerBeforeDrag.x || camera.camera.center.z != centerBeforeDrag.z) {
             "expected dragging to change the look direction"
+        }
+    }
+
+    @Test
+    fun pointerCapturedByUiSuppressesLookButNotWhenReleased() {
+        val world = World()
+        val camera = newCamera()
+        val system = FreeFlyCameraSystem(camera)
+
+        // A UI widget has claimed the pointer -- the same drag motion that would otherwise
+        // change look direction (see dragChangesLookDirection) must be suppressed.
+        Input.pointerCapturedByUi = true
+        Input.setPointer(down = true, x = 100f, y = 100f)
+        system.update(world, 0f)
+        val centerBeforeDrag = Vec3(camera.camera.center.x, camera.camera.center.y, camera.camera.center.z)
+
+        Input.setPointer(down = true, x = 150f, y = 140f)
+        system.update(world, 0f)
+
+        assertEquals(centerBeforeDrag.x, camera.camera.center.x, absoluteTolerance = 1e-6f)
+        assertEquals(centerBeforeDrag.z, camera.camera.center.z, absoluteTolerance = 1e-6f)
+
+        // Release the UI's claim -- the same kind of drag now DOES change look direction.
+        Input.pointerCapturedByUi = false
+        Input.setPointer(down = true, x = 150f, y = 140f)
+        system.update(world, 0f)
+        val centerAfterRelease = Vec3(camera.camera.center.x, camera.camera.center.y, camera.camera.center.z)
+
+        Input.setPointer(down = true, x = 200f, y = 180f)
+        system.update(world, 0f)
+
+        assert(camera.camera.center.x != centerAfterRelease.x || camera.camera.center.z != centerAfterRelease.z) {
+            "expected drag to change look direction once pointerCapturedByUi is released"
         }
     }
 

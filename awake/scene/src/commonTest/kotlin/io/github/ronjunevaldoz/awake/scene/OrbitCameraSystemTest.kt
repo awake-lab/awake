@@ -19,6 +19,7 @@ class OrbitCameraSystemTest {
     fun resetInput() {
         Input.clearKeys()
         Input.setPointer(down = false, x = 0f, y = 0f)
+        Input.pointerCapturedByUi = false
     }
 
     private fun newCamera() = Camera(
@@ -103,6 +104,46 @@ class OrbitCameraSystemTest {
         val distanceAfter = camera.camera.eye.length3()
         assert(kotlin.math.abs(distanceBefore - distanceAfter) < 1e-3f) {
             "expected orbit distance to stay constant: before=$distanceBefore after=$distanceAfter"
+        }
+    }
+
+    @Test
+    fun pointerCapturedByUiSuppressesDragButNotWhenReleased() {
+        val world = World()
+        val target = Transform(position = Vec3(0f, 0f, 0f))
+        val camera = newCamera()
+        val system = OrbitCameraSystem(target, camera, initialDistance = 5f)
+
+        // A UI widget (e.g. a slider) has claimed the pointer this "frame" -- the same drag
+        // motion that would otherwise orbit the camera (see dragRotatesCameraAroundTarget)
+        // must NOT change yaw/pitch while Input.pointerCapturedByUi is true.
+        Input.pointerCapturedByUi = true
+        Input.setPointer(down = true, x = 100f, y = 100f)
+        system.update(world, 0f)
+        val yawBefore = system.yaw
+        val pitchBefore = system.pitch
+
+        Input.setPointer(down = true, x = 150f, y = 140f)
+        system.update(world, 0f)
+
+        assertEquals(yawBefore, system.yaw, "yaw must not change while pointer is captured by UI")
+        assertEquals(pitchBefore, system.pitch, "pitch must not change while pointer is captured by UI")
+
+        // Release the UI's claim -- the exact same kind of drag now DOES rotate the camera,
+        // proving the suppression above was specifically caused by pointerCapturedByUi, not
+        // some other unrelated state change.
+        Input.pointerCapturedByUi = false
+        Input.setPointer(down = true, x = 150f, y = 140f)
+        system.update(world, 0f)
+        val yawAfterRelease = system.yaw
+        val pitchAfterRelease = system.pitch
+
+        Input.setPointer(down = true, x = 200f, y = 180f)
+        system.update(world, 0f)
+
+        assert(system.yaw != yawAfterRelease || system.pitch != pitchAfterRelease) {
+            "expected drag to change yaw/pitch once pointerCapturedByUi is released: " +
+                "yaw before=$yawAfterRelease after=${system.yaw}, pitch before=$pitchAfterRelease after=${system.pitch}"
         }
     }
 }

@@ -30,7 +30,11 @@ class FreeFlyCameraSystem(
     private var wasDragging = false
 
     override fun update(world: World, delta: Float) {
-        if (Input.pointerDown) {
+        // A UI widget already claimed this drag -- see Input.pointerCapturedByUi's doc
+        // comment. Only the drag-derived look (yaw/pitch) is skipped; WASD movement below is
+        // independent of dragging and must keep working while a widget is being dragged.
+        val draggingPointer = Input.pointerDown && !Input.pointerCapturedByUi
+        if (draggingPointer) {
             if (wasDragging) {
                 val dx = Input.pointerX - lastPointerX
                 val dy = Input.pointerY - lastPointerY

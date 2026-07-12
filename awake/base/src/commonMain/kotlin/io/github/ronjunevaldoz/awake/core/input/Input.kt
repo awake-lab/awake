@@ -49,6 +49,21 @@ object Input {
     var pointerY: Float = 0f
         private set
 
+    /** Set by [io.github.ronjunevaldoz.awake.ui.UiContext] (not a platform input callback,
+     * unlike every other field here) whenever a UI widget's `activeId` is non-null this
+     * frame -- i.e. some widget already claimed the current click/drag. Scene-facing pointer
+     * consumers that derive a drag delta from [pointerDown]/[pointerX]/[pointerY]
+     * ([io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem]/
+     * [io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem]) should treat the
+     * pointer as "not really down" for drag purposes while this is `true`, so dragging a
+     * slider/button doesn't simultaneously drag the orbit/free-fly camera underneath it.
+     * `@Volatile` for the same cross-thread-write reason as [pointerDown] et al., even though
+     * in practice the UI runs on the same thread that reads this. Public `var` (not
+     * `private set`) since [UiContext] -- a different module -- is the writer, not a
+     * platform callback living in this same file. */
+    @Volatile
+    var pointerCapturedByUi: Boolean = false
+
     fun isKeyDown(key: Key): Boolean = keysDown.contains(key)
 
     /** Called only by platform input callbacks (GLFW key callback, Android
