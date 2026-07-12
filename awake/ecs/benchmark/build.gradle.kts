@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-vulkan-generator
+ * Awake.awake-ecs-benchmark
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -19,20 +19,29 @@
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    application
+    alias(libs.plugins.kotlinx.benchmark)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
 }
 
-sourceSets["main"].kotlin.srcDir("src/main/kotlin")
-sourceSets["main"].resources.srcDir("awake-backend-vulkan/src/main/cpp/vulkan-kotlin/")
-
-application { // Specify the main class using the application plugin
-    mainClass.set("io.github.ronjunevaldoz.awake.vulkan_generator.MainKt")
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
-    implementation(project(":awake-backend-vulkan"))
-    implementation(kotlin("reflect"))
+    implementation(project(":awake:base"))
+    implementation(project(":awake:ecs"))
+    implementation(project(":awake:scene"))
+    implementation(project(":awake:backend:vulkan"))
+    implementation(libs.fleks)
+    implementation(libs.artemis.odb)
+    implementation(libs.ashley)
+    implementation(libs.kotlinx.benchmark.runtime)
+}
+
+benchmark {
+    targets {
+        register("main")
+    }
 }

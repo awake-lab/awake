@@ -59,7 +59,7 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 # earlier because that refactor's own verification used iOS Simulator, not this module's
 # actual desktop run tasks.
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
-# Wraps browser fetch()/DOM APIs for Kotlin/Wasm -- used by awake-base's wasmJs
+# Wraps browser fetch()/DOM APIs for Kotlin/Wasm -- used by awake:base's wasmJs
 # readResourceBytes actual (see docs/MVP_PLAN.md's web-demo decision log entry).
 kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinx-browser" }
 detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }

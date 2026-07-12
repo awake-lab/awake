@@ -6,47 +6,115 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library.kmp)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.vanniktech.publish)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
 }
 
+private val lwjglVersion = "3.3.6"
+
+private val lwjglNatives = Pair(
+    System.getProperty("os.name")!!,
+    System.getProperty("os.arch")!!
+).let { (name, arch) ->
+    when {
+        arrayOf("Linux", "FreeBSD", "SunOS", "Unit").any { name.startsWith(it) } ->
+            if (arrayOf("arm", "aarch64").any { arch.startsWith(it) }) {
+                "natives-linux${if (arch.contains("64") || arch.startsWith("armv8")) "-arm64" else "-arm32"}"
+            } else {
+                "natives-linux"
+            }
+
+        arrayOf("Mac OS X", "Darwin").any { name.startsWith(it) } ->
+            "natives-macos${if (arch.startsWith("aarch64")) "-arm64" else ""}"
+
+        arrayOf("Windows").any { name.startsWith(it) } ->
+            if (arch.contains("64")) {
+                "natives-windows${if (arch.startsWith("aarch64")) "-arm64" else ""}"
+            } else {
+                "natives-windows-x86"
+            }
+
+        else -> throw Error("Unrecognized or unsupported platform. Please set \"lwjglNatives\" manually")
+    }
+}
+
+private fun lwjgl(module: String? = null, native: Boolean = false): String {
+    val modulePath = when (module) {
+        "lwjgl" -> ":$module"
+        null -> ""
+        else -> ":lwjgl-$module"
+    }
+    val coordinates = "org.lwjgl$modulePath:$lwjglVersion"
+    return if (native) {
+        "$coordinates:$lwjglNatives"
+    } else {
+        coordinates
+    }
+}
+
 kotlin {
     jvmToolchain(17)
 
     android {
-        namespace = "io.github.ronjunevaldoz.awake.core"
+        namespace = "io.github.ronjunevaldoz.awake.opengl"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
     }
+    val iosArm64 = iosArm64()
+    val iosSimulatorArm64 = iosSimulatorArm64()
 
     // iosX64 (Intel simulator) dropped: Compose Multiplatform stopped publishing it
     // after 1.11.0-alpha01 (Apple Silicon only going forward)
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
-            baseName = "awake-core"
+    val appleTargets = listOf(
+        iosArm64,
+        iosSimulatorArm64
+    )
+
+    appleTargets.forEach { target ->
+        with(target) {
+            binaries {
+                framework {
+                    baseName = "awake-opengl"
+                }
+            }
         }
     }
 
     jvm("desktop")
 
-    // Web demo (see docs/MVP_PLAN.md's decision log): demo/SceneRuntimeHost.kt
-    // (awake-demo:shared, commonMain) uses Input/Key/FixedTimestepLoop from this module
-    // and is reused by the wasmJs-only WebGpuApplication.
-    wasmJs {
-        browser()
-    }
-
     sourceSets {
         commonMain.dependencies {
-            api(project(":awake-base"))
+            // AwakeContext/Config/rendering wrappers need Bitmap/readResourceBytes/Mat4 --
+            // see docs/MVP_PLAN.md's Decision Log, D11 follow-up, for the split this module
+            // boundary comes from.
+            implementation(project(":awake:base"))
+            // AwakeContext.init mirrors fps/ups into EngineConfigHolder so awake-engine's
+            // GameLoop actuals keep working without depending on this (or any) backend.
+            implementation(project(":awake:engine"))
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.components.resources)
+            implementation(libs.napier)
+            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+        }
+        getByName("desktopMain").dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation(project.dependencies.platform(lwjgl("bom")))
+            implementation(lwjgl("lwjgl"))
+            implementation(lwjgl("glfw"))
+            implementation(lwjgl("opengl"))
+            implementation(lwjgl("stb"))
+            implementation(lwjgl("lwjgl", native = true))
+            implementation(lwjgl("glfw", native = true))
+            implementation(lwjgl("opengl", native = true))
+            implementation(lwjgl("stb", native = true))
         }
     }
 }
@@ -104,8 +172,8 @@ mavenPublishing {
     )
 
     pom {
-        name.set("Awake")
-        description.set("Cross-platform app lifecycle: game loop, Application contract, surface glue")
+        name.set("Awake OpenGL")
+        description.set("Awake's legacy OpenGL rendering backend")
         url.set("https://ronjunevaldoz.github.io/awake")
         licenses {
             license {

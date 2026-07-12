@@ -36,7 +36,7 @@ kotlin {
     // draw path (DynamicMesh/UiRenderPipeline) against this module's UiDrawPrimitive.
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":awake-base"))
+            implementation(project(":awake:base"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

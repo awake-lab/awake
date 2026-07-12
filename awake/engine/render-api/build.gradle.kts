@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-engine-game
+ * Awake.awake-engine-render-api
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -29,7 +29,7 @@ kotlin {
     jvmToolchain(17)
 
     android {
-        namespace = "io.github.ronjunevaldoz.awake.engine.application"
+        namespace = "io.github.ronjunevaldoz.awake.render"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
     }
@@ -39,7 +39,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "awake-engine-game"
+            baseName = "awake-engine-render-api"
         }
     }
 
@@ -49,20 +49,21 @@ kotlin {
         browser()
     }
 
-    // GenericGameApplication.kt: the backend-neutral render bootstrap that
-    // VulkanGameApplication (awake-backend-vulkan) and WebGpuGameApplication
-    // (awake-backend-webgpu) both extend, plus the Game interface a game implements and
-    // injects into it -- deliberately has zero ECS/scene-graph/UI knowledge (see
-    // docs/MVP_PLAN.md's decision log, "GenericGameApplication a standalone render
-    // bootstrap").
+    // No platform-specific code at all in this module (see docs/MVP_PLAN.md's module
+    // restructuring notes) -- every declaration here is a plain interface/data class,
+    // implemented by each backend module (awake-vulkan today; a future awake-backend-webgpu
+    // once slice 2 physically splits that out).
     sourceSets {
         commonMain.dependencies {
-            // Application, FixedTimestepLoop (via awake-base transitively).
-            api(project(":awake-engine"))
-            // Renderer/LineSegment -- Game.ready(renderer)'s parameter type and
-            // drawDebugLines()'s plumbing, nothing scene/ECS-specific.
-            api(project(":awake-engine-render-api"))
-            implementation(libs.kotlinx.coroutines.core)
+            // DrawCall/Renderer.draw() take Mat4/Camera (portable math), and the resource-
+            // loading `expect fun`s some backends' Texture implementations need come from
+            // awake-base too.
+            implementation(project(":awake:base"))
+            // api, not implementation: Renderer.drawUi(primitives: List<UiDrawPrimitive>)
+            // exposes UiDrawPrimitive in this module's own public interface, so consumers
+            // implementing Renderer (awake-backend-vulkan, awake-backend-webgpu) need it
+            // visible transitively.
+            api(project(":awake:engine:ui"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

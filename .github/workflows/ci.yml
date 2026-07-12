@@ -40,26 +40,26 @@ jobs:
         run: ./gradlew detekt
 
       - name: Build Android demo (Vulkan JNI regression gate)
-        run: ./gradlew :awake-demo:androidApp:assembleDebug
+        run: ./gradlew :samples:hello-cube:androidApp:assembleDebug
 
       - name: Build desktop demo
-        run: ./gradlew :awake-demo:desktopApp:jvmJar
+        run: ./gradlew :samples:hello-cube:desktopJar
 
       - name: Build vulkan generator
-        run: ./gradlew :awake-vulkan-generator:assemble
+        run: ./gradlew :awake:backend:vulkan-generator:assemble
 
       - name: Upload demo APK
         uses: actions/upload-artifact@v4
         with:
           name: awake-demo-debug-apk
-          path: awake-demo/androidApp/build/outputs/apk/debug/*.apk
+          path: samples/hello-cube/androidApp/build/outputs/apk/debug/*.apk
           retention-days: 7
 
   # Runner GPUs aren't available on GitHub-hosted runners, so this uses Mesa's lavapipe
   # (a real, fully-conformant software Vulkan implementation -- not a stub) to run the
   # actual vkCreateInstance/vkDestroyInstance smoke test (VulkanDesktopNativeSmokeTest)
   # headlessly. Separate job (not steps in `build` above) since it needs its own apt
-  # packages and is the only job that builds awake-vulkan's desktop-native C++ library.
+  # packages and is the only job that builds awake:backend:vulkan's desktop-native C++ library.
   desktop-vulkan-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -89,7 +89,7 @@ jobs:
           sudo apt-get install -y libvulkan-dev libglfw3-dev mesa-vulkan-drivers
 
       - name: Build desktop native Vulkan library
-        run: ./gradlew :awake-vulkan:buildDesktopNative
+        run: ./gradlew :awake:backend:vulkan:buildDesktopNative
 
       - name: Desktop Vulkan smoke test (real vkCreateInstance via lavapipe)
-        run: ./gradlew :awake-vulkan:desktopTest
+        run: ./gradlew :awake:backend:vulkan:desktopTest

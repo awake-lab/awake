@@ -26,10 +26,10 @@ android {
 
 dependencies {
     // VulkanView (awake-engine) comes in transitively via sample-hello-cube's appMain
-    // `api(project(":awake-engine"))` -- must resolve through this same edge, not a second
+    // `api(project(":awake:engine"))` -- must resolve through this same edge, not a second
     // direct dependency, or Gradle can resolve the two to different variants and produce a
     // class-identity mismatch at compile time.
-    implementation(project(":sample-hello-cube"))
+    implementation(project(":samples:hello-cube"))
     // Theme.AppCompat.Light.NoActionBar (AndroidManifest.xml) needs this on the classpath --
     // sample-hello-cube's own androidMain (unlike awake-demo/shared's) doesn't pull it in.
     implementation(libs.androidx.appcompat)

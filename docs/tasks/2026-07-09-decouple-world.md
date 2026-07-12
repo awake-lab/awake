@@ -10,7 +10,7 @@ place.
 - `EntityArena`, `ComponentRegistry`, and `QueryCache` are now extracted.
 - `World` delegates lifecycle, component storage/pooling, and query cache state to those
   helpers.
-- `:awake-ecs:allTests` and `:awake-scene:desktopTest` both pass after the split.
+- `:awake:ecs:allTests` and `:awake:scene:desktopTest` both pass after the split.
 - The churn benchmark was rerun on JDK 17; Awake is still a little behind Fleks at both
   10k and 100k, so the scorecard stays untouched for now.
 
@@ -95,9 +95,9 @@ families only, rather than absorbing more `World` responsibilities.
 
 ## Validation
 
-- `:awake-ecs:allTests`
-- `:awake-scene:desktopTest`
-- `:awake-ecs-benchmark:mainBenchmark` filtered to the family churn cases
+- `:awake:ecs:allTests`
+- `:awake:scene:desktopTest`
+- `:awake:ecs:benchmark:mainBenchmark` filtered to the family churn cases
 
 ## Done When
 

@@ -221,7 +221,7 @@ gameplay is proven" (see Sequencing rationale above).
 
 > **Partial today**: `awake-ecs`/`awake-scene` already have real unit-test suites
 > (`SceneLoaderTest`, ECS family/query tests, the lavapipe Vulkan smoke test in
-> `awake-backend-vulkan:desktopTest`) — but none of it is simulation-level (running the
+> `awake:backend:vulkan:desktopTest`) — but none of it is simulation-level (running the
 > actual fixed-timestep loop headlessly across many ticks and asserting on final state),
 > which is what this item means for an MMORPG's server-authoritative simulation.
 

@@ -6,7 +6,7 @@
 > each commit actually did at the time — search the current source for the new names.
 
 > Current matrix below: independent verification run, 2026-07-10, on `Rons-MacBook-Pro-2.local`
-> via `./gradlew :awake-ecs-benchmark:mainBenchmark`, 1 fork, 5 warmup iterations, 5
+> via `./gradlew :awake:ecs:benchmark:mainBenchmark`, 1 fork, 5 warmup iterations, 5
 > measurement iterations, 1 second per iteration -- run solo (no other JMH process or
 > benchmark-affecting build competing for CPU) specifically to sanity-check the previous
 > commit's numbers, which showed unusually large swings in Artemis-odb's family-churn score
@@ -53,7 +53,7 @@ four Awake/Fleks benchmarks directly against the generated JMH jar with 3 forks 
 10 measurement) iterations at 1s each -- 30 measurement samples per cell instead of 5:
 
 ```
-java -jar awake-ecs-benchmark/build/benchmarks/main/jars/awake-ecs-benchmark-main-jmh-1.0.0-SNAPSHOT-JMH.jar \
+java -jar awake/ecs/benchmark/build/benchmarks/main/jars/benchmark-main-jmh-1.0.0-SNAPSHOT-JMH.jar \
   "(awake|fleks)(ComponentAddRemove|FamilyChurn)$" -f 3 -wi 8 -i 10 -r 1s -w 1s
 ```
 
@@ -178,7 +178,7 @@ breakdown before the fix:
 | `ArrayDeque.addLast` | 0.8% |
 | **Total** | **~12.3%** |
 
-**Fix**: rewrote `ComponentPool` (`awake-ecs/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ecs/Pool.kt`)
+**Fix**: rewrote `ComponentPool` (`awake/ecs/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ecs/Pool.kt`)
 to use a plain growable `Array<Any?>` + `size` counter instead of `ArrayDeque` -- direct
 `items[size]` indexing for push/pop, no wraparound math. Re-profiling the same benchmark
 after the change shows the equivalent cost (now attributed to `ComponentPool.obtain`/`free`/
@@ -202,7 +202,7 @@ two independent dense sparse-sets (the store's and the family cache's) per struc
 
 **Verdict**:
 - The `ComponentPool` fix is real, verified via profiler, zero-regression (26/26
-  `:awake-ecs:desktopTest` still passing, including the existing multi-instance pool-reuse
+  `:awake:ecs:desktopTest` still passing, including the existing multi-instance pool-reuse
   test `pooledTypeIdFamilyChurnKeepsMembershipStableAcrossRemoveReaddAndDestroy`), and kept --
   it benefits every pooled-component code path in the module, not just this benchmark, even
   though it wasn't large enough to move this specific noisy top-line number today.
@@ -284,12 +284,12 @@ checked out at the pre-change commit so the working tree stayed untouched, 1 for
 | 10k | 12,478.388 ops/s | 16,856.988 ops/s | +35.1% |
 | 100k | 1,353.519 ops/s | 1,677.848 ops/s | +24.0% |
 
-Full-suite rerun after these changes (`:awake-ecs-benchmark:mainBenchmark`, full matrix,
+Full-suite rerun after these changes (`:awake:ecs:benchmark:mainBenchmark`, full matrix,
 same params) showed every other row within JMH's own confidence intervals of the prior
 run -- expected, since `Family1Cache`/`Family2Cache`/`ComponentRegistry`'s add/remove paths
 weren't touched. See "Current matrix" above for the refreshed numbers.
 
-Verified `:awake-ecs:desktopTest` (`EcsOptimizationTest`, `FamilySpecTest`, `WorldTest`) --
+Verified `:awake:ecs:desktopTest` (`EcsOptimizationTest`, `FamilySpecTest`, `WorldTest`) --
 26/26 passing, no behavior change to query results, ordering, or family membership.
 
 ## Absolute Lead & Direct Store Caching (2026-07-09)
@@ -303,8 +303,8 @@ Verified `:awake-ecs:desktopTest` (`EcsOptimizationTest`, `FamilySpecTest`, `Wor
    `ComponentStore`s they monitor, reducing `World` lookup overhead during family updates.
 4. **Signature guard**: component signatures are backed by one `Long`, so `World` now fails
    clearly after 64 component types instead of silently colliding signature bits.
-5. **Verified correctness**: `:awake-ecs:allTests` passes on desktop and iOS simulator;
-   `:awake-scene:desktopTest` also passes.
+5. **Verified correctness**: `:awake:ecs:allTests` passes on desktop and iOS simulator;
+   `:awake:scene:desktopTest` also passes.
 6. **Churn add-path trim**: `Family1Cache` and `Family2Cache` now append directly on new
    component inserts, because `World.add(..., component)` already routes replacements to
    `replaceComponent(...)`. That removes a redundant membership probe from the churn hot path.

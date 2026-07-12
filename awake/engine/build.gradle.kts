@@ -1,22 +1,3 @@
-/*
- * Awake
- * Awake.awake-scene
- *
- * Copyright (c) ronjunevaldoz 2023.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SourcesJar
@@ -24,7 +5,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.library.kmp)
     alias(libs.plugins.vanniktech.publish)
     id("awake.dokka-convention")
@@ -36,67 +16,45 @@ kotlin {
     jvmToolchain(17)
 
     android {
-        namespace = "io.github.ronjunevaldoz.awake.scene"
+        namespace = "io.github.ronjunevaldoz.awake.core"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
     }
 
+    // iosX64 (Intel simulator) dropped: Compose Multiplatform stopped publishing it
+    // after 1.11.0-alpha01 (Apple Silicon only going forward)
     listOf(
         iosArm64(),
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "awake-scene"
+            baseName = "awake-core"
         }
     }
 
     jvm("desktop")
 
     // Web demo (see docs/MVP_PLAN.md's decision log): demo/SceneRuntimeHost.kt
-    // (awake-demo:shared, commonMain) depends on this module and is reused by the
-    // wasmJs-only WebGpuApplication.
+    // (awake-demo:shared, commonMain) uses Input/Key/FixedTimestepLoop from this module
+    // and is reused by the wasmJs-only WebGpuApplication.
     wasmJs {
         browser()
     }
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":awake-base"))
-            api(project(":awake-ecs"))
-            // Module restructuring slice 1 (see docs/MVP_PLAN.md): RenderSystem/MeshRenderer
-            // only ever touch the backend-neutral Mesh/Material/Renderer/DrawCall contract,
-            // never awake-vulkan's concrete Vulkan bindings -- depending on just the
-            // interface module (instead of all of awake-vulkan) is the actual point of this
-            // restructuring.
-            api(project(":awake-engine-render-api"))
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kotlinx.coroutines.core)
+            api(project(":awake:base"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation(libs.kotlinx.coroutines.test)
-        }
-        // MVP1a NavMesh slice (see docs/MMORPG_ROADMAP.md): recast4j is a plain-Java
-        // Recast/Detour port with zero native code -- it only runs on the JVM, so it's
-        // scoped to desktop+Android's own source sets rather than commonMain (the same
-        // "JVM-only dependency can't live in commonMain" lesson wgpu4k/kotlinx-browser
-        // already taught this project, just for the opposite platform set). iOS/wasmJs get
-        // a `null`-returning actual instead (see navigation/DemoNavMesh.kt).
-        named("desktopMain") {
-            dependencies {
-                implementation(libs.recast4j.recast)
-                implementation(libs.recast4j.detour)
-            }
-        }
-        named("androidMain") {
-            dependencies {
-                implementation(libs.recast4j.recast)
-                implementation(libs.recast4j.detour)
-            }
         }
     }
 }
 
+// iOS artifacts can only be built/signed for real on a macOS host -- gate those
+// publications so a non-mac CI runner (or a mac runner not doing the release) doesn't
+// attempt them. All items included here will be uploaded once isMainHost=true.
+// ./gradlew publishToMavenCentral -PisMainHost=true
 val publicationsFromMainHost =
     listOf("android", "desktop", "iosArm64", "iosSimulatorArm64", "kotlinMultiplatform")
 
@@ -113,6 +71,13 @@ publishing {
     }
 }
 
+// Sonatype's legacy OSSRH staging API (s01.oss.sonatype.org) was sunset in June 2025; the
+// vanniktech plugin publishes through the current Central Portal instead. Its credentials
+// are a Central Portal user token (from central.sonatype.com/account), not the old Sonatype
+// JIRA username/password. The plugin reads them under its own property names
+// (mavenCentralUsername/mavenCentralPassword/signingInMemoryKey*) via normal Gradle project
+// property resolution, so local dev just needs them in local.properties and CI needs them
+// as ORG_GRADLE_PROJECT_-prefixed environment variables.
 val secretPropsFile = rootProject.file("local.properties")
 if (secretPropsFile.exists()) {
     secretPropsFile.reader().use {
@@ -125,6 +90,8 @@ if (secretPropsFile.exists()) {
 }
 
 mavenPublishing {
+    // No host parameter as of plugin 0.36+: Sonatype's legacy OSSRH staging API is gone, so
+    // Central Portal is the only (and therefore default) target.
     publishToMavenCentral()
     signAllPublications()
 
@@ -137,8 +104,8 @@ mavenPublishing {
     )
 
     pom {
-        name.set("Awake Scene")
-        description.set("Awake ECS scene components and systems")
+        name.set("Awake")
+        description.set("Cross-platform app lifecycle: game loop, Application contract, surface glue")
         url.set("https://ronjunevaldoz.github.io/awake")
         licenses {
             license {

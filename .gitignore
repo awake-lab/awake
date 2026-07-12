@@ -16,9 +16,9 @@ awake-demo/iosApp/Pods/*
 awake-demo/iosApp/iosApp.xcworkspace/*
 awake-demo/iosApp/iosApp.xcodeproj/*
 !awake-demo/iosApp/iosApp.xcodeproj/project.pbxproj
-sample-hello-cube/iosApp/iosApp.xcworkspace/*
-sample-hello-cube/iosApp/iosApp.xcodeproj/*
-!sample-hello-cube/iosApp/iosApp.xcodeproj/project.pbxproj
+samples/hello-cube/iosApp/iosApp.xcworkspace/*
+samples/hello-cube/iosApp/iosApp.xcodeproj/*
+!samples/hello-cube/iosApp/iosApp.xcodeproj/project.pbxproj
 shared/shared.podspec
-/awake-backend-vulkan/build-native/*
+/awake/backend/vulkan/build-native/*
 .playwright-mcp/

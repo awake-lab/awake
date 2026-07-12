@@ -30,10 +30,10 @@ kotlin {
     // downstream consumer's own framework link step).
     val xcf = XCFramework("Sample")
     val moltenVkStaticDir = mapOf(
-        "iosArm64" to project(":awake-backend-vulkan").file(
+        "iosArm64" to project(":awake:backend:vulkan").file(
             "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64"
         ),
-        "iosSimulatorArm64" to project(":awake-backend-vulkan").file(
+        "iosSimulatorArm64" to project(":awake:backend:vulkan").file(
             "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/" +
                 "ios-arm64_x86_64-simulator"
         ),
@@ -76,11 +76,11 @@ kotlin {
         // entry points below.
         commonMain.dependencies {
             // The Game interface SampleGame implements + Renderer.createMesh/createMaterial.
-            implementation(project(":awake-engine-game"))
+            implementation(project(":awake:engine:game"))
             // SceneRuntime/MeshRenderer/OrbitCameraSystem/FreeFlyCameraSystem, and
             // transitively awake-engine-render-api's Renderer/Mesh/Material/MeshGeometry/
             // TextureAsset/LineSegment interfaces + awake-engine-ui's UiContext/BitmapFont.
-            implementation(project(":awake-scene"))
+            implementation(project(":awake:scene"))
             // DemoCatalog.switchTo launches its own coroutine to await a demo's suspend
             // Game.ready() off render()'s non-suspend call site.
             implementation(libs.kotlinx.coroutines.core)
@@ -92,8 +92,8 @@ kotlin {
             dependsOn(commonMain.get())
         }
         appMain.dependencies {
-            implementation(project(":awake-engine"))
-            implementation(project(":awake-backend-vulkan"))
+            implementation(project(":awake:engine"))
+            implementation(project(":awake:backend:vulkan"))
         }
         named("desktopMain") {
             dependsOn(appMain)
@@ -108,19 +108,19 @@ kotlin {
                 // awake-ecs's World (and its ambiguous ObjC-exported `family()` overloads)
                 // to leak into the iOS XCFramework's generated header, which doesn't happen
                 // when these stay `implementation` there, matching awake-demo/shared.
-                api(project(":awake-engine"))
-                api(project(":awake-backend-vulkan"))
+                api(project(":awake:engine"))
+                api(project(":awake:backend:vulkan"))
             }
         }
         named("iosMain") { dependsOn(appMain) }
 
         named("wasmJsMain") {
             dependencies {
-                implementation(project(":awake-engine"))
-                implementation(project(":awake-backend-webgpu"))
+                implementation(project(":awake:engine"))
+                implementation(project(":awake:backend:webgpu"))
                 // OrbitCameraSystem/FreeFlyCameraSystem, for SampleGame's catalog-tool
                 // camera wiring -- see appMain's matching dependency comment.
-                implementation(project(":awake-scene"))
+                implementation(project(":awake:scene"))
                 implementation(libs.wgpu4k)
                 implementation(libs.wgpu4k.toolkit)
                 implementation(libs.kotlinx.browser)
@@ -134,14 +134,14 @@ kotlin {
             // fixed here by pointing this source set's resources directly at that module's
             // resource directory so Gradle's own wasmJsProcessResources task picks them up
             // and copies them into this app's served output, no manual copy task needed.
-            resources.srcDir(project(":awake-backend-webgpu").file("src/wasmJsMain/resources"))
+            resources.srcDir(project(":awake:backend:webgpu").file("src/wasmJsMain/resources"))
         }
     }
 }
 
 // Same MoltenVK ICD lookup awake-demo:desktopApp's runVulkanDesktop task uses -- see that
 // module's build.gradle.kts for the full rationale.
-val desktopNativeLibDir = project(":awake-backend-vulkan").layout.buildDirectory.dir("desktop-native-libs")
+val desktopNativeLibDir = project(":awake:backend:vulkan").layout.buildDirectory.dir("desktop-native-libs")
 val moltenVkIcdPath = fileTree("/opt/homebrew/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") }
     .plus(fileTree("/usr/local/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") })
     .files.firstOrNull()?.absolutePath

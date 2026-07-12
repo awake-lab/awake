@@ -113,27 +113,27 @@ kotlin {
             // Renderer/DrawCall/TextureLoader (moved in from awake-core) need Mat4/Camera
             // and Bitmap/readResourceBytes -- see docs/MVP_PLAN.md's Decision Log, D11, for
             // the awake-core split this module boundary comes from.
-            implementation(project(":awake-base"))
+            implementation(project(":awake:base"))
             // Module restructuring slice 1 (see docs/MVP_PLAN.md): Mesh/Material/Renderer's
             // expect declarations now implement the narrow backend-neutral interfaces this
             // module owns, so RenderSystem (awake-scene) can depend on just that module
             // instead of all of awake-backend-vulkan's concrete Vulkan bindings. `api`, not
             // `implementation`, since consumers reaching these types through awake-backend-vulkan
             // (e.g. VulkanApplication.kt) need them visible too.
-            api(project(":awake-engine-render-api"))
+            api(project(":awake:engine:render-api"))
             // Reusable-Application gap fix (see docs/MVP_PLAN.md's Decision Log):
             // VulkanGameApplication implements the Application interface (awake-engine) and
             // owns generic scene loading/TransformSystem/RenderSystem wiring (awake-scene) so
             // a new game doesn't have to hand-roll the same ~200 lines of GraphicsDevice/
             // SwapchainManager/RenderPipeline/Mesh/Material bootstrap awake-demo used to.
-            implementation(project(":awake-engine"))
-            implementation(project(":awake-scene"))
+            implementation(project(":awake:engine"))
+            implementation(project(":awake:scene"))
             implementation(libs.kotlinx.coroutines.core)
             // VulkanGameApplication now extends GenericGameApplication (see
             // docs/MVP_PLAN.md's decision log for the duplication this replaces). `api`,
             // not `implementation`: it's a supertype of VulkanGameApplication, so consumers
             // (sample-hello-cube, awake-demo) need it resolvable on their own classpath too.
-            api(project(":awake-engine-game"))
+            api(project(":awake:engine:game"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -141,7 +141,7 @@ kotlin {
         androidMain.dependencies {
             // CMake/NDK build + bundled validation layers (AGP 9 KMP plugin
             // has no externalNativeBuild support, so a plain library owns it)
-            api(project(":awake-backend-vulkan:android-native"))
+            api(project(":awake:backend:vulkan:android-native"))
             implementation(libs.leakcanary.android)
         }
     }
@@ -152,7 +152,7 @@ kotlin {
 // generateJniBindings -- NOT wired as an automatic dependency of compileKotlinDesktop or
 // desktopTest, because CMake configure+build is slow and this native lib only changes when
 // the C++ sources themselves change, not on every Kotlin edit. Run explicitly:
-//   ./gradlew :awake-backend-vulkan:configureDesktopNative :awake-backend-vulkan:buildDesktopNative
+//   ./gradlew :awake:backend:vulkan:configureDesktopNative :awake:backend:vulkan:buildDesktopNative
 val desktopNativeBuildDir = layout.buildDirectory.dir("desktop-native")
 val desktopNativeLibDir = layout.buildDirectory.dir("desktop-native-libs")
 
@@ -221,7 +221,7 @@ val startOnFirstThread = if (System.getProperty("os.name").lowercase().contains(
 // Manual diagnostic task (same convention as checkJniBindings) -- proves GLFW window +
 // Vulkan surface creation actually works, which desktopTest itself cannot safely check
 // (see GlfwManualVerify.kt's doc comment for the macOS main-thread reason). Run via
-// `./gradlew :awake-backend-vulkan:verifyGlfwMain` after buildDesktopNative.
+// `./gradlew :awake:backend:vulkan:verifyGlfwMain` after buildDesktopNative.
 tasks.register<JavaExec>("verifyGlfwMain") {
     group = "native"
     description = "Manually verify GLFW window + Vulkan surface creation on the real OS main " +

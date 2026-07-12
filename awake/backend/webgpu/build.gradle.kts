@@ -37,21 +37,21 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":awake-base"))
+            implementation(project(":awake:base"))
             // Mesh/Material/Renderer implement the same narrow backend-neutral interfaces
             // awake-backend-vulkan's do -- see awake-engine-render-api's module doc.
-            api(project(":awake-engine-render-api"))
+            api(project(":awake:engine:render-api"))
             // Reusable-Application gap fix (see docs/MVP_PLAN.md's Decision Log): same
             // reasoning as awake-backend-vulkan's VulkanGameApplication -- see that
             // module's build.gradle.kts comment.
-            implementation(project(":awake-engine"))
-            implementation(project(":awake-scene"))
+            implementation(project(":awake:engine"))
+            implementation(project(":awake:scene"))
             implementation(libs.kotlinx.coroutines.core)
             // WebGpuGameApplication now extends GenericGameApplication (see
             // docs/MVP_PLAN.md's decision log for the duplication this replaces). `api`,
             // not `implementation`: same reasoning as awake-backend-vulkan's identical
             // dependency -- it's a supertype, so consumers need it on their classpath too.
-            api(project(":awake-engine-game"))
+            api(project(":awake:engine:game"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

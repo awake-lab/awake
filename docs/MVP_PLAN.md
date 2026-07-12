@@ -1184,18 +1184,18 @@ add/remove and family churn at 100k).
       `commonTest/resources`, so it got bundled into every consumer of the library and
       collided with `awake-demo/shared`'s own copy of the same file at Android's
       `mergeDebugJavaResource` step ("2 files found with path 'scenes/mvp.scene.json'").
-      Moved the test fixture to `awake-scene/src/commonTest/resources/`; `:awake-scene
+      Moved the test fixture to `awake-scene/src/commonTest/resources/`; `:awake:scene
       :desktopTest` still passes, and `:awake-demo:androidApp:assembleDebug` now builds
       clean. Installed on-device (`R5CY2247V9X`), launched, and verified via two screenshots
       ~2 seconds apart: steady 60-61 FPS, no crash, and the cube visibly rotated between
       captures (confirming `TransformSystem`/`RenderSystem` are live per-frame, not a static
       first frame) — logcat showed no exceptions/errors from the app's own package over the
       verification window.
-- [x] **Tests**: `:awake-ecs:allTests` and `:awake-scene:desktopTest` cover entity
+- [x] **Tests**: `:awake:ecs:allTests` and `:awake:scene:desktopTest` cover entity
       recycling/generation correctness, component add/remove/pooling, query/family
       correctness (including the generalized `all`/`one`/`exclude` `Family`), hierarchy
       propagation order, cycle detection, and scene JSON round-tripping/world hydration.
-- [x] **Benchmark harness** (`:awake-ecs-benchmark`, JVM-only): real, same-JVM comparison
+- [x] **Benchmark harness** (`:awake:ecs:benchmark`, JVM-only): real, same-JVM comparison
       against Fleks 2.14, Artemis-odb 2.3.0, and Ashley 1.7.3 (API surfaces confirmed via
       `javap` against cached jars, not assumed from memory), plus an explicitly-labeled
       non-comparable architecture-reference table (bevy_ecs/EnTT/flecs/Unity DOTS — different
@@ -1501,7 +1501,7 @@ cinterop static lib (iOS). 2D via **kbox2d** (pure Kotlin) as a separate artifac
 
 ### D1 — ECS: Fleks vs. custom
 **Decided: custom sparse-set ECS for MVP** (revised 2026-07-09). Fleks was considered and
-kept only as a benchmark dependency in `:awake-ecs-benchmark`; the engine runtime owns its
+kept only as a benchmark dependency in `:awake:ecs:benchmark`; the engine runtime owns its
 ECS layer for the same reason it owns Vulkan bindings, JNI generation, and math. The chosen
 architecture is one sparse-set per component type, not archetype tables. If future tasks
 need library-grade features such as complex boolean family queries, archetype migration, or
@@ -1907,7 +1907,7 @@ module wasn't done (no reliable tool for its unlisted native GLFW window in this
 **D16 follow-up (2026-07-11): `sample-hello-cube` extended to all 4 platforms.** Proves the
 base-class extraction above is reusable beyond desktop/wasmJs specifically:
 
-- **Android**: new `sample-hello-cube:androidApp` module — plain `com.android.application`
+- **Android**: new `samples:hello-cube:androidApp` module — plain `com.android.application`
   (not KMP), a bare `Activity` calling
   `setContentView(VulkanView(this, SampleApplication()))`, no Compose at all (simpler than
   `awake-demo:androidApp`'s own Activity, since `VulkanView` already accepts an
@@ -2190,7 +2190,7 @@ single-threaded).
   work, not fixed in this slice.
 - **Verified**: all 5 targets (desktop/android/iOS arm64+simulator/wasmJs) compile clean for
   `awake-engine-game`, `awake-backend-vulkan`, `awake-backend-webgpu`, `sample-hello-cube`,
-  and `awake-demo`. `awake-scene:desktopTest` regression passes. Real desktop run of
+  and `awake-demo`. `awake:scene:desktopTest` regression passes. Real desktop run of
   `sample-hello-cube` confirms the full refactored bootstrap chain (`create` →
   `createBackendResources` → scene loading → `onSceneReady` → `OrbitCameraSystem` →
   `onRender`) still works end to end — the cube renders at Orbit's default distance/pitch/
@@ -2239,7 +2239,7 @@ subprocess — had already proven simpler and more reliable to verify throughout
   points at `sample-hello-cube`. Historical decision-log entries referencing `awake-demo`
   (D14/D16/D18/D19/etc.) are left unedited — accurate record of what was true when written.
 - **Verified**: all 5 `sample-hello-cube` targets compile clean after the port,
-  `awake-scene:desktopTest` regression passes, `./gradlew projects` confirms `awake-demo` no
+  `awake:scene:desktopTest` regression passes, `./gradlew projects` confirms `awake-demo` no
   longer appears anywhere in the build. Real desktop run confirms the ported catalog panel
   renders correctly (right-side-up, correctly positioned per D19's fix) with Orbit
   auto-rotating as expected; the wasmJs equivalent couldn't be visually verified this slice
@@ -2310,7 +2310,7 @@ need to be optional/composable under the hood; they weren't).
   orthogonal to the application-layer coupling this entry fixes. Tracked as a follow-up
   decision, not bundled here.
 - **A real bug was caught during real-run verification, not compile-checking**: after the
-  refactor, `sample-hello-cube:run` crashed on exit with `vkDestroyBuffer: buffer not
+  refactor, `samples:hello-cube:run` crashed on exit with `vkDestroyBuffer: buffer not
   initialized`. Cause: `VulkanGameApplication` still constructs a template `Material` purely
   to get its `descriptorSetLayout` before `RenderPipeline` exists (needed before any real
   material can be built) — `createResources(texture)` is deliberately never called on this
@@ -2322,7 +2322,7 @@ need to be optional/composable under the hood; they weren't).
   not the whole `Material`.
 - **Verified**: `awake-engine-render-api`/`awake-scene`/`awake-engine-game`/
   `awake-backend-vulkan`/`awake-backend-webgpu` compile clean; all 5 `sample-hello-cube`
-  targets (desktop, `androidApp`, iOS, wasmJs) compile clean; `awake-scene:desktopTest`
+  targets (desktop, `androidApp`, iOS, wasmJs) compile clean; `awake:scene:desktopTest`
   passes. Real desktop run: the app stays up and renders continuously (previously crashed
   on close before the `pipelineLayoutMaterial` fix, confirmed fixed after). wasmJs
   console-checked via `preview_start` — clean apart from the same pre-existing
@@ -2397,7 +2397,7 @@ sample-test proof above) is fully verified stable — this issue is specific to 
 "render every frame" on-screen-compositing use case.
 
 - **Verified**: all 5 `sample-hello-cube` targets (desktop, `androidApp`, iOS, wasmJs)
-  compile clean across all 3 slices; `awake-scene:desktopTest` passes. Real desktop runs
+  compile clean across all 3 slices; `awake:scene:desktopTest` passes. Real desktop runs
   confirmed the readback pipeline (exact clear color, then a real rendered cube image) and
   no regression to the existing demo (HUD/toggle/dropdown/frustum) — see the known-issue
   note above for the one limitation surfaced by testing that remains open.

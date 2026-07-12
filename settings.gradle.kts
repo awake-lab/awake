@@ -19,21 +19,21 @@
 
 rootProject.name = "Awake"
 
-include(":awake-base")
-include(":awake-engine")
-include(":awake-opengl")
-include(":awake-ecs")
-include(":awake-ecs-benchmark")
-include(":awake-scene")
-include(":awake-engine-render-api")
-include(":awake-engine-ui")
-include(":awake-engine-game")
-include(":awake-backend-vulkan")
-include(":awake-backend-vulkan:android-native")
-include(":awake-backend-webgpu")
-include(":awake-vulkan-generator")
-include(":sample-hello-cube")
-include(":sample-hello-cube:androidApp")
+include(":awake:base")
+include(":awake:engine")
+include(":awake:backend:opengl")
+include(":awake:ecs")
+include(":awake:ecs:benchmark")
+include(":awake:scene")
+include(":awake:engine:render-api")
+include(":awake:engine:ui")
+include(":awake:engine:game")
+include(":awake:backend:vulkan")
+include(":awake:backend:vulkan:android-native")
+include(":awake:backend:webgpu")
+include(":awake:backend:vulkan-generator")
+include(":samples:hello-cube")
+include(":samples:hello-cube:androidApp")
 
 
 pluginManagement {
