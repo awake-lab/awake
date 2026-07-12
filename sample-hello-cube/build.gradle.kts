@@ -81,6 +81,9 @@ kotlin {
             // transitively awake-engine-render-api's Renderer/Mesh/Material/MeshGeometry/
             // TextureAsset/LineSegment interfaces + awake-engine-ui's UiContext/BitmapFont.
             implementation(project(":awake-scene"))
+            // DemoCatalog.switchTo launches its own coroutine to await a demo's suspend
+            // Game.ready() off render()'s non-suspend call site.
+            implementation(libs.kotlinx.coroutines.core)
         }
         // appMain: shared by desktop/Android/iOS -- these three drive VulkanGameApplication
         // (awake-backend-vulkan), which doesn't publish a wasmJs variant. Same pattern

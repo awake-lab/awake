@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.hellocube.android
 
-import SampleGame
+import DemoCatalog
 import android.app.Activity
 import android.os.Bundle
 import io.github.ronjunevaldoz.awake.core.graphics.VulkanView
@@ -16,7 +16,7 @@ class MainActivity : Activity() {
             vertexShaderResourcePath = "assets/shader/vulkan/triangle.vert.spv",
             fragmentShaderResourcePath = "assets/shader/vulkan/triangle.frag.spv",
             vertexStride = sampleVertexStride,
-            game = SampleGame()
+            game = DemoCatalog()
         )
         setContentView(VulkanView(this, app))
     }

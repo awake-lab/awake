@@ -72,11 +72,11 @@ private fun pollDesktopInput(window: Long) {
 }
 
 /**
- * A bare GLFW window running a plain `VulkanGameApplication` injected with [SampleGame] --
+ * A bare GLFW window running a plain `VulkanGameApplication` injected with [DemoCatalog] --
  * same shape as `awake-demo:desktopApp`'s (now-retired) `VulkanDesktopMain.kt`, since that's
  * the minimal pattern any new consumer's own desktop entry point would follow too. Polls
- * keyboard/pointer input into [Input] once per frame (see [pollDesktopInput]) so
- * [SampleGame]'s UI widgets (e.g. the debug-toggle) are actually clickable.
+ * keyboard/pointer input into [Input] once per frame (see [pollDesktopInput]) so the current
+ * demo's UI widgets (e.g. the debug-toggle) are actually clickable.
  *
  * Unlike `VulkanDesktopMain.kt`, this doesn't call `AwakeContext.init()` -- that class lives
  * in `awake-opengl` (legacy backend) purely to mirror fps/ups into `EngineConfigHolder` for
@@ -94,7 +94,7 @@ fun main() {
         vertexShaderResourcePath = "assets/shader/vulkan/triangle.vert.spv",
         fragmentShaderResourcePath = "assets/shader/vulkan/triangle.frag.spv",
         vertexStride = sampleVertexStride,
-        game = SampleGame()
+        game = DemoCatalog()
     )
     app.create(window)
 

@@ -18,7 +18,7 @@ import web.html.HTMLCanvasElement
  * Bare-canvas wasmJs entry point -- same pattern as `awake-demo/shared/src/wasmJsMain/kotlin/
  * main.kt`, minus input wiring (this sample's cube is static). Resolves the WebGPU context
  * (a `suspend` operation) once, then drives a plain [WebGpuGameApplication] injected with
- * [SampleGame] via a `requestAnimationFrame` loop.
+ * [DemoCatalog] via a `requestAnimationFrame` loop.
  */
 fun main() {
     val canvas = document.getElementById(ElementId("awake-canvas")) as HTMLCanvasElement
@@ -91,7 +91,7 @@ fun main() {
             vertexShaderResourcePath = "assets/shader/webgpu/triangle.wgsl",
             fragmentShaderResourcePath = "assets/shader/webgpu/triangle.wgsl",
             vertexStride = sampleVertexStride,
-            game = SampleGame()
+            game = DemoCatalog()
         )
         application.create(wgpuContext)
 

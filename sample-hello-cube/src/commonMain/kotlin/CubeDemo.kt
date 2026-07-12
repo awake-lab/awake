@@ -5,6 +5,8 @@ import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
 import io.github.ronjunevaldoz.awake.core.math.Frustum
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.engine.application.Game
+import io.github.ronjunevaldoz.awake.render.material.Material
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.scene.components.Camera
@@ -17,24 +19,29 @@ import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 
 /**
- * The minimal "hello, cube" sample this whole module exists to demonstrate: a plain [Game]
- * implementation (see docs/MVP_PLAN.md's decision log, "GenericGameApplication a standalone
- * render bootstrap") -- constructible/testable independent of any backend, injected into
- * `VulkanGameApplication`/`WebGpuGameApplication` at each platform entry point instead of
- * hand-duplicated per backend (the now-deleted `SampleApplication.kt`/
- * `WebGpuSampleApplication.kt`).
+ * The minimal "hello, cube" demo this module was originally built to showcase -- a plain
+ * [Game] implementation (see docs/MVP_PLAN.md's decision log, "GenericGameApplication a
+ * standalone render bootstrap") -- constructible/testable independent of any backend. Now one
+ * entry in [DemoCatalog] rather than injected directly at each platform entry point (see that
+ * class's doc comment for why).
  *
  * A single static cube, no player/NavMesh -- just the camera/frustum catalog tool (below),
- * scoped down to this sample's one entity: no catalog-target dropdown (nothing to switch
+ * scoped down to this demo's one entity: no catalog-target dropdown (nothing to switch
  * between) and no `FOLLOW` camera mode (nothing to follow).
+ *
+ * Takes [ui]/[font] from [DemoCatalog] rather than owning them -- [Renderer.drawUi] replaces
+ * this frame's whole staged UI on every call, it doesn't accumulate across callers, so only
+ * one place (`DemoCatalog.render`) may call `ui.beginFrame`/`renderer.drawUi` per frame. This
+ * demo just appends its own widgets to the same [ui] instance [DemoCatalog]'s own
+ * demo-picker dropdown already staged this frame.
  */
-class SampleGame : Game {
-    private val ui = UiContext()
-    private val font = BitmapFont()
+class CubeDemo(private val ui: UiContext, private val font: BitmapFont) : Game {
     private val fixedTimestepLoop = FixedTimestepLoop()
 
     private lateinit var renderer: Renderer
     private lateinit var sceneRuntime: SceneRuntime
+    private lateinit var cubeMesh: Mesh
+    private lateinit var material: Material
 
     // Smallest possible proof the custom UI overlay pipeline works end to end: a toggle
     // rendered top-left over the existing cube scene (see docs/MVP_PLAN.md's custom-UI
@@ -56,8 +63,8 @@ class SampleGame : Game {
 
     override suspend fun ready(renderer: Renderer) {
         this.renderer = renderer
-        val cubeMesh = renderer.createMesh(sampleCubeGeometry)
-        val material = renderer.createMaterial()
+        cubeMesh = renderer.createMesh(sampleCubeGeometry)
+        material = renderer.createMaterial()
         sceneRuntime = SceneRuntime(renderer)
         sceneRuntime.load(SCENE_PATH) { request ->
             val mesh = cubeMesh.takeIf { request.meshRenderer.mesh == "cube" }
@@ -98,8 +105,8 @@ class SampleGame : Game {
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
-        // SampleGame is the one place that still wants a fixed-step camera update --
-        // FixedTimestepLoop is now an implementation detail SampleGame opts into itself, not
+        // CubeDemo is the one place that still wants a fixed-step camera update --
+        // FixedTimestepLoop is now an implementation detail CubeDemo opts into itself, not
         // something GenericGameApplication imposes on every Game.
         fixedTimestepLoop.advance(
             frameDelta = delta,
@@ -111,9 +118,7 @@ class SampleGame : Game {
                 }
             },
             render = {
-                ui.beginFrame(viewportWidth, viewportHeight)
                 drawCatalogUi(viewportWidth / viewportHeight)
-                renderer.drawUi(ui.endFrame(), font)
                 sceneRuntime.render(delta)
             }
         )
@@ -134,6 +139,14 @@ class SampleGame : Game {
             val lines = Frustum.EDGES.map { (a, b) -> LineSegment(corners[a], corners[b], FRUSTUM_COLOR) }
             renderer.drawDebugLines(lines)
         }
+    }
+
+    /** Releases the mesh/material this demo created in [ready] -- required now that
+     * [DemoCatalog] can switch away from this demo and back, not just construct it once for
+     * the whole app's lifetime. */
+    override fun dispose() {
+        cubeMesh.destroy()
+        material.destroy()
     }
 
     private enum class CameraMode { ORBIT, FREE_FLY }
