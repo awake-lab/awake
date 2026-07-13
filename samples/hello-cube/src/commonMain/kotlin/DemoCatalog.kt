@@ -5,14 +5,9 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
-import io.github.ronjunevaldoz.awake.ui.clip
-import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.panel
-import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.text
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -117,40 +112,28 @@ class DemoCatalog : Game {
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
         ui.beginFrame(viewportWidth, viewportHeight)
-        val panel = ui.column(x = viewportWidth - PANEL_WIDTH - PANEL_MARGIN, y = 20f, width = PANEL_WIDTH, font = font)
-        drawDemoPicker(panel)
-        drawClipBorderDemo(panel)
+        // Two separate columns, not one shared list: the demo picker (which demo is running)
+        // and the current demo's own config (camera/debug-overlay controls) are different
+        // concerns that used to sit in one undifferentiated column -- confirmed via a real
+        // screenshot that this read as one mixed list. Top-left for the picker (top-right
+        // stays the config panel, bottom-left is drawDebugHud's own text readout -- see that
+        // function's doc comment for why the picker can't also live there).
+        val demoPickerPanel = ui.column(x = PANEL_MARGIN, y = 20f, width = DEMO_PICKER_WIDTH, font = font)
+        drawDemoPicker(demoPickerPanel)
+        val configPanel = ui.column(x = viewportWidth - PANEL_WIDTH - PANEL_MARGIN, y = 20f, width = PANEL_WIDTH, font = font)
         current.render(delta, viewportWidth, viewportHeight)
         // Appended AFTER current.render() rather than before -- purely a staging-order detail
         // (UiContext collects primitives into one list regardless of when during the frame
         // they were staged, and nothing a demo's own render() does depends on its panel
         // widgets having already run this same frame), not a behavior change.
-        (current as? PanelUser)?.drawPanel(panel)
+        (current as? PanelUser)?.drawPanel(configPanel)
         drawDebugHud(delta, viewportHeight)
         renderer.drawUi(ui.endFrame(), font)
     }
 
-    /** Row in the shared demo-picker/config panel proving `panel(borderWidth = ...)` and
-     * `clip { }` actually work -- before this, both were dead code (nothing called them).
-     * Lives in the same column as the demo picker/toggles, not floating at a fixed screen
-     * position -- config belongs with the rest of the panel's config, not scattered
-     * separately. Deliberately stages more text lines than the box is tall enough to hold;
-     * without `clip`, they'd overflow past the border. */
-    private fun drawClipBorderDemo(panel: ColumnScope) {
-        panel.panel("clip-border-demo", Dimension.FillMax, Dimension.Fixed(90f.px), borderWidth = 2f.dp) { slot ->
-            clip(slot) {
-                for (i in 1..10) {
-                    // BitmapFont only has uppercase glyphs -- lowercase silently renders
-                    // nothing, which made this row look like a bare "1".."6" list.
-                    text("CLIP LINE $i")
-                }
-            }
-        }
-    }
-
     private fun drawDemoPicker(panel: ColumnScope) {
         val names = demos.map { it.first }
-        panel.dropdown("demo-picker", names, currentIndex, PANEL_WIDTH, 32f)
+        panel.dropdown("demo-picker", names, currentIndex, DEMO_PICKER_WIDTH, 32f)
             ?.let { picked -> if (picked != currentIndex) switchTo(picked) }
     }
 
@@ -252,6 +235,7 @@ class DemoCatalog : Game {
         // positioning, so only the column's shared x/width need to live anywhere.
         const val PANEL_WIDTH = 200f
         const val PANEL_MARGIN = 20f
+        const val DEMO_PICKER_WIDTH = 140f
     }
 }
 
