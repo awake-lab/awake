@@ -1,4 +1,4 @@
-# /awake-review-ui-snapshots $ARGUMENTS
+# /awake:review-ui-snapshots $ARGUMENTS
 
 Analyze `awake:engine:ui`'s pixel-baseline UI snapshot gallery for legibility/occlusion
 issues, using vision on the raw PNGs. This is the visual-review tool the design-system

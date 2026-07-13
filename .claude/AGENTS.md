@@ -125,9 +125,27 @@ it before starting work; phases and open decisions (D1–D4) are tracked there.*
 
 ## Commands installed
 
-See `.claude/commands/kmm-*.md`. Key commands:
-- `/kmm-run-audit` — architecture audit with per-finding remediation
-- `/kmm-harvest-lessons` — collect patterns to upstream to skills
-- `/kmm-verify` — full validation pipeline (build + test)
-- `/kmm-review-changes` — review git diff against architecture rules
-- `/kmm-check-updates` — check for skill updates
+Two sources, kept physically separate:
+
+- `.claude/commands/kmm-*.md` — synced/managed from the kmm-agent-skills repo (reviewed via
+  `/update-skills`'s `--install-commands` step, never hand-edited). Key commands:
+  - `/kmm-run-audit` — architecture audit with per-finding remediation
+  - `/kmm-harvest-lessons` — collect patterns to upstream to skills
+  - `/kmm-verify` — full validation pipeline (build + test)
+  - `/kmm-review-changes` — review git diff against architecture rules
+  - `/kmm-check-updates` — check for skill updates
+- `.claude/commands/awake/*.md` — this project's own, hand-written, never touched by the
+  skill-sync tooling. Invoked namespaced (`/awake:command-name`). Key commands:
+  - `/awake:review-ui-snapshots` — vision-based review of `awake:engine:ui`'s pixel-baseline
+    snapshot gallery (contrast/occlusion/variant-distinguishability)
+
+**Source of truth**: `.claude/` is gitignored (this repo force-adds specific exceptions,
+e.g. `kmm-*` commands and the symlinked `.claude/skills/*` → `.agents/skills/*`), so this
+project's own hand-written commands/agents live under `skills/awake/` at the repo root
+(a normal, git-tracked directory — no gitignore fighting needed) and `.claude/commands/awake`/
+`.claude/agents` are plain symlinks into it:
+- `skills/awake/commands/*.md` ← `.claude/commands/awake` (symlink)
+- `skills/awake/agents/*.md` ← `.claude/agents` (symlink)
+
+Edit files under `skills/awake/`, never through the `.claude/` symlink paths directly (both
+resolve to the same file, but `skills/awake/` is the canonical location git actually tracks).
