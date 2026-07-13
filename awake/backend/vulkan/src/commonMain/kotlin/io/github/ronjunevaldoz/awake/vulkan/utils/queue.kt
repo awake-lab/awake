@@ -25,7 +25,11 @@ fun findQueueFamilies(physicalDevice: Long, surface: Long): QueueFamilyIndices {
         if (queueFamily.queueFlags has VkQueueFlagBits.VK_QUEUE_GRAPHICS_BIT) {
             indices.graphicsFamily = index
         }
-        if (Vulkan.vkGetPhysicalDeviceSurfaceSupportKHR(
+        // surface == 0L (VK_NULL_HANDLE) means a headless GraphicsDevice (see
+        // GraphicsDevice.createHeadless) -- querying vkGetPhysicalDeviceSurfaceSupportKHR
+        // against VK_NULL_HANDLE is undefined behavior per spec, so skip present-family
+        // detection entirely; headless callers never need presentFamily anyway.
+        if (surface != 0L && Vulkan.vkGetPhysicalDeviceSurfaceSupportKHR(
                 physicalDevice,
                 index,
                 surface

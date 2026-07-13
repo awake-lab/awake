@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkInstanceCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.DebugUtilsFormattedCallback
 import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCreateInfoEXT
 import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDevice
+import io.github.ronjunevaldoz.awake.vulkan.utils.QueueFamilyIndices
 import io.github.ronjunevaldoz.awake.vulkan.utils.findQueueFamilies
 import io.github.ronjunevaldoz.awake.vulkan.utils.getAppExtProps
 import io.github.ronjunevaldoz.awake.vulkan.utils.getAppLayerProps
@@ -48,10 +49,39 @@ class GraphicsDevice {
         nativeWindow = window
         surface = createSurface(instance, window)
         pickPhysicalDevice()
-        createLogicalDevice()
+        val indices = findQueueFamilies(physicalDevice, surface)
+        if (!indices.isComplete()) {
+            // graphics not supported?
+            throw Exception("GPU graphics / Presentation not supported")
+        }
+        createLogicalDevice(indices)
     }
 
-    private fun createInstance() {
+    /** Desktop-only headless variant of [create] for pure offscreen rendering (no window, no
+     * `VkSurfaceKHR`, no swapchain -- see `Renderer`'s createHeadless doc comment and
+     * docs/MVP_PLAN.md's pixel-baseline-testing entry). `surface` stays `0L`
+     * (`VK_NULL_HANDLE`) for this instance's whole lifetime: [findQueueFamilies] already
+     * treats that as "skip present-family detection" (see its own doc comment), so only a
+     * graphics-capable queue family is required here, and that same family backs both
+     * [graphicsQueue]/[presentQueue] (the latter is never actually used without a swapchain
+     * to present to). */
+    fun createHeadless() {
+        createInstance(includeGlfwExtensions = false)
+        setupDebugMessenger()
+        pickPhysicalDevice()
+        val graphicsFamily = requireNotNull(findQueueFamilies(physicalDevice, surface).graphicsFamily) {
+            "GPU graphics queue not supported"
+        }
+        createLogicalDevice(QueueFamilyIndices(graphicsFamily, graphicsFamily))
+    }
+
+    /** [includeGlfwExtensions] is `false` for [createHeadless]: `glfwGetRequiredInstanceExtensions`
+     * requires `glfwInit()` to have already run, which is NOT safe to call from a plain JVM test
+     * thread on macOS (Cocoa requires GLFW's whole lifecycle on the real OS main thread -- see
+     * `GlfwManualVerify.kt`'s doc comment; confirmed empirically for `glfwCreateWindow`, and not
+     * worth risking for `glfwInit` either) -- a headless [GraphicsDevice] never creates a window
+     * or surface, so it doesn't need GLFW's platform-surface instance extensions anyway. */
+    private fun createInstance(includeGlfwExtensions: Boolean = true) {
         val appInfo = VkApplicationInfo(
             pApplicationName = "Awake Vulkan - Application",
             pEngineName = "Awake Vulkan - Engine",
@@ -61,21 +91,24 @@ class GraphicsDevice {
         val layerExtProps = layerProperties.map { layer ->
             getAppExtProps(layer)
         }.flatten()
+        val baseExtProperties = (getAppExtProps() + layerExtProps).distinct()
 
         // glfwGetRequiredInstanceExtensions() is a safe no-op returning emptyArray() on
         // every non-GLFW platform (Android/iOS) -- see VulkanWindow.kt's actuals.
-        val glfwExtensions = VulkanWindow.glfwGetRequiredInstanceExtensions().toList()
+        val glfwExtensions = if (includeGlfwExtensions) VulkanWindow.glfwGetRequiredInstanceExtensions().toList() else emptyList()
         // MoltenVK (desktop macOS) conforms to the Vulkan Portability spec: vkCreateInstance
         // requires both VK_KHR_portability_enumeration enabled AND
         // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR set, or it fails with
-        // VK_ERROR_INCOMPATIBLE_DRIVER. GLFW reporting VK_EXT_metal_surface as required is
-        // the reliable signal we're really running on MoltenVK (as opposed to Android or a
-        // real-native-Vulkan desktop driver, neither of which ever reports that extension).
-        val onMoltenVk = "VK_EXT_metal_surface" in glfwExtensions
+        // VK_ERROR_INCOMPATIBLE_DRIVER. Detected via the loader's OWN globally-queried instance
+        // extension list (baseExtProperties) reporting VK_KHR_portability_enumeration as
+        // available -- not GLFW's required-extensions list (which needs glfwInit() to have run,
+        // unavailable to [createHeadless]) -- since the loader already reports this whenever a
+        // portability-subset ICD (MoltenVK) is registered, GLFW or not.
+        val onMoltenVk = "VK_KHR_portability_enumeration" in baseExtProperties
         val portabilityExtension = if (onMoltenVk) listOf("VK_KHR_portability_enumeration") else emptyList()
         val instanceFlags = if (onMoltenVk) 0x00000001 else 0 // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
 
-        val extProperties = (getAppExtProps() + layerExtProps + glfwExtensions + portabilityExtension).distinct()
+        val extProperties = (baseExtProperties + glfwExtensions + portabilityExtension).distinct()
 
         val createInfo = VkInstanceCreateInfo(
             flags = instanceFlags,
@@ -125,15 +158,7 @@ class GraphicsDevice {
         }
     }
 
-    private fun createLogicalDevice() {
-        // Queue families
-        val indices = findQueueFamilies(physicalDevice, surface)
-
-        if (!indices.isComplete()) {
-            // graphics not supported?
-            throw Exception("GPU graphics / Presentation not supported")
-        }
-
+    private fun createLogicalDevice(indices: QueueFamilyIndices) {
         // to avoid duplicate queue family index use set
         val uniqueQueueFamilies = setOf(
             indices.graphicsFamily!!,

@@ -116,6 +116,20 @@ class SwapchainManager(
         createImageViews()
     }
 
+    /** Desktop-only headless stand-in for [create] (see `GraphicsDevice.createHeadless`'s doc
+     * comment) -- a headless [GraphicsDevice] has no `VkSurfaceKHR`, so there is no real
+     * `VkSwapchainKHR` to query/create here. Just fixes [imageFormat]/[extent] to the values
+     * [RenderPipeline][io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline]/
+     * [OffscreenRenderTarget][io.github.ronjunevaldoz.awake.vulkan.texture.OffscreenRenderTarget]
+     * read off this manager (both only ever read a format/extent value, never touch
+     * [swapChain]/[imageViews] directly). [imageViews] stays empty -- nothing on the headless
+     * path (`Renderer.renderToTexture`/`readPixels`) ever indexes into it; only `Renderer.draw`
+     * (never called headless) does. */
+    fun createHeadless(width: Int, height: Int, format: VkFormat = VkFormat.VK_FORMAT_R8G8B8A8_UNORM) {
+        imageFormat = format
+        extent = VkExtent2D(width, height)
+    }
+
     private fun createImageViews() {
         val swapChainImages = Vulkan.vkGetSwapchainImagesKHR(device, swapChain)
         imageViews = swapChainImages.map { swapChainImage ->
