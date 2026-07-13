@@ -32,6 +32,38 @@ sealed class UiDrawPrimitive {
         }
     }
 
+    /** Rounded-corner sibling of [Quad] -- kept as a separate type rather than a `radius`
+     * field on [Quad] so the hot-path flat rect every existing widget already emits every
+     * frame never pays a corner-test cost (kool-engine's own `RectBackground` vs
+     * `RoundRectBackground` split backs this). A backend that doesn't special-case this yet
+     * may fall back to drawing it as a flat [Quad] (ignore [radius]) -- see this repo's UI
+     * architecture review doc for the shader work needed to actually render it rounded. */
+    data class RoundedQuad(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val color: FloatArray,
+        val radius: Float
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is RoundedQuad) return false
+            return x == other.x && y == other.y && w == other.w && h == other.h &&
+                radius == other.radius && color.contentEquals(other.color)
+        }
+
+        override fun hashCode(): Int {
+            var result = x.hashCode()
+            result = 31 * result + y.hashCode()
+            result = 31 * result + w.hashCode()
+            result = 31 * result + h.hashCode()
+            result = 31 * result + radius.hashCode()
+            result = 31 * result + color.contentHashCode()
+            return result
+        }
+    }
+
     /** One glyph quad sampling a [io.github.ronjunevaldoz.awake.ui.font.BitmapFont]'s atlas
      * -- Phase B (see docs/MVP_PLAN.md's custom-UI decision log), drawn via a second,
      * textured pipeline after [Quad]s in the same UI overlay pass. */
@@ -88,4 +120,17 @@ sealed class UiDrawPrimitive {
         val h: Float,
         val material: Any
     ) : UiDrawPrimitive()
+
+    /** Marks the start of a clipped region -- [rect] is always already-intersected against
+     * whatever clip was active before it ([UiContext]'s clip stack resolves nesting, never
+     * the backend), so every backend just naively "sets scissor to this rect," identical
+     * logic on every platform. Not a real draw call -- carries no vertices, just tells the
+     * backend's command-buffer recording where to issue a scissor-rect change. */
+    data class ClipPush(val rect: UiSlot) : UiDrawPrimitive()
+
+    /** Restores the scissor rect that was active before the matching [ClipPush] -- [restoreRect]
+     * is resolved by [UiContext] at pop time (the next rect down the clip stack, or the full
+     * frame extent if the stack is now empty), so the backend needs no stack-awareness here
+     * either. */
+    data class ClipPop(val restoreRect: UiSlot) : UiDrawPrimitive()
 }

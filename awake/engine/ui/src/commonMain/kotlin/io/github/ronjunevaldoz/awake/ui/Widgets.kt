@@ -23,7 +23,7 @@ fun UiScope.buttonSlot(
     modifier: UiModifier = UiModifier(),
     style: UiStyle? = null
 ): UiButtonResult {
-    val slot = claimSlot(modifier.width ?: width, modifier.height ?: height)
+    val slot = claimSlot(modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
     val hovered = hitTest(slot)
     tryClaimActive(id, hovered)
     // Latch on press (tryClaimActive, above); a click fires exactly on the frame the pointer
@@ -31,10 +31,10 @@ fun UiScope.buttonSlot(
     val wasActiveBeforeRelease = isActive(id)
     releaseActiveIfMatches(id)
     val clicked = wasActiveBeforeRelease && !isActive(id) && hovered
-    val resolvedStyle = style ?: theme.button
+    val resolvedStyle = style ?: theme.tokens.neutralStyle()
     emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, resolvedStyle.colorFor(UiWidgetState(hovered, isActive(id)))))
     if (label != null && font != null) {
-        text(label, slot, font = font, color = theme.labelColor, centered = true)
+        text(label, slot, font = font, color = theme.tokens.foreground, centered = true)
     }
     return UiButtonResult(clicked, slot)
 }
@@ -61,11 +61,11 @@ fun UiScope.toggle(
     modifier: UiModifier = UiModifier(),
     style: UiStyle? = null
 ): Boolean {
-    val (clicked, slot) = buttonSlot(id, width, height, label, modifier, style ?: theme.toggle)
+    val (clicked, slot) = buttonSlot(id, width, height, label, modifier, style ?: theme.tokens.neutralStyle())
     val newChecked = if (clicked) !checked else checked
     if (newChecked) {
         val inset = minOf(slot.width, slot.height) * 0.2f
-        emit(UiDrawPrimitive.Quad(slot.x + inset, slot.y + inset, slot.width - inset * 2, slot.height - inset * 2, theme.checkColor))
+        emit(UiDrawPrimitive.Quad(slot.x + inset, slot.y + inset, slot.width - inset * 2, slot.height - inset * 2, theme.tokens.accent))
     }
     return newChecked
 }
@@ -88,22 +88,22 @@ fun UiScope.slider(
     modifier: UiModifier = UiModifier(),
     style: UiStyle? = null
 ): Float {
-    val slot = claimSlot(modifier.width ?: width, modifier.height ?: height)
+    val slot = claimSlot(modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
     val hovered = hitTest(slot)
     tryClaimActive(id, hovered)
     val dragging = isActive(id) && Input.pointerDown
     val newValue = if (dragging) sliderValueFromPointerX(Input.pointerX, slot.x, slot.width, min, max) else value
     releaseActiveIfMatches(id)
 
-    val resolvedStyle = style ?: theme.slider
+    val resolvedStyle = style ?: theme.tokens.neutralStyle()
     emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, resolvedStyle.colorFor(UiWidgetState(hovered, dragging))))
     val fraction = ((newValue - min) / (max - min)).coerceIn(0f, 1f)
     val handleWidth = (slot.width * fraction).coerceAtLeast(0f)
     if (handleWidth > 0f) {
-        emit(UiDrawPrimitive.Quad(slot.x, slot.y, handleWidth, slot.height, theme.checkColor))
+        emit(UiDrawPrimitive.Quad(slot.x, slot.y, handleWidth, slot.height, theme.tokens.accent))
     }
     if (label != null && font != null) {
-        text(label, slot, font = font, color = theme.labelColor, centered = true)
+        text(label, slot, font = font, color = theme.tokens.foreground, centered = true)
     }
     return newValue
 }
@@ -123,7 +123,7 @@ fun UiScope.dropdown(
     style: UiStyle? = null
 ): Int? {
     val state = widgetState(id)
-    val (clicked, slot) = buttonSlot(id, width, height, options.getOrNull(selectedIndex), modifier, style ?: theme.dropdown)
+    val (clicked, slot) = buttonSlot(id, width, height, options.getOrNull(selectedIndex), modifier, style ?: theme.tokens.neutralStyle())
     if (clicked) {
         state.set("expanded", !state.get("expanded", false))
     }
@@ -140,7 +140,7 @@ fun UiScope.dropdown(
             releaseActiveIfMatches(optionId)
             val optionClicked = wasActiveBeforeRelease && !isActive(optionId) && optionHovered
             if (optionClicked) picked = index
-            val resolvedStyle = style ?: theme.dropdown
+            val resolvedStyle = style ?: theme.tokens.neutralStyle()
             emitOverlay(UiDrawPrimitive.Quad(optionSlot.x, optionSlot.y, optionSlot.width, optionSlot.height, resolvedStyle.colorFor(UiWidgetState(optionHovered, isActive(optionId)))))
             val resolvedFont = font
             if (resolvedFont != null) {
@@ -150,7 +150,7 @@ fun UiScope.dropdown(
                 for (char in option) {
                     val uv = resolvedFont.uvFor(char)
                     if (uv != null) {
-                        emitOverlay(UiDrawPrimitive.Glyph(penX, penY, resolvedFont.cellSize.toFloat(), resolvedFont.cellSize.toFloat(), uv.u0, uv.v0, uv.u1, uv.v1, theme.labelColor))
+                        emitOverlay(UiDrawPrimitive.Glyph(penX, penY, resolvedFont.cellSize.toFloat(), resolvedFont.cellSize.toFloat(), uv.u0, uv.v0, uv.u1, uv.v1, theme.tokens.foreground))
                     }
                     penX += resolvedFont.cellSize
                 }
@@ -169,15 +169,15 @@ fun UiScope.dropdown(
 }
 
 /** Draws [label] as a row of glyph quads -- theme-aware: [color] defaults to
- * `theme.labelColor` instead of every call site needing to pass its own color. [centered]
- * reproduces the classic centered-label positioning for [button]/[toggle]/[slider]'s own
- * labels; a standalone `text(...)` call (not attached to a widget) passes `centered = false`
- * to draw starting exactly at the claimed slot's origin. */
+ * `theme.tokens.foreground` instead of every call site needing to pass its own color.
+ * [centered] reproduces the classic centered-label positioning for [button]/[toggle]/
+ * [slider]'s own labels; a standalone `text(...)` call (not attached to a widget) passes
+ * `centered = false` to draw starting exactly at the claimed slot's origin. */
 fun UiScope.text(
     label: String,
-    slot: UiSlot = claimSlot(0f, this.font?.cellSize?.toFloat() ?: 0f),
+    slot: UiSlot = claimSlot(Dimension.FillMax, Dimension.Fixed((this.font?.cellSize?.toFloat() ?: 0f).px)),
     font: BitmapFont? = this.font,
-    color: FloatArray = theme.labelColor,
+    color: FloatArray = theme.tokens.foreground,
     centered: Boolean = false
 ) {
     checkNotNull(font) { "text() requires a font, either from the UiScope or passed explicitly" }
@@ -198,6 +198,62 @@ fun UiScope.text(
  * Unlike [text]/[button]/[toggle], this has no hit-testing/interaction state -- purely a
  * draw call, matching the "quad" half of [UiDrawPrimitive]'s existing kinds. */
 fun UiScope.textureQuad(width: Float, height: Float, material: Any, modifier: UiModifier = UiModifier()) {
-    val slot = claimSlot(modifier.width ?: width, modifier.height ?: height)
+    val slot = claimSlot(modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
     emit(UiDrawPrimitive.Texture(slot.x, slot.y, slot.width, slot.height, material))
+}
+
+/** Composite-widget seam: claims one outer slot (sizeable via [width]/[height] `Dimension`,
+ * e.g. [Dimension.FillMax]), draws it (rounded per [radius] -- see [UiShape]/
+ * [UiDrawPrimitive.RoundedQuad]), then hands [content] a [UiContext.column]-bounded scope
+ * (reusing the same factory every top-level caller uses) to place children into. Ordinary
+ * [UiScope] extension, same idiom as every other widget here -- no new subsystem, no
+ * recomposition. */
+fun UiScope.panel(
+    id: String,
+    width: Dimension,
+    height: Dimension,
+    radius: Dp = UiShape.md,
+    borderWidth: Dp = UiShape.none,
+    style: UiStyle? = null,
+    content: UiScope.(slot: UiSlot) -> Unit
+): UiSlot {
+    val slot = claimSlot(width, height)
+    val resolvedStyle = style ?: theme.tokens.neutralStyle()
+    val color = resolvedStyle.colorFor(UiWidgetState(hovered = false, active = false))
+    val radiusPx = radius.toPx()
+    val primitive = if (radiusPx > 0f) {
+        UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, color, radiusPx)
+    } else {
+        UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, color)
+    }
+    emit(primitive)
+    if (borderWidth.toPx() > 0f) border(slot, borderWidth)
+    context.column(slot.x, slot.y, slot.width, font, theme).content(slot)
+    return slot
+}
+
+/** Wraps arbitrary existing widget calls so nothing they draw paints outside [rect] --
+ * unlike [panel], `clip` doesn't claim its own slot (the caller already has [rect] from its
+ * own layout), it just brackets [content] with a [UiDrawPrimitive.ClipPush]/[ClipPop] pair.
+ * Nesting is resolved once in [UiContext.pushClipInternal] (intersected against whatever
+ * clip -- if any -- is already active), so the backend never needs its own clip-stack
+ * logic; it just sets the scissor rect each primitive carries. */
+fun UiScope.clip(rect: UiSlot, content: UiScope.() -> Unit) {
+    val resolved = context.pushClipInternal(rect)
+    emit(UiDrawPrimitive.ClipPush(resolved))
+    content()
+    val restore = context.popClipInternal()
+    emit(UiDrawPrimitive.ClipPop(restore))
+}
+
+/** Draws a [color] outline of [width] around an already-claimed [slot] as four thin
+ * [UiDrawPrimitive.Quad] strips (top/right/bottom/left) -- zero backend/primitive change,
+ * reuses the existing flat quad the same way [toggle]'s checkmark inset already does. */
+fun UiScope.border(slot: UiSlot, width: Dp = 1f.dp, color: FloatArray = theme.tokens.border) {
+    val w = width.toPx()
+    if (w <= 0f) return
+    emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, w, color)) // top
+    emit(UiDrawPrimitive.Quad(slot.x, slot.y + slot.height - w, slot.width, w, color)) // bottom
+    emit(UiDrawPrimitive.Quad(slot.x, slot.y, w, slot.height, color)) // left
+    emit(UiDrawPrimitive.Quad(slot.x + slot.width - w, slot.y, w, slot.height, color)) // right
 }

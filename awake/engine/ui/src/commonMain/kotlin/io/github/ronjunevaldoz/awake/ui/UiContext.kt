@@ -25,17 +25,18 @@ class UiContext {
     private val widgetStates = HashMap<String, WidgetState>()
     private val primitives = ArrayList<UiDrawPrimitive>()
     private val overlayPrimitives = ArrayList<UiDrawPrimitive>()
+    private var fullFrameRect = UiSlot(0f, 0f, 0f, 0f)
+    private val clipStack = ArrayList<UiSlot>()
 
     fun beginFrame(screenWidth: Float, screenHeight: Float) {
-        // screenWidth/screenHeight are unused by UiContext itself today (hit-testing only
-        // needs Input.pointerX/Y, both already in the same pixel space) -- kept as
-        // parameters so a future clip-rect/scissor feature has them without an API change.
         primitives.clear()
         overlayPrimitives.clear()
+        fullFrameRect = UiSlot(0f, 0f, screenWidth, screenHeight)
+        clipStack.clear()
     }
 
     /** Reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
-    fun column(x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = 8f): ColumnScope =
+    fun column(x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx()): ColumnScope =
         ColumnScope(this, font, theme, x, y, width, gap)
 
     /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minimap
@@ -45,7 +46,7 @@ class UiContext {
         AbsoluteScope(this, font, theme, x, y)
 
     /** Reserves a horizontal auto-stacking layout region -- see [RowScope]. */
-    fun row(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = 8f): RowScope =
+    fun row(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx()): RowScope =
         RowScope(this, font, theme, x, y, height, gap)
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */
@@ -93,6 +94,24 @@ class UiContext {
     }
 
     internal fun widgetStateInternal(id: String): WidgetState = widgetStates.getOrPut(id) { WidgetState() }
+
+    /** Intersects [rect] against whatever clip is currently active (or the full frame extent
+     * if the stack is empty) and pushes the RESOLVED rect -- nesting is resolved here, once,
+     * so [UiScope.clip]'s emitted [UiDrawPrimitive.ClipPush] always carries a rect a backend
+     * can apply naively, with no clip-stack awareness of its own. */
+    internal fun pushClipInternal(rect: UiSlot): UiSlot {
+        val current = clipStack.lastOrNull() ?: fullFrameRect
+        val resolved = current.intersect(rect)
+        clipStack += resolved
+        return resolved
+    }
+
+    /** Pops the clip stack and returns the rect that should be restored -- the next entry
+     * down, or the full frame extent if the stack is now empty. */
+    internal fun popClipInternal(): UiSlot {
+        if (clipStack.isNotEmpty()) clipStack.removeAt(clipStack.size - 1)
+        return clipStack.lastOrNull() ?: fullFrameRect
+    }
 }
 
 /** Pure value-from-pointer-position math for `Widgets.kt`'s `slider`, pulled out to a

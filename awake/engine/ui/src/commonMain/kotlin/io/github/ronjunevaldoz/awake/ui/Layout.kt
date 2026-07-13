@@ -4,6 +4,16 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 
+/** Named spacing scale, in [Dp] -- not wired into [UiModifier] yet (that grows only when a
+ * real padding/margin need shows up), just replaces bare gap literals with a named scale. */
+object UiSpacing {
+    val xs: Dp = 4f.dp
+    val sm: Dp = 8f.dp
+    val md: Dp = 16f.dp
+    val lg: Dp = 24f.dp
+    val xl: Dp = 32f.dp
+}
+
 /**
  * Everything a [UiScope] needs except `claimSlot` -- shared once here instead of repeated per
  * layout strategy. Not part of the public widget-authoring surface (that's [UiScope]); a
@@ -11,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
  * same way [ColumnScope]/[AbsoluteScope] do.
  */
 abstract class AbstractUiScope(
-    private val context: UiContext,
+    final override val context: UiContext,
     final override val font: BitmapFont?,
     final override val theme: UiTheme
 ) : UiScope {
@@ -22,6 +32,16 @@ abstract class AbstractUiScope(
     final override fun emit(primitive: UiDrawPrimitive) = context.emitInternal(primitive)
     final override fun emitOverlay(primitive: UiDrawPrimitive) = context.emitOverlayInternal(primitive)
     final override fun widgetState(id: String) = context.widgetStateInternal(id)
+}
+
+/** Resolves a [Dimension] to a raw pixel value against a scope's own configured size --
+ * shared by every concrete scope's `claimSlot` below instead of repeating the `when`.
+ * [configured] is lazy: a scope with no meaningful "fill" axis (e.g. [RowScope]'s width)
+ * passes `{ error(...) }`, which must only evaluate if [FillMax][Dimension.FillMax] is
+ * actually requested on that axis, not unconditionally as an eager argument would. */
+private inline fun Dimension.resolve(configured: () -> Float): Float = when (this) {
+    is Dimension.Fixed -> dp.toPx()
+    Dimension.FillMax -> configured()
 }
 
 /**
@@ -41,9 +61,11 @@ class ColumnScope internal constructor(
     var cursorY: Float = startY
         private set
 
-    override fun claimSlot(width: Float, height: Float): UiSlot {
-        val slot = UiSlot(x, cursorY, width.takeIf { it > 0f } ?: this.width, height)
-        cursorY += height + gap
+    override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
+        val resolvedWidth = width.resolve { this.width }
+        val resolvedHeight = height.resolve { error("FillMax height has no meaning in a ColumnScope") }
+        val slot = UiSlot(x, cursorY, resolvedWidth, resolvedHeight)
+        cursorY += resolvedHeight + gap
         return slot
     }
 }
@@ -60,7 +82,14 @@ class AbsoluteScope internal constructor(
     private val x: Float,
     private val y: Float
 ) : AbstractUiScope(context, font, theme) {
-    override fun claimSlot(width: Float, height: Float): UiSlot = UiSlot(x, y, width, height)
+    // Unlike ColumnScope/RowScope, the original claimSlot(width: Float, height: Float) never
+    // special-cased any value here -- it passed width/height straight through, and a caller
+    // passing 0f (e.g. text()'s own default slot, which doesn't need a real width when not
+    // centered) got a harmless zero-width UiSlot back. FillMax has no configured size to
+    // resolve against on this scope, so it resolves to 0f -- the same literal passthrough
+    // behavior, not a new error mode.
+    override fun claimSlot(width: Dimension, height: Dimension): UiSlot =
+        UiSlot(x, y, width.resolve { 0f }, height.resolve { 0f })
 }
 
 /**
@@ -80,9 +109,11 @@ class RowScope internal constructor(
     var cursorX: Float = startX
         private set
 
-    override fun claimSlot(width: Float, height: Float): UiSlot {
-        val slot = UiSlot(cursorX, y, width, height.takeIf { it > 0f } ?: this.height)
-        cursorX += width + gap
+    override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
+        val resolvedWidth = width.resolve { error("FillMax width has no meaning in a RowScope") }
+        val resolvedHeight = height.resolve { this.height }
+        val slot = UiSlot(cursorX, y, resolvedWidth, resolvedHeight)
+        cursorX += resolvedWidth + gap
         return slot
     }
 }
@@ -100,5 +131,5 @@ class BoxScope internal constructor(
     private val width: Float,
     private val height: Float
 ) : AbstractUiScope(context, font, theme) {
-    override fun claimSlot(width: Float, height: Float): UiSlot = UiSlot(x, y, this.width, this.height)
+    override fun claimSlot(width: Dimension, height: Dimension): UiSlot = UiSlot(x, y, this.width, this.height)
 }

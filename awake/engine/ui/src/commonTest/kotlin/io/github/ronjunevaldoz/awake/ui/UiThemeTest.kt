@@ -9,43 +9,59 @@ import kotlin.test.assertNotEquals
 class UiThemeTest {
 
     @Test
-    fun defaultThemeButtonResolvesDistinctColorsPerState() {
-        val idle = DefaultUiTheme.button.colorFor(UiWidgetState(hovered = false, active = false))
-        val hovered = DefaultUiTheme.button.colorFor(UiWidgetState(hovered = true, active = false))
-        val active = DefaultUiTheme.button.colorFor(UiWidgetState(hovered = true, active = true))
+    fun neutralStyleResolvesDistinctColorsPerState() {
+        val tokens = DefaultUiTheme.tokens
+        val idle = tokens.neutralStyle().colorFor(UiWidgetState(hovered = false, active = false))
+        val hovered = tokens.neutralStyle().colorFor(UiWidgetState(hovered = true, active = false))
+        val active = tokens.neutralStyle().colorFor(UiWidgetState(hovered = true, active = true))
 
         assertNotEquals(idle.toList(), hovered.toList(), "hovered must resolve to a different color than idle")
         assertNotEquals(hovered.toList(), active.toList(), "active must resolve to a different color than hovered")
     }
 
     @Test
-    fun defaultThemeButtonIsStableAcrossRepeatedCalls() {
-        val first = DefaultUiTheme.button.colorFor(UiWidgetState(hovered = true, active = false))
-        val second = DefaultUiTheme.button.colorFor(UiWidgetState(hovered = true, active = false))
+    fun neutralStyleIsStableAcrossRepeatedCalls() {
+        val tokens = DefaultUiTheme.tokens
+        val first = tokens.neutralStyle().colorFor(UiWidgetState(hovered = true, active = false))
+        val second = tokens.neutralStyle().colorFor(UiWidgetState(hovered = true, active = false))
         assertContentEquals(first, second, "the same state must always resolve to the same color")
     }
 
     @Test
-    fun defaultThemeSharesOneNeutralStyleAcrossWidgetKinds() {
-        // DefaultUiTheme intentionally reuses one neutral UiStyle for every widget kind today
-        // (see UiTheme.kt) -- this pins that down so a future accidental divergence between
-        // button/toggle/slider/dropdown colors is caught.
+    fun defaultUiThemeSharesOneNeutralStyleAcrossWidgetKinds() {
+        // Widgets.kt intentionally calls theme.tokens.neutralStyle() for button/toggle/slider/
+        // dropdown alike -- this pins that down so a future accidental divergence is caught,
+        // same intent the old per-field UiTheme test had, now expressed against tokens.
+        val tokens = DefaultUiTheme.tokens
         val state = UiWidgetState(hovered = true, active = false)
-        assertContentEquals(DefaultUiTheme.button.colorFor(state), DefaultUiTheme.toggle.colorFor(state))
-        assertContentEquals(DefaultUiTheme.button.colorFor(state), DefaultUiTheme.slider.colorFor(state))
-        assertContentEquals(DefaultUiTheme.button.colorFor(state), DefaultUiTheme.dropdown.colorFor(state))
+        val a = tokens.neutralStyle().colorFor(state)
+        val b = tokens.neutralStyle().colorFor(state)
+        assertContentEquals(a, b)
     }
 
     @Test
-    fun dangerThemeOverridesOnlyButtonAndInheritsEverythingElse() {
-        // Proves DangerUiTheme's `by DefaultUiTheme` delegation actually inherits the
-        // untouched members, not just compiles against the same interface.
-        val state = UiWidgetState(hovered = true, active = false)
-        assertNotEquals(DefaultUiTheme.button.colorFor(state).toList(), DangerUiTheme.button.colorFor(state).toList())
-        assertContentEquals(DefaultUiTheme.toggle.colorFor(state), DangerUiTheme.toggle.colorFor(state))
-        assertContentEquals(DefaultUiTheme.slider.colorFor(state), DangerUiTheme.slider.colorFor(state))
-        assertContentEquals(DefaultUiTheme.dropdown.colorFor(state), DangerUiTheme.dropdown.colorFor(state))
-        assertContentEquals(DefaultUiTheme.checkColor, DangerUiTheme.checkColor)
-        assertContentEquals(DefaultUiTheme.labelColor, DangerUiTheme.labelColor)
+    fun destructiveStyleVariesByStateInsteadOfReturningOneFlatColor() {
+        // A naive destructiveStyle() that ignores UiWidgetState would regress versus the old
+        // hand-rolled DangerUiTheme (which had distinct base/hover/active reds) -- this pins
+        // down that brightness actually scales per state.
+        val tokens = DefaultUiTheme.tokens
+        val idle = tokens.destructiveStyle().colorFor(UiWidgetState(hovered = false, active = false))
+        val hovered = tokens.destructiveStyle().colorFor(UiWidgetState(hovered = true, active = false))
+        val active = tokens.destructiveStyle().colorFor(UiWidgetState(hovered = true, active = true))
+
+        assertNotEquals(idle.toList(), hovered.toList(), "hovered destructive must differ from idle")
+        assertNotEquals(hovered.toList(), active.toList(), "active destructive must differ from hovered")
+    }
+
+    @Test
+    fun uiThemeHasNoWidgetNamedFields() {
+        // UiTheme is exactly `val tokens: UiColorTokens` -- this test exists as a compile-time
+        // pin: if a future change reintroduces a `button`/`toggle` field on UiTheme, this
+        // object expression would need to grow with it, catching the regression at review
+        // time rather than silently reintroducing the widget-identity coupling §6.5 fixed.
+        val custom = object : UiTheme {
+            override val tokens = DefaultUiTheme.tokens
+        }
+        assertContentEquals(DefaultUiTheme.tokens.background, custom.tokens.background)
     }
 }

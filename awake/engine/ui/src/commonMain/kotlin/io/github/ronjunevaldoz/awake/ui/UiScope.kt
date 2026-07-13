@@ -6,6 +6,17 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 
 data class UiSlot(val x: Float, val y: Float, val width: Float, val height: Float)
 
+/** Clamps this rect to the region it shares with [other] -- zero-size (not negative) if they
+ * don't overlap at all. Pure function, used by [UiContext]'s clip stack to resolve nested
+ * `clip { }` calls to a single already-intersected rect before it ever reaches a backend. */
+fun UiSlot.intersect(other: UiSlot): UiSlot {
+    val left = maxOf(x, other.x)
+    val top = maxOf(y, other.y)
+    val right = minOf(x + width, other.x + other.width)
+    val bottom = minOf(y + height, other.y + other.height)
+    return UiSlot(left, top, (right - left).coerceAtLeast(0f), (bottom - top).coerceAtLeast(0f))
+}
+
 /**
  * The full set of primitives any widget -- built-in or consumer-defined -- is built from.
  * Nothing here knows about buttons, toggles, or any specific widget shape; [Widgets.kt]'s
@@ -19,11 +30,19 @@ interface UiScope {
 
     /**
      * The color/appearance policy in effect for this scope -- see [UiTheme]. Widgets default
-     * to `theme.button`/`theme.toggle`/etc when no per-call [UiStyle] override is given, so
+     * to `theme.tokens.neutralStyle()` when no per-call [UiStyle] override is given, so
      * swapping a whole panel's look is one assignment at the scope's creation, not a change
      * to every widget call site.
      */
     val theme: UiTheme
+
+    /**
+     * Direct reference to the owning context -- mirrors kool-engine's `UiScope.surface`. Lets
+     * a composite widget (e.g. [panel]) build a nested scope from the SAME public factories
+     * ([UiContext.column]/[row]/[box]/[absolute]) every top-level caller already uses,
+     * instead of a bespoke nesting primitive.
+     */
+    val context: UiContext
 
     /**
      * Reserves the next layout position for a widget of the given size and returns its
@@ -31,7 +50,7 @@ interface UiScope {
      * implementing scope -- [ColumnScope] advances a Y cursor, [AbsoluteScope] ignores
      * width/height and returns the exact x/y it was constructed with.
      */
-    fun claimSlot(width: Float, height: Float): UiSlot
+    fun claimSlot(width: Dimension, height: Dimension): UiSlot
 
     fun hitTest(slot: UiSlot): Boolean
     fun isActive(id: String): Boolean

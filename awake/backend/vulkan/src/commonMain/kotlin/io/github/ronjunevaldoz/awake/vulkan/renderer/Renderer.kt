@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
@@ -35,6 +36,7 @@ import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
+import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
@@ -164,6 +166,11 @@ class Renderer(
         class QuadRun(val mesh: DynamicMesh) : UiRun()
         class GlyphRun(val mesh: DynamicMesh) : UiRun()
         class TextureRun(val primitives: List<UiDrawPrimitive.Texture>) : UiRun()
+
+        /** Not a real draw call -- [rect] is already fully resolved (see [UiContext]'s clip
+         * stack), so consuming this just means "set the scissor to this rect" at the point
+         * in the command sequence where it was originally emitted, same as any other run. */
+        class ClipRun(val rect: UiSlot) : UiRun()
     }
 
     /** This frame's runs, in paint order -- staged by [drawUi], consumed by
@@ -640,6 +647,18 @@ class Renderer(
                     runs += UiRun.QuadRun(mesh)
                     quadRunCount += 1
                 }
+                is UiDrawPrimitive.RoundedQuad -> {
+                    // No rounded-corner shader support yet (see UI architecture review doc) --
+                    // fall back to drawing it as a flat Quad, dropping radius, rather than
+                    // leaving it unhandled. Real rounding needs a corner distance-field test
+                    // in this pipeline's fragment shader, tracked as a separate follow-up.
+                    @Suppress("UNCHECKED_CAST")
+                    val roundedSlice = slice as List<UiDrawPrimitive.RoundedQuad>
+                    val mesh = quadMeshForRun(quadRunCount)
+                    stageQuadRun(mesh, roundedSlice.map { UiDrawPrimitive.Quad(it.x, it.y, it.w, it.h, it.color) })
+                    runs += UiRun.QuadRun(mesh)
+                    quadRunCount += 1
+                }
                 is UiDrawPrimitive.Glyph -> {
                     @Suppress("UNCHECKED_CAST")
                     val mesh = glyphMeshForRun(glyphRunCount)
@@ -650,6 +669,16 @@ class Renderer(
                 is UiDrawPrimitive.Texture -> {
                     @Suppress("UNCHECKED_CAST")
                     runs += UiRun.TextureRun(slice as List<UiDrawPrimitive.Texture>)
+                }
+                is UiDrawPrimitive.ClipPush -> {
+                    // Each ClipPush/ClipPop is its own run (never coalesced with a sibling --
+                    // they're distinct classes, so the same-class grouping above already
+                    // isolates them one at a time), consumed at the exact point in the paint
+                    // order they were emitted, same as any other run.
+                    (slice as List<UiDrawPrimitive.ClipPush>).forEach { runs += UiRun.ClipRun(it.rect) }
+                }
+                is UiDrawPrimitive.ClipPop -> {
+                    (slice as List<UiDrawPrimitive.ClipPop>).forEach { runs += UiRun.ClipRun(it.restoreRect) }
                 }
             }
         }
@@ -911,6 +940,13 @@ class Renderer(
                             run.mesh.bind(commandBuffer)
                             run.mesh.draw(commandBuffer)
                         }
+                    }
+                    is UiRun.ClipRun -> {
+                        val scissor = VkRect2D(
+                            offset = VkOffset2D(run.rect.x.toInt(), run.rect.y.toInt()),
+                            extent = VkExtent2D(run.rect.width.toInt(), run.rect.height.toInt())
+                        )
+                        Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
                     }
                     is UiRun.TextureRun -> {
                         // Render-target-backed textured quads (e.g. a minimap), one draw
