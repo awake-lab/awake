@@ -1,0 +1,383 @@
+{
+  "version": 1,
+  "skills": {
+    "kotlin-multiplatform-accessibility": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-accessibility/SKILL.md",
+      "computedHash": "b7ae0009e60aaeb3bc1d5be6b51ff4444e8f641273b9731c26129e87f00ff546"
+    },
+    "kotlin-multiplatform-adaptive-layout": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-adaptive-layout/SKILL.md",
+      "computedHash": "476a011090bf6b58357d01c5d08e3114aee78c460568645dfd0154e492fca991"
+    },
+    "kotlin-multiplatform-analytics": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-analytics/SKILL.md",
+      "computedHash": "7c28c4e1d35b7f79bfccaa35d56d0a576a4aec6b2618dda061e36c1b2e1045bf"
+    },
+    "kotlin-multiplatform-audit": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-audit/SKILL.md",
+      "computedHash": "8b23c48784cb8ce36e4cb858e53e1892bda8e0451b23e1cc4b5ef7a3259cffbe"
+    },
+    "kotlin-multiplatform-benchmark": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-benchmark/SKILL.md",
+      "computedHash": "f89badc9c91565496f112fa00e6a635de9ad2f1e58b87583247182b73efc8fb5"
+    },
+    "kotlin-multiplatform-biometric-auth": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-biometric-auth/SKILL.md",
+      "computedHash": "637fd5b82ae68a5ddb12dfc83a052736eef43aae2ae7da24df7d5146fe967baf"
+    },
+    "kotlin-multiplatform-ci-github-actions": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-ci-github-actions/SKILL.md",
+      "computedHash": "027b21ac73ac1ff28a875c0148758ee2de74b8bb1ffd4cfeb39822a10297b298"
+    },
+    "kotlin-multiplatform-clean-architecture": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-clean-architecture/SKILL.md",
+      "computedHash": "7c3a77094ebaab25dc733ab6933a89be8b19ea8744452b2f8f533a7aa7424e54"
+    },
+    "kotlin-multiplatform-code-quality": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-code-quality/SKILL.md",
+      "computedHash": "3317c8419070a2c0eb8b1a340b36fd5994a7a89a5bcf03a75193a4b925f9ed3a"
+    },
+    "kotlin-multiplatform-compose-animation": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-compose-animation/SKILL.md",
+      "computedHash": "f4107e247327f10c66e1d57944e00d7a7f48c574be7478caccbcb2fa625bad13"
+    },
+    "kotlin-multiplatform-compose-slot-api": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-compose-slot-api/SKILL.md",
+      "computedHash": "670c6f0e6d8dd174d4ea73399bf00ae1747ee3ce8d2cef0bb4f43b8f8add2675"
+    },
+    "kotlin-multiplatform-compose-state-container": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-compose-state-container/SKILL.md",
+      "computedHash": "e555de953ddf31d528027b0a6cc6d2ebc805c6704dab7978fc4883dac153a288"
+    },
+    "kotlin-multiplatform-compose-state-hoisting": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-compose-state-hoisting/SKILL.md",
+      "computedHash": "704812101a74e435a3ee9257ba1d1f232a540e6b7db8ae1171d5d53a2fef1957"
+    },
+    "kotlin-multiplatform-crash-reporting": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-crash-reporting/SKILL.md",
+      "computedHash": "5f7ce754f3de6c2f65fb5aedafa6bb7c3caa899076a536dc1f83a1dc189946b5"
+    },
+    "kotlin-multiplatform-datastore": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-datastore/SKILL.md",
+      "computedHash": "4fb75a9d879da5eaf0633ca7cca62079935ebd4a9c56d7c216c6dcdbb435540d"
+    },
+    "kotlin-multiplatform-deep-linking": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-deep-linking/SKILL.md",
+      "computedHash": "3e0084ed10d50c77daf0398fa7aaeb4d6255eeacbbdd33e9a631d54949ebff61"
+    },
+    "kotlin-multiplatform-dependency-injection": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-dependency-injection/SKILL.md",
+      "computedHash": "544b99553d3fa5128646c5c741761ca332fe66a513412e8527791d9b72f3dcf0"
+    },
+    "kotlin-multiplatform-design-system": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-design-system/SKILL.md",
+      "computedHash": "3b75e9eb17f9f58f4ead02d2320f1e6802fc13f17955a19e89f4129140199a4f"
+    },
+    "kotlin-multiplatform-design-system-extended": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-design-system-extended/SKILL.md",
+      "computedHash": "1c82d2ecc8f67b575373cf13f446f52212d125b00911b242670bac13364bddfb"
+    },
+    "kotlin-multiplatform-desktop-app": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-desktop-app/SKILL.md",
+      "computedHash": "a17a0c01bd135a636d60d3239e096cc15288f741f5260c7d1469401b7a39e758"
+    },
+    "kotlin-multiplatform-docs-site": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-docs-site/SKILL.md",
+      "computedHash": "d46e1b64f00da70b863e43b92adc6e5ce6e6937ca850dabbc730269afef039d7"
+    },
+    "kotlin-multiplatform-expect-actual": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-expect-actual/SKILL.md",
+      "computedHash": "2dd6bed282484751775ced9e6139d01de06ef9e6f62292c8544eca31a04c8e79"
+    },
+    "kotlin-multiplatform-expert": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-expert/SKILL.md",
+      "computedHash": "5048c3a911a7634d6d4a557a4c3fd8964f98f747a7d22ae493181677176421cb"
+    },
+    "kotlin-multiplatform-feature-flags": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-feature-flags/SKILL.md",
+      "computedHash": "07af7a5e7c4e27c332f0c1c05a1a8e071144da6df90e4cd4ab830f88ac5caeda"
+    },
+    "kotlin-multiplatform-feature-scaffold": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-feature-scaffold/SKILL.md",
+      "computedHash": "634d219f731caba999eb11f33ccbbfdafbf6654c1a9278de749fd0be4bce60bf"
+    },
+    "kotlin-multiplatform-flavor-environment": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-flavor-environment/SKILL.md",
+      "computedHash": "ae90f20bf285ca5c3f5b2eea9ddc724e360ccccbb2682ea5c5b983f492410df3"
+    },
+    "kotlin-multiplatform-form-validation": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-form-validation/SKILL.md",
+      "computedHash": "ec4f12126259daa54c32a86861304b201d4ef7566f005e4d199e98c44abb5dee"
+    },
+    "kotlin-multiplatform-graphics-modifiers": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-graphics-modifiers/SKILL.md",
+      "computedHash": "adba08e9b2655b4445e98ce958b1bf8ae6a836897bc625c3617cf93b2988ab7c"
+    },
+    "kotlin-multiplatform-image-loading": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-image-loading/SKILL.md",
+      "computedHash": "7ebc70f610aa4a7ded012794a39fa8b7e958967aeb29e354e076ab430c4566e9"
+    },
+    "kotlin-multiplatform-imagevector-generator": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-imagevector-generator/SKILL.md",
+      "computedHash": "3de1b25c5a2654d3696425b9d3e869c55d495f4ae2ae505a8a41a684d741e3ff"
+    },
+    "kotlin-multiplatform-in-app-purchases": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-in-app-purchases/SKILL.md",
+      "computedHash": "90d316f3a5a8d68a001a5763d83c6f35035eba7b250b75fa779784cf1fccd324"
+    },
+    "kotlin-multiplatform-jni-pro": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-jni-pro/SKILL.md",
+      "computedHash": "4f3a2b50b655f11634ad4c398b69a620bfb4ce7c752a5d78be51949f2c49616d"
+    },
+    "kotlin-multiplatform-kotlin-rpc": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-kotlin-rpc/SKILL.md",
+      "computedHash": "489594cffc01b6b7eae49f8922026ca0d9a15fd22597e7392a0c8644f864a281"
+    },
+    "kotlin-multiplatform-ktor-auth-service": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-ktor-auth-service/SKILL.md",
+      "computedHash": "b1e03fed89e613b5dfbd5def75eee5b9c29b57b0a1af39fb63c76e5ad0fb1f86"
+    },
+    "kotlin-multiplatform-layout-system": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-layout-system/SKILL.md",
+      "computedHash": "5c95c2ef884e40904b6a9276e947c3e5cba6336a8ddef267fa029222378a73f1"
+    },
+    "kotlin-multiplatform-legal-docs": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-legal-docs/SKILL.md",
+      "computedHash": "34bcbca1a7d2c4c88c1d3af243323b550a86d537101bbe7fc1b9175e77638cfa"
+    },
+    "kotlin-multiplatform-lessons": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-lessons/SKILL.md",
+      "computedHash": "e9e9eefd11f16c1482860140216f5caf65775b037da8f0a5543d7c75903c5f88"
+    },
+    "kotlin-multiplatform-library-publishing": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-library-publishing/SKILL.md",
+      "computedHash": "c028decd3963b36b218fe90dcd93ef3c01db41321e965ea36fea8dc848504ca8"
+    },
+    "kotlin-multiplatform-logging": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-logging/SKILL.md",
+      "computedHash": "6d4842bbdeda9864d03ab9d8b1dbca3e41e3ee6bd577ef0be9d4275471f21c2e"
+    },
+    "kotlin-multiplatform-migration": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-migration/SKILL.md",
+      "computedHash": "2c8eb6efd23f365874abdb219ff8a300ca09273b0b56776cd64e2d4e27701748"
+    },
+    "kotlin-multiplatform-mongodb-database": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-mongodb-database/SKILL.md",
+      "computedHash": "005ceab5ca200639fc5e1790d542b29d72f1b3e32d3bce3a59a702076bef6b0e"
+    },
+    "kotlin-multiplatform-mvi": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-mvi/SKILL.md",
+      "computedHash": "1881992570bed26289b60e0d66875605c65ad798e6ef2645dcf05fed310ad863"
+    },
+    "kotlin-multiplatform-navigation": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-navigation/SKILL.md",
+      "computedHash": "ba6c9b5d8b8fcf2e2f8b02090ce09fd828d4edc976e13221106922ab3a848fec"
+    },
+    "kotlin-multiplatform-network-layer": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-network-layer/SKILL.md",
+      "computedHash": "c0a9ac3b51279d1f1b56705e2f2f7f4e4b3821850cf4d1b47d149adfcad27548"
+    },
+    "kotlin-multiplatform-offline-first": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-offline-first/SKILL.md",
+      "computedHash": "1dcbae662f3f620e864ee607f5350071d2706550cab34eb55b5a3ba99799e556"
+    },
+    "kotlin-multiplatform-paging": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-paging/SKILL.md",
+      "computedHash": "6677e1a5b873a322937531caf64dbdc968223804735e67f34958914bdfaa2b3f"
+    },
+    "kotlin-multiplatform-permissions": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-permissions/SKILL.md",
+      "computedHash": "1f504cc9bce3a4e9d44a7ebf658782e09a0cdb70f8797d9ab1f46a0f358a3a20"
+    },
+    "kotlin-multiplatform-presenter-module": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-presenter-module/SKILL.md",
+      "computedHash": "b3687c5885439e829a0f7473774546a6dbc5edd954b4a7c458187cec462fde78"
+    },
+    "kotlin-multiplatform-preview-driven-development": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-preview-driven-development/SKILL.md",
+      "computedHash": "69d6dfc55ba4af6c71b13e294bb95e04d4c3994d4759e5f2f1fc46b9189b31af"
+    },
+    "kotlin-multiplatform-proguard-r8": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-proguard-r8/SKILL.md",
+      "computedHash": "62701c1bd0b5c73eda8edde3ce95f708b80241c2fdc5e7fde3f100ffa1d62441"
+    },
+    "kotlin-multiplatform-project-docs-maintainer": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-project-docs-maintainer/SKILL.md",
+      "computedHash": "d1e5885e8aa71840e6c80bd9428a5a41719156d6bab420e53495fd639bff4efe"
+    },
+    "kotlin-multiplatform-push-notifications": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-push-notifications/SKILL.md",
+      "computedHash": "595fc99a44eb1dd660d49e8ddaee9b68c6b5da5b55f29e6b726085ce3b30f3d0"
+    },
+    "kotlin-multiplatform-release": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-release/SKILL.md",
+      "computedHash": "2ac421bb3d45728cc8b1f0de4b8e6d5697c13c4600a43cad6e3d974776f736a5"
+    },
+    "kotlin-multiplatform-repository-pattern": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-repository-pattern/SKILL.md",
+      "computedHash": "7e3f74810c0114f2d29923bd54937f8e16f94eb56090db7eff77f963d1178085"
+    },
+    "kotlin-multiplatform-roborazzi": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-roborazzi/SKILL.md",
+      "computedHash": "04dcd255dfcab504aa304a6d3d834c36f0943ca3e468dd2a4fd95972e405d803"
+    },
+    "kotlin-multiplatform-shadcn-compose": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-shadcn-compose/SKILL.md",
+      "computedHash": "076bb3914477f69b006b701ff7c231927cae4cf77832be36d2d8b45268d20604"
+    },
+    "kotlin-multiplatform-shared-resources": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-shared-resources/SKILL.md",
+      "computedHash": "47415fbaad4614b6ed9a4113c010a03257775188bfed4fa7e6c5e35d22eebd0a"
+    },
+    "kotlin-multiplatform-skill-harvester": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-skill-harvester/SKILL.md",
+      "computedHash": "f1ce13bf0deaa152934a1790562cca2b104b222c0e843a9e8ca609915e7ba6c2"
+    },
+    "kotlin-multiplatform-sqldelight-setup": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-sqldelight-setup/SKILL.md",
+      "computedHash": "a642bd6e6b7eb91f792884f5f23d78c911b1738c8aa2bf1476c77ec8509faec6"
+    },
+    "kotlin-multiplatform-token-saver": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-token-saver/SKILL.md",
+      "computedHash": "04f38aa10c15c0ba22642b86144200a4ec772b5d8bbeb9f59c903673da23447a"
+    },
+    "kotlin-multiplatform-unit-testing": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-unit-testing/SKILL.md",
+      "computedHash": "00db21dcaab18511f9273e83b1472da517098f094134f968b91bf14cb41a7167"
+    },
+    "kotlin-multiplatform-workmanager": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-workmanager/SKILL.md",
+      "computedHash": "99eacd233fd35ed64a6d8194de1fb0dabafc6e5b148db30420875d36193547ce"
+    },
+    "kotlin-multiplatform-xcframework-spm": {
+      "source": "ronjunevaldoz/kmm-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-multiplatform-xcframework-spm/SKILL.md",
+      "computedHash": "8925a064e2b19246a3f2735c678fe635ea66d312acb2cb38fea2bfd817829a3b"
+    }
+  }
+}
