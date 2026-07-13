@@ -15,39 +15,26 @@ class UiContextTest {
         val ui = UiContext()
 
         // Frame 1: pointer moves over the button, not yet pressed.
-        Input.setPointer(down = false, x = 60f, y = 40f)
-        ui.beginFrame(200f, 100f)
-        var checked = ui.absolute(20f, 20f).toggle("t", false, 120f, 40f)
-        ui.endFrame()
+        var checked = false
+        ui.simulateFrame(pointerDown = false, x = 60f, y = 40f, screenHeight = 100f) {
+            checked = ui.absolute(20f, 20f).toggle("t", checked, 120f, 40f)
+        }
         assertFalse(checked, "should not toggle on hover alone")
 
-        // Frame 2: press down while hovered.
-        Input.setPointer(down = true, x = 60f, y = 40f)
-        ui.beginFrame(200f, 100f)
-        checked = ui.absolute(20f, 20f).toggle("t", checked, 120f, 40f)
-        ui.endFrame()
-        assertFalse(checked, "should not toggle on press alone (fires on release)")
-
-        // Frame 3: release while still hovered -- click fires here.
-        Input.setPointer(down = false, x = 60f, y = 40f)
-        ui.beginFrame(200f, 100f)
-        checked = ui.absolute(20f, 20f).toggle("t", checked, 120f, 40f)
-        ui.endFrame()
+        // Press+release while hovered -- click fires on the release frame.
+        ui.simulateClick(x = 60f, y = 40f, screenHeight = 100f) {
+            checked = ui.absolute(20f, 20f).toggle("t", checked, 120f, 40f)
+        }
         assertTrue(checked, "should toggle on press+release inside bounds")
     }
 
     @Test
     fun buttonDoesNotFireWhenPointerOutsideBounds() {
         val ui = UiContext()
-        Input.setPointer(down = true, x = 5f, y = 5f)
-        ui.beginFrame(200f, 100f)
-        ui.absolute(20f, 20f).button("b", 120f, 40f)
-        ui.endFrame()
-
-        Input.setPointer(down = false, x = 5f, y = 5f)
-        ui.beginFrame(200f, 100f)
-        val clicked = ui.absolute(20f, 20f).button("b", 120f, 40f)
-        ui.endFrame()
+        var clicked = false
+        ui.simulateClick(x = 5f, y = 5f, screenHeight = 100f) {
+            clicked = ui.absolute(20f, 20f).button("b", 120f, 40f)
+        }
         assertFalse(clicked, "click outside the widget's bounds must not register")
     }
 
@@ -132,18 +119,16 @@ class UiContextTest {
         val ui = UiContext()
         val column = ui.column(20f, 20f, 160f)
 
-        Input.setPointer(down = false, x = 0f, y = 0f)
-        ui.beginFrame(200f, 200f)
-        column.widgetState("dd").set("expanded", true)
-        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
-        ui.endFrame()
+        ui.simulateFrame(pointerDown = false, x = 0f, y = 0f) {
+            column.widgetState("dd").set("expanded", true)
+            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        }
         assertTrue(column.widgetState("dd").get("expanded", false), "sanity check: still expanded before the outside click")
 
         // Press far outside the header (y in [20,52]) and both option rows (y in [52,116]).
-        Input.setPointer(down = true, x = 190f, y = 190f)
-        ui.beginFrame(200f, 200f)
-        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
-        ui.endFrame()
+        ui.simulateFrame(pointerDown = true, x = 190f, y = 190f) {
+            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        }
 
         assertFalse(column.widgetState("dd").get("expanded", true), "an outside click must collapse the dropdown")
     }
@@ -153,17 +138,15 @@ class UiContextTest {
         val ui = UiContext()
         val column = ui.column(20f, 20f, 160f)
 
-        Input.setPointer(down = false, x = 0f, y = 0f)
-        ui.beginFrame(200f, 200f)
-        column.widgetState("dd").set("expanded", true)
-        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
-        ui.endFrame()
+        ui.simulateFrame(pointerDown = false, x = 0f, y = 0f) {
+            column.widgetState("dd").set("expanded", true)
+            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        }
 
         // Press inside the first option row (directly below the 32px-tall header at y=20).
-        Input.setPointer(down = true, x = 30f, y = 60f)
-        ui.beginFrame(200f, 200f)
-        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
-        ui.endFrame()
+        ui.simulateFrame(pointerDown = true, x = 30f, y = 60f) {
+            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        }
 
         assertTrue(column.widgetState("dd").get("expanded", false), "a click on an option row must not be treated as an outside click")
     }
