@@ -119,6 +119,7 @@ class DemoCatalog : Game {
         ui.beginFrame(viewportWidth, viewportHeight)
         val panel = ui.column(x = viewportWidth - PANEL_WIDTH - PANEL_MARGIN, y = 20f, width = PANEL_WIDTH, font = font)
         drawDemoPicker(panel)
+        drawClipBorderDemo(panel)
         current.render(delta, viewportWidth, viewportHeight)
         // Appended AFTER current.render() rather than before -- purely a staging-order detail
         // (UiContext collects primitives into one list regardless of when during the frame
@@ -126,26 +127,23 @@ class DemoCatalog : Game {
         // widgets having already run this same frame), not a behavior change.
         (current as? PanelUser)?.drawPanel(panel)
         drawDebugHud(delta, viewportHeight)
-        drawClipBorderDemo(viewportWidth, viewportHeight)
         renderer.drawUi(ui.endFrame(), font)
     }
 
-    /** Bottom-right box proving `panel(borderWidth = ...)` and `clip { }` actually work --
-     * before this, both were dead code (nothing called them). Deliberately stages more text
-     * lines than the box is tall enough to hold; without `clip`, they'd overflow past the
-     * border. A real screenshot of this box, not just this session's unit tests, is the only
-     * way to confirm the clip rect actually cuts drawing at its boundary on a live GPU. */
-    private fun drawClipBorderDemo(viewportWidth: Float, viewportHeight: Float) {
-        val boxWidth = 180f
-        val boxHeight = 90f
-        ui.absolute(viewportWidth - boxWidth - 20f, viewportHeight - boxHeight - 20f, font)
-            .panel("clip-border-demo", Dimension.Fixed(boxWidth.px), Dimension.Fixed(boxHeight.px), borderWidth = 2f.dp) { slot ->
-                clip(slot) {
-                    for (i in 1..10) {
-                        text("clip line $i")
-                    }
+    /** Row in the shared demo-picker/config panel proving `panel(borderWidth = ...)` and
+     * `clip { }` actually work -- before this, both were dead code (nothing called them).
+     * Lives in the same column as the demo picker/toggles, not floating at a fixed screen
+     * position -- config belongs with the rest of the panel's config, not scattered
+     * separately. Deliberately stages more text lines than the box is tall enough to hold;
+     * without `clip`, they'd overflow past the border. */
+    private fun drawClipBorderDemo(panel: ColumnScope) {
+        panel.panel("clip-border-demo", Dimension.FillMax, Dimension.Fixed(90f.px), borderWidth = 2f.dp) { slot ->
+            clip(slot) {
+                for (i in 1..10) {
+                    text("clip line $i")
                 }
             }
+        }
     }
 
     private fun drawDemoPicker(panel: ColumnScope) {
