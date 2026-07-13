@@ -44,6 +44,14 @@ class UiContext {
     fun absolute(x: Float, y: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme): AbsoluteScope =
         AbsoluteScope(this, font, theme, x, y)
 
+    /** Reserves a horizontal auto-stacking layout region -- see [RowScope]. */
+    fun row(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = 8f): RowScope =
+        RowScope(this, font, theme, x, y, height, gap)
+
+    /** Reserves a fixed-rect region -- see [BoxScope]. */
+    fun box(x: Float, y: Float, width: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme): BoxScope =
+        BoxScope(this, font, theme, x, y, width, height)
+
     /** Publishes this frame's [activeId] state to [Input.pointerCapturedByUi] before handing
      * back the frame's draw primitives, so scene-facing drag consumers (
      * [io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem]/`FreeFlyCameraSystem`)

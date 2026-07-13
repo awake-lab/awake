@@ -39,3 +39,16 @@ object DefaultUiTheme : UiTheme {
     override val checkColor = floatArrayOf(0.2f, 0.8f, 0.3f, 1f)
     override val labelColor = floatArrayOf(1f, 1f, 1f, 1f)
 }
+
+/**
+ * Demonstrates the extensibility this buys -- overrides just [button] via Kotlin interface
+ * delegation (`by DefaultUiTheme`), inheriting everything else unchanged. A consumer (or a
+ * future "destructive action" button in this repo) builds its own theme the identical way;
+ * this isn't wired to any real call site, just the reference shape.
+ */
+object DangerUiTheme : UiTheme by DefaultUiTheme {
+    private val base = floatArrayOf(0.6f, 0.15f, 0.15f, 0.9f)
+    private val hover = floatArrayOf(0.75f, 0.2f, 0.2f, 0.9f)
+    private val active = floatArrayOf(0.9f, 0.25f, 0.25f, 0.9f)
+    override val button = UiStyle { state -> if (state.active) active else if (state.hovered) hover else base }
+}

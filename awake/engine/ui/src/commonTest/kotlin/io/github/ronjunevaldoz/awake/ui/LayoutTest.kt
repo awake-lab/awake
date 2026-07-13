@@ -46,4 +46,43 @@ class LayoutTest {
         assertEquals(15f, second.x, "AbsoluteScope must always return the exact x/y it was constructed with")
         assertEquals(25f, second.y)
     }
+
+    @Test
+    fun rowScopeAdvancesCursorByWidthPlusGap() {
+        val ui = UiContext()
+        val row = ui.row(x = 10f, y = 20f, height = 32f, gap = 8f)
+
+        val first = row.claimSlot(50f, 32f)
+        assertEquals(10f, first.x)
+        assertEquals(20f, first.y)
+
+        val second = row.claimSlot(60f, 32f)
+        assertEquals(10f + 50f + 8f, second.x, "second slot must start after the first column's width + gap")
+
+        val third = row.claimSlot(40f, 32f)
+        assertEquals(second.x + 60f + 8f, third.x)
+    }
+
+    @Test
+    fun rowScopeFallsBackToConfiguredHeightWhenZero() {
+        val ui = UiContext()
+        val row = ui.row(x = 0f, y = 0f, height = 40f)
+        val slot = row.claimSlot(50f, 0f)
+        assertEquals(40f, slot.height, "a zero/unset height hint should fall back to the row's own configured height")
+    }
+
+    @Test
+    fun boxScopeReturnsSameRectRegardlessOfRequestedSize() {
+        val ui = UiContext()
+        val box = ui.box(x = 5f, y = 5f, width = 100f, height = 50f)
+
+        val first = box.claimSlot(999f, 999f)
+        assertEquals(5f, first.x)
+        assertEquals(5f, first.y)
+        assertEquals(100f, first.width, "BoxScope must always return its own configured width, ignoring the requested size")
+        assertEquals(50f, first.height)
+
+        val second = box.claimSlot(1f, 1f)
+        assertEquals(first, second, "every claimSlot call on a BoxScope must return the identical rect")
+    }
 }

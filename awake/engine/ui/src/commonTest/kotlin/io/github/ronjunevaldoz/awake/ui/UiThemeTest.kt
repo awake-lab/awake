@@ -35,4 +35,17 @@ class UiThemeTest {
         assertContentEquals(DefaultUiTheme.button.colorFor(state), DefaultUiTheme.slider.colorFor(state))
         assertContentEquals(DefaultUiTheme.button.colorFor(state), DefaultUiTheme.dropdown.colorFor(state))
     }
+
+    @Test
+    fun dangerThemeOverridesOnlyButtonAndInheritsEverythingElse() {
+        // Proves DangerUiTheme's `by DefaultUiTheme` delegation actually inherits the
+        // untouched members, not just compiles against the same interface.
+        val state = UiWidgetState(hovered = true, active = false)
+        assertNotEquals(DefaultUiTheme.button.colorFor(state).toList(), DangerUiTheme.button.colorFor(state).toList())
+        assertContentEquals(DefaultUiTheme.toggle.colorFor(state), DangerUiTheme.toggle.colorFor(state))
+        assertContentEquals(DefaultUiTheme.slider.colorFor(state), DangerUiTheme.slider.colorFor(state))
+        assertContentEquals(DefaultUiTheme.dropdown.colorFor(state), DangerUiTheme.dropdown.colorFor(state))
+        assertContentEquals(DefaultUiTheme.checkColor, DangerUiTheme.checkColor)
+        assertContentEquals(DefaultUiTheme.labelColor, DangerUiTheme.labelColor)
+    }
 }

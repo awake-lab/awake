@@ -62,3 +62,43 @@ class AbsoluteScope internal constructor(
 ) : AbstractUiScope(context, font, theme) {
     override fun claimSlot(width: Float, height: Float): UiSlot = UiSlot(x, y, width, height)
 }
+
+/**
+ * Horizontal counterpart to [ColumnScope] -- advances an X cursor instead of Y. Each
+ * [claimSlot] call reserves the next column and advances the cursor by that column's width
+ * plus [gap].
+ */
+class RowScope internal constructor(
+    context: UiContext,
+    font: BitmapFont?,
+    theme: UiTheme,
+    startX: Float,
+    private val y: Float,
+    private val height: Float,
+    private val gap: Float
+) : AbstractUiScope(context, font, theme) {
+    var cursorX: Float = startX
+        private set
+
+    override fun claimSlot(width: Float, height: Float): UiSlot {
+        val slot = UiSlot(cursorX, y, width, height.takeIf { it > 0f } ?: this.height)
+        cursorX += width + gap
+        return slot
+    }
+}
+
+/**
+ * Every [claimSlot] call returns the same fixed rect -- for a single fixed-position widget,
+ * or deliberately overlapping/stacked content (a background quad behind a label, etc).
+ */
+class BoxScope internal constructor(
+    context: UiContext,
+    font: BitmapFont?,
+    theme: UiTheme,
+    private val x: Float,
+    private val y: Float,
+    private val width: Float,
+    private val height: Float
+) : AbstractUiScope(context, font, theme) {
+    override fun claimSlot(width: Float, height: Float): UiSlot = UiSlot(x, y, this.width, this.height)
+}
