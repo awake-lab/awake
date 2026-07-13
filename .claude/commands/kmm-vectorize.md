@@ -10,14 +10,21 @@ replacing pixel assets and hand-written vector paths.
 ## Hard rule
 
 **Never hand-write `ImageVector.Builder` path data.** All coordinates come from the
-script. If it refuses (photo, node budget, arcs), relay the refusal — do not approximate
+script. If it refuses (photo or node budget), relay the refusal — do not approximate
 paths manually. The audit flags hand-written builders (`handwritten imagevector [HIGH]`).
+Arc commands (`A`/`a`) are NOT a refusal reason — the script flattens them into cubic
+Beziers automatically (most icon sets, including Heroicons, use arcs for rounded shapes).
 
 ---
 
 ## Step 1 — Classify the input
 
-- `.svg` → convert directly (zero dependencies)
+- `.svg`, filled paths (`fill="..."`, no `stroke`) → convert directly (zero dependencies)
+- `.svg`, stroke-based (`fill="none"` + `stroke="..."` — Heroicons **Outline**, Feather,
+  Lucide, Tabler, Material Symbols Outlined all draw icons this way) → the converter
+  auto-detects this and normalizes via picosvg (`pip install picosvg` if not already
+  present). Never skip this — filling a stroke's centerline directly produces a wrong
+  icon with a normal-looking success report, not an error.
 - `.png` / `.jpg` / `.webp` **flat art** (logo, icon, illustration) → trace then convert
 - **Photograph** → STOP. Photos stay raster under `assets/photos/`. Tell the user.
 - Full-screen mockup → ask the user to crop the individual asset first (or crop it
@@ -43,9 +50,15 @@ paths manually. The audit flags hand-written builders (`handwritten imagevector 
 
 ## Step 3 — Run the converter
 
+If the project does **not** use the `kotlin-multiplatform-design-system` skill's
+`:core:designsystem` module layout, pass `--package` explicitly — the default package
+(`<group-id>.core.designsystem.icons`) is that skill's own convention, not universal.
+Never hand-edit the generated file's package line instead.
+
 ```bash
 python3 ~/.claude/skills/kotlin-multiplatform-imagevector-generator/scripts/convert_image_to_imagevector.py \
   <input> --name <PascalName> --group-id <group.id> --color-mode <mode> \
+  [--package <full.kotlin.package>] \
   --output <ui module>/core/designsystem/icons
 ```
 
@@ -54,6 +67,7 @@ use the path relative to wherever the skill was installed, e.g.:
 ```bash
 python3 skills/kotlin-multiplatform-imagevector-generator/scripts/convert_image_to_imagevector.py \
   <input> --name <PascalName> --group-id <group.id> --color-mode <mode> \
+  [--package <full.kotlin.package>] \
   --output <ui module>/core/designsystem/icons
 ```
 

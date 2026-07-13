@@ -26,7 +26,15 @@ bash .claude/skills/scripts/update-consumer-skills.sh
 
 Then retry:
 ```bash
-bash .claude/skills/scripts/update-consumer-skills.sh --source ~/dev/kmm-agent-skills --agent-dir .claude/skills
+bash .claude/skills/scripts/update-consumer-skills.sh --source /path/to/kmm-agent-skills --agent-dir .claude/skills
+```
+
+If this happens across multiple consumer projects on the same machine, suggest setting
+`$KMM_AGENT_SKILLS_SOURCE` once instead of passing `--source` every time — auto-detect
+checks it first, before falling back to guessed paths:
+
+```bash
+export KMM_AGENT_SKILLS_SOURCE=/path/to/kmm-agent-skills   # add to shell profile
 ```
 
 ---
@@ -52,12 +60,16 @@ installer. It shows each command file with its first line and asks `[y/N]` befor
 
 ```bash
 bash .claude/skills/scripts/update-consumer-skills.sh \
-  --source ~/dev/kmm-agent-skills \
+  --source /path/to/kmm-agent-skills \
   --agent-dir .claude/skills \
   --install-commands
 ```
 
 Only run this step if the user explicitly asks to update commands.
+
+## Related
+
+If you want to refresh the local assistant bundles on this Mac too, use `/kmm-sync-local-skills`.
 
 ---
 

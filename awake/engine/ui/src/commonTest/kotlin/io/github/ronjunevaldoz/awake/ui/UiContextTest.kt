@@ -124,4 +124,47 @@ class UiContextTest {
         val lastPrimitives = allPrimitives.takeLast(overlayQuadCount)
         assertTrue(lastPrimitives.all { it is UiDrawPrimitive.Quad }, "expected the dropdown's option quads to be the last primitives emitted")
     }
+
+    @Test
+    fun dropdownCollapsesWhenClickLandsOutsideHeaderAndOptions() {
+        // Matches Compose's DropdownMenu/Popup: clicking anywhere outside the open dropdown
+        // dismisses it, without needing to click the header again.
+        val ui = UiContext()
+        val column = ui.column(20f, 20f, 160f)
+
+        Input.setPointer(down = false, x = 0f, y = 0f)
+        ui.beginFrame(200f, 200f)
+        column.widgetState("dd").set("expanded", true)
+        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        ui.endFrame()
+        assertTrue(column.widgetState("dd").get("expanded", false), "sanity check: still expanded before the outside click")
+
+        // Press far outside the header (y in [20,52]) and both option rows (y in [52,116]).
+        Input.setPointer(down = true, x = 190f, y = 190f)
+        ui.beginFrame(200f, 200f)
+        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        ui.endFrame()
+
+        assertFalse(column.widgetState("dd").get("expanded", true), "an outside click must collapse the dropdown")
+    }
+
+    @Test
+    fun dropdownStaysOpenWhenClickLandsOnOneOfItsOwnOptions() {
+        val ui = UiContext()
+        val column = ui.column(20f, 20f, 160f)
+
+        Input.setPointer(down = false, x = 0f, y = 0f)
+        ui.beginFrame(200f, 200f)
+        column.widgetState("dd").set("expanded", true)
+        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        ui.endFrame()
+
+        // Press inside the first option row (directly below the 32px-tall header at y=20).
+        Input.setPointer(down = true, x = 30f, y = 60f)
+        ui.beginFrame(200f, 200f)
+        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        ui.endFrame()
+
+        assertTrue(column.widgetState("dd").get("expanded", false), "a click on an option row must not be treated as an outside click")
+    }
 }

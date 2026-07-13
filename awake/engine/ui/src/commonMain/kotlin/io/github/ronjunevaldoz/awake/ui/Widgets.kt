@@ -129,9 +129,11 @@ fun UiScope.dropdown(
     }
     var picked: Int? = null
     if (state.get("expanded", false)) {
+        var anyOptionHovered = false
         options.forEachIndexed { index, option ->
             val optionSlot = UiSlot(slot.x, slot.y + slot.height * (index + 1), slot.width, slot.height)
             val optionHovered = hitTest(optionSlot)
+            if (optionHovered) anyOptionHovered = true
             val optionId = "$id.option$index"
             tryClaimActive(optionId, optionHovered)
             val wasActiveBeforeRelease = isActive(optionId)
@@ -153,6 +155,14 @@ fun UiScope.dropdown(
                     penX += resolvedFont.cellSize
                 }
             }
+        }
+        // Matches Compose's DropdownMenu/Popup: a click anywhere outside the header and its
+        // own option rows collapses it. Clicked-header/option cases are already excluded via
+        // `clicked`/`headerHovered = hitTest(slot)` and `anyOptionHovered` above, so this only
+        // fires for a genuinely outside press.
+        val headerHovered = hitTest(slot)
+        if (!clicked && Input.pointerDown && !headerHovered && !anyOptionHovered) {
+            state.set("expanded", false)
         }
     }
     return picked
