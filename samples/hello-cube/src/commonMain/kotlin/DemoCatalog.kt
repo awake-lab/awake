@@ -140,7 +140,9 @@ class DemoCatalog : Game {
         panel.panel("clip-border-demo", Dimension.FillMax, Dimension.Fixed(90f.px), borderWidth = 2f.dp) { slot ->
             clip(slot) {
                 for (i in 1..10) {
-                    text("clip line $i")
+                    // BitmapFont only has uppercase glyphs -- lowercase silently renders
+                    // nothing, which made this row look like a bare "1".."6" list.
+                    text("CLIP LINE $i")
                 }
             }
         }
