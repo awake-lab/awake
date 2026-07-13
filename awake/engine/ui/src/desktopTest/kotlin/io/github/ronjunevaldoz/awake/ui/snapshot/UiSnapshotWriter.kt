@@ -17,8 +17,14 @@ import javax.imageio.ImageIO
  * correctness), these are a *design review* aid: is this theme/variant/state combination
  * legible, not "did a number match."
  */
-fun saveUiSnapshot(name: String, primitives: List<UiDrawPrimitive>, width: Int, height: Int) {
-    val pixels = primitives.rasterize(width, height)
+fun saveUiSnapshot(
+    name: String,
+    primitives: List<UiDrawPrimitive>,
+    width: Int,
+    height: Int,
+    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+) {
+    val pixels = primitives.rasterize(width, height, background)
     val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
     var offset = 0
     for (y in 0 until height) {

@@ -80,3 +80,35 @@ object DefaultUiTheme : UiTheme {
         override val border = floatArrayOf(0.4f, 0.4f, 0.45f, 0.9f)
     }
 }
+
+/** Explicit named alias for [DefaultUiTheme]'s palette, which was already effectively dark
+ * (light text on a dark-gray background) -- `by DefaultUiTheme` delegation, same shape
+ * [DangerUiTheme] (Slice B) already established, so picking "dark mode" doesn't require a
+ * second color palette to maintain in lockstep with [DefaultUiTheme]. Exists so a consumer's
+ * dark/light switch has a real named `UiTheme` on the dark side, not just "the default." */
+object DarkUiTheme : UiTheme by DefaultUiTheme
+
+/**
+ * Light-mode counterpart to [DarkUiTheme] -- inverted luminance (light background, dark
+ * foreground text), not just [DefaultUiTheme] with colors negated: shadcn's own light theme
+ * keeps `primary`/`accent`/`destructive` at roughly the same saturation as the dark theme
+ * (only `background`/`foreground`/`muted`/`border` actually flip), which is what real design
+ * systems do to keep a brand's accent color recognizable across both modes.
+ */
+object LightUiTheme : UiTheme {
+    override val tokens = object : UiColorTokens {
+        override val background = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
+        override val foreground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+        override val primary = floatArrayOf(0.2f, 0.2f, 0.24f, 1f)
+        override val primaryForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
+        override val secondary = floatArrayOf(0.9f, 0.9f, 0.92f, 1f)
+        override val secondaryForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+        override val muted = floatArrayOf(0.9f, 0.9f, 0.92f, 1f) // hover
+        override val mutedForeground = floatArrayOf(0.4f, 0.4f, 0.45f, 1f)
+        override val accent = floatArrayOf(0.85f, 0.85f, 0.88f, 1f) // active
+        override val accentForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+        override val destructive = floatArrayOf(0.8f, 0.2f, 0.2f, 1f)
+        override val destructiveForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
+        override val border = floatArrayOf(0.8f, 0.8f, 0.83f, 1f)
+    }
+}

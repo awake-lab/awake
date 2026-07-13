@@ -14,14 +14,18 @@ data class UiButtonResult(val clicked: Boolean, val slot: UiSlot)
  * the scope's active id, release+hover fires the click -- standard immediate-mode semantics,
  * avoids "click fires on press over a different widget than release"). [label] is drawn
  * centered over the button's quad when given (a plain colored rectangle otherwise has no
- * indication of what it does). */
+ * indication of what it does). [variant] controls fill behavior (see [UiButtonVariant]);
+ * [radius] > [UiShape.none] draws a [UiDrawPrimitive.RoundedQuad] instead of a flat
+ * [UiDrawPrimitive.Quad] -- same primitive [panel] already uses for rounded corners. */
 fun UiScope.buttonSlot(
     id: String,
     width: Float,
     height: Float,
     label: String? = null,
     modifier: UiModifier = UiModifier(),
-    style: UiStyle? = null
+    style: UiStyle? = null,
+    variant: UiButtonVariant = UiButtonVariant.Filled,
+    radius: Dp = UiShape.none
 ): UiButtonResult {
     val slot = claimSlot(modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
     val hovered = hitTest(slot)
@@ -31,8 +35,19 @@ fun UiScope.buttonSlot(
     val wasActiveBeforeRelease = isActive(id)
     releaseActiveIfMatches(id)
     val clicked = wasActiveBeforeRelease && !isActive(id) && hovered
+    val active = isActive(id)
     val resolvedStyle = style ?: theme.tokens.neutralStyle()
-    emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, resolvedStyle.colorFor(UiWidgetState(hovered, isActive(id)))))
+    val fillColor = variant.resolveFill(resolvedStyle.colorFor(UiWidgetState(hovered, active)), hovered, active)
+    if (fillColor[3] > 0f) {
+        val radiusPx = radius.toPx()
+        val primitive = if (radiusPx > 0f) {
+            UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, fillColor, radiusPx)
+        } else {
+            UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, fillColor)
+        }
+        emit(primitive)
+    }
+    if (variant == UiButtonVariant.Outline) border(slot, color = theme.tokens.border)
     if (label != null && font != null) {
         text(label, slot, font = font, color = theme.tokens.foreground, centered = true)
     }
@@ -45,13 +60,21 @@ fun UiScope.button(
     height: Float,
     label: String? = null,
     modifier: UiModifier = UiModifier(),
-    style: UiStyle? = null
-): Boolean = buttonSlot(id, width, height, label, modifier, style).clicked
+    style: UiStyle? = null,
+    variant: UiButtonVariant = UiButtonVariant.Filled,
+    radius: Dp = UiShape.none
+): Boolean = buttonSlot(id, width, height, label, modifier, style, variant, radius).clicked
 
 /** Toggle/checkbox: returns the NEW checked value (flips on click). [checked] is caller-owned
  * (passed in, new value returned) -- no toggle state stored beyond the shared active-id latch
  * [button] already uses, matching real ImGui idiom (`ImGui::Checkbox(&myBool)` minus the
- * pointer, since Kotlin has no `&Boolean`). */
+ * pointer, since Kotlin has no `&Boolean`).
+ *
+ * [label] is drawn AFTER (not passed into [buttonSlot]) the checked-state fill quad below --
+ * confirmed via `awake:engine:ui`'s snapshot gallery that passing it into [buttonSlot] let the
+ * fill quad (emitted after, inset around the same centered region) paint over the label once
+ * cross-type paint order was fixed, making a checked toggle's own label invisible. Drawing it
+ * last here guarantees it's always on top regardless of checked state. */
 fun UiScope.toggle(
     id: String,
     checked: Boolean,
@@ -61,11 +84,14 @@ fun UiScope.toggle(
     modifier: UiModifier = UiModifier(),
     style: UiStyle? = null
 ): Boolean {
-    val (clicked, slot) = buttonSlot(id, width, height, label, modifier, style ?: theme.tokens.neutralStyle())
+    val (clicked, slot) = buttonSlot(id, width, height, label = null, modifier, style ?: theme.tokens.neutralStyle())
     val newChecked = if (clicked) !checked else checked
     if (newChecked) {
         val inset = minOf(slot.width, slot.height) * 0.2f
         emit(UiDrawPrimitive.Quad(slot.x + inset, slot.y + inset, slot.width - inset * 2, slot.height - inset * 2, theme.tokens.accent))
+    }
+    if (label != null && font != null) {
+        text(label, slot, font = font, color = theme.tokens.foreground, centered = true)
     }
     return newChecked
 }
