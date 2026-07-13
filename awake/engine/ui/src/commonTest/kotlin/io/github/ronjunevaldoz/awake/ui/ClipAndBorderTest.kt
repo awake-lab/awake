@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.input.Input
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class ClipAndBorderTest {
 
@@ -98,5 +99,33 @@ class ClipAndBorderTest {
         val scope = ui.absolute(0f, 0f)
         scope.border(UiSlot(0f, 0f, 100f, 100f), width = UiShape.none)
         assertEquals(0, ui.endFrame().size)
+    }
+
+    @Test
+    fun modifierClipOverridesButtonSlotRadiusParam() {
+        Input.setPointer(down = false, x = 0f, y = 0f)
+        val ui = UiContext()
+        ui.beginFrame(200f, 200f)
+        val scope = ui.absolute(0f, 0f)
+        // Passes radius = UiShape.none directly, but the modifier's clip() should win --
+        // proving UiModifier's shape field takes precedence over the named param, same
+        // precedence width/height already follow (modifier.width ?: width).
+        scope.buttonSlot("b", 100f, 40f, modifier = UiModifier().clip(UiShape.md), radius = UiShape.none)
+        val primitive = ui.endFrame().first()
+        assertIs<UiDrawPrimitive.RoundedQuad>(primitive, "modifier.clip() must produce a RoundedQuad even though radius param was UiShape.none")
+    }
+
+    @Test
+    fun modifierBorderOverridesVariantDefault() {
+        Input.setPointer(down = false, x = 0f, y = 0f)
+        val ui = UiContext()
+        ui.beginFrame(200f, 200f)
+        val scope = ui.absolute(0f, 0f)
+        val customColor = floatArrayOf(1f, 0f, 0f, 1f)
+        // Filled variant draws no border by default -- modifier.border() should still add one.
+        scope.buttonSlot("b", 100f, 40f, modifier = UiModifier().border(3f.dp, customColor), variant = UiButtonVariant.Filled)
+        val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
+        val borderQuads = quads.filter { it.color.contentEquals(customColor) }
+        assertEquals(4, borderQuads.size, "modifier.border() must draw all 4 edge quads even for a Filled (non-Outline) button")
     }
 }

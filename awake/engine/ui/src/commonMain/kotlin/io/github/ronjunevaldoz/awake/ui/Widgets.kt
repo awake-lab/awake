@@ -16,7 +16,11 @@ data class UiButtonResult(val clicked: Boolean, val slot: UiSlot)
  * centered over the button's quad when given (a plain colored rectangle otherwise has no
  * indication of what it does). [variant] controls fill behavior (see [UiButtonVariant]);
  * [radius] > [UiShape.none] draws a [UiDrawPrimitive.RoundedQuad] instead of a flat
- * [UiDrawPrimitive.Quad] -- same primitive [panel] already uses for rounded corners. */
+ * [UiDrawPrimitive.Quad] -- same primitive [panel] already uses for rounded corners.
+ * [modifier]'s `shape`/`borderWidth`/`borderColor` (see [UiModifier.clip]/[UiModifier.border])
+ * override [radius] and the [UiButtonVariant.Outline]-implies-a-border default respectively,
+ * when set -- the modifier chain wins over the named param, same precedence `width`/`height`
+ * already follow. */
 fun UiScope.buttonSlot(
     id: String,
     width: Float,
@@ -39,7 +43,7 @@ fun UiScope.buttonSlot(
     val resolvedStyle = style ?: theme.tokens.neutralStyle()
     val fillColor = variant.resolveFill(resolvedStyle.colorFor(UiWidgetState(hovered, active)), hovered, active)
     if (fillColor[3] > 0f) {
-        val radiusPx = radius.toPx()
+        val radiusPx = (modifier.shape ?: radius).toPx()
         val primitive = if (radiusPx > 0f) {
             UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, fillColor, radiusPx)
         } else {
@@ -47,7 +51,8 @@ fun UiScope.buttonSlot(
         }
         emit(primitive)
     }
-    if (variant == UiButtonVariant.Outline) border(slot, color = theme.tokens.border)
+    val resolvedBorderWidth = modifier.borderWidth ?: (if (variant == UiButtonVariant.Outline) 1f.dp else UiShape.none)
+    if (resolvedBorderWidth.toPx() > 0f) border(slot, resolvedBorderWidth, modifier.borderColor ?: theme.tokens.border)
     if (label != null && font != null) {
         text(label, slot, font = font, color = theme.tokens.foreground, centered = true)
     }
@@ -233,7 +238,9 @@ fun UiScope.textureQuad(width: Float, height: Float, material: Any, modifier: Ui
  * [UiDrawPrimitive.RoundedQuad]), then hands [content] a [UiContext.column]-bounded scope
  * (reusing the same factory every top-level caller uses) to place children into. Ordinary
  * [UiScope] extension, same idiom as every other widget here -- no new subsystem, no
- * recomposition. */
+ * recomposition. [modifier]'s `shape`/`borderWidth`/`borderColor` override [radius]/
+ * [borderWidth]/the theme border color respectively, when set -- same precedence
+ * [buttonSlot] follows. */
 fun UiScope.panel(
     id: String,
     width: Dimension,
@@ -241,19 +248,21 @@ fun UiScope.panel(
     radius: Dp = UiShape.md,
     borderWidth: Dp = UiShape.none,
     style: UiStyle? = null,
+    modifier: UiModifier = UiModifier(),
     content: UiScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val slot = claimSlot(width, height)
+    val slot = claimSlot(modifier.width ?: width, modifier.height ?: height)
     val resolvedStyle = style ?: theme.tokens.neutralStyle()
     val color = resolvedStyle.colorFor(UiWidgetState(hovered = false, active = false))
-    val radiusPx = radius.toPx()
+    val radiusPx = (modifier.shape ?: radius).toPx()
     val primitive = if (radiusPx > 0f) {
         UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, color, radiusPx)
     } else {
         UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, color)
     }
     emit(primitive)
-    if (borderWidth.toPx() > 0f) border(slot, borderWidth)
+    val resolvedBorderWidth = modifier.borderWidth ?: borderWidth
+    if (resolvedBorderWidth.toPx() > 0f) border(slot, resolvedBorderWidth, modifier.borderColor ?: theme.tokens.border)
     context.column(slot.x, slot.y, slot.width, font, theme).content(slot)
     return slot
 }
