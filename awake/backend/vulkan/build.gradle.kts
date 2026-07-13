@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+import java.util.Base64
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library.kmp)
@@ -213,6 +215,66 @@ val desktopVulkanEnv = buildMap {
 tasks.named<Test>("desktopTest") {
     jvmArgs("-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
     environment(desktopVulkanEnv)
+    finalizedBy("pixelBaselineReport")
+}
+
+// Gradle's own HTML test report only shows escaped stdout/stacktrace text -- no <img>
+// rendering, no attachment support -- so RendererHeadlessPixelBaselineTest's actual.png/
+// baseline.png dumps (see that test's failure branch) are otherwise just files a developer
+// has to know to go dig up. This task turns build/test-failures/*/{actual,baseline}.png
+// into one self-contained HTML page (images inlined as base64, so it's a single file you
+// can open or send without broken relative links) -- a lightweight stand-in for a real
+// test-reporting tool (Allure, etc) until there are enough visual tests to justify one.
+tasks.register("pixelBaselineReport") {
+    group = "verification"
+    description = "Generate an HTML gallery of actual-vs-baseline PNGs for any failed pixel-baseline test."
+    val failuresDir = layout.buildDirectory.dir("test-failures")
+    val reportFile = layout.buildDirectory.file("reports/pixel-baseline/index.html")
+    // No inputs.dir/outputs.file declared -- this always reruns (a plain dev convenience
+    // task, not something that needs Gradle's up-to-date caching), and failuresDir may
+    // legitimately not exist yet (no failures ever recorded).
+    doLast {
+        val root = failuresDir.get().asFile
+        val testDirs = root.listFiles { file -> file.isDirectory }?.sortedBy { it.name } ?: emptyList()
+
+        fun imgTag(file: File): String {
+            if (!file.exists()) return "<p><em>missing: ${file.name}</em></p>"
+            val base64 = Base64.getEncoder().encodeToString(file.readBytes())
+            return """<img src="data:image/png;base64,$base64" style="image-rendering:pixelated;width:256px;height:256px;border:1px solid #444" />"""
+        }
+
+        val sections = testDirs.joinToString("\n") { testDir ->
+            """
+            <section style="margin-bottom:2rem">
+                <h2>${testDir.name}</h2>
+                <div style="display:flex;gap:1rem">
+                    <div><h3>Baseline (expected)</h3>${imgTag(File(testDir, "baseline.png"))}</div>
+                    <div><h3>Actual (rendered)</h3>${imgTag(File(testDir, "actual.png"))}</div>
+                </div>
+            </section>
+            """.trimIndent()
+        }
+
+        val body = if (testDirs.isEmpty()) {
+            "<p>No pixel-baseline test failures in the last run.</p>"
+        } else {
+            sections
+        }
+
+        val html = """
+            <!DOCTYPE html>
+            <html><head><meta charset="utf-8"><title>Pixel baseline report</title></head>
+            <body style="font-family:sans-serif;background:#1e1e1e;color:#eee;padding:2rem">
+                <h1>Pixel baseline report</h1>
+                $body
+            </body></html>
+        """.trimIndent()
+
+        val out = reportFile.get().asFile
+        out.parentFile.mkdirs()
+        out.writeText(html)
+        println("Pixel baseline report: file://${out.absolutePath}")
+    }
 }
 
 val startOnFirstThread = if (System.getProperty("os.name").lowercase().contains("mac")) {
