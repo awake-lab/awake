@@ -19,6 +19,9 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import kotlinx.coroutines.runBlocking
+import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -41,6 +44,26 @@ import kotlin.test.assertTrue
  * commit that added this test) and committed alongside it, per docs/MVP_PLAN.md's Phase 2
  * pixel-baseline-testing entry.
  */
+/** Same encode as `samples/hello-cube`'s `saveDebugPng` (desktop `javax.imageio` actual) --
+ * duplicated here rather than depended on, since `samples/hello-cube` depends on
+ * `awake:backend:vulkan`, not the other way around. Test-only, so a small duplication is
+ * cheaper than restructuring module dependencies for a debug convenience. */
+private fun writeRgbaPng(pixels: ByteArray, width: Int, height: Int, file: File) {
+    val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+    var offset = 0
+    for (y in 0 until height) {
+        for (x in 0 until width) {
+            val r = pixels[offset].toInt() and 0xFF
+            val g = pixels[offset + 1].toInt() and 0xFF
+            val b = pixels[offset + 2].toInt() and 0xFF
+            val a = pixels[offset + 3].toInt() and 0xFF
+            image.setRGB(x, y, (a shl 24) or (r shl 16) or (g shl 8) or b)
+            offset += 4
+        }
+    }
+    ImageIO.write(image, "png", file)
+}
+
 class RendererHeadlessPixelBaselineTest {
 
     @Test
@@ -100,12 +123,24 @@ class RendererHeadlessPixelBaselineTest {
 
             val baseline = runBlocking { readResourceBytes(BASELINE_RESOURCE_PATH) }
             val result = comparePixels(pixels.data, baseline)
-            assertTrue(
-                result.matches,
-                "Headless cube render diverged from baseline: ${result.diffPixelCount} pixels differ " +
-                    "(max channel diff ${result.maxChannelDiff}). Re-record $BASELINE_RESOURCE_PATH if this " +
-                    "divergence is an intentional rendering change."
-            )
+            if (!result.matches) {
+                // Dump both PNGs next to the test's own failure output so a developer can
+                // actually look at what rendered, instead of only reading a diff-pixel count --
+                // findable from the assertion message below without digging through Gradle's
+                // build directory structure.
+                val failureDir = File("build/test-failures/RendererHeadlessPixelBaselineTest").apply { mkdirs() }
+                val actualPngFile = File(failureDir, "actual.png")
+                val baselinePngFile = File(failureDir, "baseline.png")
+                writeRgbaPng(pixels.data, TARGET_SIZE, TARGET_SIZE, actualPngFile)
+                writeRgbaPng(baseline, TARGET_SIZE, TARGET_SIZE, baselinePngFile)
+                assertTrue(
+                    false,
+                    "Headless cube render diverged from baseline: ${result.diffPixelCount} pixels differ " +
+                        "(max channel diff ${result.maxChannelDiff}). Compare ${actualPngFile.absolutePath} " +
+                        "against ${baselinePngFile.absolutePath}. Re-record $BASELINE_RESOURCE_PATH if this " +
+                        "divergence is an intentional rendering change."
+                )
+            }
         } finally {
             // Symmetric with VulkanGameApplication.destroyBackend()'s own teardown order: a
             // demo/game owns createMesh()/createMaterial()'s destroy() calls (Renderer doesn't
