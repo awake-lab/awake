@@ -5,9 +5,14 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.clip
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.text
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -121,7 +126,26 @@ class DemoCatalog : Game {
         // widgets having already run this same frame), not a behavior change.
         (current as? PanelUser)?.drawPanel(panel)
         drawDebugHud(delta, viewportHeight)
+        drawClipBorderDemo(viewportWidth, viewportHeight)
         renderer.drawUi(ui.endFrame(), font)
+    }
+
+    /** Bottom-right box proving `panel(borderWidth = ...)` and `clip { }` actually work --
+     * before this, both were dead code (nothing called them). Deliberately stages more text
+     * lines than the box is tall enough to hold; without `clip`, they'd overflow past the
+     * border. A real screenshot of this box, not just this session's unit tests, is the only
+     * way to confirm the clip rect actually cuts drawing at its boundary on a live GPU. */
+    private fun drawClipBorderDemo(viewportWidth: Float, viewportHeight: Float) {
+        val boxWidth = 180f
+        val boxHeight = 90f
+        ui.absolute(viewportWidth - boxWidth - 20f, viewportHeight - boxHeight - 20f, font)
+            .panel("clip-border-demo", Dimension.Fixed(boxWidth.px), Dimension.Fixed(boxHeight.px), borderWidth = 2f.dp) { slot ->
+                clip(slot) {
+                    for (i in 1..10) {
+                        text("clip line $i")
+                    }
+                }
+            }
     }
 
     private fun drawDemoPicker(panel: ColumnScope) {
