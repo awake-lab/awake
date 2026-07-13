@@ -4,8 +4,11 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.text
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -109,18 +112,22 @@ class DemoCatalog : Game {
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
         ui.beginFrame(viewportWidth, viewportHeight)
-        drawDemoPicker(viewportWidth)
+        val panel = ui.column(x = viewportWidth - PANEL_WIDTH - PANEL_MARGIN, y = 20f, width = PANEL_WIDTH, font = font)
+        drawDemoPicker(panel)
         current.render(delta, viewportWidth, viewportHeight)
+        // Appended AFTER current.render() rather than before -- purely a staging-order detail
+        // (UiContext collects primitives into one list regardless of when during the frame
+        // they were staged, and nothing a demo's own render() does depends on its panel
+        // widgets having already run this same frame), not a behavior change.
+        (current as? PanelUser)?.drawPanel(panel)
         drawDebugHud(delta, viewportHeight)
         renderer.drawUi(ui.endFrame(), font)
     }
 
-    private fun drawDemoPicker(viewportWidth: Float) {
+    private fun drawDemoPicker(panel: ColumnScope) {
         val names = demos.map { it.first }
-        ui.dropdown(
-            "demo-picker", panelX(viewportWidth), PANEL_ROW_DEMO_PICKER_Y, PANEL_WIDTH, 32f,
-            names, currentIndex, font
-        )?.let { picked -> if (picked != currentIndex) switchTo(picked) }
+        panel.dropdown("demo-picker", names, currentIndex, PANEL_WIDTH, 32f)
+            ?.let { picked -> if (picked != currentIndex) switchTo(picked) }
     }
 
     /** Draws FPS/frame-time + whatever [current] reports via [DebugReadout], bottom-left
@@ -139,7 +146,7 @@ class DemoCatalog : Game {
         }
         val lines = debugLines()
         lines.forEachIndexed { index, line ->
-            ui.text(20f, viewportHeight - (lines.size - index) * 14f, line, HUD_COLOR, font)
+            ui.absolute(20f, viewportHeight - (lines.size - index) * 14f, font).text(line, color = HUD_COLOR)
         }
     }
 
@@ -215,6 +222,12 @@ class DemoCatalog : Game {
 
     private companion object {
         val HUD_COLOR = floatArrayOf(0.4f, 1f, 0.4f, 1f)
+
+        // Right-side debug-panel column geometry -- replaces the old UiLayout.kt's
+        // PANEL_ROW_* constants entirely; ColumnScope's own cursor now handles per-row
+        // positioning, so only the column's shared x/width need to live anywhere.
+        const val PANEL_WIDTH = 200f
+        const val PANEL_MARGIN = 20f
     }
 }
 

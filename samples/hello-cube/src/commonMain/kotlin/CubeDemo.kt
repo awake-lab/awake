@@ -18,8 +18,13 @@ import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRuntime
 import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.slider
+import io.github.ronjunevaldoz.awake.ui.textureQuad
+import io.github.ronjunevaldoz.awake.ui.toggle
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.atan2
@@ -44,8 +49,13 @@ import kotlin.math.sin
  * demo-picker dropdown already staged this frame.
  */
 class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
-    Game, DebugReadout, OffscreenPreviewSource, DebugCameraTarget, DebugMinimapTarget {
+    Game, DebugReadout, OffscreenPreviewSource, DebugCameraTarget, DebugMinimapTarget, PanelUser {
     private val fixedTimestepLoop = FixedTimestepLoop()
+
+    // Set every render() call, read by drawPanel() -- PanelUser.drawPanel(panel: ColumnScope)
+    // has no viewportWidth/aspectRatio params of its own (DemoCatalog calls it separately
+    // from render()), so this demo remembers its own last-known frame geometry.
+    private var aspectRatio = 1f
 
     private lateinit var renderer: Renderer
     private lateinit var sceneRuntime: SceneRuntime
@@ -185,6 +195,7 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
+        aspectRatio = viewportWidth / viewportHeight
         // CubeDemo is the one place that still wants a fixed-step camera update --
         // FixedTimestepLoop is now an implementation detail CubeDemo opts into itself, not
         // something GenericGameApplication imposes on every Game.
@@ -197,21 +208,16 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
                     CameraMode.FREE_FLY -> freeFlyCameraSystem.update(world, step)
                 }
             },
-            render = {
-                drawCatalogUi(viewportWidth / viewportHeight, viewportWidth)
-                sceneRuntime.render(delta)
-            }
+            render = { sceneRuntime.render(delta) }
         )
     }
 
-    private fun drawCatalogUi(aspectRatio: Float, viewportWidth: Float) {
-        val panelX = panelX(viewportWidth)
-
+    override fun drawPanel(panel: ColumnScope) {
         val debugLabel = if (debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
-        debugOverlayOn = ui.toggle("debug-toggle", panelX, PANEL_ROW_DEBUG_TOGGLE_Y, PANEL_WIDTH, 40f, debugOverlayOn, debugLabel, font)
+        debugOverlayOn = panel.toggle("debug-toggle", debugOverlayOn, 0f, 40f, debugLabel)
 
         val modeNames = CameraMode.entries.map { it.name }
-        ui.dropdown("camera-mode", panelX, PANEL_ROW_CAMERA_MODE_Y, PANEL_WIDTH, 32f, modeNames, cameraMode.ordinal, font)?.let { picked ->
+        panel.dropdown("camera-mode", modeNames, cameraMode.ordinal, 0f, 32f)?.let { picked ->
             val newMode = CameraMode.entries[picked]
             if (newMode == CameraMode.FREE_FLY && cameraMode == CameraMode.ORBIT) {
                 // Hand off orbit's current look orientation so switching modes doesn't snap
@@ -225,8 +231,8 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
             cameraMode = newMode
         }
 
-        showFrustum = ui.toggle("show-frustum", panelX, PANEL_ROW_FRUSTUM_Y, PANEL_WIDTH, 32f, showFrustum, "FRUSTUM", font)
-        showGrid = ui.toggle("show-grid", panelX, PANEL_ROW_GRID_Y, PANEL_WIDTH, 32f, showGrid, "GRID", font)
+        showFrustum = panel.toggle("show-frustum", showFrustum, 0f, 32f, "FRUSTUM")
+        showGrid = panel.toggle("show-grid", showGrid, 0f, 32f, "GRID")
 
         // Frustum camera sliders -- only shown while FRUSTUM is on, since that's the only
         // time this camera's position is visible/meaningful to adjust. Recomputes
@@ -234,21 +240,9 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         // the sliders are visible, since the minimap (below) always renders from this camera
         // and must stay in sync even if the FRUSTUM wireframe itself is toggled off.
         if (showFrustum) {
-            frustumYaw = ui.slider(
-                "frustum-azimuth", panelX, PANEL_ROW_FRUSTUM_AZIMUTH_Y, PANEL_WIDTH, 28f,
-                min = -PI.toFloat(), max = PI.toFloat(), value = frustumYaw,
-                font = font, label = "F.AZIMUTH"
-            )
-            frustumPitch = ui.slider(
-                "frustum-elevation", panelX, PANEL_ROW_FRUSTUM_ELEVATION_Y, PANEL_WIDTH, 28f,
-                min = OrbitCameraSystem.MIN_PITCH, max = OrbitCameraSystem.MAX_PITCH, value = frustumPitch,
-                font = font, label = "F.ELEVATION"
-            )
-            frustumDistance = ui.slider(
-                "frustum-zoom", panelX, PANEL_ROW_FRUSTUM_ZOOM_Y, PANEL_WIDTH, 28f,
-                min = OrbitCameraSystem.MIN_DISTANCE, max = MAX_ZOOM_DISTANCE, value = frustumDistance,
-                font = font, label = "F.ZOOM"
-            )
+            frustumYaw = panel.slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), frustumYaw, 0f, 28f, "F.AZIMUTH")
+            frustumPitch = panel.slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, frustumPitch, 0f, 28f, "F.ELEVATION")
+            frustumDistance = panel.slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, frustumDistance, 0f, 28f, "F.ZOOM")
         }
         val frustumCosPitch = cos(frustumPitch)
         val target = cubeTransform.position
@@ -274,7 +268,7 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         }
         renderer.drawDebugLines(debugLines)
 
-        showMinimap = ui.toggle("show-minimap", panelX, PANEL_ROW_MINIMAP_Y, PANEL_WIDTH, 32f, showMinimap, "MINIMAP", font)
+        showMinimap = panel.toggle("show-minimap", showMinimap, 0f, 32f, "MINIMAP")
         if (showMinimap) {
             // Same camera the FRUSTUM wireframe visualizes -- the minimap now shows exactly
             // what the frustum camera sees, not an unrelated fixed overhead view.
@@ -282,28 +276,16 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
             val size = MINIMAP_SIZE.toFloat()
             // Top-left, not top-right -- the whole right edge is now the settings panel
             // column above, so the minimap preview has the top-left corner free instead.
-            ui.textureQuad(20f, 20f, size, size, minimapMaterial)
+            ui.absolute(20f, 20f).textureQuad(size, size, minimapMaterial)
         }
 
         // Orbit-only: FREE_FLY drives the same live Camera component with its own
         // WASD/mouse-look controls (FreeFlyCameraSystem), so these sliders would fight it --
         // only ORBIT's yaw/pitch/distance are meaningful slider targets.
         if (cameraMode == CameraMode.ORBIT) {
-            orbitCameraSystem.yaw = ui.slider(
-                "orbit-azimuth", panelX, PANEL_ROW_AZIMUTH_Y, PANEL_WIDTH, 28f,
-                min = -PI.toFloat(), max = PI.toFloat(), value = orbitCameraSystem.yaw,
-                font = font, label = "AZIMUTH"
-            )
-            orbitCameraSystem.pitch = ui.slider(
-                "orbit-elevation", panelX, PANEL_ROW_ELEVATION_Y, PANEL_WIDTH, 28f,
-                min = OrbitCameraSystem.MIN_PITCH, max = OrbitCameraSystem.MAX_PITCH, value = orbitCameraSystem.pitch,
-                font = font, label = "ELEVATION"
-            )
-            orbitCameraSystem.distance = ui.slider(
-                "orbit-zoom", panelX, PANEL_ROW_ZOOM_Y, PANEL_WIDTH, 28f,
-                min = OrbitCameraSystem.MIN_DISTANCE, max = MAX_ZOOM_DISTANCE, value = orbitCameraSystem.distance,
-                font = font, label = "ZOOM"
-            )
+            orbitCameraSystem.yaw = panel.slider("orbit-azimuth", -PI.toFloat(), PI.toFloat(), orbitCameraSystem.yaw, 0f, 28f, "AZIMUTH")
+            orbitCameraSystem.pitch = panel.slider("orbit-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, orbitCameraSystem.pitch, 0f, 28f, "ELEVATION")
+            orbitCameraSystem.distance = panel.slider("orbit-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, orbitCameraSystem.distance, 0f, 28f, "ZOOM")
         }
     }
 

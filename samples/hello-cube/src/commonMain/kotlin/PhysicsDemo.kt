@@ -17,8 +17,10 @@ import io.github.ronjunevaldoz.awake.scene.components.PhysicsBody
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRuntime
 import io.github.ronjunevaldoz.awake.scene.systems.PhysicsSystem
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.toggle
 
 /**
  * A dedicated Jolt Physics demo -- a static ground box and a dynamic cube dropped from a
@@ -42,7 +44,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
  * [CubeDemo]'s own doc comment for why only [DemoCatalog] may call `ui.beginFrame`/
  * `renderer.drawUi`).
  */
-class PhysicsDemo(private val ui: UiContext, private val font: BitmapFont) : Game, DebugReadout, DebugCameraTarget {
+class PhysicsDemo(private val ui: UiContext, private val font: BitmapFont) : Game, DebugReadout, DebugCameraTarget, PanelUser {
     private val fixedTimestepLoop = FixedTimestepLoop()
 
     private lateinit var renderer: Renderer
@@ -116,10 +118,6 @@ class PhysicsDemo(private val ui: UiContext, private val font: BitmapFont) : Gam
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
-        // First row this demo contributes to the shared panel column, right below
-        // DemoCatalog's own demo-picker dropdown (this demo has no debug-toggle/camera-mode
-        // rows of its own, unlike CubeDemo).
-        showGrid = ui.toggle("show-grid", panelX(viewportWidth), PANEL_ROW_DEBUG_TOGGLE_Y, PANEL_WIDTH, 32f, showGrid, "GRID", font)
         // Always call drawDebugLines (with an empty list when off) rather than only when
         // showGrid is true -- drawDebugLines replaces (doesn't accumulate) the staged lines
         // each call, see its own doc comment, so skipping the call on the "off" frame would
@@ -146,6 +144,15 @@ class PhysicsDemo(private val ui: UiContext, private val font: BitmapFont) : Gam
             logAccumulator = 0f
             println("PHYSICS DEMO: cube Y = ${cubeTransform.position.y}")
         }
+    }
+
+    /** First row this demo contributes to the shared panel column, right below
+     * [DemoCatalog]'s own demo-picker dropdown (this demo has no debug-toggle/camera-mode
+     * rows of its own, unlike [CubeDemo]). */
+    override fun drawPanel(panel: ColumnScope) {
+        // width = 0f falls back to the column's own configured width (see
+        // ColumnScope.claimSlot) -- this demo doesn't need to know/duplicate that value.
+        showGrid = panel.toggle("show-grid", showGrid, 0f, 32f, "GRID")
     }
 
     /** Releases the mesh/materials this demo created in [ready], and the [PhysicsWorld] it
