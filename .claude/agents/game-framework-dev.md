@@ -31,6 +31,26 @@ dimensions automatically. This exact class of bug (surface/canvas backing-buffer
 explicitly sized before configure, so it silently renders at 0x0) surfaced in
 `awake-backend-webgpu`'s wasmJs canvas setup during the D21 refactor.
 
+## Visual-regression testing (prefer over manual screenshots when it applies)
+
+`awake:engine:testing`'s `comparePixels()` (tolerance-based RGBA8 byte compare, pure common
+code) plus `GraphicsDevice.createHeadless()`/`SwapchainManager.createHeadless()` (Vulkan
+desktop only — no GLFW/window/surface/swapchain) let a rendering change be verified by a
+real, automated `desktopTest` instead of a manual app run + `screencapture` + eyeballing.
+See `RendererHeadlessPixelBaselineTest`
+(`awake/backend/vulkan/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/vulkan/RendererHeadlessPixelBaselineTest.kt`)
+for the pattern: build a headless `Renderer`, render real geometry, `readPixels`, assert
+`comparePixels(...).matches` against a committed baseline (`src/desktopTest/resources/
+baselines/*.rgba`). When a task changes anything that affects a frame's actual pixel output
+on the Vulkan desktop backend (draw order, vertex/color math, pipeline state), add or update
+a test like this rather than relying only on a manual screenshot — see
+`docs/MVP_PLAN.md`'s 2026-07-13 entry for the full rationale and how this was proven to
+actually catch a regression (a deliberately broken camera position failed the test, then
+passed again after reverting).
+
+Known gap: this only covers the Vulkan desktop offscreen path. Android/iOS/wasmJs and the
+windowed on-screen path still need the manual screenshot workflow described below.
+
 ## What makes this different from app-feature work
 
 Engine modules (`awake-core`, `awake-vulkan`) do **not** follow the app's 6-layer clean
