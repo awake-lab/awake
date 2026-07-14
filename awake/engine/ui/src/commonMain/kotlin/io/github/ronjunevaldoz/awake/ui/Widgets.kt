@@ -85,7 +85,8 @@ fun UiScope.toggle(
     val newChecked = if (clicked) !checked else checked
     if (newChecked) {
         val inset = minOf(slot.width, slot.height) * 0.2f
-        emit(UiDrawPrimitive.Quad(slot.x + inset, slot.y + inset, slot.width - inset * 2, slot.height - inset * 2, theme.tokens.accent))
+        val radiusPx = (modifier.shape ?: UiShape.none).toPx()
+        emitInsetAccent(slot, inset, radiusPx)
     }
     if (label != null && font != null) {
         text(label, slot, font = font, color = theme.tokens.foreground, centered = true)
@@ -128,7 +129,7 @@ fun UiScope.checkbox(
     emitFillAndBorder(boxSlot, boxColor, radiusPx, modifier.borderWidth ?: 1f.dp, modifier.borderColor ?: theme.tokens.border)
     if (newChecked) {
         val inset = boxPx * 0.25f
-        emit(UiDrawPrimitive.Quad(boxSlot.x + inset, boxSlot.y + inset, boxPx - inset * 2, boxPx - inset * 2, theme.tokens.accent))
+        emitInsetAccent(boxSlot, inset, radiusPx)
     }
     val resolvedFont = font
     if (label != null && resolvedFont != null) {
@@ -370,4 +371,24 @@ fun UiScope.emitFillAndBorder(slot: UiSlot, fillColor: FloatArray, radiusPx: Flo
         emit(primitive)
     }
     if (borderPx > 0f) border(slot, borderWidth, borderColor)
+}
+
+/** Inset accent quad for a checked [toggle]/[checkbox] -- same rounding bug as
+ * [emitFillAndBorder] was fixing (a flat inset [UiDrawPrimitive.Quad] drawn on top of an
+ * already-rounded fill has square corners cutting across the curve, confirmed by a real
+ * screenshot: the accent patch looked like a mismatched square inside a rounded button/box).
+ * Draws a [UiDrawPrimitive.RoundedQuad] with a radius shrunk by the same [inset] the quad
+ * itself is shrunk by (so the accent's corner curve matches the outer fill's, not a
+ * disproportionately round or sharp corner), falling back to a flat quad when `radiusPx <= 0`. */
+private fun UiScope.emitInsetAccent(slot: UiSlot, inset: Float, radiusPx: Float) {
+    val x = slot.x + inset
+    val y = slot.y + inset
+    val w = slot.width - inset * 2
+    val h = slot.height - inset * 2
+    val primitive = if (radiusPx > 0f) {
+        UiDrawPrimitive.RoundedQuad(x, y, w, h, theme.tokens.accent, (radiusPx - inset).coerceAtLeast(0f))
+    } else {
+        UiDrawPrimitive.Quad(x, y, w, h, theme.tokens.accent)
+    }
+    emit(primitive)
 }
