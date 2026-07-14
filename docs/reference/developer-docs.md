@@ -24,6 +24,9 @@ This currently builds:
 - the curated UI tutorial guide at
   `awake/engine/ui-widgets/build/reports/ui-tutorials/index.html`
 
+The rollout tracker for module-by-module coverage lives in
+`docs/reference/tutorial-coverage.md`.
+
 ## What Belongs Where
 
 ### API Reference

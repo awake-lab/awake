@@ -36,6 +36,7 @@ plan and [docs/MVP_PLAN.md](docs/MVP_PLAN.md) for near-term status.
 ### Docs
 
 - Developer docs workflow: [docs/reference/developer-docs.md](docs/reference/developer-docs.md)
+- Tutorial coverage tracker: [docs/reference/tutorial-coverage.md](docs/reference/tutorial-coverage.md)
 - Build the current API references plus UI tutorial artifacts:
   ```
   ./gradlew developerDocs
