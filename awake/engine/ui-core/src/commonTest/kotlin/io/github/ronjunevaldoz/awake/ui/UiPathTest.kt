@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class UiPathTest {
 
@@ -144,5 +145,28 @@ class UiPathTest {
 
         assertTrue(clipped.points.size > 4, "clipping should introduce intersection vertices")
         assertTrue(clipped.points.none { it.x == 0f && it.y == 0f }, "the fully clipped corner vertex should be removed from the output mesh")
+    }
+
+    @Test
+    fun texturedTriangleMeshClipsAgainstConvexCutCornerPathAndPreservesUvInterpolation() {
+        val quadMesh = UiTexturedTriangleMesh(
+            vertices = listOf(
+                UiTexturedVertex(UiPoint(0f, 0f), u = 0f, v = 0f),
+                UiTexturedVertex(UiPoint(40f, 0f), u = 1f, v = 0f),
+                UiTexturedVertex(UiPoint(40f, 20f), u = 1f, v = 1f),
+                UiTexturedVertex(UiPoint(0f, 20f), u = 0f, v = 1f)
+            ),
+            indices = intArrayOf(0, 1, 2, 2, 3, 0)
+        )
+
+        val clipped = quadMesh.clipToConvexPath(UiShapeSpec.CutCorner(6f.dp).toPath(UiSlot(0f, 0f, 40f, 20f)))
+
+        assertTrue(clipped.vertices.size > 4, "clipping should introduce intersection vertices")
+        assertTrue(clipped.vertices.none { it.position.x == 0f && it.position.y == 0f }, "the fully clipped corner vertex should be removed from the output mesh")
+
+        val topEdgeVertex = clipped.vertices.firstOrNull { abs(it.position.x - 6f) < 0.001f && abs(it.position.y) < 0.001f }
+        assertTrue(topEdgeVertex != null, "expected an interpolated top-edge clip vertex at x=6")
+        assertTrue(abs(topEdgeVertex.u - 0.15f) < 0.001f, "u should interpolate along the top edge")
+        assertTrue(abs(topEdgeVertex.v) < 0.001f, "v should stay pinned to the top edge")
     }
 }

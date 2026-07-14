@@ -17,6 +17,8 @@ import io.github.ronjunevaldoz.awake.ui.UiPath
 import io.github.ronjunevaldoz.awake.ui.UiPoint
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.UiTexturedTriangleMesh
+import io.github.ronjunevaldoz.awake.ui.UiTexturedVertex
 import io.github.ronjunevaldoz.awake.ui.UiTriangleMesh
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.clipToConvexPaths
@@ -190,13 +192,19 @@ class Renderer(
         class QuadRun(val mesh: DynamicMesh) : UiRun()
         class RoundedQuadRun(val mesh: DynamicMesh) : UiRun()
         class GlyphRun(val mesh: DynamicMesh) : UiRun()
-        class TextureRun(val primitives: List<UiDrawPrimitive.Texture>) : UiRun()
+        class TextureRun(val primitives: List<TexturedPrimitiveRun>) : UiRun()
 
         /** Not a real draw call -- [rect] is already fully resolved (see [UiContext]'s clip
          * stack), so consuming this just means "set the scissor to this rect" at the point
          * in the command sequence where it was originally emitted, same as any other run. */
         class ClipRun(val rect: UiSlot) : UiRun()
     }
+
+    private data class TexturedPrimitiveRun(
+        val material: Any,
+        val vertices: FloatArray,
+        val indices: IntArray
+    )
 
     private enum class ClipKind {
         Rect,
@@ -449,7 +457,7 @@ class Renderer(
             uiTextureVertexShaderCode,
             uiTextureFragmentShaderCode
         )
-        textureQuadMesh = DynamicMesh(graphicsDevice, 1, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+        textureQuadMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
     }
 
     /** Builds [uiRoundedQuadRenderPipeline] on the first [drawUi] call that has any
@@ -744,18 +752,18 @@ class Renderer(
                 is UiDrawPrimitive.Glyph -> {
                     @Suppress("UNCHECKED_CAST")
                     val mesh = glyphMeshForRun(glyphRunCount)
-                    stageGlyphRun(mesh, slice as List<UiDrawPrimitive.Glyph>)
+                    stageGlyphRun(mesh, slice as List<UiDrawPrimitive.Glyph>, activePathClips)
                     runs += UiRun.GlyphRun(mesh)
                     glyphRunCount += 1
                 }
                 is UiDrawPrimitive.Texture -> {
                     @Suppress("UNCHECKED_CAST")
-                    runs += UiRun.TextureRun(slice as List<UiDrawPrimitive.Texture>)
+                    runs += UiRun.TextureRun(stageTextureRun(slice as List<UiDrawPrimitive.Texture>, activePathClips))
                 }
                 is UiDrawPrimitive.ClipPathPush -> {
-                    // Exact path clipping is not wired into Vulkan yet; use the resolved
-                    // bounds rect as a conservative scissor fallback so path-clipped content
-                    // still cannot escape its clip region.
+                    // Keep the resolved bounds scissor even when exact convex path clipping
+                    // is available: it stays the fallback for non-convex paths and still
+                    // trims work outside the path's enclosing rect.
                     (slice as List<UiDrawPrimitive.ClipPathPush>).forEach {
                         clipKindStack.addLast(ClipKind.Path)
                         activePathClips += it.path
@@ -903,6 +911,9 @@ class Renderer(
     private fun exactClip(mesh: UiTriangleMesh, activePathClips: List<UiPath>): UiTriangleMesh =
         if (canExactClip(activePathClips)) mesh.clipToConvexPaths(activePathClips) else mesh
 
+    private fun exactClip(mesh: UiTexturedTriangleMesh, activePathClips: List<UiPath>): UiTexturedTriangleMesh =
+        if (canExactClip(activePathClips)) mesh.clipToConvexPaths(activePathClips) else mesh
+
     /** Writes [quads] (one run's worth) into [mesh] using the rounded-quad vertex layout --
      * pos(vec2) + localPos(vec2, pixels relative to the quad's own center) + halfSize(vec2) +
      * radius(float) + color(vec4), consumed by `ui_rounded_quad.frag`'s distance-field test.
@@ -969,8 +980,21 @@ class Renderer(
     }
 
     /** Writes [glyphs] (one run's worth) into [mesh] -- extracted from the old single-mesh
-     * [drawUi] body, unchanged vertex/index layout. */
-    private fun stageGlyphRun(mesh: DynamicMesh, glyphs: List<UiDrawPrimitive.Glyph>) {
+     * [drawUi] body, unchanged vertex/index layout unless exact path clipping is active. */
+    private fun stageGlyphRun(mesh: DynamicMesh, glyphs: List<UiDrawPrimitive.Glyph>, activePathClips: List<UiPath> = emptyList()) {
+        if (canExactClip(activePathClips)) {
+            stageTexturedTriangleMeshes(
+                mesh,
+                glyphs.map { glyph ->
+                    exactClip(
+                        texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1),
+                        activePathClips
+                    ) to glyph.color
+                },
+                "glyph"
+            )
+            return
+        }
         require(glyphs.size <= MAX_UI_QUADS) {
             "UI glyph run size (${glyphs.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
         }
@@ -996,6 +1020,78 @@ class Renderer(
             glyphIndex += 1
         }
         mesh.update(glyphVertices, glyphIndices)
+    }
+
+    private fun stageTextureRun(textures: List<UiDrawPrimitive.Texture>, activePathClips: List<UiPath>): List<TexturedPrimitiveRun> =
+        textures.map { primitive ->
+            val clipped = exactClip(texturedQuadMesh(primitive.x, primitive.y, primitive.w, primitive.h), activePathClips)
+            val (vertices, indices) = texturedGeometryBuffers(clipped, WHITE_RGBA)
+            TexturedPrimitiveRun(primitive.material, vertices, indices)
+        }
+
+    private fun stageTexturedTriangleMeshes(
+        mesh: DynamicMesh,
+        geometries: List<Pair<UiTexturedTriangleMesh, FloatArray>>,
+        label: String
+    ) {
+        val maxVertices = MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
+        val maxIndices = MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
+        val totalVertices = geometries.sumOf { it.first.vertices.size }
+        val totalIndices = geometries.sumOf { it.first.indices.size }
+        require(totalVertices <= maxVertices) {
+            "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices vertices)."
+        }
+        require(totalIndices <= maxIndices) {
+            "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices indices)."
+        }
+
+        val vertices = FloatArray(totalVertices * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+        val indices = IntArray(totalIndices)
+        var vertexCursor = 0
+        var indexCursor = 0
+        var vertexOffset = 0
+
+        geometries.forEach { (triangleMesh, color) ->
+            triangleMesh.vertices.forEach { vertex ->
+                writeGlyphVertex(vertices, vertexCursor, vertex.position.x, vertex.position.y, vertex.u, vertex.v, color)
+                vertexCursor += DynamicMesh.GLYPH_FLOATS_PER_VERTEX
+            }
+            triangleMesh.indices.forEach { index ->
+                indices[indexCursor] = vertexOffset + index
+                indexCursor += 1
+            }
+            vertexOffset += triangleMesh.vertices.size
+        }
+        mesh.update(vertices, indices)
+    }
+
+    private fun texturedQuadMesh(
+        x: Float,
+        y: Float,
+        w: Float,
+        h: Float,
+        u0: Float = 0f,
+        v0: Float = 0f,
+        u1: Float = 1f,
+        v1: Float = 1f
+    ): UiTexturedTriangleMesh = UiTexturedTriangleMesh(
+        vertices = listOf(
+            UiTexturedVertex(UiPoint(x, y), u0, v0),
+            UiTexturedVertex(UiPoint(x + w, y), u1, v0),
+            UiTexturedVertex(UiPoint(x + w, y + h), u1, v1),
+            UiTexturedVertex(UiPoint(x, y + h), u0, v1)
+        ),
+        indices = intArrayOf(0, 1, 2, 2, 3, 0)
+    )
+
+    private fun texturedGeometryBuffers(mesh: UiTexturedTriangleMesh, color: FloatArray): Pair<FloatArray, IntArray> {
+        val vertices = FloatArray(mesh.vertices.size * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+        var offset = 0
+        mesh.vertices.forEach { vertex ->
+            writeGlyphVertex(vertices, offset, vertex.position.x, vertex.position.y, vertex.u, vertex.v, color)
+            offset += DynamicMesh.GLYPH_FLOATS_PER_VERTEX
+        }
+        return vertices to mesh.indices
     }
 
     /** Stages this frame's world-space debug lines (e.g. a frustum wireframe) -- rewrites
@@ -1215,20 +1311,15 @@ class Renderer(
                         // Render-target-backed textured quads (e.g. a minimap), one draw
                         // call per primitive -- each rewrites the texture pipeline's one
                         // shared descriptor set (see UiTextureRenderPipeline's doc comment
-                        // for why that's safe here).
+                        // for why that's safe here). Geometry is already staged, including
+                        // any exact convex path clipping, so command recording stays simple.
                         if (texturePipeline != null && quadMesh != null) {
                             var textureIndex = 0
                             while (textureIndex < run.primitives.size) {
                                 val primitive = run.primitives[textureIndex]
                                 val material = primitive.material as Material
                                 texturePipeline.bindMaterial(commandBuffer, material.samplerHandle, material.imageViewHandle)
-                                val vertices = floatArrayOf(
-                                    primitive.x, primitive.y, 0f, 0f, 1f, 1f, 1f, 1f,
-                                    primitive.x + primitive.w, primitive.y, 1f, 0f, 1f, 1f, 1f, 1f,
-                                    primitive.x + primitive.w, primitive.y + primitive.h, 1f, 1f, 1f, 1f, 1f, 1f,
-                                    primitive.x, primitive.y + primitive.h, 0f, 1f, 1f, 1f, 1f, 1f
-                                )
-                                quadMesh.update(vertices, TEXTURE_QUAD_INDICES)
+                                quadMesh.update(primitive.vertices, primitive.indices)
                                 quadMesh.bind(commandBuffer)
                                 quadMesh.draw(commandBuffer)
                                 textureIndex += 1
@@ -1278,9 +1369,7 @@ class Renderer(
         val clearColorValue = VkClearColorValue.rgba(0f, 0f, 0f, 1f)
         val clearDepthValue = VkClearDepthStencilValue(depth = 1f, stencil = 0)
 
-        /** Triangle-list quad, corners in TL/TR/BR/BL order -- same winding [drawUi]'s own
-         * colored/glyph quads use. */
-        private val TEXTURE_QUAD_INDICES = intArrayOf(0, 1, 2, 2, 3, 0)
+        private val WHITE_RGBA = floatArrayOf(1f, 1f, 1f, 1f)
 
         /** [createMaterial]'s fallback when called with a null texture -- same 1x1 white
          * pixel `VulkanGameApplication` used to bind unconditionally. */

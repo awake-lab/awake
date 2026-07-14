@@ -48,6 +48,17 @@ data class UiTriangleMesh(
     val indices: IntArray
 )
 
+data class UiTexturedVertex(
+    val position: UiPoint,
+    val u: Float,
+    val v: Float
+)
+
+data class UiTexturedTriangleMesh(
+    val vertices: List<UiTexturedVertex>,
+    val indices: IntArray
+)
+
 sealed interface UiPathCommand {
     data class MoveTo(val x: Float, val y: Float) : UiPathCommand
     data class LineTo(val x: Float, val y: Float) : UiPathCommand
@@ -367,7 +378,21 @@ fun UiTriangleMesh.clipToConvexPath(path: UiPath): UiTriangleMesh {
     return clipToConvexContour(clipContour)
 }
 
+fun UiTexturedTriangleMesh.clipToConvexPath(path: UiPath): UiTexturedTriangleMesh {
+    val clipContour = path.convexClipContour() ?: return this
+    return clipToConvexContour(clipContour)
+}
+
 fun UiTriangleMesh.clipToConvexPaths(paths: List<UiPath>): UiTriangleMesh {
+    var current = this
+    paths.forEach { path ->
+        val contour = path.convexClipContour() ?: return current
+        current = current.clipToConvexContour(contour)
+    }
+    return current
+}
+
+fun UiTexturedTriangleMesh.clipToConvexPaths(paths: List<UiPath>): UiTexturedTriangleMesh {
     var current = this
     paths.forEach { path ->
         val contour = path.convexClipContour() ?: return current
@@ -401,6 +426,33 @@ private fun UiTriangleMesh.clipToConvexContour(clipContour: List<UiPoint>): UiTr
         index += 3
     }
     return UiTriangleMesh(clippedPoints, clippedIndices.toIntArray())
+}
+
+private fun UiTexturedTriangleMesh.clipToConvexContour(clipContour: List<UiPoint>): UiTexturedTriangleMesh {
+    if (vertices.isEmpty() || indices.isEmpty()) return this
+
+    val clippedVertices = ArrayList<UiTexturedVertex>()
+    val clippedIndices = ArrayList<Int>()
+    var index = 0
+    while (index + 2 < indices.size) {
+        val triangle = listOf(
+            vertices[indices[index]],
+            vertices[indices[index + 1]],
+            vertices[indices[index + 2]]
+        )
+        val clippedPolygon = clipTexturedPolygonToConvexContour(triangle, clipContour)
+        if (clippedPolygon.size >= 3) {
+            val base = clippedVertices.size
+            clippedVertices += clippedPolygon
+            for (i in 1 until clippedPolygon.lastIndex) {
+                clippedIndices += base
+                clippedIndices += base + i
+                clippedIndices += base + i + 1
+            }
+        }
+        index += 3
+    }
+    return UiTexturedTriangleMesh(clippedVertices, clippedIndices.toIntArray())
 }
 
 fun UiPath.containsPoint(x: Float, y: Float): Boolean {
@@ -480,6 +532,36 @@ private fun clipPolygonToConvexContour(subject: List<UiPoint>, clip: List<UiPoin
     return output
 }
 
+private fun clipTexturedPolygonToConvexContour(subject: List<UiTexturedVertex>, clip: List<UiPoint>): List<UiTexturedVertex> {
+    if (subject.isEmpty()) return emptyList()
+    var output = subject
+    val orientation = polygonSignedArea(clip)
+    if (orientation == 0f) return subject
+    val isCounterClockwise = orientation > 0f
+
+    for (i in clip.indices) {
+        val a = clip[i]
+        val b = clip[(i + 1) % clip.size]
+        if (output.isEmpty()) break
+        val input = output
+        output = buildList {
+            var prev = input.last()
+            input.forEach { curr ->
+                val currInside = isInsideConvexEdge(curr.position, a, b, isCounterClockwise)
+                val prevInside = isInsideConvexEdge(prev.position, a, b, isCounterClockwise)
+                if (currInside) {
+                    if (!prevInside) add(lineIntersection(prev, curr, a, b))
+                    add(curr)
+                } else if (prevInside) {
+                    add(lineIntersection(prev, curr, a, b))
+                }
+                prev = curr
+            }
+        }
+    }
+    return output
+}
+
 private fun polygonSignedArea(points: List<UiPoint>): Float {
     var area = 0f
     for (i in points.indices) {
@@ -504,6 +586,22 @@ private fun lineIntersection(p1: UiPoint, p2: UiPoint, a: UiPoint, b: UiPoint): 
     if (denominator == 0f) return p2
     val s = (-s1y * (p1.x - a.x) + s1x * (p1.y - a.y)) / denominator
     return UiPoint(a.x + s * s2x, a.y + s * s2y)
+}
+
+private fun lineIntersection(p1: UiTexturedVertex, p2: UiTexturedVertex, a: UiPoint, b: UiPoint): UiTexturedVertex {
+    val intersection = lineIntersection(p1.position, p2.position, a, b)
+    val dx = p2.position.x - p1.position.x
+    val dy = p2.position.y - p1.position.y
+    val t = when {
+        abs(dx) >= abs(dy) && dx != 0f -> (intersection.x - p1.position.x) / dx
+        dy != 0f -> (intersection.y - p1.position.y) / dy
+        else -> 0f
+    }.coerceIn(0f, 1f)
+    return UiTexturedVertex(
+        position = intersection,
+        u = p1.u + (p2.u - p1.u) * t,
+        v = p1.v + (p2.v - p1.v) * t
+    )
 }
 
 private fun rectanglePath(bounds: UiSlot, fillRule: UiFillRule): UiPath = uiPath(fillRule) {
