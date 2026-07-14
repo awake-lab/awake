@@ -37,6 +37,16 @@ interface UiScope {
     val theme: UiTheme
 
     /**
+     * Uniform multiplier applied to every glyph this scope draws (quad size, pen advance,
+     * label-row height). [font]'s atlas stays a fixed 8x8 cell regardless (see
+     * [io.github.ronjunevaldoz.awake.ui.font.BitmapFont]'s doc comment: a hand-authored debug
+     * font, not a scalable typeface) -- this just draws each glyph's quad bigger
+     * (nearest-neighbor blocky scaling, matching the font's own retro-bitmap look), it doesn't
+     * re-rasterize anything. Defaults to `1f` (today's original, un-scaled size).
+     */
+    val textScale: Float
+
+    /**
      * Direct reference to the owning context -- mirrors kool-engine's `UiScope.surface`. Lets
      * a composite widget (e.g. [panel]) build a nested scope from the SAME public factories
      * ([UiContext.column]/[row]/[box]/[absolute]) every top-level caller already uses,

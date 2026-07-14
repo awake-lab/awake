@@ -127,9 +127,9 @@ class DemoCatalog : Game {
         // screenshot that this read as one mixed list. Top-left for the picker (top-right
         // stays the config panel, bottom-left is drawDebugHud's own text readout -- see that
         // function's doc comment for why the picker can't also live there).
-        val demoPickerPanel = ui.column(x = PANEL_MARGIN, y = 20f, width = DEMO_PICKER_WIDTH, font = font)
+        val demoPickerPanel = ui.column(x = PANEL_MARGIN, y = 20f, width = DEMO_PICKER_WIDTH, font = font, textScale = TEXT_SCALE)
         drawDemoPicker(demoPickerPanel)
-        val configPanel = ui.column(x = viewportWidth - PANEL_WIDTH - PANEL_MARGIN, y = 20f, width = PANEL_WIDTH, font = font)
+        val configPanel = ui.column(x = viewportWidth - PANEL_WIDTH - PANEL_MARGIN, y = 20f, width = PANEL_WIDTH, font = font, textScale = TEXT_SCALE)
         current.render(delta, viewportWidth, viewportHeight)
         // Appended AFTER current.render() rather than before -- purely a staging-order detail
         // (UiContext collects primitives into one list regardless of when during the frame
@@ -142,7 +142,7 @@ class DemoCatalog : Game {
 
     private fun drawDemoPicker(panel: ColumnScope) {
         val names = demos.map { it.first }
-        panel.dropdown("demo-picker", names, currentIndex, DEMO_PICKER_WIDTH, 32f, modifier = UiModifier().clip(UiShape.sm).border(1f.dp))
+        panel.dropdown("demo-picker", names, currentIndex, DEMO_PICKER_WIDTH, DEMO_PICKER_HEIGHT, modifier = UiModifier().clip(UiShape.sm).border(2f.dp))
             ?.let { picked -> if (picked != currentIndex) switchTo(picked) }
     }
 
@@ -162,7 +162,7 @@ class DemoCatalog : Game {
         }
         val lines = debugLines()
         lines.forEachIndexed { index, line ->
-            ui.absolute(20f, viewportHeight - (lines.size - index) * 14f, font).text(line, color = HUD_COLOR)
+            ui.absolute(20f, viewportHeight - (lines.size - index) * HUD_LINE_HEIGHT, font, textScale = TEXT_SCALE).text(line, color = HUD_COLOR)
         }
     }
 
@@ -242,9 +242,18 @@ class DemoCatalog : Game {
         // Right-side debug-panel column geometry -- replaces the old UiLayout.kt's
         // PANEL_ROW_* constants entirely; ColumnScope's own cursor now handles per-row
         // positioning, so only the column's shared x/width need to live anywhere.
-        const val PANEL_WIDTH = 200f
+        const val PANEL_WIDTH = 300f
         const val PANEL_MARGIN = 20f
-        const val DEMO_PICKER_WIDTH = 140f
+        const val DEMO_PICKER_WIDTH = 200f
+        const val DEMO_PICKER_HEIGHT = 40f
+
+        // 8px BitmapFont glyphs read as illegibly tiny at this window's actual size (confirmed
+        // via a real screenshot) -- shared by the demo picker, config panel, and debug HUD so
+        // every piece of this catalog's UI reads at one consistent size, not just CubeDemo's
+        // own inspector panel (which keeps its own private copy of this same value, since nothing
+        // here shares a common "catalog UI constants" file with the demos it hosts).
+        const val TEXT_SCALE = 1.75f
+        const val HUD_LINE_HEIGHT = 22f
     }
 }
 

@@ -36,22 +36,22 @@ class UiContext {
     }
 
     /** Reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
-    fun column(x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx()): ColumnScope =
-        ColumnScope(this, font, theme, x, y, width, gap)
+    fun column(x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): ColumnScope =
+        ColumnScope(this, font, theme, x, y, width, gap, textScale)
 
     /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minimap
      * thumbnail that isn't part of any auto-layout column. Goes through the exact same
      * [UiScope] surface as every other widget; not a special case. */
-    fun absolute(x: Float, y: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme): AbsoluteScope =
-        AbsoluteScope(this, font, theme, x, y)
+    fun absolute(x: Float, y: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f): AbsoluteScope =
+        AbsoluteScope(this, font, theme, x, y, textScale)
 
     /** Reserves a horizontal auto-stacking layout region -- see [RowScope]. */
-    fun row(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx()): RowScope =
-        RowScope(this, font, theme, x, y, height, gap)
+    fun row(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): RowScope =
+        RowScope(this, font, theme, x, y, height, gap, textScale)
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */
-    fun box(x: Float, y: Float, width: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme): BoxScope =
-        BoxScope(this, font, theme, x, y, width, height)
+    fun box(x: Float, y: Float, width: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f): BoxScope =
+        BoxScope(this, font, theme, x, y, width, height, textScale)
 
     /** Publishes this frame's [activeId] state to [Input.pointerCapturedByUi] before handing
      * back the frame's draw primitives, so scene-facing drag consumers (

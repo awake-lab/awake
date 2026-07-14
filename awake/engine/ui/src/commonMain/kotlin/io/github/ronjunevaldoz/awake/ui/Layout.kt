@@ -23,7 +23,8 @@ object UiSpacing {
 abstract class AbstractUiScope(
     final override val context: UiContext,
     final override val font: BitmapFont?,
-    final override val theme: UiTheme
+    final override val theme: UiTheme,
+    final override val textScale: Float = 1f
 ) : UiScope {
     final override fun hitTest(slot: UiSlot) = context.hitTestInternal(slot)
     final override fun isActive(id: String) = context.isActiveInternal(id)
@@ -56,8 +57,9 @@ class ColumnScope internal constructor(
     private val x: Float,
     startY: Float,
     private val width: Float,
-    private val gap: Float
-) : AbstractUiScope(context, font, theme) {
+    private val gap: Float,
+    textScale: Float = 1f
+) : AbstractUiScope(context, font, theme, textScale) {
     var cursorY: Float = startY
         private set
 
@@ -80,8 +82,9 @@ class AbsoluteScope internal constructor(
     font: BitmapFont?,
     theme: UiTheme,
     private val x: Float,
-    private val y: Float
-) : AbstractUiScope(context, font, theme) {
+    private val y: Float,
+    textScale: Float = 1f
+) : AbstractUiScope(context, font, theme, textScale) {
     // Unlike ColumnScope/RowScope, the original claimSlot(width: Float, height: Float) never
     // special-cased any value here -- it passed width/height straight through, and a caller
     // passing 0f (e.g. text()'s own default slot, which doesn't need a real width when not
@@ -104,8 +107,9 @@ class RowScope internal constructor(
     startX: Float,
     private val y: Float,
     private val height: Float,
-    private val gap: Float
-) : AbstractUiScope(context, font, theme) {
+    private val gap: Float,
+    textScale: Float = 1f
+) : AbstractUiScope(context, font, theme, textScale) {
     var cursorX: Float = startX
         private set
 
@@ -129,7 +133,8 @@ class BoxScope internal constructor(
     private val x: Float,
     private val y: Float,
     private val width: Float,
-    private val height: Float
-) : AbstractUiScope(context, font, theme) {
+    private val height: Float,
+    textScale: Float = 1f
+) : AbstractUiScope(context, font, theme, textScale) {
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot = UiSlot(x, y, this.width, this.height)
 }
