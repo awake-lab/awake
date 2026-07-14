@@ -101,6 +101,8 @@ class RendererHeadlessPixelBaselineTest {
             runBlocking { readResourceBytes("assets/shader/vulkan/ui_glyph.frag.spv") },
             runBlocking { readResourceBytes("assets/shader/vulkan/ui_texture.vert.spv") },
             runBlocking { readResourceBytes("assets/shader/vulkan/ui_texture.frag.spv") },
+            runBlocking { readResourceBytes("assets/shader/vulkan/ui_rounded_quad.vert.spv") },
+            runBlocking { readResourceBytes("assets/shader/vulkan/ui_rounded_quad.frag.spv") },
             MAX_FRAMES_IN_FLIGHT
         )
 

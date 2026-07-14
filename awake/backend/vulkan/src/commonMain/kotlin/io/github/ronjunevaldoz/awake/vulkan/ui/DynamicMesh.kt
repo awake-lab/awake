@@ -150,6 +150,10 @@ class DynamicMesh(
         /** Default (colored-quad) layout: pos (vec2) + color (vec4) -- see `ui_quad.vert`. */
         const val FLOATS_PER_VERTEX = 6
         const val GLYPH_FLOATS_PER_VERTEX = 8
+
+        /** pos(vec2) + localPos(vec2) + halfSize(vec2) + radius(float) + color(vec4) --
+         * see `ui_rounded_quad.vert`. */
+        const val ROUNDED_QUAD_FLOATS_PER_VERTEX = 11
         const val VERTICES_PER_QUAD = 4
         const val INDICES_PER_QUAD = 6
     }
