@@ -26,7 +26,7 @@ import kotlin.test.Test
 
 /**
  * Not a pass/fail regression check -- a visual review aid (see [saveUiSnapshot]'s doc
- * comment). Motivating case: `toggle()`'s checked-state fill quad (`Widgets.kt`) is emitted
+ * comment). Motivating case: `toggle()`'s checked-state fill quad is emitted
  * AFTER the button's own label glyph, inset around the same centered region the label
  * occupies -- once cross-type paint order was fixed (this session's dropdown draw-order fix),
  * that later quad now correctly paints ON TOP of the label, which means a checked toggle's

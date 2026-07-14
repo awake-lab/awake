@@ -102,30 +102,32 @@ class ClipAndBorderTest {
     }
 
     @Test
-    fun modifierClipOverridesButtonSlotRadiusParam() {
+    fun styleShapeOverridesButtonSlotRadiusParam() {
         Input.setPointer(down = false, x = 0f, y = 0f)
         val ui = UiContext()
         ui.beginFrame(200f, 200f)
         val scope = ui.absolute(0f, 0f)
-        // Passes radius = UiShape.none directly, but the modifier's clip() should win --
-        // proving UiModifier's shape field takes precedence over the named param, same
-        // precedence width/height already follow (modifier.width ?: width).
-        scope.buttonSlot("b", 100f, 40f, modifier = UiModifier().clip(UiShape.md), radius = UiShape.none)
+        scope.buttonSlot("b", 100f, 40f, style = Style { shape(UiShape.md) }, radius = UiShape.none)
         val primitive = ui.endFrame().first()
-        assertIs<UiDrawPrimitive.RoundedQuad>(primitive, "modifier.clip() must produce a RoundedQuad even though radius param was UiShape.none")
+        assertIs<UiDrawPrimitive.RoundedQuad>(primitive, "style.shape() must produce a RoundedQuad even though radius param was UiShape.none")
     }
 
     @Test
-    fun modifierBorderOverridesVariantDefault() {
+    fun styleBorderOverridesVariantDefault() {
         Input.setPointer(down = false, x = 0f, y = 0f)
         val ui = UiContext()
         ui.beginFrame(200f, 200f)
         val scope = ui.absolute(0f, 0f)
         val customColor = floatArrayOf(1f, 0f, 0f, 1f)
-        // Filled variant draws no border by default -- modifier.border() should still add one.
-        scope.buttonSlot("b", 100f, 40f, modifier = UiModifier().border(3f.dp, customColor), variant = UiButtonVariant.Filled)
+        scope.buttonSlot(
+            "b",
+            100f,
+            40f,
+            style = Style { border(3f.dp, customColor) },
+            variant = UiButtonVariant.Filled
+        )
         val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
         val borderQuads = quads.filter { it.color.contentEquals(customColor) }
-        assertEquals(4, borderQuads.size, "modifier.border() must draw all 4 edge quads even for a Filled (non-Outline) button")
+        assertEquals(4, borderQuads.size, "style.border() must draw all 4 edge quads even for a Filled (non-Outline) button")
     }
 }

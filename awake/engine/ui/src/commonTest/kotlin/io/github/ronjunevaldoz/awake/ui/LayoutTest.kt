@@ -100,4 +100,16 @@ class LayoutTest {
         val second = box.claimSlot(Dimension.Fixed(1f.px), Dimension.Fixed(1f.px))
         assertEquals(first, second, "every claimSlot call on a BoxScope must return the identical rect")
     }
+
+    @Test
+    fun columnFactoryFromSlotAppliesInsets() {
+        val ui = UiContext()
+        val column = ui.column(UiSlot(10f, 20f, 100f, 80f), insets = UiInsets(4f.dp, 6f.dp))
+
+        val slot = column.claimSlot(Dimension.FillMax, Dimension.Fixed(20f.px))
+
+        assertEquals(14f, slot.x)
+        assertEquals(26f, slot.y)
+        assertEquals(92f, slot.width)
+    }
 }

@@ -107,9 +107,34 @@ class UiContextTest {
         column.toggle("sibling", false, 160f, 32f)
 
         val allPrimitives = ui.endFrame()
-        val overlayQuadCount = 2 // header quad isn't overlay; only the 2 option rows are
-        val lastPrimitives = allPrimitives.takeLast(overlayQuadCount)
-        assertTrue(lastPrimitives.all { it is UiDrawPrimitive.Quad }, "expected the dropdown's option quads to be the last primitives emitted")
+        val siblingIndex = allPrimitives.indexOfLast { primitive ->
+            primitive is UiDrawPrimitive.Quad &&
+                primitive.x == 20f &&
+                primitive.y == 60f &&
+                primitive.w == 160f &&
+                primitive.h == 32f
+        }
+        val optionIndices = buildList {
+            allPrimitives.forEachIndexed { index, primitive ->
+                val matches = when (primitive) {
+                    is UiDrawPrimitive.Quad -> primitive.x == 20f &&
+                        primitive.w == 160f &&
+                        primitive.h == 32f &&
+                        (primitive.y == 52f || primitive.y == 84f)
+                    is UiDrawPrimitive.RoundedQuad -> primitive.x == 20f &&
+                        primitive.w == 160f &&
+                        primitive.h == 32f &&
+                        (primitive.y == 52f || primitive.y == 84f)
+                    else -> false
+                }
+                if (matches) {
+                    add(index)
+                }
+            }
+        }
+        assertTrue(siblingIndex >= 0, "sanity check: sibling widget background must be present")
+        assertEquals(2, optionIndices.size, "expected one option background primitive per expanded option row")
+        assertTrue(optionIndices.all { it > siblingIndex }, "expected the dropdown's option backgrounds to paint after the sibling widget")
     }
 
     @Test

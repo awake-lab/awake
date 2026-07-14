@@ -25,7 +25,7 @@ class PanelTest {
     }
 
     @Test
-    fun contentLambdaScopeStartsAtPanelSlotOrigin() {
+    fun contentLambdaScopeStartsAtPanelContentInset() {
         val ui = UiContext()
         val column = ui.column(x = 10f, y = 20f, width = 200f)
 
@@ -34,8 +34,9 @@ class PanelTest {
             firstChildSlot = claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(20f.px))
         }
 
-        assertEquals(10f, firstChildSlot!!.x, "nested content must start at the panel slot's own x")
-        assertEquals(20f, firstChildSlot!!.y, "nested content must start at the panel slot's own y")
+        val childSlot = requireNotNull(firstChildSlot)
+        assertEquals(10f + UiSpacing.sm.toPx(), childSlot.x, "nested content must start after the panel's content padding")
+        assertEquals(20f + UiSpacing.sm.toPx(), childSlot.y, "nested content must start after the panel's content padding")
     }
 
     @Test

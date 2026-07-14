@@ -27,35 +27,64 @@ interface UiColorTokens {
 }
 
 /** hovered -> muted (shadcn's hover convention), active -> accent, base -> background. */
-fun UiColorTokens.neutralStyle(): UiStyle = UiStyle { state ->
-    if (state.active) accent else if (state.hovered) muted else background
+fun UiColorTokens.neutralStyle(): Style = Style {
+    background(background)
+    foreground(foreground)
+    hovered { background(muted) }
+    active { background(accent) }
 }
 
-/** Same one-color-scales-by-state shape as [neutralStyle], but for the destructive role --
- * without this, a naive destructive style would return the same color for every
- * [UiWidgetState], which would be a real regression versus a hand-rolled danger theme (base/
- * hover/active reds). Brightness scaling keeps it a one-color input. */
-fun UiColorTokens.destructiveStyle(): UiStyle = UiStyle { state ->
-    val brightness = if (state.active) 1.15f else if (state.hovered) 1.05f else 1f
-    floatArrayOf(
-        (destructive[0] * brightness).coerceAtMost(1f),
-        (destructive[1] * brightness).coerceAtMost(1f),
-        (destructive[2] * brightness).coerceAtMost(1f),
-        destructive[3]
-    )
+/** Same state-varying shape as [neutralStyle], but for the destructive role. */
+fun UiColorTokens.destructiveStyle(): Style = Style {
+    background(destructive)
+    foreground(destructiveForeground)
+    hovered { background(brighten(destructive, 1.05f)) }
+    active { background(brighten(destructive, 1.15f)) }
+}
+
+interface UiComponentStyles {
+    val button: Style
+    val toggle: Style
+    val checkbox: Style
+    val slider: Style
+    val dropdown: Style
+    val panel: Style
+    val inspectorLabel: Style
 }
 
 /**
  * A complete, swappable look for a [UiScope] -- assigned once at `ui.column(..., theme =
  * MyTheme)` (or `absolute`), not per widget call. Mirrors Compose's `MaterialTheme.colorScheme`
  * role: the single place a consumer overrides to restyle an entire panel, while individual
- * widget calls can still pass their own [UiStyle] to override just one instance. Deliberately
- * has no widget-named fields (no `button`/`toggle`) -- each widget in `Widgets.kt` computes
- * its own default from [tokens], the same way Material's `ButtonDefaults`/`SwitchDefaults`
- * map `ColorScheme` roles to a specific component instead of `ColorScheme` naming components.
+ * widget calls can still pass their own [Style] to override just one instance. Tokens stay
+ * the stable semantic palette; [components] maps those roles into concrete widget defaults.
  */
 interface UiTheme {
     val tokens: UiColorTokens
+    val components: UiComponentStyles
+}
+
+class DefaultUiComponentStyles(tokens: UiColorTokens) : UiComponentStyles {
+    override val button: Style = tokens.neutralStyle()
+    override val toggle: Style = tokens.neutralStyle()
+    override val checkbox: Style = tokens.neutralStyle() then Style {
+        borderWidth(1f.dp)
+        borderColor(tokens.border)
+    }
+    override val slider: Style = tokens.neutralStyle()
+    override val dropdown: Style = tokens.neutralStyle() then Style {
+        borderWidth(1f.dp)
+        borderColor(tokens.border)
+        shape(UiShape.sm)
+    }
+    override val panel: Style = Style {
+        background(tokens.background)
+        foreground(tokens.foreground)
+        contentPadding(UiSpacing.sm)
+    }
+    override val inspectorLabel: Style = Style {
+        foreground(tokens.mutedForeground)
+    }
 }
 
 /**
@@ -79,6 +108,7 @@ object DefaultUiTheme : UiTheme {
         override val destructiveForeground = floatArrayOf(1f, 1f, 1f, 1f)
         override val border = floatArrayOf(0.4f, 0.4f, 0.45f, 0.9f)
     }
+    override val components: UiComponentStyles = DefaultUiComponentStyles(tokens)
 }
 
 /** Explicit named alias for [DefaultUiTheme]'s palette, which was already effectively dark
@@ -111,4 +141,12 @@ object LightUiTheme : UiTheme {
         override val destructiveForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
         override val border = floatArrayOf(0.8f, 0.8f, 0.83f, 1f)
     }
+    override val components: UiComponentStyles = DefaultUiComponentStyles(tokens)
 }
+
+private fun brighten(color: FloatArray, brightness: Float): FloatArray = floatArrayOf(
+    (color[0] * brightness).coerceAtMost(1f),
+    (color[1] * brightness).coerceAtMost(1f),
+    (color[2] * brightness).coerceAtMost(1f),
+    color[3]
+)

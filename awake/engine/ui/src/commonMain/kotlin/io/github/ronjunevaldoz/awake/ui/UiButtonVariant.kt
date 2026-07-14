@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 /**
  * shadcn/ui's button variant vocabulary, scoped down to what a fill/border decision needs --
- * [Filled] (the only variant that existed before this) always paints its resolved [UiStyle]
+ * [Filled] (the only variant that existed before this) always paints its resolved [Style]
  * color; [Outline]/[Ghost] paint no fill at rest, only on hover/active (so an idle Outline/
  * Ghost button reads as "just a border" / "just a label" the way shadcn's own CSS variants
  * do), and [Outline] additionally always draws a `theme.tokens.border` stroke regardless of

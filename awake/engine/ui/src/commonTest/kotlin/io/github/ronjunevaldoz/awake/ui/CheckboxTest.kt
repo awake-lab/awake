@@ -50,12 +50,18 @@ class CheckboxTest {
     }
 
     @Test
-    fun modifierClipMakesTheBoxARoundedQuad() {
+    fun styleShapeMakesTheBoxARoundedQuad() {
         Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
         ui.beginFrame(200f, 100f)
-        ui.absolute(20f, 20f).checkbox("cb", checked = false, width = 160f, height = 40f, modifier = UiModifier().clip(UiShape.sm))
+        ui.absolute(20f, 20f).checkbox(
+            "cb",
+            checked = false,
+            width = 160f,
+            height = 40f,
+            style = Style { shape(UiShape.sm) }
+        )
         val primitive = ui.endFrame().first()
-        assertIs<UiDrawPrimitive.RoundedQuad>(primitive, "modifier.clip() must round the checkbox's own box, not just buttons/panels")
+        assertIs<UiDrawPrimitive.RoundedQuad>(primitive, "style.shape() must round the checkbox's own box, not just buttons/panels")
     }
 }

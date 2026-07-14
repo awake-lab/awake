@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.border
 import io.github.ronjunevaldoz.awake.ui.clip
+import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -142,7 +143,17 @@ class DemoCatalog : Game {
 
     private fun drawDemoPicker(panel: ColumnScope) {
         val names = demos.map { it.first }
-        panel.dropdown("demo-picker", names, currentIndex, DEMO_PICKER_WIDTH, DEMO_PICKER_HEIGHT, modifier = UiModifier().clip(UiShape.sm).border(2f.dp))
+        panel.dropdown(
+            "demo-picker",
+            names,
+            currentIndex,
+            DEMO_PICKER_WIDTH,
+            DEMO_PICKER_HEIGHT,
+            style = Style {
+                shape(UiShape.sm)
+                borderWidth(2f.dp)
+            }
+        )
             ?.let { picked -> if (picked != currentIndex) switchTo(picked) }
     }
 

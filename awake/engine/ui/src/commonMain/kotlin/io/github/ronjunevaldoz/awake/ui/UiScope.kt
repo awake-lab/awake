@@ -24,7 +24,7 @@ fun UiScope.resolvedTextScale(): Float = pixelPerfectTextScale(textScale)
 
 /**
  * The full set of primitives any widget -- built-in or consumer-defined -- is built from.
- * Nothing here knows about buttons, toggles, or any specific widget shape; [Widgets.kt]'s
+ * Nothing here knows about buttons, toggles, or any specific widget shape; the library's own
  * button/toggle/slider/dropdown are just the library's own extension functions written
  * against this same public surface. A consumer writes a custom widget the identical way:
  * `fun UiScope.myWidget(...) { val slot = claimSlot(...); ... }` -- no library change, no
@@ -35,9 +35,8 @@ interface UiScope {
 
     /**
      * The color/appearance policy in effect for this scope -- see [UiTheme]. Widgets default
-     * to `theme.tokens.neutralStyle()` when no per-call [UiStyle] override is given, so
-     * swapping a whole panel's look is one assignment at the scope's creation, not a change
-     * to every widget call site.
+     * to [UiTheme.components], and a consumer-defined widget can opt into the exact same
+     * style resolver via [resolveStyle].
      */
     val theme: UiTheme
 
@@ -86,3 +85,9 @@ interface UiScope {
 
     fun widgetState(id: String): WidgetState
 }
+
+fun UiScope.resolveStyle(
+    style: Style = Style.Empty,
+    defaults: Style = Style.Empty,
+    state: StyleState = MutableStyleState()
+): ResolvedStyle = (defaults then style).resolve(state, resolvedTextScale())

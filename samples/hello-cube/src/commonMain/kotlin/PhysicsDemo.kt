@@ -151,7 +151,7 @@ class PhysicsDemo(private val ui: UiContext, private val font: BitmapFont) : Gam
      * rows of its own, unlike [CubeDemo]). */
     override fun drawPanel(panel: ColumnScope) {
         // width = 0f falls back to the column's own configured width (see
-        // Widgets.kt's Float.toDimension()) -- this demo doesn't need to know/duplicate that value.
+        // Float.toDimension()) -- this demo doesn't need to know/duplicate that value.
         showGrid = panel.toggle("show-grid", showGrid, 0f, 32f, "GRID")
     }
 

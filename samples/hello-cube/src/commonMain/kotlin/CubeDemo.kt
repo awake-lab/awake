@@ -20,8 +20,8 @@ import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiContext
-import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.border
 import io.github.ronjunevaldoz.awake.ui.clip
@@ -273,7 +273,7 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
             val modeNames = CameraMode.entries.map { it.name }
             val modeSlot = content.propertyRow("MODE", ROW_HEIGHT, labelWidth = LABEL_WIDTH)
             context.absolute(modeSlot.x, modeSlot.y, font, theme, textScale = TEXT_SCALE)
-                .dropdown("camera-mode", modeNames, config.cameraMode.ordinal, modeSlot.width, modeSlot.height, modifier = WIDGET_MODIFIER)
+                .dropdown("camera-mode", modeNames, config.cameraMode.ordinal, modeSlot.width, modeSlot.height, style = WIDGET_STYLE)
                 ?.let { picked ->
                     val newMode = CameraMode.entries[picked]
                     if (newMode == CameraMode.FREE_FLY && config.cameraMode == CameraMode.ORBIT) {
@@ -293,13 +293,13 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
             if (config.cameraMode == CameraMode.ORBIT) {
                 val azimuthSlot = content.propertyRow("AZIMUTH", ROW_HEIGHT, labelWidth = LABEL_WIDTH)
                 orbitCameraSystem.yaw = context.absolute(azimuthSlot.x, azimuthSlot.y, font, theme, textScale = TEXT_SCALE)
-                    .slider("orbit-azimuth", -PI.toFloat(), PI.toFloat(), orbitCameraSystem.yaw, azimuthSlot.width, azimuthSlot.height, modifier = WIDGET_MODIFIER)
+                    .slider("orbit-azimuth", -PI.toFloat(), PI.toFloat(), orbitCameraSystem.yaw, azimuthSlot.width, azimuthSlot.height, style = WIDGET_STYLE)
                 val elevationSlot = content.propertyRow("ELEVATION", ROW_HEIGHT, labelWidth = LABEL_WIDTH)
                 orbitCameraSystem.pitch = context.absolute(elevationSlot.x, elevationSlot.y, font, theme, textScale = TEXT_SCALE)
-                    .slider("orbit-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, orbitCameraSystem.pitch, elevationSlot.width, elevationSlot.height, modifier = WIDGET_MODIFIER)
+                    .slider("orbit-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, orbitCameraSystem.pitch, elevationSlot.width, elevationSlot.height, style = WIDGET_STYLE)
                 val zoomSlot = content.propertyRow("ZOOM", ROW_HEIGHT, labelWidth = LABEL_WIDTH)
                 orbitCameraSystem.distance = context.absolute(zoomSlot.x, zoomSlot.y, font, theme, textScale = TEXT_SCALE)
-                    .slider("orbit-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, orbitCameraSystem.distance, zoomSlot.width, zoomSlot.height, modifier = WIDGET_MODIFIER)
+                    .slider("orbit-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, orbitCameraSystem.distance, zoomSlot.width, zoomSlot.height, style = WIDGET_STYLE)
             }
             // Written back every frame (not just when a slider moves it) -- auto-rotate/drag
             // inside OrbitCameraSystem.update() also mutate yaw/pitch/distance, and config is
@@ -312,23 +312,23 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
             // the same label|value column rhythm as CAMERA above (one grouped inspector, not a
             // separately-styled list), box right-aligned to the row's own right edge.
             content.text("DEBUG OVERLAYS", color = SECTION_LABEL_COLOR)
-            config.debugOverlayOn = content.propertyCheckbox("debug-toggle", config.debugOverlayOn, "DEBUG", ROW_HEIGHT, modifier = WIDGET_MODIFIER, boxSize = CHECKBOX_SIZE)
-            config.showFrustum = content.propertyCheckbox("show-frustum", config.showFrustum, "FRUSTUM", ROW_HEIGHT, modifier = WIDGET_MODIFIER, boxSize = CHECKBOX_SIZE)
+            config.debugOverlayOn = content.propertyCheckbox("debug-toggle", config.debugOverlayOn, "DEBUG", ROW_HEIGHT, style = WIDGET_STYLE, boxSize = CHECKBOX_SIZE)
+            config.showFrustum = content.propertyCheckbox("show-frustum", config.showFrustum, "FRUSTUM", ROW_HEIGHT, style = WIDGET_STYLE, boxSize = CHECKBOX_SIZE)
             // Nested directly under FRUSTUM's own row (no separate floating panel elsewhere on
             // screen) -- "F." prefix reads as a sub-item of the checkbox immediately above.
             if (config.showFrustum) {
                 val fAzimuthSlot = content.propertyRow("F.AZIMUTH", ROW_HEIGHT, labelWidth = LABEL_WIDTH)
                 config.frustumYaw = context.absolute(fAzimuthSlot.x, fAzimuthSlot.y, font, theme, textScale = TEXT_SCALE)
-                    .slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), config.frustumYaw, fAzimuthSlot.width, fAzimuthSlot.height, modifier = WIDGET_MODIFIER)
+                    .slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), config.frustumYaw, fAzimuthSlot.width, fAzimuthSlot.height, style = WIDGET_STYLE)
                 val fElevationSlot = content.propertyRow("F.ELEVATION", ROW_HEIGHT, labelWidth = LABEL_WIDTH)
                 config.frustumPitch = context.absolute(fElevationSlot.x, fElevationSlot.y, font, theme, textScale = TEXT_SCALE)
-                    .slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, config.frustumPitch, fElevationSlot.width, fElevationSlot.height, modifier = WIDGET_MODIFIER)
+                    .slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, config.frustumPitch, fElevationSlot.width, fElevationSlot.height, style = WIDGET_STYLE)
                 val fZoomSlot = content.propertyRow("F.ZOOM", ROW_HEIGHT, labelWidth = LABEL_WIDTH)
                 config.frustumDistance = context.absolute(fZoomSlot.x, fZoomSlot.y, font, theme, textScale = TEXT_SCALE)
-                    .slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, config.frustumDistance, fZoomSlot.width, fZoomSlot.height, modifier = WIDGET_MODIFIER)
+                    .slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, config.frustumDistance, fZoomSlot.width, fZoomSlot.height, style = WIDGET_STYLE)
             }
-            config.showGrid = content.propertyCheckbox("show-grid", config.showGrid, "GRID", ROW_HEIGHT, modifier = WIDGET_MODIFIER, boxSize = CHECKBOX_SIZE)
-            config.showMinimap = content.propertyCheckbox("show-minimap", config.showMinimap, "MINIMAP", ROW_HEIGHT, modifier = WIDGET_MODIFIER, boxSize = CHECKBOX_SIZE)
+            config.showGrid = content.propertyCheckbox("show-grid", config.showGrid, "GRID", ROW_HEIGHT, style = WIDGET_STYLE, boxSize = CHECKBOX_SIZE)
+            config.showMinimap = content.propertyCheckbox("show-minimap", config.showMinimap, "MINIMAP", ROW_HEIGHT, style = WIDGET_STYLE, boxSize = CHECKBOX_SIZE)
         }
 
         // Recomputes homeCameraSnapshot.eye/center every frame regardless of showFrustum (cheap
@@ -422,13 +422,15 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         private val SECTION_LABEL_COLOR = floatArrayOf(0.6f, 0.6f, 0.65f, 1f)
         private const val MINIMAP_SIZE = 160
 
-        // Shared shape/border look for this panel's interactive widgets -- previously none of
-        // them used UiModifier at all despite the library supporting it (see UiModifier.kt).
+        // Shared shape/border look for this panel's interactive widgets.
         // 2dp (not 1dp) border -- at TEXT_SCALE's bigger row/box sizes a 1px line read as
         // nearly invisible against the panel's own background (both draw from
         // theme.tokens.background/border, which are close in value by design -- a real
         // screenshot showed the checkbox boxes barely readable at the old 1dp).
-        private val WIDGET_MODIFIER = UiModifier().clip(UiShape.sm).border(2f.dp)
+        private val WIDGET_STYLE = Style {
+            shape(UiShape.sm)
+            borderWidth(2f.dp)
+        }
 
         // The 8px BitmapFont glyph cell read as illegibly tiny at this panel's on-screen size
         // (confirmed via a real screenshot) -- a 2x whole-number scale keeps the bitmap atlas

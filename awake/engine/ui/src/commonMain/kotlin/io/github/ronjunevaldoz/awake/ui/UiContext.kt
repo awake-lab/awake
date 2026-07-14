@@ -14,7 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
  * Usage: call [beginFrame] once per real frame (not fixed-timestep -- see
  * `VulkanGameApplication.onRender`/`WebGpuGameApplication.onRender`), then get a [UiScope]
  * from [column]/[absolute] and call widget functions (`button`/`toggle`/etc, defined as
- * extension functions on [UiScope] in `Widgets.kt`) in any order, then [endFrame] to collect
+ * extension functions on [UiScope]) in any order, then [endFrame] to collect
  * this frame's [UiDrawPrimitive]s for the renderer.
  *
  * Ids are caller-supplied stable strings (e.g. `"debug-toggle"`) -- no auto-disambiguation
@@ -39,19 +39,39 @@ class UiContext {
     fun column(x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): ColumnScope =
         ColumnScope(this, font, theme, x, y, width, gap, textScale)
 
+    fun column(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): ColumnScope {
+        val content = slot.inset(insets)
+        return column(content.x, content.y, content.width, font, theme, gap, textScale)
+    }
+
     /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minimap
      * thumbnail that isn't part of any auto-layout column. Goes through the exact same
      * [UiScope] surface as every other widget; not a special case. */
     fun absolute(x: Float, y: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f): AbsoluteScope =
         AbsoluteScope(this, font, theme, x, y, textScale)
 
+    fun absolute(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): AbsoluteScope {
+        val content = slot.inset(insets)
+        return absolute(content.x, content.y, font, theme, textScale)
+    }
+
     /** Reserves a horizontal auto-stacking layout region -- see [RowScope]. */
     fun row(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): RowScope =
         RowScope(this, font, theme, x, y, height, gap, textScale)
 
+    fun row(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): RowScope {
+        val content = slot.inset(insets)
+        return row(content.x, content.y, content.height, font, theme, gap, textScale)
+    }
+
     /** Reserves a fixed-rect region -- see [BoxScope]. */
     fun box(x: Float, y: Float, width: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f): BoxScope =
         BoxScope(this, font, theme, x, y, width, height, textScale)
+
+    fun box(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): BoxScope {
+        val content = slot.inset(insets)
+        return box(content.x, content.y, content.width, content.height, font, theme, textScale)
+    }
 
     /** Publishes this frame's [activeId] state to [Input.pointerCapturedByUi] before handing
      * back the frame's draw primitives, so scene-facing drag consumers (
@@ -114,7 +134,7 @@ class UiContext {
     }
 }
 
-/** Pure value-from-pointer-position math for `Widgets.kt`'s `slider`, pulled out to a
+/** Pure value-from-pointer-position math for the built-in `slider`, pulled out to a
  * top-level function so it's unit-testable without an [Input]/GPU-backed [UiContext]
  * instance (see this project's "no app-layer test doubles, push logic into pure functions"
  * convention). Maps [pointerX]'s position within the track `[trackX, trackX + trackW]` to a

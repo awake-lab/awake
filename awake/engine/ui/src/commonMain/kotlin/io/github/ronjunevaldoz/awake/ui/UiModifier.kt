@@ -22,31 +22,21 @@ sealed class Dimension {
 
 /** Preserves the historical "pass `0f` (or negative) and it fills the enclosing scope" call
  * pattern this codebase's own widgets (and sample app) used before [Dimension] existed --
- * public, not file-private to `Widgets.kt`, so a consumer's own custom widget (e.g. `Gauge.kt`)
+ * public, not file-private to the built-in widget implementations, so a consumer's own custom widget (e.g. `Gauge.kt`)
  * gets the exact same convenience a built-in widget does, matching this module's "no
  * capability gap versus a built-in widget" guarantee. */
 fun Float.toDimension(): Dimension = if (this > 0f) Dimension.Fixed(this.px) else Dimension.FillMax
 
 /**
- * Per-widget-call override -- each field `null` means "use whatever the widget's own required
- * param/default provides" (`width`/`height`: the widget's own `width`/`height` param; `shape`/
- * `borderWidth`/`borderColor`: the widget's own `radius`/`borderWidth`/theme-border defaults).
- * `align`/`padding`/`background` are real extension points this shape supports, but nothing in
- * this repo needs them yet.
- *
- * [shape]/[borderWidth]/[borderColor] exist so shape/border are a modifier chain concern
- * (`UiModifier().size(...).clip(UiShape.md).border(1f.dp)`) the same way width/height already
- * are, instead of scattered per-widget named params (`radius`, `borderWidth`) that don't
- * compose -- closer to the real Compose `Modifier` pattern this UI's design was asked to
- * mimic. Kept separate from a hypothetical `UiShape` value type for now since nothing here
- * needs more than "corner radius" + "one border stroke" yet.
+ * Per-widget-call structural override only -- width/height are layout concerns, while fill,
+ * shape, border, text scale, and padding now belong to [Style]. That keeps this type closer
+ * to real Compose's "modifier is structure/behavior, style is visuals" split, which matters
+ * once consumer-authored widgets and composite containers start reusing the same style stack
+ * as built-ins.
  */
 data class UiModifier(
     val width: Dimension? = null,
-    val height: Dimension? = null,
-    val shape: Dp? = null,
-    val borderWidth: Dp? = null,
-    val borderColor: FloatArray? = null
+    val height: Dimension? = null
 )
 
 fun UiModifier.width(dp: Dp): UiModifier = copy(width = Dimension.Fixed(dp))
@@ -54,10 +44,3 @@ fun UiModifier.height(dp: Dp): UiModifier = copy(height = Dimension.Fixed(dp))
 fun UiModifier.size(width: Dp, height: Dp): UiModifier = copy(width = Dimension.Fixed(width), height = Dimension.Fixed(height))
 fun UiModifier.fillMaxWidth(): UiModifier = copy(width = Dimension.FillMax)
 fun UiModifier.fillMaxHeight(): UiModifier = copy(height = Dimension.FillMax)
-
-/** Corner radius -- [UiDrawPrimitive.RoundedQuad] if > [UiShape.none], a flat [UiDrawPrimitive.Quad] otherwise. */
-fun UiModifier.clip(radius: Dp): UiModifier = copy(shape = radius)
-
-/** One border stroke around the widget's own claimed slot -- see [io.github.ronjunevaldoz.awake.ui.border]'s
- * doc comment for how it's actually drawn (four thin quad strips, not a stroke-outline shader). */
-fun UiModifier.border(width: Dp, color: FloatArray? = null): UiModifier = copy(borderWidth = width, borderColor = color)
