@@ -10,7 +10,7 @@ kotlin {
     jvmToolchain(17)
 
     android {
-        namespace = "io.github.ronjunevaldoz.awake.ui.facade"
+        namespace = "io.github.ronjunevaldoz.awake.ui.designsystem"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
     }
@@ -20,7 +20,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "awake-engine-ui"
+            baseName = "awake-engine-ui-designsystem"
         }
     }
 
@@ -32,8 +32,11 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":awake:engine:ui-core"))
             api(project(":awake:engine:ui-widgets"))
+        }
+        commonTest.dependencies {
+            implementation(project(":awake:base"))
+            implementation(kotlin("test"))
         }
     }
 }

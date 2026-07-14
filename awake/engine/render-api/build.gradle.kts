@@ -63,7 +63,7 @@ kotlin {
             // exposes UiDrawPrimitive in this module's own public interface, so consumers
             // implementing Renderer (awake-backend-vulkan, awake-backend-webgpu) need it
             // visible transitively.
-            api(project(":awake:engine:ui"))
+            api(project(":awake:engine:ui-core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

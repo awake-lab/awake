@@ -97,6 +97,9 @@ kotlin {
         commonMain.dependencies {
             // The Game interface SampleGame implements + Renderer.createMesh/createMaterial.
             implementation(project(":awake:engine:game"))
+            // Immediate-mode UI facade: keeps downstream imports stable while ui-core and
+            // ui-widgets are split underneath it.
+            implementation(project(":awake:engine:ui"))
             // SceneRuntime/MeshRenderer/OrbitCameraSystem/FreeFlyCameraSystem, and
             // transitively awake-engine-render-api's Renderer/Mesh/Material/MeshGeometry/
             // TextureAsset/LineSegment interfaces + awake-engine-ui's UiContext/BitmapFont.

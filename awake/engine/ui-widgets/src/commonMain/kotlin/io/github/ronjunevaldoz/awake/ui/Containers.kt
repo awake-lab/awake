@@ -37,9 +37,9 @@ fun UiScope.panel(
 }
 
 fun UiScope.clip(rect: UiSlot, content: UiScope.() -> Unit) {
-    val resolved = context.pushClipInternal(rect)
+    val resolved = context.pushClip(rect)
     emit(UiDrawPrimitive.ClipPush(resolved))
     content()
-    val restore = context.popClipInternal()
+    val restore = context.popClip()
     emit(UiDrawPrimitive.ClipPop(restore))
 }

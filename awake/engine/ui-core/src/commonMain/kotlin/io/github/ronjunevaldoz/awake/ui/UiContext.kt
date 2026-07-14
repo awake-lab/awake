@@ -126,12 +126,16 @@ class UiContext {
         return resolved
     }
 
+    fun pushClip(rect: UiSlot): UiSlot = pushClipInternal(rect)
+
     /** Pops the clip stack and returns the rect that should be restored -- the next entry
      * down, or the full frame extent if the stack is now empty. */
     internal fun popClipInternal(): UiSlot {
         if (clipStack.isNotEmpty()) clipStack.removeAt(clipStack.size - 1)
         return clipStack.lastOrNull() ?: fullFrameRect
     }
+
+    fun popClip(): UiSlot = popClipInternal()
 }
 
 /** Pure value-from-pointer-position math for the built-in `slider`, pulled out to a
