@@ -32,6 +32,34 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
+enum class CameraMode { ORBIT, FREE_FLY }
+
+/** [CubeDemo]'s camera/debug-overlay state, owned by [DemoCatalog] instead of [CubeDemo]
+ * itself -- [DemoCatalog.switchTo] constructs a brand-new [CubeDemo] every time the user
+ * switches back to CUBE, so state kept as a plain [CubeDemo] field would silently reset each
+ * switch. These settings are conceptually global to the demo, not tied to one instance's
+ * lifetime, so [DemoCatalog] constructs exactly one of these and hands the same instance to
+ * every [CubeDemo] it creates. */
+class CubeDemoConfig {
+    var cameraMode = CameraMode.ORBIT
+    var debugOverlayOn = false
+    var showFrustum = false
+    var showGrid = false
+    var showMinimap = false
+
+    var orbitYaw = 0f
+    var orbitPitch = 0f
+    var orbitDistance = 8f
+
+    var frustumYaw = 0f
+    var frustumPitch = 0f
+    var frustumDistance = 0f
+    // Guards the scene-derived initial frustum yaw/pitch/distance derivation in
+    // CubeDemo.ready() so it only runs once (this demo's first-ever construction), not on
+    // every switch-back, which would otherwise clobber whatever the user already dialed in.
+    var frustumSeeded = false
+}
+
 /**
  * The minimal "hello, cube" demo this module was originally built to showcase -- a plain
  * [Game] implementation (see docs/MVP_PLAN.md's decision log, "GenericGameApplication a
@@ -48,8 +76,14 @@ import kotlin.math.sin
  * one place (`DemoCatalog.render`) may call `ui.beginFrame`/`renderer.drawUi` per frame. This
  * demo just appends its own widgets to the same [ui] instance [DemoCatalog]'s own
  * demo-picker dropdown already staged this frame.
+ *
+ * [config] is owned by [DemoCatalog], not this class -- [DemoCatalog.switchTo] constructs a
+ * brand-new [CubeDemo] every time the user switches back to CUBE, so any state kept as a
+ * plain instance field here would silently reset (camera mode, debug overlay toggles, orbit
+ * angle) every switch. Camera/debug-overlay settings are conceptually global to this demo,
+ * not tied to one particular [CubeDemo] instance's lifetime, so they live in [config] instead.
  */
-class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
+class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private val config: CubeDemoConfig) :
     Game, DebugReadout, OffscreenPreviewSource, DebugCameraTarget, DebugMinimapTarget, PanelUser {
     private val fixedTimestepLoop = FixedTimestepLoop()
 
@@ -64,21 +98,8 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
     private lateinit var material: Material
     private lateinit var cameraComponent: Camera
 
-    // Smallest possible proof the custom UI overlay pipeline works end to end: a toggle
-    // rendered top-left over the existing cube scene (see docs/MVP_PLAN.md's custom-UI
-    // decision log entry).
-    private var debugOverlayOn = false
-
-    private var cameraMode = CameraMode.ORBIT
     private lateinit var orbitCameraSystem: OrbitCameraSystem
     private lateinit var freeFlyCameraSystem: FreeFlyCameraSystem
-    private var showFrustum = false
-
-    // Reference/floor grid on the XZ plane at y=0 -- this demo has no ground mesh (a single
-    // static cube, no floor), but a subtle spatial reference grid is still useful for judging
-    // orbit distance/orientation. Reuses Renderer.drawDebugLines, same as showFrustum -- see
-    // Grid's own doc comment.
-    private var showGrid = false
 
     // Minimap: proof that RenderTarget compositing (Renderer.renderToTexture +
     // UiContext.textureQuad) actually renders on screen, not just a clear color -- an
@@ -114,28 +135,18 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
     // Minimap now renders from homeCameraSnapshot (the frustum camera), not a separate fixed
     // overhead camera -- previously it showed an unrelated top-down view, which didn't match
     // what the FRUSTUM wireframe toggle actually visualizes.
-    private var showMinimap = false
     private lateinit var minimapTarget: RenderTarget
     private lateinit var minimapMaterial: Material
 
     /** The frustum/minimap camera's view (`eye`/`center` etc., initially seeded from
      * `sample.scene.json`), captured/mutated separately from the live render camera --
      * [OrbitCameraSystem]/[FreeFlyCameraSystem] drive the actual render camera, while this
-     * one is now independently orbitable via [frustumYaw]/[frustumPitch]/[frustumDistance]
-     * (see the FRUSTUM AZIMUTH/ELEVATION/ZOOM sliders in [drawCatalogUi]), the same role
-     * `demo.SceneRuntimeHost.followCameraSnapshot()` played in the now-retired `awake-demo`,
-     * minus the moving-player part (this sample has no player). */
+     * one is now independently orbitable via [config]'s frustumYaw/frustumPitch/
+     * frustumDistance (see the FRUSTUM AZIMUTH/ELEVATION/ZOOM sliders in [drawPanel]), the
+     * same role `demo.SceneRuntimeHost.followCameraSnapshot()` played in the now-retired
+     * `awake-demo`, minus the moving-player part (this sample has no player). */
     private lateinit var homeCameraSnapshot: CoreCamera
     private lateinit var cubeTransform: Transform
-
-    // Frustum camera's own orbit state -- same yaw/pitch/distance-around-a-target idea as
-    // OrbitCameraSystem, but driven only by sliders (no drag/WASD/pinch), so it's plain
-    // fields recomputed into homeCameraSnapshot.eye/center each frame rather than a full
-    // OrbitCameraSystem instance (which would also need a live scene.components.Camera to
-    // write into, not a bare CoreCamera).
-    private var frustumYaw = 0f
-    private var frustumPitch = 0f
-    private var frustumDistance = 0f
 
     override suspend fun ready(renderer: Renderer) {
         this.renderer = renderer
@@ -173,22 +184,30 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         // Derive the frustum camera's initial yaw/pitch/distance from its scene-authored
         // eye/center (inverse of OrbitCameraSystem.update()'s own offset formula) so the
         // first frame's frustum/minimap view matches the scene JSON exactly, before any
-        // slider has been touched.
-        val offset = homeCameraSnapshot.eye - cubeTransform.position
-        frustumDistance = offset.length3()
-        if (frustumDistance > 0f) {
-            frustumPitch = asin((offset.y / frustumDistance).coerceIn(-1f, 1f))
-            frustumYaw = atan2(offset.x, offset.z)
+        // slider has been touched -- only on this demo's very first construction (config
+        // persists across switches, so a later switch-back must NOT clobber whatever the
+        // user already dialed in with a fresh scene-derived value).
+        if (!config.frustumSeeded) {
+            val offset = homeCameraSnapshot.eye - cubeTransform.position
+            config.frustumDistance = offset.length3()
+            if (config.frustumDistance > 0f) {
+                config.frustumPitch = asin((offset.y / config.frustumDistance).coerceIn(-1f, 1f))
+                config.frustumYaw = atan2(offset.x, offset.z)
+            }
+            config.frustumSeeded = true
         }
 
         orbitCameraSystem = OrbitCameraSystem(
             target = cubeTransform,
             camera = cameraComponent,
+            initialDistance = config.orbitDistance,
             // This sample has nothing else to animate (a single static cube, no player/AI),
             // so auto-rotate by default -- drag still takes over/overrides yaw normally,
             // see OrbitCameraSystem's own doc comment for why this defaults to off there.
             autoRotateSpeed = AUTO_ROTATE_SPEED
         )
+        orbitCameraSystem.yaw = config.orbitYaw
+        orbitCameraSystem.pitch = config.orbitPitch
         freeFlyCameraSystem = FreeFlyCameraSystem(camera = cameraComponent)
 
         minimapTarget = renderer.createRenderTarget(MINIMAP_SIZE, MINIMAP_SIZE)
@@ -204,7 +223,7 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
             frameDelta = delta,
             fixedUpdate = { step ->
                 val world = sceneRuntime.world
-                when (cameraMode) {
+                when (config.cameraMode) {
                     CameraMode.ORBIT -> orbitCameraSystem.update(world, step)
                     CameraMode.FREE_FLY -> freeFlyCameraSystem.update(world, step)
                 }
@@ -221,9 +240,9 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         // read as catalog-picker and per-demo config all mixed together.
         panel.text("CAMERA", color = SECTION_LABEL_COLOR)
         val modeNames = CameraMode.entries.map { it.name }
-        panel.dropdown("camera-mode", modeNames, cameraMode.ordinal, 0f, 32f)?.let { picked ->
+        panel.dropdown("camera-mode", modeNames, config.cameraMode.ordinal, 0f, 32f)?.let { picked ->
             val newMode = CameraMode.entries[picked]
-            if (newMode == CameraMode.FREE_FLY && cameraMode == CameraMode.ORBIT) {
+            if (newMode == CameraMode.FREE_FLY && config.cameraMode == CameraMode.ORBIT) {
                 // Hand off orbit's current look orientation so switching modes doesn't snap
                 // free-fly to its yaw=0/pitch=0 default (looking down -Z) -- orbit's yaw/pitch
                 // describe the target-to-eye offset direction; free-fly's describe the
@@ -232,41 +251,47 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
                 // via the same live Camera component, so only orientation needs handing off).
                 freeFlyCameraSystem.setOrientation(-orbitCameraSystem.yaw, -orbitCameraSystem.pitch)
             }
-            cameraMode = newMode
+            config.cameraMode = newMode
         }
         // Orbit-only: FREE_FLY drives the same live Camera component with its own
         // WASD/mouse-look controls (FreeFlyCameraSystem), so these sliders would fight it --
         // only ORBIT's yaw/pitch/distance are meaningful slider targets.
-        if (cameraMode == CameraMode.ORBIT) {
+        if (config.cameraMode == CameraMode.ORBIT) {
             orbitCameraSystem.yaw = panel.slider("orbit-azimuth", -PI.toFloat(), PI.toFloat(), orbitCameraSystem.yaw, 0f, 28f, "AZIMUTH")
             orbitCameraSystem.pitch = panel.slider("orbit-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, orbitCameraSystem.pitch, 0f, 28f, "ELEVATION")
             orbitCameraSystem.distance = panel.slider("orbit-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, orbitCameraSystem.distance, 0f, 28f, "ZOOM")
         }
+        // Written back every frame (not just when a slider moves it) -- auto-rotate/drag
+        // inside OrbitCameraSystem.update() also mutate yaw/pitch/distance, and config is
+        // what survives DemoCatalog.switchTo() constructing a brand-new CubeDemo later.
+        config.orbitYaw = orbitCameraSystem.yaw
+        config.orbitPitch = orbitCameraSystem.pitch
+        config.orbitDistance = orbitCameraSystem.distance
         // Frustum camera sliders -- only shown while FRUSTUM is on (toggled in the DEBUG
         // OVERLAYS section below; reads last frame's value here, one frame of display lag on
         // the very toggle click, same as this immediate-mode architecture's usual "you own
         // your state, call order affects what THIS frame reads" contract elsewhere).
-        if (showFrustum) {
-            frustumYaw = panel.slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), frustumYaw, 0f, 28f, "F.AZIMUTH")
-            frustumPitch = panel.slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, frustumPitch, 0f, 28f, "F.ELEVATION")
-            frustumDistance = panel.slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, frustumDistance, 0f, 28f, "F.ZOOM")
+        if (config.showFrustum) {
+            config.frustumYaw = panel.slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), config.frustumYaw, 0f, 28f, "F.AZIMUTH")
+            config.frustumPitch = panel.slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, config.frustumPitch, 0f, 28f, "F.ELEVATION")
+            config.frustumDistance = panel.slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, config.frustumDistance, 0f, 28f, "F.ZOOM")
         }
 
         panel.text("DEBUG OVERLAYS", color = SECTION_LABEL_COLOR)
-        val debugLabel = if (debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
-        debugOverlayOn = panel.toggle("debug-toggle", debugOverlayOn, 0f, 40f, debugLabel)
-        showFrustum = panel.toggle("show-frustum", showFrustum, 0f, 32f, "FRUSTUM")
-        showGrid = panel.toggle("show-grid", showGrid, 0f, 32f, "GRID")
-        showMinimap = panel.toggle("show-minimap", showMinimap, 0f, 32f, "MINIMAP")
+        val debugLabel = if (config.debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
+        config.debugOverlayOn = panel.toggle("debug-toggle", config.debugOverlayOn, 0f, 40f, debugLabel)
+        config.showFrustum = panel.toggle("show-frustum", config.showFrustum, 0f, 32f, "FRUSTUM")
+        config.showGrid = panel.toggle("show-grid", config.showGrid, 0f, 32f, "GRID")
+        config.showMinimap = panel.toggle("show-minimap", config.showMinimap, 0f, 32f, "MINIMAP")
 
         // Recomputes homeCameraSnapshot.eye/center every frame regardless of showFrustum (cheap
         // trig) since the minimap (below) always renders from this camera and must stay in
         // sync even if the FRUSTUM wireframe itself is toggled off.
-        val frustumCosPitch = cos(frustumPitch)
+        val frustumCosPitch = cos(config.frustumPitch)
         val target = cubeTransform.position
-        homeCameraSnapshot.eye.x = target.x + frustumDistance * frustumCosPitch * sin(frustumYaw)
-        homeCameraSnapshot.eye.y = target.y + frustumDistance * sin(frustumPitch)
-        homeCameraSnapshot.eye.z = target.z + frustumDistance * frustumCosPitch * cos(frustumYaw)
+        homeCameraSnapshot.eye.x = target.x + config.frustumDistance * frustumCosPitch * sin(config.frustumYaw)
+        homeCameraSnapshot.eye.y = target.y + config.frustumDistance * sin(config.frustumPitch)
+        homeCameraSnapshot.eye.z = target.z + config.frustumDistance * frustumCosPitch * cos(config.frustumYaw)
         homeCameraSnapshot.center.x = target.x
         homeCameraSnapshot.center.y = target.y
         homeCameraSnapshot.center.z = target.z
@@ -276,17 +301,17 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         // call rather than each calling drawDebugLines separately (a second call would
         // overwrite the first's lines rather than adding to them).
         val debugLines = buildList {
-            if (showFrustum) {
+            if (config.showFrustum) {
                 val corners = Frustum.corners(homeCameraSnapshot, aspectRatio)
                 addAll(Frustum.EDGES.map { (a, b) -> LineSegment(corners[a], corners[b], FRUSTUM_COLOR) })
             }
-            if (showGrid) {
+            if (config.showGrid) {
                 addAll(Grid.lines(size = GRID_SIZE, divisions = GRID_DIVISIONS).map { (a, b) -> LineSegment(a, b, GRID_COLOR) })
             }
         }
         renderer.drawDebugLines(debugLines)
 
-        if (showMinimap) {
+        if (config.showMinimap) {
             // Same camera the FRUSTUM wireframe visualizes -- the minimap now shows exactly
             // what the frustum camera sees, not an unrelated fixed overhead view.
             renderer.renderToTexture(minimapTarget, homeCameraSnapshot, sampleDrawCalls())
@@ -312,7 +337,7 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
     override fun debugLines(): List<String> {
         val eye = cameraComponent.camera.eye
         return listOf(
-            "MODE: ${cameraMode.name}",
+            "MODE: ${config.cameraMode.name}",
             "X:${eye.x.format1()} Y:${eye.y.format1()} Z:${eye.z.format1()}"
         )
     }
@@ -328,12 +353,10 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont) :
         cameraComponent.camera.center = center
     }
 
-    override fun isMinimapEnabled(): Boolean = showMinimap
+    override fun isMinimapEnabled(): Boolean = config.showMinimap
     override fun setMinimapEnabled(enabled: Boolean) {
-        showMinimap = enabled
+        config.showMinimap = enabled
     }
-
-    private enum class CameraMode { ORBIT, FREE_FLY }
 
     companion object {
         private const val SCENE_PATH = "scenes/sample.scene.json"

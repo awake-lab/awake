@@ -51,8 +51,12 @@ class DemoCatalog : Game {
     private val font = BitmapFont()
     private lateinit var renderer: Renderer
 
+    // Owned here, not by CubeDemo -- see CubeDemoConfig's own doc comment for why (switchTo
+    // constructs a fresh CubeDemo every switch; this is what survives that).
+    private val cubeDemoConfig = CubeDemoConfig()
+
     private val demos: List<Pair<String, () -> Game>> = listOf(
-        "CUBE" to { CubeDemo(ui, font) },
+        "CUBE" to { CubeDemo(ui, font, cubeDemoConfig) },
         // PhysicsDemo now also takes (ui, font) -- its GRID toggle needs the same shared
         // UiContext/BitmapFont instance CubeDemo already appends its own widgets to. Each
         // factory closure defers construction until actually selected.
