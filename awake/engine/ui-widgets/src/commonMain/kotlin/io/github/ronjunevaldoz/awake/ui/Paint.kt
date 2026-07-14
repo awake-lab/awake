@@ -6,24 +6,76 @@ internal val TransparentColor: FloatArray = floatArrayOf(0f, 0f, 0f, 0f)
 
 /** Draws a [color] outline of [width] around an already-claimed [slot] as four thin
  * [UiDrawPrimitive.Quad] strips (top/right/bottom/left). */
-fun UiScope.border(slot: UiSlot, width: Dp = 1f.dp, color: FloatArray = theme.tokens.border) {
+fun UiScope.border(slot: UiSlot, width: Dp = 1f.dp, color: FloatArray = theme.tokens.border, overlay: Boolean = false) {
     val w = width.toPx()
     if (w <= 0f) return
-    emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, w, color))
-    emit(UiDrawPrimitive.Quad(slot.x, slot.y + slot.height - w, slot.width, w, color))
-    emit(UiDrawPrimitive.Quad(slot.x, slot.y, w, slot.height, color))
-    emit(UiDrawPrimitive.Quad(slot.x + slot.width - w, slot.y, w, slot.height, color))
+    emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, w, color), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y + slot.height - w, slot.width, w, color), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, w, slot.height, color), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(slot.x + slot.width - w, slot.y, w, slot.height, color), overlay)
+}
+
+private fun UiScope.emitPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
+    if (overlay) emitOverlay(primitive) else emit(primitive)
+}
+
+private fun roundedRadiusFor(slot: UiSlot, radiusPx: Float, shapeSpec: UiShapeSpec?): Float = when (shapeSpec) {
+    null -> radiusPx
+    UiShapeSpec.Rectangle -> 0f
+    is UiShapeSpec.RoundedRectangle -> shapeSpec.radius.toPx().coerceIn(0f, minOf(slot.width, slot.height) / 2f)
+    UiShapeSpec.Pill -> minOf(slot.width, slot.height) / 2f
+    UiShapeSpec.Circle -> if (slot.width == slot.height) slot.width / 2f else 0f
+    is UiShapeSpec.CutCorner -> 0f
+}
+
+private fun UiScope.pathOnlyShape(slot: UiSlot, shapeSpec: UiShapeSpec?): UiShapeSpec? = when (shapeSpec) {
+    null, UiShapeSpec.Rectangle, UiShapeSpec.Pill, is UiShapeSpec.RoundedRectangle -> null
+    UiShapeSpec.Circle -> if (slot.width == slot.height) null else shapeSpec
+    is UiShapeSpec.CutCorner -> shapeSpec
+}
+
+private fun UiScope.emitFillShape(slot: UiSlot, color: FloatArray, radiusPx: Float, shapeSpec: UiShapeSpec?, overlay: Boolean = false) {
+    if (color[3] <= 0f) return
+    val pathShape = pathOnlyShape(slot, shapeSpec)
+    if (pathShape != null) {
+        emitPrimitive(UiDrawPrimitive.FilledPath(pathShape.toPath(slot), color), overlay)
+        return
+    }
+    val resolvedRadius = roundedRadiusFor(slot, radiusPx, shapeSpec)
+    val primitive = if (resolvedRadius > 0f) {
+        UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, color, resolvedRadius)
+    } else {
+        UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, color)
+    }
+    emitPrimitive(primitive, overlay)
 }
 
 /** Fill + border for one widget slot, sharing the corner radius correctly between the two. */
-fun UiScope.emitFillAndBorder(slot: UiSlot, fillColor: FloatArray, radiusPx: Float, borderWidth: Dp, borderColor: FloatArray) {
+fun UiScope.emitFillAndBorder(
+    slot: UiSlot,
+    fillColor: FloatArray,
+    radiusPx: Float,
+    borderWidth: Dp,
+    borderColor: FloatArray,
+    shapeSpec: UiShapeSpec? = null,
+    overlay: Boolean = false
+) {
     val hasFill = fillColor[3] > 0f
     val borderPx = borderWidth.toPx()
-    if (radiusPx > 0f && borderPx > 0f) {
-        emit(UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, borderColor, radiusPx))
+    val pathShape = pathOnlyShape(slot, shapeSpec)
+    if (pathShape != null) {
+        val path = pathShape.toPath(slot)
+        if (hasFill) emitPrimitive(UiDrawPrimitive.FilledPath(path, fillColor), overlay)
+        if (borderPx > 0f) emitPrimitive(UiDrawPrimitive.StrokedPath(path, UiStroke(borderWidth), borderColor), overlay)
+        return
+    }
+
+    val resolvedRadius = roundedRadiusFor(slot, radiusPx, shapeSpec)
+    if (resolvedRadius > 0f && borderPx > 0f) {
+        emitPrimitive(UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, borderColor, resolvedRadius), overlay)
         if (hasFill) {
-            val innerRadius = (radiusPx - borderPx).coerceAtLeast(0f)
-            emit(
+            val innerRadius = (resolvedRadius - borderPx).coerceAtLeast(0f)
+            emitPrimitive(
                 UiDrawPrimitive.RoundedQuad(
                     slot.x + borderPx,
                     slot.y + borderPx,
@@ -31,31 +83,25 @@ fun UiScope.emitFillAndBorder(slot: UiSlot, fillColor: FloatArray, radiusPx: Flo
                     slot.height - 2 * borderPx,
                     fillColor,
                     innerRadius
-                )
+                ),
+                overlay
             )
         }
         return
     }
-    if (hasFill) {
-        val primitive = if (radiusPx > 0f) {
-            UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, fillColor, radiusPx)
-        } else {
-            UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, fillColor)
-        }
-        emit(primitive)
-    }
-    if (borderPx > 0f) border(slot, borderWidth, borderColor)
+    if (hasFill) emitFillShape(slot, fillColor, resolvedRadius, shapeSpec, overlay)
+    if (borderPx > 0f) border(slot, borderWidth, borderColor, overlay)
 }
 
-internal fun UiScope.emitInsetAccent(slot: UiSlot, inset: Float, radiusPx: Float) {
+internal fun UiScope.emitInsetAccent(slot: UiSlot, inset: Float, radiusPx: Float, shapeSpec: UiShapeSpec? = null) {
     val x = slot.x + inset
     val y = slot.y + inset
     val w = slot.width - inset * 2
     val h = slot.height - inset * 2
-    val primitive = if (radiusPx > 0f) {
-        UiDrawPrimitive.RoundedQuad(x, y, w, h, theme.tokens.accent, (radiusPx - inset).coerceAtLeast(0f))
-    } else {
-        UiDrawPrimitive.Quad(x, y, w, h, theme.tokens.accent)
-    }
-    emit(primitive)
+    emitFillShape(
+        slot = UiSlot(x, y, w, h),
+        color = theme.tokens.accent,
+        radiusPx = (radiusPx - inset).coerceAtLeast(0f),
+        shapeSpec = shapeSpec
+    )
 }

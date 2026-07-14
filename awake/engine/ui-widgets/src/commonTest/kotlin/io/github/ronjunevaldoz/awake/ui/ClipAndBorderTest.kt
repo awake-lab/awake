@@ -3,9 +3,11 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.snapshot.rasterize
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class ClipAndBorderTest {
 
@@ -129,5 +131,104 @@ class ClipAndBorderTest {
         val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
         val borderQuads = quads.filter { it.color.contentEquals(customColor) }
         assertEquals(4, borderQuads.size, "style.border() must draw all 4 edge quads even for a Filled (non-Outline) button")
+    }
+
+    @Test
+    fun cutCornerShapeSpecEmitsPathPrimitives() {
+        Input.setPointer(down = false, x = 0f, y = 0f)
+        val ui = UiContext()
+        ui.beginFrame(200f, 200f)
+        val scope = ui.absolute(0f, 0f)
+        val customBorder = floatArrayOf(1f, 0f, 0f, 1f)
+
+        scope.buttonSlot(
+            "b",
+            100f,
+            40f,
+            style = Style {
+                shape(UiShapeSpec.CutCorner(8f.dp))
+                border(2f.dp, customBorder)
+            }
+        )
+
+        val primitives = ui.endFrame()
+        assertIs<UiDrawPrimitive.FilledPath>(primitives.first(), "cut-corner widget fill should use the path lane instead of pretending to be a rounded box")
+        assertIs<UiDrawPrimitive.StrokedPath>(primitives[1], "cut-corner border should use the path stroke lane")
+    }
+
+    @Test
+    fun circleShapeSpecOnNonSquareSlotUsesPathLane() {
+        Input.setPointer(down = false, x = 0f, y = 0f)
+        val ui = UiContext()
+        ui.beginFrame(200f, 200f)
+        val scope = ui.absolute(0f, 0f)
+
+        scope.buttonSlot(
+            "circle",
+            120f,
+            40f,
+            style = Style { shape(UiShapeSpec.Circle) }
+        )
+
+        val primitives = ui.endFrame()
+        assertTrue(primitives.any { it is UiDrawPrimitive.FilledPath }, "a true circle inside a non-square slot needs the path lane")
+    }
+
+    @Test
+    fun shapeClipEmitsClipPathPushWithResolvedBounds() {
+        Input.setPointer(down = false, x = 0f, y = 0f)
+        val ui = UiContext()
+        ui.beginFrame(100f, 100f)
+        val scope = ui.absolute(0f, 0f)
+
+        scope.clip(UiShapeSpec.CutCorner(8f.dp), UiSlot(10f, 10f, 40f, 30f)) { }
+
+        val push = ui.endFrame().filterIsInstance<UiDrawPrimitive.ClipPathPush>().single()
+        assertEquals(UiSlot(10f, 10f, 40f, 30f), push.boundsRect)
+    }
+
+    @Test
+    fun pathClipRasterizerMasksPixelsOutsideCutCorner() {
+        val red = floatArrayOf(1f, 0f, 0f, 1f)
+        val primitives = buildList {
+            add(UiDrawPrimitive.ClipPathPush(UiShapeSpec.CutCorner(8f.dp).toPath(UiSlot(10f, 10f, 40f, 30f)), UiSlot(10f, 10f, 40f, 30f)))
+            add(UiDrawPrimitive.Quad(10f, 10f, 40f, 30f, red))
+            add(UiDrawPrimitive.ClipPop(UiSlot(0f, 0f, 64f, 64f)))
+        }
+
+        val pixels = primitives.rasterize(64, 64)
+
+        fun rgbaAt(x: Int, y: Int): IntArray {
+            val offset = (y * 64 + x) * 4
+            return intArrayOf(
+                pixels[offset].toInt() and 0xFF,
+                pixels[offset + 1].toInt() and 0xFF,
+                pixels[offset + 2].toInt() and 0xFF,
+                pixels[offset + 3].toInt() and 0xFF
+            )
+        }
+
+        assertEquals(listOf(25, 25, 30, 255), rgbaAt(11, 11).toList(), "clipped corner should leave the background untouched")
+        assertEquals(listOf(255, 0, 0, 255), rgbaAt(30, 25).toList(), "interior pixel should remain painted")
+    }
+
+    @Test
+    fun panelClipContentEmitsShapeClip() {
+        val ui = UiContext()
+        ui.beginFrame(120f, 120f)
+        val scope = ui.absolute(0f, 0f)
+
+        scope.panel(
+            id = "panel",
+            width = Dimension.Fixed(80f.px),
+            height = Dimension.Fixed(60f.px),
+            style = Style { shape(UiShapeSpec.CutCorner(8f.dp)) },
+            clipContent = true
+        ) { slot ->
+            emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, floatArrayOf(1f, 0f, 0f, 1f)))
+        }
+
+        val primitives = ui.endFrame()
+        assertTrue(primitives.any { it is UiDrawPrimitive.ClipPathPush }, "clipContent should route shaped panels through the shape clip lane")
     }
 }

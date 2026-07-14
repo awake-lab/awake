@@ -46,11 +46,12 @@ fun UiScope.propertyCheckbox(
         fillColor = resolved.background ?: theme.tokens.background,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border
+        borderColor = resolved.borderColor ?: theme.tokens.border,
+        shapeSpec = resolved.shapeSpec
     )
     val newChecked = if (interaction.clicked) !checked else checked
     if (newChecked) {
-        emitInsetAccent(boxSlot, boxPx * 0.25f, resolved.shape.toPx())
+        emitInsetAccent(boxSlot, boxPx * 0.25f, resolved.shape.toPx(), resolved.shapeSpec)
     }
     return newChecked
 }

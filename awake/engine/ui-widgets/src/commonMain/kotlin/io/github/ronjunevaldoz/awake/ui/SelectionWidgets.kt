@@ -24,12 +24,13 @@ fun UiScope.toggle(
         fillColor = resolved.background ?: theme.tokens.background,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border
+        borderColor = resolved.borderColor ?: theme.tokens.border,
+        shapeSpec = resolved.shapeSpec
     )
     val newChecked = if (interaction.clicked) !checked else checked
     if (newChecked) {
         val inset = minOf(interaction.slot.width, interaction.slot.height) * 0.2f
-        emitInsetAccent(interaction.slot, inset, resolved.shape.toPx())
+        emitInsetAccent(interaction.slot, inset, resolved.shape.toPx(), resolved.shapeSpec)
     }
     if (label != null && font != null) {
         text(label, interaction.slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
@@ -60,12 +61,13 @@ fun UiScope.checkbox(
         fillColor = resolved.background ?: theme.tokens.background,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border
+        borderColor = resolved.borderColor ?: theme.tokens.border,
+        shapeSpec = resolved.shapeSpec
     )
     val newChecked = if (interaction.clicked) !checked else checked
     if (newChecked) {
         val inset = boxPx * 0.25f
-        emitInsetAccent(boxSlot, inset, resolved.shape.toPx())
+        emitInsetAccent(boxSlot, inset, resolved.shape.toPx(), resolved.shapeSpec)
     }
     val resolvedFont = font
     if (label != null && resolvedFont != null) {

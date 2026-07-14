@@ -84,6 +84,10 @@ class DynamicMesh(
             "UI quad count exceeds DynamicMesh capacity ($maxQuads quads) -- " +
                 "raise maxQuads or reduce widgets drawn this frame."
         }
+        require(indices.size <= maxIndices) {
+            "UI index count exceeds DynamicMesh capacity ($maxQuads quads) -- " +
+                "raise maxQuads or reduce widgets drawn this frame."
+        }
         drawIndexCount = indices.size
         if (indices.isEmpty()) return
         VulkanBuffers.writeBufferMemoryFloats(device, vertexBufferMemory.handle, 0, vertices)

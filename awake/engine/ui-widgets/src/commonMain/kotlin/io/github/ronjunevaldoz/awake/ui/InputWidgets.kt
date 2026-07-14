@@ -32,17 +32,20 @@ fun UiScope.slider(
         fillColor = resolved.background ?: theme.tokens.background,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border
+        borderColor = resolved.borderColor ?: theme.tokens.border,
+        shapeSpec = resolved.shapeSpec
     )
     val fraction = ((newValue - min) / (max - min)).coerceIn(0f, 1f)
     val handleWidth = (slot.width * fraction).coerceAtLeast(0f)
     if (handleWidth > 0f) {
-        val handlePrimitive = if (resolved.shape.toPx() > 0f) {
-            UiDrawPrimitive.RoundedQuad(slot.x, slot.y, handleWidth, slot.height, theme.tokens.accent, resolved.shape.toPx())
-        } else {
-            UiDrawPrimitive.Quad(slot.x, slot.y, handleWidth, slot.height, theme.tokens.accent)
-        }
-        emit(handlePrimitive)
+        emitFillAndBorder(
+            slot = UiSlot(slot.x, slot.y, handleWidth, slot.height),
+            fillColor = theme.tokens.accent,
+            radiusPx = resolved.shape.toPx(),
+            borderWidth = UiShape.none,
+            borderColor = TransparentColor,
+            shapeSpec = resolved.shapeSpec
+        )
     }
     if (label != null && font != null) {
         text(label, slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
@@ -90,13 +93,15 @@ fun UiScope.dropdown(
                 )
             )
             val fillColor = resolved.background ?: theme.tokens.background
-            val radiusPx = resolved.shape.toPx()
-            val primitive = if (radiusPx > 0f) {
-                UiDrawPrimitive.RoundedQuad(optionSlot.x, optionSlot.y, optionSlot.width, optionSlot.height, fillColor, radiusPx)
-            } else {
-                UiDrawPrimitive.Quad(optionSlot.x, optionSlot.y, optionSlot.width, optionSlot.height, fillColor)
-            }
-            emitOverlay(primitive)
+            emitFillAndBorder(
+                slot = optionSlot,
+                fillColor = fillColor,
+                radiusPx = resolved.shape.toPx(),
+                borderWidth = UiShape.none,
+                borderColor = TransparentColor,
+                shapeSpec = resolved.shapeSpec,
+                overlay = true
+            )
             val resolvedFont = font
             if (resolvedFont != null) {
                 val glyphPx = resolvedFont.cellSize * resolvedTextScale()

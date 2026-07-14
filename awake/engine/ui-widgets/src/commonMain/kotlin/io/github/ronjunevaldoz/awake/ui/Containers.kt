@@ -15,6 +15,7 @@ fun UiScope.panel(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val slot = claimSlot(modifier.width ?: width, modifier.height ?: height)
@@ -30,9 +31,16 @@ fun UiScope.panel(
         fillColor = resolved.background ?: TransparentColor,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border
+        borderColor = resolved.borderColor ?: theme.tokens.border,
+        shapeSpec = resolved.shapeSpec
     )
-    context.column(slot, font = font, theme = theme, textScale = resolved.textScale, insets = resolved.contentPadding).content(slot)
+    val contentScope = context.column(slot, font = font, theme = theme, textScale = resolved.textScale, insets = resolved.contentPadding)
+    val effectiveShape = resolved.shapeSpec ?: if (resolved.shape.toPx() > 0f) UiShapeSpec.RoundedRectangle(resolved.shape) else null
+    if (clipContent && effectiveShape != null) {
+        clip(effectiveShape, slot) { contentScope.content(slot) }
+    } else {
+        contentScope.content(slot)
+    }
     return slot
 }
 
@@ -42,4 +50,16 @@ fun UiScope.clip(rect: UiSlot, content: UiScope.() -> Unit) {
     content()
     val restore = context.popClip()
     emit(UiDrawPrimitive.ClipPop(restore))
+}
+
+fun UiScope.clip(path: UiPath, content: UiScope.() -> Unit) {
+    val resolvedBounds = context.pushClip(path.bounds())
+    emit(UiDrawPrimitive.ClipPathPush(path, resolvedBounds))
+    content()
+    val restore = context.popClip()
+    emit(UiDrawPrimitive.ClipPop(restore))
+}
+
+fun UiScope.clip(shape: UiShapeSpec, rect: UiSlot, content: UiScope.() -> Unit) {
+    clip(shape.toPath(rect), content)
 }

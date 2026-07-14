@@ -125,6 +125,8 @@ class UiContextTest {
                         primitive.w == 160f &&
                         primitive.h == 32f &&
                         (primitive.y == 52f || primitive.y == 84f)
+                    is UiDrawPrimitive.FilledPath -> false
+                    is UiDrawPrimitive.StrokedPath -> false
                     else -> false
                 }
                 if (matches) {

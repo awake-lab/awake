@@ -100,6 +100,47 @@ sealed class UiDrawPrimitive {
         }
     }
 
+    /** Renderer-neutral filled shape primitive. Backends without real path support may
+     * conservatively fall back to the path's bounds rect until dedicated tessellation or
+     * shader support lands. */
+    data class FilledPath(
+        val path: UiPath,
+        val color: FloatArray
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is FilledPath) return false
+            return path == other.path && color.contentEquals(other.color)
+        }
+
+        override fun hashCode(): Int {
+            var result = path.hashCode()
+            result = 31 * result + color.contentHashCode()
+            return result
+        }
+    }
+
+    /** Stroke sibling of [FilledPath]. [stroke] stays in dp-space so backends can convert it
+     * with the same density contract as every other UI size. */
+    data class StrokedPath(
+        val path: UiPath,
+        val stroke: UiStroke,
+        val color: FloatArray
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is StrokedPath) return false
+            return path == other.path && stroke == other.stroke && color.contentEquals(other.color)
+        }
+
+        override fun hashCode(): Int {
+            var result = path.hashCode()
+            result = 31 * result + stroke.hashCode()
+            result = 31 * result + color.contentHashCode()
+            return result
+        }
+    }
+
     /** One screen-space quad sampling an arbitrary render-target-backed material -- e.g. a
      * minimap or portal-camera preview composited into the UI overlay. [material] is typed
      * as [Any] rather than `awake-engine-render-api`'s `Material` interface: THAT module
@@ -119,6 +160,15 @@ sealed class UiDrawPrimitive {
         val w: Float,
         val h: Float,
         val material: Any
+    ) : UiDrawPrimitive()
+
+    /** Path-based clip sibling of [ClipPush]. [boundsRect] is already intersected against
+     * the active clip stack, so backends without stencil/mask support can still conservatively
+     * fall back to plain scissor clipping on that rect. Consumers that do understand shape
+     * clipping can use [path] for the exact mask. */
+    data class ClipPathPush(
+        val path: UiPath,
+        val boundsRect: UiSlot
     ) : UiDrawPrimitive()
 
     /** Marks the start of a clipped region -- [rect] is always already-intersected against

@@ -3,6 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.bounds
+import io.github.ronjunevaldoz.awake.ui.containsPoint
+import io.github.ronjunevaldoz.awake.ui.tessellateFill
+import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import kotlin.math.max
 import kotlin.math.min
 
@@ -22,8 +26,8 @@ import kotlin.math.min
  * for a contrast/occlusion review is whether that block is even visible against whatever
  * ends up underneath it, not the exact letterforms. [Texture] draws as a flat gray
  * placeholder (no way to sample its opaque `material` outside a real renderer).
- * [ClipPush]/[ClipPop] narrow the active paint region for primitives between them, matching
- * every backend's own "just set scissor to this rect" contract.
+ * [FilledPath]/[StrokedPath] are rasterized from their shared tessellated meshes, and
+ * [ClipPathPush] applies exact path containment inside its already-resolved bounds rect.
  */
 fun List<UiDrawPrimitive>.rasterize(
     width: Int,
@@ -44,7 +48,11 @@ fun List<UiDrawPrimitive>.rasterize(
     var clipY0 = 0f
     var clipX1 = width.toFloat()
     var clipY1 = height.toFloat()
-    val clipStack = ArrayDeque<FloatArray>()
+    data class ClipSnapshot(val rect: FloatArray, val activePathCount: Int)
+    val clipStack = ArrayDeque<ClipSnapshot>()
+    val activePathClips = ArrayList<io.github.ronjunevaldoz.awake.ui.UiPath>()
+
+    fun passesPathClips(x: Float, y: Float): Boolean = activePathClips.all { it.containsPoint(x, y) }
 
     fun fillRect(x: Float, y: Float, w: Float, h: Float, color: FloatArray) {
         val x0 = max(x, clipX0).toInt().coerceIn(0, width)
@@ -59,6 +67,10 @@ fun List<UiDrawPrimitive>.rasterize(
         while (py < y1) {
             var px = x0
             while (px < x1) {
+                if (!passesPathClips(px + 0.5f, py + 0.5f)) {
+                    px += 1
+                    continue
+                }
                 val offset = (py * width + px) * 4
                 pixels[offset] = r.toByte()
                 pixels[offset + 1] = g.toByte()
@@ -70,10 +82,59 @@ fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
+    fun fillTriangle(ax: Float, ay: Float, bx: Float, by: Float, cx: Float, cy: Float, color: FloatArray) {
+        val minX = max(min(ax, min(bx, cx)), clipX0).toInt().coerceIn(0, width)
+        val minY = max(min(ay, min(by, cy)), clipY0).toInt().coerceIn(0, height)
+        val maxX = min(max(ax, max(bx, cx)), clipX1).toInt().coerceIn(0, width)
+        val maxY = min(max(ay, max(by, cy)), clipY1).toInt().coerceIn(0, height)
+        val r = (color[0] * 255).toInt().coerceIn(0, 255)
+        val g = (color[1] * 255).toInt().coerceIn(0, 255)
+        val b = (color[2] * 255).toInt().coerceIn(0, 255)
+        val a = ((if (color.size > 3) color[3] else 1f) * 255).toInt().coerceIn(0, 255)
+
+        fun edge(x0: Float, y0: Float, x1: Float, y1: Float, px: Float, py: Float): Float =
+            (px - x0) * (y1 - y0) - (py - y0) * (x1 - x0)
+
+        var py = minY
+        while (py < maxY) {
+            var px = minX
+            while (px < maxX) {
+                val sampleX = px + 0.5f
+                val sampleY = py + 0.5f
+                val w0 = edge(ax, ay, bx, by, sampleX, sampleY)
+                val w1 = edge(bx, by, cx, cy, sampleX, sampleY)
+                val w2 = edge(cx, cy, ax, ay, sampleX, sampleY)
+                val inside = (w0 >= 0f && w1 >= 0f && w2 >= 0f) || (w0 <= 0f && w1 <= 0f && w2 <= 0f)
+                if (inside && passesPathClips(sampleX, sampleY)) {
+                    val offset = (py * width + px) * 4
+                    pixels[offset] = r.toByte()
+                    pixels[offset + 1] = g.toByte()
+                    pixels[offset + 2] = b.toByte()
+                    pixels[offset + 3] = a.toByte()
+                }
+                px += 1
+            }
+            py += 1
+        }
+    }
+
+    fun fillTriangleMesh(path: io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, color: FloatArray) {
+        var i = 0
+        while (i + 2 < path.indices.size) {
+            val a = path.points[path.indices[i]]
+            val b = path.points[path.indices[i + 1]]
+            val c = path.points[path.indices[i + 2]]
+            fillTriangle(a.x, a.y, b.x, b.y, c.x, c.y, color)
+            i += 3
+        }
+    }
+
     for (primitive in this) {
         when (primitive) {
             is UiDrawPrimitive.Quad -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.color)
             is UiDrawPrimitive.RoundedQuad -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.color)
+            is UiDrawPrimitive.FilledPath -> fillTriangleMesh(primitive.path.tessellateFill(), primitive.color)
+            is UiDrawPrimitive.StrokedPath -> fillTriangleMesh(primitive.path.tessellateStroke(primitive.stroke), primitive.color)
             is UiDrawPrimitive.Glyph -> {
                 // Inset block, not the full glyph quad -- a full-size flat-colored rect per
                 // glyph would look identical to a Quad and defeat the point of reviewing
@@ -82,8 +143,16 @@ fun List<UiDrawPrimitive>.rasterize(
                 fillRect(primitive.x + inset, primitive.y + inset, primitive.w - inset * 2, primitive.h - inset * 2, primitive.color)
             }
             is UiDrawPrimitive.Texture -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, floatArrayOf(0.5f, 0.5f, 0.5f, 1f))
+            is UiDrawPrimitive.ClipPathPush -> {
+                clipStack.addLast(ClipSnapshot(floatArrayOf(clipX0, clipY0, clipX1, clipY1), activePathClips.size))
+                clipX0 = max(clipX0, primitive.boundsRect.x)
+                clipY0 = max(clipY0, primitive.boundsRect.y)
+                clipX1 = min(clipX1, primitive.boundsRect.x + primitive.boundsRect.width)
+                clipY1 = min(clipY1, primitive.boundsRect.y + primitive.boundsRect.height)
+                activePathClips += primitive.path
+            }
             is UiDrawPrimitive.ClipPush -> {
-                clipStack.addLast(floatArrayOf(clipX0, clipY0, clipX1, clipY1))
+                clipStack.addLast(ClipSnapshot(floatArrayOf(clipX0, clipY0, clipX1, clipY1), activePathClips.size))
                 clipX0 = max(clipX0, primitive.rect.x)
                 clipY0 = max(clipY0, primitive.rect.y)
                 clipX1 = min(clipX1, primitive.rect.x + primitive.rect.width)
@@ -91,10 +160,11 @@ fun List<UiDrawPrimitive>.rasterize(
             }
             is UiDrawPrimitive.ClipPop -> {
                 clipStack.removeLastOrNull()?.let { restored ->
-                    clipX0 = restored[0]
-                    clipY0 = restored[1]
-                    clipX1 = restored[2]
-                    clipY1 = restored[3]
+                    clipX0 = restored.rect[0]
+                    clipY0 = restored.rect[1]
+                    clipX1 = restored.rect[2]
+                    clipY1 = restored.rect[3]
+                    while (activePathClips.size > restored.activePathCount) activePathClips.removeAt(activePathClips.lastIndex)
                 }
             }
         }

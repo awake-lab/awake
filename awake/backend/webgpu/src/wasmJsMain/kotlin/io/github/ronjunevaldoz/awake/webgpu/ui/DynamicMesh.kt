@@ -53,6 +53,10 @@ class DynamicMesh(
             "UI quad count exceeds DynamicMesh capacity ($maxQuads quads) -- " +
                 "raise maxQuads or reduce widgets drawn this frame."
         }
+        require(indices.size <= maxIndices) {
+            "UI index count exceeds DynamicMesh capacity ($maxQuads quads) -- " +
+                "raise maxQuads or reduce widgets drawn this frame."
+        }
         val device = graphicsDevice.wgpuContext.device
         device.queue.writeBuffer(vertexBuffer, 0uL, ArrayBuffer.of(vertices))
         device.queue.writeBuffer(indexBuffer, 0uL, ArrayBuffer.of(indices))

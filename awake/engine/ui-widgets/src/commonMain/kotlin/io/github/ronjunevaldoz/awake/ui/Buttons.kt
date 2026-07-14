@@ -34,7 +34,8 @@ fun UiScope.buttonSlot(
         fillColor = fillColor,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border
+        borderColor = resolved.borderColor ?: theme.tokens.border,
+        shapeSpec = resolved.shapeSpec
     )
     if (label != null && font != null) {
         text(label, interaction.slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
