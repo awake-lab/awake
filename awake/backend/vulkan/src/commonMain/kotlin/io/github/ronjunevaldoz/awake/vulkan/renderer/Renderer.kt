@@ -937,6 +937,10 @@ class Renderer(
             swapchainManager.extent.width.toFloat(),
             swapchainManager.extent.height.toFloat()
         )
+        uiRoundedQuadRenderPipeline?.writeScreenSize(
+            swapchainManager.extent.width.toFloat(),
+            swapchainManager.extent.height.toFloat()
+        )
     }
 
     /** Binds+draws each [drawCalls] entry against whatever render pass/pipeline is already
