@@ -5,13 +5,22 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.DarkUiTheme
 import io.github.ronjunevaldoz.awake.ui.DefaultUiTheme
+import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.LightUiTheme
 import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiTheme
+import io.github.ronjunevaldoz.awake.ui.border
 import io.github.ronjunevaldoz.awake.ui.button
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.propertyCheckbox
+import io.github.ronjunevaldoz.awake.ui.propertyRow
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.toggle
 import kotlin.test.Test
 
@@ -76,5 +85,35 @@ class UiSnapshotTest {
             ui.absolute(0f, 0f, font = font, theme = theme).button("b-$name", 160f, 40f, label = "BUTTON")
             saveUiSnapshot("theme-$name", ui.endFrame(), 160, 40, background = theme.tokens.background)
         }
+    }
+
+    /** [panel]'s own tests (`PanelTest.kt`) only check layout/geometry with empty content
+     * lambdas -- never rendered with real child widgets inside it. Motivating case: a real
+     * "studio inspector" panel (bordered/rounded box) holding a section label, a
+     * [propertyRow]-placed dropdown, and a [propertyCheckbox] row -- the exact shape
+     * `samples:hello-cube`'s `CubeDemo.drawPanel()` builds, just without the border/rounded
+     * background it was reported "not visible" against. */
+    @Test
+    fun panelWithNestedChildren() {
+        val font = BitmapFont()
+        Input.setPointer(down = false, x = -100f, y = -100f)
+
+        val ui = UiContext()
+        ui.beginFrame(240f, 200f)
+        val column = ui.column(x = 20f, y = 20f, width = 200f, font = font, theme = DefaultUiTheme)
+        column.panel(
+            "inspector",
+            Dimension.FillMax,
+            Dimension.Fixed(140f.px),
+            radius = UiShape.md,
+            borderWidth = 1f.dp
+        ) {
+            text("CAMERA", color = DefaultUiTheme.tokens.mutedForeground)
+            val modeSlot = propertyRow("MODE", 24f)
+            context.absolute(modeSlot.x, modeSlot.y, font, DefaultUiTheme)
+                .dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modeSlot.width, modeSlot.height)
+            propertyCheckbox("debug", checked = true, "DEBUG", 24f)
+        }
+        saveUiSnapshot("panel-with-children", ui.endFrame(), 240, 200)
     }
 }
