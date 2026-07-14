@@ -6,6 +6,11 @@ import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiShape
+import io.github.ronjunevaldoz.awake.ui.border
+import io.github.ronjunevaldoz.awake.ui.clip
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.text
@@ -137,7 +142,7 @@ class DemoCatalog : Game {
 
     private fun drawDemoPicker(panel: ColumnScope) {
         val names = demos.map { it.first }
-        panel.dropdown("demo-picker", names, currentIndex, DEMO_PICKER_WIDTH, 32f)
+        panel.dropdown("demo-picker", names, currentIndex, DEMO_PICKER_WIDTH, 32f, modifier = UiModifier().clip(UiShape.sm).border(1f.dp))
             ?.let { picked -> if (picked != currentIndex) switchTo(picked) }
     }
 

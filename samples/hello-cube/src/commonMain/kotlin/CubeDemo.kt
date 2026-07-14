@@ -20,6 +20,11 @@ import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiShape
+import io.github.ronjunevaldoz.awake.ui.border
+import io.github.ronjunevaldoz.awake.ui.clip
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.slider
@@ -240,7 +245,7 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         // read as catalog-picker and per-demo config all mixed together.
         panel.text("CAMERA", color = SECTION_LABEL_COLOR)
         val modeNames = CameraMode.entries.map { it.name }
-        panel.dropdown("camera-mode", modeNames, config.cameraMode.ordinal, 0f, 32f)?.let { picked ->
+        panel.dropdown("camera-mode", modeNames, config.cameraMode.ordinal, 0f, 32f, modifier = WIDGET_MODIFIER)?.let { picked ->
             val newMode = CameraMode.entries[picked]
             if (newMode == CameraMode.FREE_FLY && config.cameraMode == CameraMode.ORBIT) {
                 // Hand off orbit's current look orientation so switching modes doesn't snap
@@ -257,9 +262,9 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         // WASD/mouse-look controls (FreeFlyCameraSystem), so these sliders would fight it --
         // only ORBIT's yaw/pitch/distance are meaningful slider targets.
         if (config.cameraMode == CameraMode.ORBIT) {
-            orbitCameraSystem.yaw = panel.slider("orbit-azimuth", -PI.toFloat(), PI.toFloat(), orbitCameraSystem.yaw, 0f, 28f, "AZIMUTH")
-            orbitCameraSystem.pitch = panel.slider("orbit-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, orbitCameraSystem.pitch, 0f, 28f, "ELEVATION")
-            orbitCameraSystem.distance = panel.slider("orbit-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, orbitCameraSystem.distance, 0f, 28f, "ZOOM")
+            orbitCameraSystem.yaw = panel.slider("orbit-azimuth", -PI.toFloat(), PI.toFloat(), orbitCameraSystem.yaw, 0f, 28f, "AZIMUTH", modifier = WIDGET_MODIFIER)
+            orbitCameraSystem.pitch = panel.slider("orbit-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, orbitCameraSystem.pitch, 0f, 28f, "ELEVATION", modifier = WIDGET_MODIFIER)
+            orbitCameraSystem.distance = panel.slider("orbit-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, orbitCameraSystem.distance, 0f, 28f, "ZOOM", modifier = WIDGET_MODIFIER)
         }
         // Written back every frame (not just when a slider moves it) -- auto-rotate/drag
         // inside OrbitCameraSystem.update() also mutate yaw/pitch/distance, and config is
@@ -272,17 +277,17 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         // the very toggle click, same as this immediate-mode architecture's usual "you own
         // your state, call order affects what THIS frame reads" contract elsewhere).
         if (config.showFrustum) {
-            config.frustumYaw = panel.slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), config.frustumYaw, 0f, 28f, "F.AZIMUTH")
-            config.frustumPitch = panel.slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, config.frustumPitch, 0f, 28f, "F.ELEVATION")
-            config.frustumDistance = panel.slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, config.frustumDistance, 0f, 28f, "F.ZOOM")
+            config.frustumYaw = panel.slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), config.frustumYaw, 0f, 28f, "F.AZIMUTH", modifier = WIDGET_MODIFIER)
+            config.frustumPitch = panel.slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, config.frustumPitch, 0f, 28f, "F.ELEVATION", modifier = WIDGET_MODIFIER)
+            config.frustumDistance = panel.slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, config.frustumDistance, 0f, 28f, "F.ZOOM", modifier = WIDGET_MODIFIER)
         }
 
         panel.text("DEBUG OVERLAYS", color = SECTION_LABEL_COLOR)
         val debugLabel = if (config.debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
-        config.debugOverlayOn = panel.toggle("debug-toggle", config.debugOverlayOn, 0f, 40f, debugLabel)
-        config.showFrustum = panel.toggle("show-frustum", config.showFrustum, 0f, 32f, "FRUSTUM")
-        config.showGrid = panel.toggle("show-grid", config.showGrid, 0f, 32f, "GRID")
-        config.showMinimap = panel.toggle("show-minimap", config.showMinimap, 0f, 32f, "MINIMAP")
+        config.debugOverlayOn = panel.toggle("debug-toggle", config.debugOverlayOn, 0f, 40f, debugLabel, modifier = WIDGET_MODIFIER)
+        config.showFrustum = panel.toggle("show-frustum", config.showFrustum, 0f, 32f, "FRUSTUM", modifier = WIDGET_MODIFIER)
+        config.showGrid = panel.toggle("show-grid", config.showGrid, 0f, 32f, "GRID", modifier = WIDGET_MODIFIER)
+        config.showMinimap = panel.toggle("show-minimap", config.showMinimap, 0f, 32f, "MINIMAP", modifier = WIDGET_MODIFIER)
 
         // Recomputes homeCameraSnapshot.eye/center every frame regardless of showFrustum (cheap
         // trig) since the minimap (below) always renders from this camera and must stay in
@@ -373,6 +378,10 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         // structure, not another interactive row.
         private val SECTION_LABEL_COLOR = floatArrayOf(0.6f, 0.6f, 0.65f, 1f)
         private const val MINIMAP_SIZE = 160
+
+        // Shared shape/border look for this panel's interactive widgets -- previously none of
+        // them used UiModifier at all despite the library supporting it (see UiModifier.kt).
+        private val WIDGET_MODIFIER = UiModifier().clip(UiShape.sm).border(1f.dp)
 
         // Upper bound for the orbit-zoom slider -- well past OrbitCameraSystem's own
         // DEFAULT_DISTANCE (8f), enough room to zoom out and see the whole cube+frustum.
