@@ -42,17 +42,9 @@ fun UiScope.buttonSlot(
     val active = isActive(id)
     val resolvedStyle = style ?: theme.tokens.neutralStyle()
     val fillColor = variant.resolveFill(resolvedStyle.colorFor(UiWidgetState(hovered, active)), hovered, active)
-    if (fillColor[3] > 0f) {
-        val radiusPx = (modifier.shape ?: radius).toPx()
-        val primitive = if (radiusPx > 0f) {
-            UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, fillColor, radiusPx)
-        } else {
-            UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, fillColor)
-        }
-        emit(primitive)
-    }
+    val radiusPx = (modifier.shape ?: radius).toPx()
     val resolvedBorderWidth = modifier.borderWidth ?: (if (variant == UiButtonVariant.Outline) 1f.dp else UiShape.none)
-    if (resolvedBorderWidth.toPx() > 0f) border(slot, resolvedBorderWidth, modifier.borderColor ?: theme.tokens.border)
+    emitFillAndBorder(slot, fillColor, radiusPx, resolvedBorderWidth, modifier.borderColor ?: theme.tokens.border)
     if (label != null && font != null) {
         text(label, slot, font = font, color = theme.tokens.foreground, centered = true)
     }
@@ -133,13 +125,7 @@ fun UiScope.checkbox(
     val resolvedStyle = style ?: theme.tokens.neutralStyle()
     val radiusPx = (modifier.shape ?: UiShape.none).toPx()
     val boxColor = resolvedStyle.colorFor(UiWidgetState(hovered, isActive(id)))
-    val boxPrimitive = if (radiusPx > 0f) {
-        UiDrawPrimitive.RoundedQuad(boxSlot.x, boxSlot.y, boxSlot.width, boxSlot.height, boxColor, radiusPx)
-    } else {
-        UiDrawPrimitive.Quad(boxSlot.x, boxSlot.y, boxSlot.width, boxSlot.height, boxColor)
-    }
-    emit(boxPrimitive)
-    border(boxSlot, modifier.borderWidth ?: 1f.dp, modifier.borderColor ?: theme.tokens.border)
+    emitFillAndBorder(boxSlot, boxColor, radiusPx, modifier.borderWidth ?: 1f.dp, modifier.borderColor ?: theme.tokens.border)
     if (newChecked) {
         val inset = boxPx * 0.25f
         emit(UiDrawPrimitive.Quad(boxSlot.x + inset, boxSlot.y + inset, boxPx - inset * 2, boxPx - inset * 2, theme.tokens.accent))
@@ -309,14 +295,8 @@ fun UiScope.panel(
     val resolvedStyle = style ?: theme.tokens.neutralStyle()
     val color = resolvedStyle.colorFor(UiWidgetState(hovered = false, active = false))
     val radiusPx = (modifier.shape ?: radius).toPx()
-    val primitive = if (radiusPx > 0f) {
-        UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, color, radiusPx)
-    } else {
-        UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, color)
-    }
-    emit(primitive)
     val resolvedBorderWidth = modifier.borderWidth ?: borderWidth
-    if (resolvedBorderWidth.toPx() > 0f) border(slot, resolvedBorderWidth, modifier.borderColor ?: theme.tokens.border)
+    emitFillAndBorder(slot, color, radiusPx, resolvedBorderWidth, modifier.borderColor ?: theme.tokens.border)
     context.column(slot.x, slot.y, slot.width, font, theme).content(slot)
     return slot
 }
@@ -337,7 +317,10 @@ fun UiScope.clip(rect: UiSlot, content: UiScope.() -> Unit) {
 
 /** Draws a [color] outline of [width] around an already-claimed [slot] as four thin
  * [UiDrawPrimitive.Quad] strips (top/right/bottom/left) -- zero backend/primitive change,
- * reuses the existing flat quad the same way [toggle]'s checkmark inset already does. */
+ * reuses the existing flat quad the same way [toggle]'s checkmark inset already does.
+ * Straight-edge only -- a flat strip has no notion of corner radius, so a rounded widget
+ * must go through [emitFillAndBorder] instead (this is what that falls back to when
+ * `radiusPx <= 0`). */
 fun UiScope.border(slot: UiSlot, width: Dp = 1f.dp, color: FloatArray = theme.tokens.border) {
     val w = width.toPx()
     if (w <= 0f) return
@@ -345,4 +328,46 @@ fun UiScope.border(slot: UiSlot, width: Dp = 1f.dp, color: FloatArray = theme.to
     emit(UiDrawPrimitive.Quad(slot.x, slot.y + slot.height - w, slot.width, w, color)) // bottom
     emit(UiDrawPrimitive.Quad(slot.x, slot.y, w, slot.height, color)) // left
     emit(UiDrawPrimitive.Quad(slot.x + slot.width - w, slot.y, w, slot.height, color)) // right
+}
+
+/** Fill + border for one widget slot, sharing the corner radius correctly between the two --
+ * [border]'s own 4 straight-strip quads have no notion of curvature, so drawing a rounded
+ * fill (`radiusPx > 0`) and then calling [border] on top produced a fill with curved corners
+ * but a border with square ones (confirmed by a real screenshot: the border cut straight
+ * across the curve instead of following it). When rounded, this draws the border color as a
+ * full [UiDrawPrimitive.RoundedQuad] first, then the fill color inset by the border width on
+ * top with a correspondingly smaller radius -- an even-thickness ring that follows the curve,
+ * without needing a dedicated stroke/annulus shader. Falls back to flat-quad-fill +
+ * straight-strip-[border] when `radiusPx <= 0`, unchanged from every call site's prior
+ * behavior. [fillColor] with alpha `0` (e.g. an at-rest [UiButtonVariant.Ghost]) skips the
+ * fill draw entirely either way, same as before this helper existed. */
+fun UiScope.emitFillAndBorder(slot: UiSlot, fillColor: FloatArray, radiusPx: Float, borderWidth: Dp, borderColor: FloatArray) {
+    val hasFill = fillColor[3] > 0f
+    val borderPx = borderWidth.toPx()
+    if (radiusPx > 0f && borderPx > 0f) {
+        emit(UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, borderColor, radiusPx))
+        if (hasFill) {
+            val innerRadius = (radiusPx - borderPx).coerceAtLeast(0f)
+            emit(
+                UiDrawPrimitive.RoundedQuad(
+                    slot.x + borderPx,
+                    slot.y + borderPx,
+                    slot.width - 2 * borderPx,
+                    slot.height - 2 * borderPx,
+                    fillColor,
+                    innerRadius
+                )
+            )
+        }
+        return
+    }
+    if (hasFill) {
+        val primitive = if (radiusPx > 0f) {
+            UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, fillColor, radiusPx)
+        } else {
+            UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, fillColor)
+        }
+        emit(primitive)
+    }
+    if (borderPx > 0f) border(slot, borderWidth, borderColor)
 }
