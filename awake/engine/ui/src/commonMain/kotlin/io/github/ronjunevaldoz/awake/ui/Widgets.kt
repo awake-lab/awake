@@ -101,6 +101,60 @@ fun UiScope.toggle(
     return newChecked
 }
 
+/** A real checkbox -- distinct from [toggle] (which recolors an entire button-sized fill),
+ * matching shadcn/Compose's own `Checkbox` convention: a small fixed-size square box (sized
+ * by [boxSize], vertically centered in the claimed row) with a checkmark-style inset fill
+ * when checked, plus a separate label drawn to its right -- not one big colored rectangle
+ * standing in for both the control and its label. The whole claimed row is still the
+ * hit-test/click target (clicking the label toggles it too, same as a real checkbox's
+ * clickable row), same press/release-while-hovered semantics [buttonSlot] already
+ * establishes, just without delegating to it (this widget's box+label layout doesn't match
+ * [buttonSlot]'s single-centered-label shape). */
+fun UiScope.checkbox(
+    id: String,
+    checked: Boolean,
+    width: Float,
+    height: Float,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: UiStyle? = null,
+    boxSize: Dp = 16f.dp
+): Boolean {
+    val slot = claimSlot(modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
+    val hovered = hitTest(slot)
+    tryClaimActive(id, hovered)
+    val wasActiveBeforeRelease = isActive(id)
+    releaseActiveIfMatches(id)
+    val clicked = wasActiveBeforeRelease && !isActive(id) && hovered
+    val newChecked = if (clicked) !checked else checked
+
+    val boxPx = boxSize.toPx()
+    val boxSlot = UiSlot(slot.x, slot.y + (slot.height - boxPx) / 2f, boxPx, boxPx)
+    val resolvedStyle = style ?: theme.tokens.neutralStyle()
+    val radiusPx = (modifier.shape ?: UiShape.none).toPx()
+    val boxColor = resolvedStyle.colorFor(UiWidgetState(hovered, isActive(id)))
+    val boxPrimitive = if (radiusPx > 0f) {
+        UiDrawPrimitive.RoundedQuad(boxSlot.x, boxSlot.y, boxSlot.width, boxSlot.height, boxColor, radiusPx)
+    } else {
+        UiDrawPrimitive.Quad(boxSlot.x, boxSlot.y, boxSlot.width, boxSlot.height, boxColor)
+    }
+    emit(boxPrimitive)
+    border(boxSlot, modifier.borderWidth ?: 1f.dp, modifier.borderColor ?: theme.tokens.border)
+    if (newChecked) {
+        val inset = boxPx * 0.25f
+        emit(UiDrawPrimitive.Quad(boxSlot.x + inset, boxSlot.y + inset, boxPx - inset * 2, boxPx - inset * 2, theme.tokens.accent))
+    }
+    val resolvedFont = font
+    if (label != null && resolvedFont != null) {
+        val labelY = slot.y + (slot.height - resolvedFont.cellSize) / 2f
+        val labelSlot = UiSlot(boxSlot.x + boxPx + CHECKBOX_LABEL_GAP, labelY, slot.width - boxPx - CHECKBOX_LABEL_GAP, resolvedFont.cellSize.toFloat())
+        text(label, labelSlot, font = resolvedFont, color = theme.tokens.foreground, centered = false)
+    }
+    return newChecked
+}
+
+private const val CHECKBOX_LABEL_GAP = 8f
+
 /** Continuous drag control: returns the (possibly updated) value for this frame, same
  * caller-owns-the-state idiom [toggle] already uses ([value] passed in, new value returned).
  * Press-inside-track latches the active id (same as [button]'s press edge) so a drag that
