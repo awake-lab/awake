@@ -248,11 +248,9 @@ class DemoCatalog : Game {
         const val DEMO_PICKER_HEIGHT = 40f
 
         // 8px BitmapFont glyphs read as illegibly tiny at this window's actual size (confirmed
-        // via a real screenshot) -- shared by the demo picker, config panel, and debug HUD so
-        // every piece of this catalog's UI reads at one consistent size, not just CubeDemo's
-        // own inspector panel (which keeps its own private copy of this same value, since nothing
-        // here shares a common "catalog UI constants" file with the demos it hosts).
-        const val TEXT_SCALE = 1.75f
+        // via a real screenshot) -- a 2x whole-number scale keeps the atlas crisp while still
+        // sharing one readable size across the picker, config panel, and debug HUD.
+        const val TEXT_SCALE = 2f
         const val HUD_LINE_HEIGHT = 22f
     }
 }

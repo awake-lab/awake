@@ -16,10 +16,13 @@ pieces.
   carved out first?
 - Which code should remain in `awake-core` once the pure shared pieces move?
 - Do we split `physics` now, or leave it until the scene/runtime shape is settled?
+- Do we want the first UI DSL slice to target inspector panels only, or should it also
+  cover HUD/menu composition in the same pass?
 
 ## Fix Lanes
 
 - Dev: Core split
+- Dev: UI DSL and style audit
 - Beta: None yet
 - Stable: Refresh runtime docs after the module split lands
 
@@ -27,6 +30,7 @@ pieces.
 
 - [2026-07-09-decouple-world](tasks/2026-07-09-decouple-world.md)
 - [2026-07-10-scene-runtime](tasks/2026-07-10-scene-runtime.md)
+- [2026-07-14-ui-dsl-audit](tasks/2026-07-14-ui-dsl-audit.md)
 
 ## Archive Index
 

@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import kotlin.math.roundToInt
 
 data class UiSlot(val x: Float, val y: Float, val width: Float, val height: Float)
 
@@ -16,6 +17,10 @@ fun UiSlot.intersect(other: UiSlot): UiSlot {
     val bottom = minOf(y + height, other.y + other.height)
     return UiSlot(left, top, (right - left).coerceAtLeast(0f), (bottom - top).coerceAtLeast(0f))
 }
+
+fun pixelPerfectTextScale(requestedScale: Float): Float = requestedScale.roundToInt().coerceAtLeast(1).toFloat()
+
+fun UiScope.resolvedTextScale(): Float = pixelPerfectTextScale(textScale)
 
 /**
  * The full set of primitives any widget -- built-in or consumer-defined -- is built from.
@@ -37,12 +42,14 @@ interface UiScope {
     val theme: UiTheme
 
     /**
-     * Uniform multiplier applied to every glyph this scope draws (quad size, pen advance,
+     * Requested multiplier applied to every glyph this scope draws (quad size, pen advance,
      * label-row height). [font]'s atlas stays a fixed 8x8 cell regardless (see
      * [io.github.ronjunevaldoz.awake.ui.font.BitmapFont]'s doc comment: a hand-authored debug
      * font, not a scalable typeface) -- this just draws each glyph's quad bigger
      * (nearest-neighbor blocky scaling, matching the font's own retro-bitmap look), it doesn't
-     * re-rasterize anything. Defaults to `1f` (today's original, un-scaled size).
+     * re-rasterize anything. Rendering snaps this to the nearest whole-number multiple via
+     * [resolvedTextScale] so bitmap glyphs stay pixel-stable instead of shimmering at
+     * fractional scales. Defaults to `1f` (today's original, un-scaled size).
      */
     val textScale: Float
 

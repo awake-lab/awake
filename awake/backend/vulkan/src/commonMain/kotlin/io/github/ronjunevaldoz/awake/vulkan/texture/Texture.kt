@@ -47,7 +47,8 @@ class Texture(
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     data: ByteArray,
     width: Int,
-    height: Int
+    height: Int,
+    samplerCreateInfo: VkSamplerCreateInfo = VkSamplerCreateInfo()
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -165,7 +166,7 @@ class Texture(
             )
         )
 
-        sampler = SamplerHandle(VulkanImages.vkCreateSampler(device, VkSamplerCreateInfo()))
+        sampler = SamplerHandle(VulkanImages.vkCreateSampler(device, samplerCreateInfo))
     }
 
     fun destroy() {

@@ -133,7 +133,7 @@ fun UiScope.checkbox(
     }
     val resolvedFont = font
     if (label != null && resolvedFont != null) {
-        val glyphPx = resolvedFont.cellSize * textScale
+        val glyphPx = resolvedFont.cellSize * resolvedTextScale()
         val labelY = slot.y + (slot.height - glyphPx) / 2f
         val labelSlot = UiSlot(boxSlot.x + boxPx + CHECKBOX_LABEL_GAP, labelY, slot.width - boxPx - CHECKBOX_LABEL_GAP, glyphPx)
         text(label, labelSlot, font = resolvedFont, color = theme.tokens.foreground, centered = false)
@@ -217,7 +217,7 @@ fun UiScope.dropdown(
             emitOverlay(UiDrawPrimitive.Quad(optionSlot.x, optionSlot.y, optionSlot.width, optionSlot.height, resolvedStyle.colorFor(UiWidgetState(optionHovered, isActive(optionId)))))
             val resolvedFont = font
             if (resolvedFont != null) {
-                val glyphPx = resolvedFont.cellSize * textScale
+                val glyphPx = resolvedFont.cellSize * resolvedTextScale()
                 val textWidth = option.length * glyphPx
                 var penX = optionSlot.x + (optionSlot.width - textWidth) / 2f
                 val penY = optionSlot.y + (optionSlot.height - glyphPx) / 2f
@@ -249,13 +249,13 @@ fun UiScope.dropdown(
  * `centered = false` to draw starting exactly at the claimed slot's origin. */
 fun UiScope.text(
     label: String,
-    slot: UiSlot = claimSlot(Dimension.FillMax, Dimension.Fixed(((this.font?.cellSize?.toFloat() ?: 0f) * textScale).px)),
+    slot: UiSlot = claimSlot(Dimension.FillMax, Dimension.Fixed(((this.font?.let { it.cellSize * resolvedTextScale() } ?: 0f)).px)),
     font: BitmapFont? = this.font,
     color: FloatArray = theme.tokens.foreground,
     centered: Boolean = false
 ) {
     checkNotNull(font) { "text() requires a font, either from the UiScope or passed explicitly" }
-    val glyphPx = font.cellSize * textScale
+    val glyphPx = font.cellSize * resolvedTextScale()
     val textWidth = label.length * glyphPx
     var penX = if (centered) slot.x + (slot.width - textWidth) / 2f else slot.x
     val penY = if (centered) slot.y + (slot.height - glyphPx) / 2f else slot.y
@@ -280,7 +280,7 @@ fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): 
     val labelWidthPx = labelWidth.toPx()
     val resolvedFont = font
     if (resolvedFont != null) {
-        val glyphPx = resolvedFont.cellSize * textScale
+        val glyphPx = resolvedFont.cellSize * resolvedTextScale()
         val labelSlot = UiSlot(rowSlot.x, rowSlot.y + (rowSlot.height - glyphPx) / 2f, labelWidthPx, glyphPx)
         text(label, labelSlot, font = resolvedFont, color = theme.tokens.mutedForeground, centered = false)
     }
@@ -313,7 +313,7 @@ fun UiScope.propertyCheckbox(
 
     val resolvedFont = font
     if (resolvedFont != null) {
-        val glyphPx = resolvedFont.cellSize * textScale
+        val glyphPx = resolvedFont.cellSize * resolvedTextScale()
         val labelSlot = UiSlot(slot.x, slot.y + (slot.height - glyphPx) / 2f, slot.width, glyphPx)
         text(label, labelSlot, font = resolvedFont, color = theme.tokens.mutedForeground, centered = false)
     }

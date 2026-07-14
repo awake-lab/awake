@@ -431,24 +431,23 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         private val WIDGET_MODIFIER = UiModifier().clip(UiShape.sm).border(2f.dp)
 
         // The 8px BitmapFont glyph cell read as illegibly tiny at this panel's on-screen size
-        // (confirmed via a real screenshot) -- UiScope.textScale draws each glyph's quad at
-        // 1.75x rather than re-rasterizing the (deliberately fixed 8x8) atlas, so it stays
-        // blocky/retro rather than blurry. Every row-sizing constant below is sized against
-        // this scaled glyph, not the raw 8px cell.
-        private const val TEXT_SCALE = 1.75f
+        // (confirmed via a real screenshot) -- a 2x whole-number scale keeps the bitmap atlas
+        // crisp, where 1.75x introduced uneven texel expansion and visible text noise. Every
+        // row-sizing constant below is sized against this scaled glyph, not the raw 8px cell.
+        private const val TEXT_SCALE = 2f
 
         // Studio-inspector row height -- shared by every propertyRow()/propertyCheckbox() call
         // in drawPanel() so the whole column reads as one consistent grid, not per-widget
         // literal heights scattered across the function. Sized for the taller of this row's
-        // two occupants: CHECKBOX_SIZE (24) or a TEXT_SCALE glyph (14), plus vertical padding.
+        // two occupants: CHECKBOX_SIZE (24) or a TEXT_SCALE glyph (16), plus vertical padding.
         private const val ROW_HEIGHT = 34f
 
         // Fixed left-hand label column for propertyRow()/propertyCheckbox() -- sized for the
         // longest label this panel actually draws ("F.ELEVATION", 11 chars) at TEXT_SCALE's
-        // glyph width (8 * 1.75 = 14px/char -> 154px), rounded up for breathing room. This
+        // glyph width (8 * 2 = 16px/char -> 176px), rounded up for breathing room. This
         // library has no text-measure-then-shrink-column pass (see Dimension's doc comment),
         // so a too-narrow fixed column would silently clip/overlap instead of wrapping.
-        private val LABEL_WIDTH = 160f.dp
+        private val LABEL_WIDTH = 184f.dp
         private val CHECKBOX_SIZE = 24f.dp
 
         // Worst-case content height: 2 section labels + up to 11 rows (MODE + 3 orbit sliders

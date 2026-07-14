@@ -49,8 +49,12 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageSubresourceRange
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageUsageFlagBits2
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageViewCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFilter
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkPresentInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerAddressMode
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerMipmapMode
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferImageCopy
@@ -394,7 +398,15 @@ class Renderer(
             transferContext::runOneTimeCommands,
             font.atlasPixelsRgba,
             font.atlasWidth,
-            font.atlasHeight
+            font.atlasHeight,
+            samplerCreateInfo = VkSamplerCreateInfo(
+                magFilter = VkFilter.VK_FILTER_NEAREST,
+                minFilter = VkFilter.VK_FILTER_NEAREST,
+                addressModeU = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                addressModeV = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                addressModeW = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                mipmapMode = VkSamplerMipmapMode.VK_SAMPLER_MIPMAP_MODE_NEAREST
+            )
         )
         fontTexture = texture
         uiGlyphRenderPipeline = UiGlyphRenderPipeline(

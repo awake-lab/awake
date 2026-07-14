@@ -16,9 +16,12 @@ import io.ygdrasil.webgpu.ColorTargetState
 import io.ygdrasil.webgpu.Extent3D
 import io.ygdrasil.webgpu.FragmentState
 import io.ygdrasil.webgpu.GPUBindGroup
+import io.ygdrasil.webgpu.GPUAddressMode
 import io.ygdrasil.webgpu.GPUBlendFactor
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
+import io.ygdrasil.webgpu.GPUFilterMode
+import io.ygdrasil.webgpu.GPUMipmapFilterMode
 import io.ygdrasil.webgpu.GPUPrimitiveTopology
 import io.ygdrasil.webgpu.GPURenderPipeline
 import io.ygdrasil.webgpu.GPUTexture
@@ -132,7 +135,16 @@ class UiGlyphRenderPipeline(
             size = Extent3D(width = font.atlasWidth.toUInt(), height = font.atlasHeight.toUInt())
         )
         val fontTextureView = fontTexture.createView(TextureViewDescriptor())
-        val fontSampler = device.createSampler(SamplerDescriptor())
+        val fontSampler = device.createSampler(
+            SamplerDescriptor(
+                addressModeU = GPUAddressMode.ClampToEdge,
+                addressModeV = GPUAddressMode.ClampToEdge,
+                addressModeW = GPUAddressMode.ClampToEdge,
+                magFilter = GPUFilterMode.Nearest,
+                minFilter = GPUFilterMode.Nearest,
+                mipmapFilter = GPUMipmapFilterMode.Nearest
+            )
+        )
 
         bindGroup = device.createBindGroup(
             BindGroupDescriptor(
