@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.border
+import io.github.ronjunevaldoz.awake.ui.checkbox
 import io.github.ronjunevaldoz.awake.ui.clip
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
@@ -30,7 +31,6 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.slider
 import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.textureQuad
-import io.github.ronjunevaldoz.awake.ui.toggle
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.atan2
@@ -273,12 +273,15 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         config.orbitPitch = orbitCameraSystem.pitch
         config.orbitDistance = orbitCameraSystem.distance
 
+        // Checkboxes, not toggle buttons -- this is a settings LIST (several independent
+        // booleans stacked together), where a small box + label reads correctly; a toggle
+        // button (whole-row recolor) is reserved for a single standalone/exclusive control
+        // like the CAMERA MODE dropdown above. See awake:review-ui-snapshots session notes.
         panel.text("DEBUG OVERLAYS", color = SECTION_LABEL_COLOR)
-        val debugLabel = if (config.debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
-        config.debugOverlayOn = panel.toggle("debug-toggle", config.debugOverlayOn, 0f, 40f, debugLabel, modifier = WIDGET_MODIFIER)
-        config.showFrustum = panel.toggle("show-frustum", config.showFrustum, 0f, 32f, "FRUSTUM", modifier = WIDGET_MODIFIER)
-        config.showGrid = panel.toggle("show-grid", config.showGrid, 0f, 32f, "GRID", modifier = WIDGET_MODIFIER)
-        config.showMinimap = panel.toggle("show-minimap", config.showMinimap, 0f, 32f, "MINIMAP", modifier = WIDGET_MODIFIER)
+        config.debugOverlayOn = panel.checkbox("debug-toggle", config.debugOverlayOn, 0f, 32f, "DEBUG", modifier = WIDGET_MODIFIER)
+        config.showFrustum = panel.checkbox("show-frustum", config.showFrustum, 0f, 32f, "FRUSTUM", modifier = WIDGET_MODIFIER)
+        config.showGrid = panel.checkbox("show-grid", config.showGrid, 0f, 32f, "GRID", modifier = WIDGET_MODIFIER)
+        config.showMinimap = panel.checkbox("show-minimap", config.showMinimap, 0f, 32f, "MINIMAP", modifier = WIDGET_MODIFIER)
 
         // Own panel, separate from the CAMERA/DEBUG OVERLAYS column above -- previously lived
         // inline in that column (only shown while FRUSTUM was on), which shifted every widget
