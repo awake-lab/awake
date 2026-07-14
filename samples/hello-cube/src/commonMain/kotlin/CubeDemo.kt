@@ -23,11 +23,12 @@ import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.border
-import io.github.ronjunevaldoz.awake.ui.checkbox
 import io.github.ronjunevaldoz.awake.ui.clip
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.propertyCheckbox
+import io.github.ronjunevaldoz.awake.ui.propertyRow
 import io.github.ronjunevaldoz.awake.ui.slider
 import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.textureQuad
@@ -238,33 +239,41 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
     }
 
     override fun drawPanel(panel: ColumnScope) {
-        // Grouped under section labels (plain text, not a bordered panel() -- this UI library
-        // has no content auto-sizing/measure pass, so a fixed-height bordered box can't wrap
-        // these groups' variable content, e.g. the frustum sliders only appearing while
-        // FRUSTUM is on). Confirmed via a real screenshot that one undifferentiated column
-        // read as catalog-picker and per-demo config all mixed together.
+        // Studio-inspector layout: one grouped column (no more separate floating frustum
+        // panel), label|control property rows instead of a centered label baked into a big
+        // recolored rect. propertyRow() draws the label in a fixed-width left column and
+        // hands back the remaining right-hand slot for exactly one control.
         panel.text("CAMERA", color = SECTION_LABEL_COLOR)
         val modeNames = CameraMode.entries.map { it.name }
-        panel.dropdown("camera-mode", modeNames, config.cameraMode.ordinal, 0f, 32f, modifier = WIDGET_MODIFIER)?.let { picked ->
-            val newMode = CameraMode.entries[picked]
-            if (newMode == CameraMode.FREE_FLY && config.cameraMode == CameraMode.ORBIT) {
-                // Hand off orbit's current look orientation so switching modes doesn't snap
-                // free-fly to its yaw=0/pitch=0 default (looking down -Z) -- orbit's yaw/pitch
-                // describe the target-to-eye offset direction; free-fly's describe the
-                // eye-to-look-target forward direction, the exact opposite vector, which
-                // works out to negating both angles (eye position itself is already shared
-                // via the same live Camera component, so only orientation needs handing off).
-                freeFlyCameraSystem.setOrientation(-orbitCameraSystem.yaw, -orbitCameraSystem.pitch)
+        val modeSlot = panel.propertyRow("MODE", ROW_HEIGHT)
+        panel.context.absolute(modeSlot.x, modeSlot.y, font, panel.theme)
+            .dropdown("camera-mode", modeNames, config.cameraMode.ordinal, modeSlot.width, modeSlot.height, modifier = WIDGET_MODIFIER)
+            ?.let { picked ->
+                val newMode = CameraMode.entries[picked]
+                if (newMode == CameraMode.FREE_FLY && config.cameraMode == CameraMode.ORBIT) {
+                    // Hand off orbit's current look orientation so switching modes doesn't snap
+                    // free-fly to its yaw=0/pitch=0 default (looking down -Z) -- orbit's yaw/pitch
+                    // describe the target-to-eye offset direction; free-fly's describe the
+                    // eye-to-look-target forward direction, the exact opposite vector, which
+                    // works out to negating both angles (eye position itself is already shared
+                    // via the same live Camera component, so only orientation needs handing off).
+                    freeFlyCameraSystem.setOrientation(-orbitCameraSystem.yaw, -orbitCameraSystem.pitch)
+                }
+                config.cameraMode = newMode
             }
-            config.cameraMode = newMode
-        }
         // Orbit-only: FREE_FLY drives the same live Camera component with its own
         // WASD/mouse-look controls (FreeFlyCameraSystem), so these sliders would fight it --
         // only ORBIT's yaw/pitch/distance are meaningful slider targets.
         if (config.cameraMode == CameraMode.ORBIT) {
-            orbitCameraSystem.yaw = panel.slider("orbit-azimuth", -PI.toFloat(), PI.toFloat(), orbitCameraSystem.yaw, 0f, 28f, "AZIMUTH", modifier = WIDGET_MODIFIER)
-            orbitCameraSystem.pitch = panel.slider("orbit-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, orbitCameraSystem.pitch, 0f, 28f, "ELEVATION", modifier = WIDGET_MODIFIER)
-            orbitCameraSystem.distance = panel.slider("orbit-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, orbitCameraSystem.distance, 0f, 28f, "ZOOM", modifier = WIDGET_MODIFIER)
+            val azimuthSlot = panel.propertyRow("AZIMUTH", ROW_HEIGHT)
+            orbitCameraSystem.yaw = panel.context.absolute(azimuthSlot.x, azimuthSlot.y, font, panel.theme)
+                .slider("orbit-azimuth", -PI.toFloat(), PI.toFloat(), orbitCameraSystem.yaw, azimuthSlot.width, azimuthSlot.height, modifier = WIDGET_MODIFIER)
+            val elevationSlot = panel.propertyRow("ELEVATION", ROW_HEIGHT)
+            orbitCameraSystem.pitch = panel.context.absolute(elevationSlot.x, elevationSlot.y, font, panel.theme)
+                .slider("orbit-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, orbitCameraSystem.pitch, elevationSlot.width, elevationSlot.height, modifier = WIDGET_MODIFIER)
+            val zoomSlot = panel.propertyRow("ZOOM", ROW_HEIGHT)
+            orbitCameraSystem.distance = panel.context.absolute(zoomSlot.x, zoomSlot.y, font, panel.theme)
+                .slider("orbit-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, orbitCameraSystem.distance, zoomSlot.width, zoomSlot.height, modifier = WIDGET_MODIFIER)
         }
         // Written back every frame (not just when a slider moves it) -- auto-rotate/drag
         // inside OrbitCameraSystem.update() also mutate yaw/pitch/distance, and config is
@@ -273,27 +282,27 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         config.orbitPitch = orbitCameraSystem.pitch
         config.orbitDistance = orbitCameraSystem.distance
 
-        // Checkboxes, not toggle buttons -- this is a settings LIST (several independent
-        // booleans stacked together), where a small box + label reads correctly; a toggle
-        // button (whole-row recolor) is reserved for a single standalone/exclusive control
-        // like the CAMERA MODE dropdown above. See awake:review-ui-snapshots session notes.
+        // propertyCheckbox, not the plain settings-list checkbox() -- this section now shares
+        // the same label|value column rhythm as CAMERA above (one grouped inspector, not a
+        // separately-styled list), box right-aligned to the row's own right edge.
         panel.text("DEBUG OVERLAYS", color = SECTION_LABEL_COLOR)
-        config.debugOverlayOn = panel.checkbox("debug-toggle", config.debugOverlayOn, 0f, 32f, "DEBUG", modifier = WIDGET_MODIFIER)
-        config.showFrustum = panel.checkbox("show-frustum", config.showFrustum, 0f, 32f, "FRUSTUM", modifier = WIDGET_MODIFIER)
-        config.showGrid = panel.checkbox("show-grid", config.showGrid, 0f, 32f, "GRID", modifier = WIDGET_MODIFIER)
-        config.showMinimap = panel.checkbox("show-minimap", config.showMinimap, 0f, 32f, "MINIMAP", modifier = WIDGET_MODIFIER)
-
-        // Own panel, separate from the CAMERA/DEBUG OVERLAYS column above -- previously lived
-        // inline in that column (only shown while FRUSTUM was on), which shifted every widget
-        // below it up/down as the toggle flipped. A dedicated left-side panel keeps the main
-        // column's layout stable regardless of FRUSTUM's state.
+        config.debugOverlayOn = panel.propertyCheckbox("debug-toggle", config.debugOverlayOn, "DEBUG", ROW_HEIGHT, modifier = WIDGET_MODIFIER)
+        config.showFrustum = panel.propertyCheckbox("show-frustum", config.showFrustum, "FRUSTUM", ROW_HEIGHT, modifier = WIDGET_MODIFIER)
+        // Nested directly under FRUSTUM's own row (no more separate floating panel elsewhere
+        // on screen) -- "F." prefix reads as a sub-item of the checkbox immediately above.
         if (config.showFrustum) {
-            val frustumPanel = ui.column(x = FRUSTUM_PANEL_MARGIN, y = FRUSTUM_PANEL_Y, width = FRUSTUM_PANEL_WIDTH, font = font)
-            frustumPanel.text("FRUSTUM", color = SECTION_LABEL_COLOR)
-            config.frustumYaw = frustumPanel.slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), config.frustumYaw, 0f, 28f, "F.AZIMUTH", modifier = WIDGET_MODIFIER)
-            config.frustumPitch = frustumPanel.slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, config.frustumPitch, 0f, 28f, "F.ELEVATION", modifier = WIDGET_MODIFIER)
-            config.frustumDistance = frustumPanel.slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, config.frustumDistance, 0f, 28f, "F.ZOOM", modifier = WIDGET_MODIFIER)
+            val fAzimuthSlot = panel.propertyRow("F.AZIMUTH", ROW_HEIGHT)
+            config.frustumYaw = panel.context.absolute(fAzimuthSlot.x, fAzimuthSlot.y, font, panel.theme)
+                .slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), config.frustumYaw, fAzimuthSlot.width, fAzimuthSlot.height, modifier = WIDGET_MODIFIER)
+            val fElevationSlot = panel.propertyRow("F.ELEVATION", ROW_HEIGHT)
+            config.frustumPitch = panel.context.absolute(fElevationSlot.x, fElevationSlot.y, font, panel.theme)
+                .slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, config.frustumPitch, fElevationSlot.width, fElevationSlot.height, modifier = WIDGET_MODIFIER)
+            val fZoomSlot = panel.propertyRow("F.ZOOM", ROW_HEIGHT)
+            config.frustumDistance = panel.context.absolute(fZoomSlot.x, fZoomSlot.y, font, panel.theme)
+                .slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, config.frustumDistance, fZoomSlot.width, fZoomSlot.height, modifier = WIDGET_MODIFIER)
         }
+        config.showGrid = panel.propertyCheckbox("show-grid", config.showGrid, "GRID", ROW_HEIGHT, modifier = WIDGET_MODIFIER)
+        config.showMinimap = panel.propertyCheckbox("show-minimap", config.showMinimap, "MINIMAP", ROW_HEIGHT, modifier = WIDGET_MODIFIER)
 
         // Recomputes homeCameraSnapshot.eye/center every frame regardless of showFrustum (cheap
         // trig) since the minimap (below) always renders from this camera and must stay in
@@ -327,9 +336,10 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
             // what the frustum camera sees, not an unrelated fixed overhead view.
             renderer.renderToTexture(minimapTarget, homeCameraSnapshot, sampleDrawCalls())
             val size = MINIMAP_SIZE.toFloat()
-            // Top-left, not top-right -- the whole right edge is now the settings panel
-            // column above, so the minimap preview has the top-left corner free instead.
-            ui.absolute(20f, 20f).textureQuad(size, size, minimapMaterial)
+            // Top-left, below the demo picker -- the old separate frustum panel that used to
+            // occupy this spot is gone now (folded into the inspector column on the right), so
+            // this stays free. Bottom-left is already the debug HUD text readout.
+            ui.absolute(20f, 60f).textureQuad(size, size, minimapMaterial)
         }
     }
 
@@ -389,11 +399,10 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         // them used UiModifier at all despite the library supporting it (see UiModifier.kt).
         private val WIDGET_MODIFIER = UiModifier().clip(UiShape.sm).border(1f.dp)
 
-        // Own left-side panel for the frustum sliders -- below the demo picker (y 20-60) and
-        // the minimap preview (y 20-180, when shown), so it doesn't overlap either.
-        private const val FRUSTUM_PANEL_MARGIN = 20f
-        private const val FRUSTUM_PANEL_Y = 200f
-        private const val FRUSTUM_PANEL_WIDTH = 160f
+        // Studio-inspector row height -- shared by every propertyRow()/propertyCheckbox() call
+        // in drawPanel() so the whole column reads as one consistent grid, not per-widget
+        // literal heights scattered across the function.
+        private const val ROW_HEIGHT = 26f
 
         // Upper bound for the orbit-zoom slider -- well past OrbitCameraSystem's own
         // DEFAULT_DISTANCE (8f), enough room to zoom out and see the whole cube+frustum.

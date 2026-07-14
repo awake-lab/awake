@@ -265,6 +265,67 @@ fun UiScope.text(
     }
 }
 
+/** One property-inspector row: [label] drawn left in a fixed [labelWidth] column (studio-style
+ * label|control layout -- a Blender/Unity-inspector row -- not the centered-label-over-a-big-
+ * rect look every other widget here uses), returning the remaining right-hand [UiSlot] for the
+ * caller to place exactly one control into, e.g.
+ * `context.absolute(valueSlot.x, valueSlot.y, font, theme).slider(..., valueSlot.width, valueSlot.height, label = null, ...)`
+ * ([label] passed to the control itself should stay `null` -- this row already drew one).
+ * Claims a full-width row on whatever scope it's called from (typically a [ColumnScope]). */
+fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): UiSlot {
+    val rowSlot = claimSlot(Dimension.FillMax, height.toDimension())
+    val labelWidthPx = labelWidth.toPx()
+    val resolvedFont = font
+    if (resolvedFont != null) {
+        val labelSlot = UiSlot(rowSlot.x, rowSlot.y + (rowSlot.height - resolvedFont.cellSize) / 2f, labelWidthPx, resolvedFont.cellSize.toFloat())
+        text(label, labelSlot, font = resolvedFont, color = theme.tokens.mutedForeground, centered = false)
+    }
+    val gap = 8f
+    return UiSlot(rowSlot.x + labelWidthPx + gap, rowSlot.y, (rowSlot.width - labelWidthPx - gap).coerceAtLeast(0f), rowSlot.height)
+}
+
+/** [propertyRow]'s checkbox counterpart -- [label] left (same column/color as [propertyRow]),
+ * a small checkbox box right-aligned to the row's own right edge (matching a studio inspector's
+ * property-row convention), whole row still the click/hit-test target (not just the small box),
+ * same press/release-while-hovered semantics [buttonSlot] establishes. Distinct from [checkbox]
+ * (box left, label immediately right of it, no fixed label column) -- that shape fits a plain
+ * settings list; this one fits a label|value inspector row. */
+fun UiScope.propertyCheckbox(
+    id: String,
+    checked: Boolean,
+    label: String,
+    height: Float,
+    modifier: UiModifier = UiModifier(),
+    style: UiStyle? = null,
+    boxSize: Dp = 16f.dp
+): Boolean {
+    val slot = claimSlot(Dimension.FillMax, height.toDimension())
+    val hovered = hitTest(slot)
+    tryClaimActive(id, hovered)
+    val wasActiveBeforeRelease = isActive(id)
+    releaseActiveIfMatches(id)
+    val clicked = wasActiveBeforeRelease && !isActive(id) && hovered
+    val newChecked = if (clicked) !checked else checked
+
+    val resolvedFont = font
+    if (resolvedFont != null) {
+        val labelSlot = UiSlot(slot.x, slot.y + (slot.height - resolvedFont.cellSize) / 2f, slot.width, resolvedFont.cellSize.toFloat())
+        text(label, labelSlot, font = resolvedFont, color = theme.tokens.mutedForeground, centered = false)
+    }
+
+    val boxPx = boxSize.toPx()
+    val boxSlot = UiSlot(slot.x + slot.width - boxPx, slot.y + (slot.height - boxPx) / 2f, boxPx, boxPx)
+    val resolvedStyle = style ?: theme.tokens.neutralStyle()
+    val radiusPx = (modifier.shape ?: UiShape.none).toPx()
+    val boxColor = resolvedStyle.colorFor(UiWidgetState(hovered, isActive(id)))
+    emitFillAndBorder(boxSlot, boxColor, radiusPx, modifier.borderWidth ?: 1f.dp, modifier.borderColor ?: theme.tokens.border)
+    if (newChecked) {
+        val inset = boxPx * 0.25f
+        emitInsetAccent(boxSlot, inset, radiusPx)
+    }
+    return newChecked
+}
+
 /** Draws [material]'s sampled image (typically a `RenderTarget`-backed `Material` -- see
  * [UiDrawPrimitive.Texture]'s doc comment for why this is untyped) as a screen-space quad.
  * Unlike [text]/[button]/[toggle], this has no hit-testing/interaction state -- purely a
