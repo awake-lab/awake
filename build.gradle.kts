@@ -34,3 +34,24 @@ allprojects {
     group = "io.github.ronjunevaldoz"
     version = "1.0.0-SNAPSHOT"
 }
+
+tasks.register("developerDocs") {
+    group = "documentation"
+    description = "Build developer-facing API references and tutorial artifacts."
+    dependsOn(
+        ":awake:base:dokkaGeneratePublicationHtml",
+        ":awake:ecs:dokkaGeneratePublicationHtml",
+        ":awake:engine:dokkaGeneratePublicationHtml",
+        ":awake:engine:game:dokkaGeneratePublicationHtml",
+        ":awake:engine:render-api:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui-core:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui-designsystem:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui-widgets:dokkaGeneratePublicationHtml",
+        ":awake:physics:api:dokkaGeneratePublicationHtml",
+        ":awake:scene:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui-widgets:desktopTest",
+        ":awake:engine:ui-widgets:uiSnapshotReport",
+        ":awake:engine:ui-widgets:uiTutorialDocsReport"
+    )
+}

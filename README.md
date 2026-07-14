@@ -33,6 +33,18 @@ plan and [docs/MVP_PLAN.md](docs/MVP_PLAN.md) for near-term status.
 - [`samples:hello-cube`](samples/hello-cube) — the demo/starter project (see "Running the Demo"
   below)
 
+### Docs
+
+- Developer docs workflow: [docs/reference/developer-docs.md](docs/reference/developer-docs.md)
+- Build the current API references plus UI tutorial artifacts:
+  ```
+  ./gradlew developerDocs
+  ```
+- UI tutorial output lands at
+  `awake/engine/ui-widgets/build/reports/ui-tutorials/index.html`
+  and the broader visual snapshot gallery lands at
+  `awake/engine/ui-widgets/build/reports/ui-snapshots/index.html`
+
 ### Running the Demo
 
 [`samples:hello-cube`](samples/hello-cube): a single cube with an orbit/free-fly camera and a

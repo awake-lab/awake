@@ -44,7 +44,12 @@ kotlin {
 }
 
 tasks.named<Test>("desktopTest") {
-    finalizedBy("uiSnapshotReport")
+    doFirst {
+        delete(layout.buildDirectory.dir("ui-snapshots"))
+        delete(layout.buildDirectory.dir("reports/ui-snapshots"))
+        delete(layout.buildDirectory.dir("reports/ui-tutorials"))
+    }
+    finalizedBy("uiSnapshotReport", "uiTutorialDocsReport")
 }
 
 tasks.register("uiSnapshotReport") {
@@ -83,5 +88,82 @@ tasks.register("uiSnapshotReport") {
         out.parentFile.mkdirs()
         out.writeText(html)
         println("UI snapshot report: file://${out.absolutePath}")
+    }
+}
+
+tasks.register("uiTutorialDocsReport") {
+    group = "documentation"
+    description = "Generate an HTML tutorial guide from curated UI tutorial snapshots."
+    val snapshotsDir = layout.buildDirectory.dir("ui-snapshots")
+    val manifestFile = layout.buildDirectory.file("ui-snapshots/tutorials.tsv")
+    val reportFile = layout.buildDirectory.file("reports/ui-tutorials/index.html")
+    doLast {
+        val root = snapshotsDir.get().asFile
+        val manifest = manifestFile.get().asFile
+        val tutorials = if (manifest.exists()) {
+            manifest.readLines()
+                .filter { it.isNotBlank() }
+                .mapNotNull { line ->
+                    val columns = line.split('\t')
+                    if (columns.size < 5) null else columns
+                }
+                .sortedBy { it[0] }
+        } else {
+            emptyList()
+        }
+
+        val cards = tutorials.joinToString("\n") { columns ->
+            val name = columns[0]
+            val title = columns[1]
+            val summary = columns[2]
+            val width = columns[3]
+            val height = columns[4]
+            val png = File(root, "$name.png")
+            val image = if (png.exists()) {
+                val base64 = Base64.getEncoder().encodeToString(png.readBytes())
+                """<img src="data:image/png;base64,$base64" alt="$title" style="image-rendering:pixelated;border:1px solid #444;max-width:100%" />"""
+            } else {
+                """<p style="color:#f88">Missing snapshot: $name.png</p>"""
+            }
+            """
+            <article style="margin:0 0 2rem 0;padding:1rem;border:1px solid #333;border-radius:8px;background:#252525">
+                <h2 style="margin-top:0">$title</h2>
+                <p style="color:#cfcfcf">$summary</p>
+                <p style="color:#8f8f8f;font-size:0.9rem">Snapshot: ${width}x$height</p>
+                $image
+            </article>
+            """.trimIndent()
+        }
+
+        val body = if (cards.isBlank()) {
+            """
+            <p>No tutorial snapshots recorded.</p>
+            <p>Run <code>./gradlew :awake:engine:ui-widgets:desktopTest</code> to regenerate them.</p>
+            """.trimIndent()
+        } else {
+            """
+            <p style="color:#cfcfcf">Curated UI tutorials generated from desktop snapshot tests. Add new entries with <code>saveUiTutorialSnapshot(...)</code>.</p>
+            $cards
+            """.trimIndent()
+        }
+
+        val html = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>UI tutorial docs</title>
+            </head>
+            <body style="font-family:sans-serif;background:#1e1e1e;color:#eee;padding:2rem;max-width:1100px;margin:0 auto">
+                <h1>UI tutorial docs</h1>
+                $body
+            </body>
+            </html>
+        """.trimIndent()
+
+        val out = reportFile.get().asFile
+        out.parentFile.mkdirs()
+        out.writeText(html)
+        println("UI tutorial docs: file://${out.absolutePath}")
     }
 }

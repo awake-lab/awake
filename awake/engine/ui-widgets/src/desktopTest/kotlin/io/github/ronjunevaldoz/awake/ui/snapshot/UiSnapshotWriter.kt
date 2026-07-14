@@ -7,6 +7,8 @@ import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 
+private val tutorialManifestLock = Any()
+
 /**
  * Rasterizes [primitives] ([rasterize]) and writes it as a real, viewable PNG under
  * `build/ui-snapshots/[name].png` -- desktop JVM only (`javax.imageio`, same as
@@ -39,4 +41,35 @@ fun saveUiSnapshot(
     }
     val outDir = File("build/ui-snapshots").apply { mkdirs() }
     ImageIO.write(image, "png", File(outDir, "$name.png"))
+}
+
+fun saveUiTutorialSnapshot(
+    name: String,
+    title: String,
+    summary: String,
+    primitives: List<UiDrawPrimitive>,
+    width: Int,
+    height: Int,
+    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+) {
+    saveUiSnapshot(name, primitives, width, height, background)
+
+    synchronized(tutorialManifestLock) {
+        val manifest = File("build/ui-snapshots/tutorials.tsv")
+        manifest.parentFile.mkdirs()
+        val escapedSummary = summary.replace('\t', ' ').replace('\n', ' ')
+        val escapedTitle = title.replace('\t', ' ').replace('\n', ' ')
+        val line = listOf(name, escapedTitle, escapedSummary, width.toString(), height.toString()).joinToString("\t")
+        val entries = linkedMapOf<String, String>()
+        if (manifest.exists()) {
+            manifest.readLines()
+                .filter { it.isNotBlank() }
+                .forEach { existing ->
+                    val key = existing.substringBefore('\t')
+                    entries[key] = existing
+                }
+        }
+        entries[name] = line
+        manifest.writeText(entries.values.joinToString(separator = "\n", postfix = "\n"))
+    }
 }
