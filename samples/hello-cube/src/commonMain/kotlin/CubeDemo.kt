@@ -272,15 +272,6 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         config.orbitYaw = orbitCameraSystem.yaw
         config.orbitPitch = orbitCameraSystem.pitch
         config.orbitDistance = orbitCameraSystem.distance
-        // Frustum camera sliders -- only shown while FRUSTUM is on (toggled in the DEBUG
-        // OVERLAYS section below; reads last frame's value here, one frame of display lag on
-        // the very toggle click, same as this immediate-mode architecture's usual "you own
-        // your state, call order affects what THIS frame reads" contract elsewhere).
-        if (config.showFrustum) {
-            config.frustumYaw = panel.slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), config.frustumYaw, 0f, 28f, "F.AZIMUTH", modifier = WIDGET_MODIFIER)
-            config.frustumPitch = panel.slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, config.frustumPitch, 0f, 28f, "F.ELEVATION", modifier = WIDGET_MODIFIER)
-            config.frustumDistance = panel.slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, config.frustumDistance, 0f, 28f, "F.ZOOM", modifier = WIDGET_MODIFIER)
-        }
 
         panel.text("DEBUG OVERLAYS", color = SECTION_LABEL_COLOR)
         val debugLabel = if (config.debugOverlayOn) "DEBUG: ON" else "DEBUG: OFF"
@@ -288,6 +279,18 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         config.showFrustum = panel.toggle("show-frustum", config.showFrustum, 0f, 32f, "FRUSTUM", modifier = WIDGET_MODIFIER)
         config.showGrid = panel.toggle("show-grid", config.showGrid, 0f, 32f, "GRID", modifier = WIDGET_MODIFIER)
         config.showMinimap = panel.toggle("show-minimap", config.showMinimap, 0f, 32f, "MINIMAP", modifier = WIDGET_MODIFIER)
+
+        // Own panel, separate from the CAMERA/DEBUG OVERLAYS column above -- previously lived
+        // inline in that column (only shown while FRUSTUM was on), which shifted every widget
+        // below it up/down as the toggle flipped. A dedicated left-side panel keeps the main
+        // column's layout stable regardless of FRUSTUM's state.
+        if (config.showFrustum) {
+            val frustumPanel = ui.column(x = FRUSTUM_PANEL_MARGIN, y = FRUSTUM_PANEL_Y, width = FRUSTUM_PANEL_WIDTH, font = font)
+            frustumPanel.text("FRUSTUM", color = SECTION_LABEL_COLOR)
+            config.frustumYaw = frustumPanel.slider("frustum-azimuth", -PI.toFloat(), PI.toFloat(), config.frustumYaw, 0f, 28f, "F.AZIMUTH", modifier = WIDGET_MODIFIER)
+            config.frustumPitch = frustumPanel.slider("frustum-elevation", OrbitCameraSystem.MIN_PITCH, OrbitCameraSystem.MAX_PITCH, config.frustumPitch, 0f, 28f, "F.ELEVATION", modifier = WIDGET_MODIFIER)
+            config.frustumDistance = frustumPanel.slider("frustum-zoom", OrbitCameraSystem.MIN_DISTANCE, MAX_ZOOM_DISTANCE, config.frustumDistance, 0f, 28f, "F.ZOOM", modifier = WIDGET_MODIFIER)
+        }
 
         // Recomputes homeCameraSnapshot.eye/center every frame regardless of showFrustum (cheap
         // trig) since the minimap (below) always renders from this camera and must stay in
@@ -382,6 +385,12 @@ class CubeDemo(private val ui: UiContext, private val font: BitmapFont, private 
         // Shared shape/border look for this panel's interactive widgets -- previously none of
         // them used UiModifier at all despite the library supporting it (see UiModifier.kt).
         private val WIDGET_MODIFIER = UiModifier().clip(UiShape.sm).border(1f.dp)
+
+        // Own left-side panel for the frustum sliders -- below the demo picker (y 20-60) and
+        // the minimap preview (y 20-180, when shown), so it doesn't overlap either.
+        private const val FRUSTUM_PANEL_MARGIN = 20f
+        private const val FRUSTUM_PANEL_Y = 200f
+        private const val FRUSTUM_PANEL_WIDTH = 160f
 
         // Upper bound for the orbit-zoom slider -- well past OrbitCameraSystem's own
         // DEFAULT_DISTANCE (8f), enough room to zoom out and see the whole cube+frustum.
