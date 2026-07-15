@@ -113,12 +113,33 @@ val spec = feature.createGameSpec {
 }
 ```
 
+### Multi-feature sample shape
+
+When a sample grows beyond one authored concern, keep the composition slices separate and
+compose them at the app layer:
+
+```kotlin
+fun starterGameModule(state: StarterGameRuntimeState): GameModule = gameModule {
+    module(starterSceneModule())
+    module(starterUiModule(state))
+    module(starterDebugModule(state))
+}
+```
+
+That keeps:
+
+- scene flow in a scene-owned feature module
+- overlays in a UI-owned feature module
+- debug wiring in a debug-owned feature module
+- the app shell responsible only for choosing how those pieces are assembled
+
 ## Proof
 
 The cookbook examples above are backed by executable tests and a generated report:
 
 - [awake/engine/game-dsl/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/engine/application/GameDslTutorialDocsTest.kt](/Users/ronvaldoz/StudioProjects/awaken/awake/engine/game-dsl/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/engine/application/GameDslTutorialDocsTest.kt:1)
 - `awake/engine/game-dsl/build/reports/game-dsl-tutorials/index.html`
+- [samples/starter-game/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/sample/startergame/app/StarterGameTest.kt](/Users/ronvaldoz/StudioProjects/awaken/samples/starter-game/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/sample/startergame/app/StarterGameTest.kt:1)
 
 Regenerate with:
 

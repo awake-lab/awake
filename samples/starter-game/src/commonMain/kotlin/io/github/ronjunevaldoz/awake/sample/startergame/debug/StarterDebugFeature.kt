@@ -1,23 +1,18 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.sample.startergame.app
+package io.github.ronjunevaldoz.awake.sample.startergame.debug
 
 import io.github.ronjunevaldoz.awake.engine.application.GameModule
 import io.github.ronjunevaldoz.awake.engine.application.gameModule
-import io.github.ronjunevaldoz.awake.sample.startergame.debug.starterDebugModule
-import io.github.ronjunevaldoz.awake.sample.startergame.scene.starterSceneModule
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
-import io.github.ronjunevaldoz.awake.sample.startergame.ui.starterUiModule
 
-internal fun starterGameModule(
+internal fun starterDebugModule(
     state: StarterGameRuntimeState,
     websocketControlsEnabled: Boolean = true
 ): GameModule {
     return gameModule {
-        module(starterSceneModule())
-        module(starterUiModule(state))
-        module(
-            starterDebugModule(
+        install(
+            starterGameDebugInstaller(
                 state = state,
                 websocketControlsEnabled = websocketControlsEnabled
             )

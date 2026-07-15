@@ -17,8 +17,12 @@ import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.sample.startergame.debug.starterGameDebugConfig
 import io.github.ronjunevaldoz.awake.sample.startergame.debug.starterGameDebugController
+import io.github.ronjunevaldoz.awake.sample.startergame.debug.starterDebugModule
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_EDITOR
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_OVERVIEW
+import io.github.ronjunevaldoz.awake.sample.startergame.scene.starterSceneModule
+import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
+import io.github.ronjunevaldoz.awake.sample.startergame.ui.starterUiModule
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -64,7 +68,7 @@ class StarterGameTest {
     @Test
     fun starterGameModuleStaysComposable() = runTest {
         val renderer = RecordingRenderer()
-        val state = io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState()
+        val state = StarterGameRuntimeState()
         val game = gameSpec {
             window {
                 title = "Starter Facade"
@@ -82,6 +86,33 @@ class StarterGameTest {
         game.render(0.016f, 800f, 600f)
 
         assertEquals("overview", game.requireService<SceneRouterRuntime>().activeSceneId)
+        assertTrue(!game.starterGameDebugConfig.websocketControlsEnabled)
+    }
+
+    @Test
+    fun starterGameFeaturesCanComposeIndividually() = runTest {
+        val renderer = RecordingRenderer()
+        val state = StarterGameRuntimeState()
+        val game = gameSpec {
+            window {
+                title = "Starter Features"
+                size(1024, 640)
+            }
+            module(starterSceneModule())
+            module(starterUiModule(state))
+            module(
+                starterDebugModule(
+                    state = state,
+                    websocketControlsEnabled = false
+                )
+            )
+        }.createGame()
+
+        game.ready(renderer)
+        game.render(0.016f, 1024f, 640f)
+
+        assertEquals(STARTER_SCENE_OVERVIEW, game.requireService<SceneRouterRuntime>().activeSceneId)
+        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
         assertTrue(!game.starterGameDebugConfig.websocketControlsEnabled)
     }
 
