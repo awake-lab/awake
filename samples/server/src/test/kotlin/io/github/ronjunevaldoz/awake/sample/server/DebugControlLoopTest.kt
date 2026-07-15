@@ -12,12 +12,17 @@ class DebugControlLoopTest {
 
     @Test
     fun beforeFrameAppliesCommandsAndCompletesResponses() = runBlocking {
-        val transport = RecordingDebugControlTransport<String, String>()
+        val transport = RecordingDebugTransport<String, String>()
         val handled = mutableListOf<String>()
-        val loop = DebugControlLoop(
+        val loop = DebugServiceLoop(
             transport = transport,
-            applyCommand = handled::add,
-            snapshot = { handled.joinToString(separator = ",") }
+            service = object : DebugService<String, String> {
+                override fun handle(command: String) {
+                    handled += command
+                }
+
+                override fun snapshot(): String = handled.joinToString(separator = ",")
+            }
         )
 
         loop.start()
@@ -33,17 +38,22 @@ class DebugControlLoopTest {
 
     @Test
     fun optionalHelperStartsAndStopsLoopExactlyOnce() = runBlocking {
-        val transport = RecordingDebugControlTransport<String, String>()
+        val transport = RecordingDebugTransport<String, String>()
         val handled = mutableListOf<String>()
         val deferred = transport.enqueue("switch:overview")
 
-        withOptionalDebugControlLoop(
+        withOptionalDebugLoop(
             enabled = true,
             createLoop = {
-                DebugControlLoop(
+                DebugServiceLoop(
                     transport = transport,
-                    applyCommand = handled::add,
-                    snapshot = { handled.joinToString(separator = ",") }
+                    service = object : DebugService<String, String> {
+                        override fun handle(command: String) {
+                            handled += command
+                        }
+
+                        override fun snapshot(): String = handled.joinToString(separator = ",")
+                    }
                 )
             }
         ) { beforeFrame, afterLoop ->
@@ -62,7 +72,7 @@ class DebugControlLoopTest {
     fun optionalHelperSkipsLoopWhenDisabled() {
         var runCalls = 0
 
-        withOptionalDebugControlLoop<String, String>(
+        withOptionalDebugLoop<String, String>(
             enabled = false,
             createLoop = { error("should not build loop") }
         ) { beforeFrame, afterLoop ->
@@ -79,11 +89,11 @@ class DebugControlLoopTest {
         var beforeFrameCalls = 0
         var afterLoopCalls = 0
 
-        withOptionalDebugControlLoop<String, String>(
+        withOptionalDebugLoop<String, String>(
             enabled = true,
             createLoop = {
-                DebugControlLoop(
-                    transport = object : DebugControlTransport<String, String> {
+                DebugServiceLoop(
+                    transport = object : DebugTransport<String, String> {
                         override fun start() {
                             throw BindException(AWAKE_DEBUG_CONTROL_PORT.toString())
                         }
@@ -92,8 +102,11 @@ class DebugControlLoopTest {
 
                         override fun stop() = Unit
                     },
-                    applyCommand = {},
-                    snapshot = { "" }
+                    service = object : DebugService<String, String> {
+                        override fun handle(command: String) = Unit
+
+                        override fun snapshot(): String = ""
+                    }
                 )
             }
         ) { beforeFrame, afterLoop ->

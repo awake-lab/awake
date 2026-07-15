@@ -25,7 +25,14 @@ import io.github.ronjunevaldoz.awake.ui.panel
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.size
 import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
 import kotlin.test.Test
 
 /**
@@ -193,6 +200,70 @@ class UiTutorialDocsTest {
             width = 340,
             height = 220,
             background = CoreUiTheme.tokens.background,
+            font = font
+        )
+    }
+
+    @Test
+    fun awakeShadcnShowcaseTutorial() {
+        val font = BitmapFont()
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(420f, 250f)
+
+        ui.ui(x = 18f, y = 18f, width = 384f, font = font, theme = AwakeShadcnTheme, gap = 10f) {
+            awakeShadcnSurface(
+                id = "shadcn-showcase",
+                width = Dimension.Fixed(384f.px),
+                height = Dimension.Fixed(214f.px)
+            ) {
+                text("Awake Shadcn")
+                text(
+                    "Owned components layered over Awake widgets.",
+                    style = Style { foreground(AwakeShadcnTheme.tokens.mutedForeground) }
+                )
+                spacer(6f)
+                row(height = 36f, gap = 8f) {
+                    awakeShadcnButton("showcase-doc-primary", 112f, 36f, "Primary", variant = AwakeShadcnButtonVariant.Primary)
+                    awakeShadcnButton("showcase-doc-secondary", 112f, 36f, "Secondary", variant = AwakeShadcnButtonVariant.Secondary)
+                    awakeShadcnButton("showcase-doc-outline", 112f, 36f, "Outline", variant = AwakeShadcnButtonVariant.Outline)
+                }
+                row(height = 28f, gap = 8f) {
+                    awakeShadcnBadge("LIVE", variant = AwakeShadcnBadgeVariant.Primary)
+                    awakeShadcnBadge("NEUTRAL", variant = AwakeShadcnBadgeVariant.Secondary)
+                    awakeShadcnBadge("BETA", variant = AwakeShadcnBadgeVariant.Outline)
+                    awakeShadcnBadge("RISK", variant = AwakeShadcnBadgeVariant.Danger)
+                }
+                spacer(6f)
+                awakeShadcnSurface(
+                    id = "shadcn-subcard",
+                    height = Dimension.Fixed(82f.px),
+                    style = Style {
+                        background(AwakeShadcnTheme.tokens.background)
+                    }
+                ) {
+                    text("Preview Card")
+                    text(
+                        "A nested card keeps the same tokens and border language.",
+                        style = Style { foreground(AwakeShadcnTheme.tokens.mutedForeground) }
+                    )
+                    spacer(4f)
+                    row(height = 32f, gap = 8f) {
+                        awakeShadcnButton("showcase-doc-ghost", 96f, 32f, "Ghost", variant = AwakeShadcnButtonVariant.Ghost)
+                        awakeShadcnButton("showcase-doc-danger", 96f, 32f, "Danger", variant = AwakeShadcnButtonVariant.Danger)
+                    }
+                }
+            }
+        }
+
+        saveUiTutorialSnapshot(
+            name = "ui-awake-shadcn-showcase",
+            title = "Awake Shadcn Showcase",
+            summary = "The starter design-system layer can already express a recognizable shadcn-style component set while staying fully inside Awake's owned widget stack.",
+            primitives = ui.endFrame(),
+            width = 420,
+            height = 250,
+            background = AwakeShadcnTheme.tokens.background,
             font = font
         )
     }

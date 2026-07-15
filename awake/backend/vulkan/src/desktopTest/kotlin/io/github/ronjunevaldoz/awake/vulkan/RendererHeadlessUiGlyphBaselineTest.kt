@@ -41,6 +41,77 @@ class RendererHeadlessUiGlyphBaselineTest {
 
     @Test
     fun headlessUiGlyphRenderMatchesBaseline() {
+        withHeadlessUiRenderer { renderer ->
+            val font = BitmapFont()
+            val target = renderer.createRenderTarget(TARGET_SIZE, TARGET_SIZE)
+            val glyphs = buildList {
+                addAll(glyphRun("AWAKE", font, x = 14f, y = 18f, scale = 2f, color = floatArrayOf(0.96f, 0.97f, 1f, 1f)))
+                addAll(glyphRun("UI_01", font, x = 16f, y = 54f, scale = 2f, color = floatArrayOf(0.6f, 0.78f, 1f, 1f)))
+            }
+
+            renderer.renderUiGlyphsToTexture(target, glyphs, font)
+            val pixels = runBlocking { renderer.readPixels(target) }
+
+            val baselineFile = baselineOutputFile()
+            if (!baselineFile.exists()) {
+                baselineFile.parentFile.mkdirs()
+                baselineFile.writeBytes(pixels.data)
+                assertTrue(
+                    false,
+                    "Recorded missing UI glyph baseline to ${baselineFile.absolutePath}. Review and rerun the test."
+                )
+            }
+
+            val baseline = baselineFile.readBytes()
+            val result = comparePixels(pixels.data, baseline)
+            if (!result.matches) {
+                val failureDir = File("build/test-failures/RendererHeadlessUiGlyphBaselineTest").apply { mkdirs() }
+                val actualPngFile = File(failureDir, "actual.png")
+                val baselinePngFile = File(failureDir, "baseline.png")
+                writeUiBaselinePng(pixels.data, TARGET_SIZE, TARGET_SIZE, actualPngFile)
+                writeUiBaselinePng(baseline, TARGET_SIZE, TARGET_SIZE, baselinePngFile)
+                assertTrue(
+                    false,
+                    "Headless UI glyph render diverged from baseline: ${result.diffPixelCount} pixels differ " +
+                        "(max channel diff ${result.maxChannelDiff}). Compare ${actualPngFile.absolutePath} " +
+                        "against ${baselinePngFile.absolutePath}. Re-record ${baselineFile.absolutePath} if this " +
+                        "is an intentional renderer change."
+                )
+            }
+        }
+    }
+
+    @Test
+    fun headlessUiGlyphRenderSupportsRunsLargerThanOneDynamicMesh() {
+        withHeadlessUiRenderer { renderer ->
+            val font = BitmapFont()
+            val target = renderer.createRenderTarget(512, 512)
+            val glyphs = buildList {
+                repeat(12) { row ->
+                    addAll(
+                        glyphRun(
+                            label = "AWAKE_SHOWCASE_ROW_${row.toString().padStart(2, '0')}_0123456789",
+                            font = font,
+                            x = 12f,
+                            y = 12f + row * 38f,
+                            scale = 1.5f,
+                            color = floatArrayOf(0.92f, 0.95f, 1f, 1f)
+                        )
+                    )
+                }
+            }
+
+            assertTrue(glyphs.size > Renderer.MAX_UI_QUADS, "test data must exceed one UI glyph mesh capacity")
+            renderer.renderUiGlyphsToTexture(target, glyphs, font)
+            val pixels = runBlocking { renderer.readPixels(target) }
+            assertTrue(
+                pixels.data.any { it.toInt() != 0 },
+                "large headless glyph runs should render non-empty output instead of tripping the mesh capacity guard"
+            )
+        }
+    }
+
+    private fun withHeadlessUiRenderer(block: (Renderer) -> Unit) {
         val graphicsDevice = GraphicsDevice()
         graphicsDevice.createHeadless()
         val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
@@ -80,42 +151,7 @@ class RendererHeadlessUiGlyphBaselineTest {
         )
 
         try {
-            val font = BitmapFont()
-            val target = renderer.createRenderTarget(TARGET_SIZE, TARGET_SIZE)
-            val glyphs = buildList {
-                addAll(glyphRun("AWAKE", font, x = 14f, y = 18f, scale = 2f, color = floatArrayOf(0.96f, 0.97f, 1f, 1f)))
-                addAll(glyphRun("UI_01", font, x = 16f, y = 54f, scale = 2f, color = floatArrayOf(0.6f, 0.78f, 1f, 1f)))
-            }
-
-            renderer.renderUiGlyphsToTexture(target, glyphs, font)
-            val pixels = runBlocking { renderer.readPixels(target) }
-
-            val baselineFile = baselineOutputFile()
-            if (!baselineFile.exists()) {
-                baselineFile.parentFile.mkdirs()
-                baselineFile.writeBytes(pixels.data)
-                assertTrue(
-                    false,
-                    "Recorded missing UI glyph baseline to ${baselineFile.absolutePath}. Review and rerun the test."
-                )
-            }
-
-            val baseline = baselineFile.readBytes()
-            val result = comparePixels(pixels.data, baseline)
-            if (!result.matches) {
-                val failureDir = File("build/test-failures/RendererHeadlessUiGlyphBaselineTest").apply { mkdirs() }
-                val actualPngFile = File(failureDir, "actual.png")
-                val baselinePngFile = File(failureDir, "baseline.png")
-                writeUiBaselinePng(pixels.data, TARGET_SIZE, TARGET_SIZE, actualPngFile)
-                writeUiBaselinePng(baseline, TARGET_SIZE, TARGET_SIZE, baselinePngFile)
-                assertTrue(
-                    false,
-                    "Headless UI glyph render diverged from baseline: ${result.diffPixelCount} pixels differ " +
-                        "(max channel diff ${result.maxChannelDiff}). Compare ${actualPngFile.absolutePath} " +
-                        "against ${baselinePngFile.absolutePath}. Re-record ${baselineFile.absolutePath} if this " +
-                        "is an intentional renderer change."
-                )
-            }
+            block(renderer)
         } finally {
             renderer.destroy()
             lineRenderPipeline.destroy()

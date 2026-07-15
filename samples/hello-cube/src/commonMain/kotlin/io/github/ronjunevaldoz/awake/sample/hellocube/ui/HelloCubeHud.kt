@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.overlayShell
 import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.shellPane
 import io.github.ronjunevaldoz.awake.ui.textLines
-import io.github.ronjunevaldoz.awake.ui.designsystem.DefaultUiTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeOverlayModel
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
 
@@ -30,7 +30,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
             shellPane(
                 slot = slot,
                 id = "hello-cube-status",
-                theme = DefaultUiTheme,
+                theme = AwakeShadcnTheme,
                 textScale = HELLO_CUBE_TEXT_SCALE
             ) {
                 sectionTitle("Scene")
@@ -48,7 +48,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
             shellPane(
                 slot = slot,
                 id = "hello-cube-debug",
-                theme = DefaultUiTheme,
+                theme = AwakeShadcnTheme,
                 textScale = HELLO_CUBE_TEXT_SCALE
             ) {
                 sectionTitle("Debug")

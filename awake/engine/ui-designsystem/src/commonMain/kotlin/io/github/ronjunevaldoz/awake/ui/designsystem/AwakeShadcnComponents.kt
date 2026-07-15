@@ -5,7 +5,10 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.UiAbsoluteDslScope
 import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
+import io.github.ronjunevaldoz.awake.ui.UiDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
@@ -125,6 +128,25 @@ fun UiScope.awakeShadcnButton(
     radius = UiShape.none
 )
 
+fun UiDslScope.awakeShadcnButton(
+    id: String,
+    width: Float,
+    height: Float,
+    label: String,
+    modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
+    style: Style = Style.Empty
+): Boolean = button(
+    id = id,
+    label = label,
+    width = width,
+    height = height,
+    modifier = modifier,
+    style = AwakeShadcnStyles.button(variant) then style,
+    variant = variant.toUiButtonVariant(),
+    radius = UiShape.none
+)
+
 fun UiScope.awakeShadcnBadge(
     label: String,
     width: Float = 96f,
@@ -147,6 +169,18 @@ fun UiScope.awakeShadcnBadge(
     }
 }
 
+fun UiDslScope.awakeShadcnBadge(
+    label: String,
+    modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
+    style: Style = Style.Empty
+): UiSlot = text(
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.badge(variant) then BadgeContentStyle then style,
+    centered = true
+)
+
 fun UiScope.awakeShadcnSurface(
     id: String,
     width: Dimension,
@@ -163,7 +197,46 @@ fun UiScope.awakeShadcnSurface(
     )
 }
 
+fun UiColumnDslScope.awakeShadcnSurface(
+    id: String,
+    width: Dimension = Dimension.FillMax,
+    height: Dimension,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    content: UiColumnDslScope.(slot: UiSlot) -> Unit
+): UiSlot = panel(
+    id = id,
+    width = width,
+    height = height,
+    modifier = modifier,
+    style = AwakeShadcnTheme.components.panel then style,
+    content = content
+)
+
+fun UiAbsoluteDslScope.awakeShadcnSurface(
+    id: String,
+    width: Dimension,
+    height: Dimension,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    content: UiColumnDslScope.(slot: UiSlot) -> Unit
+): UiSlot = panel(
+    id = id,
+    width = width,
+    height = height,
+    modifier = modifier,
+    style = AwakeShadcnTheme.components.panel then style,
+    content = content
+)
+
 private val TRANSPARENT = floatArrayOf(0f, 0f, 0f, 0f)
+private val BadgeContentStyle = Style { contentPadding(10f.dp, 4f.dp) }
+
+private fun AwakeShadcnButtonVariant.toUiButtonVariant(): UiButtonVariant = when (this) {
+    AwakeShadcnButtonVariant.Outline -> UiButtonVariant.Outline
+    AwakeShadcnButtonVariant.Ghost -> UiButtonVariant.Ghost
+    else -> UiButtonVariant.Filled
+}
 
 private fun brighten(color: FloatArray, brightness: Float): FloatArray = floatArrayOf(
     (color[0] * brightness).coerceAtMost(1f),

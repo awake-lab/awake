@@ -7,14 +7,14 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 internal const val starterVertexStride: Int = 8 * Float.SIZE_BYTES
 
 private val cubeVertices = floatArrayOf(
+    -1f, -1f, -1f, 0f, 0f, 0f, 0f, 0f,
+    1f, -1f, -1f, 1f, 0f, 0f, 1f, 0f,
+    1f, 1f, -1f, 1f, 1f, 0f, 1f, 1f,
+    -1f, 1f, -1f, 0f, 1f, 0f, 0f, 1f,
     -1f, -1f, 1f, 0f, 0f, 1f, 0f, 0f,
-    1f, -1f, 1f, 0f, 0f, 1f, 1f, 0f,
-    1f, 1f, 1f, 0f, 0f, 1f, 1f, 1f,
-    -1f, 1f, 1f, 0f, 0f, 1f, 0f, 1f,
-    -1f, -1f, -1f, 0f, 0f, -1f, 0f, 0f,
-    1f, -1f, -1f, 0f, 0f, -1f, 1f, 0f,
-    1f, 1f, -1f, 0f, 0f, -1f, 1f, 1f,
-    -1f, 1f, -1f, 0f, 0f, -1f, 0f, 1f
+    1f, -1f, 1f, 1f, 0f, 1f, 1f, 0f,
+    1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f,
+    -1f, 1f, 1f, 0f, 1f, 1f, 0f, 1f
 )
 
 private val cubeIndices = intArrayOf(

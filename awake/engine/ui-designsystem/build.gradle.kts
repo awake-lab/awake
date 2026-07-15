@@ -33,6 +33,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(project(":awake:engine:ui-dsl"))
             api(project(":awake:engine:ui-widgets"))
         }
         commonTest.dependencies {

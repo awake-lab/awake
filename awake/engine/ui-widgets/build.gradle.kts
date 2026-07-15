@@ -42,6 +42,11 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+        named("desktopTest") {
+            dependencies {
+                implementation(project(":awake:engine:ui-designsystem"))
+            }
+        }
     }
 }
 

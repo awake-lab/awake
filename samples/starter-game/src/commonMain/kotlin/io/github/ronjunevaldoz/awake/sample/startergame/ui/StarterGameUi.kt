@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.startergame.ui
 
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.sample.startergame.presentation.starterOverlayModel
+import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_SHOWCASE
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
 import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
@@ -11,7 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.GameUiSpec
 import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.designsystem.DefaultUiTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.gameUi
 import io.github.ronjunevaldoz.awake.ui.overlayShell
 import io.github.ronjunevaldoz.awake.ui.sectionTitle
@@ -38,6 +39,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
     viewportHeight: Float
 ) {
     val model = router.starterOverlayModel(state)
+    val showcaseActive = router.activeSceneId == STARTER_SCENE_SHOWCASE
     overlayShell(viewportWidth, viewportHeight) {
         topLeft(
             width = 280f,
@@ -47,7 +49,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
             shellPane(
                 slot = slot,
                 id = "starter-nav",
-                theme = DefaultUiTheme
+                theme = AwakeShadcnTheme
             ) {
                 text("Starter Game")
                 text("Active: ${model.activeSceneLabel}")
@@ -68,34 +70,44 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
             }
         }
 
-        topRight(
-            width = 320f,
-            height = 228f,
-            margin = UiInsets(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)
-        ) { slot ->
-            shellPane(
-                slot = slot,
-                id = "starter-inspector",
-                theme = DefaultUiTheme
-            ) {
-                sectionTitle("Scaffold")
-                text("scene flow")
-                text("shared UI shell")
-                text("thin platform entrypoints")
-                spacer(10f)
-                val nextTipsVisible = checkbox(
-                    id = "starter-tips",
-                    checked = model.tipsVisible,
-                    label = "Show notes",
-                    width = 220f,
-                    height = 24f
-                )
-                if (nextTipsVisible != model.tipsVisible) {
-                    state.tipsVisible = nextTipsVisible
-                }
-                if (state.tipsVisible) {
-                    spacer(8f)
-                    textLines(model.notes)
+        if (showcaseActive) {
+            topRight(
+                width = 560f,
+                height = 620f,
+                margin = UiInsets(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)
+            ) { slot ->
+                drawStarterShadcnShowcase(slot, state)
+            }
+        } else {
+            topRight(
+                width = 320f,
+                height = 228f,
+                margin = UiInsets(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)
+            ) { slot ->
+                shellPane(
+                    slot = slot,
+                    id = "starter-inspector",
+                    theme = AwakeShadcnTheme
+                ) {
+                    sectionTitle("Scaffold")
+                    text("scene flow")
+                    text("shared UI shell")
+                    text("thin platform entrypoints")
+                    spacer(10f)
+                    val nextTipsVisible = checkbox(
+                        id = "starter-tips",
+                        checked = model.tipsVisible,
+                        label = "Show notes",
+                        width = 220f,
+                        height = 24f
+                    )
+                    if (nextTipsVisible != model.tipsVisible) {
+                        state.tipsVisible = nextTipsVisible
+                    }
+                    if (state.tipsVisible) {
+                        spacer(8f)
+                        textLines(model.notes)
+                    }
                 }
             }
         }
@@ -108,11 +120,11 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
             shellPane(
                 slot = slot,
                 id = "starter-footer",
-                theme = DefaultUiTheme
+                theme = AwakeShadcnTheme
             ) {
                 text("Desktop: WASD / arrows / mouse")
                 text("WebSocket debug can switch scenes remotely")
-                text("This sample is the reference scaffold, not a showcase")
+                text(if (showcaseActive) "Showcase scene previews the Awake shadcn component layer" else "Reference scaffold with a dedicated showcase scene")
             }
         }
     }

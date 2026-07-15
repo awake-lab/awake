@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.sample.server.DebugService
 import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeDebugLines
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeCameraMode
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
@@ -47,6 +48,21 @@ internal val AwakeGame.helloCubeDebugConfig: HelloCubeDebugConfig
 
 internal val AwakeGame.helloCubeDebugController: HelloCubeDebugController
     get() = requireService()
+
+internal fun HelloCubeDebugController.asDebugService(): DebugService<DebugCommand, DebugSnapshot> =
+    object : DebugService<DebugCommand, DebugSnapshot> {
+        override fun handle(command: DebugCommand) {
+            when (command) {
+                is DebugCommand.SwitchDemo -> switchDemo(command.index)
+                is DebugCommand.SetCameraEye -> setCameraEye(Vec3(command.x, command.y, command.z))
+                is DebugCommand.SetCameraCenter -> setCameraCenter(Vec3(command.x, command.y, command.z))
+                is DebugCommand.SetMinimap -> setMinimap(command.enabled)
+                DebugCommand.GetState -> Unit
+            }
+        }
+
+        override fun snapshot(): DebugSnapshot = this@asDebugService.snapshot()
+    }
 
 internal suspend fun SceneGameRuntime.verifyHelloCubeOffscreenReadback() {
     val camera = Camera(

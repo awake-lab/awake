@@ -836,10 +836,16 @@ class Renderer(
                 }
                 is UiDrawPrimitive.Glyph -> {
                     @Suppress("UNCHECKED_CAST")
-                    val mesh = glyphMeshForRun(glyphRunCount)
-                    stageGlyphRun(mesh, slice as List<UiDrawPrimitive.Glyph>, activePathClips)
-                    runs += UiRun.GlyphRun(mesh)
-                    glyphRunCount += 1
+                    val glyphSlice = slice as List<UiDrawPrimitive.Glyph>
+                    var chunkStart = 0
+                    while (chunkStart < glyphSlice.size) {
+                        val chunkEnd = minOf(chunkStart + MAX_UI_QUADS, glyphSlice.size)
+                        val mesh = glyphMeshForRun(glyphRunCount)
+                        stageGlyphRun(mesh, glyphSlice.subList(chunkStart, chunkEnd), activePathClips)
+                        runs += UiRun.GlyphRun(mesh)
+                        glyphRunCount += 1
+                        chunkStart = chunkEnd
+                    }
                 }
                 is UiDrawPrimitive.Texture -> {
                     @Suppress("UNCHECKED_CAST")
@@ -1210,8 +1216,18 @@ class Renderer(
         val glyphPipeline = requireNotNull(offscreenGlyphRenderPipeline)
         glyphPipeline.writeScreenSize(offscreen.width.toFloat(), offscreen.height.toFloat())
 
-        val mesh = glyphMeshForRun(0)
-        stageGlyphRun(mesh, glyphs)
+        val glyphRunMeshes = buildList {
+            var chunkStart = 0
+            var glyphRunCount = 0
+            while (chunkStart < glyphs.size) {
+                val chunkEnd = minOf(chunkStart + MAX_UI_QUADS, glyphs.size)
+                val mesh = glyphMeshForRun(glyphRunCount)
+                stageGlyphRun(mesh, glyphs.subList(chunkStart, chunkEnd))
+                add(mesh)
+                glyphRunCount += 1
+                chunkStart = chunkEnd
+            }
+        }
 
         runOffscreenCommands { commandBuffer ->
             val renderPassInfo = VkRenderPassBeginInfo(
@@ -1226,8 +1242,10 @@ class Renderer(
             val scissor = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height))
             Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
             glyphPipeline.bind(commandBuffer)
-            mesh.bind(commandBuffer)
-            mesh.draw(commandBuffer)
+            glyphRunMeshes.forEach { mesh ->
+                mesh.bind(commandBuffer)
+                mesh.draw(commandBuffer)
+            }
             Vulkan.vkCmdEndRenderPass(commandBuffer)
             offscreen.transitionToShaderReadOnly(commandBuffer)
         }

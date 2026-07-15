@@ -39,11 +39,11 @@ import kotlinx.coroutines.CompletableDeferred
  * normal, correct cross-thread synchronization primitive; it doesn't touch a Vulkan handle
  * itself, so it doesn't violate the rule above.
  */
-class DebugControlServer<TCommand, TResponse>(
+class WebSocketDebugTransport<TCommand, TResponse>(
     private val port: Int = AWAKE_DEBUG_CONTROL_PORT,
     private val parseCommand: (String) -> TCommand?,
     private val encodeResponse: (TResponse) -> String
-) : DebugControlTransport<TCommand, TResponse> {
+) : DebugTransport<TCommand, TResponse> {
     private val commandQueue = ConcurrentLinkedQueue<Pair<TCommand, CompletableDeferred<TResponse>>>()
     private var server: EmbeddedServer<*, *>? = null
 

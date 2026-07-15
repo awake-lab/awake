@@ -8,16 +8,20 @@ import kotlinx.coroutines.CompletableDeferred
 
 const val AWAKE_DEBUG_CONTROL_PORT = 42770
 
-interface DebugControlTransport<TCommand, TResponse> {
+interface DebugService<TCommand, TSnapshot> {
+    fun handle(command: TCommand)
+    fun snapshot(): TSnapshot
+}
+
+interface DebugTransport<TCommand, TSnapshot> {
     fun start()
-    fun drainCommands(): List<Pair<TCommand, CompletableDeferred<TResponse>>>
+    fun drainCommands(): List<Pair<TCommand, CompletableDeferred<TSnapshot>>>
     fun stop()
 }
 
-class DebugControlLoop<TCommand, TResponse>(
-    private val transport: DebugControlTransport<TCommand, TResponse>,
-    private val applyCommand: (TCommand) -> Unit,
-    private val snapshot: () -> TResponse
+class DebugServiceLoop<TCommand, TSnapshot>(
+    private val transport: DebugTransport<TCommand, TSnapshot>,
+    private val service: DebugService<TCommand, TSnapshot>
 ) {
     fun start() {
         transport.start()
@@ -25,8 +29,8 @@ class DebugControlLoop<TCommand, TResponse>(
 
     fun beforeFrame() {
         transport.drainCommands().forEach { (command, deferred) ->
-            applyCommand(command)
-            deferred.complete(snapshot())
+            service.handle(command)
+            deferred.complete(service.snapshot())
         }
     }
 
@@ -35,27 +39,25 @@ class DebugControlLoop<TCommand, TResponse>(
     }
 }
 
-fun <TCommand, TResponse> debugControlLoop(
+fun <TCommand, TSnapshot> webSocketDebugLoop(
     port: Int = AWAKE_DEBUG_CONTROL_PORT,
     parseCommand: (String) -> TCommand?,
-    encodeResponse: (TResponse) -> String,
-    applyCommand: (TCommand) -> Unit,
-    snapshot: () -> TResponse
-): DebugControlLoop<TCommand, TResponse> {
-    return DebugControlLoop(
-        transport = DebugControlServer(
+    encodeResponse: (TSnapshot) -> String,
+    service: DebugService<TCommand, TSnapshot>
+): DebugServiceLoop<TCommand, TSnapshot> {
+    return DebugServiceLoop(
+        transport = WebSocketDebugTransport(
             port = port,
             parseCommand = parseCommand,
             encodeResponse = encodeResponse
         ),
-        applyCommand = applyCommand,
-        snapshot = snapshot
+        service = service
     )
 }
 
-fun <TCommand, TResponse> withOptionalDebugControlLoop(
+fun <TCommand, TSnapshot> withOptionalDebugLoop(
     enabled: Boolean,
-    createLoop: () -> DebugControlLoop<TCommand, TResponse>,
+    createLoop: () -> DebugServiceLoop<TCommand, TSnapshot>,
     run: (beforeFrame: () -> Unit, afterLoop: () -> Unit) -> Unit
 ) {
     var loop = if (enabled) createLoop() else null
@@ -90,8 +92,8 @@ fun <TCommand, TResponse> withOptionalDebugControlLoop(
     }
 }
 
-internal class RecordingDebugControlTransport<TCommand, TResponse> : DebugControlTransport<TCommand, TResponse> {
-    private val queue = ConcurrentLinkedQueue<Pair<TCommand, CompletableDeferred<TResponse>>>()
+internal class RecordingDebugTransport<TCommand, TSnapshot> : DebugTransport<TCommand, TSnapshot> {
+    private val queue = ConcurrentLinkedQueue<Pair<TCommand, CompletableDeferred<TSnapshot>>>()
     var started = false
         private set
     var stopped = false
@@ -101,8 +103,8 @@ internal class RecordingDebugControlTransport<TCommand, TResponse> : DebugContro
         started = true
     }
 
-    override fun drainCommands(): List<Pair<TCommand, CompletableDeferred<TResponse>>> {
-        val drained = mutableListOf<Pair<TCommand, CompletableDeferred<TResponse>>>()
+    override fun drainCommands(): List<Pair<TCommand, CompletableDeferred<TSnapshot>>> {
+        val drained = mutableListOf<Pair<TCommand, CompletableDeferred<TSnapshot>>>()
         while (true) {
             drained += queue.poll() ?: break
         }
@@ -113,8 +115,8 @@ internal class RecordingDebugControlTransport<TCommand, TResponse> : DebugContro
         stopped = true
     }
 
-    fun enqueue(command: TCommand): CompletableDeferred<TResponse> {
-        val deferred = CompletableDeferred<TResponse>()
+    fun enqueue(command: TCommand): CompletableDeferred<TSnapshot> {
+        val deferred = CompletableDeferred<TSnapshot>()
         queue += command to deferred
         return deferred
     }

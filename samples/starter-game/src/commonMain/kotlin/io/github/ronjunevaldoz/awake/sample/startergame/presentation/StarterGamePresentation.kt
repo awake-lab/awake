@@ -32,7 +32,8 @@ internal fun SceneRouterRuntime.starterOverlayModel(state: StarterGameRuntimeSta
         notes = listOf(
             "Scene switching is owned by common code.",
             "Platform input + debug control now live in reusable hosts.",
-            "Each platform entrypoint only boots the shared sample."
+            "Each platform entrypoint only boots the shared sample.",
+            "Showcase scene previews the Awake shadcn-style design-system layer."
         )
     )
 }

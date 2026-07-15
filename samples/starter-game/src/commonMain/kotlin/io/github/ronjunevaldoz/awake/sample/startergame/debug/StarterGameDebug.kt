@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.startergame.debug
 
 import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
 import io.github.ronjunevaldoz.awake.engine.application.requireService
+import io.github.ronjunevaldoz.awake.sample.server.DebugService
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouteInfo
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
@@ -37,3 +38,16 @@ internal val AwakeGame.starterGameDebugConfig: StarterGameDebugConfig
 
 internal val AwakeGame.starterGameDebugController: StarterGameDebugController
     get() = requireService()
+
+internal fun StarterGameDebugController.asDebugService(): DebugService<StarterDebugCommand, StarterDebugSnapshot> =
+    object : DebugService<StarterDebugCommand, StarterDebugSnapshot> {
+        override fun handle(command: StarterDebugCommand) {
+            when (command) {
+                is StarterDebugCommand.SwitchScene -> switchScene(command.sceneId)
+                is StarterDebugCommand.SetTipsVisible -> setTipsVisible(command.enabled)
+                StarterDebugCommand.GetState -> Unit
+            }
+        }
+
+        override fun snapshot(): StarterDebugSnapshot = this@asDebugService.snapshot()
+    }

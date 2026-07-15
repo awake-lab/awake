@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.ui
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -63,5 +64,32 @@ class AwakeShadcnDesignSystemTest {
 
         val primitives = ui.endFrame()
         assertEquals(4, primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size, "surface + badge should each emit border + fill rounded quads")
+    }
+
+    @Test
+    fun awakeShadcnDslAdaptersComposeInsideUiDsl() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(280f, 180f)
+
+        ui.ui(x = 20f, y = 20f, width = 240f, font = BitmapFont(), theme = AwakeShadcnTheme) {
+            awakeShadcnSurface(
+                id = "dsl-surface",
+                height = Dimension.Fixed(120f.px)
+            ) {
+                awakeShadcnBadge("READY", variant = AwakeShadcnBadgeVariant.Primary)
+                awakeShadcnButton(
+                    id = "launch",
+                    width = 120f,
+                    height = 32f,
+                    label = "Launch",
+                    variant = AwakeShadcnButtonVariant.Secondary
+                )
+            }
+        }
+
+        val primitives = ui.endFrame()
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "DSL adapters should still render labeled content")
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 4, "surface, badge, and button should emit rounded surfaces through the DSL")
     }
 }
