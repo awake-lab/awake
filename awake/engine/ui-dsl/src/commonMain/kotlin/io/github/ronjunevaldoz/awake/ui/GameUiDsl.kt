@@ -30,9 +30,14 @@ fun gameUi(block: GameUiDsl.() -> Unit): GameUiSpec {
 }
 
 class GameUiDsl internal constructor() {
+    private var defaultTheme: UiTheme = CoreUiTheme
     private val overlays = mutableListOf<GameUiOverlayBlock>()
     private var onReadyBlock: GameUiReadyBlock = {}
     private var onDisposeBlock: GameUiDisposeBlock = {}
+
+    fun theme(theme: UiTheme) {
+        defaultTheme = theme
+    }
 
     fun overlay(block: GameUiOverlayBlock) {
         overlays += block
@@ -47,6 +52,7 @@ class GameUiDsl internal constructor() {
     }
 
     internal fun build(): GameUiSpec = GameUiSpec(
+        theme = defaultTheme,
         overlays = overlays.toList(),
         onReadyBlock = onReadyBlock,
         onDisposeBlock = onDisposeBlock

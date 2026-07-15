@@ -98,7 +98,7 @@ class OverlayShellScope internal constructor(
 fun GameUiRuntime.shellPane(
     slot: UiSlot,
     id: String,
-    theme: UiTheme = CoreUiTheme,
+    theme: UiTheme = this.theme,
     gap: Float = UiSpacing.sm.toPx(),
     textScale: Float = 1f,
     insets: UiInsets = UiInsets(12f.dp),

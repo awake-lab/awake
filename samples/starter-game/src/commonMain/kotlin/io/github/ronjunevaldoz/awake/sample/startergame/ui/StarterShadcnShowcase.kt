@@ -33,7 +33,6 @@ internal fun GameUiRuntime.drawStarterShadcnShowcase(slot: UiSlot, state: Starte
     shellPane(
         slot = slot,
         id = "starter-shadcn-showcase",
-        theme = AwakeShadcnTheme,
         gap = 12f,
         insets = UiInsets(16f.dp),
         radius = 12f.dp,

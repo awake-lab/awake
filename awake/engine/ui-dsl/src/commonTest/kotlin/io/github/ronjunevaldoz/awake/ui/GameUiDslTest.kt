@@ -20,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class GameUiDslTest {
@@ -81,7 +82,37 @@ class GameUiDslTest {
         assertEquals(1, renderer.uiDrawCalls)
         assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
     }
+
+    @Test
+    fun gameUiCanDeclareADefaultThemeForTheWholeOverlayRuntime() = runTest {
+        val renderer = RecordingUiRenderer()
+        var runtime: GameUiRuntime? = null
+        val game = game {
+            ui {
+                theme(TestUiTheme)
+                overlay { _, _ ->
+                    runtime = this
+                    shellPane(
+                        slot = UiSlot(20f, 20f, 180f, 96f),
+                        id = "theme-proof"
+                    ) {
+                        text("Themed")
+                    }
+                }
+            }
+        }
+
+        game.ready(renderer)
+        game.render(0.016f, 320f, 240f)
+
+        assertNotNull(runtime)
+        assertEquals(TestUiTheme, runtime.theme)
+        assertEquals(1, renderer.uiDrawCalls)
+        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
+    }
 }
+
+private object TestUiTheme : UiTheme by CoreUiTheme
 
 private class RecordingUiRenderer : Renderer {
     var uiDrawCalls = 0

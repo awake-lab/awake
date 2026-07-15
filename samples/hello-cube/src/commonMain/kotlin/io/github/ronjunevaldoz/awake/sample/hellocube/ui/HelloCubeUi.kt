@@ -5,11 +5,13 @@ package io.github.ronjunevaldoz.awake.sample.hellocube.ui
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.GameUiSpec
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.gameUi
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
 
 internal fun helloCubeUiSpec(state: HelloCubeRuntimeState): GameUiSpec {
     return gameUi {
+        theme(AwakeShadcnTheme)
         overlay { viewportWidth, viewportHeight ->
             drawHelloCubeOverlay(
                 scene = requireService<SceneGameRuntime>(),

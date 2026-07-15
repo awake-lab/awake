@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 
 class GameUiSpec internal constructor(
+    internal val theme: UiTheme,
     internal val overlays: List<GameUiOverlayBlock>,
     internal val onReadyBlock: GameUiReadyBlock,
     internal val onDisposeBlock: GameUiDisposeBlock
@@ -31,6 +32,8 @@ class GameUiRuntime internal constructor(
 ) : GameServiceLookup by services {
     val uiContext = UiContext()
     val font = BitmapFont()
+    val theme: UiTheme
+        get() = spec.theme
 
     lateinit var renderer: Renderer
         private set
@@ -59,7 +62,7 @@ class GameUiRuntime internal constructor(
         x: Float,
         y: Float,
         width: Float,
-        theme: UiTheme = CoreUiTheme,
+        theme: UiTheme = this.theme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
         block: UiColumnDslScope.() -> Unit
@@ -78,7 +81,7 @@ class GameUiRuntime internal constructor(
 
     fun column(
         slot: UiSlot,
-        theme: UiTheme = CoreUiTheme,
+        theme: UiTheme = this.theme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
@@ -98,7 +101,7 @@ class GameUiRuntime internal constructor(
     fun absolute(
         x: Float,
         y: Float,
-        theme: UiTheme = CoreUiTheme,
+        theme: UiTheme = this.theme,
         textScale: Float = 1f,
         block: UiAbsoluteDslScope.() -> Unit
     ) {
@@ -110,5 +113,23 @@ class GameUiRuntime internal constructor(
             textScale = textScale,
             block = block
         )
+    }
+
+    fun absolute(
+        slot: UiSlot,
+        theme: UiTheme = this.theme,
+        textScale: Float = 1f,
+        insets: UiInsets = UiInsets.Zero,
+        block: UiAbsoluteDslScope.() -> Unit
+    ) {
+        UiAbsoluteDslScope(
+            uiContext.absolute(
+                slot = slot,
+                font = font,
+                theme = theme,
+                textScale = textScale,
+                insets = insets
+            )
+        ).block()
     }
 }

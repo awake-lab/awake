@@ -22,7 +22,9 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.DebugVec3
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugConfig
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugController
+import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeCameraMode
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
+import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeUiState
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -137,6 +139,22 @@ class HelloCubeGameTest {
         assertEquals(DebugVec3(1f, 2f, 3f), snapshot.cameraCenter)
         assertEquals(true, snapshot.minimapEnabled)
         assertTrue(snapshot.debugLines.any { it.contains("FREE_FLY") })
+    }
+
+    @Test
+    fun helloCubeStateContainerPublishesUiStateFlow() {
+        val state = HelloCubeRuntimeState()
+
+        state.mode = HelloCubeCameraMode.FREE_FLY
+        state.minimapEnabled = true
+
+        assertEquals(
+            HelloCubeUiState(
+                mode = HelloCubeCameraMode.FREE_FLY,
+                minimapEnabled = true
+            ),
+            state.uiState.value
+        )
     }
 }
 

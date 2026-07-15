@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.textLines
 
 internal fun starterGameUiSpec(state: StarterGameRuntimeState): GameUiSpec {
     return gameUi {
+        theme(AwakeShadcnTheme)
         overlay { viewportWidth, viewportHeight ->
             drawStarterGameOverlay(
                 router = requireService<SceneRouterRuntime>(),
@@ -48,8 +49,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
         ) { slot ->
             shellPane(
                 slot = slot,
-                id = "starter-nav",
-                theme = AwakeShadcnTheme
+                id = "starter-nav"
             ) {
                 text("Starter Game")
                 text("Active: ${model.activeSceneLabel}")
@@ -86,8 +86,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
             ) { slot ->
                 shellPane(
                     slot = slot,
-                    id = "starter-inspector",
-                    theme = AwakeShadcnTheme
+                    id = "starter-inspector"
                 ) {
                     sectionTitle("Scaffold")
                     text("scene flow")
@@ -119,8 +118,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
         ) { slot ->
             shellPane(
                 slot = slot,
-                id = "starter-footer",
-                theme = AwakeShadcnTheme
+                id = "starter-footer"
             ) {
                 text("Desktop: WASD / arrows / mouse")
                 text("WebSocket debug can switch scenes remotely")

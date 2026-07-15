@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.sample.startergame.debug.starterDebugModule
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_EDITOR
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_OVERVIEW
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.starterSceneModule
+import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameUiState
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.sample.startergame.ui.starterUiModule
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
@@ -132,6 +133,27 @@ class StarterGameTest {
         assertEquals(STARTER_SCENE_EDITOR, snapshot.activeSceneId)
         assertTrue(snapshot.sceneLabels.contains("Overview"))
         assertTrue(snapshot.sceneLabels.contains("Editor"))
+    }
+
+    @Test
+    fun starterGameStateContainerPublishesUiStateFlow() {
+        val state = StarterGameRuntimeState()
+
+        state.tipsVisible = false
+        state.showcaseDangerMode = true
+        state.showcasePrimaryClicks = 2
+
+        assertEquals(
+            StarterGameUiState(
+                tipsVisible = false,
+                showcaseBadgeVariantIndex = 0,
+                showcaseLiveBadge = true,
+                showcaseDangerMode = true,
+                showcaseSurfaceRadius = 12f,
+                showcasePrimaryClicks = 2
+            ),
+            state.uiState.value
+        )
     }
 }
 
