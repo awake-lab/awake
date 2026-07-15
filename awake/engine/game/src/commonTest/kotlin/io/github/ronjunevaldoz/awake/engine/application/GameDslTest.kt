@@ -80,6 +80,30 @@ class GameDslTest {
     }
 
     @Test
+    fun gameSpecCanBeBuiltAndCreatedSeparately() = runTest {
+        var readyCalls = 0
+        val spec = gameSpec {
+            window {
+                title = "Spec First"
+                size(960, 540)
+                backend.webGpu()
+            }
+            ready { readyCalls += 1 }
+            service(String::class, "runtime-proof")
+        }
+
+        val game = spec.createGame()
+        game.ready(FakeRenderer)
+
+        assertEquals("Spec First", spec.windowConfig.title)
+        assertEquals(960, game.windowConfig.width)
+        assertEquals(540, game.windowConfig.height)
+        assertEquals(GameWindowBackend.WEBGPU, game.windowConfig.backend)
+        assertEquals("runtime-proof", game.requireService(String::class))
+        assertEquals(1, readyCalls)
+    }
+
+    @Test
     fun gameDslCanInstallFeatureServices() {
         val game = game {
             install(

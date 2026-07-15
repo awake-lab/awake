@@ -1,9 +1,10 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
 import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
+import io.github.ronjunevaldoz.awake.engine.application.GameSpec
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowConfig
-import io.github.ronjunevaldoz.awake.engine.application.game
 import io.github.ronjunevaldoz.awake.engine.application.gameInstaller
+import io.github.ronjunevaldoz.awake.engine.application.gameSpec
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.engine.application.select
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
@@ -17,10 +18,12 @@ import io.github.ronjunevaldoz.awake.ui.ui
 val AwakeGame.helloCubeWindowConfig: GameWindowConfig
     get() = windowConfig
 
-fun helloCubeGame(): AwakeGame {
+fun helloCubeGame(): AwakeGame = helloCubeGameSpec().createGame()
+
+fun helloCubeGameSpec(): GameSpec {
     val state = HelloCubeRuntimeState()
 
-    return game {
+    return gameSpec {
         window {
             title = "Hello Cube"
             size(1600, 900)

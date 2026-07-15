@@ -11,6 +11,12 @@ annotation class AwakeGameDsl
 fun game(
     block: GameDsl.() -> Unit
 ): AwakeGame {
+    return gameSpec(block).createGame()
+}
+
+fun gameSpec(
+    block: GameDsl.() -> Unit
+): GameSpec {
     val builder = GameDsl()
     builder.block()
     return builder.build()
@@ -73,33 +79,14 @@ class GameDsl internal constructor() {
         services.register(type, value)
     }
 
-    internal fun build(): AwakeGame = AwakeGame(
-        delegate = object : Game {
-            override suspend fun ready(renderer: Renderer) {
-                onReady.forEach { callback -> callback(renderer) }
-            }
-
-            override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
-                onRender.forEach { callback -> callback(delta, viewportWidth, viewportHeight) }
-            }
-
-            override fun resize(width: Float, height: Float) {
-                onResize.forEach { callback -> callback(width, height) }
-            }
-
-            override fun pause() {
-                onPause.forEach { callback -> callback() }
-            }
-
-            override fun resume() {
-                onResume.forEach { callback -> callback() }
-            }
-
-            override fun dispose() {
-                onDispose.asReversed().forEach { callback -> callback() }
-            }
-        },
+    internal fun build(): GameSpec = GameSpec(
         windowConfig = windowDsl.build(),
+        onReady = onReady.toList(),
+        onRender = onRender.toList(),
+        onResize = onResize.toList(),
+        onPause = onPause.toList(),
+        onResume = onResume.toList(),
+        onDispose = onDispose.toList(),
         services = services.snapshot()
     )
 }

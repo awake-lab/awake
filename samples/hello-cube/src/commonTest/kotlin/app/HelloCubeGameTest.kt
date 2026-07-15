@@ -45,6 +45,18 @@ class HelloCubeGameTest {
     }
 
     @Test
+    fun helloCubeGameSpecRemainsReusable() {
+        val spec = helloCubeGameSpec()
+        val game = spec.createGame()
+
+        assertEquals("Hello Cube", spec.windowConfig.title)
+        assertEquals(1600, game.windowConfig.width)
+        assertEquals(900, game.windowConfig.height)
+        assertTrue(game.helloCubeDebugConfig.websocketControlsEnabled)
+        assertTrue(game.helloCubeDebugConfig.offscreenProofEnabled)
+    }
+
+    @Test
     fun helloCubeEcsInstallerBuildsRealRuntimeAndDebugServices() = runTest {
         val state = HelloCubeRuntimeState()
         val game = game {
