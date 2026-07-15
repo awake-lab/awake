@@ -56,12 +56,18 @@ Use them like this:
   - the cross-agent contract for `docs/*`, entrypoints, and `skills/*`
 - `docs/reference/agent-catalog.md`
   - the canonical roster, naming convention, and responsibility map for repo-local agents
+- `docs/reference/agent-starter-pack.md`
+  - the reusable downstream starter shape for multi-agent repo setup
+- `docs/reference/agent-routing.md`
+  - real Awake examples for choosing the right repo-local agent
 - `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.claude/AGENTS.md`
   - thin startup files that point assistants at the canonical docs
 - `skills/awake/agents/*.md`
   - task-specific working guidance for ECS, engine, and other Awake domains
 - `skills/awake/commands/*.md`
   - repo-local operational commands and review workflows
+- `skills/awake/templates/*.md`
+  - reusable templates for new repo-local agent docs
 
 Rule of thumb:
 

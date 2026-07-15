@@ -3,6 +3,11 @@
 This document is the canonical source for Awake's repo-local agent roster, naming convention,
 and responsibility map.
 
+For copyable starter structure, see
+[docs/reference/agent-starter-pack.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-starter-pack.md).
+For real routing examples, see
+[docs/reference/agent-routing.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-routing.md).
+
 ## Purpose
 
 Awake is now large enough that "one engine agent" is too broad. The repo uses named

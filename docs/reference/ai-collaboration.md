@@ -50,6 +50,7 @@ Awake's tracked skill files live under:
 
 - `skills/awake/agents/*.md`
 - `skills/awake/commands/*.md`
+- `skills/awake/templates/*.md`
 
 These are the canonical repo-local skill sources. The matching `.claude/agents` and
 `.claude/commands/awake` paths are symlinks into `skills/awake/`.
@@ -60,6 +61,11 @@ Rules:
 - keep workflow instructions in skills, not canonical architecture policy
 - when a skill needs a project rule, link to the relevant `docs/*` page instead of copying
   the whole policy into the skill
+
+See also:
+
+- [docs/reference/agent-starter-pack.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-starter-pack.md)
+- [docs/reference/agent-routing.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-routing.md)
 
 ## Duplication Policy
 
