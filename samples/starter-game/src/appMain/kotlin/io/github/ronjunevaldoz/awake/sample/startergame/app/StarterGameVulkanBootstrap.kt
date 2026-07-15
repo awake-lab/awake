@@ -3,18 +3,17 @@
 package io.github.ronjunevaldoz.awake.sample.startergame.app
 
 import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
+import io.github.ronjunevaldoz.awake.engine.application.gameShaderSet
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.starterVertexStride
 import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 
-private const val STARTER_GAME_VULKAN_VERTEX_SHADER = "assets/shader/vulkan/triangle.vert.spv"
-private const val STARTER_GAME_VULKAN_FRAGMENT_SHADER = "assets/shader/vulkan/triangle.frag.spv"
+private val StarterGameShaders = gameShaderSet("triangle")
 
 fun createStarterGameVulkanApplication(
     game: AwakeGame = starterGame()
 ): VulkanGameApplication {
     return VulkanGameApplication(
-        vertexShaderResourcePath = STARTER_GAME_VULKAN_VERTEX_SHADER,
-        fragmentShaderResourcePath = STARTER_GAME_VULKAN_FRAGMENT_SHADER,
+        shaderSet = StarterGameShaders,
         vertexStride = starterVertexStride,
         game = game
     )

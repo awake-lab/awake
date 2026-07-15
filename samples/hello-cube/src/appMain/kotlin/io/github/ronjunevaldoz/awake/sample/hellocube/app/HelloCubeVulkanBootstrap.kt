@@ -3,18 +3,17 @@
 package io.github.ronjunevaldoz.awake.sample.hellocube.app
 
 import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
+import io.github.ronjunevaldoz.awake.engine.application.gameShaderSet
 import io.github.ronjunevaldoz.awake.sample.hellocube.scene.sampleVertexStride
 import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 
-private const val HELLO_CUBE_VULKAN_VERTEX_SHADER = "assets/shader/vulkan/triangle.vert.spv"
-private const val HELLO_CUBE_VULKAN_FRAGMENT_SHADER = "assets/shader/vulkan/triangle.frag.spv"
+private val HelloCubeShaders = gameShaderSet("triangle")
 
 internal fun createHelloCubeVulkanApplication(
     game: AwakeGame = helloCubeGame()
 ): VulkanGameApplication {
     return VulkanGameApplication(
-        vertexShaderResourcePath = HELLO_CUBE_VULKAN_VERTEX_SHADER,
-        fragmentShaderResourcePath = HELLO_CUBE_VULKAN_FRAGMENT_SHADER,
+        shaderSet = HelloCubeShaders,
         vertexStride = sampleVertexStride,
         game = game
     )

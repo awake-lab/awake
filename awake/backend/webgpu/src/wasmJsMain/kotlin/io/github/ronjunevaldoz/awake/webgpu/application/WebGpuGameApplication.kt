@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.webgpu.application
 
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.application.Game
+import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
 import io.github.ronjunevaldoz.awake.engine.application.GenericGameApplication
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
@@ -35,6 +36,17 @@ class WebGpuGameApplication(
     vertexStride,
     game
 ) {
+    constructor(
+        shaderSet: GameShaderSet,
+        vertexStride: Int,
+        game: Game
+    ) : this(
+        vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
+        fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
+        vertexStride = vertexStride,
+        game = game
+    )
+
     private lateinit var graphicsDevice: GraphicsDevice
     private lateinit var swapchainManager: SwapchainManager
     private lateinit var renderPipeline: RenderPipeline
