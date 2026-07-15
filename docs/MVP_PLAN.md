@@ -1272,8 +1272,8 @@ add/remove and family churn at 100k).
 
 - [x] **Unified game loop (2026-07-09):** `FixedTimestepLoop` accumulator (`awake-base`) —
       `SceneRuntimeHost.fixedUpdate`/`render` split, wired through `VulkanApplication`
-- [x] **Threading model decision (2026-07-09):** documented as a hard rule in
-      `.claude/AGENTS.md`'s "Threading model" section — one thread owns every Vulkan call,
+- [x] **Threading model decision (2026-07-09):** documented in
+      `docs/architecture.md`'s threading-model rules — one thread owns every Vulkan call,
       `Application.update` is synchronous end-to-end, coroutines for loading/IO only
 - [x] **Input abstraction (2026-07-09):** `Input`/`Key` (`awake-base`) — Android touch via
       `VulkanView.onTouchEvent`, desktop keyboard/mouse via GLFW polling
@@ -2870,8 +2870,8 @@ frame-timing races involved.
   (returns `null`, caller skips the frame) an explicit branch rather than a caught exception.
 - **`DebugControlServer`** (`samples/hello-cube/src/desktopMain/kotlin/
   DebugControlServer.kt`): `embeddedServer(CIO, port = 8090) { ... }.start(wait = false)` —
-  non-blocking, runs on Ktor's own engine thread/coroutines, per this project's
-  `.claude/AGENTS.md` "one thread owns every Vulkan call" rule. The WebSocket handler never
+  non-blocking, runs on Ktor's own engine thread/coroutines, per `docs/architecture.md`'s
+  "one thread owns every Vulkan call" rule. The WebSocket handler never
   touches `DemoCatalog`/ECS state directly: each incoming command is enqueued as a
   `(DebugCommand, CompletableDeferred<DebugSnapshot>)` pair onto a `ConcurrentLinkedQueue`,
   and the handler `await()`s the deferred before sending a response. `Main.kt`'s existing

@@ -12,3 +12,9 @@
 --ignore="**/.gradle/**"
 --ignore="**/vendor/**"
 --ignore="**/third_party/**"
+
+### Read first
+- `docs/architecture.md`
+- `docs/reference/ai-collaboration.md`
+- `docs/reference/ui-ownership.md`
+- `docs/MVP_PLAN.md`

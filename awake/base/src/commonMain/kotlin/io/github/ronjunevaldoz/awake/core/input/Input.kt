@@ -20,13 +20,13 @@ enum class Key {
  * Polled input state, read once per frame from [io.github.ronjunevaldoz.awake.core
  * .application.Application.update] (or a system it calls) -- not callback-driven. This
  * matches the threading model already in place: GLFW callbacks fire synchronously inside
- * `glfwPollEvents()`, which already runs on the single render thread (see this project's
- * `.claude/AGENTS.md` "Threading model" section), so writing straight into these `@Volatile`
- * fields from a platform callback and reading them from the same thread's `update()` call
- * needs no further synchronization. Android touch events arrive on the UI thread instead --
- * those fields are `@Volatile` specifically so a render-thread read can't tear against a
- * concurrent UI-thread write, even though both threads only ever *replace* a value rather
- * than read-modify-write it.
+ * `glfwPollEvents()`, which already runs on the single render thread (see
+ * `docs/architecture.md`'s threading-model rules), so writing straight into these
+ * `@Volatile` fields from a platform callback and reading them from the same thread's
+ * `update()` call needs no further synchronization. Android touch events arrive on the UI
+ * thread instead -- those fields are `@Volatile` specifically so a render-thread read can't
+ * tear against a concurrent UI-thread write, even though both threads only ever *replace* a
+ * value rather than read-modify-write it.
  *
  * A single global object (matching the existing [io.github.ronjunevaldoz.awake.core.utils
  * .Time]/[io.github.ronjunevaldoz.awake.core.utils.Frame] convention in this codebase) --
@@ -66,18 +66,17 @@ object Input {
 
     /** Accumulated scroll/pinch delta along GLFW's `yoffset` axis (trackpad pinch surfaces
      * through GLFW's scroll callback on macOS, with a different feel than a mouse wheel but
-     * the same callback/API -- see this project's `.claude/AGENTS.md`), since the last
-     * [consumeScrollDeltaY] call. Unlike [pointerX]/[pointerY] (absolute, re-polled every
-     * frame), this is event-driven: GLFW's scroll callback only fires on an actual scroll/
-     * pinch tick, so deltas must accumulate here between polls rather than being overwritten,
-     * or a single pinch tick landing between two polls would be lost. `@Volatile` for the
-     * same cross-thread-write reason as the other fields in this object, even though in
-     * practice the GLFW scroll callback fires synchronously inside `glfwPollEvents()` on the
-     * same render thread that later reads it (see the class doc comment). Not `private set`
-     * -- the platform polling function (`pollDesktopInput` in `samples/hello-cube`) is the
-     * writer here, same as [setPointer]/[setKeyDown] elsewhere in this file, just expressed
-     * as a plain field instead of a setter function since it accumulates rather than
-     * replaces. */
+     * the same callback/API), since the last [consumeScrollDeltaY] call. Unlike
+     * [pointerX]/[pointerY] (absolute, re-polled every frame), this is event-driven: GLFW's
+     * scroll callback only fires on an actual scroll/pinch tick, so deltas must accumulate
+     * here between polls rather than being overwritten, or a single pinch tick landing
+     * between two polls would be lost. `@Volatile` for the same cross-thread-write reason as
+     * the other fields in this object, even though in practice the GLFW scroll callback
+     * fires synchronously inside `glfwPollEvents()` on the same render thread that later
+     * reads it (see the class doc comment). Not `private set` -- the platform polling
+     * function (`pollDesktopInput` in `samples/hello-cube`) is the writer here, same as
+     * [setPointer]/[setKeyDown] elsewhere in this file, just expressed as a plain field
+     * instead of a setter function since it accumulates rather than replaces. */
     @Volatile
     var scrollDeltaY: Float = 0f
 

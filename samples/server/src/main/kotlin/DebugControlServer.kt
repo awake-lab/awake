@@ -21,19 +21,19 @@ import kotlinx.coroutines.CompletableDeferred
  * depending on `hello-cube`'s own demo/command types -- this module knows nothing about
  * [TCommand]/[TResponse]'s shape, [parseCommand]/[encodeResponse] are supplied by the caller.
  *
- * **Hard constraint (see this project's `.claude/AGENTS.md` "Threading model" section): one
- * thread owns every Vulkan call, per app instance, and `Application.update(delta)` is that
- * thread's synchronous entry point.** This server's own WebSocket handler runs on Ktor's own
- * engine thread/coroutine (`embeddedServer(...).start(wait = false)` -- non-blocking,
- * background), and must NEVER directly touch a consumer's live app state itself. Instead,
- * every incoming command is enqueued onto [commandQueue] as a `(TCommand,
- * CompletableDeferred<TResponse>)` pair and the handler suspends on the deferred; the
- * consumer's own per-frame render loop (the real render-thread owner) calls [drainCommands]
- * once per frame, applies each command's effect, and completes the paired deferred with the
- * resulting [TResponse] -- the only place any command's mutation or state read actually
- * happens. Completing a `CompletableDeferred` from one thread and awaiting it from a coroutine
- * on another is a normal, correct cross-thread synchronization primitive; it doesn't touch a
- * Vulkan handle itself, so it doesn't violate the rule above.
+ * **Hard constraint (see `docs/architecture.md`'s threading-model rules): one thread owns
+ * every Vulkan call, per app instance, and `Application.update(delta)` is that thread's
+ * synchronous entry point.** This server's own WebSocket handler runs on Ktor's own engine
+ * thread/coroutine (`embeddedServer(...).start(wait = false)` -- non-blocking, background),
+ * and must NEVER directly touch a consumer's live app state itself. Instead, every incoming
+ * command is enqueued onto [commandQueue] as a `(TCommand, CompletableDeferred<TResponse>)`
+ * pair and the handler suspends on the deferred; the consumer's own per-frame render loop
+ * (the real render-thread owner) calls [drainCommands] once per frame, applies each
+ * command's effect, and completes the paired deferred with the resulting [TResponse] -- the
+ * only place any command's mutation or state read actually happens. Completing a
+ * `CompletableDeferred` from one thread and awaiting it from a coroutine on another is a
+ * normal, correct cross-thread synchronization primitive; it doesn't touch a Vulkan handle
+ * itself, so it doesn't violate the rule above.
  */
 class DebugControlServer<TCommand, TResponse>(
     private val port: Int = 8090,

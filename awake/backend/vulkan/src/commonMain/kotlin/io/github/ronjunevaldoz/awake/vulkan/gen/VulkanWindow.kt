@@ -50,8 +50,8 @@ expect object VulkanWindow {
     /** `GLFW_PRESS` (1) if the GLFW key code [key] is currently held, `GLFW_RELEASE` (0)
      * otherwise. Polled once per frame (see the desktop entry point) rather than
      * callback-based -- `glfwPollEvents()` already runs on the single render thread every
-     * frame (see this project's `.claude/AGENTS.md` "Threading model" section), so a poll
-     * there needs no callback/synchronization machinery a push-based API would. */
+     * frame (see `docs/architecture.md`'s threading-model rules), so a poll there needs no
+     * callback/synchronization machinery a push-based API would. */
     fun glfwGetKey(window: Long, key: Int): Int
 
     /** Same polling contract as [glfwGetKey], for a GLFW mouse button code. */
@@ -66,9 +66,9 @@ expect object VulkanWindow {
      * into a native accumulator -- see [glfwConsumeScrollDeltaY]. Must be called once, after
      * [glfwCreateWindow] succeeds and before the first [glfwPollEvents] of the main loop; the
      * callback itself fires synchronously inside `glfwPollEvents()`, same thread, so no
-     * further synchronization is needed once wired (see this project's `.claude/AGENTS.md`
-     * "Threading model" section). This does NOT fit [glfwGetKey]'s polled-getter pattern --
-     * GLFW scroll input is push/callback-based, not a simple state query. */
+     * further synchronization is needed once wired (see `docs/architecture.md`'s
+     * threading-model rules). This does NOT fit [glfwGetKey]'s polled-getter pattern -- GLFW
+     * scroll input is push/callback-based, not a simple state query. */
     fun glfwSetScrollCallback(window: Long)
 
     /** Polled getter, same per-frame-poll contract as [glfwGetKey]/[glfwGetCursorPos]:

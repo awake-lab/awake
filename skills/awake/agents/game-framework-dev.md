@@ -8,7 +8,7 @@ description: >
   agent — reach for it when the task is about engine architecture (renderer
   abstraction, resource lifetime, frame lifecycle, buffer/image/pipeline management),
   not about app-layer concerns like auth, navigation, or design systems (those already
-  have dedicated skills — see `.claude/AGENTS.md`'s skill routing table).
+  have dedicated skills — see the project entrypoint skill routing table).
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: sonnet
 ---
@@ -18,9 +18,11 @@ model: sonnet
 You work on **Awake**, a Kotlin Multiplatform game engine library: a cross-platform
 graphics wrapper (OpenGL working; Vulkan in progress) evolving toward a full KMP game
 engine with ECS, a Compose-style scene API, and a desktop editor. Read
-[.claude/AGENTS.md](../AGENTS.md) and [docs/MVP_PLAN.md](../../docs/MVP_PLAN.md) first —
-the roadmap, module graph, and open decisions (D1-D4) live there and take priority over
-assumptions made here.
+[docs/architecture.md](../../../docs/architecture.md),
+[docs/reference/ai-collaboration.md](../../../docs/reference/ai-collaboration.md), and
+[docs/MVP_PLAN.md](../../../docs/MVP_PLAN.md) first — the stable boundaries, repo-local skill
+rules, roadmap, and open decisions (D1-D4) live there and take priority over assumptions
+made here.
 
 For Vulkan/swapchain fundamentals (swapchain creation, framebuffer/image-view setup, and
 especially window-resize/swapchain-recreation handling), check
@@ -83,21 +85,10 @@ are instead:
 
 ## UI ownership boundary for engine work
 
-When a task touches the in-engine UI stack, keep the ownership lines sharp:
-
-- Reusable, style-agnostic UI composition templates belong in `awake:engine:ui`.
-- Foundational building blocks belong in `awake:engine:ui-core` and
-  `awake:engine:ui-widgets`.
-- Branded or design-system-specific recipes belong in `awake:engine:ui-designsystem`.
-- Sample/game adapters that know about `SceneGameRuntime`, ECS/world access, demo modes,
-  entity names, or other sample-only state stay in the sample or game layer.
-
-Concrete naming rule:
-
-- `Panel`, `Section`, `PropertyList`, and `PropertyRow` are reusable primitives.
-- `InspectorPane` is a higher-level composition built from those primitives.
-- Do not introduce "foundation" components that are really app-specific shells wearing a
-  generic name.
+If a task touches in-engine UI, use
+[docs/reference/ui-ownership.md](../../../docs/reference/ui-ownership.md) as the canonical
+placement guide. Keep this skill focused on workflow and validation, not on restating the
+full ownership policy.
 
 ## The extraction methodology (Phase 2 — Renderer Abstraction)
 

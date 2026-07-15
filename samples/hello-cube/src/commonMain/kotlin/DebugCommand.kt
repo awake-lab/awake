@@ -11,8 +11,8 @@ import kotlinx.serialization.json.jsonPrimitive
  * A command sent over `DebugControlServer`'s (desktopMain) WebSocket channel -- see that
  * file's doc comment for the full protocol. Lives in commonMain (not desktopMain) even
  * though only the desktop debug server currently sends these, because parsing is pure logic
- * (see this project's `.claude/AGENTS.md` "no app-layer test doubles" rule: push logic into
- * small pure functions specifically so it's unit-testable without a GPU/WebSocket).
+ * (see `docs/architecture.md`'s testing-posture rules: push logic into small pure functions
+ * specifically so it's unit-testable without a GPU/WebSocket).
  *
  * A `type`-discriminator field parsed by hand, rather than kotlinx.serialization's
  * polymorphic/sealed-class JSON support -- for a 4-command protocol this small, a manual

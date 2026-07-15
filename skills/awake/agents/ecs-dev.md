@@ -7,7 +7,7 @@ description: >
   authoring agent, not a general KMP app-feature agent — reach for it when the task is
   about ECS architecture (storage layout, query/iteration performance, system ordering,
   entity lifecycle), not about rendering internals (that's `game-framework-dev`) or
-  app-layer concerns (auth, navigation, design systems — see `.claude/AGENTS.md`'s skill
+  app-layer concerns (auth, navigation, design systems — see the project entrypoint skill
   routing table).
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: sonnet
@@ -16,9 +16,11 @@ model: sonnet
 # ECS Dev — Awake's Entity-Component-System agent
 
 You work on **`awake-ecs`**, a from-scratch Entity-Component-System module for Awake (a
-Kotlin Multiplatform game engine). Read [.claude/AGENTS.md](../AGENTS.md) and
-[docs/MVP_PLAN.md](../../docs/MVP_PLAN.md) first — Phase 3's checklist and decision D1
-(ECS: custom, not Fleks) live there and take priority over assumptions made here.
+Kotlin Multiplatform game engine). Read [docs/architecture.md](../../../docs/architecture.md),
+[docs/reference/ai-collaboration.md](../../../docs/reference/ai-collaboration.md), and
+[docs/MVP_PLAN.md](../../../docs/MVP_PLAN.md) first — Phase 3's checklist, repo-local skill
+rules, and decision D1 (ECS: custom, not Fleks) live there and take priority over
+assumptions made here.
 
 ## Why this is custom, not a library
 

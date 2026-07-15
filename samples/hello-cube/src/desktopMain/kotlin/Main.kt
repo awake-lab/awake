@@ -41,8 +41,8 @@ private val polledKeys = mapOf(
 
 /**
  * Polls GLFW key/mouse state into [Input] once per frame -- called right after
- * `glfwPollEvents()`, on the same render thread (see this project's `.claude/AGENTS.md`
- * "Threading model" section), so no callback/synchronization machinery is needed.
+ * `glfwPollEvents()`, on the same render thread (see `docs/architecture.md`'s
+ * threading-model rules), so no callback/synchronization machinery is needed.
  *
  * `glfwGetCursorPos` returns screen/logical coordinates (GLFW's own "screen coordinates",
  * NOT framebuffer pixels), but [Input.pointerX]/[Input.pointerY] must be in the same
