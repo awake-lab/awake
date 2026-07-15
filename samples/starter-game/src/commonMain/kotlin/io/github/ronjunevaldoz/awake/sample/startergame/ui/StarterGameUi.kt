@@ -6,16 +6,14 @@ import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.sample.startergame.presentation.starterOverlayModel
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
-import io.github.ronjunevaldoz.awake.ui.DefaultUiTheme
 import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
 import io.github.ronjunevaldoz.awake.ui.GameUiSpec
-import io.github.ronjunevaldoz.awake.ui.UiAnchor
 import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.UiInsets
-import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.anchored
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.designsystem.DefaultUiTheme
 import io.github.ronjunevaldoz.awake.ui.gameUi
+import io.github.ronjunevaldoz.awake.ui.overlayShell
 import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.shellPane
 import io.github.ronjunevaldoz.awake.ui.textLines
@@ -39,80 +37,83 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
     viewportWidth: Float,
     viewportHeight: Float
 ) {
-    val overlayBounds = UiSlot(0f, 0f, viewportWidth, viewportHeight)
     val model = router.starterOverlayModel(state)
-
-    shellPane(
-        slot = overlayBounds.anchored(
-            anchor = UiAnchor.TopLeft,
+    overlayShell(viewportWidth, viewportHeight) {
+        topLeft(
             width = 280f,
             height = 260f,
             margin = UiInsets(start = 20f.dp, top = 20f.dp, end = 0f.dp, bottom = 0f.dp)
-        ),
-        id = "starter-nav",
-        theme = DefaultUiTheme
-    ) {
-        text("Starter Game")
-        text("Active: ${model.activeSceneLabel}")
-        spacer(8f)
-        model.sceneButtons.forEach { scene ->
-            if (
-                button(
-                    id = "scene-${scene.id}",
-                    label = scene.label,
-                    width = 224f,
-                    height = 32f,
-                    variant = if (scene.selected) UiButtonVariant.Filled else UiButtonVariant.Outline
-                )
+        ) { slot ->
+            shellPane(
+                slot = slot,
+                id = "starter-nav",
+                theme = DefaultUiTheme
             ) {
-                router.switchTo(scene.id)
+                text("Starter Game")
+                text("Active: ${model.activeSceneLabel}")
+                spacer(8f)
+                model.sceneButtons.forEach { scene ->
+                    if (
+                        button(
+                            id = "scene-${scene.id}",
+                            label = scene.label,
+                            width = 224f,
+                            height = 32f,
+                            variant = if (scene.selected) UiButtonVariant.Filled else UiButtonVariant.Outline
+                        )
+                    ) {
+                        router.switchTo(scene.id)
+                    }
+                }
             }
         }
-    }
 
-    shellPane(
-        slot = overlayBounds.anchored(
-            anchor = UiAnchor.TopRight,
+        topRight(
             width = 320f,
             height = 228f,
             margin = UiInsets(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)
-        ),
-        id = "starter-inspector",
-        theme = DefaultUiTheme
-    ) {
-        sectionTitle("Scaffold")
-        text("scene flow")
-        text("shared UI shell")
-        text("thin platform entrypoints")
-        spacer(10f)
-        val nextTipsVisible = checkbox(
-            id = "starter-tips",
-            checked = model.tipsVisible,
-            label = "Show notes",
-            width = 220f,
-            height = 24f
-        )
-        if (nextTipsVisible != model.tipsVisible) {
-            state.tipsVisible = nextTipsVisible
+        ) { slot ->
+            shellPane(
+                slot = slot,
+                id = "starter-inspector",
+                theme = DefaultUiTheme
+            ) {
+                sectionTitle("Scaffold")
+                text("scene flow")
+                text("shared UI shell")
+                text("thin platform entrypoints")
+                spacer(10f)
+                val nextTipsVisible = checkbox(
+                    id = "starter-tips",
+                    checked = model.tipsVisible,
+                    label = "Show notes",
+                    width = 220f,
+                    height = 24f
+                )
+                if (nextTipsVisible != model.tipsVisible) {
+                    state.tipsVisible = nextTipsVisible
+                }
+                if (state.tipsVisible) {
+                    spacer(8f)
+                    textLines(model.notes)
+                }
+            }
         }
-        if (state.tipsVisible) {
-            spacer(8f)
-            textLines(model.notes)
-        }
-    }
 
-    shellPane(
-        slot = overlayBounds.anchored(
-            anchor = UiAnchor.BottomLeft,
+        bottomLeft(
             width = 360f,
             height = 96f,
             margin = UiInsets(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 20f.dp)
-        ),
-        id = "starter-footer",
-        theme = DefaultUiTheme
-    ) {
-        text("Desktop: WASD / arrows / mouse")
-        text("WebSocket debug can switch scenes remotely")
-        text("This sample is the reference scaffold, not a showcase")
+        ) { slot ->
+            shellPane(
+                slot = slot,
+                id = "starter-footer",
+                theme = DefaultUiTheme
+            ) {
+                text("Desktop: WASD / arrows / mouse")
+                text("WebSocket debug can switch scenes remotely")
+                text("This sample is the reference scaffold, not a showcase")
+            }
+        }
     }
 }

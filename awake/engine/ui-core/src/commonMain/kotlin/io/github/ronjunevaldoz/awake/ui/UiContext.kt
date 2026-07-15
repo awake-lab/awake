@@ -36,10 +36,10 @@ class UiContext {
     }
 
     /** Reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
-    fun column(x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): ColumnScope =
+    fun column(x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): ColumnScope =
         ColumnScope(this, font, theme, x, y, width, gap, textScale)
 
-    fun column(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): ColumnScope {
+    fun column(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): ColumnScope {
         val content = slot.inset(insets)
         return column(content.x, content.y, content.width, font, theme, gap, textScale)
     }
@@ -47,28 +47,28 @@ class UiContext {
     /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minimap
      * thumbnail that isn't part of any auto-layout column. Goes through the exact same
      * [UiScope] surface as every other widget; not a special case. */
-    fun absolute(x: Float, y: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f): AbsoluteScope =
+    fun absolute(x: Float, y: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f): AbsoluteScope =
         AbsoluteScope(this, font, theme, x, y, textScale)
 
-    fun absolute(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): AbsoluteScope {
+    fun absolute(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): AbsoluteScope {
         val content = slot.inset(insets)
         return absolute(content.x, content.y, font, theme, textScale)
     }
 
     /** Reserves a horizontal auto-stacking layout region -- see [RowScope]. */
-    fun row(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): RowScope =
+    fun row(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): RowScope =
         RowScope(this, font, theme, x, y, height, gap, textScale)
 
-    fun row(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): RowScope {
+    fun row(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): RowScope {
         val content = slot.inset(insets)
         return row(content.x, content.y, content.height, font, theme, gap, textScale)
     }
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */
-    fun box(x: Float, y: Float, width: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f): BoxScope =
+    fun box(x: Float, y: Float, width: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f): BoxScope =
         BoxScope(this, font, theme, x, y, width, height, textScale)
 
-    fun box(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = DefaultUiTheme, textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): BoxScope {
+    fun box(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): BoxScope {
         val content = slot.inset(insets)
         return box(content.x, content.y, content.width, content.height, font, theme, textScale)
     }

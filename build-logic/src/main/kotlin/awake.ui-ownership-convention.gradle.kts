@@ -4,6 +4,11 @@ val forbiddenUiDeclarationNames = when (project.path) {
         "anchoredRow",
         "anchoredPanel",
         "anchoredSection",
+        "propertyRow",
+        "propertyCheckbox",
+        "DefaultUiTheme",
+        "DarkUiTheme",
+        "LightUiTheme",
         "InspectorPane",
         "DebugOverlay",
         "HudOverlay"
@@ -13,6 +18,8 @@ val forbiddenUiDeclarationNames = when (project.path) {
         "anchoredRow",
         "anchoredPanel",
         "anchoredSection",
+        "propertyRow",
+        "propertyCheckbox",
         "InspectorPane",
         "DebugOverlay",
         "HudOverlay"

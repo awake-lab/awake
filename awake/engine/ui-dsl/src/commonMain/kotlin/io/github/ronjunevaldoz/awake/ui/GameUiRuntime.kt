@@ -59,7 +59,7 @@ class GameUiRuntime internal constructor(
         x: Float,
         y: Float,
         width: Float,
-        theme: UiTheme = DefaultUiTheme,
+        theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
         block: UiColumnDslScope.() -> Unit
@@ -78,7 +78,7 @@ class GameUiRuntime internal constructor(
 
     fun column(
         slot: UiSlot,
-        theme: UiTheme = DefaultUiTheme,
+        theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
@@ -98,7 +98,7 @@ class GameUiRuntime internal constructor(
     fun absolute(
         x: Float,
         y: Float,
-        theme: UiTheme = DefaultUiTheme,
+        theme: UiTheme = CoreUiTheme,
         textScale: Float = 1f,
         block: UiAbsoluteDslScope.() -> Unit
     ) {

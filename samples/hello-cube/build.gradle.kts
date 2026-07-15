@@ -97,6 +97,7 @@ kotlin {
             implementation(project(":awake:engine:game-dsl"))
             // Reusable scene runtime plus authored scene/game DSL.
             implementation(project(":awake:scene-dsl"))
+            implementation(project(":awake:engine:ui-designsystem"))
             // Shared coroutine primitives for tests and any future async sample helpers.
             implementation(libs.kotlinx.coroutines.core)
             // DebugSnapshot is @Serializable so the desktop debug-control server can

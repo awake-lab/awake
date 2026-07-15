@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 private const val STARTER_GAME_VULKAN_VERTEX_SHADER = "assets/shader/vulkan/triangle.vert.spv"
 private const val STARTER_GAME_VULKAN_FRAGMENT_SHADER = "assets/shader/vulkan/triangle.frag.spv"
 
-internal fun createStarterGameVulkanApplication(
+fun createStarterGameVulkanApplication(
     game: AwakeGame = starterGame()
 ): VulkanGameApplication {
     return VulkanGameApplication(

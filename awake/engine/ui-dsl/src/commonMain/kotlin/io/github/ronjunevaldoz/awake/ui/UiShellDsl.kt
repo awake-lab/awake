@@ -2,10 +2,103 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+fun GameUiRuntime.overlayShell(
+    viewportWidth: Float,
+    viewportHeight: Float,
+    block: OverlayShellScope.() -> Unit
+) {
+    OverlayShellScope(
+        runtime = this,
+        bounds = UiSlot(0f, 0f, viewportWidth, viewportHeight)
+    ).block()
+}
+
+class OverlayShellScope internal constructor(
+    private val runtime: GameUiRuntime,
+    private val bounds: UiSlot
+) {
+    fun slot(
+        anchor: UiAnchor,
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero
+    ): UiSlot = bounds.anchored(anchor = anchor, width = width, height = height, margin = margin)
+
+    fun topLeftSlot(
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero
+    ): UiSlot = slot(UiAnchor.TopLeft, width, height, margin)
+
+    fun topRightSlot(
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero
+    ): UiSlot = slot(UiAnchor.TopRight, width, height, margin)
+
+    fun bottomLeftSlot(
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero
+    ): UiSlot = slot(UiAnchor.BottomLeft, width, height, margin)
+
+    fun bottomRightSlot(
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero
+    ): UiSlot = slot(UiAnchor.BottomRight, width, height, margin)
+
+    fun place(
+        anchor: UiAnchor,
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero,
+        content: GameUiRuntime.(slot: UiSlot) -> Unit
+    ) {
+        runtime.content(slot(anchor = anchor, width = width, height = height, margin = margin))
+    }
+
+    fun topLeft(
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero,
+        content: GameUiRuntime.(slot: UiSlot) -> Unit
+    ) {
+        place(UiAnchor.TopLeft, width, height, margin, content)
+    }
+
+    fun topRight(
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero,
+        content: GameUiRuntime.(slot: UiSlot) -> Unit
+    ) {
+        place(UiAnchor.TopRight, width, height, margin, content)
+    }
+
+    fun bottomLeft(
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero,
+        content: GameUiRuntime.(slot: UiSlot) -> Unit
+    ) {
+        place(UiAnchor.BottomLeft, width, height, margin, content)
+    }
+
+    fun bottomRight(
+        width: Float,
+        height: Float,
+        margin: UiInsets = UiInsets.Zero,
+        content: GameUiRuntime.(slot: UiSlot) -> Unit
+    ) {
+        place(UiAnchor.BottomRight, width, height, margin, content)
+    }
+}
+
 fun GameUiRuntime.shellPane(
     slot: UiSlot,
     id: String,
-    theme: UiTheme = DefaultUiTheme,
+    theme: UiTheme = CoreUiTheme,
     gap: Float = UiSpacing.sm.toPx(),
     textScale: Float = 1f,
     insets: UiInsets = UiInsets(12f.dp),

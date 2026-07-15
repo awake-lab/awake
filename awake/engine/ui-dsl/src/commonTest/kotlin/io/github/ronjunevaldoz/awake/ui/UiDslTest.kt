@@ -139,4 +139,54 @@ class UiDslTest {
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
         assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
     }
+
+    @Test
+    fun overlayShellExposesNamedAnchoredRegionsWithoutManualBoundsMath() {
+        val runtime = GameUiRuntime(
+            services = object : GameServiceLookup {
+                override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
+                override fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = error("unused")
+            },
+            spec = gameUi { }
+        )
+        runtime.uiContext.beginFrame(360f, 240f)
+
+        var topRightSlot: UiSlot? = null
+        var bottomLeftSlot: UiSlot? = null
+
+        runtime.overlayShell(viewportWidth = 360f, viewportHeight = 240f) {
+            topRight(
+                width = 120f,
+                height = 80f,
+                margin = UiInsets(start = 0f.dp, top = 12f.dp, end = 16f.dp, bottom = 0f.dp)
+            ) { slot ->
+                topRightSlot = slot
+                shellPane(slot = slot, id = "top-right") {
+                    text("TR")
+                }
+            }
+            bottomLeft(
+                width = 140f,
+                height = 60f,
+                margin = UiInsets(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 8f.dp)
+            ) { slot ->
+                bottomLeftSlot = slot
+                shellPane(slot = slot, id = "bottom-left") {
+                    text("BL")
+                }
+            }
+        }
+
+        val primitives = runtime.uiContext.endFrame()
+        assertEquals(
+            UiSlot(224f, 12f, 120f, 80f),
+            topRightSlot
+        )
+        assertEquals(
+            UiSlot(20f, 172f, 140f, 60f),
+            bottomLeftSlot
+        )
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
+        assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
+    }
 }

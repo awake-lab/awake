@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.ui.DefaultUiTheme
+import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiShape
@@ -30,7 +30,7 @@ class UiDslTutorialDocsTest {
         var showGrid = true
         var showFrustum = false
 
-        ui.ui(x = 20f, y = 20f, width = 280f, font = font, theme = DefaultUiTheme, textScale = 2f) {
+        ui.ui(x = 20f, y = 20f, width = 280f, font = font, theme = CoreUiTheme, textScale = 2f) {
             panel(
                 id = "inspector",
                 height = 190f.toDimension(),
@@ -60,7 +60,7 @@ class UiDslTutorialDocsTest {
             primitives = ui.endFrame(),
             width = 320,
             height = 250,
-            background = DefaultUiTheme.tokens.background
+            background = CoreUiTheme.tokens.background
         )
     }
 }

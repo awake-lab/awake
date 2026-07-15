@@ -9,7 +9,7 @@ fun UiContext.ui(
     y: Float,
     width: Float,
     font: BitmapFont? = null,
-    theme: UiTheme = DefaultUiTheme,
+    theme: UiTheme = CoreUiTheme,
     gap: Float = UiSpacing.sm.toPx(),
     textScale: Float = 1f,
     block: UiColumnDslScope.() -> Unit
@@ -20,7 +20,7 @@ fun UiContext.ui(
 fun UiContext.ui(
     slot: UiSlot,
     font: BitmapFont? = null,
-    theme: UiTheme = DefaultUiTheme,
+    theme: UiTheme = CoreUiTheme,
     gap: Float = UiSpacing.sm.toPx(),
     textScale: Float = 1f,
     insets: UiInsets = UiInsets.Zero,
@@ -33,7 +33,7 @@ fun UiContext.uiAbsolute(
     x: Float,
     y: Float,
     font: BitmapFont? = null,
-    theme: UiTheme = DefaultUiTheme,
+    theme: UiTheme = CoreUiTheme,
     textScale: Float = 1f,
     block: UiAbsoluteDslScope.() -> Unit
 ) {

@@ -12,7 +12,7 @@ Keep the pleasant builder syntax without hiding the real reusable contracts.
 |---|---|---|
 | `awake:engine:game-dsl` | `game {}` / `gameSpec {}` / `gameModule {}` / `feature.createGame {}` / installer syntax | `awake:engine:game` |
 | `awake:scene-dsl` | `sceneGame {}`, `flow {}`, `sceneFlow {}`, and `game/module { ecs { ... } }` | `awake:scene`, `awake:engine:game-dsl`, `awake:engine:ui-dsl` |
-| `awake:engine:ui-dsl` | `gameUi {}`, `game/module { ui { ... } }`, and generic shell helpers like `shellPane(...)` | `awake:engine:game-dsl`, `ui-core`, `ui-widgets` |
+| `awake:engine:ui-dsl` | `gameUi {}`, `game/module { ui { ... } }`, generic shell helpers like `shellPane(...)` / `overlayShell(...)`, and neutral property-form composition | `awake:engine:game-dsl`, `ui-core`, `ui-widgets` |
 
 ## Recommended Authoring Shape
 
@@ -90,3 +90,8 @@ These modules should not own:
 
 Those belong in sample or game modules, or in backend/runtime modules when the behavior is
 generic infrastructure rather than authored syntax.
+
+## Theme Rule
+
+`ui-dsl` stays neutral. Its defaults should use `CoreUiTheme`, while authored samples and
+games should opt into a named theme from `awake:engine:ui-designsystem`.

@@ -68,8 +68,5 @@ object AwakeShadcnTheme : UiTheme {
             shape(8f.dp)
             contentPadding(UiSpacing.sm)
         }
-        override val inspectorLabel: Style = Style {
-            foreground(tokens.mutedForeground)
-        }
     }
 }

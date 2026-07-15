@@ -10,7 +10,7 @@ class UiThemeTest {
 
     @Test
     fun neutralStyleResolvesDistinctColorsPerState() {
-        val tokens = DefaultUiTheme.tokens
+        val tokens = CoreUiTheme.tokens
         val idle = tokens.neutralStyle().resolve(MutableStyleState(hovered = false, active = false)).background!!
         val hovered = tokens.neutralStyle().resolve(MutableStyleState(hovered = true, active = false)).background!!
         val active = tokens.neutralStyle().resolve(MutableStyleState(hovered = true, active = true)).background!!
@@ -21,28 +21,23 @@ class UiThemeTest {
 
     @Test
     fun neutralStyleIsStableAcrossRepeatedCalls() {
-        val tokens = DefaultUiTheme.tokens
+        val tokens = CoreUiTheme.tokens
         val first = tokens.neutralStyle().resolve(MutableStyleState(hovered = true, active = false)).background!!
         val second = tokens.neutralStyle().resolve(MutableStyleState(hovered = true, active = false)).background!!
         assertContentEquals(first, second, "the same state must always resolve to the same color")
     }
 
     @Test
-    fun defaultUiThemeSharesOneNeutralStyleAcrossWidgetKinds() {
-        // Built-ins intentionally share the same neutral-first base style. This pins that down
-        // so component defaults don't silently drift apart.
-        val tokens = DefaultUiTheme.tokens
+    fun coreUiThemeSharesOneNeutralStyleAcrossWidgetKinds() {
         val state = MutableStyleState(hovered = true, active = false)
-        val a = DefaultUiTheme.components.button.resolve(state).background!!
-        val b = DefaultUiTheme.components.slider.resolve(state).background!!
+        val a = CoreUiTheme.components.button.resolve(state).background!!
+        val b = CoreUiTheme.components.slider.resolve(state).background!!
         assertContentEquals(a, b)
     }
 
     @Test
     fun destructiveStyleVariesByStateInsteadOfReturningOneFlatColor() {
-        // A naive destructiveStyle() that ignores StyleState would regress versus the old
-        // hand-rolled DangerUiTheme.
-        val tokens = DefaultUiTheme.tokens
+        val tokens = CoreUiTheme.tokens
         val idle = tokens.destructiveStyle().resolve(MutableStyleState(hovered = false, active = false)).background!!
         val hovered = tokens.destructiveStyle().resolve(MutableStyleState(hovered = true, active = false)).background!!
         val active = tokens.destructiveStyle().resolve(MutableStyleState(hovered = true, active = true)).background!!
@@ -54,12 +49,12 @@ class UiThemeTest {
     @Test
     fun uiThemeSeparatesTokensFromComponentDefaults() {
         val custom = object : UiTheme {
-            override val tokens = DefaultUiTheme.tokens
-            override val components = DefaultUiTheme.components
+            override val tokens = CoreUiTheme.tokens
+            override val components = CoreUiTheme.components
         }
-        assertContentEquals(DefaultUiTheme.tokens.background, custom.tokens.background)
+        assertContentEquals(CoreUiTheme.tokens.background, custom.tokens.background)
         assertContentEquals(
-            DefaultUiTheme.components.button.resolve().background!!,
+            CoreUiTheme.components.button.resolve().background!!,
             custom.components.button.resolve().background!!
         )
     }

@@ -2,18 +2,30 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+private const val PROPERTY_LABEL_GAP = 8f
+private data class PropertyInteraction(
+    val slot: UiSlot,
+    val hovered: Boolean,
+    val active: Boolean,
+    val clicked: Boolean
+)
+
 fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): UiSlot {
     val rowSlot = claimSlot(Dimension.FillMax, height.toDimension())
     val labelWidthPx = labelWidth.toPx()
-    val labelStyle = resolveStyle(defaults = theme.components.inspectorLabel)
+    val labelColor = theme.tokens.mutedForeground
     val resolvedFont = font
     if (resolvedFont != null) {
         val glyphPx = resolvedFont.cellSize * resolvedTextScale()
         val labelSlot = UiSlot(rowSlot.x, rowSlot.y + (rowSlot.height - glyphPx) / 2f, labelWidthPx, glyphPx)
-        text(label, labelSlot, font = resolvedFont, color = labelStyle.foreground ?: theme.tokens.mutedForeground, centered = false)
+        text(label, labelSlot, font = resolvedFont, color = labelColor, centered = false)
     }
-    val gap = 8f
-    return UiSlot(rowSlot.x + labelWidthPx + gap, rowSlot.y, (rowSlot.width - labelWidthPx - gap).coerceAtLeast(0f), rowSlot.height)
+    return UiSlot(
+        rowSlot.x + labelWidthPx + PROPERTY_LABEL_GAP,
+        rowSlot.y,
+        (rowSlot.width - labelWidthPx - PROPERTY_LABEL_GAP).coerceAtLeast(0f),
+        rowSlot.height
+    )
 }
 
 fun UiScope.propertyCheckbox(
@@ -25,13 +37,13 @@ fun UiScope.propertyCheckbox(
     style: Style = Style.Empty,
     boxSize: Dp = 16f.dp
 ): Boolean {
-    val interaction = interact(id, Dimension.FillMax, modifier.height ?: height.toDimension())
-    val labelStyle = resolveStyle(defaults = theme.components.inspectorLabel)
+    val interaction = propertyInteract(id, Dimension.FillMax, modifier.height ?: height.toDimension())
+    val labelColor = theme.tokens.mutedForeground
     val resolvedFont = font
     if (resolvedFont != null) {
         val glyphPx = resolvedFont.cellSize * resolvedTextScale()
         val labelSlot = UiSlot(interaction.slot.x, interaction.slot.y + (interaction.slot.height - glyphPx) / 2f, interaction.slot.width, glyphPx)
-        text(label, labelSlot, font = resolvedFont, color = labelStyle.foreground ?: theme.tokens.mutedForeground, centered = false)
+        text(label, labelSlot, font = resolvedFont, color = labelColor, centered = false)
     }
 
     val resolved = resolveStyle(
@@ -51,7 +63,30 @@ fun UiScope.propertyCheckbox(
     )
     val newChecked = if (interaction.clicked) !checked else checked
     if (newChecked) {
-        emitInsetAccent(boxSlot, boxPx * 0.25f, resolved.shape.toPx(), resolved.shapeSpec)
+        val inset = boxPx * 0.25f
+        emitFillAndBorder(
+            slot = UiSlot(boxSlot.x + inset, boxSlot.y + inset, boxSlot.width - inset * 2f, boxSlot.height - inset * 2f),
+            fillColor = theme.tokens.accent,
+            radiusPx = (resolved.shape.toPx() - inset).coerceAtLeast(0f),
+            borderWidth = UiShape.none,
+            borderColor = theme.tokens.accent,
+            shapeSpec = resolved.shapeSpec
+        )
     }
     return newChecked
+}
+
+private fun UiScope.propertyInteract(id: String, width: Dimension, height: Dimension): PropertyInteraction {
+    val slot = claimSlot(width, height)
+    val hovered = hitTest(slot)
+    tryClaimActive(id, hovered)
+    val wasActiveBeforeRelease = isActive(id)
+    releaseActiveIfMatches(id)
+    val active = isActive(id)
+    return PropertyInteraction(
+        slot = slot,
+        hovered = hovered,
+        active = active,
+        clicked = wasActiveBeforeRelease && !active && hovered
+    )
 }

@@ -3,22 +3,21 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.ui.DarkUiTheme
-import io.github.ronjunevaldoz.awake.ui.DefaultUiTheme
+import io.github.ronjunevaldoz.awake.ui.CoreUiComponentStyles
+import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.LightUiTheme
+import io.github.ronjunevaldoz.awake.ui.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.border
 import io.github.ronjunevaldoz.awake.ui.button
+import io.github.ronjunevaldoz.awake.ui.checkbox
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.panel
-import io.github.ronjunevaldoz.awake.ui.propertyCheckbox
-import io.github.ronjunevaldoz.awake.ui.propertyRow
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.toggle
@@ -44,12 +43,12 @@ class UiSnapshotTest {
 
         val uncheckedUi = UiContext()
         uncheckedUi.beginFrame(160f, 40f)
-        uncheckedUi.absolute(0f, 0f, font = font, theme = DefaultUiTheme).toggle("t", checked = false, width = 160f, height = 40f, label = "ENABLED")
+        uncheckedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme).toggle("t", checked = false, width = 160f, height = 40f, label = "ENABLED")
         saveUiSnapshot("toggle-unchecked", uncheckedUi.endFrame(), 160, 40)
 
         val checkedUi = UiContext()
         checkedUi.beginFrame(160f, 40f)
-        checkedUi.absolute(0f, 0f, font = font, theme = DefaultUiTheme).toggle("t", checked = true, width = 160f, height = 40f, label = "ENABLED")
+        checkedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme).toggle("t", checked = true, width = 160f, height = 40f, label = "ENABLED")
         saveUiSnapshot("toggle-checked", checkedUi.endFrame(), 160, 40)
     }
 
@@ -65,9 +64,9 @@ class UiSnapshotTest {
         UiButtonVariant.entries.forEach { variant ->
             val ui = UiContext()
             ui.beginFrame(160f, 40f)
-            ui.absolute(0f, 0f, font = font, theme = DefaultUiTheme)
+            ui.absolute(0f, 0f, font = font, theme = CoreUiTheme)
                 .button("b-$variant", 160f, 40f, label = "BUTTON", variant = variant, radius = UiShape.md)
-            saveUiSnapshot("button-${variant.name.lowercase()}", ui.endFrame(), 160, 40, background = DefaultUiTheme.tokens.background)
+            saveUiSnapshot("button-${variant.name.lowercase()}", ui.endFrame(), 160, 40, background = CoreUiTheme.tokens.background)
         }
     }
 
@@ -79,7 +78,7 @@ class UiSnapshotTest {
         val font = BitmapFont()
         Input.setPointer(down = false, x = -100f, y = -100f)
 
-        listOf("dark" to DarkUiTheme, "light" to LightUiTheme).forEach { (name, theme: UiTheme) ->
+        listOf("dark" to CoreUiTheme, "light" to SnapshotLightUiTheme).forEach { (name, theme: UiTheme) ->
             val ui = UiContext()
             ui.beginFrame(160f, 40f)
             ui.absolute(0f, 0f, font = font, theme = theme).button("b-$name", 160f, 40f, label = "BUTTON")
@@ -88,11 +87,10 @@ class UiSnapshotTest {
     }
 
     /** [panel]'s own tests (`PanelTest.kt`) only check layout/geometry with empty content
-     * lambdas -- never rendered with real child widgets inside it. Motivating case: a real
-     * "studio inspector" panel (bordered/rounded box) holding a section label, a
-     * [propertyRow]-placed dropdown, and a [propertyCheckbox] row -- the exact shape
-     * `samples:hello-cube`'s scene overlay builds, just without the border/rounded background
-     * it was reported "not visible" against. */
+     * lambdas -- never rendered with real child widgets inside it. Motivating case: a
+     * compact tools panel (bordered/rounded box) holding a section label, a dropdown, and a
+     * checkbox row -- enough to prove the generic widget layer can host nested controls
+     * without relying on higher-level DSL composition. */
     @Test
     fun panelWithNestedChildren() {
         val font = BitmapFont()
@@ -100,7 +98,7 @@ class UiSnapshotTest {
 
         val ui = UiContext()
         ui.beginFrame(240f, 200f)
-        val column = ui.column(x = 20f, y = 20f, width = 200f, font = font, theme = DefaultUiTheme)
+        val column = ui.column(x = 20f, y = 20f, width = 200f, font = font, theme = CoreUiTheme)
         column.panel(
             "inspector",
             Dimension.FillMax,
@@ -108,12 +106,30 @@ class UiSnapshotTest {
             radius = UiShape.md,
             borderWidth = 1f.dp
         ) {
-            text("CAMERA", color = DefaultUiTheme.tokens.mutedForeground)
-            val modeSlot = propertyRow("MODE", 24f)
-            context.absolute(modeSlot.x, modeSlot.y, font, DefaultUiTheme)
-                .dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modeSlot.width, modeSlot.height)
-            propertyCheckbox("debug", checked = true, "DEBUG", 24f)
+            text("CAMERA", color = CoreUiTheme.tokens.mutedForeground)
+            dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, 180f, 24f)
+            checkbox("debug", checked = true, width = 180f, height = 24f, label = "DEBUG")
         }
         saveUiSnapshot("panel-with-children", ui.endFrame(), 240, 200)
     }
+}
+
+private object SnapshotLightUiTheme : UiTheme {
+    override val tokens: UiColorTokens = object : UiColorTokens {
+        override val background = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
+        override val foreground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+        override val primary = floatArrayOf(0.2f, 0.2f, 0.24f, 1f)
+        override val primaryForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
+        override val secondary = floatArrayOf(0.9f, 0.9f, 0.92f, 1f)
+        override val secondaryForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+        override val muted = floatArrayOf(0.9f, 0.9f, 0.92f, 1f)
+        override val mutedForeground = floatArrayOf(0.4f, 0.4f, 0.45f, 1f)
+        override val accent = floatArrayOf(0.85f, 0.85f, 0.88f, 1f)
+        override val accentForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+        override val destructive = floatArrayOf(0.8f, 0.2f, 0.2f, 1f)
+        override val destructiveForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
+        override val border = floatArrayOf(0.8f, 0.8f, 0.83f, 1f)
+    }
+
+    override val components = CoreUiComponentStyles(tokens)
 }
