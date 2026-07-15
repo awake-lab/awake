@@ -16,8 +16,13 @@ pieces.
   carved out first?
 - Which code should remain in `awake-core` once the pure shared pieces move?
 - Do we split `physics` now, or leave it until the scene/runtime shape is settled?
-- Do we want the first UI DSL slice to target inspector panels only, or should it also
-  cover HUD/menu composition in the same pass?
+- Should Awake v1 use one universal `Style`, or separate style types immediately for
+  text/button/panel families?
+- Which properties stay in `UiModifier`, and which must move into the new `Style` layer?
+- Should the first UI DSL slice target inspector panels only, or should it also cover
+  HUD/menu composition in the same pass?
+- Do we want `animate { }` support in the first style pass, or only after the static style
+  property model settles?
 
 ## Fix Lanes
 
@@ -31,6 +36,7 @@ pieces.
 - [2026-07-09-decouple-world](tasks/2026-07-09-decouple-world.md)
 - [2026-07-10-scene-runtime](tasks/2026-07-10-scene-runtime.md)
 - [2026-07-14-ui-dsl-audit](tasks/2026-07-14-ui-dsl-audit.md)
+- [2026-07-14-ui-module-split](tasks/2026-07-14-ui-module-split.md)
 
 ## Archive Index
 

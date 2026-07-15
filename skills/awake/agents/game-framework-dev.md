@@ -81,6 +81,24 @@ are instead:
   logic as possible into small pure functions/classes for that reason — it's a genuine
   architectural goal here, not just a testing nicety.
 
+## UI ownership boundary for engine work
+
+When a task touches the in-engine UI stack, keep the ownership lines sharp:
+
+- Reusable, style-agnostic UI composition templates belong in `awake:engine:ui`.
+- Foundational building blocks belong in `awake:engine:ui-core` and
+  `awake:engine:ui-widgets`.
+- Branded or design-system-specific recipes belong in `awake:engine:ui-designsystem`.
+- Sample/game adapters that know about `SceneGameRuntime`, ECS/world access, demo modes,
+  entity names, or other sample-only state stay in the sample or game layer.
+
+Concrete naming rule:
+
+- `Panel`, `Section`, `PropertyList`, and `PropertyRow` are reusable primitives.
+- `InspectorPane` is a higher-level composition built from those primitives.
+- Do not introduce "foundation" components that are really app-specific shells wearing a
+  generic name.
+
 ## The extraction methodology (Phase 2 — Renderer Abstraction)
 
 The current major thread of work is decomposing `awake-demo/shared/.../VulkanApplication.kt`

@@ -63,6 +63,15 @@ it before starting work; phases and open decisions (D1–D4) are tracked there.*
 - Engine modules do NOT follow the app 6-layer clean architecture
   (`:model/:api/:domain/:data/:presenter/:ui`) — that pattern is for app features, not engine
   subsystems. Do not restructure engine modules to match it.
+- **UI ownership rule**: reusable UI templates must not live in sample modules. Put
+  style-agnostic UI composition templates in `awake:engine:ui`; keep foundational building
+  blocks in `awake:engine:ui-core` and `awake:engine:ui-widgets`; put branded or strongly
+  design-system-specific recipes in `awake:engine:ui-designsystem`. Treat `Panel`, `Section`,
+  `PropertyList`, and `PropertyRow` as reusable primitives, and treat `InspectorPane` as a
+  higher-level composition built from them. If a UI composition knows about
+  `SceneGameRuntime`, ECS/system/world access, entity names, demo modes, or sample-only state,
+  it does not belong in a reusable UI module — keep that adapter at the sample/game layer and
+  pass only generic content/handlers into the template.
 - `.spv` shaders are compiled from GLSL via the `glslValidator` Gradle task (glslang).
 - **Resource bundling rule**: a resource (shader, font atlas, etc.) that is identical across
   every consumer of a backend/engine module belongs in that module's own

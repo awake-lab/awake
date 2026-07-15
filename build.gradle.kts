@@ -50,6 +50,8 @@ tasks.register("developerDocs") {
         ":awake:engine:ui-widgets:dokkaGeneratePublicationHtml",
         ":awake:physics:api:dokkaGeneratePublicationHtml",
         ":awake:scene:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui:desktopTest",
+        ":awake:engine:ui:uiDslTutorialDocsReport",
         ":awake:engine:ui-widgets:desktopTest",
         ":awake:engine:ui-widgets:uiSnapshotReport",
         ":awake:engine:ui-widgets:uiTutorialDocsReport"

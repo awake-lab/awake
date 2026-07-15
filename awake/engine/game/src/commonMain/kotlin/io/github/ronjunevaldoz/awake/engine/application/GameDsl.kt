@@ -34,17 +34,25 @@ interface GameInstaller {
     fun install(into: GameDsl)
 }
 
-class AwakeGame internal constructor(
-    private val delegate: Game,
-    val windowConfig: GameWindowConfig,
-    private val services: Map<KClass<*>, Any>
-) : Game by delegate {
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> service(type: KClass<T>): T? = services[type] as? T
+interface GameServiceLookup {
+    fun <T : Any> service(type: KClass<T>): T?
 
     fun <T : Any> requireService(type: KClass<T>): T = checkNotNull(service(type)) {
         "No game service registered for ${type.simpleName}."
     }
+}
+
+inline fun <reified T : Any> GameServiceLookup.service(): T? = service(T::class)
+
+inline fun <reified T : Any> GameServiceLookup.requireService(): T = requireService(T::class)
+
+class AwakeGame internal constructor(
+    private val delegate: Game,
+    val windowConfig: GameWindowConfig,
+    private val services: Map<KClass<*>, Any>
+) : Game by delegate, GameServiceLookup {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> service(type: KClass<T>): T? = services[type] as? T
 }
 
 inline fun <reified T : Any> AwakeGame.service(): T? = service(T::class)
@@ -53,14 +61,14 @@ inline fun <reified T : Any> AwakeGame.requireService(): T = requireService(T::c
 
 @AwakeGameDsl
 class GameDsl internal constructor() {
-    private var onReady: suspend (Renderer) -> Unit = {}
-    private var onRender: (delta: Float, viewportWidth: Float, viewportHeight: Float) -> Unit = { _, _, _ -> }
-    private var onResize: (width: Float, height: Float) -> Unit = { _, _ -> }
-    private var onPause: () -> Unit = {}
-    private var onResume: () -> Unit = {}
-    private var onDispose: () -> Unit = {}
+    private val onReady = mutableListOf<suspend (Renderer) -> Unit>()
+    private val onRender = mutableListOf<(delta: Float, viewportWidth: Float, viewportHeight: Float) -> Unit>()
+    private val onResize = mutableListOf<(width: Float, height: Float) -> Unit>()
+    private val onPause = mutableListOf<() -> Unit>()
+    private val onResume = mutableListOf<() -> Unit>()
+    private val onDispose = mutableListOf<() -> Unit>()
     private val windowDsl = WindowDsl()
-    private val services = linkedMapOf<KClass<*>, Any>()
+    private val services = MutableGameServices()
 
     fun window(block: WindowDsl.() -> Unit) {
         windowDsl.apply(block)
@@ -71,59 +79,71 @@ class GameDsl internal constructor() {
     }
 
     fun ready(block: suspend (Renderer) -> Unit) {
-        onReady = block
+        onReady += block
     }
 
     fun render(block: (delta: Float, viewportWidth: Float, viewportHeight: Float) -> Unit) {
-        onRender = block
+        onRender += block
     }
 
     fun resize(block: (width: Float, height: Float) -> Unit) {
-        onResize = block
+        onResize += block
     }
 
     fun pause(block: () -> Unit) {
-        onPause = block
+        onPause += block
     }
 
     fun resume(block: () -> Unit) {
-        onResume = block
+        onResume += block
     }
 
     fun dispose(block: () -> Unit) {
-        onDispose = block
+        onDispose += block
     }
 
     fun <T : Any> service(type: KClass<T>, value: T) {
-        services[type] = value
+        services.register(type, value)
+    }
+
+    fun <T : Any> service(type: KClass<T>): T? = services.service(type)
+
+    fun <T : Any> requireService(type: KClass<T>): T = services.requireService(type)
+
+    fun serviceLookup(): GameServiceLookup = services
+
+    internal fun <T : Any> registerService(type: KClass<T>, value: T) {
+        services.register(type, value)
     }
 
     internal fun build(): AwakeGame = AwakeGame(
         delegate = object : Game {
-            override suspend fun ready(renderer: Renderer) = onReady(renderer)
+            override suspend fun ready(renderer: Renderer) {
+                onReady.forEach { callback -> callback(renderer) }
+            }
 
             override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
-                onRender(delta, viewportWidth, viewportHeight)
+                onRender.forEach { callback -> callback(delta, viewportWidth, viewportHeight) }
             }
 
             override fun resize(width: Float, height: Float) {
-                onResize(width, height)
+                onResize.forEach { callback -> callback(width, height) }
             }
 
             override fun pause() {
-                onPause()
+                onPause.forEach { callback -> callback() }
             }
 
             override fun resume() {
-                onResume()
+                onResume.forEach { callback -> callback() }
             }
 
             override fun dispose() {
-                onDispose()
+                onDispose.asReversed().forEach { callback -> callback() }
             }
         },
         windowConfig = windowDsl.build(),
-        services = services.toMap()
+        services = services.snapshot()
     )
 }
 
@@ -166,4 +186,17 @@ class WindowBackendDsl internal constructor() {
     fun openGl() {
         selection = GameWindowBackend.OPENGL
     }
+}
+
+private class MutableGameServices : GameServiceLookup {
+    private val services = linkedMapOf<KClass<*>, Any>()
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> service(type: KClass<T>): T? = services[type] as? T
+
+    fun <T : Any> register(type: KClass<T>, value: T) {
+        services[type] = value
+    }
+
+    fun snapshot(): Map<KClass<*>, Any> = services.toMap()
 }

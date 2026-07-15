@@ -93,6 +93,41 @@ class GameDslTest {
 
         assertEquals("debug", game.requireService(String::class))
     }
+
+    @Test
+    fun gameDslComposesInstallerCallbacksInOrder() = runTest {
+        val events = mutableListOf<String>()
+        val game = game {
+            ready { events += "root-ready" }
+            render { _, _, _ -> events += "root-render" }
+            dispose { events += "root-dispose" }
+            install(
+                object : GameInstaller {
+                    override fun install(into: GameDsl) {
+                        into.ready { events += "feature-ready" }
+                        into.render { _, _, _ -> events += "feature-render" }
+                        into.dispose { events += "feature-dispose" }
+                    }
+                }
+            )
+        }
+
+        game.ready(FakeRenderer)
+        game.render(0.016f, 320f, 200f)
+        game.dispose()
+
+        assertEquals(
+            listOf(
+                "root-ready",
+                "feature-ready",
+                "root-render",
+                "feature-render",
+                "feature-dispose",
+                "root-dispose"
+            ),
+            events
+        )
+    }
 }
 
 private object FakeRenderer : Renderer {

@@ -107,7 +107,7 @@
       "source": "ronjunevaldoz/kmm-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kotlin-multiplatform-design-system/SKILL.md",
-      "computedHash": "3b75e9eb17f9f58f4ead02d2320f1e6802fc13f17955a19e89f4129140199a4f"
+      "computedHash": "caa0bcb3aea18836bb2271fec096a8e0f12b6166164fc09e80319ff1f6235dcf"
     },
     "kotlin-multiplatform-design-system-extended": {
       "source": "ronjunevaldoz/kmm-agent-skills",
@@ -137,7 +137,7 @@
       "source": "ronjunevaldoz/kmm-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kotlin-multiplatform-expert/SKILL.md",
-      "computedHash": "5048c3a911a7634d6d4a557a4c3fd8964f98f747a7d22ae493181677176421cb"
+      "computedHash": "1a9bb22ead9efc196f5cdc7f99857cf9bc758d82ffb21d467043f06e02b1f45f"
     },
     "kotlin-multiplatform-feature-flags": {
       "source": "ronjunevaldoz/kmm-agent-skills",
@@ -239,7 +239,7 @@
       "source": "ronjunevaldoz/kmm-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kotlin-multiplatform-migration/SKILL.md",
-      "computedHash": "2c8eb6efd23f365874abdb219ff8a300ca09273b0b56776cd64e2d4e27701748"
+      "computedHash": "fc7d57c488cbdc0592df21c6e7a3ada2d170f32daef34302f873ddf46dc4fb7a"
     },
     "kotlin-multiplatform-mongodb-database": {
       "source": "ronjunevaldoz/kmm-agent-skills",
@@ -323,7 +323,7 @@
       "source": "ronjunevaldoz/kmm-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kotlin-multiplatform-repository-pattern/SKILL.md",
-      "computedHash": "7e3f74810c0114f2d29923bd54937f8e16f94eb56090db7eff77f963d1178085"
+      "computedHash": "ba3249d7f1678276f9b3c88e73268b8760ba4fbf7577ae816e618b27feab66af"
     },
     "kotlin-multiplatform-roborazzi": {
       "source": "ronjunevaldoz/kmm-agent-skills",
@@ -335,7 +335,7 @@
       "source": "ronjunevaldoz/kmm-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kotlin-multiplatform-shadcn-compose/SKILL.md",
-      "computedHash": "076bb3914477f69b006b701ff7c231927cae4cf77832be36d2d8b45268d20604"
+      "computedHash": "b81704acd34922883167dc66675f77cfa2de02bcfb83c0b319c7e07f0fa9d74e"
     },
     "kotlin-multiplatform-shared-resources": {
       "source": "ronjunevaldoz/kmm-agent-skills",

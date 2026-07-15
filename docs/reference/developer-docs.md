@@ -19,6 +19,8 @@ Run:
 This currently builds:
 
 - module API references through `dokkaGeneratePublicationHtml`
+- the UI DSL tutorial guide at
+  `awake/engine/ui/build/reports/ui-dsl-tutorials/index.html`
 - the UI snapshot gallery at
   `awake/engine/ui-widgets/build/reports/ui-snapshots/index.html`
 - the curated UI tutorial guide at
@@ -45,6 +47,7 @@ Every published module should keep its KDoc good enough that Dokka is worth open
 
 Use snapshot-backed guides for:
 
+- the declarative UI facade in `awake:engine:ui`
 - UI widgets
 - style composition
 - layout patterns
@@ -56,12 +59,13 @@ signature?"
 
 ## Adding a UI Tutorial
 
-1. Add or update a curated test in
-   `awake/engine/ui-widgets/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiTutorialDocsTest.kt`
+1. Add or update a curated test in either:
+   - `awake/engine/ui/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiDslTutorialDocsTest.kt`
+   - `awake/engine/ui-widgets/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiTutorialDocsTest.kt`
 2. Render the example with `saveUiTutorialSnapshot(...)`
 3. Keep the title and summary short and tutorial-oriented
-4. Re-run `./gradlew :awake:engine:ui-widgets:desktopTest`
-5. Open `awake/engine/ui-widgets/build/reports/ui-tutorials/index.html`
+4. Re-run the matching desktop test task
+5. Open the generated HTML report for that module
 
 The important convention is that tutorial screenshots are generated from tests, not from
 manually curated images. That gives us docs that stay close to the code and fail loudly when
@@ -73,6 +77,7 @@ the rendering surface changes.
 
 Now in place:
 
+- curated UI DSL tutorial snapshots
 - curated UI tutorial snapshots
 - generated HTML tutorial page
 - generated visual review gallery

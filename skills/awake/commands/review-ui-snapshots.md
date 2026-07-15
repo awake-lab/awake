@@ -108,6 +108,10 @@ For each WARNING or FAIL, tie it to the actual widget code, not a generic sugges
 - This is a supplement to, not a replacement for, `awake:engine:ui`'s own pass/fail unit
   tests (`UiContextTest.kt`, `LayoutTest.kt`, etc, kept in a separate package on purpose —
   see the session decision to keep unit tests and snapshot/visual tests apart).
+- When recommending a fix, route it to the right layer: foundational drawing/layout fixes
+  belong in `awake:engine:ui-core` or `awake:engine:ui-widgets`, reusable composition fixes
+  belong in `awake:engine:ui`, and branded look-and-feel tweaks belong in
+  `awake:engine:ui-designsystem`.
 - Run this after adding a new theme, widget variant, or state (checked/hovered/active/
   disabled) to `UiSnapshotTest.kt` (or wherever new snapshot tests land), or after any
   change to `Widgets.kt`'s emit order.

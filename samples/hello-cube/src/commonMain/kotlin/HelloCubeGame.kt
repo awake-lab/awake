@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemHandle
 import io.github.ronjunevaldoz.awake.scene.runtime.ecs
 import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
+import io.github.ronjunevaldoz.awake.ui.ui
 
 data class HelloCubeDebugConfig(
     val websocketControlsEnabled: Boolean,
@@ -117,9 +118,6 @@ fun helloCubeGame(): AwakeGame {
                 }
                 updateHelloCubeHud(state, delta)
             }
-            overlay { viewportWidth, viewportHeight ->
-                drawHelloCubeOverlay(state, viewportWidth, viewportHeight)
-            }
             onReady {
                 if (debugConfig.offscreenProofEnabled) {
                     verifyHelloCubeOffscreenReadback()
@@ -127,6 +125,16 @@ fun helloCubeGame(): AwakeGame {
             }
             service { debugConfig }
             service { HelloCubeDebugController(this, state) }
+        }
+        ui {
+            overlay { viewportWidth, viewportHeight ->
+                drawHelloCubeOverlay(
+                    scene = requireService(),
+                    state = state,
+                    viewportWidth = viewportWidth,
+                    viewportHeight = viewportHeight
+                )
+            }
         }
     }
 }

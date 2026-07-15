@@ -5,7 +5,7 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.application.WindowBackendDsl
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
 import kotlin.math.round
 
 internal enum class HelloCubeCameraMode {
@@ -44,29 +44,28 @@ internal suspend fun SceneGameRuntime.verifyHelloCubeOffscreenReadback() {
     saveDebugPng(pixels.data, pixels.width, pixels.height, "offscreen-debug.png")
 }
 
-internal fun SceneGameRuntime.drawHelloCubeOverlay(
+internal fun GameUiRuntime.drawHelloCubeOverlay(
+    scene: SceneGameRuntime,
     state: HelloCubeRuntimeState,
     viewportWidth: Float,
     viewportHeight: Float
 ) {
-    uiContext.ui(
+    column(
         x = viewportWidth - 320f,
         y = 24f,
         width = 280f,
-        font = font,
         textScale = HELLO_CUBE_TEXT_SCALE
     ) {
-        text("SCENE: $sceneName")
+        text("SCENE: ${scene.sceneName}")
         text("MODE: ${state.mode.name}")
-        text("CAMERA: ${requireCamera("camera").camera.eye.debugLabel()}")
+        text("CAMERA: ${scene.requireCamera("camera").camera.eye.debugLabel()}")
     }
 
-    val lines = helloCubeDebugLines(state)
-    uiContext.ui(
+    val lines = scene.helloCubeDebugLines(state)
+    column(
         x = 20f,
         y = viewportHeight - lines.size * HELLO_CUBE_HUD_LINE_HEIGHT - 12f,
         width = 320f,
-        font = font,
         textScale = HELLO_CUBE_TEXT_SCALE
     ) {
         lines.forEach { line ->

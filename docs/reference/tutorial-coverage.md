@@ -22,6 +22,7 @@ Every public-facing module should eventually have:
 | `awake:ecs` | Dokka + `awake/ecs/README.md` | Partial | Benchmarks/tests | Partial | Add "first world/system/query" tutorial |
 | `awake:engine` | Dokka | Not yet | Sample bootstrap | Planned | Add engine lifecycle walkthrough |
 | `awake:engine:game` | Dokka | Not yet | `samples:hello-cube` bootstrap proof | Planned | Add backend-neutral game setup tutorial |
+| `awake:engine:ui` | Dokka | Partial | UI DSL tutorial snapshots | In progress | Expand facade cookbook and custom component examples |
 | `awake:engine:render-api` | Dokka | Not yet | Compileable sample | Planned | Add mesh/material/renderer usage guide |
 | `awake:engine:ui-core` | Dokka | Partial | UI tutorial snapshots | In progress | Add path/style/shape guide |
 | `awake:engine:ui-widgets` | Dokka | Partial | UI tutorial snapshots | In progress | Expand widget cookbook |
@@ -45,6 +46,7 @@ Use generated artifacts for:
 Current implementation:
 
 - `./gradlew developerDocs`
+- `awake/engine/ui/build/reports/ui-dsl-tutorials/index.html`
 - `awake/engine/ui-widgets/build/reports/ui-tutorials/index.html`
 - `awake/engine/ui-widgets/build/reports/ui-snapshots/index.html`
 
