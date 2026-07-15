@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+import org.gradle.api.tasks.JavaExec
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -17,10 +19,12 @@ kotlin {
         namespace = "io.github.ronjunevaldoz.awake.sample.startergame"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
+        withHostTest {}
     }
 
     jvm("desktop")
 
+    val xcf = XCFramework("StarterGame")
     val moltenVkStaticDir = mapOf(
         "iosArm64" to project(":awake:backend:vulkan").file(
             "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/ios-arm64"
@@ -45,6 +49,7 @@ kotlin {
             baseName = "StarterGame"
             isStatic = true
             linkerOpts(moltenVkLinkerOpts("iosArm64"))
+            xcf.add(this)
         }
     }
     iosSimulatorArm64 {
@@ -52,6 +57,7 @@ kotlin {
             baseName = "StarterGame"
             isStatic = true
             linkerOpts(moltenVkLinkerOpts("iosSimulatorArm64"))
+            xcf.add(this)
         }
     }
 
@@ -121,7 +127,7 @@ val dyldFallbackLibraryPath = "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew
 tasks.register<JavaExec>("run") {
     group = "application"
     description = "Run the Awake starter-game sample."
-    dependsOn("compileKotlinDesktop", "desktopProcessResources")
+    dependsOn("desktopMainClasses")
     mainClass.set("io.github.ronjunevaldoz.awake.sample.startergame.app.MainKt")
     classpath = files(
         layout.buildDirectory.dir("classes/kotlin/desktop/main"),
@@ -137,4 +143,17 @@ tasks.register<JavaExec>("run") {
         jvmArgsList += "-XstartOnFirstThread"
     }
     jvmArgs(jvmArgsList)
+}
+
+tasks.register("validateStarterPlatforms") {
+    group = "verification"
+    description = "Build and test the starter sample across desktop, Android, iOS simulator, and web."
+    dependsOn(
+        "desktopTest",
+        "desktopJar",
+        "androidApp:assembleDebug",
+        "linkDebugFrameworkIosSimulatorArm64",
+        "iosSimulatorArm64Test",
+        "wasmJsBrowserDistribution"
+    )
 }

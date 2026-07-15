@@ -11,6 +11,8 @@ import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
+import java.net.BindException
+import java.net.ServerSocket
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.CompletableDeferred
 
@@ -38,7 +40,7 @@ import kotlinx.coroutines.CompletableDeferred
  * itself, so it doesn't violate the rule above.
  */
 class DebugControlServer<TCommand, TResponse>(
-    private val port: Int = 8090,
+    private val port: Int = AWAKE_DEBUG_CONTROL_PORT,
     private val parseCommand: (String) -> TCommand?,
     private val encodeResponse: (TResponse) -> String
 ) : DebugControlTransport<TCommand, TResponse> {
@@ -46,6 +48,11 @@ class DebugControlServer<TCommand, TResponse>(
     private var server: EmbeddedServer<*, *>? = null
 
     override fun start() {
+        try {
+            ServerSocket(port).use { }
+        } catch (error: BindException) {
+            throw BindException(port.toString()).also { it.initCause(error) }
+        }
         server = embeddedServer(CIO, port = port) {
             install(WebSockets)
             routing {

@@ -12,9 +12,10 @@ data class GlyphRect(val u0: Float, val v0: Float, val u1: Float, val v1: Float)
  * would be solving a problem this UI doesn't have yet.
  *
  * Covers the full uppercase A-Z/0-9 range plus the punctuation this repo's UI labels use
- * (` .-:_`) -- no lowercase, since every existing label in this codebase is upper-case debug
- * text. Extending coverage further means adding another row to [GLYPH_ROWS] below, each entry
- * a `Char` to 8 row-bitmasks (bit 7 = leftmost pixel). Builds its own atlas pixel buffer at
+ * (` .-:_`). Lowercase input aliases to the matching uppercase cell so mixed-case labels stay
+ * legible without doubling the atlas size for what is still intentionally a tiny debug font.
+ * Extending coverage further means adding another row to [GLYPH_ROWS] below, each entry a
+ * `Char` to 8 row-bitmasks (bit 7 = leftmost pixel). Builds its own atlas pixel buffer at
  * construction time (one row of 8x8 cells, white-on-transparent) rather than loading an
  * external asset -- no offline generation step, no metadata file to parse.
  *
@@ -53,12 +54,20 @@ class BitmapFont {
     }
 
     fun uvFor(char: Char): GlyphRect? {
-        val index = chars.indexOf(char)
+        val atlasChar = atlasCharFor(char)
+        val index = chars.indexOf(atlasChar)
         if (index < 0) return null
         val u0 = (index * cellSize).toFloat() / atlasWidth
         val u1 = ((index + 1) * cellSize).toFloat() / atlasWidth
         return GlyphRect(u0 = u0, v0 = 0f, u1 = u1, v1 = 1f)
     }
+
+    private fun atlasCharFor(char: Char): Char =
+        when {
+            GLYPH_ROWS.containsKey(char) -> char
+            char.isLowerCase() && GLYPH_ROWS.containsKey(char.uppercaseChar()) -> char.uppercaseChar()
+            else -> char
+        }
 
     private companion object {
         // Each entry: 8 row-bitmasks, top to bottom, bit 7 = leftmost of 8 columns. Simple

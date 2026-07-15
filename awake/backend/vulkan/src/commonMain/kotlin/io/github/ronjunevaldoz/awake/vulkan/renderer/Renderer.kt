@@ -27,18 +27,23 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
+import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkAttachmentLoadOp
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCommandBufferLevel
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageAspectFlagBits
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageLayout
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageViewType
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkResult
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
+import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkAccessFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
@@ -46,11 +51,14 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
+import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
+import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
+import io.github.ronjunevaldoz.awake.vulkan.models.VkSubpassDependency
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
@@ -65,9 +73,11 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFilter
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkPresentInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerAddressMode
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerMipmapMode
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferImageCopy
@@ -133,6 +143,7 @@ class Renderer(
     private var depthImage: Long = 0
     private var depthImageMemory: Long = 0
     private var depthImageView: Long = 0
+    private var presentTransitionRenderPass: Long = 0
 
     // Reused every call by renderToTexture()/readPixels() -- NOT transferContext
     // .runOneTimeCommands(), which allocates a fresh command buffer from the shared pool
@@ -152,7 +163,9 @@ class Renderer(
     // calls drawUi never builds either pipeline at all.
     private var uiRenderPipeline: UiRenderPipeline? = null
     private var uiFramebuffers: List<Long> = emptyList()
+    private var presentTransitionFramebuffers: List<Long> = emptyList()
     private var uiGlyphRenderPipeline: UiGlyphRenderPipeline? = null
+    private var offscreenGlyphRenderPipeline: UiGlyphRenderPipeline? = null
     private var fontTexture: Texture? = null
 
     // Lazily built on the first drawUi() call that has any Texture primitives -- see
@@ -242,6 +255,7 @@ class Renderer(
     init {
         createDepthResources()
         createFramebuffers()
+        createPresentTransitionResources()
         createCommandBuffers(transferContext.commandPool.handle, maxFramesInFlight)
     }
 
@@ -417,7 +431,32 @@ class Renderer(
     private fun ensureGlyphPipeline(font: BitmapFont) {
         if (uiGlyphRenderPipeline != null) return
         val renderPass = requireNotNull(uiRenderPipeline) { "ensureUiQuadPipeline() must run first." }.renderPass
-        val texture = Texture(
+        val texture = ensureFontTexture(font)
+        uiGlyphRenderPipeline = UiGlyphRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            renderPass,
+            uiGlyphVertexShaderCode,
+            uiGlyphFragmentShaderCode,
+            texture
+        )
+    }
+
+    private fun ensureOffscreenGlyphPipeline(font: BitmapFont) {
+        if (offscreenGlyphRenderPipeline != null) return
+        offscreenGlyphRenderPipeline = UiGlyphRenderPipeline(
+            graphicsDevice,
+            swapchainManager,
+            renderPipeline.renderPass,
+            uiGlyphVertexShaderCode,
+            uiGlyphFragmentShaderCode,
+            ensureFontTexture(font)
+        )
+    }
+
+    private fun ensureFontTexture(font: BitmapFont): Texture {
+        fontTexture?.let { return it }
+        return Texture(
             graphicsDevice,
             transferContext::runOneTimeCommands,
             font.atlasPixelsRgba,
@@ -431,16 +470,7 @@ class Renderer(
                 addressModeW = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
                 mipmapMode = VkSamplerMipmapMode.VK_SAMPLER_MIPMAP_MODE_NEAREST
             )
-        )
-        fontTexture = texture
-        uiGlyphRenderPipeline = UiGlyphRenderPipeline(
-            graphicsDevice,
-            swapchainManager,
-            renderPass,
-            uiGlyphVertexShaderCode,
-            uiGlyphFragmentShaderCode,
-            texture
-        )
+        ).also { fontTexture = it }
     }
 
     /** Builds [uiTextureRenderPipeline]/[textureQuadMesh] on the first [drawUi] call that
@@ -533,6 +563,61 @@ class Renderer(
             Vulkan.vkCreateFramebuffer(device, frameBufferInfo)
         }.toList()
     }
+
+    /** Empty render pass used only when no UI overlay pass was recorded for the frame. It
+     * preserves the 3D color attachment contents and performs the swapchain image's final
+     * COLOR_ATTACHMENT_OPTIMAL -> PRESENT_SRC_KHR transition before present. */
+    private fun createPresentTransitionResources() {
+        presentTransitionRenderPass = Vulkan.vkCreateRenderPass(
+            device,
+            VkRenderPassCreateInfo(
+                pAttachments = arrayOf(
+                    VkAttachmentDescription(
+                        format = swapchainManager.imageFormat,
+                        loadOp = VkAttachmentLoadOp.LOAD,
+                        initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                        finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+                    )
+                ),
+                pSubpasses = arrayOf(
+                    VkSubpassDescription(
+                        pipelineBindPoint = VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS,
+                        pColorAttachments = arrayOf(
+                            VkAttachmentReference(
+                                attachment = 0,
+                                layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+                            )
+                        )
+                    )
+                ),
+                pDependencies = arrayOf(
+                    VkSubpassDependency(
+                        srcSubpass = VK_SUBPASS_EXTERNAL,
+                        dstSubpass = 0,
+                        srcStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
+                        srcAccessMask = 0,
+                        dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
+                        dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or
+                            VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value
+                    )
+                )
+            )
+        )
+        presentTransitionFramebuffers = buildPresentTransitionFramebuffers()
+    }
+
+    private fun buildPresentTransitionFramebuffers(): List<Long> = swapchainManager.imageViews.map { imageView ->
+        Vulkan.vkCreateFramebuffer(
+            device,
+            VkFramebufferCreateInfo(
+                renderPass = presentTransitionRenderPass,
+                pAttachments = arrayOf(imageView),
+                width = swapchainManager.extent.width,
+                height = swapchainManager.extent.height,
+                layers = 1
+            )
+        )
+    }.toList()
 
     private fun createCommandBuffers(commandPool: Long, maxFramesInFlight: Int) {
         val allocInfo = VkCommandBufferAllocateInfo(
@@ -1113,6 +1198,41 @@ class Renderer(
         lineMesh.update(vertices)
     }
 
+    /**
+     * Headless/offscreen test hook: renders glyph primitives into [target] using the real
+     * Vulkan glyph pipeline rather than the CPU snapshot path. Kept on the concrete Vulkan
+     * renderer (not the backend-neutral interface) because it exists to baseline this
+     * backend's own font pipeline, not to become cross-backend API surface.
+     */
+    fun renderUiGlyphsToTexture(target: RenderTarget, glyphs: List<UiDrawPrimitive.Glyph>, font: BitmapFont) {
+        val offscreen = target as OffscreenRenderTarget
+        ensureOffscreenGlyphPipeline(font)
+        val glyphPipeline = requireNotNull(offscreenGlyphRenderPipeline)
+        glyphPipeline.writeScreenSize(offscreen.width.toFloat(), offscreen.height.toFloat())
+
+        val mesh = glyphMeshForRun(0)
+        stageGlyphRun(mesh, glyphs)
+
+        runOffscreenCommands { commandBuffer ->
+            val renderPassInfo = VkRenderPassBeginInfo(
+                renderPass = renderPipeline.renderPass,
+                framebuffer = offscreen.framebuffer,
+                renderArea = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height)),
+                pClearValues = arrayOf(clearColorValue, clearDepthValue)
+            )
+            Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
+            val viewport = VkViewport(width = offscreen.width.toFloat(), height = offscreen.height.toFloat())
+            Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
+            val scissor = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height))
+            Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+            glyphPipeline.bind(commandBuffer)
+            mesh.bind(commandBuffer)
+            mesh.draw(commandBuffer)
+            Vulkan.vkCmdEndRenderPass(commandBuffer)
+            offscreen.transitionToShaderReadOnly(commandBuffer)
+        }
+    }
+
     private fun writeLineVertex(out: FloatArray, offset: Int, x: Float, y: Float, z: Float, color: FloatArray) {
         out[offset] = x
         out[offset + 1] = y
@@ -1161,6 +1281,7 @@ class Renderer(
             Vulkan.vkDestroyFramebuffer(device, framebuffers[index])
             index += 1
         }
+        presentTransitionFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
         uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
         Vulkan.vkDestroyImageView(device, depthImageView)
         VulkanImages.vkDestroyImage(device, depthImage)
@@ -1174,6 +1295,7 @@ class Renderer(
         swapchainManager.create()
         createDepthResources()
         createFramebuffers()
+        presentTransitionFramebuffers = buildPresentTransitionFramebuffers()
 
         val uiPipeline = uiRenderPipeline
         if (uiPipeline != null) {
@@ -1331,6 +1453,18 @@ class Renderer(
             }
 
             Vulkan.vkCmdEndRenderPass(commandBuffer)
+        } else {
+            val presentTransitionPassInfo = VkRenderPassBeginInfo(
+                renderPass = presentTransitionRenderPass,
+                framebuffer = presentTransitionFramebuffers[acquiredImageIndex],
+                renderArea = VkRect2D(extent = swapchainManager.extent)
+            )
+            Vulkan.vkCmdBeginRenderPass(
+                commandBuffer,
+                presentTransitionPassInfo,
+                VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE
+            )
+            Vulkan.vkCmdEndRenderPass(commandBuffer)
         }
 
         Vulkan.vkEndCommandBuffer(commandBuffer)
@@ -1343,9 +1477,12 @@ class Renderer(
             Vulkan.vkDestroyFramebuffer(device, framebuffers[index])
             index += 1
         }
+        presentTransitionFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
         uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
+        Vulkan.vkDestroyRenderPass(device, presentTransitionRenderPass)
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
+        offscreenGlyphRenderPipeline?.destroy()
         uiTextureRenderPipeline?.destroy()
         uiRoundedQuadRenderPipeline?.destroy()
         textureQuadMesh?.destroy()

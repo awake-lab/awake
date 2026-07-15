@@ -32,6 +32,7 @@ kotlin {
         namespace = "io.github.ronjunevaldoz.awake.physics.jolt"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
+        withHostTest {}
     }
 
     // Jolt Physics integration slice 2 (see docs/MVP_PLAN.md's decision log): real iOS

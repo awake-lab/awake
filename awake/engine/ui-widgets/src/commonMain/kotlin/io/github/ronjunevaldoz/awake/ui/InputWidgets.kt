@@ -15,7 +15,7 @@ fun UiScope.slider(
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Float {
-    val slot = claimSlot(modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
+    val slot = claimModifiedSlot(width.toDimension(), height.toDimension(), modifier)
     val hovered = hitTest(slot)
     tryClaimActive(id, hovered)
     val dragging = isActive(id) && Input.pointerDown

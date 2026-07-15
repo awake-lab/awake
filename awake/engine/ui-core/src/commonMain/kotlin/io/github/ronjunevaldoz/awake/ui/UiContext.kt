@@ -65,12 +65,27 @@ class UiContext {
     }
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */
-    fun box(x: Float, y: Float, width: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f): BoxScope =
-        BoxScope(this, font, theme, x, y, width, height, textScale)
+    fun box(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        font: BitmapFont? = null,
+        theme: UiTheme = CoreUiTheme,
+        textScale: Float = 1f,
+        contentAlignment: UiAlignment = UiAlignment.TopStart
+    ): BoxScope = BoxScope(this, font, theme, x, y, width, height, contentAlignment, textScale)
 
-    fun box(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): BoxScope {
+    fun box(
+        slot: UiSlot,
+        font: BitmapFont? = null,
+        theme: UiTheme = CoreUiTheme,
+        textScale: Float = 1f,
+        insets: UiInsets = UiInsets.Zero,
+        contentAlignment: UiAlignment = UiAlignment.TopStart
+    ): BoxScope {
         val content = slot.inset(insets)
-        return box(content.x, content.y, content.width, content.height, font, theme, textScale)
+        return box(content.x, content.y, content.width, content.height, font, theme, textScale, contentAlignment)
     }
 
     /** Publishes this frame's [activeId] state to [Input.pointerCapturedByUi] before handing

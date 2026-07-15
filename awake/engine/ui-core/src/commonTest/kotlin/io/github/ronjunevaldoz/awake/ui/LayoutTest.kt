@@ -102,6 +102,35 @@ class LayoutTest {
     }
 
     @Test
+    fun claimModifiedSlotCentersContentInsideBox() {
+        val ui = UiContext()
+        val box = ui.box(x = 10f, y = 20f, width = 100f, height = 60f, contentAlignment = UiAlignment.Center)
+
+        val slot = box.claimModifiedSlot(
+            defaultWidth = Dimension.Fixed(40f.px),
+            defaultHeight = Dimension.Fixed(20f.px)
+        )
+
+        assertEquals(UiSlot(40f, 40f, 40f, 20f), slot)
+    }
+
+    @Test
+    fun claimModifiedSlotAppliesPaddingAndOffsetAfterAlignment() {
+        val ui = UiContext()
+        val box = ui.box(x = 0f, y = 0f, width = 120f, height = 80f, contentAlignment = UiAlignment.BottomEnd)
+
+        val slot = box.claimModifiedSlot(
+            defaultWidth = Dimension.Fixed(40f.px),
+            defaultHeight = Dimension.Fixed(20f.px),
+            modifier = UiModifier()
+                .padding(start = 8f.dp, top = 6f.dp, end = 10f.dp, bottom = 4f.dp)
+                .offset(x = (-2f).dp, y = (-3f).dp)
+        )
+
+        assertEquals(UiSlot(68f, 53f, 40f, 20f), slot)
+    }
+
+    @Test
     fun columnFactoryFromSlotAppliesInsets() {
         val ui = UiContext()
         val column = ui.column(UiSlot(10f, 20f, 100f, 80f), insets = UiInsets(4f.dp, 6f.dp))

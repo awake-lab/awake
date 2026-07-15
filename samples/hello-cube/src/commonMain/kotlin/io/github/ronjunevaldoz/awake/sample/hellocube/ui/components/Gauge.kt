@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.sample.hellocube.ui.components
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.toDimension
 
 /**
@@ -24,7 +25,7 @@ fun UiScope.gauge(
     trackColor: FloatArray = floatArrayOf(0.2f, 0.2f, 0.2f, 1f),
     fillColor: FloatArray = floatArrayOf(0.3f, 0.7f, 0.3f, 1f)
 ) {
-    val slot = claimSlot(modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
+    val slot = claimModifiedSlot(width.toDimension(), height.toDimension(), modifier)
     emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, trackColor))
     val fillWidth = slot.width * value.coerceIn(0f, 1f)
     if (fillWidth > 0f) {

@@ -63,6 +63,7 @@ kotlin {
         namespace = "io.github.ronjunevaldoz.awake.opengl"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
+        withHostTest {}
     }
     val iosArm64 = iosArm64()
     val iosSimulatorArm64 = iosSimulatorArm64()

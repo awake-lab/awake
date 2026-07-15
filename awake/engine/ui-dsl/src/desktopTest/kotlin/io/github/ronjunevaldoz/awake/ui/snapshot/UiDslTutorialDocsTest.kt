@@ -60,7 +60,8 @@ class UiDslTutorialDocsTest {
             primitives = ui.endFrame(),
             width = 320,
             height = 250,
-            background = CoreUiTheme.tokens.background
+            background = CoreUiTheme.tokens.background,
+            font = font
         )
     }
 }

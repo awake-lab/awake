@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.server
 
+import java.net.BindException
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -71,5 +72,38 @@ class DebugControlLoopTest {
         }
 
         assertEquals(1, runCalls)
+    }
+
+    @Test
+    fun optionalHelperKeepsRunningWhenPortIsBusy() {
+        var beforeFrameCalls = 0
+        var afterLoopCalls = 0
+
+        withOptionalDebugControlLoop<String, String>(
+            enabled = true,
+            createLoop = {
+                DebugControlLoop(
+                    transport = object : DebugControlTransport<String, String> {
+                        override fun start() {
+                            throw BindException(AWAKE_DEBUG_CONTROL_PORT.toString())
+                        }
+
+                        override fun drainCommands() = emptyList<Pair<String, kotlinx.coroutines.CompletableDeferred<String>>>()
+
+                        override fun stop() = Unit
+                    },
+                    applyCommand = {},
+                    snapshot = { "" }
+                )
+            }
+        ) { beforeFrame, afterLoop ->
+            beforeFrameCalls += 1
+            beforeFrame()
+            afterLoopCalls += 1
+            afterLoop()
+        }
+
+        assertEquals(1, beforeFrameCalls)
+        assertEquals(1, afterLoopCalls)
     }
 }

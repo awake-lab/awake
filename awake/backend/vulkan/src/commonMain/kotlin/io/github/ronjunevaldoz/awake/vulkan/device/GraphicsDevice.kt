@@ -173,9 +173,10 @@ class GraphicsDevice {
         }
 
         val features = Vulkan.vkGetPhysicalDeviceFeatures(physicalDevice)
-        val deviceExtensions =
+        val availableDeviceExtensions =
             Vulkan.vkEnumerateDeviceExtensionProperties(physicalDevice)
-                .map { it.extensionName }.toList()
+                .map { it.extensionName }
+                .toSet()
         // Deliberately NOT also querying vkEnumerateDeviceExtensionProperties(physicalDevice,
         // layerName) per-layer (as an earlier version of this function did) -- device-level
         // layers are a deprecated Vulkan 1.0 concept the loader/ICD already ignore in
@@ -189,10 +190,21 @@ class GraphicsDevice {
         // app couldn't even start. Skipping the per-layer query entirely avoids this without
         // losing anything real (the plain, no-layer `deviceExtensions` query above already
         // returns the physical device's actual extension list).
+        val requiredDeviceExtensions = buildList {
+            if (surface != 0L) add("VK_KHR_swapchain")
+            if ("VK_KHR_portability_subset" in availableDeviceExtensions) {
+                add("VK_KHR_portability_subset")
+            }
+        }
+        val missingDeviceExtensions = requiredDeviceExtensions.filterNot(availableDeviceExtensions::contains)
+        require(missingDeviceExtensions.isEmpty()) {
+            "Missing Vulkan device extensions: ${missingDeviceExtensions.joinToString()}"
+        }
+
         val deviceInfo = VkDeviceCreateInfo(
             pQueueCreateInfos = queueInfos.toTypedArray(),
             pEnabledFeatures = arrayOf(features),
-            ppEnabledExtensionNames = deviceExtensions.distinct().toTypedArray()
+            ppEnabledExtensionNames = requiredDeviceExtensions.toTypedArray()
         )
         device = Vulkan.vkCreateDevice(physicalDevice, deviceInfo)
 

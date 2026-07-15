@@ -15,7 +15,7 @@ fun UiScope.buttonSlot(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none
 ): UiButtonResult {
-    val interaction = interact(id, modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
+    val interaction = interact(id, width.toDimension(), height.toDimension(), modifier)
     val defaults = theme.components.button then Style {
         shape(radius)
         if (variant == UiButtonVariant.Outline) {

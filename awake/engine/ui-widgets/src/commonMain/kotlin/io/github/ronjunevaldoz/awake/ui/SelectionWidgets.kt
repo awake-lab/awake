@@ -13,7 +13,7 @@ fun UiScope.toggle(
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Boolean {
-    val interaction = interact(id, modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
+    val interaction = interact(id, width.toDimension(), height.toDimension(), modifier)
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.toggle,
@@ -48,7 +48,7 @@ fun UiScope.checkbox(
     style: Style = Style.Empty,
     boxSize: Dp = 16f.dp
 ): Boolean {
-    val interaction = interact(id, modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
+    val interaction = interact(id, width.toDimension(), height.toDimension(), modifier)
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.checkbox,

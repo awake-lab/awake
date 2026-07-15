@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.button
+import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.panel
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
@@ -132,7 +133,7 @@ fun UiScope.awakeShadcnBadge(
     variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
     style: Style = Style.Empty
 ) {
-    val slot = claimSlot(modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
+    val slot = claimModifiedSlot(width.toDimension(), height.toDimension(), modifier)
     val resolved = resolveStyle(style = style, defaults = AwakeShadcnStyles.badge(variant))
     emitFillAndBorder(
         slot = slot,

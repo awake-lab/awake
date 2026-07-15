@@ -86,6 +86,31 @@ interface UiScope {
     fun widgetState(id: String): WidgetState
 }
 
+private fun UiScope.defaultAlignment(): UiAlignment = when (this) {
+    is BoxScope -> contentAlignment
+    else -> UiAlignment.TopStart
+}
+
+fun UiScope.claimModifiedSlot(
+    defaultWidth: Dimension,
+    defaultHeight: Dimension,
+    modifier: UiModifier = UiModifier()
+): UiSlot {
+    val requestedWidth = modifier.width ?: defaultWidth
+    val requestedHeight = modifier.height ?: defaultHeight
+    val containerSlot = claimSlot(requestedWidth, requestedHeight)
+    val width = requestedWidth.resolveAgainst(containerSlot.width)
+    val height = requestedHeight.resolveAgainst(containerSlot.height)
+    return containerSlot.place(
+        width = width,
+        height = height,
+        alignment = modifier.alignment ?: defaultAlignment(),
+        insets = modifier.insets,
+        offsetX = modifier.offsetX.toPx(),
+        offsetY = modifier.offsetY.toPx()
+    )
+}
+
 fun UiScope.resolveStyle(
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,

@@ -24,6 +24,7 @@ kotlin {
         namespace = "io.github.ronjunevaldoz.awake.sample.hellocube"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
+        withHostTest {}
     }
 
     jvm("desktop")

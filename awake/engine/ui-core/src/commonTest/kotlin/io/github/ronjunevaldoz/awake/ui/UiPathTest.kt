@@ -106,6 +106,24 @@ class UiPathTest {
     }
 
     @Test
+    fun transformScalesAndTranslatesPathCommands() {
+        val path = uiPath {
+            moveTo(1f, 2f)
+            lineTo(3f, 4f)
+            arcTo(0f, 1f, 4f, 5f, 0f, 90f)
+        }.transform(scaleX = 2f, scaleY = 3f, translateX = 5f, translateY = 7f)
+
+        assertEquals(
+            listOf(
+                UiPathCommand.MoveTo(7f, 13f),
+                UiPathCommand.LineTo(11f, 19f),
+                UiPathCommand.ArcTo(5f, 10f, 13f, 22f, 0f, 90f)
+            ),
+            path.commands
+        )
+    }
+
+    @Test
     fun cutCornerFillTessellatesIntoTriangleFan() {
         val mesh = UiShapeSpec.CutCorner(6f.dp).toPath(UiSlot(0f, 0f, 40f, 20f)).tessellateFill()
 
@@ -168,5 +186,34 @@ class UiPathTest {
         assertTrue(topEdgeVertex != null, "expected an interpolated top-edge clip vertex at x=6")
         assertTrue(abs(topEdgeVertex.u - 0.15f) < 0.001f, "u should interpolate along the top edge")
         assertTrue(abs(topEdgeVertex.v) < 0.001f, "v should stay pinned to the top edge")
+    }
+
+    @Test
+    fun imageVectorFitsInsideTargetSlotAndKeepsAspectRatio() {
+        val vector = uiImageVector(
+            defaultWidth = 12f.dp,
+            defaultHeight = 12f.dp,
+            viewportWidth = 12f,
+            viewportHeight = 12f
+        ) {
+            path {
+                moveTo(0f, 0f)
+                lineTo(12f, 0f)
+                lineTo(12f, 12f)
+                close()
+            }
+        }
+
+        val fitted = vector.fitTo(UiSlot(10f, 20f, 24f, 12f)).single().path
+
+        assertEquals(
+            listOf(
+                UiPathCommand.MoveTo(16f, 20f),
+                UiPathCommand.LineTo(28f, 20f),
+                UiPathCommand.LineTo(28f, 32f),
+                UiPathCommand.Close
+            ),
+            fitted.commands
+        )
     }
 }

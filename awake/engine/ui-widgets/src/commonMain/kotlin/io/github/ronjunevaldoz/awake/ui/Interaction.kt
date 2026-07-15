@@ -9,8 +9,13 @@ internal data class UiInteraction(
     val clicked: Boolean
 )
 
-internal fun UiScope.interact(id: String, width: Dimension, height: Dimension): UiInteraction {
-    val slot = claimSlot(width, height)
+internal fun UiScope.interact(
+    id: String,
+    width: Dimension,
+    height: Dimension,
+    modifier: UiModifier = UiModifier()
+): UiInteraction {
+    val slot = claimModifiedSlot(width, height, modifier)
     val hovered = hitTest(slot)
     tryClaimActive(id, hovered)
     val wasActiveBeforeRelease = isActive(id)

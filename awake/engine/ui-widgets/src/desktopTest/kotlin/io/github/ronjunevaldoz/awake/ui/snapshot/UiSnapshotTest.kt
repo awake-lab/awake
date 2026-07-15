@@ -44,12 +44,12 @@ class UiSnapshotTest {
         val uncheckedUi = UiContext()
         uncheckedUi.beginFrame(160f, 40f)
         uncheckedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme).toggle("t", checked = false, width = 160f, height = 40f, label = "ENABLED")
-        saveUiSnapshot("toggle-unchecked", uncheckedUi.endFrame(), 160, 40)
+        saveUiSnapshot("toggle-unchecked", uncheckedUi.endFrame(), 160, 40, font = font)
 
         val checkedUi = UiContext()
         checkedUi.beginFrame(160f, 40f)
         checkedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme).toggle("t", checked = true, width = 160f, height = 40f, label = "ENABLED")
-        saveUiSnapshot("toggle-checked", checkedUi.endFrame(), 160, 40)
+        saveUiSnapshot("toggle-checked", checkedUi.endFrame(), 160, 40, font = font)
     }
 
     /** Idle state only (pointer parked off-canvas) -- [UiButtonVariant.Outline]/[Ghost] have
@@ -66,7 +66,7 @@ class UiSnapshotTest {
             ui.beginFrame(160f, 40f)
             ui.absolute(0f, 0f, font = font, theme = CoreUiTheme)
                 .button("b-$variant", 160f, 40f, label = "BUTTON", variant = variant, radius = UiShape.md)
-            saveUiSnapshot("button-${variant.name.lowercase()}", ui.endFrame(), 160, 40, background = CoreUiTheme.tokens.background)
+            saveUiSnapshot("button-${variant.name.lowercase()}", ui.endFrame(), 160, 40, background = CoreUiTheme.tokens.background, font = font)
         }
     }
 
@@ -82,7 +82,7 @@ class UiSnapshotTest {
             val ui = UiContext()
             ui.beginFrame(160f, 40f)
             ui.absolute(0f, 0f, font = font, theme = theme).button("b-$name", 160f, 40f, label = "BUTTON")
-            saveUiSnapshot("theme-$name", ui.endFrame(), 160, 40, background = theme.tokens.background)
+            saveUiSnapshot("theme-$name", ui.endFrame(), 160, 40, background = theme.tokens.background, font = font)
         }
     }
 
@@ -110,7 +110,7 @@ class UiSnapshotTest {
             dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, 180f, 24f)
             checkbox("debug", checked = true, width = 180f, height = 24f, label = "DEBUG")
         }
-        saveUiSnapshot("panel-with-children", ui.endFrame(), 240, 200)
+        saveUiSnapshot("panel-with-children", ui.endFrame(), 240, 200, font = font)
     }
 }
 

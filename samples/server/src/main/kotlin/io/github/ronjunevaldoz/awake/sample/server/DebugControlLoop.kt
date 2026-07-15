@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.server
 
+import java.net.BindException
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.CompletableDeferred
+
+const val AWAKE_DEBUG_CONTROL_PORT = 42770
 
 interface DebugControlTransport<TCommand, TResponse> {
     fun start()
@@ -33,7 +36,7 @@ class DebugControlLoop<TCommand, TResponse>(
 }
 
 fun <TCommand, TResponse> debugControlLoop(
-    port: Int = 8090,
+    port: Int = AWAKE_DEBUG_CONTROL_PORT,
     parseCommand: (String) -> TCommand?,
     encodeResponse: (TResponse) -> String,
     applyCommand: (TCommand) -> Unit,
@@ -55,7 +58,7 @@ fun <TCommand, TResponse> withOptionalDebugControlLoop(
     createLoop: () -> DebugControlLoop<TCommand, TResponse>,
     run: (beforeFrame: () -> Unit, afterLoop: () -> Unit) -> Unit
 ) {
-    val loop = if (enabled) createLoop() else null
+    var loop = if (enabled) createLoop() else null
     var stopped = false
 
     val stopLoop: () -> Unit = {
@@ -66,7 +69,17 @@ fun <TCommand, TResponse> withOptionalDebugControlLoop(
     }
 
     if (loop != null) {
-        loop.start()
+        try {
+            loop.start()
+        } catch (error: BindException) {
+            val port = error.message
+                ?.substringAfterLast(':')
+                ?.trim()
+                ?.toIntOrNull()
+                ?: AWAKE_DEBUG_CONTROL_PORT
+            System.err.println("Awake debug controls disabled: port $port is already in use.")
+            loop = null
+        }
     }
 
     try {

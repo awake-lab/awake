@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -24,9 +25,10 @@ fun saveUiSnapshot(
     primitives: List<UiDrawPrimitive>,
     width: Int,
     height: Int,
-    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f),
+    font: BitmapFont? = null
 ) {
-    val pixels = primitives.rasterize(width, height, background)
+    val pixels = primitives.rasterize(width, height, background, font)
     val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
     var offset = 0
     for (y in 0 until height) {
@@ -50,9 +52,10 @@ fun saveUiTutorialSnapshot(
     primitives: List<UiDrawPrimitive>,
     width: Int,
     height: Int,
-    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f),
+    font: BitmapFont? = null
 ) {
-    saveUiSnapshot(name, primitives, width, height, background)
+    saveUiSnapshot(name, primitives, width, height, background, font)
 
     synchronized(tutorialManifestLock) {
         val manifest = File("build/ui-snapshots/tutorials.tsv")

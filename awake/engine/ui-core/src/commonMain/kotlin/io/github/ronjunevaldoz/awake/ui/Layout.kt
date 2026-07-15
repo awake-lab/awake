@@ -45,6 +45,11 @@ private inline fun Dimension.resolve(configured: () -> Float): Float = when (thi
     Dimension.FillMax -> configured()
 }
 
+internal fun Dimension.resolveAgainst(available: Float): Float = when (this) {
+    is Dimension.Fixed -> dp.toPx()
+    Dimension.FillMax -> available
+}
+
 /**
  * Vertical auto-stacking layout -- replaces every hand-written `PANEL_ROW_*_Y` constant a
  * consumer used to maintain by hand. Each [claimSlot] call reserves the next row and advances
@@ -134,6 +139,7 @@ class BoxScope internal constructor(
     private val y: Float,
     private val width: Float,
     private val height: Float,
+    internal val contentAlignment: UiAlignment = UiAlignment.TopStart,
     textScale: Float = 1f
 ) : AbstractUiScope(context, font, theme, textScale) {
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot = UiSlot(x, y, this.width, this.height)

@@ -6,18 +6,26 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiImageVector
+import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
+import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.button
 import io.github.ronjunevaldoz.awake.ui.checkbox
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.icon
+import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.panel
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.size
 import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.uiImageVector
 import kotlin.test.Test
 
 /**
@@ -48,7 +56,8 @@ class UiTutorialDocsTest {
             primitives = ui.endFrame(),
             width = 520,
             height = 72,
-            background = CoreUiTheme.tokens.background
+            background = CoreUiTheme.tokens.background,
+            font = font
         )
     }
 
@@ -82,7 +91,8 @@ class UiTutorialDocsTest {
             primitives = ui.endFrame(),
             width = 300,
             height = 180,
-            background = CoreUiTheme.tokens.background
+            background = CoreUiTheme.tokens.background,
+            font = font
         )
     }
 
@@ -114,7 +124,108 @@ class UiTutorialDocsTest {
             primitives = ui.endFrame(),
             width = 280,
             height = 210,
-            background = CoreUiTheme.tokens.background
+            background = CoreUiTheme.tokens.background,
+            font = font
         )
+    }
+
+    @Test
+    fun roundedClipAndVectorTutorial() {
+        val font = BitmapFont()
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(340f, 220f)
+
+        val panelScope = ui.absolute(24f, 24f, font = font, theme = CoreUiTheme)
+        panelScope.panel(
+            id = "vector-showcase",
+            width = Dimension.Fixed(292f.px),
+            height = Dimension.Fixed(164f.px),
+            style = Style {
+                shape(UiShapeSpec.CutCorner(18f.dp))
+                background(floatArrayOf(0.13f, 0.16f, 0.24f, 1f))
+                border(2f.dp, floatArrayOf(0.38f, 0.58f, 0.94f, 1f))
+                contentPadding(14f.dp)
+            },
+            clipContent = true
+        ) { slot ->
+            text("Rounded + Clip + Vector", color = floatArrayOf(0.94f, 0.96f, 1f, 1f))
+            text("The icon intentionally overflows and gets clipped by the cut-corner shell.", color = CoreUiTheme.tokens.mutedForeground)
+
+            context.box(
+                x = slot.x + 16f,
+                y = slot.y + 56f,
+                width = slot.width - 32f,
+                height = 78f,
+                font = font,
+                theme = CoreUiTheme,
+                contentAlignment = UiAlignment.Center
+            ).apply {
+                panel(
+                    id = "chip",
+                    width = Dimension.Fixed(180f.px),
+                    height = Dimension.Fixed(56f.px),
+                    style = Style {
+                        shape(28f.dp)
+                        background(floatArrayOf(0.2f, 0.24f, 0.36f, 1f))
+                        border(1f.dp, floatArrayOf(0.56f, 0.72f, 1f, 1f))
+                    },
+                    modifier = UiModifier().align(UiAlignment.Center)
+                ) {
+                    text("ICON CHIP", color = floatArrayOf(0.95f, 0.97f, 1f, 1f))
+                }
+                icon(
+                    imageVector = tutorialSparkleIcon,
+                    modifier = UiModifier()
+                        .align(UiAlignment.CenterEnd)
+                        .offset(x = 18f.dp)
+                        .size(88f.dp, 88f.dp),
+                    tint = floatArrayOf(0.68f, 0.84f, 1f, 0.95f)
+                )
+            }
+        }
+
+        saveUiTutorialSnapshot(
+            name = "ui-rounded-clip-vector",
+            title = "Rounded Clip And Vector",
+            summary = "Rounded surfaces, colored borders, Box-style alignment, and vector-path icons all compose through the same widget surface, with shape clipping trimming intentional overflow.",
+            primitives = ui.endFrame(),
+            width = 340,
+            height = 220,
+            background = CoreUiTheme.tokens.background,
+            font = font
+        )
+    }
+
+    private companion object {
+        val tutorialSparkleIcon: UiImageVector = uiImageVector(
+            defaultWidth = 24f.dp,
+            defaultHeight = 24f.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ) {
+            path {
+                moveTo(12f, 1f)
+                lineTo(15f, 8.5f)
+                lineTo(23f, 12f)
+                lineTo(15f, 15.5f)
+                lineTo(12f, 23f)
+                lineTo(9f, 15.5f)
+                lineTo(1f, 12f)
+                lineTo(9f, 8.5f)
+                close()
+            }
+            path {
+                moveTo(17f, 2f)
+                lineTo(18f, 4.5f)
+                lineTo(20.5f, 5.5f)
+                lineTo(18f, 6.5f)
+                lineTo(17f, 9f)
+                lineTo(16f, 6.5f)
+                lineTo(13.5f, 5.5f)
+                lineTo(16f, 4.5f)
+                close()
+            }
+        }
     }
 }

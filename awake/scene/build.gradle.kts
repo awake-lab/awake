@@ -39,6 +39,7 @@ kotlin {
         namespace = "io.github.ronjunevaldoz.awake.scene"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
+        withHostTest {}
     }
 
     listOf(

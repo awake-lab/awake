@@ -34,6 +34,7 @@ kotlin {
         namespace = "io.github.ronjunevaldoz.awake.vulkan"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
+        withHostTest {}
     }
 
     // iosX64 (Intel simulator) dropped: Compose Multiplatform stopped publishing it
@@ -215,6 +216,10 @@ val desktopVulkanEnv = buildMap {
 tasks.named<Test>("desktopTest") {
     jvmArgs("-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
     environment(desktopVulkanEnv)
+    // Headless Vulkan tests exercise native loader / instance lifecycle paths that have
+    // proven sensitive to process-shared state when multiple renderer baseline classes run
+    // in one worker. Fork per test class keeps those baselines isolated and reproducible.
+    forkEvery = 1
     finalizedBy("pixelBaselineReport")
 }
 

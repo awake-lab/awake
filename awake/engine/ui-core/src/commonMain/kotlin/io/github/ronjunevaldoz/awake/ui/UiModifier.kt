@@ -36,7 +36,11 @@ fun Float.toDimension(): Dimension = if (this > 0f) Dimension.Fixed(this.px) els
  */
 data class UiModifier(
     val width: Dimension? = null,
-    val height: Dimension? = null
+    val height: Dimension? = null,
+    val alignment: UiAlignment? = null,
+    val offsetX: Dp = UiShape.none,
+    val offsetY: Dp = UiShape.none,
+    val insets: UiInsets = UiInsets.Zero
 )
 
 fun UiModifier.width(dp: Dp): UiModifier = copy(width = Dimension.Fixed(dp))
@@ -44,3 +48,9 @@ fun UiModifier.height(dp: Dp): UiModifier = copy(height = Dimension.Fixed(dp))
 fun UiModifier.size(width: Dp, height: Dp): UiModifier = copy(width = Dimension.Fixed(width), height = Dimension.Fixed(height))
 fun UiModifier.fillMaxWidth(): UiModifier = copy(width = Dimension.FillMax)
 fun UiModifier.fillMaxHeight(): UiModifier = copy(height = Dimension.FillMax)
+fun UiModifier.align(alignment: UiAlignment): UiModifier = copy(alignment = alignment)
+fun UiModifier.offset(x: Dp = UiShape.none, y: Dp = UiShape.none): UiModifier = copy(offsetX = x, offsetY = y)
+fun UiModifier.padding(all: Dp): UiModifier = copy(insets = UiInsets(all))
+fun UiModifier.padding(horizontal: Dp, vertical: Dp): UiModifier = copy(insets = UiInsets(horizontal, vertical))
+fun UiModifier.padding(start: Dp, top: Dp, end: Dp, bottom: Dp): UiModifier =
+    copy(insets = UiInsets(start, top, end, bottom))

@@ -17,19 +17,19 @@ import io.github.ronjunevaldoz.awake.ui.dp
  */
 object AwakeShadcnTheme : UiTheme {
     override val tokens: UiColorTokens = object : UiColorTokens {
-        override val background = floatArrayOf(0.06f, 0.07f, 0.09f, 1f)
-        override val foreground = floatArrayOf(0.96f, 0.97f, 0.99f, 1f)
-        override val primary = floatArrayOf(0.91f, 0.92f, 0.96f, 1f)
-        override val primaryForeground = floatArrayOf(0.09f, 0.1f, 0.13f, 1f)
-        override val secondary = floatArrayOf(0.15f, 0.17f, 0.21f, 1f)
-        override val secondaryForeground = floatArrayOf(0.9f, 0.92f, 0.96f, 1f)
-        override val muted = floatArrayOf(0.12f, 0.14f, 0.18f, 1f)
-        override val mutedForeground = floatArrayOf(0.63f, 0.67f, 0.74f, 1f)
-        override val accent = floatArrayOf(0.26f, 0.48f, 0.95f, 1f)
-        override val accentForeground = floatArrayOf(0.96f, 0.97f, 0.99f, 1f)
-        override val destructive = floatArrayOf(0.82f, 0.25f, 0.28f, 1f)
+        override val background = floatArrayOf(0.035f, 0.035f, 0.043f, 1f)
+        override val foreground = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
+        override val primary = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
+        override val primaryForeground = floatArrayOf(0.07f, 0.07f, 0.08f, 1f)
+        override val secondary = floatArrayOf(0.094f, 0.094f, 0.106f, 1f)
+        override val secondaryForeground = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
+        override val muted = floatArrayOf(0.152f, 0.152f, 0.165f, 1f)
+        override val mutedForeground = floatArrayOf(0.63f, 0.64f, 0.69f, 1f)
+        override val accent = floatArrayOf(0.152f, 0.152f, 0.165f, 1f)
+        override val accentForeground = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
+        override val destructive = floatArrayOf(0.64f, 0.18f, 0.22f, 1f)
         override val destructiveForeground = floatArrayOf(0.99f, 0.98f, 0.98f, 1f)
-        override val border = floatArrayOf(0.18f, 0.2f, 0.24f, 1f)
+        override val border = floatArrayOf(0.152f, 0.152f, 0.165f, 1f)
     }
 
     override val components: UiComponentStyles = object : UiComponentStyles {
@@ -39,8 +39,8 @@ object AwakeShadcnTheme : UiTheme {
             borderWidth(1f.dp)
             borderColor(tokens.border)
             shape(6f.dp)
-            hovered { background(tokens.muted) }
-            active { background(tokens.accent) }
+            hovered { background(tokens.accent) }
+            active { background(tokens.muted) }
         }
         override val toggle: Style = button
         override val checkbox: Style = Style {
@@ -49,7 +49,7 @@ object AwakeShadcnTheme : UiTheme {
             borderWidth(1f.dp)
             borderColor(tokens.border)
             shape(6f.dp)
-            hovered { background(tokens.muted) }
+            hovered { background(tokens.secondary) }
             active { background(tokens.secondary) }
         }
         override val slider: Style = Style {
@@ -61,7 +61,7 @@ object AwakeShadcnTheme : UiTheme {
             contentPadding(UiSpacing.xs, UiSpacing.sm)
         }
         override val panel: Style = Style {
-            background(tokens.background)
+            background(tokens.secondary)
             foreground(tokens.foreground)
             borderWidth(1f.dp)
             borderColor(tokens.border)

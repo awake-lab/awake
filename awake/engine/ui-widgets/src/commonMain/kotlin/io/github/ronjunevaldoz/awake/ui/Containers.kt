@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 fun UiScope.textureQuad(width: Float, height: Float, material: Any, modifier: UiModifier = UiModifier()) {
-    val slot = claimSlot(modifier.width ?: width.toDimension(), modifier.height ?: height.toDimension())
+    val slot = claimModifiedSlot(width.toDimension(), height.toDimension(), modifier)
     emit(UiDrawPrimitive.Texture(slot.x, slot.y, slot.width, slot.height, material))
 }
 
@@ -18,7 +18,7 @@ fun UiScope.panel(
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val slot = claimSlot(modifier.width ?: width, modifier.height ?: height)
+    val slot = claimModifiedSlot(width, height, modifier)
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.panel then Style {

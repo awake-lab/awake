@@ -195,6 +195,49 @@ fun UiPath.bounds(): UiSlot {
     return UiSlot(minX, minY, (maxX - minX).coerceAtLeast(0f), (maxY - minY).coerceAtLeast(0f))
 }
 
+fun UiPath.transform(
+    scaleX: Float = 1f,
+    scaleY: Float = 1f,
+    translateX: Float = 0f,
+    translateY: Float = 0f
+): UiPath = copy(
+    commands = commands.map { command ->
+        when (command) {
+            is UiPathCommand.MoveTo -> UiPathCommand.MoveTo(
+                x = command.x * scaleX + translateX,
+                y = command.y * scaleY + translateY
+            )
+            is UiPathCommand.LineTo -> UiPathCommand.LineTo(
+                x = command.x * scaleX + translateX,
+                y = command.y * scaleY + translateY
+            )
+            is UiPathCommand.QuadTo -> UiPathCommand.QuadTo(
+                cx = command.cx * scaleX + translateX,
+                cy = command.cy * scaleY + translateY,
+                x = command.x * scaleX + translateX,
+                y = command.y * scaleY + translateY
+            )
+            is UiPathCommand.CubicTo -> UiPathCommand.CubicTo(
+                c1x = command.c1x * scaleX + translateX,
+                c1y = command.c1y * scaleY + translateY,
+                c2x = command.c2x * scaleX + translateX,
+                c2y = command.c2y * scaleY + translateY,
+                x = command.x * scaleX + translateX,
+                y = command.y * scaleY + translateY
+            )
+            is UiPathCommand.ArcTo -> UiPathCommand.ArcTo(
+                left = command.left * scaleX + translateX,
+                top = command.top * scaleY + translateY,
+                right = command.right * scaleX + translateX,
+                bottom = command.bottom * scaleY + translateY,
+                startDegrees = command.startDegrees,
+                sweepDegrees = command.sweepDegrees
+            )
+            UiPathCommand.Close -> UiPathCommand.Close
+        }
+    }
+)
+
 fun UiPath.flattenContours(
     curveSteps: Int = 8,
     arcStepDegrees: Float = 15f
