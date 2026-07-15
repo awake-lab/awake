@@ -26,7 +26,7 @@ fun ecsGameSpec(
 
 class EcsGameDsl internal constructor() {
     private var windowBlock: WindowDsl.() -> Unit = {}
-    private var sceneSpec: SceneGameSpec? = null
+    private var sceneInstaller: GameInstaller? = null
     private var uiSpec: GameUiSpec? = null
     private val installers = mutableListOf<GameInstaller>()
 
@@ -56,7 +56,15 @@ class EcsGameDsl internal constructor() {
     }
 
     fun scene(spec: SceneGameSpec) {
-        sceneSpec = spec
+        sceneInstaller = spec
+    }
+
+    fun flow(spec: SceneRouterSpec) {
+        sceneInstaller = spec
+    }
+
+    fun flow(block: SceneFlowDsl.() -> Unit) {
+        flow(sceneFlow(block))
     }
 
     fun ui(block: GameUiDsl.() -> Unit) {
@@ -72,11 +80,11 @@ class EcsGameDsl internal constructor() {
     }
 
     internal fun build(): GameSpec {
-        val builtScene = checkNotNull(sceneSpec) {
-            "ecsGameSpec requires a scene { ... } or ecs { ... } block."
+        val builtScene = checkNotNull(sceneInstaller) {
+            "ecsGameSpec requires a scene { ... }, ecs { ... }, or flow { ... } block."
         }
         val featureModule = gameModule {
-            scene(builtScene)
+            install(builtScene)
             uiSpec?.let { ui(it) }
             installers.forEach { install(it) }
         }

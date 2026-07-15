@@ -6,23 +6,41 @@ import io.github.ronjunevaldoz.awake.engine.application.GameDsl
 import io.github.ronjunevaldoz.awake.engine.application.GameModuleDsl
 
 fun GameDsl.scenes(block: SceneRouterDsl.() -> Unit) {
-    install(sceneRouter(block))
+    install(sceneFlow(block))
 }
 
 fun GameModuleDsl.scenes(block: SceneRouterDsl.() -> Unit) {
-    install(sceneRouter(block))
+    install(sceneFlow(block))
 }
 
 fun sceneRouter(block: SceneRouterDsl.() -> Unit): SceneRouterSpec {
-    return SceneRouterDsl().apply(block).build()
+    return sceneFlow(block)
 }
 
-class SceneRouterDsl internal constructor() {
+fun GameDsl.flow(block: SceneFlowDsl.() -> Unit) {
+    install(sceneFlow(block))
+}
+
+fun GameModuleDsl.flow(block: SceneFlowDsl.() -> Unit) {
+    install(sceneFlow(block))
+}
+
+fun sceneFlow(block: SceneFlowDsl.() -> Unit): SceneRouterSpec {
+    return SceneFlowDsl().apply(block).build()
+}
+
+typealias SceneRouterDsl = SceneFlowDsl
+
+class SceneFlowDsl internal constructor() {
     private val routes = mutableListOf<SceneRoute>()
     private var initialRouteId: String? = null
 
     fun initial(id: String) {
         initialRouteId = id
+    }
+
+    fun start(id: String) {
+        initial(id)
     }
 
     fun route(
@@ -35,6 +53,14 @@ class SceneRouterDsl internal constructor() {
         if (initialRouteId == null) {
             initialRouteId = id
         }
+    }
+
+    fun scene(
+        id: String,
+        label: String = id,
+        spec: SceneGameSpec
+    ) {
+        route(id = id, label = label, spec = spec)
     }
 
     fun route(
@@ -50,6 +76,14 @@ class SceneRouterDsl internal constructor() {
                 block()
             }
         )
+    }
+
+    fun scene(
+        id: String,
+        label: String = id,
+        block: SceneGameDsl.() -> Unit
+    ) {
+        route(id = id, label = label, block = block)
     }
 
     internal fun build(): SceneRouterSpec {

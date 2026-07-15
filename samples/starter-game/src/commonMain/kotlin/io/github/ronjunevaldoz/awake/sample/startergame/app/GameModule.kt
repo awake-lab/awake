@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.sample.startergame.scene.starterEditorScene
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.starterOverviewSceneSpec
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.starterPlaygroundSceneSpec
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
-import io.github.ronjunevaldoz.awake.scene.runtime.scenes
+import io.github.ronjunevaldoz.awake.scene.runtime.flow
 import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.sample.startergame.ui.starterGameUiSpec
 
@@ -21,19 +21,19 @@ internal fun starterGameModule(
     websocketControlsEnabled: Boolean = true
 ): GameModule {
     return gameModule {
-        scenes {
-            initial(STARTER_SCENE_OVERVIEW)
-            route(
+        flow {
+            start(STARTER_SCENE_OVERVIEW)
+            scene(
                 id = STARTER_SCENE_OVERVIEW,
                 label = "Overview",
                 spec = starterOverviewSceneSpec()
             )
-            route(
+            scene(
                 id = STARTER_SCENE_EDITOR,
                 label = "Editor",
                 spec = starterEditorSceneSpec()
             )
-            route(
+            scene(
                 id = STARTER_SCENE_PLAYGROUND,
                 label = "Playground",
                 spec = starterPlaygroundSceneSpec()

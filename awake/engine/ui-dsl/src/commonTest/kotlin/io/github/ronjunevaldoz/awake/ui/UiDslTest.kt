@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -105,9 +106,7 @@ class UiDslTest {
         ui.ui(x = 20f, y = 20f, width = 220f, font = BitmapFont()) {
             panel(id = "custom", height = 120f.toDimension()) {
                 sectionTitle("Scene")
-                propertyRow("Mode", 28f) { slot ->
-                    dropdown("scene-mode", listOf("Play", "Pause"), 0, slot.width, slot.height)
-                }
+                propertyDropdown("scene-mode", "Mode", listOf("Play", "Pause"), 0)
                 propertyToggle("grid", "Show Grid", checked = true)
             }
         }
@@ -116,19 +115,28 @@ class UiDslTest {
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "custom helpers should still render through the public DSL surface")
         assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad || it is UiDrawPrimitive.Quad }, "custom helpers should be able to compose built-in panel and control primitives")
     }
-}
 
-private fun UiColumnDslScope.sectionTitle(title: String) {
-    text(
-        title,
-        style = Style {
-            foreground(DefaultUiTheme.tokens.mutedForeground)
+    @Test
+    fun shellPaneBuildsReusableOverlayChrome() {
+        val runtime = GameUiRuntime(
+            services = object : GameServiceLookup {
+                override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
+                override fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = error("unused")
+            },
+            spec = gameUi { }
+        )
+        runtime.uiContext.beginFrame(320f, 240f)
+
+        runtime.shellPane(
+            slot = UiSlot(20f, 20f, 180f, 120f),
+            id = "shell"
+        ) {
+            sectionTitle("Shell")
+            textLines(listOf("One", "Two"))
         }
-    )
-}
 
-private fun UiColumnDslScope.propertyToggle(
-    id: String,
-    label: String,
-    checked: Boolean
-): Boolean = propertyCheckbox(id, checked, label, height = 28f)
+        val primitives = runtime.uiContext.endFrame()
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
+        assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
+    }
+}

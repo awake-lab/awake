@@ -9,7 +9,9 @@ import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.anchored
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.textBlockHeight
+import io.github.ronjunevaldoz.awake.ui.sectionTitle
+import io.github.ronjunevaldoz.awake.ui.shellPane
+import io.github.ronjunevaldoz.awake.ui.textLines
 import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeOverlayModel
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
 
@@ -21,32 +23,34 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
 ) {
     val overlayBounds = UiSlot(0f, 0f, viewportWidth, viewportHeight)
     val model = scene.helloCubeOverlayModel(state)
-    column(
+    shellPane(
         slot = overlayBounds.anchored(
             anchor = UiAnchor.TopRight,
             width = 280f,
-            height = font.textBlockHeight(lineCount = 3, textScale = HELLO_CUBE_TEXT_SCALE),
+            height = 112f,
             margin = UiInsets(start = 0f.dp, top = 24f.dp, end = 40f.dp, bottom = 0f.dp)
         ),
+        id = "hello-cube-status",
         textScale = HELLO_CUBE_TEXT_SCALE
     ) {
+        sectionTitle("Scene")
         text("SCENE: ${model.sceneName}")
         text("MODE: ${model.modeLabel}")
         text("CAMERA: ${model.cameraLabel}")
     }
 
-    column(
+    shellPane(
         slot = overlayBounds.anchored(
             anchor = UiAnchor.BottomLeft,
             width = 320f,
-            height = font.textBlockHeight(lineCount = model.debugLines.size, textScale = HELLO_CUBE_TEXT_SCALE),
+            height = 120f,
             margin = UiInsets(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 12f.dp)
         ),
+        id = "hello-cube-debug",
         textScale = HELLO_CUBE_TEXT_SCALE
     ) {
-        model.debugLines.forEach { line ->
-            text(line)
-        }
+        sectionTitle("Debug")
+        textLines(model.debugLines)
     }
 }
 

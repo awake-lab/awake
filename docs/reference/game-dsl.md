@@ -45,6 +45,29 @@ That keeps:
 - the root shell responsible for window and platform concerns
 - the reusable module responsible for authored content and runtime wiring
 
+## Routed Scene Flow
+
+When a game owns multiple authored scenes, prefer `flow { ... }` or `sceneFlow { ... }`
+instead of a sample-local router:
+
+```kotlin
+val spec = ecsGameSpec {
+    window {
+        title = "Starter"
+        size(1600, 900)
+        backend.vulkan()
+    }
+    flow {
+        start("overview")
+        scene("overview", label = "Overview") { ... }
+        scene("editor", label = "Editor") { ... }
+    }
+    ui { ... }
+}
+```
+
+That keeps scene switching as a reusable engine contract instead of demo glue.
+
 ## Compose Modules
 
 Modules can stack other modules:

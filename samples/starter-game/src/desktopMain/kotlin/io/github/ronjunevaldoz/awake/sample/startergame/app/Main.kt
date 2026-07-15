@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.sample.startergame.debug.StarterDebugSnapsh
 import io.github.ronjunevaldoz.awake.sample.startergame.debug.parseStarterDebugCommand
 import io.github.ronjunevaldoz.awake.sample.startergame.debug.starterGameDebugConfig
 import io.github.ronjunevaldoz.awake.sample.startergame.debug.starterGameDebugController
-import io.github.ronjunevaldoz.awake.vulkan.application.pollGlfwInput
 import io.github.ronjunevaldoz.awake.vulkan.application.runVulkanDesktopGame
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -40,8 +39,7 @@ fun main() {
 
     runVulkanDesktopGame(
         game = game,
-        application = createStarterGameVulkanApplication(game),
-        pollInput = ::pollGlfwInput,
+        applicationFactory = ::createStarterGameVulkanApplication,
         beforeFrame = {
             debugLoop?.beforeFrame()
         },

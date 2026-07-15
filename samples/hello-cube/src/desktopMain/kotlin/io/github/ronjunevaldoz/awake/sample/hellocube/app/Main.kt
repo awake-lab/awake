@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.sample.hellocube.app
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.sample.server.debugControlLoop
-import io.github.ronjunevaldoz.awake.vulkan.application.pollGlfwInput
 import io.github.ronjunevaldoz.awake.vulkan.application.runVulkanDesktopGame
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -42,8 +41,7 @@ fun main() {
 
     runVulkanDesktopGame(
         game = game,
-        application = createHelloCubeVulkanApplication(game),
-        pollInput = ::pollGlfwInput,
+        applicationFactory = ::createHelloCubeVulkanApplication,
         beforeFrame = {
             debugLoop?.beforeFrame()
         },

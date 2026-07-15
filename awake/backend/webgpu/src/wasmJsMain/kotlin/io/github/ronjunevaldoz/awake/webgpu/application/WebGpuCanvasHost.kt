@@ -10,6 +10,7 @@ import io.ygdrasil.webgpu.canvasContextRenderer
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import web.dom.ElementId
 import web.dom.document
@@ -36,6 +37,7 @@ fun launchWebGpuGame(
     applicationFactory: () -> WebGpuGameApplication
 ) {
     bindWindowPointerInput()
+    bindWindowKeyboardInput()
     val initialSize = currentCanvasSize()
     syncCanvasSize(canvas, initialSize.first, initialSize.second)
     window.addEventListener("resize") {
@@ -73,7 +75,21 @@ fun launchWebGpuGame(
     }
 }
 
-private fun bindWindowPointerInput() {
+val DefaultDomGameplayKeys: Map<String, io.github.ronjunevaldoz.awake.core.input.Key> = linkedMapOf(
+    "w" to io.github.ronjunevaldoz.awake.core.input.Key.W,
+    "a" to io.github.ronjunevaldoz.awake.core.input.Key.A,
+    "s" to io.github.ronjunevaldoz.awake.core.input.Key.S,
+    "d" to io.github.ronjunevaldoz.awake.core.input.Key.D,
+    "arrowup" to io.github.ronjunevaldoz.awake.core.input.Key.ArrowUp,
+    "arrowdown" to io.github.ronjunevaldoz.awake.core.input.Key.ArrowDown,
+    "arrowleft" to io.github.ronjunevaldoz.awake.core.input.Key.ArrowLeft,
+    "arrowright" to io.github.ronjunevaldoz.awake.core.input.Key.ArrowRight,
+    " " to io.github.ronjunevaldoz.awake.core.input.Key.Space,
+    "spacebar" to io.github.ronjunevaldoz.awake.core.input.Key.Space,
+    "escape" to io.github.ronjunevaldoz.awake.core.input.Key.Escape
+)
+
+fun bindWindowPointerInput() {
     fun scaledPointer(event: MouseEvent): Pair<Float, Float> = Pair(
         (event.offsetX * window.devicePixelRatio).toFloat(),
         (event.offsetY * window.devicePixelRatio).toFloat()
@@ -90,6 +106,26 @@ private fun bindWindowPointerInput() {
     window.addEventListener("mouseup") { event ->
         val (x, y) = scaledPointer(event as MouseEvent)
         Input.setPointer(false, x, y)
+    }
+}
+
+fun bindWindowKeyboardInput(
+    keys: Map<String, io.github.ronjunevaldoz.awake.core.input.Key> = DefaultDomGameplayKeys
+) {
+    fun resolveKey(event: KeyboardEvent): io.github.ronjunevaldoz.awake.core.input.Key? {
+        return keys[event.key.lowercase()]
+    }
+
+    window.addEventListener("keydown") { event ->
+        val key = resolveKey(event as KeyboardEvent) ?: return@addEventListener
+        Input.setKeyDown(key, true)
+    }
+    window.addEventListener("keyup") { event ->
+        val key = resolveKey(event as KeyboardEvent) ?: return@addEventListener
+        Input.setKeyDown(key, false)
+    }
+    window.addEventListener("blur") {
+        Input.clearKeys()
     }
 }
 

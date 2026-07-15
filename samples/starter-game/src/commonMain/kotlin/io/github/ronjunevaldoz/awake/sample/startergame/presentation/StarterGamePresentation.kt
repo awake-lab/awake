@@ -31,7 +31,7 @@ internal fun SceneRouterRuntime.starterOverlayModel(state: StarterGameRuntimeSta
         tipsVisible = state.tipsVisible,
         notes = listOf(
             "Scene switching is owned by common code.",
-            "Desktop input + debug control now live in reusable hosts.",
+            "Platform input + debug control now live in reusable hosts.",
             "Each platform entrypoint only boots the shared sample."
         )
     )

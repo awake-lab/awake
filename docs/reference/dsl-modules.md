@@ -11,8 +11,8 @@ Keep the pleasant builder syntax without hiding the real reusable contracts.
 | Module | Owns | Depends on |
 |---|---|---|
 | `awake:engine:game-dsl` | `game {}` / `gameSpec {}` / `gameModule {}` / `feature.createGame {}` / installer syntax | `awake:engine:game` |
-| `awake:scene-dsl` | `sceneGame {}` and `game/module { ecs { ... } }` | `awake:scene`, `awake:engine:game-dsl`, `awake:engine:ui-dsl` |
-| `awake:engine:ui-dsl` | `gameUi {}` and `game/module { ui { ... } }` | `awake:engine:game-dsl`, `ui-core`, `ui-widgets` |
+| `awake:scene-dsl` | `sceneGame {}`, `flow {}`, `sceneFlow {}`, and `game/module { ecs { ... } }` | `awake:scene`, `awake:engine:game-dsl`, `awake:engine:ui-dsl` |
+| `awake:engine:ui-dsl` | `gameUi {}`, `game/module { ui { ... } }`, and generic shell helpers like `shellPane(...)` | `awake:engine:game-dsl`, `ui-core`, `ui-widgets` |
 
 ## Recommended Authoring Shape
 
@@ -57,7 +57,7 @@ That keeps:
 - `game-dsl` as the single top-level game shell
 - `gameModule {}` as the reusable authored feature layer
 - `scene-dsl` focused on scene authoring
-- `ui-dsl` focused on overlay authoring
+- `ui-dsl` focused on overlay authoring and reusable shell composition
 
 ## When To Use Specs Directly
 

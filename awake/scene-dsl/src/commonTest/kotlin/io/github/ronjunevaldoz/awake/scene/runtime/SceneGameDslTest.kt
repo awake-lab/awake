@@ -199,6 +199,41 @@ class SceneGameDslTest {
     }
 
     @Test
+    fun ecsGameSpecCanComposeRoutedSceneFlow() = runTest {
+        val renderer = RecordingRenderer()
+        val spec = ecsGameSpec {
+            window {
+                title = "Flow"
+                size(1280, 720)
+                backend.vulkan()
+            }
+            flow {
+                start("overview")
+                scene("overview", label = "Overview") {
+                    cameraEntity("camera", camera = { primary(true) })
+                    meshEntity("cube", mesh = "cube", material = "default")
+                    assets {
+                        mesh("cube") { renderer.createMesh(EmptyGeometry) }
+                        material("default") { renderer.createMaterial() }
+                    }
+                }
+                scene("editor", label = "Editor") {
+                    cameraEntity("camera", camera = { primary(true) })
+                }
+            }
+        }
+
+        val game = spec.createGame()
+        game.ready(renderer)
+
+        val router = game.requireService<SceneRouterRuntime>()
+        assertEquals("overview", router.activeSceneId)
+        router.switchTo("editor")
+        game.render(0.016f, 320f, 240f)
+        assertEquals("editor", router.activeSceneId)
+    }
+
+    @Test
     fun gameModuleCanOwnSceneAndUiComposition() = runTest {
         val renderer = RecordingRenderer()
         val module = gameModule {

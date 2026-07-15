@@ -5,11 +5,13 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.DefaultUiTheme
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.propertyDropdown
+import io.github.ronjunevaldoz.awake.ui.propertySlider
+import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.ui
 import kotlin.test.Test
@@ -38,15 +40,13 @@ class UiDslTutorialDocsTest {
                     contentPadding(12f.dp)
                 }
             ) {
-                inspectorSection("Camera")
-                propertyRow("Mode", 28f) { slot ->
-                    dropdown("mode", listOf("Orbit", "Free Fly"), 0, slot.width, slot.height)
-                }
-                propertySlider("Azimuth", orbitYaw, -3.14f, 3.14f) { orbitYaw = it }
-                propertySlider("Distance", orbitDistance, 3f, 20f) { orbitDistance = it }
+                sectionTitle("Camera")
+                propertyDropdown("mode", "Mode", listOf("Orbit", "Free Fly"), 0)
+                orbitYaw = propertySlider("slider-azimuth", "Azimuth", -3.14f, 3.14f, orbitYaw)
+                orbitDistance = propertySlider("slider-distance", "Distance", 3f, 20f, orbitDistance)
 
                 spacer(8f)
-                inspectorSection("Debug")
+                sectionTitle("Debug")
                 showGrid = propertyCheckbox("grid", showGrid, "Show Grid", 28f)
                 showFrustum = propertyCheckbox("frustum", showFrustum, "Show Frustum", 28f)
                 toggle("hud", checked = true, height = 32f, label = "HUD")
@@ -62,26 +62,5 @@ class UiDslTutorialDocsTest {
             height = 250,
             background = DefaultUiTheme.tokens.background
         )
-    }
-}
-
-private fun UiColumnDslScope.inspectorSection(title: String) {
-    text(
-        title,
-        style = Style {
-            foreground(DefaultUiTheme.tokens.mutedForeground)
-        }
-    )
-}
-
-private fun UiColumnDslScope.propertySlider(
-    label: String,
-    value: Float,
-    min: Float,
-    max: Float,
-    onValue: (Float) -> Unit
-) {
-    propertyRow(label, height = 28f) { slot ->
-        onValue(slider("slider-$label", min, max, value, slot.width, slot.height))
     }
 }

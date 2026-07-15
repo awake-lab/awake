@@ -19,8 +19,24 @@ private const val GLFW_NO_API = 0
  */
 fun runVulkanDesktopGame(
     game: AwakeGame,
+    applicationFactory: (AwakeGame) -> VulkanGameApplication,
+    pollInput: (window: Long) -> Unit = ::pollGlfwInput,
+    beforeFrame: () -> Unit = {},
+    afterLoop: () -> Unit = {}
+) {
+    runVulkanDesktopGame(
+        game = game,
+        application = applicationFactory(game),
+        pollInput = pollInput,
+        beforeFrame = beforeFrame,
+        afterLoop = afterLoop
+    )
+}
+
+fun runVulkanDesktopGame(
+    game: AwakeGame,
     application: VulkanGameApplication,
-    pollInput: (window: Long) -> Unit = {},
+    pollInput: (window: Long) -> Unit = ::pollGlfwInput,
     beforeFrame: () -> Unit = {},
     afterLoop: () -> Unit = {}
 ) {
