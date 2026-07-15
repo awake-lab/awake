@@ -58,4 +58,22 @@ class PanelTest {
         assertTrue(primitives.isNotEmpty())
         assertIs<UiDrawPrimitive.RoundedQuad>(primitives.first(), "a non-zero radius must emit a RoundedQuad")
     }
+
+    @Test
+    fun wrapContentHeightTracksChildContent() {
+        val ui = UiContext()
+        val font = io.github.ronjunevaldoz.awake.ui.font.BitmapFont()
+        val column = ui.column(x = 0f, y = 0f, width = 220f, font = font)
+
+        val panelSlot = column.panel(
+            id = "wrap-height",
+            width = Dimension.Fixed(180f.px),
+            height = Dimension.WrapContent
+        ) {
+            text("Line One")
+            text("Line Two")
+        }
+
+        assertEquals(40f, panelSlot.height, "two 8px text rows + 8px row gap + 16px panel padding should size the panel")
+    }
 }

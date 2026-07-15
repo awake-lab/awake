@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import kotlin.math.max
 
 /**
  * Minimal immediate-mode UI context -- ImGui's own architecture (hot/active id tracking, no
@@ -20,19 +21,29 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
  * Ids are caller-supplied stable strings (e.g. `"debug-toggle"`) -- no auto-disambiguation
  * (`##` suffixes) yet, a known simplification for this widget count.
  */
-class UiContext {
+class UiContext private constructor(
+    private val measuring: Boolean = false
+) {
+    constructor() : this(measuring = false)
+
     private var activeId: String? = null
     private val widgetStates = HashMap<String, WidgetState>()
     private val primitives = ArrayList<UiDrawPrimitive>()
     private val overlayPrimitives = ArrayList<UiDrawPrimitive>()
     private var fullFrameRect = UiSlot(0f, 0f, 0f, 0f)
     private val clipStack = ArrayList<UiSlot>()
+    private var frameDeltaSeconds: Float = 1f / 60f
+    private var measuredMaxRight = 0f
+    private var measuredMaxBottom = 0f
 
-    fun beginFrame(screenWidth: Float, screenHeight: Float) {
+    fun beginFrame(screenWidth: Float, screenHeight: Float, deltaSeconds: Float = 1f / 60f) {
         primitives.clear()
         overlayPrimitives.clear()
         fullFrameRect = UiSlot(0f, 0f, screenWidth, screenHeight)
         clipStack.clear()
+        frameDeltaSeconds = deltaSeconds.coerceAtLeast(0f)
+        measuredMaxRight = 0f
+        measuredMaxBottom = 0f
     }
 
     /** Reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
@@ -108,23 +119,27 @@ class UiContext {
     // part of the widget-authoring surface -- that's UiScope itself.
 
     internal fun hitTestInternal(slot: UiSlot): Boolean =
-        Input.pointerX in slot.x..(slot.x + slot.width) && Input.pointerY in slot.y..(slot.y + slot.height)
+        !measuring && Input.pointerX in slot.x..(slot.x + slot.width) && Input.pointerY in slot.y..(slot.y + slot.height)
 
     internal fun isActiveInternal(id: String): Boolean = activeId == id
 
     internal fun tryClaimActiveInternal(id: String, hovered: Boolean) {
+        if (measuring) return
         if (hovered && Input.pointerDown && activeId == null) activeId = id
     }
 
     internal fun releaseActiveIfMatchesInternal(id: String) {
+        if (measuring) return
         if (!Input.pointerDown && activeId == id) activeId = null
     }
 
     internal fun emitInternal(p: UiDrawPrimitive) {
+        if (measuring) return
         primitives += p
     }
 
     internal fun emitOverlayInternal(p: UiDrawPrimitive) {
+        if (measuring) return
         overlayPrimitives += p
     }
 
@@ -151,7 +166,51 @@ class UiContext {
     }
 
     fun popClip(): UiSlot = popClipInternal()
+
+    internal fun recordMeasuredSlot(slot: UiSlot) {
+        if (!measuring) return
+        measuredMaxRight = max(measuredMaxRight, slot.x + slot.width)
+        measuredMaxBottom = max(measuredMaxBottom, slot.y + slot.height)
+    }
+
+    internal fun frameDeltaSecondsInternal(): Float = frameDeltaSeconds
+
+    fun measureColumnContent(
+        width: Float,
+        font: BitmapFont?,
+        theme: UiTheme,
+        gap: Float,
+        textScale: Float,
+        insets: UiInsets = UiInsets.Zero,
+        content: ColumnScope.(slot: UiSlot) -> Unit
+    ): UiMeasuredContent {
+        val measureContext = UiContext(measuring = true)
+        val outerSlot = UiSlot(0f, 0f, width.coerceAtLeast(0f), 100_000f)
+        measureContext.beginFrame(
+            screenWidth = outerSlot.width.coerceAtLeast(1f),
+            screenHeight = outerSlot.height,
+            deltaSeconds = 0f
+        )
+        val measureScope = measureContext.column(
+            slot = outerSlot,
+            font = font,
+            theme = theme,
+            gap = gap,
+            textScale = textScale,
+            insets = insets
+        )
+        measureScope.content(outerSlot)
+        return UiMeasuredContent(
+            width = measureContext.measuredMaxRight,
+            height = measureContext.measuredMaxBottom
+        )
+    }
 }
+
+data class UiMeasuredContent(
+    val width: Float,
+    val height: Float
+)
 
 /** Pure value-from-pointer-position math for the built-in `slider`, pulled out to a
  * top-level function so it's unit-testable without an [Input]/GPU-backed [UiContext]

@@ -74,7 +74,7 @@ tasks.register("uiSnapshotReport") {
             """
             <div style="margin:0 1rem 1rem 0">
                 <h3>${file.nameWithoutExtension}</h3>
-                <img src="data:image/png;base64,$base64" style="image-rendering:pixelated;border:1px solid #444" />
+                <img src="data:image/png;base64,$base64" style="display:block;border:1px solid #444;image-rendering:auto;max-width:100%;height:auto" />
             </div>
             """.trimIndent()
         }
@@ -128,7 +128,7 @@ tasks.register("uiTutorialDocsReport") {
             val png = File(root, "$name.png")
             val image = if (png.exists()) {
                 val base64 = Base64.getEncoder().encodeToString(png.readBytes())
-                """<img src="data:image/png;base64,$base64" alt="$title" style="image-rendering:pixelated;border:1px solid #444;max-width:100%" />"""
+                """<img src="data:image/png;base64,$base64" alt="$title" style="display:block;border:1px solid #444;image-rendering:auto;max-width:100%;height:auto" />"""
             } else {
                 """<p style="color:#f88">Missing snapshot: $name.png</p>"""
             }

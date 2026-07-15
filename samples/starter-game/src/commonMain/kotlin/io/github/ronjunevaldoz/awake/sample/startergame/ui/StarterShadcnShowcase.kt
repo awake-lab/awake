@@ -7,7 +7,10 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiInsets
+import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
@@ -22,6 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.shellPane
 import io.github.ronjunevaldoz.awake.ui.textLines
 import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.offset
 
 private val ShowcaseBadgeOptions = listOf("Primary", "Secondary", "Outline", "Danger")
 
@@ -39,7 +43,10 @@ internal fun GameUiRuntime.drawStarterShadcnShowcase(slot: UiSlot, state: Starte
         }
     ) {
         text("Awake Shadcn Showcase")
-        text("Owned, Awake-native styling layered on top of the same core widgets and layout primitives.")
+        text(
+            "Owned, Awake-native styling layered on top of the same core widgets and layout primitives.",
+            wrap = UiTextWrap.Word
+        )
 
         spacer(6f)
         sectionTitle("Buttons")
@@ -120,9 +127,15 @@ internal fun GameUiRuntime.drawStarterShadcnShowcase(slot: UiSlot, state: Starte
 
         spacer(2f)
         sectionTitle("Preview")
+        val previewLift = context.animateFloat(
+            id = "showcase-preview-lift",
+            target = if (state.showcaseDangerMode) 10f else 0f,
+            responsiveness = 10f
+        )
         awakeShadcnSurface(
             id = "showcase-preview",
-            height = 166f.toDimension(),
+            height = Dimension.WrapContent,
+            modifier = UiModifier().offset(y = (-previewLift).dp),
             style = Style {
                 shape(state.showcaseSurfaceRadius.dp)
             }
@@ -133,7 +146,10 @@ internal fun GameUiRuntime.drawStarterShadcnShowcase(slot: UiSlot, state: Starte
                 variant = badgeVariant
             )
             text("Starter shell card")
-            text("Buttons, badges, dropdowns, and sliders can all share the same branded token layer.")
+            text(
+                "Buttons, badges, dropdowns, and sliders can all share the same branded token layer.",
+                wrap = UiTextWrap.Word
+            )
             spacer(6f)
             row(height = 36f, gap = 8f) {
                 if (

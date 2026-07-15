@@ -48,7 +48,14 @@ fun UiScope.slider(
         )
     }
     if (label != null && font != null) {
-        text(label, slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
+        text(
+            label,
+            slot,
+            font = font,
+            color = resolved.foreground ?: theme.tokens.foreground,
+            centered = true,
+            overflow = UiTextOverflow.Ellipsis
+        )
     }
     return newValue
 }
@@ -105,10 +112,18 @@ fun UiScope.dropdown(
             val resolvedFont = font
             if (resolvedFont != null) {
                 val glyphPx = resolvedFont.cellSize * resolvedTextScale()
-                val textWidth = option.length * glyphPx
-                var penX = optionSlot.x + (optionSlot.width - textWidth) / 2f
+                val layout = layoutBitmapText(
+                    label = option,
+                    glyphPx = glyphPx,
+                    maxWidthPx = optionSlot.width,
+                    wrap = UiTextWrap.None,
+                    overflow = UiTextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+                val line = layout.lines.firstOrNull().orEmpty()
+                var penX = optionSlot.x + (optionSlot.width - line.length * glyphPx) / 2f
                 val penY = optionSlot.y + (optionSlot.height - glyphPx) / 2f
-                for (char in option) {
+                for (char in line) {
                     val uv = resolvedFont.uvFor(char)
                     if (uv != null) {
                         emitOverlay(

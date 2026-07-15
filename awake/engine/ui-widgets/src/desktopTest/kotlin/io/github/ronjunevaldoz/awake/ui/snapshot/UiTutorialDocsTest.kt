@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
+import io.github.ronjunevaldoz.awake.ui.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.button
 import io.github.ronjunevaldoz.awake.ui.checkbox
@@ -157,7 +158,11 @@ class UiTutorialDocsTest {
             clipContent = true
         ) { slot ->
             text("Rounded + Clip + Vector", color = floatArrayOf(0.94f, 0.96f, 1f, 1f))
-            text("The icon intentionally overflows and gets clipped by the cut-corner shell.", color = CoreUiTheme.tokens.mutedForeground)
+            text(
+                "The icon intentionally overflows and gets clipped by the cut-corner shell.",
+                color = CoreUiTheme.tokens.mutedForeground,
+                wrap = UiTextWrap.Word
+            )
 
             context.box(
                 x = slot.x + 16f,
@@ -220,7 +225,8 @@ class UiTutorialDocsTest {
                 text("Awake Shadcn")
                 text(
                     "Owned components layered over Awake widgets.",
-                    style = Style { foreground(AwakeShadcnTheme.tokens.mutedForeground) }
+                    style = Style { foreground(AwakeShadcnTheme.tokens.mutedForeground) },
+                    wrap = UiTextWrap.Word
                 )
                 spacer(6f)
                 row(height = 36f, gap = 8f) {
@@ -237,7 +243,7 @@ class UiTutorialDocsTest {
                 spacer(6f)
                 awakeShadcnSurface(
                     id = "shadcn-subcard",
-                    height = Dimension.Fixed(82f.px),
+                    height = Dimension.WrapContent,
                     style = Style {
                         background(AwakeShadcnTheme.tokens.background)
                     }
@@ -245,7 +251,8 @@ class UiTutorialDocsTest {
                     text("Preview Card")
                     text(
                         "A nested card keeps the same tokens and border language.",
-                        style = Style { foreground(AwakeShadcnTheme.tokens.mutedForeground) }
+                        style = Style { foreground(AwakeShadcnTheme.tokens.mutedForeground) },
+                        wrap = UiTextWrap.Word
                     )
                     spacer(4f)
                     row(height = 32f, gap = 8f) {

@@ -5,11 +5,10 @@ package io.github.ronjunevaldoz.awake.ui
 /**
  * A widget's sizing intent -- replaces the undocumented "pass `0f` and it silently fills the
  * enclosing scope's configured width/height" convention that used to live inside
- * [ColumnScope]/[RowScope]'s own `claimSlot`. [WrapContent] (size-to-content) deliberately
- * does not exist here: this immediate-mode architecture claims a slot in one pass, and sizing
- * to content would need a separate measure pass before the draw pass, which doesn't exist.
- * `text()`'s own char-count * cellSize math is this codebase's existing workaround for the one
- * case (labels) that actually needs it -- not generalized here.
+ * [ColumnScope]/[RowScope]'s own `claimSlot`. [WrapContent] is intentionally reserved for
+ * composite containers that can measure their own child content before they claim a real slot
+ * (today that means higher-level surfaces such as `panel`). Leaf widgets still resolve to a
+ * concrete size immediately.
  */
 sealed class Dimension {
     data class Fixed(val dp: Dp) : Dimension()
@@ -18,6 +17,9 @@ sealed class Dimension {
      * the enclosing scope is configured with -- the same behavior a `0f` hint silently
      * triggered before, now a real, named, optional choice instead of a sentinel. */
     object FillMax : Dimension()
+
+    /** Sizes a composite container to the space its child content actually uses. */
+    object WrapContent : Dimension()
 }
 
 /** Preserves the historical "pass `0f` (or negative) and it fills the enclosing scope" call

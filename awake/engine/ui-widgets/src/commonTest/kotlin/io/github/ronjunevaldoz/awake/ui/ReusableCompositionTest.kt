@@ -104,5 +104,6 @@ private class DiagonalScope(
     private fun resolve(dimension: Dimension, fallback: Float): Float = when (dimension) {
         is Dimension.Fixed -> dimension.dp.toPx()
         Dimension.FillMax -> fallback
+        Dimension.WrapContent -> fallback
     }
 }

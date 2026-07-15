@@ -21,15 +21,15 @@ object AwakeShadcnTheme : UiTheme {
         override val foreground = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
         override val primary = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
         override val primaryForeground = floatArrayOf(0.07f, 0.07f, 0.08f, 1f)
-        override val secondary = floatArrayOf(0.094f, 0.094f, 0.106f, 1f)
+        override val secondary = floatArrayOf(0.102f, 0.11f, 0.137f, 1f)
         override val secondaryForeground = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
-        override val muted = floatArrayOf(0.152f, 0.152f, 0.165f, 1f)
-        override val mutedForeground = floatArrayOf(0.63f, 0.64f, 0.69f, 1f)
-        override val accent = floatArrayOf(0.152f, 0.152f, 0.165f, 1f)
+        override val muted = floatArrayOf(0.168f, 0.176f, 0.215f, 1f)
+        override val mutedForeground = floatArrayOf(0.72f, 0.74f, 0.79f, 1f)
+        override val accent = floatArrayOf(0.195f, 0.208f, 0.258f, 1f)
         override val accentForeground = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
         override val destructive = floatArrayOf(0.64f, 0.18f, 0.22f, 1f)
         override val destructiveForeground = floatArrayOf(0.99f, 0.98f, 0.98f, 1f)
-        override val border = floatArrayOf(0.152f, 0.152f, 0.165f, 1f)
+        override val border = floatArrayOf(0.246f, 0.258f, 0.316f, 1f)
     }
 
     override val components: UiComponentStyles = object : UiComponentStyles {
@@ -50,7 +50,7 @@ object AwakeShadcnTheme : UiTheme {
             borderColor(tokens.border)
             shape(6f.dp)
             hovered { background(tokens.secondary) }
-            active { background(tokens.secondary) }
+            active { background(tokens.accent) }
         }
         override val slider: Style = Style {
             background(tokens.muted)

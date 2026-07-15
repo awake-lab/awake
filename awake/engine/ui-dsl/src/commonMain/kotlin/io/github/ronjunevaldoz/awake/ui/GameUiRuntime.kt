@@ -20,7 +20,7 @@ class GameUiSpec internal constructor(
         )
         into.service(GameUiRuntime::class, runtime)
         into.ready { renderer -> runtime.ready(renderer) }
-        into.render { _, viewportWidth, viewportHeight -> runtime.render(viewportWidth, viewportHeight) }
+        into.render { delta, viewportWidth, viewportHeight -> runtime.render(delta, viewportWidth, viewportHeight) }
         into.dispose { runtime.dispose() }
     }
 }
@@ -40,11 +40,11 @@ class GameUiRuntime internal constructor(
         spec.onReadyBlock(this)
     }
 
-    fun render(viewportWidth: Float, viewportHeight: Float) {
+    fun render(deltaSeconds: Float, viewportWidth: Float, viewportHeight: Float) {
         if (spec.overlays.isEmpty()) {
             return
         }
-        uiContext.beginFrame(viewportWidth, viewportHeight)
+        uiContext.beginFrame(viewportWidth, viewportHeight, deltaSeconds)
         spec.overlays.forEach { overlay ->
             overlay(this, viewportWidth, viewportHeight)
         }

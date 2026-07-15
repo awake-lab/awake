@@ -18,7 +18,6 @@ fun UiScope.panel(
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val slot = claimModifiedSlot(width, height, modifier)
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.panel then Style {
@@ -26,6 +25,34 @@ fun UiScope.panel(
             borderWidth(borderWidth)
         }
     )
+    val paddingWidth = resolved.contentPadding.horizontalPx()
+    val paddingHeight = resolved.contentPadding.verticalPx()
+    val measured = if (width == Dimension.WrapContent || height == Dimension.WrapContent) {
+        val maxContentWidth = when (width) {
+            is Dimension.Fixed -> (width.dp.toPx() - paddingWidth).coerceAtLeast(0f)
+            Dimension.FillMax -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: 0f
+            Dimension.WrapContent -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: 4096f
+        }
+        context.measureColumnContent(
+            width = maxContentWidth,
+            font = font,
+            theme = theme,
+            gap = UiSpacing.sm.toPx(),
+            textScale = resolved.textScale,
+            content = content
+        )
+    } else {
+        null
+    }
+    val resolvedWidth = when (width) {
+        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width + paddingWidth).px)
+        else -> width
+    }
+    val resolvedHeight = when (height) {
+        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height + paddingHeight).px)
+        else -> height
+    }
+    val slot = claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: TransparentColor,

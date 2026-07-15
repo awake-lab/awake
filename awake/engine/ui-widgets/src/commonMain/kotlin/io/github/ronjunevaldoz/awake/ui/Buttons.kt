@@ -38,7 +38,14 @@ fun UiScope.buttonSlot(
         shapeSpec = resolved.shapeSpec
     )
     if (label != null && font != null) {
-        text(label, interaction.slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
+        text(
+            label,
+            interaction.slot,
+            font = font,
+            color = resolved.foreground ?: theme.tokens.foreground,
+            centered = true,
+            overflow = UiTextOverflow.Ellipsis
+        )
     }
     return UiButtonResult(interaction.clicked, interaction.slot)
 }

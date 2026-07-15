@@ -15,7 +15,10 @@ sealed class UiDslScope protected constructor(
         label: String,
         modifier: UiModifier = UiModifier(),
         style: Style = Style.Empty,
-        centered: Boolean = false
+        centered: Boolean = false,
+        wrap: UiTextWrap = UiTextWrap.None,
+        overflow: UiTextOverflow = UiTextOverflow.Visible,
+        maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE
     ): UiSlot {
         val resolvedFont = checkNotNull(scope.font) { "DSL text() requires a font on the enclosing UiScope." }
         val resolved = scope.resolveStyle(
@@ -25,9 +28,31 @@ sealed class UiDslScope protected constructor(
             }
         )
         val glyphPx = resolvedFont.cellSize * scope.resolvedTextScale()
+        val defaultWidth: Dimension = when {
+            modifier.width != null -> requireNotNull(modifier.width)
+            wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || label.contains('\n') -> {
+                if (scope.fillWidthOrNull() != null) Dimension.FillMax else Dimension.Fixed((label.length * glyphPx + resolved.contentPadding.dslHorizontalPx()).px)
+            }
+            else -> Dimension.Fixed((label.length * glyphPx + resolved.contentPadding.dslHorizontalPx()).px)
+        }
+        val availableTextWidth = when (defaultWidth) {
+            is Dimension.Fixed -> (defaultWidth.dp.toPx() - resolved.contentPadding.dslHorizontalPx()).coerceAtLeast(glyphPx)
+            Dimension.FillMax -> (scope.fillWidthOrNull()?.minus(resolved.contentPadding.dslHorizontalPx()))?.coerceAtLeast(glyphPx) ?: glyphPx
+            Dimension.WrapContent -> glyphPx
+        }
+        val layout = layoutBitmapText(
+            label = label,
+            glyphPx = glyphPx,
+            maxWidthPx = availableTextWidth,
+            wrap = wrap,
+            overflow = overflow,
+            maxLines = maxLines
+        )
+        val lineGap = glyphPx * 0.25f
+        val blockHeight = layout.blockHeight(glyphPx, lineGap)
         val slot = scope.claimSlot(
-            modifier.width ?: Dimension.Fixed((label.length * glyphPx + resolved.contentPadding.dslHorizontalPx()).px),
-            modifier.height ?: Dimension.Fixed((glyphPx + resolved.contentPadding.dslVerticalPx()).px)
+            defaultWidth,
+            modifier.height ?: Dimension.Fixed((blockHeight + resolved.contentPadding.dslVerticalPx()).px)
         )
         if (resolved.background != null || resolved.borderWidth.toPx() > 0f || resolved.shapeSpec != null || resolved.shape.toPx() > 0f) {
             scope.emitFillAndBorder(
@@ -44,7 +69,10 @@ sealed class UiDslScope protected constructor(
             slot = slot.inset(resolved.contentPadding),
             font = resolvedFont,
             color = resolved.foreground ?: scope.theme.tokens.foreground,
-            centered = centered
+            centered = centered,
+            wrap = wrap,
+            overflow = overflow,
+            maxLines = maxLines
         )
         return slot
     }

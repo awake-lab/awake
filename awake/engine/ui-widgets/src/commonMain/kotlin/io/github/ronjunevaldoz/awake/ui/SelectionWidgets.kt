@@ -33,7 +33,14 @@ fun UiScope.toggle(
         emitInsetAccent(interaction.slot, inset, resolved.shape.toPx(), resolved.shapeSpec)
     }
     if (label != null && font != null) {
-        text(label, interaction.slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
+        text(
+            label,
+            interaction.slot,
+            font = font,
+            color = resolved.foreground ?: theme.tokens.foreground,
+            centered = true,
+            overflow = UiTextOverflow.Ellipsis
+        )
     }
     return newChecked
 }
@@ -79,7 +86,14 @@ fun UiScope.checkbox(
             interaction.slot.width - boxPx - CHECKBOX_LABEL_GAP,
             glyphPx
         )
-        text(label, labelSlot, font = resolvedFont, color = resolved.foreground ?: theme.tokens.foreground, centered = false)
+        text(
+            label,
+            labelSlot,
+            font = resolvedFont,
+            color = resolved.foreground ?: theme.tokens.foreground,
+            centered = false,
+            overflow = UiTextOverflow.Ellipsis
+        )
     }
     return newChecked
 }

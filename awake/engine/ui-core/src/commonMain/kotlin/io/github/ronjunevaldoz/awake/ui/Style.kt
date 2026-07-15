@@ -17,9 +17,9 @@ fun UiInsets(all: Dp): UiInsets = UiInsets(all, all, all, all)
 
 fun UiInsets(horizontal: Dp, vertical: Dp): UiInsets = UiInsets(horizontal, vertical, horizontal, vertical)
 
-internal fun UiInsets.horizontalPx(): Float = (start + end).toPx()
+fun UiInsets.horizontalPx(): Float = (start + end).toPx()
 
-internal fun UiInsets.verticalPx(): Float = (top + bottom).toPx()
+fun UiInsets.verticalPx(): Float = (top + bottom).toPx()
 
 fun UiSlot.inset(insets: UiInsets): UiSlot {
     val startPx = insets.start.toPx()

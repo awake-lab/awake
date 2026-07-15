@@ -91,6 +91,10 @@ private fun UiScope.defaultAlignment(): UiAlignment = when (this) {
     else -> UiAlignment.TopStart
 }
 
+fun UiScope.fillWidthOrNull(): Float? = (this as? FillAwareScope)?.fillWidth
+
+fun UiScope.fillHeightOrNull(): Float? = (this as? FillAwareScope)?.fillHeight
+
 fun UiScope.claimModifiedSlot(
     defaultWidth: Dimension,
     defaultHeight: Dimension,
@@ -108,7 +112,7 @@ fun UiScope.claimModifiedSlot(
         insets = modifier.insets,
         offsetX = modifier.offsetX.toPx(),
         offsetY = modifier.offsetY.toPx()
-    )
+    ).also(context::recordMeasuredSlot)
 }
 
 fun UiScope.resolveStyle(

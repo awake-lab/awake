@@ -43,11 +43,18 @@ abstract class AbstractUiScope(
 private inline fun Dimension.resolve(configured: () -> Float): Float = when (this) {
     is Dimension.Fixed -> dp.toPx()
     Dimension.FillMax -> configured()
+    Dimension.WrapContent -> error("WrapContent must be resolved by a measuring composite before claimSlot()")
 }
 
 internal fun Dimension.resolveAgainst(available: Float): Float = when (this) {
     is Dimension.Fixed -> dp.toPx()
     Dimension.FillMax -> available
+    Dimension.WrapContent -> error("WrapContent must be resolved before modifier placement")
+}
+
+internal interface FillAwareScope {
+    val fillWidth: Float?
+    val fillHeight: Float?
 }
 
 /**
@@ -64,7 +71,10 @@ class ColumnScope internal constructor(
     private val width: Float,
     private val gap: Float,
     textScale: Float = 1f
-) : AbstractUiScope(context, font, theme, textScale) {
+) : AbstractUiScope(context, font, theme, textScale), FillAwareScope {
+    override val fillWidth: Float? = width
+    override val fillHeight: Float? = null
+
     var cursorY: Float = startY
         private set
 
@@ -73,6 +83,7 @@ class ColumnScope internal constructor(
         val resolvedHeight = height.resolve { error("FillMax height has no meaning in a ColumnScope") }
         val slot = UiSlot(x, cursorY, resolvedWidth, resolvedHeight)
         cursorY += resolvedHeight + gap
+        context.recordMeasuredSlot(slot)
         return slot
     }
 }
@@ -89,7 +100,10 @@ class AbsoluteScope internal constructor(
     private val x: Float,
     private val y: Float,
     textScale: Float = 1f
-) : AbstractUiScope(context, font, theme, textScale) {
+) : AbstractUiScope(context, font, theme, textScale), FillAwareScope {
+    override val fillWidth: Float? = null
+    override val fillHeight: Float? = null
+
     // Unlike ColumnScope/RowScope, the original claimSlot(width: Float, height: Float) never
     // special-cased any value here -- it passed width/height straight through, and a caller
     // passing 0f (e.g. text()'s own default slot, which doesn't need a real width when not
@@ -97,7 +111,7 @@ class AbsoluteScope internal constructor(
     // resolve against on this scope, so it resolves to 0f -- the same literal passthrough
     // behavior, not a new error mode.
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot =
-        UiSlot(x, y, width.resolve { 0f }, height.resolve { 0f })
+        UiSlot(x, y, width.resolve { 0f }, height.resolve { 0f }).also(context::recordMeasuredSlot)
 }
 
 /**
@@ -114,15 +128,19 @@ class RowScope internal constructor(
     private val height: Float,
     private val gap: Float,
     textScale: Float = 1f
-) : AbstractUiScope(context, font, theme, textScale) {
+) : AbstractUiScope(context, font, theme, textScale), FillAwareScope {
     var cursorX: Float = startX
         private set
+
+    override val fillWidth: Float? = null
+    override val fillHeight: Float? = height
 
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
         val resolvedWidth = width.resolve { error("FillMax width has no meaning in a RowScope") }
         val resolvedHeight = height.resolve { this.height }
         val slot = UiSlot(cursorX, y, resolvedWidth, resolvedHeight)
         cursorX += resolvedWidth + gap
+        context.recordMeasuredSlot(slot)
         return slot
     }
 }
@@ -141,6 +159,10 @@ class BoxScope internal constructor(
     private val height: Float,
     internal val contentAlignment: UiAlignment = UiAlignment.TopStart,
     textScale: Float = 1f
-) : AbstractUiScope(context, font, theme, textScale) {
-    override fun claimSlot(width: Dimension, height: Dimension): UiSlot = UiSlot(x, y, this.width, this.height)
+) : AbstractUiScope(context, font, theme, textScale), FillAwareScope {
+    override val fillWidth: Float? = this.width
+    override val fillHeight: Float? = this.height
+
+    override fun claimSlot(width: Dimension, height: Dimension): UiSlot =
+        UiSlot(x, y, this.width, this.height).also(context::recordMeasuredSlot)
 }
