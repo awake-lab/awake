@@ -9,6 +9,7 @@ Compose-style scene API, and a desktop editor.
 - [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md) for the active roadmap
 - [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md) for current work lanes
 - [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md) for reusable UI boundaries
+- [docs/reference/game-structure.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/game-structure.md) for game state categories and folder ownership
 - [docs/reference/ai-collaboration.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ai-collaboration.md) for agent-entrypoint and `skills/*` responsibilities
 
 ## Module Shape

@@ -6,6 +6,7 @@ plugins {
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
+    id("awake.ui-ownership-convention")
 }
 
 kotlin {

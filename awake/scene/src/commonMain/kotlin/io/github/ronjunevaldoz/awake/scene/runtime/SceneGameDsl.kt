@@ -19,6 +19,8 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
+import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
@@ -34,6 +36,20 @@ typealias SceneDisposeBlock = SceneGameRuntime.() -> Unit
 
 fun GameDsl.ecs(block: SceneGameDsl.() -> Unit) {
     install(sceneGame(block))
+}
+
+fun GameDsl.scene(
+    name: String? = null,
+    block: SceneGameDsl.() -> Unit
+) {
+    install(
+        sceneGame {
+            if (name != null) {
+                this.name(name)
+            }
+            block()
+        }
+    )
 }
 
 fun sceneGame(block: SceneGameDsl.() -> Unit): SceneGameSpec {
@@ -129,6 +145,57 @@ class SceneGameDsl internal constructor() {
         onDisposeBlock = onDisposeBlock,
         serviceRegistrations = serviceRegistrations.toList()
     )
+}
+
+fun SceneGameDsl.cameraEntity(
+    name: String,
+    transform: SceneTransformDsl.() -> Unit = {},
+    camera: SceneCameraDsl.() -> Unit = {}
+) {
+    entity(name) {
+        transform(transform)
+        camera(camera)
+    }
+}
+
+fun SceneGameDsl.meshEntity(
+    name: String,
+    mesh: String,
+    material: String,
+    transform: SceneTransformDsl.() -> Unit = {}
+) {
+    entity(name) {
+        transform(transform)
+        meshRenderer(mesh = mesh, material = material)
+    }
+}
+
+fun SceneGameDsl.orbitCameraSystem(
+    name: String = "orbit",
+    target: String,
+    camera: String,
+    initialDistance: Float = 5f,
+    autoRotateSpeed: Float = 0f,
+    configure: OrbitCameraSystem.() -> Unit = {}
+): SceneSystemHandle<OrbitCameraSystem> {
+    return system(name) {
+        OrbitCameraSystem(
+            target = requireTransform(target),
+            camera = requireCamera(camera),
+            initialDistance = initialDistance,
+            autoRotateSpeed = autoRotateSpeed
+        ).also(configure)
+    }
+}
+
+fun SceneGameDsl.freeFlyCameraSystem(
+    name: String = "freeFly",
+    camera: String,
+    configure: FreeFlyCameraSystem.() -> Unit = {}
+): SceneSystemHandle<FreeFlyCameraSystem> {
+    return system(name) {
+        FreeFlyCameraSystem(requireCamera(camera)).also(configure)
+    }
 }
 
 class SceneSystemsDsl internal constructor() {

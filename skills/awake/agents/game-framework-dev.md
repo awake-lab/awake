@@ -20,6 +20,7 @@ graphics wrapper (OpenGL working; Vulkan in progress) evolving toward a full KMP
 engine with ECS, a Compose-style scene API, and a desktop editor. Read
 [docs/architecture.md](../../../docs/architecture.md),
 [docs/reference/ai-collaboration.md](../../../docs/reference/ai-collaboration.md), and
+[docs/reference/game-structure.md](../../../docs/reference/game-structure.md), and
 [docs/MVP_PLAN.md](../../../docs/MVP_PLAN.md) first — the stable boundaries, repo-local skill
 rules, roadmap, and open decisions (D1-D4) live there and take priority over assumptions
 made here.

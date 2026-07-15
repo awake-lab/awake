@@ -34,6 +34,14 @@ interface GameInstaller {
     fun install(into: GameDsl)
 }
 
+fun gameInstaller(block: GameDsl.() -> Unit): GameInstaller {
+    return object : GameInstaller {
+        override fun install(into: GameDsl) {
+            into.block()
+        }
+    }
+}
+
 interface GameServiceLookup {
     fun <T : Any> service(type: KClass<T>): T?
 
@@ -185,6 +193,15 @@ class WindowBackendDsl internal constructor() {
 
     fun openGl() {
         selection = GameWindowBackend.OPENGL
+    }
+}
+
+fun WindowBackendDsl.select(backend: GameWindowBackend) {
+    when (backend) {
+        GameWindowBackend.DEFAULT -> default()
+        GameWindowBackend.VULKAN -> vulkan()
+        GameWindowBackend.WEBGPU -> webGpu()
+        GameWindowBackend.OPENGL -> openGl()
     }
 }
 

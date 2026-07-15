@@ -15,7 +15,7 @@ sync, the repository uses a three-layer model:
 
 | Surface | Role | What Belongs Here |
 |---|---|---|
-| `docs/architecture.md` and `docs/reference/*` | Canonical truth | Stable architecture, ownership rules, module boundaries, long-lived technical guidance |
+| `docs/architecture.md` and `docs/reference/*` | Canonical truth | Stable architecture, ownership rules, state categories, module boundaries, long-lived technical guidance |
 | `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.claude/AGENTS.md` | Entry points | Bootstrap config, read-this-first links, short critical guardrails |
 | `skills/awake/agents/*.md` | Repo-local role overlays | How an agent should approach ECS, engine, UI, or other Awake-specific work |
 | `skills/awake/commands/*.md` | Repo-local commands | Operational workflows such as reviews, audits, and validation helpers |
@@ -80,6 +80,8 @@ For most Awake work:
 
 1. [docs/architecture.md](/Users/ronvaldoz/StudioProjects/awaken/docs/architecture.md)
 2. [docs/reference/ai-collaboration.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ai-collaboration.md)
-3. [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
-4. [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md)
-5. the relevant `skills/awake/agents/*.md` file for the task
+3. [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md)
+4. [docs/reference/game-structure.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/game-structure.md)
+5. [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
+6. [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md)
+7. the relevant `skills/awake/agents/*.md` file for the task

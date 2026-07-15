@@ -7,6 +7,20 @@ This document is the canonical source for Awake's reusable UI boundaries.
 Keep reusable UI building blocks separate from branded recipes and separate again from
 sample-specific adapters.
 
+## Hard Rules
+
+These are placement rules, not style preferences.
+
+1. `awake:engine:ui-core` may expose only geometry, drawing, anchoring, clipping, slot,
+   and style primitives.
+2. `awake:engine:ui-widgets` may expose only generic leaf widgets built on `ui-core`.
+3. `awake:engine:ui` may expose generic composition templates and DSL surfaces, but it
+   must not introduce helper APIs that collapse a low-level primitive and a specific
+   container into one convenience function when a slot/rect primitive can express it.
+4. `awake:engine:ui-designsystem` owns branded or strongly opinionated recipes.
+5. `samples:*` and future game modules own runtime-bound adapters, authored overlays,
+   debug HUD wiring, and sample-specific compositions.
+
 ## Module Responsibilities
 
 | Module | Responsibility | Examples |
@@ -25,6 +39,7 @@ Treat these as reusable primitives:
 - `Section`
 - `PropertyList`
 - `PropertyRow`
+- `UiSlot.anchored(...)`
 
 Treat these as higher-level compositions:
 
@@ -34,6 +49,28 @@ Treat these as higher-level compositions:
 - app-specific control bars
 
 Rule: a primitive should still make sense outside the current sample or demo.
+
+## Concrete Placement Examples
+
+| API shape | Correct home | Why |
+|---|---|---|
+| `UiSlot.anchored(anchor, width, height, margin)` | `ui-core` | pure placement math returning a slot |
+| `button`, `checkbox`, `slider` | `ui-widgets` | generic reusable leaf widgets |
+| `PropertyList`, `PropertyRow`, generic inspector scaffolds | `ui` | reusable compositions of primitives/widgets |
+| `AwakeShadcnPanelStyle`, branded variants | `ui-designsystem` | visual opinion, not engine primitive |
+| `HelloCubeHud`, `SceneInspectorBindings`, demo overlays | sample/game module | runtime-bound authored usage |
+
+These API shapes are specifically discouraged in reusable UI modules:
+
+- `anchoredColumn(...)`
+- `anchoredRow(...)`
+- `anchoredPanel(...)`
+- `HelloCube*`
+- helpers that know `SceneGameRuntime`, ECS `World`, demo modes, or sample debug state
+
+Rule of thumb: if the API name bakes in both a placement concern and a concrete container,
+it is usually too high-level for `ui-core`, and usually too convenience-shaped for long-term
+reuse.
 
 ## What Must Stay Out Of Reusable UI Modules
 
@@ -75,3 +112,19 @@ Use the answers like this:
 - compositional + generic -> `ui`
 - branded/opinionated -> `ui-designsystem`
 - sample/runtime-bound -> sample or game module
+
+## Mechanical Enforcement
+
+This policy is build-enforced in Awake's reusable UI modules.
+
+- `:awake:engine:ui-core:check`
+- `:awake:engine:ui-widgets:check`
+- `:awake:engine:ui:check`
+
+run a `verifyUiOwnership` task that rejects:
+
+- container-bound anchored helper names such as `anchoredColumn`
+- direct sample/runtime-bound references such as `SceneGameRuntime` or `HelloCube*`
+
+The check is intentionally lightweight and curated. It is not a theorem prover. When the
+policy grows, expand the canonical doc first, then update the check.

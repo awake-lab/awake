@@ -22,6 +22,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 class SceneGameDslTest {
 
@@ -100,6 +101,49 @@ class SceneGameDslTest {
         assertEquals("after-replace", runtime.sceneName)
         assertEquals(null, runtime.findEntity("ignored"))
         assertNotNull(runtime.findEntity("camera"))
+    }
+
+    @Test
+    fun gameSceneFacadeBuildsNamedCameraAndMeshEntities() = runTest {
+        val recordingRenderer = RecordingRenderer()
+        val game = game {
+            scene("facade-proof") {
+                cameraEntity(
+                    name = "camera",
+                    transform = { position(0f, 1f, 5f) },
+                    camera = { primary(true) }
+                )
+                meshEntity(
+                    name = "cube",
+                    mesh = "cube",
+                    material = "default",
+                    transform = { scale(2f, 2f, 2f) }
+                )
+                assets {
+                    mesh("cube") { recordingRenderer.createMesh(EmptyGeometry) }
+                    material("default") { recordingRenderer.createMaterial() }
+                }
+                orbitCameraSystem(
+                    target = "cube",
+                    camera = "camera",
+                    initialDistance = 8f
+                ) {
+                    pitch = 0.2f
+                }
+                freeFlyCameraSystem(camera = "camera")
+            }
+        }
+
+        game.ready(recordingRenderer)
+        val runtime = game.requireService<SceneGameRuntime>()
+
+        assertEquals("facade-proof", runtime.sceneName)
+        assertNotNull(runtime.findEntity("camera"))
+        assertNotNull(runtime.findEntity("cube"))
+        assertNotNull(runtime.findTransform("cube"))
+        assertNotNull(runtime.findCamera("camera"))
+        assertTrue(runtime.system("orbit") is io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem)
+        assertTrue(runtime.system("freeFly") is io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem)
     }
 }
 
