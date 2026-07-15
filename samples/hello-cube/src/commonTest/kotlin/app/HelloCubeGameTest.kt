@@ -5,6 +5,7 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.application.game
 import io.github.ronjunevaldoz.awake.engine.application.gameInstaller
+import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
