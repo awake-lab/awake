@@ -3,11 +3,11 @@
 package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.engine.application.GameDsl
 import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
+import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
 import kotlin.reflect.KClass
 
-class SceneGameSpec internal constructor(
+class SceneGameSpec(
     val sceneDocument: SceneDocument,
     val renderableFactory: SceneRenderableFactory,
     internal val assetLibraryFactory: (() -> SceneAssetLibrary)?,
@@ -18,11 +18,11 @@ class SceneGameSpec internal constructor(
     val onDisposeBlock: SceneDisposeBlock,
     internal val serviceRegistrations: List<SceneServiceRegistration<*>>
 ) : GameInstaller {
-    override fun install(into: GameDsl) {
+    override fun install(into: GameSpecBuilder) {
         installInto(into)
     }
 
-    fun installInto(into: GameDsl): SceneGameRuntime {
+    fun installInto(into: GameSpecBuilder): SceneGameRuntime {
         val runtime = SceneGameRuntime(this)
         into.service(SceneGameRuntime::class, runtime)
         serviceRegistrations.forEach { registration ->
@@ -38,11 +38,11 @@ class SceneGameSpec internal constructor(
     }
 }
 
-internal class SceneServiceRegistration<T : Any>(
+class SceneServiceRegistration<T : Any>(
     val type: KClass<T>,
     val factory: SceneGameRuntime.() -> T
 ) {
-    fun install(into: GameDsl, runtime: SceneGameRuntime) {
+    fun install(into: GameSpecBuilder, runtime: SceneGameRuntime) {
         into.service(type, runtime.factory())
     }
 }

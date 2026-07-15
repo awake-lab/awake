@@ -20,7 +20,7 @@ This currently builds:
 
 - module API references through `dokkaGeneratePublicationHtml`
 - the UI DSL tutorial guide at
-  `awake/engine/ui/build/reports/ui-dsl-tutorials/index.html`
+  `awake/engine/ui-dsl/build/reports/ui-dsl-tutorials/index.html`
 - the UI snapshot gallery at
   `awake/engine/ui-widgets/build/reports/ui-snapshots/index.html`
 - the curated UI tutorial guide at
@@ -76,7 +76,7 @@ Every published module should keep its KDoc good enough that Dokka is worth open
 
 Use snapshot-backed guides for:
 
-- the declarative UI facade in `awake:engine:ui`
+- the declarative UI facade in `awake:engine:ui-dsl`
 - UI widgets
 - style composition
 - layout patterns
@@ -89,7 +89,7 @@ signature?"
 ## Adding a UI Tutorial
 
 1. Add or update a curated test in either:
-   - `awake/engine/ui/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiDslTutorialDocsTest.kt`
+  - `awake/engine/ui-dsl/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiDslTutorialDocsTest.kt`
    - `awake/engine/ui-widgets/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiTutorialDocsTest.kt`
 2. Render the example with `saveUiTutorialSnapshot(...)`
 3. Keep the title and summary short and tutorial-oriented

@@ -4,11 +4,11 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.System
 
-class SceneSystemHandle<T : System> internal constructor(
-    internal val name: String
+class SceneSystemHandle<T : System>(
+    val name: String
 )
 
-internal class SceneSystemRegistration internal constructor(
+class SceneSystemRegistration(
     val handle: SceneSystemHandle<out System>,
     val factory: SceneSystemFactory
 )

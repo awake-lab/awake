@@ -14,7 +14,7 @@ These are placement rules, not style preferences.
 1. `awake:engine:ui-core` may expose only geometry, drawing, anchoring, clipping, slot,
    and style primitives.
 2. `awake:engine:ui-widgets` may expose only generic leaf widgets built on `ui-core`.
-3. `awake:engine:ui` may expose generic composition templates and DSL surfaces, but it
+3. `awake:engine:ui-dsl` may expose generic composition templates and DSL surfaces, but it
    must not introduce helper APIs that collapse a low-level primitive and a specific
    container into one convenience function when a slot/rect primitive can express it.
 4. `awake:engine:ui-designsystem` owns branded or strongly opinionated recipes.
@@ -27,7 +27,7 @@ These are placement rules, not style preferences.
 |---|---|---|
 | `awake:engine:ui-core` | Foundational drawing, layout, and surface primitives | low-level layout, drawing, clipping, slots, style plumbing |
 | `awake:engine:ui-widgets` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
-| `awake:engine:ui` | Style-agnostic composition templates and UI DSL surfaces | shells, sections, property forms, reusable inspector layouts |
+| `awake:engine:ui-dsl` | Style-agnostic composition templates and UI DSL surfaces | shells, sections, property forms, reusable inspector layouts |
 | `awake:engine:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, app-specific themes, branded presets |
 | `samples:*` or game modules | Sample/game adapters and authored usage | scene inspector bindings, demo-specific overlays, debug HUD wiring |
 
@@ -109,7 +109,7 @@ Before adding a new UI type, ask:
 Use the answers like this:
 
 - foundational + generic -> `ui-core` or `ui-widgets`
-- compositional + generic -> `ui`
+- compositional + generic -> `ui-dsl`
 - branded/opinionated -> `ui-designsystem`
 - sample/runtime-bound -> sample or game module
 
@@ -119,7 +119,7 @@ This policy is build-enforced in Awake's reusable UI modules.
 
 - `:awake:engine:ui-core:check`
 - `:awake:engine:ui-widgets:check`
-- `:awake:engine:ui:check`
+- `:awake:engine:ui-dsl:check`
 
 run a `verifyUiOwnership` task that rejects:
 

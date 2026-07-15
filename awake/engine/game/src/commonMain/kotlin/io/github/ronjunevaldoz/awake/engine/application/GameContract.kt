@@ -19,15 +19,7 @@ data class GameWindowConfig(
 )
 
 interface GameInstaller {
-    fun install(into: GameDsl)
-}
-
-fun gameInstaller(block: GameDsl.() -> Unit): GameInstaller {
-    return object : GameInstaller {
-        override fun install(into: GameDsl) {
-            into.block()
-        }
-    }
+    fun install(into: GameSpecBuilder)
 }
 
 interface GameServiceLookup {
@@ -54,3 +46,12 @@ class AwakeGame internal constructor(
 inline fun <reified T : Any> AwakeGame.service(): T? = service(T::class)
 
 inline fun <reified T : Any> AwakeGame.requireService(): T = requireService(T::class)
+
+fun GameWindowBackendBuilder.select(backend: GameWindowBackend) {
+    when (backend) {
+        GameWindowBackend.DEFAULT -> default()
+        GameWindowBackend.VULKAN -> vulkan()
+        GameWindowBackend.WEBGPU -> webGpu()
+        GameWindowBackend.OPENGL -> openGl()
+    }
+}

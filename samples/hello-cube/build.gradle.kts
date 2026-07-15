@@ -93,13 +93,10 @@ kotlin {
         // commonMain: helloCubeGame()/SampleMesh.kt -- the shared game builder consumed by
         // both the appMain (Vulkan) and wasmJsMain (WebGPU) entry points below.
         commonMain.dependencies {
-            // AwakeGame/GameDsl + window config/services used by helloCubeGame().
-            implementation(project(":awake:engine:game"))
-            // Immediate-mode UI facade: keeps downstream imports stable while ui-core and
-            // ui-widgets are split underneath it.
-            implementation(project(":awake:engine:ui"))
-            // Reusable scene DSL/runtime plus camera systems and render-asset resolution.
-            implementation(project(":awake:scene"))
+            // AwakeGame contract + authored game DSL.
+            implementation(project(":awake:engine:game-dsl"))
+            // Reusable scene runtime plus authored scene/game DSL.
+            implementation(project(":awake:scene-dsl"))
             // Shared coroutine primitives for tests and any future async sample helpers.
             implementation(libs.kotlinx.coroutines.core)
             // DebugSnapshot is @Serializable so the desktop debug-control server can
@@ -159,8 +156,8 @@ kotlin {
             dependencies {
                 implementation(project(":awake:engine"))
                 implementation(project(":awake:backend:webgpu"))
-                // Scene DSL/runtime + camera systems for the shared helloCubeGame() builder.
-                implementation(project(":awake:scene"))
+                // Scene runtime + DSL for the shared helloCubeGame() builder.
+                implementation(project(":awake:scene-dsl"))
                 implementation(libs.wgpu4k)
                 implementation(libs.wgpu4k.toolkit)
                 implementation(libs.kotlinx.browser)
@@ -193,7 +190,7 @@ tasks.register<JavaExec>("run") {
     group = "application"
     description = "Run the minimal hello-cube sample (a single static Vulkan cube, no texture)."
     dependsOn("compileKotlinDesktop", "desktopProcessResources")
-    mainClass.set("MainKt")
+    mainClass.set("io.github.ronjunevaldoz.awake.sample.hellocube.app.MainKt")
     classpath = files(
         layout.buildDirectory.dir("classes/kotlin/desktop/main"),
         layout.buildDirectory.dir("processedResources/desktop/main"),

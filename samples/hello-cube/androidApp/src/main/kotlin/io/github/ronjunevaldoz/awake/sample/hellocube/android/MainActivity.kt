@@ -2,22 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.hellocube.android
 
-import helloCubeGame
 import android.app.Activity
 import android.os.Bundle
 import io.github.ronjunevaldoz.awake.core.graphics.VulkanView
-import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
-import sampleVertexStride
+import io.github.ronjunevaldoz.awake.sample.hellocube.app.createHelloCubeVulkanApplication
 
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val app = VulkanGameApplication(
-            vertexShaderResourcePath = "assets/shader/vulkan/triangle.vert.spv",
-            fragmentShaderResourcePath = "assets/shader/vulkan/triangle.frag.spv",
-            vertexStride = sampleVertexStride,
-            game = helloCubeGame()
-        )
-        setContentView(VulkanView(this, app))
+        setContentView(VulkanView(this, createHelloCubeVulkanApplication()))
     }
 }

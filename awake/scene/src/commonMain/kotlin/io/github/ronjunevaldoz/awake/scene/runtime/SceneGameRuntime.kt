@@ -91,7 +91,7 @@ class SceneGameRuntime internal constructor(
         namedEntities.clear()
     }
 
-    internal fun requireAssetLibrary(): SceneAssetLibrary = checkNotNull(assetLibrary) {
+    fun requireAssetLibrary(): SceneAssetLibrary = checkNotNull(assetLibrary) {
         "No scene asset library is registered for '${sceneName}'."
     }
 
