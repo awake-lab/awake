@@ -12,6 +12,10 @@ fun GameDsl.ui(block: GameUiDsl.() -> Unit) {
     install(gameUi(block))
 }
 
+fun GameDsl.ui(spec: GameUiSpec) {
+    install(spec)
+}
+
 fun gameUi(block: GameUiDsl.() -> Unit): GameUiSpec {
     return GameUiDsl().apply(block).build()
 }

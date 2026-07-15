@@ -66,6 +66,7 @@ samples/<game-name>/
 Owns the composition root only.
 
 - bootstraps `game {}` or `ecsGame {}`
+- preferably uses one `game {}` root and installs reusable `ecs(...)` / `ui(...)` specs
 - wires scene/runtime/services
 - does not own gameplay rules
 - does not own widget behavior

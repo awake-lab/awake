@@ -60,6 +60,7 @@ kotlin {
             dependencies {
                 implementation(libs.wgpu4k)
                 implementation(libs.wgpu4k.toolkit)
+                implementation(libs.kotlinx.browser)
             }
         }
     }

@@ -15,7 +15,7 @@ the only practical way to use the library.
 | Layer | Purpose | Lives in | Examples |
 |---|---|---|---|
 | API / contract | stable public types a consumer can depend on directly | engine or feature module public files | `AwakeGame`, `GameInstaller`, `GameWindowConfig`, `SceneGameSpec`, `SceneGameRuntime`, `GameUiSpec`, `GameUiRuntime` |
-| DSL | thin builder syntax that produces or installs contract types | `*Dsl.kt` and builder entrypoints | `game {}`, `sceneGame {}`, `gameUi {}`, `GameDsl.scene {}` |
+| DSL | thin builder syntax that produces or installs contract types | `*Dsl.kt` and builder entrypoints | `game {}`, `sceneGame {}`, `gameUi {}`, `GameDsl.ecs(...)`, `GameDsl.ui(...)` |
 | Helpers | convenience wrappers around DSL or API for common authored cases | closest owning module, often sample/game module | `cameraEntity`, `meshEntity`, sample HUD mapping, debug overlay wiring |
 
 ## Placement Rules
@@ -75,7 +75,7 @@ Use the answers like this:
 
 - `awake:engine:game` should expose the neutral game contract first, then DSL sugar.
 - `awake:scene` should expose runtime/spec/install surfaces first, then scene-authoring DSL.
-- `awake:engine:ui` should expose runtime/spec/install surfaces first, then UI composition
+- `awake:engine:ui-dsl` should expose runtime/spec/install surfaces first, then UI composition
   DSL.
 - sample modules should own debug shells, demo overlays, inspector mappings, and bootstrap
   shortcuts.

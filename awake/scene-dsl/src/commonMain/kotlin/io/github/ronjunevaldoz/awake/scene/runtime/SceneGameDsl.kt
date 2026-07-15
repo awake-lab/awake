@@ -12,6 +12,10 @@ fun GameDsl.ecs(block: SceneGameDsl.() -> Unit) {
     install(sceneGame(block))
 }
 
+fun GameDsl.ecs(spec: SceneGameSpec) {
+    install(spec)
+}
+
 fun GameDsl.scene(
     name: String? = null,
     block: SceneGameDsl.() -> Unit
@@ -24,6 +28,10 @@ fun GameDsl.scene(
             block()
         }
     )
+}
+
+fun GameDsl.scene(spec: SceneGameSpec) {
+    install(spec)
 }
 
 fun sceneGame(block: SceneGameDsl.() -> Unit): SceneGameSpec {

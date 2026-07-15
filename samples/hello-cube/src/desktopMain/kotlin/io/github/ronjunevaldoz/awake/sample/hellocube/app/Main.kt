@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.hellocube.app
 
-import io.github.ronjunevaldoz.awake.core.application.DesktopGameLoop
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
+import io.github.ronjunevaldoz.awake.vulkan.application.runVulkanDesktopGame
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import io.github.ronjunevaldoz.awake.sample.server.DebugControlServer
@@ -88,19 +87,6 @@ private fun pollDesktopInput(window: Long) {
     Input.scrollDeltaY = VulkanWindow.glfwConsumeScrollDeltaY(window).toFloat()
 }
 
-/**
- * A bare GLFW window running a plain `VulkanGameApplication` injected with [helloCubeGame] --
- * same shape as `awake-demo:desktopApp`'s (now-retired) `VulkanDesktopMain.kt`, since that's
- * the minimal pattern any new consumer's own desktop entry point would follow too. Polls
- * keyboard/pointer input into [Input] once per frame (see [pollDesktopInput]) so the current
- * demo's UI widgets (e.g. the debug-toggle) are actually clickable.
- *
- * Unlike `VulkanDesktopMain.kt`, this doesn't call `AwakeContext.init()` -- that class lives
- * in `awake-opengl` (legacy backend) purely to mirror fps/ups into `EngineConfigHolder` for
- * old call sites; [DesktopGameLoop] already reads sensible defaults from
- * `EngineConfigHolder.config` without it, and a Vulkan-only sample has no reason to depend
- * on the OpenGL module at all.
- */
 /** Applies one drained [DebugCommand] to [demoCatalog] -- called from `main()`'s per-frame
  * loop, on the render thread (see [DebugControlServer]'s own doc comment for why this must
  * never happen from the WebSocket handler coroutine directly). [DebugCommand.GetState] needs
@@ -120,53 +106,27 @@ fun main() {
     val game = helloCubeGame()
     val debugController = game.helloCubeDebugController
     val debugConfig = game.helloCubeDebugConfig
-    check(game.windowConfig.backend == GameWindowBackend.VULKAN) {
-        "Desktop hello-cube expects a Vulkan backend, found ${game.windowConfig.backend}."
-    }
-    check(VulkanWindow.glfwInit()) { "glfwInit failed" }
-    VulkanWindow.glfwWindowHint(0x00022001, 0) // GLFW_CLIENT_API, GLFW_NO_API
-    val window = VulkanWindow.glfwCreateWindow(
-        game.windowConfig.width,
-        game.windowConfig.height,
-        game.windowConfig.title
-    )
-    check(window != 0L) { "glfwCreateWindow returned null" }
-    // Registers GLFW's scroll callback once, before the main loop's first glfwPollEvents --
-    // trackpad pinch-to-zoom (see VulkanWindow.glfwSetScrollCallback's doc comment) surfaces
-    // through this exact callback on macOS.
-    VulkanWindow.glfwSetScrollCallback(window)
-
-    val app = createHelloCubeVulkanApplication(game)
-    app.create(window)
-
-    // Desktop-only debug-control channel (DebugControlServer lives in :samples:server, a
-    // small reusable module generic over command/response types -- see its own doc comment)
-    // -- lets an AI agent drive/inspect this running demo over a WebSocket instead of
-    // simulating mouse input on a real GLFW window. Started only after app.create(window)
-    // so the first getState already reflects a fully-initialized demo.
     val debugServer = if (debugConfig.websocketControlsEnabled) {
         DebugControlServer<DebugCommand, DebugSnapshot>(
             parseCommand = ::parseDebugCommand,
             encodeResponse = { Json.encodeToString(it) }
-        ).also { it.start() }
+        ).also(DebugControlServer<DebugCommand, DebugSnapshot>::start)
     } else {
         null
     }
 
-    while (!VulkanWindow.glfwWindowShouldClose(window)) {
-        VulkanWindow.glfwPollEvents()
-        pollDesktopInput(window)
-        // Drain+apply queued debug commands here -- same render thread as app.update(...)
-        // below, per this project's "one thread owns every Vulkan call" rule.
-        debugServer?.drainCommands()?.forEach { (command, deferred) ->
-            applyDebugCommand(debugController, command)
-            deferred.complete(debugController.snapshot())
+    runVulkanDesktopGame(
+        game = game,
+        application = createHelloCubeVulkanApplication(game),
+        pollInput = ::pollDesktopInput,
+        beforeFrame = {
+            debugServer?.drainCommands()?.forEach { (command, deferred) ->
+                applyDebugCommand(debugController, command)
+                deferred.complete(debugController.snapshot())
+            }
+        },
+        afterLoop = {
+            debugServer?.stop()
         }
-        DesktopGameLoop.startLoop { deltaTime ->
-            app.update(deltaTime.toFloat())
-        }
-    }
-
-    debugServer?.stop()
-    app.dispose()
+    )
 }

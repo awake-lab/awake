@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.hellocube.app
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.engine.application.gameSpec
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.render.material.Material
@@ -15,9 +16,10 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.ecsGameSpec
+import io.github.ronjunevaldoz.awake.scene.runtime.ecs
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.DebugVec3
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugConfig
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugController
@@ -60,14 +62,34 @@ class HelloCubeGameTest {
     }
 
     @Test
+    fun helloCubeSpecsComposeThroughGameFacade() = runTest {
+        val state = HelloCubeRuntimeState()
+        val game = gameSpec {
+            window {
+                title = "Facade"
+                size(800, 600)
+            }
+            ecs(helloCubeSceneSpec(state))
+            ui(helloCubeUiSpec(state))
+            install(helloCubeDebugInstaller(state, websocketControlsEnabled = false, offscreenProofEnabled = false))
+        }.createGame()
+
+        game.ready(FakeRenderer)
+        game.render(0.016f, 320f, 240f)
+
+        assertEquals("hello-cube", game.requireService<SceneGameRuntime>().sceneName)
+        assertTrue(!game.helloCubeDebugConfig.websocketControlsEnabled)
+    }
+
+    @Test
     fun helloCubeCompositionPiecesRemainReusable() = runTest {
         val state = HelloCubeRuntimeState()
-        val game = ecsGameSpec {
+        val game = gameSpec {
             window {
                 title = "Reusable"
                 size(640, 480)
             }
-            scene(helloCubeSceneSpec(state))
+            ecs(helloCubeSceneSpec(state))
             ui(helloCubeUiSpec(state))
             install(
                 helloCubeDebugInstaller(
@@ -89,12 +111,12 @@ class HelloCubeGameTest {
     @Test
     fun helloCubeEcsInstallerBuildsRealRuntimeAndDebugServices() = runTest {
         val state = HelloCubeRuntimeState()
-        val game = ecsGameSpec {
+        val game = gameSpec {
             window {
                 title = "Test"
                 size(640, 480)
             }
-            scene(helloCubeSceneSpec(state))
+            ecs(helloCubeSceneSpec(state))
             install(helloCubeDebugInstaller(state, offscreenProofEnabled = false))
         }.createGame()
 

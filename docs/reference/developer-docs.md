@@ -29,6 +29,9 @@ This currently builds:
 The rollout tracker for module-by-module coverage lives in
 `docs/reference/tutorial-coverage.md`.
 
+The DSL module map and recommended composition style live in
+`docs/reference/dsl-modules.md`.
+
 ## Repo Guidance Layout
 
 Awake keeps project guidance in three layers:

@@ -158,9 +158,6 @@ kotlin {
                 implementation(project(":awake:backend:webgpu"))
                 // Scene runtime + DSL for the shared helloCubeGame() builder.
                 implementation(project(":awake:scene-dsl"))
-                implementation(libs.wgpu4k)
-                implementation(libs.wgpu4k.toolkit)
-                implementation(libs.kotlinx.browser)
                 // Physics backend kept available for future scene variants on wasm.
                 implementation(project(":awake:backend:jolt"))
             }
