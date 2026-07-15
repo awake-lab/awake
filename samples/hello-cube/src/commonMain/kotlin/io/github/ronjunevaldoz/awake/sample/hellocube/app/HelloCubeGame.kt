@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.hellocube.app
 
 import io.github.ronjunevaldoz.awake.engine.application.GameSpec
+import io.github.ronjunevaldoz.awake.engine.application.WindowDsl
 import io.github.ronjunevaldoz.awake.engine.application.createGame
 import io.github.ronjunevaldoz.awake.engine.application.createGameSpec
 import io.github.ronjunevaldoz.awake.engine.application.select
@@ -10,16 +11,18 @@ import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeStat
 
 fun helloCubeGame() = HelloCubeRuntimeState().let { state ->
     helloCubeGameModule(state).createGame {
-        title = "Hello Cube"
-        size(1600, 900)
-        backend.select(platformBackendPreference())
+        configureHelloCubeWindow()
     }
 }
 
 fun helloCubeGameSpec(): GameSpec = HelloCubeRuntimeState().let { state ->
     helloCubeGameModule(state).createGameSpec {
-        title = "Hello Cube"
-        size(1600, 900)
-        backend.select(platformBackendPreference())
+        configureHelloCubeWindow()
     }
+}
+
+private fun WindowDsl.configureHelloCubeWindow() {
+    title = "Hello Cube"
+    size(1600, 900)
+    backend.select(platformBackendPreference())
 }

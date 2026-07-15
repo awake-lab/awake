@@ -1,0 +1,130 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.sample.startergame.scene
+
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameSpec
+import io.github.ronjunevaldoz.awake.scene.runtime.cameraEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.freeFlyCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.meshEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.orbitCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.sceneGame
+
+internal const val STARTER_SCENE_OVERVIEW = "overview"
+internal const val STARTER_SCENE_EDITOR = "editor"
+internal const val STARTER_SCENE_PLAYGROUND = "playground"
+
+internal fun starterOverviewSceneSpec(): SceneGameSpec = sceneGame {
+    name(STARTER_SCENE_OVERVIEW)
+    cameraEntity(
+        name = "camera",
+        transform = { position(0f, 0f, 7f) },
+        camera = {
+            eye(0f, 1f, 7f)
+            center(0f, 0f, 0f)
+            primary(true)
+        }
+    )
+    meshEntity(
+        name = "cube",
+        mesh = "cube",
+        material = "default",
+        transform = {
+            scale(1.25f, 1.25f, 1.25f)
+        }
+    )
+    sharedStarterAssets()
+    orbitCameraSystem(target = "cube", camera = "camera", initialDistance = 7f, autoRotateSpeed = 0.35f) {
+        pitch = 0.3f
+    }
+}
+
+internal fun starterEditorSceneSpec(): SceneGameSpec = sceneGame {
+    name(STARTER_SCENE_EDITOR)
+    cameraEntity(
+        name = "camera",
+        transform = { position(0f, 2f, 10f) },
+        camera = {
+            eye(0f, 2f, 10f)
+            center(0f, 0f, 0f)
+            primary(true)
+        }
+    )
+    meshEntity(
+        name = "centerpiece",
+        mesh = "cube",
+        material = "default",
+        transform = {
+            scale(1.2f, 1.2f, 1.2f)
+        }
+    )
+    meshEntity(
+        name = "left",
+        mesh = "cube",
+        material = "default",
+        transform = {
+            position(-3f, 0f, 0f)
+            scale(0.65f, 0.65f, 0.65f)
+        }
+    )
+    meshEntity(
+        name = "right",
+        mesh = "cube",
+        material = "default",
+        transform = {
+            position(3f, 0f, 0f)
+            scale(0.65f, 0.65f, 0.65f)
+        }
+    )
+    sharedStarterAssets()
+    orbitCameraSystem(target = "centerpiece", camera = "camera", initialDistance = 10f, autoRotateSpeed = 0.2f)
+}
+
+internal fun starterPlaygroundSceneSpec(): SceneGameSpec = sceneGame {
+    name(STARTER_SCENE_PLAYGROUND)
+    cameraEntity(
+        name = "camera",
+        transform = { position(0f, 3f, 10f) },
+        camera = {
+            eye(0f, 3f, 10f)
+            center(0f, 0f, 0f)
+            primary(true)
+        }
+    )
+    meshEntity(
+        name = "origin",
+        mesh = "cube",
+        material = "default",
+        transform = { scale(1f, 1f, 1f) }
+    )
+    meshEntity(
+        name = "raised",
+        mesh = "cube",
+        material = "default",
+        transform = {
+            position(0f, 2.5f, 0f)
+            scale(0.7f, 0.7f, 0.7f)
+        }
+    )
+    meshEntity(
+        name = "offset",
+        mesh = "cube",
+        material = "default",
+        transform = {
+            position(-2.5f, 1f, -2.5f)
+            scale(0.8f, 0.8f, 0.8f)
+        }
+    )
+    sharedStarterAssets()
+    freeFlyCameraSystem(camera = "camera")
+}
+
+private fun io.github.ronjunevaldoz.awake.scene.runtime.SceneGameDsl.sharedStarterAssets() {
+    assets {
+        mesh("cube") {
+            renderer.createMesh(starterCubeGeometry)
+        }
+        material("default") {
+            renderer.createMaterial()
+        }
+    }
+}

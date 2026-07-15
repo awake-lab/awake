@@ -49,6 +49,11 @@ class SceneGameRuntime internal constructor(
     private lateinit var renderSystem: RenderSystem
 
     override suspend fun ready(renderer: Renderer) {
+        initialize(renderer)
+        spec.onReadyBlock(this)
+    }
+
+    fun initialize(renderer: Renderer) {
         this.renderer = renderer
         world = World()
         scene = spec.sceneDocument.instantiate(
@@ -65,7 +70,6 @@ class SceneGameRuntime internal constructor(
             systemNames[registration.handle.name] = registration.handle
         }
         transformSystem.update(world, 0f)
-        spec.onReadyBlock(this)
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {

@@ -41,11 +41,11 @@ class DebugControlServer<TCommand, TResponse>(
     private val port: Int = 8090,
     private val parseCommand: (String) -> TCommand?,
     private val encodeResponse: (TResponse) -> String
-) {
+) : DebugControlTransport<TCommand, TResponse> {
     private val commandQueue = ConcurrentLinkedQueue<Pair<TCommand, CompletableDeferred<TResponse>>>()
     private var server: EmbeddedServer<*, *>? = null
 
-    fun start() {
+    override fun start() {
         server = embeddedServer(CIO, port = port) {
             install(WebSockets)
             routing {
@@ -66,7 +66,7 @@ class DebugControlServer<TCommand, TResponse>(
     /** Called once per frame from the consumer's own render loop, on the render thread --
      * drains every command queued since the last call. Returns a plain list (not a
      * `Sequence`) so the caller can iterate it freely without re-touching [commandQueue]. */
-    fun drainCommands(): List<Pair<TCommand, CompletableDeferred<TResponse>>> {
+    override fun drainCommands(): List<Pair<TCommand, CompletableDeferred<TResponse>>> {
         val drained = mutableListOf<Pair<TCommand, CompletableDeferred<TResponse>>>()
         while (true) {
             drained += commandQueue.poll() ?: break
@@ -74,7 +74,7 @@ class DebugControlServer<TCommand, TResponse>(
         return drained
     }
 
-    fun stop() {
+    override fun stop() {
         server?.stop(gracePeriodMillis = 200, timeoutMillis = 1000)
     }
 }

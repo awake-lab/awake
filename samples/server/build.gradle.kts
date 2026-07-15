@@ -18,4 +18,5 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.websockets)
+    testImplementation(kotlin("test"))
 }
