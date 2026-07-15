@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.hellocube.app
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.sample.server.debugControlLoop
+import io.github.ronjunevaldoz.awake.sample.server.withOptionalDebugControlLoop
 import io.github.ronjunevaldoz.awake.vulkan.application.runVulkanDesktopGame
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -28,25 +29,23 @@ fun main() {
     val game = helloCubeGame()
     val debugController = game.helloCubeDebugController
     val debugConfig = game.helloCubeDebugConfig
-    val debugLoop = if (debugConfig.websocketControlsEnabled) {
-        debugControlLoop<DebugCommand, DebugSnapshot>(
-            parseCommand = ::parseDebugCommand,
-            encodeResponse = { Json.encodeToString(it) },
-            applyCommand = { command -> applyDebugCommand(debugController, command) },
-            snapshot = debugController::snapshot
-        ).also { it.start() }
-    } else {
-        null
-    }
 
-    runVulkanDesktopGame(
-        game = game,
-        applicationFactory = ::createHelloCubeVulkanApplication,
-        beforeFrame = {
-            debugLoop?.beforeFrame()
-        },
-        afterLoop = {
-            debugLoop?.stop()
+    withOptionalDebugControlLoop(
+        enabled = debugConfig.websocketControlsEnabled,
+        createLoop = {
+            debugControlLoop<DebugCommand, DebugSnapshot>(
+                parseCommand = ::parseDebugCommand,
+                encodeResponse = { Json.encodeToString(it) },
+                applyCommand = { command -> applyDebugCommand(debugController, command) },
+                snapshot = debugController::snapshot
+            )
         }
-    )
+    ) { beforeFrame, afterLoop ->
+        runVulkanDesktopGame(
+            game = game,
+            applicationFactory = ::createHelloCubeVulkanApplication,
+            beforeFrame = beforeFrame,
+            afterLoop = afterLoop
+        )
+    }
 }

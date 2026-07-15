@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.startergame.app
 
 import io.github.ronjunevaldoz.awake.sample.server.debugControlLoop
+import io.github.ronjunevaldoz.awake.sample.server.withOptionalDebugControlLoop
 import io.github.ronjunevaldoz.awake.sample.startergame.debug.StarterDebugCommand
 import io.github.ronjunevaldoz.awake.sample.startergame.debug.StarterDebugSnapshot
 import io.github.ronjunevaldoz.awake.sample.startergame.debug.parseStarterDebugCommand
@@ -26,25 +27,22 @@ private fun applyDebugCommand(
 fun main() {
     val game = starterGame()
     val debugController = game.starterGameDebugController
-    val debugLoop = if (game.starterGameDebugConfig.websocketControlsEnabled) {
-        debugControlLoop<StarterDebugCommand, StarterDebugSnapshot>(
-            parseCommand = ::parseStarterDebugCommand,
-            encodeResponse = { Json.encodeToString(it) },
-            applyCommand = { command -> applyDebugCommand(debugController, command) },
-            snapshot = debugController::snapshot
-        ).also { it.start() }
-    } else {
-        null
-    }
-
-    runVulkanDesktopGame(
-        game = game,
-        applicationFactory = ::createStarterGameVulkanApplication,
-        beforeFrame = {
-            debugLoop?.beforeFrame()
-        },
-        afterLoop = {
-            debugLoop?.stop()
+    withOptionalDebugControlLoop(
+        enabled = game.starterGameDebugConfig.websocketControlsEnabled,
+        createLoop = {
+            debugControlLoop<StarterDebugCommand, StarterDebugSnapshot>(
+                parseCommand = ::parseStarterDebugCommand,
+                encodeResponse = { Json.encodeToString(it) },
+                applyCommand = { command -> applyDebugCommand(debugController, command) },
+                snapshot = debugController::snapshot
+            )
         }
-    )
+    ) { beforeFrame, afterLoop ->
+        runVulkanDesktopGame(
+            game = game,
+            applicationFactory = ::createStarterGameVulkanApplication,
+            beforeFrame = beforeFrame,
+            afterLoop = afterLoop
+        )
+    }
 }

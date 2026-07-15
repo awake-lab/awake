@@ -50,6 +50,33 @@ fun <TCommand, TResponse> debugControlLoop(
     )
 }
 
+fun <TCommand, TResponse> withOptionalDebugControlLoop(
+    enabled: Boolean,
+    createLoop: () -> DebugControlLoop<TCommand, TResponse>,
+    run: (beforeFrame: () -> Unit, afterLoop: () -> Unit) -> Unit
+) {
+    val loop = if (enabled) createLoop() else null
+    var stopped = false
+
+    val stopLoop: () -> Unit = {
+        if (!stopped) {
+            stopped = true
+            loop?.stop()
+        }
+    }
+
+    if (loop != null) {
+        loop.start()
+    }
+
+    try {
+        run({ loop?.beforeFrame() }, stopLoop)
+    } catch (t: Throwable) {
+        stopLoop()
+        throw t
+    }
+}
+
 internal class RecordingDebugControlTransport<TCommand, TResponse> : DebugControlTransport<TCommand, TResponse> {
     private val queue = ConcurrentLinkedQueue<Pair<TCommand, CompletableDeferred<TResponse>>>()
     var started = false
