@@ -119,6 +119,56 @@ class GameDslTest {
     }
 
     @Test
+    fun gameDslCanInstallReusableGameModule() = runTest {
+        val events = mutableListOf<String>()
+        val feature = gameModule {
+            service(String::class, "module-service")
+            ready { events += "module-ready" }
+            render { _, _, _ -> events += "module-render" }
+            dispose { events += "module-dispose" }
+        }
+
+        val game = game {
+            ready { events += "root-ready" }
+            module(feature)
+        }
+
+        game.ready(FakeRenderer)
+        game.render(0.016f, 320f, 240f)
+        game.dispose()
+
+        assertEquals("module-service", game.requireService(String::class))
+        assertEquals(
+            listOf("root-ready", "module-ready", "module-render", "module-dispose"),
+            events
+        )
+    }
+
+    @Test
+    fun gameModuleCanCreateGameShellDirectly() = runTest {
+        val events = mutableListOf<String>()
+        val feature = gameModule {
+            service(String::class, "feature-service")
+            ready { events += "module-ready" }
+        }
+
+        val game = feature.createGame {
+            title = "Module Shell"
+            size(1024, 576)
+            backend.webGpu()
+        }
+
+        game.ready(FakeRenderer)
+
+        assertEquals("Module Shell", game.windowConfig.title)
+        assertEquals(1024, game.windowConfig.width)
+        assertEquals(576, game.windowConfig.height)
+        assertEquals(GameWindowBackend.WEBGPU, game.windowConfig.backend)
+        assertEquals("feature-service", game.requireService(String::class))
+        assertEquals(listOf("module-ready"), events)
+    }
+
+    @Test
     fun gameDslComposesInstallerCallbacksInOrder() = runTest {
         val events = mutableListOf<String>()
         val game = game {

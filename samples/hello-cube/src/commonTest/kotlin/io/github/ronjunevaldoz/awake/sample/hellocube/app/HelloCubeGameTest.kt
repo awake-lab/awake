@@ -4,8 +4,9 @@ package io.github.ronjunevaldoz.awake.sample.hellocube.app
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.engine.application.gameSpec
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
+import io.github.ronjunevaldoz.awake.engine.application.gameSpec
+import io.github.ronjunevaldoz.awake.engine.application.module
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
@@ -16,17 +17,12 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.ecs
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.DebugVec3
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugConfig
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugController
-import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugInstaller
-import io.github.ronjunevaldoz.awake.sample.hellocube.scene.helloCubeSceneSpec
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
-import io.github.ronjunevaldoz.awake.sample.hellocube.ui.helloCubeUiSpec
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -69,9 +65,13 @@ class HelloCubeGameTest {
                 title = "Facade"
                 size(800, 600)
             }
-            ecs(helloCubeSceneSpec(state))
-            ui(helloCubeUiSpec(state))
-            install(helloCubeDebugInstaller(state, websocketControlsEnabled = false, offscreenProofEnabled = false))
+            module(
+                helloCubeGameModule(
+                    state = state,
+                    websocketControlsEnabled = false,
+                    offscreenProofEnabled = false
+                )
+            )
         }.createGame()
 
         game.ready(FakeRenderer)
@@ -89,10 +89,8 @@ class HelloCubeGameTest {
                 title = "Reusable"
                 size(640, 480)
             }
-            ecs(helloCubeSceneSpec(state))
-            ui(helloCubeUiSpec(state))
-            install(
-                helloCubeDebugInstaller(
+            module(
+                helloCubeGameModule(
                     state = state,
                     websocketControlsEnabled = false,
                     offscreenProofEnabled = false
@@ -116,8 +114,12 @@ class HelloCubeGameTest {
                 title = "Test"
                 size(640, 480)
             }
-            ecs(helloCubeSceneSpec(state))
-            install(helloCubeDebugInstaller(state, offscreenProofEnabled = false))
+            module(
+                helloCubeGameModule(
+                    state = state,
+                    offscreenProofEnabled = false
+                )
+            )
         }.createGame()
 
         game.ready(FakeRenderer)

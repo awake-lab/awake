@@ -5,6 +5,8 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
 import io.github.ronjunevaldoz.awake.engine.application.game
+import io.github.ronjunevaldoz.awake.engine.application.gameModule
+import io.github.ronjunevaldoz.awake.engine.application.module
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
@@ -40,6 +42,37 @@ class GameUiDslTest {
                     }
                 }
             }
+        }
+
+        game.ready(renderer)
+        game.render(0.016f, 320f, 240f)
+
+        assertEquals(1, renderer.uiDrawCalls)
+        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
+    }
+
+    @Test
+    fun gameModuleCanOwnUiComposition() = runTest {
+        val renderer = RecordingUiRenderer()
+        val feature = gameModule {
+            install(
+                object : GameInstaller {
+                    override fun install(into: io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder) {
+                        into.service(String::class, "Module Inspector")
+                    }
+                }
+            )
+            ui {
+                overlay { _, _ ->
+                    column(x = 20f, y = 20f, width = 180f) {
+                        text(requireService<String>())
+                    }
+                }
+            }
+        }
+
+        val game = game {
+            module(feature)
         }
 
         game.ready(renderer)

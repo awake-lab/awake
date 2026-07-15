@@ -6,6 +6,7 @@ Use it when you want:
 
 - `sceneGame { ... }`
 - `game { ecs { ... } }`
+- `gameModule { ecs { ... } }`
 - authored entities, assets, systems, and scene update blocks
 
 Minimal example:
@@ -29,7 +30,9 @@ Composed through the higher-level game facade:
 ```kotlin
 val game = game {
     window { title = "Scene Example" }
-    ecs(spec)
+    module {
+        ecs(spec)
+    }
 }
 ```
 

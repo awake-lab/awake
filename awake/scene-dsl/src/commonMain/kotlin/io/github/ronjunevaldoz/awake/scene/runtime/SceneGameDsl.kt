@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.engine.application.GameDsl
+import io.github.ronjunevaldoz.awake.engine.application.GameModuleDsl
 import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import kotlin.reflect.KClass
@@ -13,6 +14,14 @@ fun GameDsl.ecs(block: SceneGameDsl.() -> Unit) {
 }
 
 fun GameDsl.ecs(spec: SceneGameSpec) {
+    install(spec)
+}
+
+fun GameModuleDsl.ecs(block: SceneGameDsl.() -> Unit) {
+    install(sceneGame(block))
+}
+
+fun GameModuleDsl.ecs(spec: SceneGameSpec) {
     install(spec)
 }
 
@@ -31,6 +40,24 @@ fun GameDsl.scene(
 }
 
 fun GameDsl.scene(spec: SceneGameSpec) {
+    install(spec)
+}
+
+fun GameModuleDsl.scene(
+    name: String? = null,
+    block: SceneGameDsl.() -> Unit
+) {
+    install(
+        sceneGame {
+            if (name != null) {
+                this.name(name)
+            }
+            block()
+        }
+    )
+}
+
+fun GameModuleDsl.scene(spec: SceneGameSpec) {
     install(spec)
 }
 

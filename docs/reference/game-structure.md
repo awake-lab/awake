@@ -66,7 +66,10 @@ samples/<game-name>/
 Owns the composition root only.
 
 - bootstraps `game {}` or `ecsGame {}`
-- preferably uses one `game {}` root and installs reusable `ecs(...)` / `ui(...)` specs
+- preferably uses one `game {}` root and installs reusable `gameModule { ... }` content
+- when a sample has a reusable composition slice, expose it from `app/GameModule.kt`
+- it is fine for the root to wrap that reusable slice with `feature.createGame { ... }` or
+  `feature.createGameSpec { ... }` when the shell only needs window/backend configuration
 - wires scene/runtime/services
 - does not own gameplay rules
 - does not own widget behavior

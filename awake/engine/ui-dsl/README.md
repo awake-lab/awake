@@ -7,6 +7,7 @@ Use it when you want:
 
 - `gameUi { ... }`
 - `game { ui { ... } }`
+- `gameModule { ui { ... } }`
 - authored overlay composition over reusable widgets and primitives
 
 Minimal example:
@@ -25,7 +26,9 @@ Composed through the higher-level game facade:
 
 ```kotlin
 val game = game {
-    ui(spec)
+    module {
+        ui(spec)
+    }
 }
 ```
 

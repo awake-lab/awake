@@ -44,6 +44,8 @@ tasks.register("developerDocs") {
         ":awake:engine:dokkaGeneratePublicationHtml",
         ":awake:engine:game:dokkaGeneratePublicationHtml",
         ":awake:engine:game-dsl:dokkaGeneratePublicationHtml",
+        ":awake:engine:game-dsl:desktopTest",
+        ":awake:engine:game-dsl:gameDslTutorialDocsReport",
         ":awake:engine:render-api:dokkaGeneratePublicationHtml",
         ":awake:engine:ui-core:dokkaGeneratePublicationHtml",
         ":awake:engine:ui-dsl:dokkaGeneratePublicationHtml",

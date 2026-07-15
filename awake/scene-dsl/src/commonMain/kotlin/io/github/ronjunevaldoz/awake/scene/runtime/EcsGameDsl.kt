@@ -6,10 +6,13 @@ import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
 import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
 import io.github.ronjunevaldoz.awake.engine.application.GameSpec
 import io.github.ronjunevaldoz.awake.engine.application.WindowDsl
+import io.github.ronjunevaldoz.awake.engine.application.gameModule
 import io.github.ronjunevaldoz.awake.engine.application.gameSpec
+import io.github.ronjunevaldoz.awake.engine.application.module
 import io.github.ronjunevaldoz.awake.ui.GameUiDsl
 import io.github.ronjunevaldoz.awake.ui.GameUiSpec
 import io.github.ronjunevaldoz.awake.ui.gameUi
+import io.github.ronjunevaldoz.awake.ui.ui
 
 fun ecsGame(
     block: EcsGameDsl.() -> Unit
@@ -72,11 +75,14 @@ class EcsGameDsl internal constructor() {
         val builtScene = checkNotNull(sceneSpec) {
             "ecsGameSpec requires a scene { ... } or ecs { ... } block."
         }
+        val featureModule = gameModule {
+            scene(builtScene)
+            uiSpec?.let { ui(it) }
+            installers.forEach { install(it) }
+        }
         return gameSpec {
             window(windowBlock)
-            install(builtScene)
-            uiSpec?.let(::install)
-            installers.forEach(::install)
+            module(featureModule)
         }
     }
 }

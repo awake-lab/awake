@@ -10,9 +10,9 @@ Keep the pleasant builder syntax without hiding the real reusable contracts.
 
 | Module | Owns | Depends on |
 |---|---|---|
-| `awake:engine:game-dsl` | `game {}` / `gameSpec {}` / installer syntax | `awake:engine:game` |
-| `awake:scene-dsl` | `sceneGame {}` and `game { ecs { ... } }` | `awake:scene`, `awake:engine:game-dsl`, `awake:engine:ui-dsl` |
-| `awake:engine:ui-dsl` | `gameUi {}` and `game { ui { ... } }` | `awake:engine:game-dsl`, `ui-core`, `ui-widgets` |
+| `awake:engine:game-dsl` | `game {}` / `gameSpec {}` / `gameModule {}` / `feature.createGame {}` / installer syntax | `awake:engine:game` |
+| `awake:scene-dsl` | `sceneGame {}` and `game/module { ecs { ... } }` | `awake:scene`, `awake:engine:game-dsl`, `awake:engine:ui-dsl` |
+| `awake:engine:ui-dsl` | `gameUi {}` and `game/module { ui { ... } }` | `awake:engine:game-dsl`, `ui-core`, `ui-widgets` |
 
 ## Recommended Authoring Shape
 
@@ -25,15 +25,37 @@ val game = game {
         size(1600, 900)
         backend.vulkan()
     }
+    module(
+        gameModule {
+            ecs(helloCubeSceneSpec(state))
+            ui(helloCubeUiSpec(state))
+            install(helloCubeDebugInstaller(state))
+        }
+    )
+}
+```
+
+Or wrap one reusable module directly when the sample/game root is only window and backend
+selection:
+
+```kotlin
+val feature = gameModule {
     ecs(helloCubeSceneSpec(state))
     ui(helloCubeUiSpec(state))
     install(helloCubeDebugInstaller(state))
+}
+
+val game = feature.createGame {
+    title = "Hello Cube"
+    size(1600, 900)
+    backend.vulkan()
 }
 ```
 
 That keeps:
 
 - `game-dsl` as the single top-level game shell
+- `gameModule {}` as the reusable authored feature layer
 - `scene-dsl` focused on scene authoring
 - `ui-dsl` focused on overlay authoring
 
@@ -44,10 +66,13 @@ Prefer spec values when you want reuse or testability:
 ```kotlin
 val sceneSpec = sceneGame { ... }
 val uiSpec = gameUi { ... }
-
-val spec = gameSpec {
+val feature = gameModule {
     ecs(sceneSpec)
     ui(uiSpec)
+}
+
+val spec = gameSpec {
+    module(feature)
 }
 ```
 

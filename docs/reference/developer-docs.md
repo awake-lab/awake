@@ -19,6 +19,8 @@ Run:
 This currently builds:
 
 - module API references through `dokkaGeneratePublicationHtml`
+- the Game DSL tutorial guide at
+  `awake/engine/game-dsl/build/reports/game-dsl-tutorials/index.html`
 - the UI DSL tutorial guide at
   `awake/engine/ui-dsl/build/reports/ui-dsl-tutorials/index.html`
 - the UI snapshot gallery at
@@ -31,6 +33,9 @@ The rollout tracker for module-by-module coverage lives in
 
 The DSL module map and recommended composition style live in
 `docs/reference/dsl-modules.md`.
+
+The root game-shell cookbook lives in
+`docs/reference/game-dsl.md`.
 
 ## Repo Guidance Layout
 

@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.engine.application.GameDsl
+import io.github.ronjunevaldoz.awake.engine.application.GameModuleDsl
 
 typealias GameUiOverlayBlock = GameUiRuntime.(viewportWidth: Float, viewportHeight: Float) -> Unit
 typealias GameUiReadyBlock = suspend GameUiRuntime.() -> Unit
@@ -13,6 +14,14 @@ fun GameDsl.ui(block: GameUiDsl.() -> Unit) {
 }
 
 fun GameDsl.ui(spec: GameUiSpec) {
+    install(spec)
+}
+
+fun GameModuleDsl.ui(block: GameUiDsl.() -> Unit) {
+    install(gameUi(block))
+}
+
+fun GameModuleDsl.ui(spec: GameUiSpec) {
     install(spec)
 }
 

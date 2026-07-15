@@ -5,6 +5,8 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.application.game
+import io.github.ronjunevaldoz.awake.engine.application.gameModule
+import io.github.ronjunevaldoz.awake.engine.application.module
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
@@ -18,6 +20,7 @@ import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.ui
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -192,6 +195,42 @@ class SceneGameDslTest {
         assertEquals(GameWindowBackend.VULKAN, game.windowConfig.backend)
         assertEquals("facade-ready", game.requireService(String::class))
         assertEquals("facade-scene", game.requireService<SceneGameRuntime>().sceneName)
+        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
+    }
+
+    @Test
+    fun gameModuleCanOwnSceneAndUiComposition() = runTest {
+        val renderer = RecordingRenderer()
+        val module = gameModule {
+            scene("module-scene") {
+                cameraEntity("camera", camera = { primary(true) })
+                meshEntity(
+                    name = "cube",
+                    mesh = "cube",
+                    material = "default"
+                )
+                assets {
+                    mesh("cube") { renderer.createMesh(EmptyGeometry) }
+                    material("default") { renderer.createMaterial() }
+                }
+            }
+            ui {
+                overlay { _, _ ->
+                    column(x = 16f, y = 16f, width = 180f) {
+                        text(requireService<SceneGameRuntime>().sceneName)
+                    }
+                }
+            }
+        }
+
+        val game = game {
+            module(module)
+        }
+
+        game.ready(renderer)
+        game.render(0.016f, 320f, 240f)
+
+        assertEquals("module-scene", game.requireService<SceneGameRuntime>().sceneName)
         assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
     }
 }
