@@ -2,18 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime
 
-import io.github.ronjunevaldoz.awake.core.math.Camera
-import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.scene.components.Light
-import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
-import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
-import io.github.ronjunevaldoz.awake.scene.components.Transform
 import kotlinx.serialization.json.Json
-import kotlin.math.PI
 
 data class SceneInstance(
     val world: World,
@@ -54,74 +47,47 @@ object SceneLoader {
     /** [flipYForClipSpace] comes from the active `Renderer` (see its own doc comment) --
      * a scene document itself carries no opinion on backend clip-space convention. */
     fun instantiate(document: SceneDocument, flipYForClipSpace: Boolean, world: World = World()): SceneInstance {
-        val renderableRequests = mutableListOf<SceneRenderableRequest>()
-        val roots = document.nodes.map { node ->
-            instantiateNode(world, node, null, flipYForClipSpace, renderableRequests)
-        }
-        return SceneInstance(world, roots, renderableRequests)
+        return instantiate(document, flipYForClipSpace, AwakeWorldSceneAdapter(world))
     }
 
-    private fun instantiateNode(
-        world: World,
-        node: SceneNode,
-        parent: Entity?,
+    /** Adapter-driven instantiation path: the scene DSL/model stays Awake-owned, while the
+     * execution target can vary as long as it implements [SceneInstantiationAdapter]. */
+    fun <Node, Instance> instantiate(
+        document: SceneDocument,
         flipYForClipSpace: Boolean,
-        renderableRequests: MutableList<SceneRenderableRequest>
-    ): SceneNodeInstance {
-        val entity = world.create()
-        world.add(entity, node.transform.toTransform(parent))
-        node.name?.takeIf { it.isNotBlank() }?.let { world.add(entity, Name(it)) }
-        node.camera?.let { world.add(entity, it.toComponent(flipYForClipSpace)) }
-        node.light?.let { world.add(entity, it.toComponent()) }
-        node.meshRenderer?.let { renderableRequests += SceneRenderableRequest(entity, it) }
-
-        val children = node.children.map { child ->
-            instantiateNode(world, child, entity, flipYForClipSpace, renderableRequests)
+        adapter: SceneInstantiationAdapter<Node, Instance>
+    ): Instance {
+        SceneValidator.requireValid(document)
+        val roots = document.nodes.mapIndexed { index, node ->
+            instantiateNode(adapter, node, parent = null, flipYForClipSpace = flipYForClipSpace, path = node.name?.takeIf { it.isNotBlank() } ?: "#$index")
         }
-        return SceneNodeInstance(node.name, entity, children)
+        return adapter.complete(roots)
     }
 
-    private fun SceneTransform.toTransform(parent: Entity?): Transform {
-        return Transform(
-            position = position.toVec3(),
-            rotation = rotation.toVec3(),
-            scale = scale.toVec3(),
-            parent = parent
-        )
-    }
+    private fun <Node> instantiateNode(
+        adapter: SceneInstantiationAdapter<Node, *>,
+        node: SceneNode,
+        parent: Node?,
+        flipYForClipSpace: Boolean,
+        path: String
+    ): SceneNodeHandle<Node> {
+        val created = adapter.createNode(node, parent)
+        adapter.attachTransform(created, node.transform, parent)
+        node.name?.takeIf { it.isNotBlank() }?.let { adapter.attachName(created, it) }
+        node.camera?.let { adapter.attachCamera(created, it, flipYForClipSpace) }
+        node.light?.let { adapter.attachLight(created, it) }
+        node.meshRenderer?.let { adapter.queueMeshRenderer(created, it) }
 
-    private fun SceneCamera.toComponent(flipYForClipSpace: Boolean): SceneCameraComponent {
-        return SceneCameraComponent(
-            camera = Camera(
-                eye = eye.toVec3(),
-                center = center.toVec3(),
-                up = up.toVec3(),
-                fovYRadians = degreesToRadians(fovYDegrees),
-                near = near,
-                far = far,
-                flipYForClipSpace = flipYForClipSpace
-            ),
-            isPrimary = primary
-        )
-    }
-
-    private fun SceneLight.toComponent(): Light {
-        return Light(
-            color = color.toVec3(),
-            intensity = intensity,
-            type = when (type) {
-                SceneLight.Type.Directional -> Light.Type.Directional
-                SceneLight.Type.Point -> Light.Type.Point
-            }
-        )
-    }
-
-    private fun SceneVec3.toVec3(): Vec3 {
-        return Vec3(x, y, z)
-    }
-
-    private fun degreesToRadians(degrees: Float): Float {
-        return degrees * (PI.toFloat() / 180f)
+        val children = node.children.mapIndexed { index, child ->
+            instantiateNode(
+                adapter = adapter,
+                node = child,
+                parent = created,
+                flipYForClipSpace = flipYForClipSpace,
+                path = child.name?.takeIf { it.isNotBlank() } ?: "$path/#$index"
+            )
+        }
+        return SceneNodeHandle(node.name, created, children)
     }
 }
 

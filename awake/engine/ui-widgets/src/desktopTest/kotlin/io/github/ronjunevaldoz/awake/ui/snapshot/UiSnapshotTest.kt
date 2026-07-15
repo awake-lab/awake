@@ -91,8 +91,8 @@ class UiSnapshotTest {
      * lambdas -- never rendered with real child widgets inside it. Motivating case: a real
      * "studio inspector" panel (bordered/rounded box) holding a section label, a
      * [propertyRow]-placed dropdown, and a [propertyCheckbox] row -- the exact shape
-     * `samples:hello-cube`'s `CubeDemo.drawPanel()` builds, just without the border/rounded
-     * background it was reported "not visible" against. */
+     * `samples:hello-cube`'s scene overlay builds, just without the border/rounded background
+     * it was reported "not visible" against. */
     @Test
     fun panelWithNestedChildren() {
         val font = BitmapFont()

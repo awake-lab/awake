@@ -22,8 +22,8 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
  * [GenericGameApplication] imposes on every game.
  *
  * [resize]/[pause]/[resume]/[dispose] mirror libGDX's `Game`->`Screen` delegation, all
- * defaulting to no-op so a simple [Game] (like `sample-hello-cube`'s `SampleGame`, which owns
- * nothing that needs early release) implements only [ready]/[render] and ignores the rest.
+ * defaulting to no-op so a simple [Game] (like `samples:hello-cube`'s `helloCubeGame()`
+ * runtime) implements only the callbacks it actually needs.
  */
 interface Game {
     suspend fun ready(renderer: Renderer)

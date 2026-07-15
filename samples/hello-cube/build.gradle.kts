@@ -90,28 +90,25 @@ kotlin {
     }
 
     sourceSets {
-        // commonMain: SampleGame.kt/SampleMesh.kt -- the one commonMain Game implementation
-        // (see docs/MVP_PLAN.md's decision log, "GenericGameApplication a standalone render
-        // bootstrap") shared by both the appMain (Vulkan) and wasmJsMain (WebGPU) platform
-        // entry points below.
+        // commonMain: helloCubeGame()/SampleMesh.kt -- the shared game builder consumed by
+        // both the appMain (Vulkan) and wasmJsMain (WebGPU) entry points below.
         commonMain.dependencies {
-            // The Game interface SampleGame implements + Renderer.createMesh/createMaterial.
+            // AwakeGame/GameDsl + window config/services used by helloCubeGame().
             implementation(project(":awake:engine:game"))
             // Immediate-mode UI facade: keeps downstream imports stable while ui-core and
             // ui-widgets are split underneath it.
             implementation(project(":awake:engine:ui"))
-            // SceneRuntime/MeshRenderer/OrbitCameraSystem/FreeFlyCameraSystem, and
-            // transitively awake-engine-render-api's Renderer/Mesh/Material/MeshGeometry/
-            // TextureAsset/LineSegment interfaces + awake-engine-ui's UiContext/BitmapFont.
+            // Reusable scene DSL/runtime plus camera systems and render-asset resolution.
             implementation(project(":awake:scene"))
-            // DemoCatalog.switchTo launches its own coroutine to await a demo's suspend
-            // Game.ready() off render()'s non-suspend call site.
+            // Shared coroutine primitives for tests and any future async sample helpers.
             implementation(libs.kotlinx.coroutines.core)
-            // DebugSnapshot (DemoCatalog.debugSnapshot) is @Serializable so
-            // DebugControlServer.kt (desktop-only) can JSON-encode it -- the annotation and
-            // Json runtime live in commonMain since the data class itself does, matching
-            // awake:scene's SceneLoader.kt convention.
+            // DebugSnapshot is @Serializable so the desktop debug-control server can
+            // JSON-encode it.
             implementation(libs.kotlinx.serialization.json)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
         // appMain: shared by desktop/Android/iOS -- these three drive VulkanGameApplication
         // (awake-backend-vulkan), which doesn't publish a wasmJs variant. Same pattern
@@ -126,9 +123,7 @@ kotlin {
         named("desktopMain") {
             dependsOn(appMain)
             dependencies {
-                // JoltPhysicsWorld -- real jolt-jni-backed PhysicsWorld for PhysicsDemo's
-                // falling-cube-onto-ground scene. Desktop+Android only; iOS/wasmJs stay
-                // null via PhysicsWorldFactory's stub actuals (see that file's comment).
+                // Physics backend kept available for future scene variants on desktop.
                 implementation(project(":awake:backend:jolt"))
                 // DebugControlServer -- desktop-only Ktor WebSocket debug-control channel,
                 // pulled out into its own reusable module (see docs/MVP_PLAN.md's decision
@@ -155,8 +150,7 @@ kotlin {
         named("iosMain") {
             dependsOn(appMain)
             dependencies {
-                // JoltPhysicsWorld -- real JoltC-cinterop-backed PhysicsWorld for
-                // PhysicsDemo's falling-cube-onto-ground scene (see PhysicsWorldFactory.ios.kt).
+                // Physics backend kept available for future scene variants on iOS.
                 implementation(project(":awake:backend:jolt"))
             }
         }
@@ -165,15 +159,12 @@ kotlin {
             dependencies {
                 implementation(project(":awake:engine"))
                 implementation(project(":awake:backend:webgpu"))
-                // OrbitCameraSystem/FreeFlyCameraSystem, for SampleGame's catalog-tool
-                // camera wiring -- see appMain's matching dependency comment.
+                // Scene DSL/runtime + camera systems for the shared helloCubeGame() builder.
                 implementation(project(":awake:scene"))
                 implementation(libs.wgpu4k)
                 implementation(libs.wgpu4k.toolkit)
                 implementation(libs.kotlinx.browser)
-                // JoltPhysicsWorld -- real jolt-physics(JoltPhysics.js)-backed PhysicsWorld
-                // for PhysicsDemo's falling-cube-onto-ground scene (see
-                // PhysicsWorldFactory.wasmJs.kt).
+                // Physics backend kept available for future scene variants on wasm.
                 implementation(project(":awake:backend:jolt"))
             }
             // wasmJs library resources aren't merged into a consuming app's own

@@ -73,13 +73,13 @@ abstract class GenericGameApplication(
     }
 
     /** [game] first, [destroyBackend] second -- reversed from an earlier version of this
-     * class. `game.dispose()` (e.g. `CubeDemo.dispose()`) tears down GAME-OWNED GPU
+     * class. `game.dispose()` (e.g. `helloCubeGame()`'s scene runtime) tears down GAME-OWNED GPU
      * resources (meshes/materials/render targets, all created via `Renderer.createMesh`/
      * `createMaterial`/`createRenderTarget`) that were allocated against the *live*
      * `GraphicsDevice` -- those teardown calls (`vkDestroyBuffer`/`vkDestroyImage`/etc.) are
      * undefined behavior once [destroyBackend] has already destroyed the `VkDevice` they
      * belong to. Confirmed as a **real, reproducible SIGSEGV** (not theoretical) via a
-     * Vulkan-validation-layer-instrumented run: `CubeDemo.dispose() -> Mesh.destroy() ->
+     * Vulkan-validation-layer-instrumented run: `game.dispose() -> Mesh.destroy() ->
      * VulkanBuffers.vkDestroyBuffer` crashed the JVM natively inside `libvulkan.dylib`, with
      * the validation layer's own log immediately prior showing 14 objects "couldn't find"/
      * leaked against a device that had *already* been torn down by the old

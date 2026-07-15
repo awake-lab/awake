@@ -18,7 +18,7 @@ fun makeSampleViewController(): UIViewController {
         vertexShaderResourcePath = "assets/shader/vulkan/triangle.vert.spv",
         fragmentShaderResourcePath = "assets/shader/vulkan/triangle.frag.spv",
         vertexStride = sampleVertexStride,
-        game = DemoCatalog()
+        game = helloCubeGame()
     )
     val controller = UIViewController()
     controller.view = VulkanMetalView(

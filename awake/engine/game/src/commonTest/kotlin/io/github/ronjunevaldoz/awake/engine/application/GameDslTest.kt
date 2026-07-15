@@ -1,0 +1,130 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.engine.application
+
+import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.render.material.Material
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh
+import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
+import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+class GameDslTest {
+
+    @Test
+    fun gameDslRoutesLifecycleCallbacks() = runTest {
+        var readyCalls = 0
+        var renderDelta = 0f
+        var renderWidth = 0f
+        var renderHeight = 0f
+        var resized = ""
+        var paused = false
+        var resumed = false
+        var disposed = false
+
+        val game = game {
+            ready { readyCalls++ }
+            render { delta, viewportWidth, viewportHeight ->
+                renderDelta = delta
+                renderWidth = viewportWidth
+                renderHeight = viewportHeight
+            }
+            resize { width, height ->
+                resized = "$width x $height"
+            }
+            pause { paused = true }
+            resume { resumed = true }
+            dispose { disposed = true }
+        }
+
+        game.ready(FakeRenderer)
+        game.render(0.016f, 1280f, 720f)
+        game.resize(640f, 360f)
+        game.pause()
+        game.resume()
+        game.dispose()
+
+        assertEquals(1, readyCalls)
+        assertEquals(0.016f, renderDelta)
+        assertEquals(1280f, renderWidth)
+        assertEquals(720f, renderHeight)
+        assertEquals("640.0 x 360.0", resized)
+        assertTrue(paused)
+        assertTrue(resumed)
+        assertTrue(disposed)
+    }
+
+    @Test
+    fun gameDslCapturesWindowConfiguration() {
+        val game = game {
+            window {
+                title = "Hello Cube"
+                size(1600, 900)
+                backend.vulkan()
+            }
+        }
+
+        assertEquals("Hello Cube", game.windowConfig.title)
+        assertEquals(1600, game.windowConfig.width)
+        assertEquals(900, game.windowConfig.height)
+        assertEquals(GameWindowBackend.VULKAN, game.windowConfig.backend)
+    }
+
+    @Test
+    fun gameDslCanInstallFeatureServices() {
+        val game = game {
+            install(
+                object : GameInstaller {
+                    override fun install(into: GameDsl) {
+                        into.service(String::class, "debug")
+                    }
+                }
+            )
+        }
+
+        assertEquals("debug", game.requireService(String::class))
+    }
+}
+
+private object FakeRenderer : Renderer {
+    override val flipYForClipSpace: Boolean = false
+
+    override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
+        override fun bind(commandBuffer: Long) = Unit
+        override fun draw(commandBuffer: Long) = Unit
+        override fun destroy() = Unit
+    }
+
+    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): Material = object : Material {
+        override fun updateUniformBuffer(mvp: FloatArray) = Unit
+        override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
+        override fun destroy() = Unit
+    }
+
+    override fun createRenderTarget(width: Int, height: Int): RenderTarget = object : RenderTarget {
+        override val width: Int = width
+        override val height: Int = height
+        override fun destroy() = Unit
+    }
+
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>) = Unit
+
+    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
+
+    override suspend fun readPixels(target: RenderTarget): TextureAsset = TextureAsset(ByteArray(0), 0, 0)
+
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) = Unit
+
+    override fun drawDebugLines(lines: List<LineSegment>) = Unit
+
+    override fun destroy() = Unit
+}
