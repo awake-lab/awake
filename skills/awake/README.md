@@ -19,8 +19,31 @@ Those belong in:
 
 - `docs/architecture.md`
 - `docs/reference/ai-collaboration.md`
+- `docs/reference/agent-catalog.md`
 - `docs/reference/ui-ownership.md`
 - `docs/reference/game-structure.md`
+
+## Agent Naming
+
+Repo-local agent files must follow the naming standard documented in
+`docs/reference/agent-catalog.md`:
+
+- `awake-<domain>-<role>.md`
+- professional role suffixes only, such as `engineer` or `auditor`
+- no informal names such as `*-dev`
+
+## Agent Model Field
+
+Repo-local agent frontmatter keeps a `model:` field for tool compatibility, but Awake uses
+that field for capability tiers:
+
+- `flagship-coding`
+- `balanced-coding`
+- `fast-utility`
+
+Resolve those tiers to provider models through
+`docs/reference/agent-catalog.md` instead of pinning every repo-local agent to a single
+vendor model family.
 
 ## Working Rule
 

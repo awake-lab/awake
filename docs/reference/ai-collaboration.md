@@ -74,14 +74,29 @@ Avoid:
   repo-local skills
 - letting `skills/*` turn into parallel architecture docs
 
+## Model Selection Rule
+
+Repo-local agent files keep a `model:` frontmatter field because some agent runners still
+expect one, but Awake treats that field as a capability tier label, not a provider lock-in.
+
+Rules:
+
+- use Awake's capability tiers in repo-local agent files: `flagship-coding`,
+  `balanced-coding`, or `fast-utility`
+- keep the provider-specific mapping in
+  [docs/reference/agent-catalog.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-catalog.md)
+- when Codex, Claude, or Gemini need a concrete model, resolve the tier through the catalog
+  instead of hardcoding a single provider into the agent file
+
 ## Read Order
 
 For most Awake work:
 
 1. [docs/architecture.md](/Users/ronvaldoz/StudioProjects/awaken/docs/architecture.md)
 2. [docs/reference/ai-collaboration.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ai-collaboration.md)
-3. [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md)
-4. [docs/reference/game-structure.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/game-structure.md)
-5. [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
-6. [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md)
-7. the relevant `skills/awake/agents/*.md` file for the task
+3. [docs/reference/agent-catalog.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-catalog.md)
+4. [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md)
+5. [docs/reference/game-structure.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/game-structure.md)
+6. [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
+7. [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md)
+8. the relevant `skills/awake/agents/*.md` file for the task

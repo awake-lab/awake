@@ -16,6 +16,7 @@
 ### Read first
 - `docs/architecture.md`
 - `docs/reference/ai-collaboration.md`
+- `docs/reference/agent-catalog.md`
 - `docs/reference/ui-ownership.md`
 - `docs/reference/game-structure.md`
 - `docs/MVP_PLAN.md`

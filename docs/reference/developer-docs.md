@@ -54,6 +54,8 @@ Use them like this:
     and sample adapters
 - `docs/reference/ai-collaboration.md`
   - the cross-agent contract for `docs/*`, entrypoints, and `skills/*`
+- `docs/reference/agent-catalog.md`
+  - the canonical roster, naming convention, and responsibility map for repo-local agents
 - `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.claude/AGENTS.md`
   - thin startup files that point assistants at the canonical docs
 - `skills/awake/agents/*.md`

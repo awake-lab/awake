@@ -932,7 +932,7 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
     (hand-verified by working through `setLookAt`'s cross-product math), verifies the Y-flip
     toggle, and verifies `m00` responds correctly to aspect ratio. All pure math, no GPU
     required — 3/3 passing on `desktopTest`.
-  - **New agent**: `.claude/agents/game-framework-dev.md` — a dedicated agent for this
+  - **New agent**: `.claude/agents/awake-game-framework-engineer.md` — a dedicated agent for this
     project's engine-internals work (Vulkan/OpenGL rendering layer, JNI bridges, the
     extraction methodology above), since the existing `kmm-agent-skills` skill set is
     entirely generic KMP **app**-development skills (auth, IAP, push notifications, design

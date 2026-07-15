@@ -7,6 +7,7 @@ as the long-form home for project policy.
 
 - [docs/architecture.md](/Users/ronvaldoz/StudioProjects/awaken/docs/architecture.md)
 - [docs/reference/ai-collaboration.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ai-collaboration.md)
+- [docs/reference/agent-catalog.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-catalog.md)
 - [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md)
 - [docs/reference/game-structure.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/game-structure.md)
 - [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
