@@ -4,22 +4,20 @@ package io.github.ronjunevaldoz.awake.sample.startergame.app
 
 import io.github.ronjunevaldoz.awake.engine.application.GameSpec
 import io.github.ronjunevaldoz.awake.engine.application.WindowDsl
-import io.github.ronjunevaldoz.awake.engine.application.createGame
-import io.github.ronjunevaldoz.awake.engine.application.createGameSpec
+import io.github.ronjunevaldoz.awake.engine.application.gameDefinition
 import io.github.ronjunevaldoz.awake.engine.application.select
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 
-fun starterGame() = StarterGameRuntimeState().let { state ->
-    starterGameModule(state).createGame {
+private val starterGameDefinition = gameDefinition(createState = ::StarterGameRuntimeState) {
+    window {
         configureStarterGameWindow()
     }
+    module(::starterGameModule)
 }
 
-fun starterGameSpec(): GameSpec = StarterGameRuntimeState().let { state ->
-    starterGameModule(state).createGameSpec {
-        configureStarterGameWindow()
-    }
-}
+fun starterGame() = starterGameDefinition.createGame()
+
+fun starterGameSpec(): GameSpec = starterGameDefinition.createGameSpec()
 
 private fun WindowDsl.configureStarterGameWindow() {
     title = "Awake Starter Game"

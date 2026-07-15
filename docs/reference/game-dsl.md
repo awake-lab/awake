@@ -45,6 +45,31 @@ That keeps:
 - the root shell responsible for window and platform concerns
 - the reusable module responsible for authored content and runtime wiring
 
+### Stateful authored game
+
+Use `gameDefinition(...) { ... }` when the reusable content also owns a runtime state
+factory and a default window shell:
+
+```kotlin
+val definition = gameDefinition(createState = ::HelloCubeRuntimeState) {
+    window {
+        title = "Hello Cube"
+        size(1600, 900)
+        backend.vulkan()
+    }
+    module { state ->
+        helloCubeGameModule(state)
+    }
+}
+
+val game = definition.createGame()
+```
+
+That keeps:
+
+- the library responsible for the repeated `state -> module -> windowed game` pattern
+- the sample responsible only for its scene/UI/debug composition
+
 ## Routed Scene Flow
 
 When a game owns multiple authored scenes, prefer `flow { ... }` or `sceneFlow { ... }`

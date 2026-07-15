@@ -107,6 +107,51 @@ class GameDslTutorialDocsTest {
             """
         )
     }
+
+    @Test
+    fun statefulDefinitionKeepsSamplesOnOneRootPattern() = runTest {
+        val definition = gameDefinition(createState = { mutableListOf("boot") }) {
+            window {
+                title = "Starter Pattern"
+                size(1600, 900)
+                backend.vulkan()
+            }
+            module { state ->
+                gameModule {
+                    ready { state += "ready" }
+                    service(List::class, state)
+                }
+            }
+        }
+
+        val game = definition.createGame()
+        game.ready(TutorialRenderer)
+
+        assertEquals("Starter Pattern", game.windowConfig.title)
+        assertEquals(listOf("boot", "ready"), game.requireService(List::class))
+
+        recordGameDslTutorial(
+            name = "game-dsl-stateful-definition",
+            title = "Stateful Game Definitions Stay Reusable",
+            summary = "A reusable authored game can own its runtime state factory, window configuration, and module factory in one engine-level definition instead of teaching every sample its own wrapper pattern.",
+            snippet = """
+                val definition = gameDefinition(createState = ::RuntimeState) {
+                    window {
+                        title = "Starter Pattern"
+                        size(1600, 900)
+                        backend.vulkan()
+                    }
+                    module { state ->
+                        gameModule {
+                            service(RuntimeState::class, state)
+                        }
+                    }
+                }
+
+                val game = definition.createGame()
+            """
+        )
+    }
 }
 
 private object TutorialRenderer : Renderer {

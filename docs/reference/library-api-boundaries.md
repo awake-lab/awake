@@ -15,7 +15,7 @@ the only practical way to use the library.
 | Layer | Purpose | Lives in | Examples |
 |---|---|---|---|
 | API / contract | stable public types a consumer can depend on directly | engine or feature module public files | `AwakeGame`, `GameInstaller`, `GameWindowConfig`, `SceneGameSpec`, `SceneGameRuntime`, `GameUiSpec`, `GameUiRuntime` |
-| DSL | thin builder syntax that produces or installs contract types | `*Dsl.kt` and builder entrypoints | `game {}`, `gameModule {}`, `sceneGame {}`, `gameUi {}`, `GameModule.createGame(...)`, `GameModule.createGameSpec(...)`, `GameDsl.module(...)`, `GameDsl.ecs(...)`, `GameDsl.ui(...)` |
+| DSL | thin builder syntax that produces or installs contract types | `*Dsl.kt` and builder entrypoints | `game {}`, `gameModule {}`, `gameDefinition(...) {}`, `sceneGame {}`, `gameUi {}`, `GameModule.createGame(...)`, `GameModule.createGameSpec(...)`, `GameDefinition.createGame()`, `GameDefinition.createGameSpec()`, `GameDsl.module(...)`, `GameDsl.ecs(...)`, `GameDsl.ui(...)` |
 | Helpers | convenience wrappers around DSL or API for common authored cases | closest owning module, often sample/game module | `cameraEntity`, `meshEntity`, sample HUD mapping, debug overlay wiring |
 
 ## Placement Rules

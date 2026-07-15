@@ -3,36 +3,21 @@
 package io.github.ronjunevaldoz.awake.sample.hellocube.app
 
 import io.github.ronjunevaldoz.awake.engine.application.GameSpec
+import io.github.ronjunevaldoz.awake.engine.application.gameDefinition
 import io.github.ronjunevaldoz.awake.engine.application.WindowDsl
 import io.github.ronjunevaldoz.awake.engine.application.select
-import io.github.ronjunevaldoz.awake.scene.runtime.ecsGame
-import io.github.ronjunevaldoz.awake.scene.runtime.ecsGameSpec
-import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugInstaller
-import io.github.ronjunevaldoz.awake.sample.hellocube.scene.helloCubeSceneSpec
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
-import io.github.ronjunevaldoz.awake.sample.hellocube.ui.helloCubeUiSpec
 
-fun helloCubeGame() = HelloCubeRuntimeState().let { state ->
-    ecsGame {
-        window {
-            configureHelloCubeWindow()
-        }
-        scene(helloCubeSceneSpec(state))
-        ui(helloCubeUiSpec(state))
-        install(helloCubeDebugInstaller(state))
+private val helloCubeDefinition = gameDefinition(createState = ::HelloCubeRuntimeState) {
+    window {
+        configureHelloCubeWindow()
     }
+    module(::helloCubeGameModule)
 }
 
-fun helloCubeGameSpec(): GameSpec = HelloCubeRuntimeState().let { state ->
-    ecsGameSpec {
-        window {
-            configureHelloCubeWindow()
-        }
-        scene(helloCubeSceneSpec(state))
-        ui(helloCubeUiSpec(state))
-        install(helloCubeDebugInstaller(state))
-    }
-}
+fun helloCubeGame() = helloCubeDefinition.createGame()
+
+fun helloCubeGameSpec(): GameSpec = helloCubeDefinition.createGameSpec()
 
 internal fun WindowDsl.configureHelloCubeWindow() {
     title = "Hello Cube"

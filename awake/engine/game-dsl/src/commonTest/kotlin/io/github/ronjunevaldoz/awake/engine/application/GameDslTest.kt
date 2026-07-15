@@ -169,6 +169,35 @@ class GameDslTest {
     }
 
     @Test
+    fun gameDefinitionOwnsStateWindowAndModuleFactory() = runTest {
+        val definition = gameDefinition(createState = { mutableListOf("state") }) {
+            window {
+                title = "Definition Shell"
+                size(1280, 720)
+                backend.vulkan()
+            }
+            module { state ->
+                gameModule {
+                    service(List::class, state)
+                    ready { state += "ready" }
+                }
+            }
+        }
+
+        val state = definition.createState()
+        val spec = definition.createGameSpec(state)
+        val game = spec.createGame()
+        game.ready(FakeRenderer)
+
+        assertEquals("Definition Shell", spec.windowConfig.title)
+        assertEquals(1280, game.windowConfig.width)
+        assertEquals(720, game.windowConfig.height)
+        assertEquals(GameWindowBackend.VULKAN, game.windowConfig.backend)
+        assertEquals(listOf("state", "ready"), state)
+        assertEquals(state, game.requireService(List::class))
+    }
+
+    @Test
     fun gameDslComposesInstallerCallbacksInOrder() = runTest {
         val events = mutableListOf<String>()
         val game = game {
