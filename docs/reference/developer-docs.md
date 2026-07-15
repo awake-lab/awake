@@ -29,6 +29,35 @@ This currently builds:
 The rollout tracker for module-by-module coverage lives in
 `docs/reference/tutorial-coverage.md`.
 
+## Repo Guidance Layout
+
+Awake keeps project guidance in three layers:
+
+1. `docs/*` for canonical project truth
+2. agent entrypoints for startup hints
+3. `skills/awake/*` for repo-local execution guidance
+
+Use them like this:
+
+- `docs/architecture.md`
+  - stable architecture, module boundaries, threading model, and long-lived technical rules
+- `docs/reference/ui-ownership.md`
+  - canonical placement rules for reusable UI primitives, compositions, design-system pieces,
+    and sample adapters
+- `docs/reference/ai-collaboration.md`
+  - the cross-agent contract for `docs/*`, entrypoints, and `skills/*`
+- `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.claude/AGENTS.md`
+  - thin startup files that point assistants at the canonical docs
+- `skills/awake/agents/*.md`
+  - task-specific working guidance for ECS, engine, and other Awake domains
+- `skills/awake/commands/*.md`
+  - repo-local operational commands and review workflows
+
+Rule of thumb:
+
+- if the guidance answers "how is Awake designed?", put it in `docs/*`
+- if it answers "how should an agent work on Awake?", put it in `skills/*`
+
 ## What Belongs Where
 
 ### API Reference
