@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:UiDslControls.kt$UiDslScope$resolved.background != null || resolved.borderWidth.toPx() > 0f || resolved.shapeSpec != null || resolved.shape.toPx() > 0f</ID>
+    <ID>CyclomaticComplexMethod:UiDslSnapshotSupport.kt$private fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f) ): ByteArray</ID>
+    <ID>LongParameterList:GameUiRuntime.kt$GameUiRuntime$( slot: UiSlot, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero, block: UiColumnDslScope.() -> Unit )</ID>
+    <ID>LongParameterList:GameUiRuntime.kt$GameUiRuntime$( x: Float, y: Float, width: Float, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, block: UiColumnDslScope.() -> Unit )</ID>
+    <ID>LongParameterList:UiDslControls.kt$UiDslScope$( id: String, checked: Boolean, label: String? = null, width: Float = 0f, height: Float = 24f, modifier: UiModifier = UiModifier(), style: Style = Style.Empty, boxSize: Dp = 16f.dp )</ID>
+    <ID>LongParameterList:UiDslControls.kt$UiDslScope$( id: String, checked: Boolean, width: Float = 0f, height: Float = 32f, label: String? = null, modifier: UiModifier = UiModifier(), style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:UiDslControls.kt$UiDslScope$( id: String, label: String, width: Float = 0f, height: Float = 36f, modifier: UiModifier = UiModifier(), style: Style = Style.Empty, variant: UiButtonVariant = UiButtonVariant.Filled, radius: Dp = UiShape.none )</ID>
+    <ID>LongParameterList:UiDslControls.kt$UiDslScope$( id: String, min: Float, max: Float, value: Float, width: Float, height: Float, label: String? = null, modifier: UiModifier = UiModifier(), style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:UiDslControls.kt$UiDslScope$( id: String, options: List&lt;String>, selectedIndex: Int, width: Float = 0f, height: Float = 28f, modifier: UiModifier = UiModifier(), style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:UiDslLayout.kt$UiAbsoluteDslScope$( id: String, width: Dimension, height: Dimension, radius: Dp = UiShape.md, borderWidth: Dp = UiShape.none, style: Style = Style.Empty, modifier: UiModifier = UiModifier(), clipContent: Boolean = false, content: UiColumnDslScope.(slot: UiSlot) -> Unit )</ID>
+    <ID>LongParameterList:UiDslLayout.kt$UiAbsoluteDslScope$( width: Dimension, height: Dimension, gap: Float = UiSpacing.sm.toPx(), modifier: UiModifier = UiModifier(), insets: UiInsets = UiInsets.Zero, content: UiColumnDslScope.(slot: UiSlot) -> Unit )</ID>
+    <ID>LongParameterList:UiDslLayout.kt$UiColumnDslScope$( height: Dimension, width: Dimension = Dimension.FillMax, gap: Float = UiSpacing.sm.toPx(), modifier: UiModifier = UiModifier(), insets: UiInsets = UiInsets.Zero, content: UiColumnDslScope.(slot: UiSlot) -> Unit )</ID>
+    <ID>LongParameterList:UiDslLayout.kt$UiColumnDslScope$( id: String, checked: Boolean, label: String, height: Float, modifier: UiModifier = UiModifier(), style: Style = Style.Empty, boxSize: Dp = 16f.dp )</ID>
+    <ID>LongParameterList:UiDslLayout.kt$UiColumnDslScope$( id: String, height: Dimension, width: Dimension = Dimension.FillMax, radius: Dp = UiShape.md, borderWidth: Dp = UiShape.none, style: Style = Style.Empty, modifier: UiModifier = UiModifier(), clipContent: Boolean = false, content: UiColumnDslScope.(slot: UiSlot) -> Unit )</ID>
+    <ID>LongParameterList:UiDslRoots.kt$( slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero, block: UiColumnDslScope.() -> Unit )</ID>
+    <ID>LongParameterList:UiDslRoots.kt$( x: Float, y: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f, block: UiAbsoluteDslScope.() -> Unit )</ID>
+    <ID>LongParameterList:UiDslRoots.kt$( x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, block: UiColumnDslScope.() -> Unit )</ID>
+    <ID>LongParameterList:UiDslSnapshotSupport.kt$( name: String, title: String, summary: String, primitives: List&lt;UiDrawPrimitive>, width: Int, height: Int, background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f) )</ID>
+    <ID>LongParameterList:UiPropertyDsl.kt$( id: String, checked: Boolean, label: String, height: Float, modifier: UiModifier = UiModifier(), style: Style = Style.Empty, boxSize: Dp = 16f.dp )</ID>
+    <ID>LongParameterList:UiShellDsl.kt$( id: String, label: String, checked: Boolean, height: Float = 28f, modifier: UiModifier = UiModifier(), style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:UiShellDsl.kt$( id: String, label: String, min: Float, max: Float, value: Float, height: Float = 28f, labelWidth: Dp = 64f.dp, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:UiShellDsl.kt$( id: String, label: String, options: List&lt;String>, selectedIndex: Int, height: Float = 28f, labelWidth: Dp = 64f.dp, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:UiShellDsl.kt$( slot: UiSlot, id: String, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets(12f.dp), radius: Dp = UiShape.md, borderWidth: Dp = 1f.dp, style: Style = Style.Empty, clipContent: Boolean = false, content: UiColumnDslScope.(slot: UiSlot) -> Unit )</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$0.12f</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$0.1f</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$0.25f</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$0.5f</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$0xFF</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$16</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$24</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$255</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$3</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$4</ID>
+    <ID>MagicNumber:UiDslSnapshotSupport.kt$8</ID>
+    <ID>MagicNumber:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$0.2f</ID>
+    <ID>MagicNumber:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$20f</ID>
+    <ID>MagicNumber:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$250f</ID>
+    <ID>MagicNumber:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$28f</ID>
+    <ID>MagicNumber:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$3.14f</ID>
+    <ID>MagicNumber:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$320f</ID>
+    <ID>MagicNumber:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$3f</ID>
+    <ID>MagicNumber:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$8f</ID>
+    <ID>MagicNumber:UiPropertyDsl.kt$0.25f</ID>
+    <ID>MatchingDeclarationName:UiDslControls.kt$UiDslScope</ID>
+    <ID>MatchingDeclarationName:UiDslSupport.kt$AwakeUiDsl</ID>
+    <ID>MaxLineLength:UiDslControls.kt$UiDslScope$if</ID>
+    <ID>MaxLineLength:UiDslSnapshotSupport.kt$fillRect(primitive.x + inset, primitive.y + inset, primitive.w - inset * 2, primitive.h - inset * 2, primitive.color)</ID>
+    <ID>MaxLineLength:UiDslSnapshotSupport.kt$is UiDrawPrimitive.RoundedQuad -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.color)</ID>
+    <ID>MaxLineLength:UiDslSnapshotSupport.kt$is UiDrawPrimitive.StrokedPath -> fillTriangleMesh(primitive.path.tessellateStroke(primitive.stroke), primitive.color)</ID>
+    <ID>MaxLineLength:UiDslSnapshotSupport.kt$is UiDrawPrimitive.Texture -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, floatArrayOf(0.5f, 0.5f, 0.5f, 1f))</ID>
+    <ID>MaxLineLength:UiDslSnapshotSupport.kt$while (activePathClips.size > restored.activePathCount) activePathClips.removeAt(activePathClips.lastIndex)</ID>
+    <ID>MaxLineLength:UiDslTest.kt$UiDslTest$assertIs&lt;UiDrawPrimitive.RoundedQuad>(primitives.first(), "panel background should use the themed rounded shape")</ID>
+    <ID>MaxLineLength:UiDslTest.kt$UiDslTest$assertTrue(primitives.any { it is UiDrawPrimitive.Quad || it is UiDrawPrimitive.RoundedQuad }, "toggle should emit its background shape")</ID>
+    <ID>MaxLineLength:UiDslTest.kt$UiDslTest$assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad || it is UiDrawPrimitive.Quad }, "custom helpers should be able to compose built-in panel and control primitives")</ID>
+    <ID>MaxLineLength:UiDslTest.kt$UiDslTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "custom helpers should still render through the public DSL surface")</ID>
+    <ID>MaxLineLength:UiDslTest.kt$UiDslTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "dsl content should render text through the shared widget pipeline")</ID>
+    <ID>MaxLineLength:UiDslTest.kt$UiDslTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "toggle should render its label through the shared glyph pipeline")</ID>
+    <ID>MaxLineLength:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$summary = "The facade can build a tooling-style inspector with reusable section helpers and property-row controls, without dropping back to manual absolute positioning."</ID>
+    <ID>MaxLineLength:UiPropertyDsl.kt$slot = UiSlot(boxSlot.x + inset, boxSlot.y + inset, boxSlot.width - inset * 2f, boxSlot.height - inset * 2f)</ID>
+    <ID>MaxLineLength:UiPropertyDsl.kt$val boxSlot = UiSlot(interaction.slot.x + interaction.slot.width - boxPx, interaction.slot.y + (interaction.slot.height - boxPx) / 2f, boxPx, boxPx)</ID>
+    <ID>MaxLineLength:UiPropertyDsl.kt$val labelSlot = UiSlot(interaction.slot.x, interaction.slot.y + (interaction.slot.height - glyphPx) / 2f, interaction.slot.width, glyphPx)</ID>
+    <ID>NestedBlockDepth:UiDslSnapshotSupport.kt$private fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f) ): ByteArray</ID>
+  </CurrentIssues>
+</SmellBaseline>

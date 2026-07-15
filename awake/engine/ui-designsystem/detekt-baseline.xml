@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongParameterList:AwakeShadcnComponents.kt$( id: String, width: Float, height: Float, label: String, modifier: UiModifier = UiModifier(), variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:AwakeShadcnComponents.kt$( label: String, width: Float = 96f, height: Float = 28f, modifier: UiModifier = UiModifier(), variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary, style: Style = Style.Empty )</ID>
+    <ID>MagicNumber:AwakeShadcnComponents.kt$3</ID>
+    <ID>MagicNumber:AwakeShadcnComponents.kt$AwakeShadcnStyles$1.05f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.06f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.07f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.09f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.12f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.13f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.14f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.15f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.17f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.18f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.1f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.21f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.24f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.25f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.26f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.28f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.2f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.48f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.63f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.67f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.74f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.82f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.91f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.92f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.95f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.96f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.97f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.98f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.99f</ID>
+    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.9f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.12f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.1f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.24f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.2f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.45f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.4f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.83f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.85f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.88f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.8f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.92f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.98f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.99f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.9f</ID>
+    <ID>MaxLineLength:AwakeShadcnComponents.kt$text(label, slot = slot, font = font, color = resolved.foreground ?: AwakeShadcnTheme.tokens.foreground, centered = true)</ID>
+    <ID>MaxLineLength:AwakeShadcnDesignSystemTest.kt$AwakeShadcnDesignSystemTest$assertEquals(4, primitives.filterIsInstance&lt;UiDrawPrimitive.RoundedQuad>().size, "surface + badge should each emit border + fill rounded quads")</ID>
+    <ID>MaxLineLength:AwakeShadcnDesignSystemTest.kt$AwakeShadcnDesignSystemTest$assertIs&lt;UiDrawPrimitive.RoundedQuad>(primitives.first(), "design-system badge should render its own rounded surface")</ID>
+    <ID>MaxLineLength:AwakeShadcnDesignSystemTest.kt$AwakeShadcnDesignSystemTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "design-system badge should render glyphs")</ID>
+  </CurrentIssues>
+</SmellBaseline>

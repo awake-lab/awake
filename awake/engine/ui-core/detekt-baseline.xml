@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:UiPath.kt$!minX.isFinite() || !minY.isFinite() || !maxX.isFinite() || !maxY.isFinite()</ID>
+    <ID>CyclomaticComplexMethod:UiPath.kt$fun UiPath.flattenContours( curveSteps: Int = 8, arcStepDegrees: Float = 15f ): List&lt;UiPathContour></ID>
+    <ID>CyclomaticComplexMethod:UiPath.kt$fun UiPath.tessellateStroke(stroke: UiStroke): UiTriangleMesh</ID>
+    <ID>LongMethod:UiPath.kt$fun UiPath.flattenContours( curveSteps: Int = 8, arcStepDegrees: Float = 15f ): List&lt;UiPathContour></ID>
+    <ID>LongParameterList:Layout.kt$BoxScope$( context: UiContext, font: BitmapFont?, theme: UiTheme, private val x: Float, private val y: Float, private val width: Float, private val height: Float, textScale: Float = 1f )</ID>
+    <ID>LongParameterList:Layout.kt$ColumnScope$( context: UiContext, font: BitmapFont?, theme: UiTheme, private val x: Float, startY: Float, private val width: Float, private val gap: Float, textScale: Float = 1f )</ID>
+    <ID>LongParameterList:Layout.kt$RowScope$( context: UiContext, font: BitmapFont?, theme: UiTheme, startX: Float, private val y: Float, private val height: Float, private val gap: Float, textScale: Float = 1f )</ID>
+    <ID>LongParameterList:Style.kt$ResolvedStyleBuilder$( var background: FloatArray? = null, var foreground: FloatArray? = null, var borderWidth: Dp = UiShape.none, var borderColor: FloatArray? = null, var shape: Dp = UiShape.none, var shapeSpec: UiShapeSpec? = null, var textScale: Float, var contentPadding: UiInsets = UiInsets.Zero )</ID>
+    <ID>LongParameterList:UiContext.kt$UiContext$(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero)</ID>
+    <ID>LongParameterList:UiContext.kt$UiContext$(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f)</ID>
+    <ID>LongParameterList:UiContext.kt$UiContext$(x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f)</ID>
+    <ID>LongParameterList:UiContext.kt$UiContext$(x: Float, y: Float, width: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f)</ID>
+    <ID>LongParameterList:UiPath.kt$UiPathBuilder$(c1x: Float, c1y: Float, c2x: Float, c2y: Float, x: Float, y: Float)</ID>
+    <ID>LongParameterList:UiPath.kt$UiPathBuilder$(left: Float, top: Float, right: Float, bottom: Float, startDegrees: Float, sweepDegrees: Float)</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$3</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$4</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$8</ID>
+    <ID>MagicNumber:UiPath.kt$180f</ID>
+    <ID>MagicNumber:UiPath.kt$3</ID>
+    <ID>MagicNumber:UiPath.kt$90f</ID>
+    <ID>MagicNumber:UiShape.kt$UiShape$4f</ID>
+    <ID>MagicNumber:UiTheme.kt$1.05f</ID>
+    <ID>MagicNumber:UiTheme.kt$1.15f</ID>
+    <ID>MagicNumber:UiTheme.kt$3</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.25f</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.28f</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.2f</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.35f</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.45f</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.4f</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.5f</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.6f</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.8f</ID>
+    <ID>MagicNumber:UiTheme.kt$CoreUiTheme.&lt;no name provided>$0.9f</ID>
+    <ID>MaxLineLength:DpTest.kt$DpTest$assertEquals(280f, 280f.px.toPx(), "a raw-pixel value wrapped via .px must round-trip to the exact same pixel count regardless of density scale")</ID>
+    <ID>MaxLineLength:LayoutTest.kt$LayoutTest$assertEquals(100f, first.width, "BoxScope must always return its own configured width, ignoring the requested size")</ID>
+    <ID>MaxLineLength:UiContext.kt$UiContext$fun</ID>
+    <ID>MaxLineLength:UiModifier.kt$fun UiModifier.size(width: Dp, height: Dp): UiModifier</ID>
+    <ID>MaxLineLength:UiPath.kt$UiFillRule.NonZero -> contours.sumOf { contour -> if (contour.closed) contour.windingContribution(x, y) else 0 } != 0</ID>
+    <ID>MaxLineLength:UiPath.kt$private</ID>
+    <ID>MaxLineLength:UiPathTest.kt$UiPathTest$assertTrue(clipped.points.none { it.x == 0f &amp;&amp; it.y == 0f }, "the fully clipped corner vertex should be removed from the output mesh")</ID>
+    <ID>MaxLineLength:UiPathTest.kt$UiPathTest$assertTrue(clipped.vertices.none { it.position.x == 0f &amp;&amp; it.position.y == 0f }, "the fully clipped corner vertex should be removed from the output mesh")</ID>
+    <ID>MaxLineLength:UiPathTest.kt$UiPathTest$val mesh = UiShapeSpec.RoundedRectangle(8f.dp).toPath(UiSlot(0f, 0f, 40f, 20f)).tessellateStroke(UiStroke(2f.dp))</ID>
+    <ID>MaxLineLength:UiPathTest.kt$UiPathTest$val topEdgeVertex = clipped.vertices.firstOrNull { abs(it.position.x - 6f) &lt; 0.001f &amp;&amp; abs(it.position.y) &lt; 0.001f }</ID>
+    <ID>ReturnCount:UiPath.kt$fun UiPath.bounds(): UiSlot</ID>
+    <ID>ReturnCount:UiPath.kt$fun UiPath.tessellateStroke(stroke: UiStroke): UiTriangleMesh</ID>
+    <ID>ReturnCount:UiPath.kt$private fun clipPolygonToConvexContour(subject: List&lt;UiPoint>, clip: List&lt;UiPoint>): List&lt;UiPoint></ID>
+    <ID>ReturnCount:UiPath.kt$private fun clipTexturedPolygonToConvexContour(subject: List&lt;UiTexturedVertex>, clip: List&lt;UiPoint>): List&lt;UiTexturedVertex></ID>
+    <ID>ReturnCount:UiPath.kt$private fun isConvex(points: List&lt;UiPoint>): Boolean</ID>
+    <ID>TooManyFunctions:Style.kt$StyleBuilder : StyleScope</ID>
+    <ID>TooManyFunctions:Style.kt$StyleScope</ID>
+    <ID>TooManyFunctions:UiContext.kt$UiContext</ID>
+    <ID>TooManyFunctions:UiPath.kt$io.github.ronjunevaldoz.awake.ui.UiPath.kt</ID>
+  </CurrentIssues>
+</SmellBaseline>
