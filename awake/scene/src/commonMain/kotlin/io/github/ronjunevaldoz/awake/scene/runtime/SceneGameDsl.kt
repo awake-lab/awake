@@ -41,7 +41,7 @@ fun sceneGame(block: SceneGameDsl.() -> Unit): SceneGameSpec {
 }
 
 class SceneGameDsl internal constructor() {
-    private var sceneDocument: SceneDocument = io.github.ronjunevaldoz.awake.scene.runtime.scene {}
+    private var sceneDocumentDsl: SceneDocumentDsl = SceneDocumentDsl(null)
     private var renderableFactory: SceneRenderableFactory = {
         error("ecs { assets { ... } } or ecs { renderables { ... } } must resolve scene mesh/material requests.")
     }
@@ -57,7 +57,18 @@ class SceneGameDsl internal constructor() {
         name: String? = null,
         block: SceneDocumentDsl.() -> Unit
     ) {
-        sceneDocument = io.github.ronjunevaldoz.awake.scene.runtime.scene(name, block)
+        sceneDocumentDsl = SceneDocumentDsl(name).apply(block)
+    }
+
+    fun name(value: String?) {
+        sceneDocumentDsl.name(value)
+    }
+
+    fun entity(
+        name: String? = null,
+        block: SceneNodeDsl.() -> Unit
+    ) {
+        sceneDocumentDsl.entity(name, block)
     }
 
     fun assets(block: SceneAssetsDsl.() -> Unit) {
@@ -108,7 +119,7 @@ class SceneGameDsl internal constructor() {
     }
 
     internal fun build(): SceneGameSpec = SceneGameSpec(
-        sceneDocument = sceneDocument,
+        sceneDocument = sceneDocumentDsl.build(),
         renderableFactory = renderableFactory,
         assetLibraryFactory = assetLibraryFactory,
         systems = systemsDsl.build(),

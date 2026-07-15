@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemHandle
 import io.github.ronjunevaldoz.awake.scene.runtime.ecs
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -40,60 +39,34 @@ class HelloCubeGameTest {
 
     @Test
     fun helloCubeEcsInstallerBuildsRealRuntimeAndDebugServices() = runTest {
-        val debugConfig = HelloCubeDebugConfig(
-            websocketControlsEnabled = true,
-            offscreenProofEnabled = false
-        )
         val state = HelloCubeRuntimeState()
-        lateinit var orbitSystem: SceneSystemHandle<io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem>
-        lateinit var freeFlySystem: SceneSystemHandle<io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem>
         val game = game {
             window {
                 title = "Test"
                 size(640, 480)
             }
             ecs {
-                scene("test-scene") {
-                    entity("camera") {
-                        camera {
-                            eye(0f, 0f, 5f)
-                            center(0f, 0f, 0f)
-                            up(0f, 1f, 0f)
-                            primary(true)
-                        }
-                    }
-                    entity("cube") {
-                        meshRenderer(mesh = "cube", material = "default")
+                name("test-scene")
+                entity("camera") {
+                    camera {
+                        eye(0f, 0f, 5f)
+                        center(0f, 0f, 0f)
+                        up(0f, 1f, 0f)
+                        primary(true)
                     }
                 }
-                assets {
-                    mesh("cube") {
-                        renderer.createMesh(sampleCubeGeometry)
-                    }
-                    material("default") {
-                        renderer.createMaterial()
-                    }
+                entity("cube") {
+                    meshRenderer(mesh = "cube", material = "default")
                 }
-                orbitSystem = system("orbit") {
-                    io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem(
-                        target = requireTransform("cube"),
-                        camera = requireCamera("camera")
-                    )
-                }
-                freeFlySystem = system("freeFly") {
-                    io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem(
-                        requireCamera("camera")
-                    )
-                }
-                update { delta ->
-                    when (state.mode) {
-                        HelloCubeCameraMode.ORBIT -> update(orbitSystem, delta)
-                        HelloCubeCameraMode.FREE_FLY -> update(freeFlySystem, delta)
-                    }
-                }
-                service { debugConfig }
-                service { HelloCubeDebugController(this, state) }
+                helloCubeAssets()
+                helloCubeCameraControls(state)
             }
+            install(
+                helloCubeDebug(state) {
+                    websocketControls()
+                    offscreenProof(false)
+                }
+            )
         }
 
         game.ready(FakeRenderer)

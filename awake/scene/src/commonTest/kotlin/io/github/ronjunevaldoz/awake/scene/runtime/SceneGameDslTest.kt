@@ -31,18 +31,17 @@ class SceneGameDslTest {
         lateinit var tickSystem: SceneSystemHandle<RecordingSystem>
         val game = game {
             ecs {
-                scene("runtime-proof") {
-                    entity("camera") {
-                        camera {
-                            primary(true)
-                        }
+                name("runtime-proof")
+                entity("camera") {
+                    camera {
+                        primary(true)
                     }
-                    entity("cube") {
-                        transform {
-                            position(0f, 0f, 0f)
-                        }
-                        meshRenderer(mesh = "cube", material = "default")
+                }
+                entity("cube") {
+                    transform {
+                        position(0f, 0f, 0f)
                     }
+                    meshRenderer(mesh = "cube", material = "default")
                 }
                 assets {
                     mesh("cube") { recordingRenderer.createMesh(EmptyGeometry) }
@@ -75,6 +74,32 @@ class SceneGameDslTest {
 
         assertEquals(1, recordingRenderer.meshDestroyCount)
         assertEquals(1, recordingRenderer.materialDestroyCount)
+    }
+
+    @Test
+    fun sceneBlockCanStillReplaceDirectlyAuthoredDocument() = runTest {
+        val game = game {
+            ecs {
+                name("before-replace")
+                entity("ignored") {
+                    camera { primary(true) }
+                }
+                scene("after-replace") {
+                    entity("camera") {
+                        camera {
+                            primary(true)
+                        }
+                    }
+                }
+            }
+        }
+
+        game.ready(RecordingRenderer())
+        val runtime = game.requireService<SceneGameRuntime>()
+
+        assertEquals("after-replace", runtime.sceneName)
+        assertEquals(null, runtime.findEntity("ignored"))
+        assertNotNull(runtime.findEntity("camera"))
     }
 }
 

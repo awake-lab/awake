@@ -6,10 +6,7 @@ import io.github.ronjunevaldoz.awake.engine.application.GameWindowConfig
 import io.github.ronjunevaldoz.awake.engine.application.game
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemHandle
 import io.github.ronjunevaldoz.awake.scene.runtime.ecs
-import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
-import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import io.github.ronjunevaldoz.awake.ui.ui
 
 data class HelloCubeDebugConfig(
@@ -53,88 +50,25 @@ val AwakeGame.helloCubeDebugController: HelloCubeDebugController
     get() = requireService()
 
 fun helloCubeGame(): AwakeGame {
-    val debugConfig = HelloCubeDebugConfig(
-        websocketControlsEnabled = true,
-        offscreenProofEnabled = true
-    )
     val state = HelloCubeRuntimeState()
-    lateinit var orbitSystem: SceneSystemHandle<OrbitCameraSystem>
-    lateinit var freeFlySystem: SceneSystemHandle<FreeFlyCameraSystem>
 
     return game {
         window {
-            title = "Hello Cube"
-            size(1600, 900)
-            backend.select(platformBackendPreference())
+            helloCubeWindow()
         }
         ecs {
-            scene("hello-cube") {
-                entity("camera") {
-                    transform {
-                        position(0f, 0f, 5f)
-                    }
-                    camera {
-                        eye(0f, 0f, 5f)
-                        center(0f, 0f, 0f)
-                        up(0f, 1f, 0f)
-                        perspective(fovYDegrees = 45f, near = 0.1f, far = 100f)
-                        primary(true)
-                    }
-                }
-                entity("cube") {
-                    transform {
-                        position(0f, 0f, 0f)
-                        rotation(0f, 0f, 0f)
-                        scale(1f, 1f, 1f)
-                    }
-                    meshRenderer(mesh = "cube", material = "default")
-                }
-            }
-            assets {
-                mesh("cube") {
-                    renderer.createMesh(sampleCubeGeometry)
-                }
-                material("default") {
-                    renderer.createMaterial()
-                }
-            }
-            orbitSystem = system("orbit") {
-                OrbitCameraSystem(
-                    target = requireTransform("cube"),
-                    camera = requireCamera("camera"),
-                    initialDistance = 8f,
-                    autoRotateSpeed = 0.4f
-                ).also { system ->
-                    system.pitch = 0.4f
-                }
-            }
-            freeFlySystem = system("freeFly") {
-                FreeFlyCameraSystem(requireCamera("camera"))
-            }
-            update { delta ->
-                when (state.mode) {
-                    HelloCubeCameraMode.ORBIT -> update(orbitSystem, delta)
-                    HelloCubeCameraMode.FREE_FLY -> update(freeFlySystem, delta)
-                }
-                updateHelloCubeHud(state, delta)
-            }
-            onReady {
-                if (debugConfig.offscreenProofEnabled) {
-                    verifyHelloCubeOffscreenReadback()
-                }
-            }
-            service { debugConfig }
-            service { HelloCubeDebugController(this, state) }
+            helloCubeScene()
+            helloCubeAssets()
+            helloCubeCameraControls(state)
         }
-        ui {
-            overlay { viewportWidth, viewportHeight ->
-                drawHelloCubeOverlay(
-                    scene = requireService(),
-                    state = state,
-                    viewportWidth = viewportWidth,
-                    viewportHeight = viewportHeight
-                )
+        install(
+            helloCubeDebug(state) {
+                websocketControls()
+                offscreenProof()
             }
+        )
+        ui {
+            helloCubeOverlay(state)
         }
     }
 }
