@@ -25,6 +25,25 @@ fun UiContext.simulateFrame(
     endFrame()
 }
 
+fun UiContext.simulateScrollFrame(
+    x: Float,
+    y: Float,
+    scrollDeltaY: Float,
+    screenWidth: Float = 200f,
+    screenHeight: Float = 200f,
+    widgetCalls: () -> Unit
+) {
+    Input.scrollDeltaY = scrollDeltaY
+    simulateFrame(
+        pointerDown = false,
+        x = x,
+        y = y,
+        screenWidth = screenWidth,
+        screenHeight = screenHeight,
+        widgetCalls = widgetCalls
+    )
+}
+
 /**
  * The two-frame press-then-release-while-still-hovered sequence every widget in this
  * library (`buttonSlot`'s `tryClaimActive`/`releaseActiveIfMatches` pair) keys a "click" off

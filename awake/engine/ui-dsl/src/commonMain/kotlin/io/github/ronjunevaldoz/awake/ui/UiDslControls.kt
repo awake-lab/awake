@@ -175,4 +175,35 @@ sealed class UiDslScope protected constructor(
     ) { slot ->
         UiColumnDslScope(this).content(slot)
     }
+
+    fun scrollPanel(
+        id: String,
+        width: Dimension,
+        height: Dimension,
+        state: UiScrollState,
+        gap: Float = UiSpacing.sm.toPx(),
+        radius: Dp = UiShape.md,
+        borderWidth: Dp = UiShape.none,
+        style: Style = Style.Empty,
+        modifier: UiModifier = UiModifier(),
+        scrollSpeed: Float = 32f,
+        scrollbarWidth: Dp = 6f.dp,
+        scrollbarGap: Dp = 8f.dp,
+        content: UiColumnDslScope.(slot: UiSlot) -> Unit
+    ): UiScrollPanelResult = scope.scrollPanel(
+        id = id,
+        width = width,
+        height = height,
+        state = state,
+        gap = gap,
+        radius = radius,
+        borderWidth = borderWidth,
+        style = style,
+        modifier = modifier,
+        scrollSpeed = scrollSpeed,
+        scrollbarWidth = scrollbarWidth,
+        scrollbarGap = scrollbarGap
+    ) { slot ->
+        UiColumnDslScope(this).content(slot)
+    }
 }

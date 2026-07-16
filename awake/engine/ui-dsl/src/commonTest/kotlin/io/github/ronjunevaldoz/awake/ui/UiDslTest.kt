@@ -378,4 +378,31 @@ class UiDslTest {
         assertTrue(resolvedPanel.height > 32f, "wrap-content panels should grow to fit multi-line supporting copy")
         assertTrue(glyphs.any { it.y > resolvedPanel.y + 16f }, "wrapped supporting copy should render on more than one text row")
     }
+
+    @Test
+    fun dslScrollPanelDelegatesToSharedWidgetPrimitive() {
+        val ui = UiContext()
+        val scrollState = UiScrollState()
+        Input.setPointer(down = false, x = 24f, y = 24f)
+        Input.scrollDeltaY = -1f
+
+        ui.beginFrame(220f, 200f)
+        ui.ui(x = 12f, y = 12f, width = 160f, font = BitmapFont()) {
+            scrollPanel(
+                id = "dsl-scroll",
+                width = Dimension.FillMax,
+                height = 80f.toDimension(),
+                state = scrollState,
+                scrollSpeed = 20f
+            ) {
+                repeat(8) { index ->
+                    text("Row $index")
+                }
+            }
+        }
+        ui.endFrame()
+
+        assertEquals(20f, scrollState.offsetY)
+        assertTrue(scrollState.canScroll)
+    }
 }
