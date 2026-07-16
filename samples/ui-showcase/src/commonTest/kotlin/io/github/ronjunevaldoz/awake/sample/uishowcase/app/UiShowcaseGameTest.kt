@@ -16,6 +16,9 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterCo
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterStore
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseUiState
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlinx.coroutines.test.runTest
@@ -55,12 +58,20 @@ class UiShowcaseGameTest {
     fun uiShowcaseStateContainerPublishesUiStateFlow() {
         val state = UiShowcaseRuntimeState()
 
+        state.showcaseStylePresetIndex = AwakeShadcnStylePreset.Lyra.ordinal
+        state.showcaseBaseColorIndex = AwakeShadcnBaseColor.Mist.ordinal
+        state.showcaseAccentIndex = AwakeShadcnAccent.Blue.ordinal
+        state.showcaseDarkMode = false
         state.tipsVisible = false
         state.showcaseDangerMode = true
         state.showcasePrimaryClicks = 2
 
         assertEquals(
             UiShowcaseUiState(
+                showcaseStylePresetIndex = AwakeShadcnStylePreset.Lyra.ordinal,
+                showcaseBaseColorIndex = AwakeShadcnBaseColor.Mist.ordinal,
+                showcaseAccentIndex = AwakeShadcnAccent.Blue.ordinal,
+                showcaseDarkMode = false,
                 tipsVisible = false,
                 showcaseBadgeVariantIndex = 0,
                 showcaseLiveBadge = true,
@@ -71,6 +82,21 @@ class UiShowcaseGameTest {
             ),
             state.uiState.value
         )
+    }
+
+    @Test
+    fun uiShowcaseStateBuildsConfiguredTheme() {
+        val state = UiShowcaseRuntimeState()
+        state.showcaseStylePresetIndex = AwakeShadcnStylePreset.Maia.ordinal
+        state.showcaseBaseColorIndex = AwakeShadcnBaseColor.Taupe.ordinal
+        state.showcaseAccentIndex = AwakeShadcnAccent.Emerald.ordinal
+        state.showcaseDarkMode = false
+
+        val theme = state.showcaseTheme()
+
+        assertTrue(theme.tokens.primary != theme.tokens.secondary)
+        assertTrue(theme.tokens.background != state.showcaseTheme().tokens.primary)
+        assertTrue(theme.tokens.border != state.showcaseTheme().tokens.primary)
     }
 
     @Test

@@ -2,12 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.state
 
+import io.github.ronjunevaldoz.awake.ui.UiTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 internal data class UiShowcaseUiState(
+    val showcaseStylePresetIndex: Int = 0,
+    val showcaseBaseColorIndex: Int = 0,
+    val showcaseAccentIndex: Int = 0,
+    val showcaseDarkMode: Boolean = true,
     val tipsVisible: Boolean = true,
     val showcaseBadgeVariantIndex: Int = 0,
     val showcaseLiveBadge: Boolean = true,
@@ -21,6 +30,30 @@ internal class UiShowcaseRuntimeState {
     private val _uiState = MutableStateFlow(UiShowcaseUiState())
     val uiState: StateFlow<UiShowcaseUiState> = _uiState.asStateFlow()
     val counterStore = UiShowcaseCounterStore()
+
+    var showcaseStylePresetIndex: Int
+        get() = _uiState.value.showcaseStylePresetIndex
+        set(value) {
+            _uiState.update { it.copy(showcaseStylePresetIndex = value) }
+        }
+
+    var showcaseBaseColorIndex: Int
+        get() = _uiState.value.showcaseBaseColorIndex
+        set(value) {
+            _uiState.update { it.copy(showcaseBaseColorIndex = value) }
+        }
+
+    var showcaseAccentIndex: Int
+        get() = _uiState.value.showcaseAccentIndex
+        set(value) {
+            _uiState.update { it.copy(showcaseAccentIndex = value) }
+        }
+
+    var showcaseDarkMode: Boolean
+        get() = _uiState.value.showcaseDarkMode
+        set(value) {
+            _uiState.update { it.copy(showcaseDarkMode = value) }
+        }
 
     var tipsVisible: Boolean
         get() = _uiState.value.tipsVisible
@@ -63,4 +96,23 @@ internal class UiShowcaseRuntimeState {
         set(value) {
             _uiState.update { it.copy(showcaseCounterEffectMessage = value) }
         }
+
+    fun showcaseTheme(): UiTheme = awakeShadcnTheme(
+        preset = showcaseStylePreset(),
+        baseColor = showcaseBaseColor(),
+        accent = showcaseAccent(),
+        dark = showcaseDarkMode
+    )
+
+    fun showcaseStylePreset(): AwakeShadcnStylePreset = AwakeShadcnStylePreset.entries.getOrElse(showcaseStylePresetIndex) {
+        AwakeShadcnStylePreset.Vega
+    }
+
+    fun showcaseBaseColor(): AwakeShadcnBaseColor = AwakeShadcnBaseColor.entries.getOrElse(showcaseBaseColorIndex) {
+        AwakeShadcnBaseColor.Neutral
+    }
+
+    fun showcaseAccent(): AwakeShadcnAccent = AwakeShadcnAccent.entries.getOrElse(showcaseAccentIndex) {
+        AwakeShadcnAccent.Base
+    }
 }

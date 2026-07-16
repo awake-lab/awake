@@ -36,12 +36,15 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
     viewportWidth: Float,
     viewportHeight: Float
 ) {
-    overlayBox(viewportWidth, viewportHeight) { constraints ->
+    val showcaseTheme = state.showcaseTheme()
+    overlayBox(viewportWidth, viewportHeight, theme = showcaseTheme) { constraints ->
         val compact = constraints.isCompact
         val outerPadding = if (compact) 16f else 24f
+        val topBarHeight = if (compact) 156f else 108f
+        val bodyTop = outerPadding + topBarHeight + 16f
         val sidebarWidth = 264f
         val railGap = 20f
-        val availableHeight = (constraints.maxHeightDp - outerPadding * 2f).coerceAtLeast(560f)
+        val availableHeight = (constraints.maxHeightDp - bodyTop - outerPadding).coerceAtLeast(420f)
 
         if (compact) {
             column(
@@ -51,6 +54,16 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                     .align(UiAlignment.TopStart)
                     .padding(outerPadding.dp)
             ) {
+                awakeShadcnSurface(
+                    id = "ui-showcase-mobile-topbar",
+                    height = Dimension.Fixed(topBarHeight.dp),
+                    style = Style {
+                        shape(16f.dp)
+                    }
+                ) { _ ->
+                    drawUiShowcaseTopBar(state = state, compact = true)
+                }
+                spacer(12f)
                 awakeShadcnSurface(
                     id = "ui-showcase-mobile-sidebar",
                     height = Dimension.WrapContent,
@@ -75,13 +88,36 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
         } else {
             box(width = Dimension.FillMax, height = Dimension.FillMax) { _ ->
                 column(
+                    width = Dimension.FillMax,
+                    height = Dimension.Fixed(topBarHeight.dp),
+                    modifier = UiModifier()
+                        .align(UiAlignment.TopStart)
+                        .padding(
+                            start = outerPadding.dp,
+                            top = outerPadding.dp,
+                            end = outerPadding.dp,
+                            bottom = 0f.dp
+                        )
+                ) {
+                    awakeShadcnSurface(
+                        id = "ui-showcase-topbar",
+                        height = Dimension.Fixed(topBarHeight.dp),
+                        style = Style {
+                            shape(16f.dp)
+                        }
+                    ) { _ ->
+                        drawUiShowcaseTopBar(state = state, compact = false)
+                    }
+                }
+
+                column(
                     width = Dimension.Fixed(sidebarWidth.dp),
                     height = Dimension.Fixed(availableHeight.dp),
                     modifier = UiModifier()
                         .align(UiAlignment.TopStart)
                         .padding(
                             start = outerPadding.dp,
-                            top = outerPadding.dp,
+                            top = bodyTop.dp,
                             end = 0f.dp,
                             bottom = outerPadding.dp
                         )
@@ -105,7 +141,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                         .align(UiAlignment.TopStart)
                         .padding(
                             start = (outerPadding + sidebarWidth + railGap).dp,
-                            top = outerPadding.dp,
+                            top = bodyTop.dp,
                             end = outerPadding.dp,
                             bottom = outerPadding.dp
                         )
