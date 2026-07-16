@@ -6,17 +6,20 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeSt
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
 import io.github.ronjunevaldoz.awake.ui.GameUiSpec
+import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnScrollSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.gameUi
 import io.github.ronjunevaldoz.awake.ui.overlayBox
 import io.github.ronjunevaldoz.awake.ui.padding
+import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 
 internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec {
     return gameUi {
@@ -38,6 +41,8 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
 ) {
     val showcaseTheme = state.showcaseTheme()
     overlayBox(viewportWidth, viewportHeight, theme = showcaseTheme) { constraints ->
+        val sidebarScroll = context.rememberStateValue("ui-showcase-scroll", "sidebar") { UiScrollState() }
+        val contentScroll = context.rememberStateValue("ui-showcase-scroll", "content") { UiScrollState() }
         val compact = constraints.isCompact
         val outerPadding = if (compact) 16f else 24f
         val topBarHeight = if (compact) 156f else 108f
@@ -47,6 +52,8 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
         val availableHeight = (constraints.maxHeightDp - bodyTop - outerPadding).coerceAtLeast(420f)
 
         if (compact) {
+            val sidebarHeight = minOf(220f, availableHeight * 0.34f).coerceAtLeast(160f)
+            val contentHeight = (availableHeight - sidebarHeight - 12f).coerceAtLeast(220f)
             column(
                 width = Dimension.FillMax,
                 height = Dimension.WrapContent,
@@ -64,9 +71,10 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                     drawUiShowcaseTopBar(state = state, compact = true)
                 }
                 spacer(12f)
-                awakeShadcnSurface(
+                awakeShadcnScrollSurface(
                     id = "ui-showcase-mobile-sidebar",
-                    height = Dimension.WrapContent,
+                    height = Dimension.Fixed(sidebarHeight.dp),
+                    state = sidebarScroll.value,
                     variant = AwakeShadcnSurfaceVariant.Sidebar,
                     style = Style {
                         shape(16f.dp)
@@ -75,9 +83,10 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                     drawUiShowcaseSidebar(compact = true)
                 }
                 spacer(12f)
-                awakeShadcnSurface(
+                awakeShadcnScrollSurface(
                     id = "ui-showcase-mobile-content",
-                    height = Dimension.WrapContent,
+                    height = Dimension.Fixed(contentHeight.dp),
+                    state = contentScroll.value,
                     style = Style {
                         shape(16f.dp)
                     }
@@ -122,9 +131,10 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                             bottom = outerPadding.dp
                         )
                 ) {
-                    awakeShadcnSurface(
+                    awakeShadcnScrollSurface(
                         id = "ui-showcase-sidebar",
                         height = Dimension.Fixed(availableHeight.dp),
+                        state = sidebarScroll.value,
                         variant = AwakeShadcnSurfaceVariant.Sidebar,
                         style = Style {
                             shape(16f.dp)
@@ -146,9 +156,10 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                             bottom = outerPadding.dp
                         )
                 ) {
-                    awakeShadcnSurface(
+                    awakeShadcnScrollSurface(
                         id = "ui-showcase-content",
                         height = Dimension.Fixed(availableHeight.dp),
+                        state = contentScroll.value,
                         style = Style {
                             shape(16f.dp)
                         }

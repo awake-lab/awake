@@ -496,12 +496,12 @@ private fun UiColumnDslScope.drawUiShowcaseOverviewPreview() {
 }
 
 private fun UiColumnDslScope.drawUiShowcaseReferenceComparisonPreview() {
-    val cardWidth = 180f
-    row(height = 236f, gap = 12f) {
+    val cardWidth = 220f
+    row(height = 284f, gap = 12f) {
         panel(
             id = "ui-showcase-reference-spec",
             width = Dimension.Fixed(cardWidth.dp),
-            height = Dimension.Fixed(236f.dp),
+            height = Dimension.Fixed(284f.dp),
             style = theme.components.panel then Style { shape(14f.dp) }
         ) {
             awakeShadcnSectionTitle("Official cues")
@@ -520,13 +520,13 @@ private fun UiColumnDslScope.drawUiShowcaseReferenceComparisonPreview() {
         panel(
             id = "ui-showcase-reference-awake",
             width = Dimension.Fixed(cardWidth.dp),
-            height = Dimension.Fixed(236f.dp),
+            height = Dimension.Fixed(284f.dp),
             style = theme.components.panel then Style { shape(14f.dp) }
         ) {
             awakeShadcnSectionTitle("Awake now")
             awakeShadcnSupportingText("Our current implementation after the sizing and popover pass.")
             spacer(8f)
-            awakeShadcnBodyText("Typography is tighter, menu surfaces are contained, and the gray slab effect is reduced.")
+            awakeShadcnSupportingText("Typography is tighter, menu surfaces are contained, and the gray slab effect is reduced.", maxLines = 4)
             spacer(8f)
             row(height = 36f, gap = 8f) {
                 awakeShadcnButton("reference-primary", 100f, 36f, "Primary", variant = AwakeShadcnButtonVariant.Primary)
