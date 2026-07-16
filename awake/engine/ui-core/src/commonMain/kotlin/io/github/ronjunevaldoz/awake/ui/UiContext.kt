@@ -47,32 +47,77 @@ class UiContext private constructor(
     }
 
     /** Reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
-    fun column(x: Float, y: Float, width: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): ColumnScope =
-        ColumnScope(this, font, theme, x, y, width, gap, textScale)
+    fun column(
+        x: Float,
+        y: Float,
+        width: Float,
+        font: BitmapFont? = null,
+        theme: UiTheme = CoreUiTheme,
+        gap: Float = UiSpacing.sm.toPx(),
+        textScale: Float = 1f,
+        overlayOnly: Boolean = false
+    ): ColumnScope = ColumnScope(this, font, theme, x, y, width, gap, textScale, overlayOnly)
 
-    fun column(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): ColumnScope {
+    fun column(
+        slot: UiSlot,
+        font: BitmapFont? = null,
+        theme: UiTheme = CoreUiTheme,
+        gap: Float = UiSpacing.sm.toPx(),
+        textScale: Float = 1f,
+        insets: UiInsets = UiInsets.Zero,
+        overlayOnly: Boolean = false
+    ): ColumnScope {
         val content = slot.inset(insets)
-        return column(content.x, content.y, content.width, font, theme, gap, textScale)
+        return column(content.x, content.y, content.width, font, theme, gap, textScale, overlayOnly)
     }
 
     /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minimap
      * thumbnail that isn't part of any auto-layout column. Goes through the exact same
      * [UiScope] surface as every other widget; not a special case. */
-    fun absolute(x: Float, y: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f): AbsoluteScope =
-        AbsoluteScope(this, font, theme, x, y, textScale)
+    fun absolute(
+        x: Float,
+        y: Float,
+        font: BitmapFont? = null,
+        theme: UiTheme = CoreUiTheme,
+        textScale: Float = 1f,
+        overlayOnly: Boolean = false
+    ): AbsoluteScope = AbsoluteScope(this, font, theme, x, y, textScale, overlayOnly)
 
-    fun absolute(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): AbsoluteScope {
+    fun absolute(
+        slot: UiSlot,
+        font: BitmapFont? = null,
+        theme: UiTheme = CoreUiTheme,
+        textScale: Float = 1f,
+        insets: UiInsets = UiInsets.Zero,
+        overlayOnly: Boolean = false
+    ): AbsoluteScope {
         val content = slot.inset(insets)
-        return absolute(content.x, content.y, font, theme, textScale)
+        return absolute(content.x, content.y, font, theme, textScale, overlayOnly)
     }
 
     /** Reserves a horizontal auto-stacking layout region -- see [RowScope]. */
-    fun row(x: Float, y: Float, height: Float, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f): RowScope =
-        RowScope(this, font, theme, x, y, height, gap, textScale)
+    fun row(
+        x: Float,
+        y: Float,
+        height: Float,
+        font: BitmapFont? = null,
+        theme: UiTheme = CoreUiTheme,
+        gap: Float = UiSpacing.sm.toPx(),
+        textScale: Float = 1f,
+        overlayOnly: Boolean = false
+    ): RowScope = RowScope(this, font, theme, x, y, height, gap, textScale, overlayOnly)
 
-    fun row(slot: UiSlot, font: BitmapFont? = null, theme: UiTheme = CoreUiTheme, gap: Float = UiSpacing.sm.toPx(), textScale: Float = 1f, insets: UiInsets = UiInsets.Zero): RowScope {
+    fun row(
+        slot: UiSlot,
+        font: BitmapFont? = null,
+        theme: UiTheme = CoreUiTheme,
+        gap: Float = UiSpacing.sm.toPx(),
+        textScale: Float = 1f,
+        insets: UiInsets = UiInsets.Zero,
+        overlayOnly: Boolean = false
+    ): RowScope {
         val content = slot.inset(insets)
-        return row(content.x, content.y, content.height, font, theme, gap, textScale)
+        return row(content.x, content.y, content.height, font, theme, gap, textScale, overlayOnly)
     }
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */
@@ -84,8 +129,9 @@ class UiContext private constructor(
         font: BitmapFont? = null,
         theme: UiTheme = CoreUiTheme,
         textScale: Float = 1f,
-        contentAlignment: UiAlignment = UiAlignment.TopStart
-    ): BoxScope = BoxScope(this, font, theme, x, y, width, height, contentAlignment, textScale)
+        contentAlignment: UiAlignment = UiAlignment.TopStart,
+        overlayOnly: Boolean = false
+    ): BoxScope = BoxScope(this, font, theme, x, y, width, height, contentAlignment, textScale, overlayOnly)
 
     fun box(
         slot: UiSlot,
@@ -93,10 +139,11 @@ class UiContext private constructor(
         theme: UiTheme = CoreUiTheme,
         textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
-        contentAlignment: UiAlignment = UiAlignment.TopStart
+        contentAlignment: UiAlignment = UiAlignment.TopStart,
+        overlayOnly: Boolean = false
     ): BoxScope {
         val content = slot.inset(insets)
-        return box(content.x, content.y, content.width, content.height, font, theme, textScale, contentAlignment)
+        return box(content.x, content.y, content.width, content.height, font, theme, textScale, contentAlignment, overlayOnly)
     }
 
     /** Publishes this frame's [activeId] state to [Input.pointerCapturedByUi] before handing
@@ -166,6 +213,8 @@ class UiContext private constructor(
     }
 
     fun popClip(): UiSlot = popClipInternal()
+
+    fun frameBounds(): UiSlot = fullFrameRect
 
     internal fun recordMeasuredSlot(slot: UiSlot) {
         if (!measuring) return

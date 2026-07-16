@@ -24,13 +24,15 @@ abstract class AbstractUiScope(
     final override val context: UiContext,
     final override val font: BitmapFont?,
     final override val theme: UiTheme,
-    final override val textScale: Float = 1f
+    final override val textScale: Float = 1f,
+    private val emitToOverlay: Boolean = false
 ) : UiScope {
     final override fun hitTest(slot: UiSlot) = context.hitTestInternal(slot)
     final override fun isActive(id: String) = context.isActiveInternal(id)
     final override fun tryClaimActive(id: String, hovered: Boolean) = context.tryClaimActiveInternal(id, hovered)
     final override fun releaseActiveIfMatches(id: String) = context.releaseActiveIfMatchesInternal(id)
-    final override fun emit(primitive: UiDrawPrimitive) = context.emitInternal(primitive)
+    final override fun emit(primitive: UiDrawPrimitive) =
+        if (emitToOverlay) context.emitOverlayInternal(primitive) else context.emitInternal(primitive)
     final override fun emitOverlay(primitive: UiDrawPrimitive) = context.emitOverlayInternal(primitive)
     final override fun widgetState(id: String) = context.widgetStateInternal(id)
 }
@@ -70,8 +72,9 @@ class ColumnScope internal constructor(
     startY: Float,
     private val width: Float,
     private val gap: Float,
-    textScale: Float = 1f
-) : AbstractUiScope(context, font, theme, textScale), FillAwareScope {
+    textScale: Float = 1f,
+    emitToOverlay: Boolean = false
+) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {
     override val fillWidth: Float? = width
     override val fillHeight: Float? = null
 
@@ -99,8 +102,9 @@ class AbsoluteScope internal constructor(
     theme: UiTheme,
     private val x: Float,
     private val y: Float,
-    textScale: Float = 1f
-) : AbstractUiScope(context, font, theme, textScale), FillAwareScope {
+    textScale: Float = 1f,
+    emitToOverlay: Boolean = false
+) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {
     override val fillWidth: Float? = null
     override val fillHeight: Float? = null
 
@@ -127,8 +131,9 @@ class RowScope internal constructor(
     private val y: Float,
     private val height: Float,
     private val gap: Float,
-    textScale: Float = 1f
-) : AbstractUiScope(context, font, theme, textScale), FillAwareScope {
+    textScale: Float = 1f,
+    emitToOverlay: Boolean = false
+) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {
     var cursorX: Float = startX
         private set
 
@@ -158,8 +163,9 @@ class BoxScope internal constructor(
     private val width: Float,
     private val height: Float,
     internal val contentAlignment: UiAlignment = UiAlignment.TopStart,
-    textScale: Float = 1f
-) : AbstractUiScope(context, font, theme, textScale), FillAwareScope {
+    textScale: Float = 1f,
+    emitToOverlay: Boolean = false
+) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {
     override val fillWidth: Float? = this.width
     override val fillHeight: Float? = this.height
 

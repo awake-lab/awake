@@ -77,77 +77,41 @@ fun UiScope.dropdown(
         expandedState.update { !it }
     }
     var picked: Int? = null
-    if (expandedState.value) {
-        var anyOptionHovered = false
+    val popupResult = popup(
+        anchorSlot = slot,
+        expanded = expandedState.value,
+        width = Dimension.Fixed(slot.width.px),
+        height = Dimension.WrapContent,
+        gap = 0f,
+        positionProvider = UiPopupDefaults.dropdown()
+    ) {
         options.forEachIndexed { index, option ->
-            val optionSlot = UiSlot(slot.x, slot.y + slot.height * (index + 1), slot.width, slot.height)
-            val optionHovered = hitTest(optionSlot)
-            if (optionHovered) anyOptionHovered = true
-            val optionId = "$id.option$index"
-            tryClaimActive(optionId, optionHovered)
-            val wasActiveBeforeRelease = isActive(optionId)
-            releaseActiveIfMatches(optionId)
-            val optionActive = isActive(optionId)
-            val optionClicked = wasActiveBeforeRelease && !optionActive && optionHovered
-            if (optionClicked) picked = index
-            val resolved = resolveStyle(
-                style = style,
-                defaults = resolvedDefaults,
-                state = MutableStyleState(
-                    hovered = optionHovered,
-                    active = optionActive,
-                    selected = index == selectedIndex
-                )
-            )
-            val fillColor = resolved.background ?: theme.tokens.background
-            emitFillAndBorder(
-                slot = optionSlot,
-                fillColor = fillColor,
-                radiusPx = resolved.shape.toPx(),
-                borderWidth = UiShape.none,
-                borderColor = TransparentColor,
-                shapeSpec = resolved.shapeSpec,
-                overlay = true
-            )
-            val resolvedFont = font
-            if (resolvedFont != null) {
-                val glyphPx = resolvedFont.cellSize * resolvedTextScale()
-                val layout = layoutBitmapText(
-                    label = option,
-                    glyphPx = glyphPx,
-                    maxWidthPx = optionSlot.width,
-                    wrap = UiTextWrap.None,
-                    overflow = UiTextOverflow.Ellipsis,
-                    maxLines = 1
-                )
-                val line = layout.lines.firstOrNull().orEmpty()
-                var penX = optionSlot.x + (optionSlot.width - line.length * glyphPx) / 2f
-                val penY = optionSlot.y + (optionSlot.height - glyphPx) / 2f
-                for (char in line) {
-                    val uv = resolvedFont.uvFor(char)
-                    if (uv != null) {
-                        emitOverlay(
-                            UiDrawPrimitive.Glyph(
-                                penX,
-                                penY,
-                                glyphPx,
-                                glyphPx,
-                                uv.u0,
-                                uv.v0,
-                                uv.u1,
-                                uv.v1,
-                                resolved.foreground ?: theme.tokens.foreground
-                            )
-                        )
-                    }
-                    penX += glyphPx
+            val optionStyle = if (index == selectedIndex) {
+                Style {
+                    background(theme.tokens.accent)
+                    foreground(theme.tokens.accentForeground)
                 }
+            } else {
+                Style.Empty
+            }
+            if (
+                button(
+                    id = "$id.option$index",
+                    width = slot.width,
+                    height = slot.height,
+                    label = option,
+                    style = resolvedDefaults then style then optionStyle
+                )
+            ) {
+                picked = index
             }
         }
-        val headerHovered = hitTest(slot)
-        if (!clicked && Input.pointerDown && !headerHovered && !anyOptionHovered) {
-            expandedState.value = false
-        }
+    }
+    if (popupResult.dismissed) {
+        expandedState.value = false
+    }
+    if (picked != null) {
+        expandedState.value = false
     }
     return picked
 }

@@ -141,4 +141,27 @@ sealed class UiDslScope protected constructor(
         modifier: UiModifier = UiModifier(),
         style: Style = Style.Empty
     ): Float = scope.slider(id, min, max, value, width, height, label, modifier, style)
+
+    fun popup(
+        anchorSlot: UiSlot,
+        expanded: Boolean,
+        width: Dimension = Dimension.WrapContent,
+        height: Dimension = Dimension.WrapContent,
+        gap: Float = UiSpacing.sm.toPx(),
+        insets: UiInsets = UiInsets.Zero,
+        positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
+        properties: UiPopupProperties = UiPopupProperties(),
+        content: UiColumnDslScope.(slot: UiSlot) -> Unit
+    ): UiPopupResult = scope.popup(
+        anchorSlot = anchorSlot,
+        expanded = expanded,
+        width = width,
+        height = height,
+        gap = gap,
+        insets = insets,
+        positionProvider = positionProvider,
+        properties = properties
+    ) { slot ->
+        UiColumnDslScope(this).content(slot)
+    }
 }
