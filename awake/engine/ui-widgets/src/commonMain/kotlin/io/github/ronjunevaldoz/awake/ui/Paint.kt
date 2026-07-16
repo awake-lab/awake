@@ -52,6 +52,37 @@ private fun UiScope.emitFillShape(slot: UiSlot, color: Color, radiusPx: Float, s
     emitPrimitive(primitive, overlay)
 }
 
+fun UiScope.gradientRect(
+    slot: UiSlot,
+    gradient: UiLinearGradient,
+    overlay: Boolean = false
+) {
+    emitPrimitive(
+        UiDrawPrimitive.GradientQuad(
+            x = slot.x,
+            y = slot.y,
+            w = slot.width,
+            h = slot.height,
+            gradient = gradient
+        ),
+        overlay
+    )
+}
+
+fun UiScope.gradientBorder(
+    slot: UiSlot,
+    width: Dp = 1f.dp,
+    gradient: UiLinearGradient,
+    overlay: Boolean = false
+) {
+    val borderPx = width.toPx()
+    if (borderPx <= 0f) return
+    gradientRect(UiSlot(slot.x, slot.y, slot.width, borderPx), gradient, overlay)
+    gradientRect(UiSlot(slot.x, slot.y + slot.height - borderPx, slot.width, borderPx), gradient, overlay)
+    gradientRect(UiSlot(slot.x, slot.y, borderPx, slot.height), gradient, overlay)
+    gradientRect(UiSlot(slot.x + slot.width - borderPx, slot.y, borderPx, slot.height), gradient, overlay)
+}
+
 /** Fill + border for one widget slot, sharing the corner radius correctly between the two. */
 fun UiScope.emitFillAndBorder(
     slot: UiSlot,

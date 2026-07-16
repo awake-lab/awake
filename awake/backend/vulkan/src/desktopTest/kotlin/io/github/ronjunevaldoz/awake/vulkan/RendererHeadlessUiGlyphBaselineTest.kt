@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.testing.comparePixels
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -15,6 +16,7 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import kotlinx.coroutines.runBlocking
+import org.junit.AfterClass
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -45,8 +47,8 @@ class RendererHeadlessUiGlyphBaselineTest {
             val font = BitmapFont()
             val target = renderer.createRenderTarget(TARGET_SIZE, TARGET_SIZE)
             val glyphs = buildList {
-                addAll(glyphRun("AWAKE", font, x = 14f, y = 18f, scale = 2f, color = floatArrayOf(0.96f, 0.97f, 1f, 1f)))
-                addAll(glyphRun("UI_01", font, x = 16f, y = 54f, scale = 2f, color = floatArrayOf(0.6f, 0.78f, 1f, 1f)))
+                addAll(glyphRun("AWAKE", font, x = 14f, y = 18f, scale = 2f, color = Color(0.96f, 0.97f, 1f, 1f)))
+                addAll(glyphRun("UI_01", font, x = 16f, y = 54f, scale = 2f, color = Color(0.6f, 0.78f, 1f, 1f)))
             }
 
             renderer.renderUiGlyphsToTexture(target, glyphs, font)
@@ -95,7 +97,7 @@ class RendererHeadlessUiGlyphBaselineTest {
                             x = 12f,
                             y = 12f + row * 38f,
                             scale = 1.5f,
-                            color = floatArrayOf(0.92f, 0.95f, 1f, 1f)
+                            color = Color(0.92f, 0.95f, 1f, 1f)
                         )
                     )
                 }
@@ -112,47 +114,19 @@ class RendererHeadlessUiGlyphBaselineTest {
     }
 
     private fun withHeadlessUiRenderer(block: (Renderer) -> Unit) {
-        val graphicsDevice = GraphicsDevice()
-        graphicsDevice.createHeadless()
-        val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
-        swapchainManager.createHeadless(TARGET_SIZE, TARGET_SIZE)
-        val pipelineLayoutMaterial = Material(graphicsDevice)
-        val renderPipeline = RenderPipeline(
-            graphicsDevice,
-            swapchainManager,
-            pipelineLayoutMaterial.descriptorSetLayout,
-            runBlocking { readResourceBytes("assets/shader/vulkan/triangle.vert.spv") },
-            runBlocking { readResourceBytes("assets/shader/vulkan/triangle.frag.spv") },
-            SAMPLE_VERTEX_STRIDE
-        )
-        val lineRenderPipeline = LineRenderPipeline(
-            graphicsDevice,
-            swapchainManager,
-            renderPipeline.renderPass,
-            runBlocking { readResourceBytes("assets/shader/vulkan/debug_line.vert.spv") },
-            runBlocking { readResourceBytes("assets/shader/vulkan/debug_line.frag.spv") }
-        )
-        val transferContext = TransferContext(graphicsDevice)
-        val renderer = Renderer(
-            graphicsDevice,
-            swapchainManager,
-            renderPipeline,
-            lineRenderPipeline,
-            transferContext,
-            runBlocking { readResourceBytes("assets/shader/vulkan/ui_quad.vert.spv") },
-            runBlocking { readResourceBytes("assets/shader/vulkan/ui_quad.frag.spv") },
-            runBlocking { readResourceBytes("assets/shader/vulkan/ui_glyph.vert.spv") },
-            runBlocking { readResourceBytes("assets/shader/vulkan/ui_glyph.frag.spv") },
-            runBlocking { readResourceBytes("assets/shader/vulkan/ui_texture.vert.spv") },
-            runBlocking { readResourceBytes("assets/shader/vulkan/ui_texture.frag.spv") },
-            runBlocking { readResourceBytes("assets/shader/vulkan/ui_rounded_quad.vert.spv") },
-            runBlocking { readResourceBytes("assets/shader/vulkan/ui_rounded_quad.frag.spv") },
-            MAX_FRAMES_IN_FLIGHT
-        )
+        block(sharedFixture().renderer)
+    }
 
-        try {
-            block(renderer)
-        } finally {
+    private class HeadlessUiRendererFixture(
+        val graphicsDevice: GraphicsDevice,
+        val swapchainManager: SwapchainManager,
+        val pipelineLayoutMaterial: Material,
+        val renderPipeline: RenderPipeline,
+        val lineRenderPipeline: LineRenderPipeline,
+        val transferContext: TransferContext,
+        val renderer: Renderer
+    ) {
+        fun destroy() {
             renderer.destroy()
             lineRenderPipeline.destroy()
             renderPipeline.destroy()
@@ -167,6 +141,74 @@ class RendererHeadlessUiGlyphBaselineTest {
         const val MAX_FRAMES_IN_FLIGHT = 1
         const val SAMPLE_VERTEX_STRIDE = 8 * Float.SIZE_BYTES
         const val BASELINE_RESOURCE_PATH = "baselines/ui-glyph-headless.rgba"
+
+        private var cachedFixture: HeadlessUiRendererFixture? = null
+
+        /**
+         * `RendererHeadlessPixelBaselineTest` already proves the full headless create/destroy
+         * path end to end. This suite is narrower: it proves UI glyph rendering on that same
+         * offscreen path. Reusing one fixture keeps the glyph proof stable on MoltenVK, where
+         * tearing down and recreating a validation-enabled headless instance twice in one JVM
+         * test class has been flaky on macOS.
+         */
+        fun sharedFixture(): HeadlessUiRendererFixture {
+            cachedFixture?.let { return it }
+
+            val graphicsDevice = GraphicsDevice()
+            graphicsDevice.createHeadless()
+            val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
+            swapchainManager.createHeadless(TARGET_SIZE, TARGET_SIZE)
+            val pipelineLayoutMaterial = Material(graphicsDevice)
+            val renderPipeline = RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                pipelineLayoutMaterial.descriptorSetLayout,
+                runBlocking { readResourceBytes("assets/shader/vulkan/triangle.vert.spv") },
+                runBlocking { readResourceBytes("assets/shader/vulkan/triangle.frag.spv") },
+                SAMPLE_VERTEX_STRIDE
+            )
+            val lineRenderPipeline = LineRenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                renderPipeline.renderPass,
+                runBlocking { readResourceBytes("assets/shader/vulkan/debug_line.vert.spv") },
+                runBlocking { readResourceBytes("assets/shader/vulkan/debug_line.frag.spv") }
+            )
+            val transferContext = TransferContext(graphicsDevice)
+            val renderer = Renderer(
+                graphicsDevice,
+                swapchainManager,
+                renderPipeline,
+                lineRenderPipeline,
+                transferContext,
+                runBlocking { readResourceBytes("assets/shader/vulkan/ui_quad.vert.spv") },
+                runBlocking { readResourceBytes("assets/shader/vulkan/ui_quad.frag.spv") },
+                runBlocking { readResourceBytes("assets/shader/vulkan/ui_glyph.vert.spv") },
+                runBlocking { readResourceBytes("assets/shader/vulkan/ui_glyph.frag.spv") },
+                runBlocking { readResourceBytes("assets/shader/vulkan/ui_texture.vert.spv") },
+                runBlocking { readResourceBytes("assets/shader/vulkan/ui_texture.frag.spv") },
+                runBlocking { readResourceBytes("assets/shader/vulkan/ui_rounded_quad.vert.spv") },
+                runBlocking { readResourceBytes("assets/shader/vulkan/ui_rounded_quad.frag.spv") },
+                MAX_FRAMES_IN_FLIGHT
+            )
+
+            return HeadlessUiRendererFixture(
+                graphicsDevice = graphicsDevice,
+                swapchainManager = swapchainManager,
+                pipelineLayoutMaterial = pipelineLayoutMaterial,
+                renderPipeline = renderPipeline,
+                lineRenderPipeline = lineRenderPipeline,
+                transferContext = transferContext,
+                renderer = renderer
+            ).also { cachedFixture = it }
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun destroySharedFixture() {
+            cachedFixture?.destroy()
+            cachedFixture = null
+        }
 
         fun baselineOutputFile(): File {
             val cwd = File(System.getProperty("user.dir"))
@@ -184,7 +226,7 @@ class RendererHeadlessUiGlyphBaselineTest {
             x: Float,
             y: Float,
             scale: Float,
-            color: FloatArray
+            color: Color
         ): List<UiDrawPrimitive.Glyph> {
             val glyphSize = font.cellSize * scale
             var cursorX = x

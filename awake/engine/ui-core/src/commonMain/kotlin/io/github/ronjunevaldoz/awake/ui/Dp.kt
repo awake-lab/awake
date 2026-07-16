@@ -12,8 +12,13 @@ import kotlin.jvm.JvmInline
 @JvmInline
 value class Dp(val value: Float)
 
+@JvmInline
+value class Sp(val value: Float)
+
 val Float.dp: Dp get() = Dp(this)
 val Int.dp: Dp get() = Dp(this.toFloat())
+val Float.sp: Sp get() = Sp(this)
+val Int.sp: Sp get() = Sp(this.toFloat())
 
 /** Wraps an already-resolved pixel value as a [Dp] that round-trips back to the exact same
  * pixel count via [toPx], regardless of [UiDensity.scale] -- used at the boundary where an
@@ -35,7 +40,14 @@ object UiDensity {
             field = if (value.isFinite() && value > 0f) value else 1f
         }
 
+    var fontScale: Float = 1f
+        set(value) {
+            field = if (value.isFinite() && value > 0f) value else 1f
+        }
+
     fun pxToDp(pixels: Float): Float = pixels / scale
+    fun pxToSp(pixels: Float): Float = pixels / (scale * fontScale)
 }
 
 fun Dp.toPx(): Float = value * UiDensity.scale
+fun Sp.toPx(): Float = value * UiDensity.scale * UiDensity.fontScale

@@ -16,7 +16,7 @@ internal data class UiShowcaseUiState(
     val showcaseStylePresetIndex: Int = 0,
     val showcaseBaseColorIndex: Int = 0,
     val showcaseAccentIndex: Int = 0,
-    val showcaseDarkMode: Boolean = true,
+    val showcaseThemeModeIndex: Int = 0,
     val tipsVisible: Boolean = true,
     val showcaseBadgeVariantIndex: Int = 0,
     val showcaseLiveBadge: Boolean = true,
@@ -49,10 +49,10 @@ internal class UiShowcaseRuntimeState {
             _uiState.update { it.copy(showcaseAccentIndex = value) }
         }
 
-    var showcaseDarkMode: Boolean
-        get() = _uiState.value.showcaseDarkMode
+    var showcaseThemeModeIndex: Int
+        get() = _uiState.value.showcaseThemeModeIndex
         set(value) {
-            _uiState.update { it.copy(showcaseDarkMode = value) }
+            _uiState.update { it.copy(showcaseThemeModeIndex = value) }
         }
 
     var tipsVisible: Boolean
@@ -101,7 +101,7 @@ internal class UiShowcaseRuntimeState {
         preset = showcaseStylePreset(),
         baseColor = showcaseBaseColor(),
         accent = showcaseAccent(),
-        dark = showcaseDarkMode
+        dark = showcaseResolvedDarkMode()
     )
 
     fun showcaseStylePreset(): AwakeShadcnStylePreset = AwakeShadcnStylePreset.entries.getOrElse(showcaseStylePresetIndex) {
@@ -114,5 +114,15 @@ internal class UiShowcaseRuntimeState {
 
     fun showcaseAccent(): AwakeShadcnAccent = AwakeShadcnAccent.entries.getOrElse(showcaseAccentIndex) {
         AwakeShadcnAccent.Base
+    }
+
+    fun showcaseThemeMode(): UiShowcaseThemeMode = UiShowcaseThemeMode.entries.getOrElse(showcaseThemeModeIndex) {
+        UiShowcaseThemeMode.Auto
+    }
+
+    fun showcaseResolvedDarkMode(): Boolean = when (showcaseThemeMode()) {
+        UiShowcaseThemeMode.Auto -> platformPrefersDarkTheme()
+        UiShowcaseThemeMode.Light -> false
+        UiShowcaseThemeMode.Dark -> true
     }
 }

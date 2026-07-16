@@ -34,6 +34,30 @@ sealed class UiDrawPrimitive {
         }
     }
 
+    data class GradientQuad(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val gradient: UiLinearGradient
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is GradientQuad) return false
+            return x == other.x && y == other.y && w == other.w && h == other.h &&
+                gradient == other.gradient
+        }
+
+        override fun hashCode(): Int {
+            var result = x.hashCode()
+            result = 31 * result + y.hashCode()
+            result = 31 * result + w.hashCode()
+            result = 31 * result + h.hashCode()
+            result = 31 * result + gradient.hashCode()
+            return result
+        }
+    }
+
     /** Rounded-corner sibling of [Quad] -- kept as a separate type rather than a `radius`
      * field on [Quad] so the hot-path flat rect every existing widget already emits every
      * frame never pays a corner-test cost (kool-engine's own `RectBackground` vs

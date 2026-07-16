@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.utils.summarizePixels
+import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -59,22 +60,22 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 }
 
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0x68f50d5a4b3bbac5uL,
-    "toggle-checked" to 0x4a1538b12acf8feduL,
-    "button-filled" to 0xcfa77e903908711fuL,
-    "button-outline" to 0x6b813e72ff9a578cuL,
-    "button-ghost" to 0xcfa77e903908711fuL,
-    "theme-dark" to 0xcfa77e903908711fuL,
-    "theme-light" to 0xd9e5d8361e459973uL,
-    "panel-with-children" to 0xa517575b047d3e38uL
+    "toggle-unchecked" to 0xc56a5405fac411b5uL,
+    "toggle-checked" to 0x9488adb21fd13351uL,
+    "button-filled" to 0x74bd46fa0a1ade9fuL,
+    "button-outline" to 0x85eca633295c43a4uL,
+    "button-ghost" to 0x74bd46fa0a1ade9fuL,
+    "theme-dark" to 0x74bd46fa0a1ade9fuL,
+    "theme-light" to 0xd9088febcb8d6643uL,
+    "panel-with-children" to 0xc83494baea523568uL
 )
 
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0x8f473723504af057uL,
-    "ui-shaped-panel" to 0x1880085cda2d8a85uL,
-    "ui-panel-controls" to 0x8f99ba7ade89fe8buL,
-    "ui-rounded-clip-vector" to 0x014d4bd9cf8ae80auL,
-    "ui-awake-shadcn-showcase" to 0x1c105e5ec2db8100uL
+    "ui-button-variants" to 0x58fdfbde6d8a9dc3uL,
+    "ui-shaped-panel" to 0x80fec6bc3c1ad8f7uL,
+    "ui-panel-controls" to 0x2d56bee17ec2b17fuL,
+    "ui-rounded-clip-vector" to 0x06cee56edf05a759uL,
+    "ui-awake-shadcn-showcase" to 0xd1904aa80bce8613uL
 )
 
 private fun ULong.toHexString(): String {

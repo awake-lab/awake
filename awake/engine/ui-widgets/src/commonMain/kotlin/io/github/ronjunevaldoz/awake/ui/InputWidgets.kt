@@ -50,11 +50,13 @@ fun UiScope.slider(
     if (label != null && font != null) {
         text(
             label,
-            slot,
+            slot = slot,
             font = font,
             color = resolved.foreground ?: theme.tokens.foreground,
             centered = true,
-            overflow = UiTextOverflow.Ellipsis
+            overflow = UiTextOverflow.Ellipsis,
+            textScale = resolved.textScale,
+            textSize = resolved.textSize
         )
     }
     return newValue

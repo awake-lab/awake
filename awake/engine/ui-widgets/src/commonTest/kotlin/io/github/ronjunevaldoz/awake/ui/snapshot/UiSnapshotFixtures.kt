@@ -38,6 +38,7 @@ import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnButton
@@ -363,9 +364,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     awakeShadcnSurface(
                         id = "shadcn-subcard",
                         height = Dimension.WrapContent,
-                        style = Style {
-                            background(AwakeShadcnTheme.tokens.background)
-                        }
+                        variant = AwakeShadcnSurfaceVariant.Popover
                     ) {
                         text("Preview Card")
                         supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")

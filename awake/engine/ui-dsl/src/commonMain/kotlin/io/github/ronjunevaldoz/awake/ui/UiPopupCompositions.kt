@@ -309,11 +309,30 @@ private fun UiColumnDslScope.dropdownMenuItem(
     style: Style,
     selected: Boolean
 ): Boolean {
-    val height = if (item.supportingText.isNullOrBlank()) {
+    val resolvedFont = font
+    val glyphPx = resolvedFont?.let { it.cellSize * pixelPerfectTextScale(textScale) } ?: 12f
+    val trailingWidth = item.trailingLabel?.let { label ->
+        label.length * glyphPx + 8f
+    } ?: 0f
+    val bodyWidth = (width - 24f - trailingWidth).coerceAtLeast(glyphPx)
+    val supportingLayout = item.supportingText?.takeIf { it.isNotBlank() }?.let {
+        layoutBitmapText(
+            label = it,
+            glyphPx = glyphPx,
+            maxWidthPx = (width - 24f).coerceAtLeast(glyphPx),
+            wrap = UiTextWrap.Word,
+            overflow = UiTextOverflow.Ellipsis,
+            maxLines = 2
+        )
+    }
+    val lineGap = glyphPx * 0.25f
+    val supportingHeight = supportingLayout?.blockHeight(glyphPx, lineGap) ?: 0f
+    val computedHeight = if (supportingLayout == null) {
         baseHeight
     } else {
-        (baseHeight + 18f).coerceAtLeast(baseHeight)
+        maxOf(baseHeight, 8f + glyphPx + 4f + supportingHeight + 8f)
     }
+    val height = computedHeight
     val slot = buttonSlot(
         id = id,
         label = "",
@@ -322,18 +341,14 @@ private fun UiColumnDslScope.dropdownMenuItem(
         style = style,
         variant = UiButtonVariant.Ghost
     )
-    val glyphPx = font?.cellSize?.times(pixelPerfectTextScale(textScale)) ?: 8f
     val contentScope = context.absolute(
         slot = slot.slot,
-        font = font,
+        font = resolvedFont,
         theme = theme,
         textScale = textScale,
         insets = UiInsets(12f.dp, 8f.dp),
         overlayOnly = true
     )
-    val trailingWidth = item.trailingLabel?.let { label ->
-        label.length * glyphPx + 8f
-    } ?: 0f
     val trailingColor = when {
         !item.enabled -> theme.tokens.mutedForeground
         selected -> theme.tokens.accentForeground.withAlpha(0.82f)
@@ -345,18 +360,18 @@ private fun UiColumnDslScope.dropdownMenuItem(
         item.destructive -> theme.tokens.destructive
         else -> theme.tokens.foreground
     }
-    contentScope.text(
-        label = item.label,
-        slot = UiSlot(
-            x = slot.slot.x + 12f,
-            y = slot.slot.y + 8f,
-            width = (slot.slot.width - 24f - trailingWidth).coerceAtLeast(0f),
-            height = glyphPx
-        ),
-        font = font,
-        color = textColor,
-        overflow = UiTextOverflow.Ellipsis
-    )
+        contentScope.text(
+            label = item.label,
+            slot = UiSlot(
+                x = slot.slot.x + 12f,
+                y = slot.slot.y + 8f,
+                width = bodyWidth,
+                height = glyphPx
+            ),
+            font = resolvedFont,
+            color = textColor,
+            overflow = UiTextOverflow.Ellipsis
+        )
     item.trailingLabel?.let { label ->
         contentScope.text(
             label = label,
@@ -366,22 +381,22 @@ private fun UiColumnDslScope.dropdownMenuItem(
                 width = trailingWidth,
                 height = glyphPx
             ),
-            font = font,
+            font = resolvedFont,
             color = trailingColor,
             centered = true,
             overflow = UiTextOverflow.Ellipsis
         )
     }
-    item.supportingText?.takeIf { it.isNotBlank() }?.let { supporting ->
+    supportingLayout?.let { layout ->
         contentScope.text(
-            label = supporting,
+            label = item.supportingText.orEmpty(),
             slot = UiSlot(
                 x = slot.slot.x + 12f,
                 y = slot.slot.y + 8f + glyphPx + 4f,
                 width = (slot.slot.width - 24f).coerceAtLeast(0f),
-                height = (slot.slot.height - glyphPx - 12f).coerceAtLeast(glyphPx)
+                height = layout.blockHeight(glyphPx, lineGap)
             ),
-            font = font,
+            font = resolvedFont,
             color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
             wrap = UiTextWrap.Word,
             overflow = UiTextOverflow.Ellipsis,

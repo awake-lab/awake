@@ -91,6 +91,31 @@ class UiRowDslScope internal constructor(
     fun spacer(width: Float) {
         rowScope.claimSlot(width.toDimension(), Dimension.FillMax)
     }
+
+    fun panel(
+        id: String,
+        width: Dimension,
+        height: Dimension = Dimension.FillMax,
+        gap: Float = UiSpacing.sm.toPx(),
+        radius: Dp = UiShape.md,
+        borderWidth: Dp = UiShape.none,
+        style: Style = Style.Empty,
+        modifier: UiModifier = UiModifier(),
+        clipContent: Boolean = false,
+        content: UiColumnDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = rowScope.panel(
+        id = id,
+        width = modifier.width ?: width,
+        height = modifier.height ?: height,
+        gap = gap,
+        radius = radius,
+        borderWidth = borderWidth,
+        style = style,
+        modifier = modifier,
+        clipContent = clipContent
+    ) { slot ->
+        UiColumnDslScope(this).content(slot)
+    }
 }
 
 @AwakeUiDsl

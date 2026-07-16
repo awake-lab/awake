@@ -25,6 +25,42 @@ class AwakeShadcnDesignSystemTest {
         assertColorClose(Color(0.980256f, 0.980256f, 0.980256f, 1f), AwakeShadcnTheme.tokens.foreground)
         assertColorClose(Color(0.898161f, 0.898161f, 0.898161f, 1f), AwakeShadcnTheme.tokens.primary)
         assertColorClose(Color(1f, 1f, 1f, 0.1f), AwakeShadcnTheme.tokens.border)
+        assertColorClose(oklch(0.168f, 0f), AwakeShadcnTheme.card)
+        assertColorClose(oklch(0.205f, 0f), AwakeShadcnTheme.popover)
+        assertColorClose(oklch(0.158f, 0f), AwakeShadcnTheme.sidebar)
+        assertColorClose(oklch(0.556f, 0f), AwakeShadcnTheme.ring)
+    }
+
+    @Test
+    fun awakeShadcnThemeDerivesRadiusScaleFromSingleBaseRadius() {
+        assertTrue(abs(AwakeShadcnTheme.radii.xs.value - 2.4f) <= 0.0001f)
+        assertTrue(abs(AwakeShadcnTheme.radii.sm.value - 3.6f) <= 0.0001f)
+        assertTrue(abs(AwakeShadcnTheme.radii.md.value - 4.8f) <= 0.0001f)
+        assertTrue(abs(AwakeShadcnTheme.radii.lg.value - 6f) <= 0.0001f)
+        assertTrue(abs(AwakeShadcnTheme.radii.xl.value - 8.4f) <= 0.0001f)
+    }
+
+    @Test
+    fun awakeShadcnThemeKeepsInteractiveRolesDistinct() {
+        assertTrue(AwakeShadcnTheme.tokens.secondary != AwakeShadcnTheme.tokens.muted)
+        assertTrue(AwakeShadcnTheme.tokens.accent != AwakeShadcnTheme.tokens.secondary)
+        assertTrue(AwakeShadcnTheme.sidebarAccent != AwakeShadcnTheme.sidebar)
+    }
+
+    @Test
+    fun awakeShadcnThemeFactoryAppliesPresetBaseAndAccentOverrides() {
+        val theme = awakeShadcnTheme(
+            preset = AwakeShadcnStylePreset.Lyra,
+            baseColor = AwakeShadcnBaseColor.Mist,
+            accent = AwakeShadcnAccent.Blue
+        ).asAwakeShadcnTheme()
+
+        assertEquals(AwakeShadcnStylePreset.Lyra, theme.config.preset)
+        assertEquals(AwakeShadcnBaseColor.Mist, theme.config.baseColor)
+        assertEquals(AwakeShadcnAccent.Blue, theme.config.accent)
+        assertTrue(abs(theme.radii.lg.value - 0f) <= 0.0001f)
+        assertColorClose(hex(0x3B82F6), theme.tokens.primary)
+        assertTrue(theme.tokens.background != AwakeShadcnTheme.tokens.background)
     }
 
     @Test
@@ -45,6 +81,23 @@ class AwakeShadcnDesignSystemTest {
         val primitives = ui.endFrame()
         assertIs<UiDrawPrimitive.RoundedQuad>(primitives.first(), "design-system badge should render its own rounded surface")
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "design-system badge should render glyphs")
+    }
+
+    @Test
+    fun awakeShadcnBadgeReadsConfiguredThemeFromScope() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        val theme = awakeShadcnTheme(
+            baseColor = AwakeShadcnBaseColor.Zinc,
+            accent = AwakeShadcnAccent.Rose
+        )
+        ui.beginFrame(200f, 80f)
+
+        ui.absolute(20f, 20f, font = BitmapFont(), theme = theme)
+            .awakeShadcnBadge(label = "LIVE", variant = AwakeShadcnBadgeVariant.Primary)
+
+        val firstQuad = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>().first()
+        assertColorClose(theme.tokens.primary, firstQuad.color)
     }
 
     @Test
@@ -80,7 +133,7 @@ class AwakeShadcnDesignSystemTest {
             }
 
         val primitives = ui.endFrame()
-        assertEquals(4, primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size, "surface + badge should each emit border + fill rounded quads")
+        assertEquals(3, primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size, "surface should emit border + fill, and the filled badge should emit one rounded quad")
     }
 
     @Test

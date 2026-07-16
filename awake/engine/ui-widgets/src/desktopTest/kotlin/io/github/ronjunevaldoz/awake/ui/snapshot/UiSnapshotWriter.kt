@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import java.awt.image.BufferedImage
@@ -15,7 +16,7 @@ private val tutorialManifestLock = Any()
  * Rasterizes [primitives] ([rasterize]) and writes it as a real, viewable PNG under
  * `build/ui-snapshots/[name].png` -- desktop JVM only (`javax.imageio`, same as
  * `awake:backend:vulkan`'s `RendererHeadlessPixelBaselineTest`), so this lives in
- * `desktopTest`, not `commonTest`, alongside [rasterize] itself (which stays common/pure).
+ * `desktopTest` while [rasterize] stays shared in `awake:engine:testing`.
  * Called unconditionally by a snapshot test regardless of pass/fail -- unlike the
  * pixel-baseline report (which only dumps on a mismatch, since its assertion already proves
  * correctness), these are a *design review* aid: is this theme/variant/state combination

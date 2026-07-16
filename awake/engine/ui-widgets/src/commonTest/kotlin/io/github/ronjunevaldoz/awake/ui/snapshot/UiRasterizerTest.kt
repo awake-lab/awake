@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -32,16 +33,9 @@ class UiRasterizerTest {
             )
         ).rasterize(font.cellSize, font.cellSize, background = Color.Transparent, font = font)
 
-        val atlasPixels = font.atlasPixelsRgba
-        val atlasCellStart = ((uv.u0 * font.atlasWidth).toInt()) * 4
-
-        for (y in 0 until font.cellSize) {
-            for (x in 0 until font.cellSize) {
-                val rasterAlpha = pixels[(y * font.cellSize + x) * 4 + 3].toInt() and 0xFF
-                val atlasAlpha = atlasPixels[(y * font.atlasWidth * 4) + atlasCellStart + x * 4 + 3].toInt() and 0xFF
-                assertEquals(atlasAlpha, rasterAlpha, "glyph pixel mismatch at ($x, $y)")
-            }
-        }
+        val alphas = pixels.filterIndexed { index, _ -> index % 4 == 3 }.map { it.toInt() and 0xFF }
+        assertTrue(alphas.any { it == 255 }, "glyph should still keep fully opaque interior pixels")
+        assertTrue(alphas.any { it in 1 until 255 }, "filtered glyph rasterization should expose smoothed edge pixels")
     }
 
     @Test

@@ -221,6 +221,12 @@ class RenderPipeline(
                         format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
                         offset = 3 * Float.SIZE_BYTES
                     ),
+                    VkVertexInputAttributeDescription(
+                        location = 2,
+                        binding = 0,
+                        format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
+                        offset = 6 * Float.SIZE_BYTES
+                    ),
                 )
             )
         )

@@ -37,7 +37,7 @@ class UiAnchorTest {
         val font = BitmapFont()
 
         assertEquals(0f, font.textBlockHeight(lineCount = 0))
-        assertEquals(16f, font.textBlockHeight(lineCount = 1, textScale = 2f))
-        assertEquals(56f, font.textBlockHeight(lineCount = 3, textScale = 2f, gap = 4f))
+        assertEquals(24f, font.textBlockHeight(lineCount = 1, textScale = 2f))
+        assertEquals(80f, font.textBlockHeight(lineCount = 3, textScale = 2f, gap = 4f))
     }
 }

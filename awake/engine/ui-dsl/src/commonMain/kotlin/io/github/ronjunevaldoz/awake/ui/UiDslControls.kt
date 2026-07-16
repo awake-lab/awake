@@ -29,7 +29,7 @@ sealed class UiDslScope protected constructor(
                 foreground(scope.theme.tokens.foreground)
             }
         )
-        val glyphPx = resolvedFont.cellSize * scope.resolvedTextScale()
+        val glyphPx = scope.resolveGlyphPx(resolvedFont, resolved.textScale, resolved.textSize)
         val defaultWidth: Dimension = when {
             modifier.width != null -> requireNotNull(modifier.width)
             wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || label.contains('\n') -> {
@@ -74,7 +74,9 @@ sealed class UiDslScope protected constructor(
             centered = centered,
             wrap = wrap,
             overflow = overflow,
-            maxLines = maxLines
+            maxLines = maxLines,
+            textScale = resolved.textScale,
+            textSize = resolved.textSize
         )
         return slot
     }

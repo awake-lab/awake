@@ -22,6 +22,12 @@ fun pixelPerfectTextScale(requestedScale: Float): Float = requestedScale.roundTo
 
 fun UiScope.resolvedTextScale(): Float = pixelPerfectTextScale(textScale)
 
+fun UiScope.resolveGlyphPx(
+    font: io.github.ronjunevaldoz.awake.ui.font.BitmapFont,
+    textScale: Float = this.textScale,
+    textSize: Sp? = null
+): Float = textSize?.toPx()?.coerceAtLeast(1f) ?: (font.cellSize * pixelPerfectTextScale(textScale))
+
 /**
  * The full set of primitives any widget -- built-in or consumer-defined -- is built from.
  * Nothing here knows about buttons, toggles, or any specific widget shape; the library's own
@@ -42,13 +48,12 @@ interface UiScope {
 
     /**
      * Requested multiplier applied to every glyph this scope draws (quad size, pen advance,
-     * label-row height). [font]'s atlas stays a fixed 8x8 cell regardless (see
-     * [io.github.ronjunevaldoz.awake.ui.font.BitmapFont]'s doc comment: a hand-authored debug
-     * font, not a scalable typeface) -- this just draws each glyph's quad bigger
-     * (nearest-neighbor blocky scaling, matching the font's own retro-bitmap look), it doesn't
-     * re-rasterize anything. Rendering snaps this to the nearest whole-number multiple via
-     * [resolvedTextScale] so bitmap glyphs stay pixel-stable instead of shimmering at
-     * fractional scales. Defaults to `1f` (today's original, un-scaled size).
+     * label-row height). The font still comes from a tiny hand-authored bitmap source, but its
+     * atlas is baked as a higher-resolution coverage texture, so larger `Sp` sizes can sample
+     * smoother edges without changing the logical layout metrics. Rendering snaps this to the
+     * nearest whole-number multiple via [resolvedTextScale] so the default scale path stays
+     * pixel-stable instead of shimmering at arbitrary fractional values. Defaults to `1f`
+     * (today's original, un-scaled size).
      */
     val textScale: Float
 

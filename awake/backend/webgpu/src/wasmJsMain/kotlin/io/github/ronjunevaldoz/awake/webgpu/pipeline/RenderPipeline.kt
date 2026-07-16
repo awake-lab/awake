@@ -71,6 +71,11 @@ class RenderPipeline(
                                     shaderLocation = 1u,
                                     offset = (3 * Float.SIZE_BYTES).toULong(),
                                     format = GPUVertexFormat.Float32x3
+                                ),
+                                VertexAttribute(
+                                    shaderLocation = 2u,
+                                    offset = (6 * Float.SIZE_BYTES).toULong(),
+                                    format = GPUVertexFormat.Float32x2
                                 )
                             )
                         )

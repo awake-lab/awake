@@ -5,14 +5,17 @@ package io.github.ronjunevaldoz.awake.ui
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 
 class DpTest {
 
     private val originalScale = 1f
+    private val originalFontScale = 1f
 
     @AfterTest
     fun resetScale() {
         UiDensity.scale = originalScale
+        UiDensity.fontScale = originalFontScale
     }
 
     @Test
@@ -34,6 +37,34 @@ class DpTest {
         UiDensity.scale = 2f
         assertEquals(280f, 280f.px.toPx(), "a raw-pixel value wrapped via .px must round-trip to the exact same pixel count regardless of density scale")
         UiDensity.scale = originalScale
+    }
+
+    @Test
+    fun spScalesByDensityAndFontScale() {
+        UiDensity.scale = 1f
+        UiDensity.fontScale = 1f
+        assertEquals(14f, 14f.sp.toPx())
+
+        UiDensity.scale = 2f
+        UiDensity.fontScale = 1f
+        assertEquals(28f, 14f.sp.toPx(), "sp should track density the same way dp does")
+
+        UiDensity.scale = 2f
+        UiDensity.fontScale = 1.25f
+        assertEquals(35f, 14f.sp.toPx(), "sp should also honor user font scale")
+    }
+
+    @Test
+    fun glyphResolutionHonorsStyledTextSizesBelowBitmapCellSize() {
+        UiDensity.scale = 1f
+        UiDensity.fontScale = 1f
+        val font = BitmapFont()
+        val ui = UiContext()
+        ui.beginFrame(120f, 80f)
+
+        val glyphPx = ui.absolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(font, textSize = 10.sp)
+
+        assertEquals(10f, glyphPx, "styled text sizes should not be clamped back up to the bitmap cell size")
     }
 
     @Test

@@ -61,20 +61,32 @@ interface UiComponentStyles {
 interface UiTheme {
     val tokens: UiColorTokens
     val components: UiComponentStyles
+    val typography: UiTypography get() = UiTypography.Default
 }
 
-class CoreUiComponentStyles(tokens: UiColorTokens) : UiComponentStyles {
-    override val button: Style = tokens.neutralStyle()
-    override val toggle: Style = tokens.neutralStyle()
+class CoreUiComponentStyles(
+    tokens: UiColorTokens,
+    typography: UiTypography = UiTypography.Default
+) : UiComponentStyles {
+    override val button: Style = tokens.neutralStyle() then Style {
+        textSize(typography.label)
+    }
+    override val toggle: Style = tokens.neutralStyle() then Style {
+        textSize(typography.label)
+    }
     override val checkbox: Style = tokens.neutralStyle() then Style {
         borderWidth(1f.dp)
         borderColor(tokens.border)
+        textSize(typography.label)
     }
-    override val slider: Style = tokens.neutralStyle()
+    override val slider: Style = tokens.neutralStyle() then Style {
+        textSize(typography.label)
+    }
     override val dropdown: Style = tokens.neutralStyle() then Style {
         borderWidth(1f.dp)
         borderColor(tokens.border)
         shape(UiShape.sm)
+        textSize(typography.label)
     }
     override val panel: Style = Style {
         background(tokens.background)
@@ -106,7 +118,8 @@ object CoreUiTheme : UiTheme {
         override val destructiveForeground = Color.White
         override val border = Color(0.4f, 0.4f, 0.45f, 0.9f)
     }
-    override val components: UiComponentStyles = CoreUiComponentStyles(tokens)
+    override val typography: UiTypography = UiTypography.Default
+    override val components: UiComponentStyles = CoreUiComponentStyles(tokens, typography)
 }
 
 private fun brighten(color: Color, brightness: Float): Color = color.brighten(brightness)

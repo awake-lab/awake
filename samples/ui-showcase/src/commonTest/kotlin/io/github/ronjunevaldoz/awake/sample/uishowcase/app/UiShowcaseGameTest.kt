@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterStore
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseUiState
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
@@ -61,7 +62,7 @@ class UiShowcaseGameTest {
         state.showcaseStylePresetIndex = AwakeShadcnStylePreset.Lyra.ordinal
         state.showcaseBaseColorIndex = AwakeShadcnBaseColor.Mist.ordinal
         state.showcaseAccentIndex = AwakeShadcnAccent.Blue.ordinal
-        state.showcaseDarkMode = false
+        state.showcaseThemeModeIndex = UiShowcaseThemeMode.Light.ordinal
         state.tipsVisible = false
         state.showcaseDangerMode = true
         state.showcasePrimaryClicks = 2
@@ -71,7 +72,7 @@ class UiShowcaseGameTest {
                 showcaseStylePresetIndex = AwakeShadcnStylePreset.Lyra.ordinal,
                 showcaseBaseColorIndex = AwakeShadcnBaseColor.Mist.ordinal,
                 showcaseAccentIndex = AwakeShadcnAccent.Blue.ordinal,
-                showcaseDarkMode = false,
+                showcaseThemeModeIndex = UiShowcaseThemeMode.Light.ordinal,
                 tipsVisible = false,
                 showcaseBadgeVariantIndex = 0,
                 showcaseLiveBadge = true,
@@ -90,7 +91,7 @@ class UiShowcaseGameTest {
         state.showcaseStylePresetIndex = AwakeShadcnStylePreset.Maia.ordinal
         state.showcaseBaseColorIndex = AwakeShadcnBaseColor.Taupe.ordinal
         state.showcaseAccentIndex = AwakeShadcnAccent.Emerald.ordinal
-        state.showcaseDarkMode = false
+        state.showcaseThemeModeIndex = UiShowcaseThemeMode.Light.ordinal
 
         val theme = state.showcaseTheme()
 

@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlertDialogAction
@@ -11,7 +13,9 @@ import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.alertDialog
@@ -37,7 +41,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnToggle
 import io.github.ronjunevaldoz.awake.ui.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.gradientBorder
+import io.github.ronjunevaldoz.awake.ui.gradientRect
 import io.github.ronjunevaldoz.awake.ui.offset
+import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.supportingLines
@@ -46,6 +53,7 @@ import io.github.ronjunevaldoz.awake.ui.textLines
 private val ShowcaseStyleOptions = AwakeShadcnStylePreset.entries.map { it.label }
 private val ShowcaseBaseColorOptions = AwakeShadcnBaseColor.entries.map { it.label }
 private val ShowcaseAccentOptions = AwakeShadcnAccent.entries.map { it.label }
+private val ShowcaseThemeModeOptions = UiShowcaseThemeMode.entries.map { it.label }
 private val ShowcaseBadgeOptions = listOf("Primary", "Secondary", "Outline", "Danger")
 
 private val ShowcaseActionMenuItems = listOf(
@@ -68,14 +76,14 @@ private val ShowcaseActionMenuItems = listOf(
     )
 )
 
-private enum class ShowcaseCategory(val title: String) {
+internal enum class ShowcaseCategory(val title: String) {
     GettingStarted("Getting Started"),
     Foundations("Foundations"),
     Overlays("Overlays"),
     Patterns("Patterns"),
 }
 
-private data class ShowcasePage(
+internal data class ShowcasePage(
     val id: String,
     val title: String,
     val category: ShowcaseCategory,
@@ -84,7 +92,7 @@ private data class ShowcasePage(
     val notes: List<String>,
 )
 
-private val ShowcasePages = listOf(
+internal val ShowcasePages = listOf(
     ShowcasePage(
         id = "introduction",
         title = "Introduction",
@@ -220,18 +228,17 @@ internal fun UiColumnDslScope.drawUiShowcaseTopBar(
                 )?.let { state.showcaseStylePresetIndex = it }
             }
             panel(
-                id = "ui-showcase-topbar-dark-compact",
-                width = Dimension.Fixed(138f.dp),
+                id = "ui-showcase-topbar-theme-compact",
+                width = Dimension.Fixed(150f.dp),
                 style = theme.components.panel then Style { shape(12f.dp) }
             ) {
-                awakeShadcnSectionTitle("Dark")
-                state.showcaseDarkMode = awakeShadcnToggle(
-                    id = "ui-showcase-topbar-dark-toggle",
-                    checked = state.showcaseDarkMode,
-                    width = 108f,
-                    height = 36f,
-                    label = if (state.showcaseDarkMode) "Enabled" else "Disabled"
-                )
+                awakeShadcnSectionTitle("Theme")
+                awakeShadcnDropdown(
+                    id = "ui-showcase-topbar-theme-mode",
+                    options = ShowcaseThemeModeOptions,
+                    selectedIndex = state.showcaseThemeModeIndex,
+                    width = 118f
+                )?.let { state.showcaseThemeModeIndex = it }
             }
         }
         return
@@ -293,18 +300,17 @@ internal fun UiColumnDslScope.drawUiShowcaseTopBar(
                     )?.let { state.showcaseAccentIndex = it }
                 }
                 panel(
-                    id = "ui-showcase-topbar-dark-card",
+                    id = "ui-showcase-topbar-theme-card",
                     width = Dimension.Fixed(128f.dp),
                     style = theme.components.panel then Style { shape(10f.dp) }
                 ) {
-                    awakeShadcnSectionTitle("Dark")
-                    state.showcaseDarkMode = awakeShadcnToggle(
-                        id = "ui-showcase-desktop-dark",
-                        checked = state.showcaseDarkMode,
-                        width = 104f,
-                        height = 36f,
-                        label = if (state.showcaseDarkMode) "Enabled" else "Disabled"
-                    )
+                    awakeShadcnSectionTitle("Theme")
+                    awakeShadcnDropdown(
+                        id = "ui-showcase-desktop-theme",
+                        options = ShowcaseThemeModeOptions,
+                        selectedIndex = state.showcaseThemeModeIndex,
+                        width = 104f
+                    )?.let { state.showcaseThemeModeIndex = it }
                 }
             }
         }
@@ -461,7 +467,7 @@ private fun UiColumnDslScope.drawUiShowcaseCodeBlock(code: String) {
     )
 }
 
-private fun UiColumnDslScope.renderUiShowcasePagePreview(
+internal fun UiColumnDslScope.renderUiShowcasePagePreview(
     page: ShowcasePage,
     state: UiShowcaseRuntimeState,
 ) {
@@ -570,19 +576,23 @@ private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRunt
         labelWidth = 72f.dp
     )?.let { state.showcaseBaseColorIndex = it }
     awakeShadcnPropertyDropdown(
+        id = "showcase-theme-mode",
+        label = "Theme",
+        options = ShowcaseThemeModeOptions,
+        selectedIndex = state.showcaseThemeModeIndex,
+        labelWidth = 72f.dp
+    )?.let { state.showcaseThemeModeIndex = it }
+    awakeShadcnPropertyDropdown(
         id = "showcase-accent",
         label = "Accent",
         options = ShowcaseAccentOptions,
         selectedIndex = state.showcaseAccentIndex,
         labelWidth = 72f.dp
     )?.let { state.showcaseAccentIndex = it }
-    val nextDark = awakeShadcnPropertyToggle(
-        id = "showcase-dark-mode",
-        label = "Dark mode",
-        checked = state.showcaseDarkMode,
-        height = 36f
+    awakeShadcnSupportingText(
+        "Auto resolves to ${if (state.showcaseResolvedDarkMode()) "dark" else "light"} on this platform.",
+        maxLines = 2
     )
-    if (nextDark != state.showcaseDarkMode) state.showcaseDarkMode = nextDark
 
     spacer(10f)
     awakeShadcnSectionTitle("Live preview")
@@ -631,7 +641,31 @@ private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRunt
         modifier = UiModifier().offset(y = (-previewLift).dp),
         variant = AwakeShadcnSurfaceVariant.Muted,
         style = Style { shape(state.showcaseSurfaceRadius.dp) }
-    ) {
+    ) { previewSlot ->
+        val shimmerForward = context.rememberBooleanState("showcase-preview-shimmer-direction", initial = true)
+        val shimmerTarget = when {
+            !state.showcaseLiveBadge -> 0f
+            shimmerForward.value -> 1f
+            else -> 0f
+        }
+        val shimmerPhase = context.animateFloat(
+            id = "showcase-preview-shimmer",
+            target = shimmerTarget,
+            initial = 0f,
+            responsiveness = 2.5f,
+            snapDistance = 0.015f
+        )
+        if (state.showcaseLiveBadge) {
+            if (shimmerForward.value && shimmerPhase >= 0.98f) shimmerForward.value = false
+            if (!shimmerForward.value && shimmerPhase <= 0.02f) shimmerForward.value = true
+        } else {
+            shimmerForward.value = true
+        }
+        drawShowcaseGradientChrome(
+            slot = previewSlot,
+            shimmerPhase = shimmerPhase,
+            dangerMode = state.showcaseDangerMode
+        )
         val badgeVariant = state.showcaseBadgeVariant()
         awakeShadcnBadge(if (state.showcaseLiveBadge) "LIVE" else "PAUSED", variant = badgeVariant)
         row(height = 28f, gap = 8f) {
@@ -653,7 +687,7 @@ private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRunt
             )
         }
         awakeShadcnBodyText("Showcase preview card")
-        awakeShadcnSupportingText("The same Awake theme factory feeds the shell chrome and the inner components.")
+        awakeShadcnSupportingText("Light is the default mood now, Auto follows the platform, and the sample chrome can carry gradients and shimmer without hardcoding per-demo paint.")
         spacer(6f)
         row(height = 36f, gap = 10f) {
             if (
@@ -678,6 +712,46 @@ private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRunt
         awakeShadcnBodyText("Primary clicks: ${state.showcasePrimaryClicks}")
     }
 }
+
+private fun UiColumnDslScope.drawShowcaseGradientChrome(
+    slot: UiSlot,
+    shimmerPhase: Float,
+    dangerMode: Boolean,
+) {
+    val themeGradient = UiLinearGradient.horizontal(
+        start = lerpColor(theme.tokens.primary.withAlpha(0.12f), theme.tokens.accent.withAlpha(0.18f), shimmerPhase),
+        end = lerpColor(theme.tokens.accent.withAlpha(0.22f), theme.tokens.secondary.withAlpha(0.12f), shimmerPhase)
+    )
+    val borderGradient = UiLinearGradient.horizontal(
+        start = if (dangerMode) theme.tokens.destructive.withAlpha(0.92f) else theme.tokens.primary.withAlpha(0.64f),
+        end = if (dangerMode) theme.tokens.accent.withAlpha(0.82f) else theme.tokens.accent.withAlpha(0.84f)
+    )
+    val shimmerWidth = (slot.width * 0.28f).coerceAtLeast(52f)
+    val shimmerX = slot.x + (slot.width - shimmerWidth) * shimmerPhase.coerceIn(0f, 1f)
+    context.absolute(slot.x, slot.y, font = font, theme = theme, overlayOnly = true).apply {
+        gradientBorder(slot, width = 1f.dp, gradient = borderGradient, overlay = true)
+        gradientRect(
+            UiSlot(slot.x, slot.y, slot.width, 44f.coerceAtMost(slot.height)),
+            gradient = themeGradient,
+            overlay = true
+        )
+        gradientRect(
+            UiSlot(shimmerX, slot.y + 1f, shimmerWidth, (slot.height - 2f).coerceAtLeast(0f)),
+            gradient = UiLinearGradient.horizontal(
+                start = Color.Transparent,
+                end = theme.tokens.foreground.withAlpha(if (dangerMode) 0.08f else 0.12f)
+            ),
+            overlay = true
+        )
+    }
+}
+
+private fun lerpColor(start: Color, end: Color, fraction: Float): Color = Color(
+    r = start.r + (end.r - start.r) * fraction,
+    g = start.g + (end.g - start.g) * fraction,
+    b = start.b + (end.b - start.b) * fraction,
+    a = start.a + (end.a - start.a) * fraction
+)
 
 private fun UiColumnDslScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeState) {
     state.counterStore.drainEffects()

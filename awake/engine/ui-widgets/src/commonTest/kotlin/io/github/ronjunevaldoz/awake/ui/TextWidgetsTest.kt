@@ -17,13 +17,13 @@ class TextWidgetsTest {
 
         scope.text(
             label = "TOOLONG",
-            slot = UiSlot(10f, 20f, 32f, 8f),
+            slot = UiSlot(10f, 20f, 32f, 12f),
             font = font,
             overflow = UiTextOverflow.Ellipsis
         )
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
-        assertEquals(4, glyphs.size, "32px at an 8px glyph size must fit exactly four glyph quads after ellipsis")
+        assertEquals(2, glyphs.size, "32px at the 12px default glyph size must clamp down to two glyph quads after ellipsis")
         assertTrue(glyphs.all { it.x + it.w <= 42f }, "ellipsized glyphs must stay inside the slot width")
     }
 

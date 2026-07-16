@@ -74,7 +74,7 @@ class PanelTest {
             text("Line Two")
         }
 
-        assertEquals(40f, panelSlot.height, "two 8px text rows + 8px row gap + 16px panel padding should size the panel")
+        assertEquals(48f, panelSlot.height, "two 12px text rows + 8px row gap + 16px panel padding should size the panel")
     }
 
     @Test

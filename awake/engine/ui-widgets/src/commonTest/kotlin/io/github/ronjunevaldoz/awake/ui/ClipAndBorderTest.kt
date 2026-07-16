@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.ui.snapshot.rasterize
+import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs

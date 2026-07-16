@@ -20,38 +20,53 @@ enum class UiTextOverflow {
 
 fun UiScope.text(
     label: String,
-    slot: UiSlot = claimSlot(Dimension.FillMax, Dimension.Fixed(((this.font?.let { it.cellSize * resolvedTextScale() } ?: 0f)).px)),
+    slot: UiSlot? = null,
     font: BitmapFont? = this.font,
     color: Color = theme.tokens.foreground,
     centered: Boolean = false,
     wrap: UiTextWrap = UiTextWrap.None,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
-    maxLines: Int = 1
+    maxLines: Int = 1,
+    textScale: Float = this.textScale,
+    textSize: Sp? = null
 ) {
-    checkNotNull(font) { "text() requires a font, either from the UiScope or passed explicitly" }
-    val glyphPx = font.cellSize * resolvedTextScale()
+    val resolvedFont = checkNotNull(font) { "text() requires a font, either from the UiScope or passed explicitly" }
+    val glyphPx = resolveGlyphPx(resolvedFont, textScale, textSize)
+    val resolvedSlot = slot ?: claimSlot(Dimension.FillMax, Dimension.Fixed(glyphPx.px))
     val layout = layoutBitmapText(
         label = label,
         glyphPx = glyphPx,
-        maxWidthPx = slot.width,
+        maxWidthPx = resolvedSlot.width,
         wrap = wrap,
         overflow = overflow,
         maxLines = maxLines
     )
     val lineGap = glyphPx * 0.25f
     val blockHeight = layout.blockHeight(glyphPx, lineGap)
-    var penY = if (centered) slot.y + (slot.height - blockHeight) / 2f else slot.y
-    layout.lines.forEach { line ->
-        val textWidth = line.length * glyphPx
-        var penX = if (centered) slot.x + (slot.width - textWidth) / 2f else slot.x
-        for (char in line) {
-            val uv = font.uvFor(char)
-            if (uv != null) {
-                emit(UiDrawPrimitive.Glyph(penX, penY, glyphPx, glyphPx, uv.u0, uv.v0, uv.u1, uv.v1, color))
+    val shouldClip = wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || maxLines > 1
+
+    fun emitLines() {
+        var penY = if (centered) resolvedSlot.y + (resolvedSlot.height - blockHeight) / 2f else resolvedSlot.y
+        layout.lines.forEach { line ->
+            val textWidth = line.length * glyphPx
+            var penX = if (centered) resolvedSlot.x + (resolvedSlot.width - textWidth) / 2f else resolvedSlot.x
+            for (char in line) {
+                val uv = resolvedFont.uvFor(char)
+                if (uv != null) {
+                    emit(UiDrawPrimitive.Glyph(penX, penY, glyphPx, glyphPx, uv.u0, uv.v0, uv.u1, uv.v1, color))
+                }
+                penX += glyphPx
             }
-            penX += glyphPx
+            penY += glyphPx + lineGap
         }
-        penY += glyphPx + lineGap
+    }
+
+    if (shouldClip) {
+        clip(resolvedSlot) {
+            emitLines()
+        }
+    } else {
+        emitLines()
     }
 }
 

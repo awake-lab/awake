@@ -74,6 +74,7 @@ data class ResolvedStyle(
     val shape: Dp = UiShape.none,
     val shapeSpec: UiShapeSpec? = null,
     val textScale: Float,
+    val textSize: Sp? = null,
     val contentPadding: UiInsets = UiInsets.Zero
 )
 
@@ -90,6 +91,7 @@ interface StyleScope {
     fun shape(radius: Dp)
     fun shape(shape: UiShapeSpec)
     fun textScale(scale: Float)
+    fun textSize(size: Sp)
     fun contentPadding(all: Dp)
     fun contentPadding(horizontal: Dp, vertical: Dp)
     fun contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp)
@@ -136,6 +138,7 @@ private class ResolvedStyleBuilder(
     var shape: Dp = UiShape.none,
     var shapeSpec: UiShapeSpec? = null,
     var textScale: Float,
+    var textSize: Sp? = null,
     var contentPadding: UiInsets = UiInsets.Zero
 ) {
     fun build(): ResolvedStyle = ResolvedStyle(
@@ -146,6 +149,7 @@ private class ResolvedStyleBuilder(
         shape = shape,
         shapeSpec = shapeSpec,
         textScale = textScale,
+        textSize = textSize,
         contentPadding = contentPadding
     )
 }
@@ -198,6 +202,10 @@ private class StyleBuilder(
 
     override fun textScale(scale: Float) {
         rules += StyleRule(predicate) { textScale = scale }
+    }
+
+    override fun textSize(size: Sp) {
+        rules += StyleRule(predicate) { textSize = size }
     }
 
     override fun contentPadding(all: Dp) {

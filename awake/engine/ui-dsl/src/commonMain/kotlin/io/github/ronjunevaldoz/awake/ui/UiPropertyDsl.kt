@@ -14,7 +14,7 @@ private data class PropertyInteraction(
 
 fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): UiSlot {
     val rowSlot = claimSlot(Dimension.FillMax, height.toDimension())
-    val glyphPx = font?.cellSize?.times(resolvedTextScale()) ?: 8f
+    val glyphPx = font?.let { resolveGlyphPx(it) } ?: 12f
     val labelWidthPx = resolvePropertyLabelWidthPx(
         rowWidthPx = rowSlot.width,
         label = label,
@@ -77,7 +77,7 @@ fun UiScope.propertyCheckbox(
     val labelColor = theme.tokens.mutedForeground
     val resolvedFont = font
     if (resolvedFont != null) {
-        val glyphPx = resolvedFont.cellSize * resolvedTextScale()
+        val glyphPx = resolveGlyphPx(resolvedFont)
         val labelSlot = UiSlot(interaction.slot.x, interaction.slot.y + (interaction.slot.height - glyphPx) / 2f, interaction.slot.width, glyphPx)
         text(
             label = label,

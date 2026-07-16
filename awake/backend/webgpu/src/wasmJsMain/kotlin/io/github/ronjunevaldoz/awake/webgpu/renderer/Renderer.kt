@@ -368,6 +368,13 @@ class Renderer(
                     runs += UiRun.QuadRun(mesh)
                     quadRunCount += 1
                 }
+                is UiDrawPrimitive.GradientQuad -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val mesh = quadMeshForRun(quadRunCount)
+                    stageGradientQuadRun(mesh, slice as List<UiDrawPrimitive.GradientQuad>)
+                    runs += UiRun.QuadRun(mesh)
+                    quadRunCount += 1
+                }
                 is UiDrawPrimitive.RoundedQuad -> {
                     // No rounded-corner shader support yet (see UI architecture review doc) --
                     // fall back to drawing it as a flat Quad, dropping radius, rather than
@@ -497,6 +504,34 @@ class Renderer(
     private fun stageFilledPathRun(mesh: DynamicMesh, paths: List<UiDrawPrimitive.FilledPath>, activePathClips: List<UiPath>) {
         val tessellated = paths.map { it to exactClip(it.path.tessellateFill(), activePathClips) }
         stageColoredTriangleMeshes(mesh, tessellated.map { (primitive, triangleMesh) -> triangleMesh to primitive.color }, "filled-path")
+    }
+
+    private fun stageGradientQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.GradientQuad>) {
+        require(quads.size <= MAX_UI_QUADS) {
+            "UI gradient quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
+        }
+        val vertices = FloatArray(quads.size * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.FLOATS_PER_VERTEX)
+        val indices = IntArray(quads.size * DynamicMesh.INDICES_PER_QUAD)
+        var quadIndex = 0
+        while (quadIndex < quads.size) {
+            val quad = quads[quadIndex]
+            val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.FLOATS_PER_VERTEX
+            writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.gradient.topLeft)
+            writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.gradient.topRight)
+            writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.gradient.bottomRight)
+            writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.gradient.bottomLeft)
+
+            val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
+            val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
+            indices[indexBase] = vertexOffset
+            indices[indexBase + 1] = vertexOffset + 1
+            indices[indexBase + 2] = vertexOffset + 2
+            indices[indexBase + 3] = vertexOffset + 2
+            indices[indexBase + 4] = vertexOffset + 3
+            indices[indexBase + 5] = vertexOffset
+            quadIndex += 1
+        }
+        mesh.update(vertices, indices)
     }
 
     private fun stageStrokedPathRun(mesh: DynamicMesh, paths: List<UiDrawPrimitive.StrokedPath>, activePathClips: List<UiPath>) {

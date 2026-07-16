@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.font
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
 
 class BitmapFontTest {
@@ -18,5 +19,20 @@ class BitmapFontTest {
         assertNotNull(lower)
         assertNotNull(upper)
         assertEquals(upper, lower)
+    }
+
+    @Test
+    fun atlasUsesHigherResolutionCoverageThanLogicalGlyphSize() {
+        val font = BitmapFont()
+
+        assertTrue(font.atlasHeight > font.cellSize, "atlas should carry more detail than the logical glyph advance size")
+    }
+
+    @Test
+    fun atlasContainsIntermediateAlphaCoverageForSmoothedEdges() {
+        val font = BitmapFont()
+        val alphas = font.atlasPixelsRgba.filterIndexed { index, _ -> index % 4 == 3 }.map { it.toInt() and 0xFF }
+
+        assertTrue(alphas.any { it in 1 until 255 }, "coverage atlas should include partially transparent edge pixels")
     }
 }

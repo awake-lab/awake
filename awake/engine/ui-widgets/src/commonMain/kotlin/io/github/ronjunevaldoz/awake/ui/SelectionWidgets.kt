@@ -35,11 +35,13 @@ fun UiScope.toggle(
     if (label != null && font != null) {
         text(
             label,
-            interaction.slot,
+            slot = interaction.slot,
             font = font,
             color = resolved.foreground ?: theme.tokens.foreground,
             centered = true,
-            overflow = UiTextOverflow.Ellipsis
+            overflow = UiTextOverflow.Ellipsis,
+            textScale = resolved.textScale,
+            textSize = resolved.textSize
         )
     }
     return newChecked
@@ -78,7 +80,7 @@ fun UiScope.checkbox(
     }
     val resolvedFont = font
     if (label != null && resolvedFont != null) {
-        val glyphPx = resolvedFont.cellSize * resolvedTextScale()
+        val glyphPx = resolveGlyphPx(resolvedFont, resolved.textScale, resolved.textSize)
         val labelY = interaction.slot.y + (interaction.slot.height - glyphPx) / 2f
         val labelSlot = UiSlot(
             boxSlot.x + boxPx + CHECKBOX_LABEL_GAP,
@@ -88,11 +90,13 @@ fun UiScope.checkbox(
         )
         text(
             label,
-            labelSlot,
+            slot = labelSlot,
             font = resolvedFont,
             color = resolved.foreground ?: theme.tokens.foreground,
             centered = false,
-            overflow = UiTextOverflow.Ellipsis
+            overflow = UiTextOverflow.Ellipsis,
+            textScale = resolved.textScale,
+            textSize = resolved.textSize
         )
     }
     return newChecked

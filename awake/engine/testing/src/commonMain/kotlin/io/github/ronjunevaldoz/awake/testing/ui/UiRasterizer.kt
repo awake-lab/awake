@@ -1,38 +1,23 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.snapshot
+package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.containsPoint
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Software-rasterizes a [UiContext][io.github.ronjunevaldoz.awake.ui.UiContext] frame's
- * primitive list into a tightly-packed RGBA8 buffer -- purely for *visual review* of a UI
- * test's own output (layout, theme colors, contrast between a widget's background and its
- * label), not a GPU-accuracy check. These UI tests never touch a real `Renderer` (they only
- * inspect the primitive list a widget function returns), so there is nothing to screenshot
- * unless something rasterizes that list itself; this is deliberately simple (flat rects,
- * nearest-neighbor glyph sampling) rather than trying to match either GPU backend's actual
- * output pixel-for-pixel.
- *
- * [RoundedQuad] draws as a flat rect (same "backend may fall back to flat" allowance
- * documented on [UiDrawPrimitive.RoundedQuad] itself). When [font] is supplied,
- * [Glyph][UiDrawPrimitive.Glyph] samples the actual bitmap atlas so snapshot docs show real
- * letterforms; without one, it falls back to the older inset-block placeholder. [Texture]
- * draws as a flat gray placeholder (no way to sample its opaque `material` outside a real
- * renderer).
- * [FilledPath]/[StrokedPath] are rasterized from their shared tessellated meshes, and
- * [ClipPathPush] applies exact path containment inside its already-resolved bounds rect.
+ * Software-rasterizes a [UiDrawPrimitive] list into a tightly-packed RGBA8 buffer for
+ * preview/docs/snapshot review. This is deliberately backend-agnostic and simpler than the
+ * real GPU output: it exists to make UI regressions visible and diffable.
  */
 fun List<UiDrawPrimitive>.rasterize(
     width: Int,
@@ -88,6 +73,55 @@ fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
+    fun sampleGlyphAlpha(bitmapFont: BitmapFont, u: Float, v: Float): Int {
+        val atlasWidth = bitmapFont.atlasWidth
+        val atlasHeight = bitmapFont.atlasHeight
+        val atlasPixels = bitmapFont.atlasPixelsRgba
+        val x = (u.coerceIn(0f, 1f) * atlasWidth - 0.5f).coerceIn(0f, (atlasWidth - 1).toFloat())
+        val y = (v.coerceIn(0f, 1f) * atlasHeight - 0.5f).coerceIn(0f, (atlasHeight - 1).toFloat())
+        val x0 = x.toInt().coerceIn(0, atlasWidth - 1)
+        val y0 = y.toInt().coerceIn(0, atlasHeight - 1)
+        val x1 = (x0 + 1).coerceIn(0, atlasWidth - 1)
+        val y1 = (y0 + 1).coerceIn(0, atlasHeight - 1)
+        val tx = x - x0
+        val ty = y - y0
+
+        fun alphaAt(px: Int, py: Int): Float = (atlasPixels[(py * atlasWidth + px) * 4 + 3].toInt() and 0xFF) / 255f
+
+        val top = alphaAt(x0, y0) * (1f - tx) + alphaAt(x1, y0) * tx
+        val bottom = alphaAt(x0, y1) * (1f - tx) + alphaAt(x1, y1) * tx
+        return (((top * (1f - ty) + bottom * ty) * 255f).toInt()).coerceIn(0, 255)
+    }
+
+    fun fillGradientRect(x: Float, y: Float, w: Float, h: Float, gradient: io.github.ronjunevaldoz.awake.ui.UiLinearGradient) {
+        val x0 = max(x, clipX0).toInt().coerceIn(0, width)
+        val y0 = max(y, clipY0).toInt().coerceIn(0, height)
+        val x1 = min(x + w, clipX1).toInt().coerceIn(0, width)
+        val y1 = min(y + h, clipY1).toInt().coerceIn(0, height)
+        var py = y0
+        while (py < y1) {
+            var px = x0
+            while (px < x1) {
+                val sampleX = ((px + 0.5f - x) / w).coerceIn(0f, 1f)
+                val sampleY = ((py + 0.5f - y) / h).coerceIn(0f, 1f)
+                if (!passesPathClips(px + 0.5f, py + 0.5f)) {
+                    px += 1
+                    continue
+                }
+                val top = lerpColor(gradient.topLeft, gradient.topRight, sampleX)
+                val bottom = lerpColor(gradient.bottomLeft, gradient.bottomRight, sampleX)
+                val color = lerpColor(top, bottom, sampleY)
+                val offset = (py * width + px) * 4
+                pixels[offset] = (color.r * 255).toInt().coerceIn(0, 255).toByte()
+                pixels[offset + 1] = (color.g * 255).toInt().coerceIn(0, 255).toByte()
+                pixels[offset + 2] = (color.b * 255).toInt().coerceIn(0, 255).toByte()
+                pixels[offset + 3] = (color.a * 255).toInt().coerceIn(0, 255).toByte()
+                px += 1
+            }
+            py += 1
+        }
+    }
+
     fun drawGlyph(glyph: UiDrawPrimitive.Glyph, bitmapFont: BitmapFont) {
         val x0 = max(glyph.x, clipX0).toInt().coerceIn(0, width)
         val y0 = max(glyph.y, clipY0).toInt().coerceIn(0, height)
@@ -97,9 +131,6 @@ fun List<UiDrawPrimitive>.rasterize(
         val g = (glyph.color[1] * 255).toInt().coerceIn(0, 255)
         val b = (glyph.color[2] * 255).toInt().coerceIn(0, 255)
         val tintAlpha = (glyph.color.a * 255).toInt().coerceIn(0, 255)
-        val atlasWidth = bitmapFont.atlasWidth
-        val atlasHeight = bitmapFont.atlasHeight
-        val atlasPixels = bitmapFont.atlasPixelsRgba
 
         var py = y0
         while (py < y1) {
@@ -113,10 +144,11 @@ fun List<UiDrawPrimitive>.rasterize(
                 }
                 val u = ((sampleX - glyph.x) / glyph.w).coerceIn(0f, 0.9999f)
                 val v = ((sampleY - glyph.y) / glyph.h).coerceIn(0f, 0.9999f)
-                val atlasX = (((glyph.u0 + (glyph.u1 - glyph.u0) * u) * atlasWidth).toInt()).coerceIn(0, atlasWidth - 1)
-                val atlasY = (((glyph.v0 + (glyph.v1 - glyph.v0) * v) * atlasHeight).toInt()).coerceIn(0, atlasHeight - 1)
-                val atlasOffset = (atlasY * atlasWidth + atlasX) * 4
-                val sourceAlpha = atlasPixels[atlasOffset + 3].toInt() and 0xFF
+                val sourceAlpha = sampleGlyphAlpha(
+                    bitmapFont,
+                    glyph.u0 + (glyph.u1 - glyph.u0) * u,
+                    glyph.v0 + (glyph.v1 - glyph.v0) * v
+                )
                 if (sourceAlpha == 0) {
                     px += 1
                     continue
@@ -170,19 +202,20 @@ fun List<UiDrawPrimitive>.rasterize(
     }
 
     fun fillTriangleMesh(path: io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, color: Color) {
-        var i = 0
-        while (i + 2 < path.indices.size) {
-            val a = path.points[path.indices[i]]
-            val b = path.points[path.indices[i + 1]]
-            val c = path.points[path.indices[i + 2]]
+        var index = 0
+        while (index + 2 < path.indices.size) {
+            val a = path.points[path.indices[index]]
+            val b = path.points[path.indices[index + 1]]
+            val c = path.points[path.indices[index + 2]]
             fillTriangle(a.x, a.y, b.x, b.y, c.x, c.y, color)
-            i += 3
+            index += 3
         }
     }
 
     for (primitive in this) {
         when (primitive) {
             is UiDrawPrimitive.Quad -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.color)
+            is UiDrawPrimitive.GradientQuad -> fillGradientRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.gradient)
             is UiDrawPrimitive.RoundedQuad -> fillTriangleMesh(
                 UiShapeSpec.RoundedRectangle(primitive.radius.px)
                     .toPath(io.github.ronjunevaldoz.awake.ui.UiSlot(primitive.x, primitive.y, primitive.w, primitive.h))
@@ -195,9 +228,6 @@ fun List<UiDrawPrimitive>.rasterize(
                 if (font != null) {
                     drawGlyph(primitive, font)
                 } else {
-                    // Inset block, not the full glyph quad -- a full-size flat-colored rect
-                    // per glyph would look identical to a Quad and defeat the point of
-                    // reviewing "is the text visible against its background."
                     val inset = min(primitive.w, primitive.h) * 0.25f
                     fillRect(primitive.x + inset, primitive.y + inset, primitive.w - inset * 2, primitive.h - inset * 2, primitive.color)
                 }
@@ -224,10 +254,19 @@ fun List<UiDrawPrimitive>.rasterize(
                     clipY0 = restored.rect[1]
                     clipX1 = restored.rect[2]
                     clipY1 = restored.rect[3]
-                    while (activePathClips.size > restored.activePathCount) activePathClips.removeAt(activePathClips.lastIndex)
+                    while (activePathClips.size > restored.activePathCount) {
+                        activePathClips.removeAt(activePathClips.lastIndex)
+                    }
                 }
             }
         }
     }
     return pixels
 }
+
+private fun lerpColor(start: Color, end: Color, fraction: Float): Color = Color(
+    r = start.r + (end.r - start.r) * fraction,
+    g = start.g + (end.g - start.g) * fraction,
+    b = start.b + (end.b - start.b) * fraction,
+    a = start.a + (end.a - start.a) * fraction
+)

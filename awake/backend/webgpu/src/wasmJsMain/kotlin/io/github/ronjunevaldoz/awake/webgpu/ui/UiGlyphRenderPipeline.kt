@@ -140,9 +140,9 @@ class UiGlyphRenderPipeline(
                 addressModeU = GPUAddressMode.ClampToEdge,
                 addressModeV = GPUAddressMode.ClampToEdge,
                 addressModeW = GPUAddressMode.ClampToEdge,
-                magFilter = GPUFilterMode.Nearest,
-                minFilter = GPUFilterMode.Nearest,
-                mipmapFilter = GPUMipmapFilterMode.Nearest
+                magFilter = GPUFilterMode.Linear,
+                minFilter = GPUFilterMode.Linear,
+                mipmapFilter = GPUMipmapFilterMode.Linear
             )
         )
 
