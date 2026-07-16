@@ -62,4 +62,28 @@ class UiStateHooksTest {
 
         assertFalse(persisted.value)
     }
+
+    @Test
+    fun rememberPopupStatePersistsAndSupportsToggleHelpers() {
+        val ui = UiContext()
+
+        ui.beginFrame(320f, 200f)
+        val scope = ui.absolute(0f, 0f)
+        val popupState = scope.rememberPopupState("menu")
+        popupState.open()
+        popupState.toggle()
+        popupState.toggle()
+
+        ui.beginFrame(320f, 200f)
+        val nextScope = ui.absolute(0f, 0f)
+        val persisted = nextScope.rememberPopupState("menu")
+        assertTrue(persisted.expanded)
+
+        persisted.close()
+
+        ui.beginFrame(320f, 200f)
+        val finalScope = ui.absolute(0f, 0f)
+        val closed = finalScope.rememberPopupState("menu")
+        assertFalse(closed.expanded)
+    }
 }

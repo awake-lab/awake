@@ -4,15 +4,32 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 
+sealed interface UiDropdownMenuEntry
+
 data class UiDropdownMenuItem(
     val label: String,
-    val destructive: Boolean = false
-)
+    val destructive: Boolean = false,
+    val enabled: Boolean = true,
+    val supportingText: String? = null,
+    val trailingLabel: String? = null
+) : UiDropdownMenuEntry
+
+data object UiDropdownMenuSeparator : UiDropdownMenuEntry
 
 data class UiDropdownMenuResult(
     val slot: UiSlot?,
     val selectedIndex: Int?,
     val dismissed: Boolean
+)
+
+enum class UiAlertDialogAction {
+    Confirm,
+    Dismiss
+}
+
+data class UiAlertDialogResult(
+    val popup: UiPopupResult,
+    val action: UiAlertDialogAction?
 )
 
 data class UiDialogProperties(
@@ -87,7 +104,7 @@ fun UiDslScope.dropdownMenu(
     id: String,
     anchorSlot: UiSlot,
     expanded: Boolean,
-    items: List<UiDropdownMenuItem>,
+    items: List<UiDropdownMenuEntry>,
     selectedIndex: Int? = null,
     width: Dimension = Dimension.Fixed(anchorSlot.width.px),
     height: Dimension = Dimension.WrapContent,
@@ -111,32 +128,51 @@ fun UiDslScope.dropdownMenu(
             id = "$id.menu",
             width = Dimension.Fixed(popupSlot.width.px),
             height = height,
+            gap = 0f,
             radius = UiShape.sm,
             clipContent = true,
             style = theme.components.panel then style
         ) {
-            items.forEachIndexed { index, item ->
-                val menuItemStyle = when {
-                    index == selectedIndex -> Style {
-                        background(theme.tokens.accent)
-                        foreground(theme.tokens.accentForeground)
+            var actionIndex = 0
+            items.forEach { entry ->
+                when (entry) {
+                    UiDropdownMenuSeparator -> {
+                        spacer(4f)
+                        separator(
+                            width = Dimension.FillMax,
+                            thickness = 1f.dp,
+                            color = theme.tokens.border.withAlpha(0.72f)
+                        )
+                        spacer(4f)
                     }
-                    item.destructive -> Style {
-                        foreground(theme.tokens.destructive)
+                    is UiDropdownMenuItem -> {
+                        val menuItemStyle = when {
+                            !entry.enabled -> Style {
+                                foreground(theme.tokens.mutedForeground)
+                                background(theme.tokens.background.withAlpha(0.86f))
+                            }
+                            actionIndex == selectedIndex -> Style {
+                                background(theme.tokens.accent)
+                                foreground(theme.tokens.accentForeground)
+                            }
+                            entry.destructive -> Style {
+                                foreground(theme.tokens.destructive)
+                            }
+                            else -> Style.Empty
+                        }
+                        val clicked = dropdownMenuItem(
+                            id = "$id.item.$actionIndex",
+                            item = entry,
+                            width = popupSlot.width,
+                            baseHeight = itemHeight,
+                            style = theme.components.dropdown then itemStyle then menuItemStyle,
+                            selected = actionIndex == selectedIndex
+                        )
+                        if (clicked && entry.enabled) {
+                            picked = actionIndex
+                        }
+                        actionIndex += 1
                     }
-                    else -> Style.Empty
-                }
-                if (
-                    button(
-                        id = "$id.item.$index",
-                        label = item.label,
-                        width = popupSlot.width,
-                        height = itemHeight,
-                        style = theme.components.dropdown then itemStyle then menuItemStyle,
-                        variant = UiButtonVariant.Ghost
-                    )
-                ) {
-                    picked = index
                 }
             }
         }
@@ -208,4 +244,149 @@ fun UiDslScope.dialog(
         }
     }
     return popupResult
+}
+
+fun UiDslScope.alertDialog(
+    id: String,
+    expanded: Boolean,
+    title: String,
+    message: String,
+    width: Dimension = Dimension.Fixed(320f.px),
+    confirmLabel: String = "Confirm",
+    dismissLabel: String? = "Cancel",
+    confirmVariant: UiButtonVariant = UiButtonVariant.Filled,
+    dismissVariant: UiButtonVariant = UiButtonVariant.Ghost,
+    properties: UiDialogProperties = UiDialogProperties(),
+    style: Style = Style.Empty
+): UiAlertDialogResult {
+    var action: UiAlertDialogAction? = null
+    val popup = dialog(
+        id = id,
+        expanded = expanded,
+        width = width,
+        properties = properties.copy(surfaceStyle = properties.surfaceStyle then style),
+        header = {
+            text(title)
+        },
+        actions = {
+            dismissLabel?.let { label ->
+                if (
+                    button(
+                        id = "$id.dismiss",
+                        label = label,
+                        width = 96f,
+                        height = 32f,
+                        variant = dismissVariant
+                    )
+                ) {
+                    action = UiAlertDialogAction.Dismiss
+                }
+            }
+            spacer(8f)
+            if (
+                button(
+                    id = "$id.confirm",
+                    label = confirmLabel,
+                    width = 96f,
+                    height = 32f,
+                    variant = confirmVariant
+                )
+            ) {
+                action = UiAlertDialogAction.Confirm
+            }
+        }
+    ) {
+        supportingText(message)
+    }
+    return UiAlertDialogResult(popup = popup, action = action)
+}
+
+private fun UiColumnDslScope.dropdownMenuItem(
+    id: String,
+    item: UiDropdownMenuItem,
+    width: Float,
+    baseHeight: Float,
+    style: Style,
+    selected: Boolean
+): Boolean {
+    val height = if (item.supportingText.isNullOrBlank()) {
+        baseHeight
+    } else {
+        (baseHeight + 18f).coerceAtLeast(baseHeight)
+    }
+    val slot = buttonSlot(
+        id = id,
+        label = "",
+        width = width,
+        height = height,
+        style = style,
+        variant = UiButtonVariant.Ghost
+    )
+    val glyphPx = font?.cellSize?.times(pixelPerfectTextScale(textScale)) ?: 8f
+    val contentScope = context.absolute(
+        slot = slot.slot,
+        font = font,
+        theme = theme,
+        textScale = textScale,
+        insets = UiInsets(12f.dp, 8f.dp),
+        overlayOnly = true
+    )
+    val trailingWidth = item.trailingLabel?.let { label ->
+        label.length * glyphPx + 8f
+    } ?: 0f
+    val trailingColor = when {
+        !item.enabled -> theme.tokens.mutedForeground
+        selected -> theme.tokens.accentForeground.withAlpha(0.82f)
+        else -> theme.tokens.mutedForeground
+    }
+    val textColor = when {
+        !item.enabled -> theme.tokens.mutedForeground
+        selected -> theme.tokens.accentForeground
+        item.destructive -> theme.tokens.destructive
+        else -> theme.tokens.foreground
+    }
+    contentScope.text(
+        label = item.label,
+        slot = UiSlot(
+            x = slot.slot.x + 12f,
+            y = slot.slot.y + 8f,
+            width = (slot.slot.width - 24f - trailingWidth).coerceAtLeast(0f),
+            height = glyphPx
+        ),
+        font = font,
+        color = textColor,
+        overflow = UiTextOverflow.Ellipsis
+    )
+    item.trailingLabel?.let { label ->
+        contentScope.text(
+            label = label,
+            slot = UiSlot(
+                x = slot.slot.x + slot.slot.width - trailingWidth - 12f,
+                y = slot.slot.y + 8f,
+                width = trailingWidth,
+                height = glyphPx
+            ),
+            font = font,
+            color = trailingColor,
+            centered = true,
+            overflow = UiTextOverflow.Ellipsis
+        )
+    }
+    item.supportingText?.takeIf { it.isNotBlank() }?.let { supporting ->
+        contentScope.text(
+            label = supporting,
+            slot = UiSlot(
+                x = slot.slot.x + 12f,
+                y = slot.slot.y + 8f + glyphPx + 4f,
+                width = (slot.slot.width - 24f).coerceAtLeast(0f),
+                height = (slot.slot.height - glyphPx - 12f).coerceAtLeast(glyphPx)
+            ),
+            font = font,
+            color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
+            wrap = UiTextWrap.Word,
+            overflow = UiTextOverflow.Ellipsis,
+            maxLines = 2
+        )
+    }
+    return slot.clicked && item.enabled
 }

@@ -11,6 +11,7 @@ fun UiScope.panel(
     id: String,
     width: Dimension,
     height: Dimension,
+    gap: Float = UiSpacing.sm.toPx(),
     radius: Dp = UiShape.md,
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
@@ -37,7 +38,7 @@ fun UiScope.panel(
             width = maxContentWidth,
             font = font,
             theme = theme,
-            gap = UiSpacing.sm.toPx(),
+            gap = gap,
             textScale = resolved.textScale,
             content = content
         )
@@ -61,7 +62,7 @@ fun UiScope.panel(
         borderColor = resolved.borderColor ?: theme.tokens.border,
         shapeSpec = resolved.shapeSpec
     )
-    val contentScope = context.column(slot, font = font, theme = theme, textScale = resolved.textScale, insets = resolved.contentPadding)
+    val contentScope = context.column(slot, font = font, theme = theme, gap = gap, textScale = resolved.textScale, insets = resolved.contentPadding)
     val effectiveShape = resolved.shapeSpec ?: if (resolved.shape.toPx() > 0f) UiShapeSpec.RoundedRectangle(resolved.shape) else null
     if (clipContent && effectiveShape != null) {
         clip(effectiveShape, slot) { contentScope.content(slot) }

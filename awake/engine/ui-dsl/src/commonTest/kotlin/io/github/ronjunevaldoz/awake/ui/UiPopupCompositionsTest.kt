@@ -72,6 +72,51 @@ class UiPopupCompositionsTest {
     }
 
     @Test
+    fun dropdownMenuSupportsSeparatorsAndDisabledItems() {
+        val ui = UiContext()
+        val anchor = UiSlot(20f, 16f, 120f, 28f)
+        var result: UiDropdownMenuResult? = null
+
+        Input.setPointer(down = true, x = 32f, y = 92f)
+        ui.beginFrame(240f, 220f)
+        ui.ui(x = 0f, y = 0f, width = 220f, font = BitmapFont()) {
+            result = dropdownMenu(
+                id = "menu",
+                anchorSlot = anchor,
+                expanded = true,
+                items = listOf(
+                    UiDropdownMenuItem("Pinned", enabled = false),
+                    UiDropdownMenuSeparator,
+                    UiDropdownMenuItem("Delete", destructive = true, trailingLabel = "Del")
+                ),
+                style = Style { contentPadding(0f.dp) }
+            )
+        }
+        ui.endFrame()
+
+        Input.setPointer(down = false, x = 32f, y = 92f)
+        ui.beginFrame(240f, 220f)
+        ui.ui(x = 0f, y = 0f, width = 220f, font = BitmapFont()) {
+            result = dropdownMenu(
+                id = "menu",
+                anchorSlot = anchor,
+                expanded = true,
+                items = listOf(
+                    UiDropdownMenuItem("Pinned", enabled = false),
+                    UiDropdownMenuSeparator,
+                    UiDropdownMenuItem("Delete", destructive = true, trailingLabel = "Del")
+                ),
+                style = Style { contentPadding(0f.dp) }
+            )
+        }
+
+        val primitives = ui.endFrame()
+        assertEquals(1, assertNotNull(result).selectedIndex, "separators should not consume the selectable index space")
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Quad>().isNotEmpty(), "separator should emit a line quad")
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size >= 3, "menu entry metadata should still render text glyphs")
+    }
+
+    @Test
     fun dialogCentersContentAndDrawsScrim() {
         val ui = UiContext()
         Input.setPointer(down = false, x = -100f, y = -100f)
@@ -101,5 +146,38 @@ class UiPopupCompositionsTest {
         assertEquals(90f, popupSlot.x)
         assertEquals(60f, popupSlot.y)
         assertFalse(assertNotNull(result).dismissed)
+    }
+
+    @Test
+    fun alertDialogReturnsConfirmAction() {
+        val ui = UiContext()
+        var result: UiAlertDialogResult? = null
+
+        Input.setPointer(down = true, x = 208f, y = 117f)
+        ui.beginFrame(320f, 220f)
+        ui.ui(x = 0f, y = 0f, width = 300f, font = BitmapFont()) {
+            result = alertDialog(
+                id = "confirm",
+                expanded = true,
+                title = "Delete",
+                message = "Delete this scene?"
+            )
+        }
+        ui.endFrame()
+
+        Input.setPointer(down = false, x = 208f, y = 117f)
+        ui.beginFrame(320f, 220f)
+        ui.ui(x = 0f, y = 0f, width = 300f, font = BitmapFont()) {
+            result = alertDialog(
+                id = "confirm",
+                expanded = true,
+                title = "Delete",
+                message = "Delete this scene?"
+            )
+        }
+        ui.endFrame()
+
+        assertEquals(UiAlertDialogAction.Confirm, assertNotNull(result).action)
+        assertFalse(assertNotNull(result).popup.dismissed)
     }
 }

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+
 @AwakeUiDsl
 sealed class UiDslScope protected constructor(
     protected val scope: UiScope
@@ -141,6 +143,13 @@ sealed class UiDslScope protected constructor(
         modifier: UiModifier = UiModifier(),
         style: Style = Style.Empty
     ): Float = scope.slider(id, min, max, value, width, height, label, modifier, style)
+
+    fun separator(
+        width: Dimension = Dimension.FillMax,
+        thickness: Dp = 1f.dp,
+        modifier: UiModifier = UiModifier(),
+        color: Color = theme.tokens.border
+    ): UiSlot = scope.separator(width, thickness, modifier, color)
 
     fun popup(
         anchorSlot: UiSlot,

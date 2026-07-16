@@ -39,6 +39,28 @@ class UiStateValue<T> internal constructor(
     }
 }
 
+class UiPopupState internal constructor(
+    private val expandedState: UiStateValue<Boolean>
+) {
+    var expanded: Boolean
+        get() = expandedState.value
+        set(value) {
+            expandedState.value = value
+        }
+
+    fun open() {
+        expanded = true
+    }
+
+    fun close() {
+        expanded = false
+    }
+
+    fun toggle() {
+        expanded = !expanded
+    }
+}
+
 fun <T> WidgetState.rememberStateValue(
     key: String = "value",
     initial: () -> T
@@ -91,3 +113,15 @@ fun UiScope.rememberIntState(
     key: String = "value",
     initial: Int = 0
 ): UiStateValue<Int> = rememberStateValue(id, key) { initial }
+
+fun UiContext.rememberPopupState(
+    id: String,
+    key: String = "expanded",
+    initial: Boolean = false
+): UiPopupState = UiPopupState(rememberBooleanState(id = id, key = key, initial = initial))
+
+fun UiScope.rememberPopupState(
+    id: String,
+    key: String = "expanded",
+    initial: Boolean = false
+): UiPopupState = UiPopupState(rememberBooleanState(id = id, key = key, initial = initial))
