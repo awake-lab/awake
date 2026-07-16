@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 class GameUiSpec internal constructor(
     internal val theme: UiTheme,
@@ -31,7 +32,7 @@ class GameUiRuntime internal constructor(
     private val spec: GameUiSpec
 ) : GameServiceLookup by services {
     val uiContext = UiContext()
-    val font = BitmapFont()
+    val font: UiFont = BitmapFont()
     val theme: UiTheme
         get() = spec.theme
 

@@ -29,7 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
@@ -429,7 +429,7 @@ class Renderer(
     /** Builds [uiGlyphRenderPipeline]/[fontTexture] on the first [drawUi] call that passes a
      * non-null [font] -- cached after that (a game calls [drawUi] with the same font every
      * frame). Requires [ensureUiQuadPipeline] to already have run (needs its render pass). */
-    private fun ensureGlyphPipeline(font: BitmapFont) {
+    private fun ensureGlyphPipeline(font: UiFont) {
         if (uiGlyphRenderPipeline != null) return
         val renderPass = requireNotNull(uiRenderPipeline) { "ensureUiQuadPipeline() must run first." }.renderPass
         val texture = ensureFontTexture(font)
@@ -443,7 +443,7 @@ class Renderer(
         )
     }
 
-    private fun ensureOffscreenGlyphPipeline(font: BitmapFont) {
+    private fun ensureOffscreenGlyphPipeline(font: UiFont) {
         if (offscreenGlyphRenderPipeline != null) return
         offscreenGlyphRenderPipeline = UiGlyphRenderPipeline(
             graphicsDevice,
@@ -455,7 +455,7 @@ class Renderer(
         )
     }
 
-    private fun ensureFontTexture(font: BitmapFont): Texture {
+    private fun ensureFontTexture(font: UiFont): Texture {
         fontTexture?.let { return it }
         return Texture(
             graphicsDevice,
@@ -779,7 +779,7 @@ class Renderer(
      * ordering (e.g. a dropdown's background quad, emitted via `emitOverlay()`, must draw
      * after a sibling button's OWN label glyph if it comes later in [primitives], but a
      * fixed per-type pass order always drew every glyph after every quad regardless). */
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) {
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) {
         ensureUiQuadPipeline()
         if (font != null) ensureGlyphPipeline(font)
         if (primitives.any { it is UiDrawPrimitive.Texture }) ensureTextureQuadPipeline()
@@ -1246,7 +1246,7 @@ class Renderer(
      * renderer (not the backend-neutral interface) because it exists to baseline this
      * backend's own font pipeline, not to become cross-backend API surface.
      */
-    fun renderUiGlyphsToTexture(target: RenderTarget, glyphs: List<UiDrawPrimitive.Glyph>, font: BitmapFont) {
+    fun renderUiGlyphsToTexture(target: RenderTarget, glyphs: List<UiDrawPrimitive.Glyph>, font: UiFont) {
         val offscreen = target as OffscreenRenderTarget
         ensureOffscreenGlyphPipeline(font)
         val glyphPipeline = requireNotNull(offscreenGlyphRenderPipeline)

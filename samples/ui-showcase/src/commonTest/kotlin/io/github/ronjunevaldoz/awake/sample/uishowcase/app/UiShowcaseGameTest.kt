@@ -86,6 +86,14 @@ class UiShowcaseGameTest {
     }
 
     @Test
+    fun uiShowcaseDefaultsToLightThemeModeWithAutoStillAvailable() {
+        val state = UiShowcaseRuntimeState()
+
+        assertEquals(UiShowcaseThemeMode.Light, state.showcaseThemeMode())
+        assertTrue(UiShowcaseThemeMode.entries.contains(UiShowcaseThemeMode.Auto))
+    }
+
+    @Test
     fun uiShowcaseStateBuildsConfiguredTheme() {
         val state = UiShowcaseRuntimeState()
         state.showcaseStylePresetIndex = AwakeShadcnStylePreset.Maia.ordinal

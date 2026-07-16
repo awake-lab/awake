@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 /**
  * Module restructuring slice 1 (see docs/MVP_PLAN.md): the one real cross-backend entry
@@ -78,7 +78,7 @@ interface Renderer {
      * primitives -- both the (colored-quad) UI pipeline and the glyph pipeline are built
      * lazily, on the first call that needs them, not unconditionally at `Renderer`
      * construction time, so a game that never calls this never pays for either pipeline. */
-    fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont? = null)
+    fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont? = null)
 
     /** Draws world-space debug lines (e.g. a frustum wireframe) -- unlike [drawUi], these
      * are transformed by [draw]'s own view-projection matrix and drawn *inside* the main 3D

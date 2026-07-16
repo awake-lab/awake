@@ -68,6 +68,19 @@ class DpTest {
     }
 
     @Test
+    fun glyphResolutionSnapsStyledTextSizesToWholePixels() {
+        UiDensity.scale = 1f
+        UiDensity.fontScale = 1.1f
+        val font = BitmapFont()
+        val ui = UiContext()
+        ui.beginFrame(120f, 80f)
+
+        val glyphPx = ui.absolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(font, textSize = 13f.sp)
+
+        assertEquals(14f, glyphPx, "styled text sizes should snap to whole device pixels for crisper bitmap text")
+    }
+
+    @Test
     fun uiShapeOffsetsScaleWithDensity() {
         UiShape.base = 8f.dp
         UiDensity.scale = 1f

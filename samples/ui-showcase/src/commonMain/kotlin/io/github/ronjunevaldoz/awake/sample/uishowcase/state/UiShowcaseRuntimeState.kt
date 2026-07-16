@@ -16,7 +16,7 @@ internal data class UiShowcaseUiState(
     val showcaseStylePresetIndex: Int = 0,
     val showcaseBaseColorIndex: Int = 0,
     val showcaseAccentIndex: Int = 0,
-    val showcaseThemeModeIndex: Int = 0,
+    val showcaseThemeModeIndex: Int = UiShowcaseThemeMode.Light.ordinal,
     val tipsVisible: Boolean = true,
     val showcaseBadgeVariantIndex: Int = 0,
     val showcaseLiveBadge: Boolean = true,
@@ -117,7 +117,7 @@ internal class UiShowcaseRuntimeState {
     }
 
     fun showcaseThemeMode(): UiShowcaseThemeMode = UiShowcaseThemeMode.entries.getOrElse(showcaseThemeModeIndex) {
-        UiShowcaseThemeMode.Auto
+        UiShowcaseThemeMode.Light
     }
 
     fun showcaseResolvedDarkMode(): Boolean = when (showcaseThemeMode()) {

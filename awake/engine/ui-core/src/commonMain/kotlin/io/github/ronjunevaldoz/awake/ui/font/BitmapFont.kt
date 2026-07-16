@@ -31,19 +31,21 @@ data class GlyphRect(val u0: Float, val v0: Float, val u1: Float, val v1: Float)
  * would be circular); callers wrap [atlasPixelsRgba] into their own texture.
  */
 class BitmapFont(
-    val cellSize: Int = 12,
-    private val atlasScale: Int = 4
-) {
+    override val cellSize: Int = 12,
+    atlasScale: Int = 4
+) : UiFont {
+    private val atlasScale = atlasScale.coerceAtLeast(1)
     private val sourceCellSize = 8
     private val chars: List<Char> = GLYPH_ROWS.keys.toList()
     private val columns = chars.size
-    private val atlasCellSize = cellSize * atlasScale.coerceAtLeast(1)
-    private val atlasInsetPx = maxOf(1, atlasScale - 1)
+    override val textScaleStep: Float = 1f / this.atlasScale.toFloat()
+    private val atlasCellSize = cellSize * this.atlasScale
+    private val atlasInsetPx = maxOf(1, this.atlasScale - 1)
     private val atlasInnerSize = (atlasCellSize - atlasInsetPx * 2).coerceAtLeast(1)
-    val atlasWidth = columns * atlasCellSize
-    val atlasHeight = atlasCellSize
+    override val atlasWidth = columns * atlasCellSize
+    override val atlasHeight = atlasCellSize
 
-    val atlasPixelsRgba: ByteArray = ByteArray(atlasWidth * atlasHeight * 4).also { pixels ->
+    override val atlasPixelsRgba: ByteArray = ByteArray(atlasWidth * atlasHeight * 4).also { pixels ->
         chars.forEachIndexed { charIndex, char ->
             val rows = GLYPH_ROWS.getValue(char)
             val cellX = charIndex * atlasCellSize
@@ -66,7 +68,7 @@ class BitmapFont(
         }
     }
 
-    fun uvFor(char: Char): GlyphRect? {
+    override fun uvFor(char: Char): GlyphRect? {
         val atlasChar = atlasCharFor(char)
         val index = chars.indexOf(atlasChar)
         if (index < 0) return null

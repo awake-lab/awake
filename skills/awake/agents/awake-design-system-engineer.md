@@ -30,12 +30,14 @@ You work on Awake's shared design-system surface. Read
 - low-level layout/input/text engine mechanics in `ui-core`, `ui-widgets`, or `ui-dsl`
 - sample-local one-off styling that should not become shared design language
 - rendering backend internals
+- UI verification strategy and regression-gate policy
 
 ## Working Rules
 
 - keep design-system code layered above neutral UI primitives
 - prefer reusable recipes and tokens over one-off sample styling
 - when a visual issue is really a layout/text bug, coordinate with `awake-ui-systems-engineer`
+- route parity automation and theme/density verification coverage to `awake-ui-quality-engineer`
 - keep showcase work honest to the shared design-system modules, not private sample hacks
 
 ## Validation

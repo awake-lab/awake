@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlin.math.floor
 
 /** Draws [label] as a row of glyph quads. */
@@ -21,7 +21,7 @@ enum class UiTextOverflow {
 fun UiScope.text(
     label: String,
     slot: UiSlot? = null,
-    font: BitmapFont? = this.font,
+    font: UiFont? = this.font,
     color: Color = theme.tokens.foreground,
     centered: Boolean = false,
     wrap: UiTextWrap = UiTextWrap.None,
@@ -53,7 +53,19 @@ fun UiScope.text(
             for (char in line) {
                 val uv = resolvedFont.uvFor(char)
                 if (uv != null) {
-                    emit(UiDrawPrimitive.Glyph(penX, penY, glyphPx, glyphPx, uv.u0, uv.v0, uv.u1, uv.v1, color))
+                    emit(
+                        UiDrawPrimitive.Glyph(
+                            pixelPerfectPixel(penX),
+                            pixelPerfectPixel(penY),
+                            glyphPx,
+                            glyphPx,
+                            uv.u0,
+                            uv.v0,
+                            uv.u1,
+                            uv.v1,
+                            color
+                        )
+                    )
                 }
                 penX += glyphPx
             }

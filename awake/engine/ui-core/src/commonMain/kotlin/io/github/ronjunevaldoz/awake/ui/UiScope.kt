@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlin.math.roundToInt
 
 data class UiSlot(val x: Float, val y: Float, val width: Float, val height: Float)
@@ -18,15 +18,24 @@ fun UiSlot.intersect(other: UiSlot): UiSlot {
     return UiSlot(left, top, (right - left).coerceAtLeast(0f), (bottom - top).coerceAtLeast(0f))
 }
 
-fun pixelPerfectTextScale(requestedScale: Float): Float = requestedScale.roundToInt().coerceAtLeast(1).toFloat()
+fun pixelPerfectTextScale(requestedScale: Float, step: Float = 0.25f): Float {
+    val safeStep = step.takeIf { it.isFinite() && it > 0f } ?: 0.25f
+    val snapped = (requestedScale / safeStep).roundToInt().coerceAtLeast((1f / safeStep).roundToInt()) * safeStep
+    return snapped.coerceAtLeast(1f)
+}
 
-fun UiScope.resolvedTextScale(): Float = pixelPerfectTextScale(textScale)
+fun UiScope.resolvedTextScale(): Float = pixelPerfectTextScale(textScale, font?.textScaleStep ?: 0.25f)
+
+fun pixelPerfectPixel(value: Float): Float = value.roundToInt().toFloat()
 
 fun UiScope.resolveGlyphPx(
-    font: io.github.ronjunevaldoz.awake.ui.font.BitmapFont,
+    font: UiFont,
     textScale: Float = this.textScale,
     textSize: Sp? = null
-): Float = textSize?.toPx()?.coerceAtLeast(1f) ?: (font.cellSize * pixelPerfectTextScale(textScale))
+): Float = pixelPerfectPixel(
+    textSize?.toPx()?.coerceAtLeast(1f)
+        ?: (font.cellSize * pixelPerfectTextScale(textScale, font.textScaleStep))
+).coerceAtLeast(1f)
 
 /**
  * The full set of primitives any widget -- built-in or consumer-defined -- is built from.
@@ -37,7 +46,7 @@ fun UiScope.resolveGlyphPx(
  * capability gap versus a built-in widget.
  */
 interface UiScope {
-    val font: BitmapFont?
+    val font: UiFont?
 
     /**
      * The color/appearance policy in effect for this scope -- see [UiTheme]. Widgets default
@@ -51,9 +60,10 @@ interface UiScope {
      * label-row height). The font still comes from a tiny hand-authored bitmap source, but its
      * atlas is baked as a higher-resolution coverage texture, so larger `Sp` sizes can sample
      * smoother edges without changing the logical layout metrics. Rendering snaps this to the
-     * nearest whole-number multiple via [resolvedTextScale] so the default scale path stays
-     * pixel-stable instead of shimmering at arbitrary fractional values. Defaults to `1f`
-     * (today's original, un-scaled size).
+     * nearest atlas-aligned step via [resolvedTextScale] and then snaps the final glyph size to
+     * a whole device pixel via [resolveGlyphPx], so the default path stays crisp without forcing
+     * every size jump to a full integer multiplier. Defaults to `1f` (today's original,
+     * un-scaled size).
      */
     val textScale: Float
 

@@ -3,7 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.utils.summarizePixels
+import io.github.ronjunevaldoz.awake.testing.ui.inspectUiFrame
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
+import io.github.ronjunevaldoz.awake.ui.UiSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -36,6 +38,12 @@ private fun assertSnapshotSignatures(
     }
 
     scenes.forEach { scene ->
+        val inspection = inspectUiFrame(
+            primitives = scene.primitives,
+            frame = UiSlot(0f, 0f, scene.width.toFloat(), scene.height.toFloat()),
+            font = scene.font
+        )
+        assertEquals(true, inspection.isClean, "UI inspection failed for ${scene.name}:\n${inspection.summary()}")
         val pixels = scene.primitives.rasterize(scene.width, scene.height, scene.background, scene.font)
         val summary = summarizePixels(pixels, scene.width, scene.height)
         val actualSignature = actual.getValue(scene.name)
@@ -75,7 +83,7 @@ private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-shaped-panel" to 0x80fec6bc3c1ad8f7uL,
     "ui-panel-controls" to 0x2d56bee17ec2b17fuL,
     "ui-rounded-clip-vector" to 0x06cee56edf05a759uL,
-    "ui-awake-shadcn-showcase" to 0xd1904aa80bce8613uL
+    "ui-awake-shadcn-showcase" to 0xef2bdffdcc3d320auL
 )
 
 private fun ULong.toHexString(): String {

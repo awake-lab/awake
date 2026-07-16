@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 class SceneGameRuntime internal constructor(
     private val spec: SceneGameSpec
@@ -32,7 +33,7 @@ class SceneGameRuntime internal constructor(
     private val namedEntities = linkedMapOf<String, Entity>()
 
     val uiContext = UiContext()
-    val font = BitmapFont()
+    val font: UiFont = BitmapFont()
     val sceneDocument: SceneDocument
         get() = spec.sceneDocument
     val sceneName: String

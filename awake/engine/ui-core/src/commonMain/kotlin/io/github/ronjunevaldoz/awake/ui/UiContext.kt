@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlin.math.max
 
 /**
@@ -51,7 +51,7 @@ class UiContext private constructor(
         x: Float,
         y: Float,
         width: Float,
-        font: BitmapFont? = null,
+        font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
@@ -60,7 +60,7 @@ class UiContext private constructor(
 
     fun column(
         slot: UiSlot,
-        font: BitmapFont? = null,
+        font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
@@ -77,7 +77,7 @@ class UiContext private constructor(
     fun absolute(
         x: Float,
         y: Float,
-        font: BitmapFont? = null,
+        font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         textScale: Float = 1f,
         overlayOnly: Boolean = false
@@ -85,7 +85,7 @@ class UiContext private constructor(
 
     fun absolute(
         slot: UiSlot,
-        font: BitmapFont? = null,
+        font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
@@ -100,7 +100,7 @@ class UiContext private constructor(
         x: Float,
         y: Float,
         height: Float,
-        font: BitmapFont? = null,
+        font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
@@ -109,7 +109,7 @@ class UiContext private constructor(
 
     fun row(
         slot: UiSlot,
-        font: BitmapFont? = null,
+        font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
@@ -126,7 +126,7 @@ class UiContext private constructor(
         y: Float,
         width: Float,
         height: Float,
-        font: BitmapFont? = null,
+        font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         textScale: Float = 1f,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
@@ -135,7 +135,7 @@ class UiContext private constructor(
 
     fun box(
         slot: UiSlot,
-        font: BitmapFont? = null,
+        font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
@@ -226,7 +226,7 @@ class UiContext private constructor(
 
     fun measureColumnContent(
         width: Float,
-        font: BitmapFont?,
+        font: UiFont?,
         theme: UiTheme,
         gap: Float,
         textScale: Float,

@@ -35,6 +35,7 @@ Examples:
 - `awake-game-framework-engineer.md`
 - `awake-ui-systems-engineer.md`
 - `awake-design-system-engineer.md`
+- `awake-ui-quality-engineer.md`
 
 ## Model Tiers
 
@@ -76,6 +77,7 @@ Why this exists:
 | `awake-game-framework-engineer` | Active | game/application runtime shell, frame lifecycle, shared engine bootstrap, sample runtime structure, non-backend engine composition | `balanced-coding` |
 | `awake-ui-systems-engineer` | Active | `ui-core`, `ui-widgets`, `ui-dsl`, low-level layout/text/input behavior, immediate-mode UI mechanics | `balanced-coding` |
 | `awake-design-system-engineer` | Active | `ui-designsystem`, theme tokens, component recipes, shadcn-style visual language, showcase and tutorial presentation quality | `balanced-coding` |
+| `awake-ui-quality-engineer` | Active | UI verification strategy, snapshot/pixel baselines, overlap/text-fit/layout inspections, density/theme/platform parity checks | `balanced-coding` |
 | `awake-scene-runtime-engineer` | Active | scene graph runtime, scene DSL composition, scene serialization boundaries, demo scene structure | `balanced-coding` |
 | `awake-platform-integration-engineer` | Active | Android/iOS/Desktop/Web integration, expect/actual edges, device validation, packaging and launcher behavior | `balanced-coding` |
 | `awake-developer-experience-engineer` | Active | build logic, docs pipelines, agent guidance, release plumbing, benchmark/snapshot workflows | `balanced-coding` |
@@ -92,6 +94,7 @@ Use the smallest agent that fully owns the task.
 | game shell bootstrap, runtime wiring, sample application structure | `awake-game-framework-engineer` |
 | Text overflow, layout engine behavior, UI input and animation plumbing | `awake-ui-systems-engineer` |
 | Theme tokens, component skins, showcase polish, tutorial presentation styling | `awake-design-system-engineer` |
+| UI regression gates, overlap/text-fit checks, pixel baselines, theme/density/platform parity validation | `awake-ui-quality-engineer` |
 | Scene composition, runtime scene organization, scene-facing DSL | `awake-scene-runtime-engineer` |
 | Android/iOS/Desktop/Web runtime validation and platform glue | `awake-platform-integration-engineer` |
 | Build logic, docs generators, agent/skill upkeep, CI-adjacent structure | `awake-developer-experience-engineer` |
@@ -121,6 +124,7 @@ temporary provider override.
 - [awake-game-framework-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-game-framework-engineer.md)
 - [awake-ui-systems-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-ui-systems-engineer.md)
 - [awake-design-system-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-design-system-engineer.md)
+- [awake-ui-quality-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-ui-quality-engineer.md)
 - [awake-scene-runtime-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-scene-runtime-engineer.md)
 - [awake-platform-integration-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-platform-integration-engineer.md)
 - [awake-developer-experience-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-developer-experience-engineer.md)

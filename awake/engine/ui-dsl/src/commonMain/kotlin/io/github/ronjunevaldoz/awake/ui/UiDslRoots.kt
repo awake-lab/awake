@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 fun UiContext.ui(
     x: Float,
     y: Float,
     width: Float,
-    font: BitmapFont? = null,
+    font: UiFont? = null,
     theme: UiTheme = CoreUiTheme,
     gap: Float = UiSpacing.sm.toPx(),
     textScale: Float = 1f,
@@ -19,7 +19,7 @@ fun UiContext.ui(
 
 fun UiContext.ui(
     slot: UiSlot,
-    font: BitmapFont? = null,
+    font: UiFont? = null,
     theme: UiTheme = CoreUiTheme,
     gap: Float = UiSpacing.sm.toPx(),
     textScale: Float = 1f,
@@ -32,7 +32,7 @@ fun UiContext.ui(
 fun UiContext.uiAbsolute(
     x: Float,
     y: Float,
-    font: BitmapFont? = null,
+    font: UiFont? = null,
     theme: UiTheme = CoreUiTheme,
     textScale: Float = 1f,
     block: UiAbsoluteDslScope.() -> Unit

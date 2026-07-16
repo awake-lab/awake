@@ -23,7 +23,6 @@ You work on Awake's shared UI mechanics. Read
 - `awake:engine:ui-core`
 - `awake:engine:ui-widgets`
 - `awake:engine:ui-dsl`
-- snapshot-backed UI tutorial mechanics and visual validation workflows
 - low-level layout, text, input, clipping, and animation behavior
 
 ## Does Not Own
@@ -31,6 +30,7 @@ You work on Awake's shared UI mechanics. Read
 - sample-local app shell glue unless it should be promoted into shared UI modules
 - design-system token curation and showcase art direction
 - rendering backend internals
+- UI verification strategy and regression-gate policy
 - generic project architecture policy
 
 ## Working Rules
@@ -40,6 +40,7 @@ You work on Awake's shared UI mechanics. Read
 - prefer proof through tests and snapshot docs when a UI change is visual or layout-sensitive
 - keep design-system code outside `ui-core`; `ui-core` owns neutral contracts and fallback only
 - route theme/token and showcase visual-language work to `awake-design-system-engineer`
+- route verification-harness expansion and structural UI inspections to `awake-ui-quality-engineer`
 
 ## Validation
 

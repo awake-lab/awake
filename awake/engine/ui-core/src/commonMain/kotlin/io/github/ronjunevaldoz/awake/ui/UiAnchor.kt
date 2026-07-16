@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 enum class UiAnchor {
     TopLeft,
@@ -35,7 +35,7 @@ fun UiSlot.anchored(
     )
 }
 
-fun BitmapFont.textBlockHeight(
+fun UiFont.textBlockHeight(
     lineCount: Int,
     textScale: Float = 1f,
     gap: Float = UiSpacing.sm.toPx()

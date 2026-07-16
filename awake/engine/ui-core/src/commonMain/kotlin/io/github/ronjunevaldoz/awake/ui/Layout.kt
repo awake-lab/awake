@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 /** Named spacing scale, in [Dp] -- not wired into [UiModifier] yet (that grows only when a
  * real padding/margin need shows up), just replaces bare gap literals with a named scale. */
@@ -22,7 +22,7 @@ object UiSpacing {
  */
 abstract class AbstractUiScope(
     final override val context: UiContext,
-    final override val font: BitmapFont?,
+    final override val font: UiFont?,
     final override val theme: UiTheme,
     final override val textScale: Float = 1f,
     private val emitToOverlay: Boolean = false
@@ -66,7 +66,7 @@ internal interface FillAwareScope {
  */
 class ColumnScope internal constructor(
     context: UiContext,
-    font: BitmapFont?,
+    font: UiFont?,
     theme: UiTheme,
     private val x: Float,
     startY: Float,
@@ -98,7 +98,7 @@ class ColumnScope internal constructor(
  */
 class AbsoluteScope internal constructor(
     context: UiContext,
-    font: BitmapFont?,
+    font: UiFont?,
     theme: UiTheme,
     private val x: Float,
     private val y: Float,
@@ -125,7 +125,7 @@ class AbsoluteScope internal constructor(
  */
 class RowScope internal constructor(
     context: UiContext,
-    font: BitmapFont?,
+    font: UiFont?,
     theme: UiTheme,
     startX: Float,
     private val y: Float,
@@ -156,7 +156,7 @@ class RowScope internal constructor(
  */
 class BoxScope internal constructor(
     context: UiContext,
-    font: BitmapFont?,
+    font: UiFont?,
     theme: UiTheme,
     private val x: Float,
     private val y: Float,

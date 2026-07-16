@@ -8,10 +8,17 @@ import kotlin.test.assertEquals
 class BitmapTextScaleTest {
 
     @Test
-    fun pixelPerfectTextScaleSnapsToNearestWholeMultiplier() {
+    fun pixelPerfectTextScaleSnapsToNearestQuarterStepByDefault() {
         assertEquals(1f, pixelPerfectTextScale(1f))
-        assertEquals(2f, pixelPerfectTextScale(1.75f))
+        assertEquals(1.25f, pixelPerfectTextScale(1.2f))
+        assertEquals(1.75f, pixelPerfectTextScale(1.75f))
         assertEquals(2f, pixelPerfectTextScale(2.1f))
+    }
+
+    @Test
+    fun pixelPerfectTextScaleHonorsCustomAtlasStep() {
+        assertEquals(1f, pixelPerfectTextScale(1f, step = 0.5f))
+        assertEquals(1.5f, pixelPerfectTextScale(1.3f, step = 0.5f))
     }
 
     @Test

@@ -26,6 +26,7 @@ class BitmapFontTest {
         val font = BitmapFont()
 
         assertTrue(font.atlasHeight > font.cellSize, "atlas should carry more detail than the logical glyph advance size")
+        assertEquals(0.25f, font.textScaleStep, "default font atlas should expose quarter-step sizing granularity")
     }
 
     @Test

@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.containsPoint
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
@@ -23,7 +23,7 @@ fun List<UiDrawPrimitive>.rasterize(
     width: Int,
     height: Int,
     background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
-    font: BitmapFont? = null
+    font: UiFont? = null
 ): ByteArray {
     val pixels = ByteArray(width * height * 4)
     var i = 0
@@ -73,7 +73,7 @@ fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
-    fun sampleGlyphAlpha(bitmapFont: BitmapFont, u: Float, v: Float): Int {
+    fun sampleGlyphAlpha(bitmapFont: UiFont, u: Float, v: Float): Int {
         val atlasWidth = bitmapFont.atlasWidth
         val atlasHeight = bitmapFont.atlasHeight
         val atlasPixels = bitmapFont.atlasPixelsRgba
@@ -122,7 +122,7 @@ fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
-    fun drawGlyph(glyph: UiDrawPrimitive.Glyph, bitmapFont: BitmapFont) {
+    fun drawGlyph(glyph: UiDrawPrimitive.Glyph, bitmapFont: UiFont) {
         val x0 = max(glyph.x, clipX0).toInt().coerceIn(0, width)
         val y0 = max(glyph.y, clipY0).toInt().coerceIn(0, height)
         val x1 = min(glyph.x + glyph.w, clipX1).toInt().coerceIn(0, width)

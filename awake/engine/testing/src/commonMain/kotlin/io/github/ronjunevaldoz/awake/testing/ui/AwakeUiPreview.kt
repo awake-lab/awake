@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -29,14 +29,14 @@ data class AwakeUiPreviewMetadata(
 data class AwakeUiPreviewFrame(
     val primitives: List<UiDrawPrimitive>,
     val background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
-    val font: BitmapFont? = null
+    val font: UiFont? = null
 )
 
 data class AwakeUiPreviewScene(
     val metadata: AwakeUiPreviewMetadata,
     val primitives: List<UiDrawPrimitive>,
     val background: Color,
-    val font: BitmapFont?
+    val font: UiFont?
 )
 
 interface AwakeUiPreviewEntry {

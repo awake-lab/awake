@@ -28,7 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
@@ -300,7 +300,7 @@ class Renderer(
 
     /** Builds [uiGlyphRenderPipeline] on the first [drawUi] call that passes a non-null
      * [font] -- cached after that (a game calls [drawUi] with the same font every frame). */
-    private fun ensureGlyphPipeline(font: BitmapFont) {
+    private fun ensureGlyphPipeline(font: UiFont) {
         if (uiGlyphRenderPipeline != null) return
         uiGlyphRenderPipeline = UiGlyphRenderPipeline(graphicsDevice, swapchainManager, uiGlyphShaderCode, font)
     }
@@ -343,7 +343,7 @@ class Renderer(
      * issue draw calls in the SAME order [primitives] arrived in -- see Vulkan's
      * `Renderer.drawUi()`'s doc comment (this mirrors it) for the full "all quads, then all
      * glyphs" bug this fixes. */
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) {
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) {
         ensureUiQuadPipeline()
         if (font != null) ensureGlyphPipeline(font)
         if (primitives.any { it is UiDrawPrimitive.Texture }) ensureTextureQuadPipeline()

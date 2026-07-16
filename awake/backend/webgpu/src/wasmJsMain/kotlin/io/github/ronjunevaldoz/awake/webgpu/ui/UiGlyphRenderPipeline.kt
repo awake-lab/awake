@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.ui
 
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
 import io.ygdrasil.webgpu.ArrayBuffer
@@ -44,7 +44,7 @@ import io.ygdrasil.webgpu.VertexState
 /**
  * WebGPU mirror of Vulkan's `UiGlyphRenderPipeline` (see that class's doc comment for the
  * full rationale): a second UI-overlay pipeline drawn in the same command encoder as
- * [UiRenderPipeline]'s colored quads, sampling a [BitmapFont] atlas. Unlike Vulkan, this
+ * [UiRenderPipeline]'s colored quads, sampling a [UiFont] atlas. Unlike Vulkan, this
  * backend's own `Texture` class (`webgpu/texture/Texture.kt`) is an unimplemented stub (no
  * upload path exists yet for either the 3D pass's `Material` or here) -- so the font atlas
  * `GPUTexture` is created and uploaded directly in this class rather than reusing that stub,
@@ -54,7 +54,7 @@ class UiGlyphRenderPipeline(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     shaderCode: ByteArray,
-    font: BitmapFont
+    font: UiFont
 ) {
     private val device = graphicsDevice.wgpuContext.device
     val pipeline: GPURenderPipeline
