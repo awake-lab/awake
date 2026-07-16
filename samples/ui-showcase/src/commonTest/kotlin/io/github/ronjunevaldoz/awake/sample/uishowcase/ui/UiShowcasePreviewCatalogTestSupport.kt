@@ -24,6 +24,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseOverviewPreview,
     UiShowcaseReferencePreview,
     UiShowcaseThemePreview,
+    UiShowcaseFontsPreview,
     UiShowcaseButtonsPreview,
     UiShowcasePopupsPreview,
     UiShowcaseStatePreview
@@ -66,6 +67,19 @@ internal object UiShowcaseReferencePreview : AwakeUiPreviewEntry {
 internal object UiShowcaseThemePreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "theming")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-fonts",
+    title = "Bitmap And MSDF",
+    group = "Foundations",
+    summary = "Direct specimen comparison between the legacy bitmap atlas and the current MSDF runtime font.",
+    width = 920,
+    height = 620
+)
+internal object UiShowcaseFontsPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "fonts")
 }
 
 @AwakeUiPreview(

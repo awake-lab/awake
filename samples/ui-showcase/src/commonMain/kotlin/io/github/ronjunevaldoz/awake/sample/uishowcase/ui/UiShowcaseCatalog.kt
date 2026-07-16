@@ -47,8 +47,14 @@ import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.supportingLines
+import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.textLines
+import io.github.ronjunevaldoz.awake.ui.UiInsets
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 
 private val ShowcaseStyleOptions = AwakeShadcnStylePreset.entries.map { it.label }
 private val ShowcaseBaseColorOptions = AwakeShadcnBaseColor.entries.map { it.label }
@@ -142,7 +148,23 @@ internal val ShowcasePages = listOf(
         """.trimIndent(),
         notes = listOf(
             "This is the Awake-owned equivalent of the shadcn-compose catalog theme pickers.",
-            "Chrome and content are reading the same theme state, so regressions show up fast."
+            "The app chrome stays on a stable shell theme while the content pane is re-themed live."
+        )
+    ),
+    ShowcasePage(
+        id = "fonts",
+        title = "Bitmap And MSDF",
+        category = ShowcaseCategory.Foundations,
+        description = "A direct specimen view of the legacy bitmap atlas beside the current MSDF-backed runtime font.",
+        usageCode = """
+            val bitmap = BitmapFont()
+            val msdf = UiFonts.default()
+
+            // Render the same specimen strings with each font path.
+        """.trimIndent(),
+        notes = listOf(
+            "Both paths still share the same hand-authored glyph source today, which is why their character design still feels related.",
+            "This page is meant to make sizing, spacing, and edge quality differences obvious without guessing from the rest of the showcase."
         )
     ),
     ShowcasePage(
@@ -475,6 +497,7 @@ internal fun UiColumnDslScope.renderUiShowcasePagePreview(
         "introduction" -> drawUiShowcaseOverviewPreview()
         "reference" -> drawUiShowcaseReferenceComparisonPreview()
         "theming" -> drawUiShowcaseControlsPreview(state)
+        "fonts" -> drawUiShowcaseFontsPreview()
         "buttons" -> drawUiShowcaseButtonsPreview()
         "popups" -> drawUiShowcasePopupPreview()
         "state" -> drawUiShowcaseCounterPreview(state)
@@ -557,6 +580,88 @@ private fun UiColumnDslScope.drawUiShowcaseButtonsPreview() {
         awakeShadcnBadge("BETA", variant = AwakeShadcnBadgeVariant.Outline)
         awakeShadcnBadge("RISK", variant = AwakeShadcnBadgeVariant.Danger)
     }
+}
+
+private fun UiColumnDslScope.drawUiShowcaseFontsPreview() {
+    awakeShadcnSectionHeader(
+        title = "Font pipeline comparison",
+        description = "The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly."
+    )
+    spacer(8f)
+    row(height = 292f, gap = 12f) {
+        panel(
+            id = "showcase-font-bitmap",
+            width = Dimension.Fixed(240f.dp),
+            height = Dimension.Fixed(292f.dp),
+            style = Style { shape(14f.dp) }
+        ) { slot ->
+            drawUiShowcaseFontSpecimen(
+                slot = slot,
+                label = "Bitmap",
+                detail = "Coverage-alpha atlas from the original grid source.",
+                previewFont = BitmapFont()
+            )
+        }
+        panel(
+            id = "showcase-font-msdf",
+            width = Dimension.Fixed(240f.dp),
+            height = Dimension.Fixed(292f.dp),
+            style = Style { shape(14f.dp) }
+        ) { slot ->
+            drawUiShowcaseFontSpecimen(
+                slot = slot,
+                label = "MSDF",
+                detail = "Distance-field runtime path used by the current showcase.",
+                previewFont = UiFonts.default()
+            )
+        }
+    }
+    spacer(8f)
+    supportingLines(
+        listOf(
+            "Bitmap stays closer to the authored pixel grid and will look chunkier at larger specimen sizes.",
+            "MSDF scales more gracefully, but because it still uses the same glyph source, it inherits the same underlying letterforms."
+        )
+    )
+}
+
+private fun UiColumnDslScope.drawUiShowcaseFontSpecimen(
+    slot: UiSlot,
+    label: String,
+    detail: String,
+    previewFont: UiFont,
+) {
+    val specimenScope = context.column(
+        slot = slot,
+        font = previewFont,
+        theme = theme,
+        gap = 8f,
+        insets = UiInsets(16f.dp)
+    )
+    specimenScope.awakeShadcnBadge(label.uppercase(), width = 84f, height = 28f, variant = AwakeShadcnBadgeVariant.Outline)
+    specimenScope.text(
+        label = "Awake UI",
+        color = theme.tokens.foreground,
+        textSize = 18f.sp
+    )
+    specimenScope.text(
+        label = "Sphinx 123",
+        color = theme.tokens.foreground,
+        textSize = 16f.sp
+    )
+    specimenScope.text(
+        label = "THE QUICK BROWN FOX",
+        color = theme.tokens.foreground,
+        textSize = 12f.sp
+    )
+    specimenScope.text(
+        label = detail,
+        color = theme.tokens.mutedForeground,
+        wrap = UiTextWrap.Word,
+        overflow = UiTextOverflow.Ellipsis,
+        maxLines = 3,
+        textSize = 11f.sp
+    )
 }
 
 private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState) {

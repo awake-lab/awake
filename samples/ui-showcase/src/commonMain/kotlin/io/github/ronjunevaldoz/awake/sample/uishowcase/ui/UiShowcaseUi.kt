@@ -39,21 +39,21 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
     viewportWidth: Float,
     viewportHeight: Float
 ) {
+    val chromeTheme = AwakeShadcnTheme
     val showcaseTheme = state.showcaseTheme()
-    overlayBox(viewportWidth, viewportHeight, theme = showcaseTheme) { constraints ->
-        val sidebarScroll = context.rememberStateValue("ui-showcase-scroll", "sidebar") { UiScrollState() }
-        val contentScroll = context.rememberStateValue("ui-showcase-scroll", "content") { UiScrollState() }
+    val sidebarScroll = uiContext.rememberStateValue("ui-showcase-scroll", "sidebar") { UiScrollState() }
+    val contentScroll = uiContext.rememberStateValue("ui-showcase-scroll", "content") { UiScrollState() }
+
+    overlayBox(viewportWidth, viewportHeight, theme = chromeTheme) { constraints ->
         val compact = constraints.isCompact
         val outerPadding = if (compact) 16f else 24f
         val topBarHeight = if (compact) 156f else 108f
         val bodyTop = outerPadding + topBarHeight + 16f
         val sidebarWidth = 264f
-        val railGap = 20f
         val availableHeight = (constraints.maxHeightDp - bodyTop - outerPadding).coerceAtLeast(420f)
 
         if (compact) {
             val sidebarHeight = minOf(220f, availableHeight * 0.34f).coerceAtLeast(160f)
-            val contentHeight = (availableHeight - sidebarHeight - 12f).coerceAtLeast(220f)
             column(
                 width = Dimension.FillMax,
                 height = Dimension.WrapContent,
@@ -81,17 +81,6 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                     }
                 ) { _ ->
                     drawUiShowcaseSidebar(compact = true)
-                }
-                spacer(12f)
-                awakeShadcnScrollSurface(
-                    id = "ui-showcase-mobile-content",
-                    height = Dimension.Fixed(contentHeight.dp),
-                    state = contentScroll.value,
-                    style = Style {
-                        shape(16f.dp)
-                    }
-                ) { _ ->
-                    drawUiShowcasePageContent(state, showInlineMenu = true)
                 }
             }
         } else {
@@ -143,29 +132,67 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                         drawUiShowcaseSidebar(compact = false)
                     }
                 }
+            }
+        }
+    }
 
-                column(
-                    width = Dimension.FillMax,
-                    height = Dimension.Fixed(availableHeight.dp),
-                    modifier = UiModifier()
-                        .align(UiAlignment.TopStart)
-                        .padding(
-                            start = (outerPadding + sidebarWidth + railGap).dp,
-                            top = bodyTop.dp,
-                            end = outerPadding.dp,
-                            bottom = outerPadding.dp
-                        )
-                ) {
-                    awakeShadcnScrollSurface(
-                        id = "ui-showcase-content",
-                        height = Dimension.Fixed(availableHeight.dp),
-                        state = contentScroll.value,
-                        style = Style {
-                            shape(16f.dp)
-                        }
-                    ) { _ ->
-                        drawUiShowcasePageContent(state, showInlineMenu = false)
+    overlayBox(viewportWidth, viewportHeight, theme = showcaseTheme) { constraints ->
+        val compact = constraints.isCompact
+        val outerPadding = if (compact) 16f else 24f
+        val topBarHeight = if (compact) 156f else 108f
+        val bodyTop = outerPadding + topBarHeight + 16f
+        val sidebarWidth = 264f
+        val railGap = 20f
+        val availableHeight = (constraints.maxHeightDp - bodyTop - outerPadding).coerceAtLeast(420f)
+
+        if (compact) {
+            val sidebarHeight = minOf(220f, availableHeight * 0.34f).coerceAtLeast(160f)
+            val contentHeight = (availableHeight - sidebarHeight - 12f).coerceAtLeast(220f)
+            column(
+                width = Dimension.FillMax,
+                height = Dimension.WrapContent,
+                modifier = UiModifier()
+                    .align(UiAlignment.TopStart)
+                    .padding(
+                        start = outerPadding.dp,
+                        top = (outerPadding + topBarHeight + 12f + sidebarHeight + 12f).dp,
+                        end = outerPadding.dp,
+                        bottom = outerPadding.dp
+                    )
+            ) {
+                awakeShadcnScrollSurface(
+                    id = "ui-showcase-mobile-content",
+                    height = Dimension.Fixed(contentHeight.dp),
+                    state = contentScroll.value,
+                    style = Style {
+                        shape(16f.dp)
                     }
+                ) { _ ->
+                    drawUiShowcasePageContent(state, showInlineMenu = true)
+                }
+            }
+        } else {
+            column(
+                width = Dimension.FillMax,
+                height = Dimension.Fixed(availableHeight.dp),
+                modifier = UiModifier()
+                    .align(UiAlignment.TopStart)
+                    .padding(
+                        start = (outerPadding + sidebarWidth + railGap).dp,
+                        top = bodyTop.dp,
+                        end = outerPadding.dp,
+                        bottom = outerPadding.dp
+                    )
+            ) {
+                awakeShadcnScrollSurface(
+                    id = "ui-showcase-content",
+                    height = Dimension.Fixed(availableHeight.dp),
+                    state = contentScroll.value,
+                    style = Style {
+                        shape(16f.dp)
+                    }
+                ) { _ ->
+                    drawUiShowcasePageContent(state, showInlineMenu = false)
                 }
             }
         }
