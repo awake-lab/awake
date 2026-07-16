@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.scene.runtime.sceneGame
 internal const val STARTER_SCENE_OVERVIEW = "overview"
 internal const val STARTER_SCENE_EDITOR = "editor"
 internal const val STARTER_SCENE_PLAYGROUND = "playground"
-internal const val STARTER_SCENE_SHOWCASE = "showcase"
 
 internal fun starterOverviewSceneSpec(): SceneGameSpec = sceneGame {
     name(STARTER_SCENE_OVERVIEW)
@@ -117,49 +116,6 @@ internal fun starterPlaygroundSceneSpec(): SceneGameSpec = sceneGame {
     )
     sharedStarterAssets()
     freeFlyCameraSystem(camera = "camera")
-}
-
-internal fun starterShowcaseSceneSpec(): SceneGameSpec = sceneGame {
-    name(STARTER_SCENE_SHOWCASE)
-    cameraEntity(
-        name = "camera",
-        transform = { position(0f, 1.5f, 8f) },
-        camera = {
-            eye(0f, 1.5f, 8f)
-            center(0f, 0f, 0f)
-            primary(true)
-        }
-    )
-    meshEntity(
-        name = "centerpiece",
-        mesh = "cube",
-        material = "default",
-        transform = {
-            scale(1.1f, 1.1f, 1.1f)
-        }
-    )
-    meshEntity(
-        name = "left",
-        mesh = "cube",
-        material = "default",
-        transform = {
-            position(-2.6f, 0.2f, -1.8f)
-            scale(0.7f, 0.7f, 0.7f)
-        }
-    )
-    meshEntity(
-        name = "right",
-        mesh = "cube",
-        material = "default",
-        transform = {
-            position(2.6f, -0.1f, -1.6f)
-            scale(0.8f, 0.8f, 0.8f)
-        }
-    )
-    sharedStarterAssets()
-    orbitCameraSystem(target = "centerpiece", camera = "camera", initialDistance = 8f, autoRotateSpeed = 0.18f) {
-        pitch = 0.22f
-    }
 }
 
 private fun io.github.ronjunevaldoz.awake.scene.runtime.SceneGameDsl.sharedStarterAssets() {

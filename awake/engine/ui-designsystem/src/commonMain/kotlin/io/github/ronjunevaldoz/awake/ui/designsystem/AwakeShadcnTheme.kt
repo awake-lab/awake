@@ -18,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 object AwakeShadcnTheme : UiTheme {
     internal val card = oklch(0.205f, 0f)
     internal val popover = card
+    internal val sidebar = oklch(0.18f, 0f)
     internal val input = oklch(1f, 0f, alpha = 0.15f)
     internal val ring = oklch(0.556f, 0f)
     private val hoverSurface = oklch(0.269f, 0f)

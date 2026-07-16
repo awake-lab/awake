@@ -51,6 +51,13 @@ enum class AwakeShadcnBadgeVariant {
     Danger
 }
 
+enum class AwakeShadcnSurfaceVariant {
+    Card,
+    Sidebar,
+    Popover,
+    Muted
+}
+
 object AwakeShadcnStyles {
     fun button(variant: AwakeShadcnButtonVariant): Style = when (variant) {
         AwakeShadcnButtonVariant.Primary -> Style {
@@ -118,6 +125,34 @@ object AwakeShadcnStyles {
             shape(999f.dp)
             borderWidth(1f.dp)
             borderColor(AwakeShadcnTheme.tokens.destructive)
+        }
+    }
+
+    fun surface(variant: AwakeShadcnSurfaceVariant): Style = when (variant) {
+        AwakeShadcnSurfaceVariant.Card -> AwakeShadcnTheme.components.panel
+        AwakeShadcnSurfaceVariant.Sidebar -> Style {
+            background(AwakeShadcnTheme.sidebar)
+            foreground(AwakeShadcnTheme.tokens.foreground)
+            borderWidth(1f.dp)
+            borderColor(AwakeShadcnTheme.tokens.border)
+            shape(12f.dp)
+            contentPadding(UiShape.lg)
+        }
+        AwakeShadcnSurfaceVariant.Popover -> Style {
+            background(AwakeShadcnTheme.popover)
+            foreground(AwakeShadcnTheme.tokens.foreground)
+            borderWidth(1f.dp)
+            borderColor(AwakeShadcnTheme.tokens.border)
+            shape(10f.dp)
+            contentPadding(UiShape.md)
+        }
+        AwakeShadcnSurfaceVariant.Muted -> Style {
+            background(AwakeShadcnTheme.tokens.muted)
+            foreground(AwakeShadcnTheme.tokens.foreground)
+            borderWidth(1f.dp)
+            borderColor(AwakeShadcnTheme.tokens.border)
+            shape(10f.dp)
+            contentPadding(UiShape.md)
         }
     }
 
@@ -257,6 +292,7 @@ fun UiScope.awakeShadcnSurface(
     id: String,
     width: Dimension,
     height: Dimension,
+    variant: AwakeShadcnSurfaceVariant = AwakeShadcnSurfaceVariant.Card,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ) {
@@ -264,7 +300,7 @@ fun UiScope.awakeShadcnSurface(
         id = id,
         width = width,
         height = height,
-        style = AwakeShadcnTheme.components.panel then style,
+        style = AwakeShadcnStyles.surface(variant) then style,
         content = content
     )
 }
@@ -426,6 +462,7 @@ fun UiColumnDslScope.awakeShadcnSurface(
     width: Dimension = Dimension.FillMax,
     height: Dimension,
     modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnSurfaceVariant = AwakeShadcnSurfaceVariant.Card,
     style: Style = Style.Empty,
     content: UiColumnDslScope.(slot: UiSlot) -> Unit
 ): UiSlot = panel(
@@ -433,7 +470,7 @@ fun UiColumnDslScope.awakeShadcnSurface(
     width = width,
     height = height,
     modifier = modifier,
-    style = AwakeShadcnTheme.components.panel then style,
+    style = AwakeShadcnStyles.surface(variant) then style,
     content = content
 )
 
@@ -537,6 +574,7 @@ fun UiAbsoluteDslScope.awakeShadcnSurface(
     width: Dimension,
     height: Dimension,
     modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnSurfaceVariant = AwakeShadcnSurfaceVariant.Card,
     style: Style = Style.Empty,
     content: UiColumnDslScope.(slot: UiSlot) -> Unit
 ): UiSlot = panel(
@@ -544,7 +582,7 @@ fun UiAbsoluteDslScope.awakeShadcnSurface(
     width = width,
     height = height,
     modifier = modifier,
-    style = AwakeShadcnTheme.components.panel then style,
+    style = AwakeShadcnStyles.surface(variant) then style,
     content = content
 )
 

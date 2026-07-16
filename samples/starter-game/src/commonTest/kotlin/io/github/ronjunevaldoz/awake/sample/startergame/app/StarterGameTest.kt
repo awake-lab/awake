@@ -21,8 +21,6 @@ import io.github.ronjunevaldoz.awake.sample.startergame.debug.starterDebugModule
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_EDITOR
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_OVERVIEW
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.starterSceneModule
-import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterCounterContract
-import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterCounterStore
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameUiState
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.sample.startergame.ui.starterUiModule
@@ -138,47 +136,32 @@ class StarterGameTest {
     }
 
     @Test
+    fun starterGameRendersOverlayUiAcrossScenes() = runTest {
+        val renderer = RecordingRenderer()
+        val game = starterGame()
+        val router = game.requireService<SceneRouterRuntime>()
+
+        game.ready(renderer)
+        router.switchTo(STARTER_SCENE_EDITOR)
+        game.render(0.016f, 1440f, 900f)
+
+        val glyphs = renderer.lastUiPrimitives.filterIsInstance<UiDrawPrimitive.Glyph>()
+        val cards = renderer.lastUiPrimitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
+
+        assertTrue(glyphs.isNotEmpty())
+        assertTrue(cards.isNotEmpty())
+        assertEquals(STARTER_SCENE_EDITOR, router.activeSceneId)
+    }
+
+    @Test
     fun starterGameStateContainerPublishesUiStateFlow() {
         val state = StarterGameRuntimeState()
 
         state.tipsVisible = false
-        state.showcaseDangerMode = true
-        state.showcasePrimaryClicks = 2
 
         assertEquals(
-            StarterGameUiState(
-                tipsVisible = false,
-                showcaseBadgeVariantIndex = 0,
-                showcaseLiveBadge = true,
-                showcaseDangerMode = true,
-                showcaseSurfaceRadius = 12f,
-                showcasePrimaryClicks = 2,
-                showcaseCounterEffectMessage = null
-            ),
+            StarterGameUiState(tipsVisible = false),
             state.uiState.value
-        )
-    }
-
-    @Test
-    fun starterCounterStoreReducesStateAndPublishesEffects() {
-        val store = StarterCounterStore()
-
-        repeat(5) {
-            store.dispatch(StarterCounterContract.Intent.Increment)
-        }
-
-        assertEquals(5, store.state.value.count)
-        assertEquals(
-            listOf(StarterCounterContract.Effect.MilestoneReached(5)),
-            store.drainEffects()
-        )
-
-        store.dispatch(StarterCounterContract.Intent.Reset)
-
-        assertEquals(0, store.state.value.count)
-        assertEquals(
-            listOf(StarterCounterContract.Effect.ResetCompleted),
-            store.drainEffects()
         )
     }
 }

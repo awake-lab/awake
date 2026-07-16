@@ -25,11 +25,6 @@ internal fun starterSceneModule(): GameModule {
                 label = "Playground",
                 spec = starterPlaygroundSceneSpec()
             )
-            scene(
-                id = STARTER_SCENE_SHOWCASE,
-                label = "Showcase",
-                spec = starterShowcaseSceneSpec()
-            )
         }
     }
 }

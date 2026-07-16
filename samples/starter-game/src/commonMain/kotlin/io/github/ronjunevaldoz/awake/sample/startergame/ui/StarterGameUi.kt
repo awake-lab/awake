@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.sample.startergame.ui
 
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.sample.startergame.presentation.starterOverlayModel
-import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_SHOWCASE
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
 import io.github.ronjunevaldoz.awake.ui.Dimension
@@ -13,13 +12,16 @@ import io.github.ronjunevaldoz.awake.ui.GameUiSpec
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.align
-import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.gameUi
 import io.github.ronjunevaldoz.awake.ui.metaText
@@ -50,11 +52,10 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
     viewportHeight: Float
 ) {
     val model = router.starterOverlayModel(state)
-    val showcaseActive = router.activeSceneId == STARTER_SCENE_SHOWCASE
     overlayBox(viewportWidth, viewportHeight) { constraints ->
         val compact = constraints.isCompact
         val navWidth = if (compact) Dimension.FillMax else 280f.toDimension()
-        val sideWidth = if (compact) Dimension.FillMax else if (showcaseActive) 560f.toDimension() else 320f.toDimension()
+        val sideWidth = if (compact) Dimension.FillMax else 320f.toDimension()
         val footerWidth = if (compact) Dimension.FillMax else 360f.toDimension()
 
         if (compact) {
@@ -65,55 +66,68 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                     .align(UiAlignment.TopStart)
                     .padding(16f.dp)
             ) {
-                panel(id = "starter-nav-compact", width = navWidth, height = Dimension.WrapContent) { slot ->
+                awakeShadcnSurface(
+                    id = "starter-nav-compact",
+                    width = navWidth,
+                    height = Dimension.WrapContent,
+                    variant = AwakeShadcnSurfaceVariant.Sidebar
+                ) { _ ->
                     drawStarterNavigation(model, router)
                 }
-                panel(id = "starter-side-compact", width = sideWidth, height = Dimension.WrapContent) { slot ->
-                    drawStarterSidePanel(showcaseActive = showcaseActive, model = model, state = state)
+                awakeShadcnSurface(
+                    id = "starter-side-compact",
+                    width = sideWidth,
+                    height = Dimension.WrapContent
+                ) { _ ->
+                    drawStarterInspectorPanel(model = model, state = state)
                 }
             }
             panel(
                 id = "starter-footer-compact",
                 width = footerWidth,
                 height = Dimension.WrapContent,
+                style = AwakeShadcnStyles.surface(AwakeShadcnSurfaceVariant.Card),
                 modifier = UiModifier()
                     .align(UiAlignment.BottomStart)
                     .padding(16f.dp)
-            ) { slot ->
-                drawStarterFooter(showcaseActive = showcaseActive)
+            ) { _ ->
+                drawStarterFooter()
             }
         } else {
             panel(
                 id = "starter-nav",
                 width = navWidth,
                 height = Dimension.WrapContent,
+                style = AwakeShadcnStyles.surface(AwakeShadcnSurfaceVariant.Sidebar),
                 modifier = UiModifier()
                     .align(UiAlignment.TopStart)
                     .padding(start = 20f.dp, top = 20f.dp, end = 0f.dp, bottom = 0f.dp)
-            ) { slot ->
+            ) { _ ->
                 drawStarterNavigation(model, router)
             }
 
             panel(
-                id = if (showcaseActive) "starter-showcase" else "starter-inspector",
+                id = "starter-inspector",
                 width = sideWidth,
                 height = Dimension.WrapContent,
+                style = AwakeShadcnStyles.surface(AwakeShadcnSurfaceVariant.Card),
                 modifier = UiModifier()
                     .align(UiAlignment.TopEnd)
                     .padding(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)
-            ) { slot ->
-                drawStarterSidePanel(showcaseActive = showcaseActive, model = model, state = state)
+            ) { _ ->
+                drawStarterInspectorPanel(model = model, state = state)
             }
 
             panel(
                 id = "starter-footer",
                 width = footerWidth,
                 height = Dimension.WrapContent,
+                style = AwakeShadcnStyles.surface(AwakeShadcnSurfaceVariant.Card),
                 modifier = UiModifier()
                     .align(UiAlignment.BottomStart)
                     .padding(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 20f.dp)
-            ) { slot ->
-                drawStarterFooter(showcaseActive = showcaseActive)
+            ) { _ ->
+                drawStarterFooter()
             }
         }
     }
@@ -146,47 +160,38 @@ private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterNavigat
     }
 }
 
-private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterSidePanel(
-    showcaseActive: Boolean,
+private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterInspectorPanel(
     model: io.github.ronjunevaldoz.awake.sample.startergame.presentation.StarterOverlayModel,
     state: StarterGameRuntimeState
 ) {
-    if (showcaseActive) {
-        drawStarterShadcnShowcaseContent(state)
-    } else {
-        awakeShadcnBadge("INSPECTOR", variant = AwakeShadcnBadgeVariant.Outline)
-        sectionTitle("Scaffold")
-        metaText("scene flow")
-        metaText("shared UI shell")
-        metaText("thin platform entrypoints")
-        spacer(10f)
-        val nextTipsVisible = awakeShadcnPropertyToggle(
-            id = "starter-tips",
-            checked = model.tipsVisible,
-            label = "Show notes",
-            height = 24f
-        )
-        if (nextTipsVisible != model.tipsVisible) {
-            state.tipsVisible = nextTipsVisible
-        }
-        if (state.tipsVisible) {
-            spacer(8f)
-            supportingLines(model.notes)
-        }
+    awakeShadcnBadge("INSPECTOR", variant = AwakeShadcnBadgeVariant.Outline)
+    sectionTitle("Scaffold")
+    metaText("scene flow")
+    metaText("shared UI shell")
+    metaText("thin platform entrypoints")
+    spacer(10f)
+    val nextTipsVisible = awakeShadcnPropertyToggle(
+        id = "starter-tips",
+        checked = model.tipsVisible,
+        label = "Show notes",
+        height = 24f
+    )
+    if (nextTipsVisible != model.tipsVisible) {
+        state.tipsVisible = nextTipsVisible
+    }
+    if (state.tipsVisible) {
+        spacer(8f)
+        supportingLines(model.notes)
     }
 }
 
-private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterFooter(showcaseActive: Boolean) {
-    awakeShadcnBadge(if (showcaseActive) "SHOWCASE" else "REFERENCE", variant = AwakeShadcnBadgeVariant.Secondary)
+private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterFooter() {
+    awakeShadcnBadge("REFERENCE", variant = AwakeShadcnBadgeVariant.Secondary)
     supportingLines(
         listOf(
             "Desktop: WASD / arrows / mouse",
             "WebSocket debug can switch scenes remotely",
-            if (showcaseActive) {
-                "Showcase scene previews the Awake shadcn component layer."
-            } else {
-                "Reference scaffold with a dedicated showcase scene."
-            }
+            "Starter shell stays focused on scene flow and shared sample scaffolding."
         )
     )
 }

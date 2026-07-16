@@ -1,8 +1,8 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.sample.startergame.state
+package io.github.ronjunevaldoz.awake.sample.uishowcase.state
 
-internal object StarterCounterContract {
+internal object UiShowcaseCounterContract {
     data class State(
         val count: Int = 0
     )
