@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+
 /**
  * shadcn/ui's button variant vocabulary, scoped down to what a fill/border decision needs --
  * [Filled] (the only variant that existed before this) always paints its resolved [Style]
@@ -23,9 +25,9 @@ enum class UiButtonVariant {
  * alpha [UiDrawPrimitive.Quad]/[UiDrawPrimitive.RoundedQuad] is skipped entirely by
  * [buttonSlot] rather than emitted (no backend does alpha-culling itself), so this constant
  * only matters as the "should I skip the fill" check, never actually reaches a primitive. */
-private val TRANSPARENT = floatArrayOf(0f, 0f, 0f, 0f)
+private val TRANSPARENT = Color.Transparent
 
-internal fun UiButtonVariant.resolveFill(baseColor: FloatArray, hovered: Boolean, active: Boolean): FloatArray =
+internal fun UiButtonVariant.resolveFill(baseColor: Color, hovered: Boolean, active: Boolean): Color =
     when (this) {
         UiButtonVariant.Filled -> baseColor
         UiButtonVariant.Outline, UiButtonVariant.Ghost -> if (hovered || active) baseColor else TRANSPARENT

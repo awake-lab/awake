@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+
 /**
  * Backend-neutral output of a [UiContext] frame -- each backend's `Renderer.drawUi` converts
  * these into its own dynamic vertex/index buffer. Pixel-space coordinates (screen-space,
@@ -13,13 +15,13 @@ sealed class UiDrawPrimitive {
         val y: Float,
         val w: Float,
         val h: Float,
-        val color: FloatArray
+        val color: Color
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Quad) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
-                color.contentEquals(other.color)
+                color == other.color
         }
 
         override fun hashCode(): Int {
@@ -27,7 +29,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + y.hashCode()
             result = 31 * result + w.hashCode()
             result = 31 * result + h.hashCode()
-            result = 31 * result + color.contentHashCode()
+            result = 31 * result + color.hashCode()
             return result
         }
     }
@@ -43,14 +45,14 @@ sealed class UiDrawPrimitive {
         val y: Float,
         val w: Float,
         val h: Float,
-        val color: FloatArray,
+        val color: Color,
         val radius: Float
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is RoundedQuad) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
-                radius == other.radius && color.contentEquals(other.color)
+                radius == other.radius && color == other.color
         }
 
         override fun hashCode(): Int {
@@ -59,7 +61,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + w.hashCode()
             result = 31 * result + h.hashCode()
             result = 31 * result + radius.hashCode()
-            result = 31 * result + color.contentHashCode()
+            result = 31 * result + color.hashCode()
             return result
         }
     }
@@ -76,14 +78,14 @@ sealed class UiDrawPrimitive {
         val v0: Float,
         val u1: Float,
         val v1: Float,
-        val color: FloatArray
+        val color: Color
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Glyph) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
                 u0 == other.u0 && v0 == other.v0 && u1 == other.u1 && v1 == other.v1 &&
-                color.contentEquals(other.color)
+                color == other.color
         }
 
         override fun hashCode(): Int {
@@ -95,7 +97,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + v0.hashCode()
             result = 31 * result + u1.hashCode()
             result = 31 * result + v1.hashCode()
-            result = 31 * result + color.contentHashCode()
+            result = 31 * result + color.hashCode()
             return result
         }
     }
@@ -105,17 +107,17 @@ sealed class UiDrawPrimitive {
      * shader support lands. */
     data class FilledPath(
         val path: UiPath,
-        val color: FloatArray
+        val color: Color
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is FilledPath) return false
-            return path == other.path && color.contentEquals(other.color)
+            return path == other.path && color == other.color
         }
 
         override fun hashCode(): Int {
             var result = path.hashCode()
-            result = 31 * result + color.contentHashCode()
+            result = 31 * result + color.hashCode()
             return result
         }
     }
@@ -125,18 +127,18 @@ sealed class UiDrawPrimitive {
     data class StrokedPath(
         val path: UiPath,
         val stroke: UiStroke,
-        val color: FloatArray
+        val color: Color
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is StrokedPath) return false
-            return path == other.path && stroke == other.stroke && color.contentEquals(other.color)
+            return path == other.path && stroke == other.stroke && color == other.color
         }
 
         override fun hashCode(): Int {
             var result = path.hashCode()
             result = 31 * result + stroke.hashCode()
-            result = 31 * result + color.contentHashCode()
+            result = 31 * result + color.hashCode()
             return result
         }
     }

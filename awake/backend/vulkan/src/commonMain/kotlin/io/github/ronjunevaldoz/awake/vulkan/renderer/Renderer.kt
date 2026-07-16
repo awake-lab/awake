@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.renderer
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
@@ -963,7 +964,7 @@ class Renderer(
 
     private fun stageColoredTriangleMeshes(
         mesh: DynamicMesh,
-        geometries: List<Pair<io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, FloatArray>>,
+        geometries: List<Pair<io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, Color>>,
         label: String
     ) {
         val maxVertices = MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
@@ -1055,7 +1056,7 @@ class Renderer(
         halfW: Float,
         halfH: Float,
         radius: Float,
-        color: FloatArray
+        color: Color
     ) {
         out[offset] = x
         out[offset + 1] = y
@@ -1064,10 +1065,10 @@ class Renderer(
         out[offset + 4] = halfW
         out[offset + 5] = halfH
         out[offset + 6] = radius
-        out[offset + 7] = color[0]
-        out[offset + 8] = color[1]
-        out[offset + 9] = color[2]
-        out[offset + 10] = if (color.size > 3) color[3] else 1f
+        out[offset + 7] = color.r
+        out[offset + 8] = color.g
+        out[offset + 9] = color.b
+        out[offset + 10] = color.a
     }
 
     /** Writes [glyphs] (one run's worth) into [mesh] -- extracted from the old single-mesh
@@ -1122,7 +1123,7 @@ class Renderer(
 
     private fun stageTexturedTriangleMeshes(
         mesh: DynamicMesh,
-        geometries: List<Pair<UiTexturedTriangleMesh, FloatArray>>,
+        geometries: List<Pair<UiTexturedTriangleMesh, Color>>,
         label: String
     ) {
         val maxVertices = MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
@@ -1175,7 +1176,7 @@ class Renderer(
         indices = intArrayOf(0, 1, 2, 2, 3, 0)
     )
 
-    private fun texturedGeometryBuffers(mesh: UiTexturedTriangleMesh, color: FloatArray): Pair<FloatArray, IntArray> {
+    private fun texturedGeometryBuffers(mesh: UiTexturedTriangleMesh, color: Color): Pair<FloatArray, IntArray> {
         val vertices = FloatArray(mesh.vertices.size * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
         var offset = 0
         mesh.vertices.forEach { vertex ->
@@ -1261,24 +1262,24 @@ class Renderer(
         out[offset + 6] = if (color.size > 3) color[3] else 1f
     }
 
-    private fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: FloatArray) {
+    private fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: Color) {
         out[offset] = x
         out[offset + 1] = y
-        out[offset + 2] = color[0]
-        out[offset + 3] = color[1]
-        out[offset + 4] = color[2]
-        out[offset + 5] = if (color.size > 3) color[3] else 1f
+        out[offset + 2] = color.r
+        out[offset + 3] = color.g
+        out[offset + 4] = color.b
+        out[offset + 5] = color.a
     }
 
-    private fun writeGlyphVertex(out: FloatArray, offset: Int, x: Float, y: Float, u: Float, v: Float, color: FloatArray) {
+    private fun writeGlyphVertex(out: FloatArray, offset: Int, x: Float, y: Float, u: Float, v: Float, color: Color) {
         out[offset] = x
         out[offset + 1] = y
         out[offset + 2] = u
         out[offset + 3] = v
-        out[offset + 4] = color[0]
-        out[offset + 5] = color[1]
-        out[offset + 6] = color[2]
-        out[offset + 7] = if (color.size > 3) color[3] else 1f
+        out[offset + 4] = color.r
+        out[offset + 5] = color.g
+        out[offset + 6] = color.b
+        out[offset + 7] = color.a
     }
 
     /** Rebuilds the swapchain (and everything sized off it -- depth image, main + UI
@@ -1524,7 +1525,7 @@ class Renderer(
         val clearColorValue = VkClearColorValue.rgba(0f, 0f, 0f, 1f)
         val clearDepthValue = VkClearDepthStencilValue(depth = 1f, stencil = 0)
 
-        private val WHITE_RGBA = floatArrayOf(1f, 1f, 1f, 1f)
+        private val WHITE_RGBA = Color.White
 
         /** [createMaterial]'s fallback when called with a null texture -- same 1x1 white
          * pixel `VulkanGameApplication` used to bind unconditionally. */

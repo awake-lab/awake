@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -27,9 +28,9 @@ class UiRasterizerTest {
                 v0 = uv.v0,
                 u1 = uv.u1,
                 v1 = uv.v1,
-                color = floatArrayOf(1f, 1f, 1f, 1f)
+                color = Color.White
             )
-        ).rasterize(font.cellSize, font.cellSize, background = floatArrayOf(0f, 0f, 0f, 0f), font = font)
+        ).rasterize(font.cellSize, font.cellSize, background = Color.Transparent, font = font)
 
         val atlasPixels = font.atlasPixelsRgba
         val atlasCellStart = ((uv.u0 * font.atlasWidth).toInt()) * 4
@@ -57,9 +58,9 @@ class UiRasterizerTest {
                 v0 = uv.v0,
                 u1 = uv.u1,
                 v1 = uv.v1,
-                color = floatArrayOf(1f, 1f, 1f, 1f)
+                color = Color.White
             )
-        ).rasterize(font.cellSize, font.cellSize, background = floatArrayOf(0f, 0f, 0f, 0f), font = font)
+        ).rasterize(font.cellSize, font.cellSize, background = Color.Transparent, font = font)
 
         assertTrue(pixels.anyIndexed { index, byte -> index % 4 == 3 && (byte.toInt() and 0xFF) > 0 })
     }
@@ -72,10 +73,10 @@ class UiRasterizerTest {
                 y = 4f,
                 w = 24f,
                 h = 24f,
-                color = floatArrayOf(1f, 0f, 0f, 1f),
+                color = Color(1f, 0f, 0f, 1f),
                 radius = UiShapeSpec.RoundedRectangle(8f.dp).radius.toPx()
             )
-        ).rasterize(32, 32, background = floatArrayOf(0f, 0f, 0f, 0f))
+        ).rasterize(32, 32, background = Color.Transparent)
 
         fun alphaAt(x: Int, y: Int): Int = pixels[(y * 32 + x) * 4 + 3].toInt() and 0xFF
 

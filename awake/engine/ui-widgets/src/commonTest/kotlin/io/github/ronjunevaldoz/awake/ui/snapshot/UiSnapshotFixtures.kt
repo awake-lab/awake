@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.CoreUiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
@@ -50,7 +51,7 @@ data class UiSnapshotScene(
     val width: Int,
     val height: Int,
     val primitives: List<io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive>,
-    val background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f),
+    val background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
     val font: BitmapFont? = null,
     val title: String? = null,
     val summary: String? = null
@@ -171,7 +172,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
         name: String,
         width: Int,
         height: Int,
-        background: FloatArray,
+        background: Color,
         title: String,
         summary: String,
         build: UiContext.(BitmapFont) -> Unit
@@ -284,13 +285,13 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 height = Dimension.Fixed(164f.px),
                 style = Style {
                     shape(UiShapeSpec.CutCorner(18f.dp))
-                    background(floatArrayOf(0.13f, 0.16f, 0.24f, 1f))
-                    border(2f.dp, floatArrayOf(0.38f, 0.58f, 0.94f, 1f))
+                    background(Color(0.13f, 0.16f, 0.24f, 1f))
+                    border(2f.dp, Color(0.38f, 0.58f, 0.94f, 1f))
                     contentPadding(14f.dp)
                 },
                 clipContent = true
             ) { slot ->
-                text("Rounded + Clip + Vector", color = floatArrayOf(0.94f, 0.96f, 1f, 1f))
+                text("Rounded + Clip + Vector", color = Color(0.94f, 0.96f, 1f, 1f))
                 text(
                     "The icon intentionally overflows and gets clipped by the cut-corner shell.",
                     color = CoreUiTheme.tokens.mutedForeground,
@@ -312,12 +313,12 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         height = Dimension.Fixed(56f.px),
                         style = Style {
                             shape(28f.dp)
-                            background(floatArrayOf(0.2f, 0.24f, 0.36f, 1f))
-                            border(1f.dp, floatArrayOf(0.56f, 0.72f, 1f, 1f))
+                            background(Color(0.2f, 0.24f, 0.36f, 1f))
+                            border(1f.dp, Color(0.56f, 0.72f, 1f, 1f))
                         },
                         modifier = UiModifier().align(UiAlignment.Center)
                     ) {
-                        text("ICON CHIP", color = floatArrayOf(0.95f, 0.97f, 1f, 1f))
+                        text("ICON CHIP", color = Color(0.95f, 0.97f, 1f, 1f))
                     }
                     icon(
                         imageVector = tutorialSparkleIcon,
@@ -325,7 +326,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                             .align(UiAlignment.CenterEnd)
                             .offset(x = 18f.dp)
                             .size(88f.dp, 88f.dp),
-                        tint = floatArrayOf(0.68f, 0.84f, 1f, 0.95f)
+                        tint = Color(0.68f, 0.84f, 1f, 0.95f)
                     )
                 }
             }
@@ -399,19 +400,19 @@ private fun buttonVariantId(variant: UiButtonVariant): String = when (variant) {
 
 private object SnapshotLightUiTheme : UiTheme {
     override val tokens: UiColorTokens = object : UiColorTokens {
-        override val background = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
-        override val foreground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
-        override val primary = floatArrayOf(0.2f, 0.2f, 0.24f, 1f)
-        override val primaryForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
-        override val secondary = floatArrayOf(0.9f, 0.9f, 0.92f, 1f)
-        override val secondaryForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
-        override val muted = floatArrayOf(0.9f, 0.9f, 0.92f, 1f)
-        override val mutedForeground = floatArrayOf(0.4f, 0.4f, 0.45f, 1f)
-        override val accent = floatArrayOf(0.85f, 0.85f, 0.88f, 1f)
-        override val accentForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
-        override val destructive = floatArrayOf(0.8f, 0.2f, 0.2f, 1f)
-        override val destructiveForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
-        override val border = floatArrayOf(0.8f, 0.8f, 0.83f, 1f)
+        override val background = Color(0.98f, 0.98f, 0.99f, 1f)
+        override val foreground = Color(0.1f, 0.1f, 0.12f, 1f)
+        override val primary = Color(0.2f, 0.2f, 0.24f, 1f)
+        override val primaryForeground = Color(0.98f, 0.98f, 0.99f, 1f)
+        override val secondary = Color(0.9f, 0.9f, 0.92f, 1f)
+        override val secondaryForeground = Color(0.1f, 0.1f, 0.12f, 1f)
+        override val muted = Color(0.9f, 0.9f, 0.92f, 1f)
+        override val mutedForeground = Color(0.4f, 0.4f, 0.45f, 1f)
+        override val accent = Color(0.85f, 0.85f, 0.88f, 1f)
+        override val accentForeground = Color(0.1f, 0.1f, 0.12f, 1f)
+        override val destructive = Color(0.8f, 0.2f, 0.2f, 1f)
+        override val destructiveForeground = Color(0.98f, 0.98f, 0.99f, 1f)
+        override val border = Color(0.8f, 0.8f, 0.83f, 1f)
     }
 
     override val components = CoreUiComponentStyles(tokens)

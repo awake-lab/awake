@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Style
@@ -547,7 +548,7 @@ fun UiAbsoluteDslScope.awakeShadcnSurface(
     content = content
 )
 
-private val TRANSPARENT = floatArrayOf(0f, 0f, 0f, 0f)
+private val TRANSPARENT = Color.Transparent
 private val BadgeContentStyle = Style { contentPadding(10f.dp, 4f.dp) }
 
 private fun AwakeShadcnButtonVariant.toUiButtonVariant(): UiButtonVariant = when (this) {
@@ -556,9 +557,4 @@ private fun AwakeShadcnButtonVariant.toUiButtonVariant(): UiButtonVariant = when
     else -> UiButtonVariant.Filled
 }
 
-private fun dim(color: FloatArray, brightness: Float): FloatArray = floatArrayOf(
-    (color[0] * brightness).coerceIn(0f, 1f),
-    (color[1] * brightness).coerceIn(0f, 1f),
-    (color[2] * brightness).coerceIn(0f, 1f),
-    color[3]
-)
+private fun dim(color: Color, brightness: Float): Color = color.brighten(brightness)

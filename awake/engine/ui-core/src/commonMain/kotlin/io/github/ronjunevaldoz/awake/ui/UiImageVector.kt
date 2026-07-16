@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+
 data class UiVectorPath(
     val path: UiPath,
-    val fill: FloatArray? = null
+    val fill: Color? = null
 )
 
 data class UiImageVector(
@@ -23,7 +25,7 @@ class UiImageVectorBuilder internal constructor(
 ) {
     private val paths = ArrayList<UiVectorPath>()
 
-    fun path(fill: FloatArray? = null, block: UiPathBuilder.() -> Unit) {
+    fun path(fill: Color? = null, block: UiPathBuilder.() -> Unit) {
         paths += UiVectorPath(
             path = uiPath(block = block),
             fill = fill

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import java.awt.image.BufferedImage
@@ -25,7 +26,7 @@ fun saveUiSnapshot(
     primitives: List<UiDrawPrimitive>,
     width: Int,
     height: Int,
-    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f),
+    background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
     font: BitmapFont? = null
 ) {
     val pixels = primitives.rasterize(width, height, background, font)
@@ -52,7 +53,7 @@ fun saveUiTutorialSnapshot(
     primitives: List<UiDrawPrimitive>,
     width: Int,
     height: Int,
-    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f),
+    background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
     font: BitmapFont? = null
 ) {
     saveUiSnapshot(name, primitives, width, height, background, font)

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.snapshot.rasterize
 import kotlin.test.Test
@@ -81,7 +82,7 @@ class ClipAndBorderTest {
         ui.beginFrame(200f, 200f)
         val scope = ui.absolute(0f, 0f)
         val slot = UiSlot(10f, 10f, 100f, 50f)
-        val color = floatArrayOf(1f, 0f, 0f, 1f)
+        val color = Color(1f, 0f, 0f, 1f)
 
         scope.border(slot, width = 2f.dp, color = color)
 
@@ -120,7 +121,7 @@ class ClipAndBorderTest {
         val ui = UiContext()
         ui.beginFrame(200f, 200f)
         val scope = ui.absolute(0f, 0f)
-        val customColor = floatArrayOf(1f, 0f, 0f, 1f)
+        val customColor = Color(1f, 0f, 0f, 1f)
         scope.buttonSlot(
             "b",
             100f,
@@ -129,7 +130,7 @@ class ClipAndBorderTest {
             variant = UiButtonVariant.Filled
         )
         val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
-        val borderQuads = quads.filter { it.color.contentEquals(customColor) }
+        val borderQuads = quads.filter { it.color == customColor }
         assertEquals(4, borderQuads.size, "style.border() must draw all 4 edge quads even for a Filled (non-Outline) button")
     }
 
@@ -139,7 +140,7 @@ class ClipAndBorderTest {
         val ui = UiContext()
         ui.beginFrame(200f, 200f)
         val scope = ui.absolute(0f, 0f)
-        val customBorder = floatArrayOf(1f, 0f, 0f, 1f)
+        val customBorder = Color(1f, 0f, 0f, 1f)
 
         scope.buttonSlot(
             "b",
@@ -189,7 +190,7 @@ class ClipAndBorderTest {
 
     @Test
     fun pathClipRasterizerMasksPixelsOutsideCutCorner() {
-        val red = floatArrayOf(1f, 0f, 0f, 1f)
+        val red = Color(1f, 0f, 0f, 1f)
         val primitives = buildList {
             add(UiDrawPrimitive.ClipPathPush(UiShapeSpec.CutCorner(8f.dp).toPath(UiSlot(10f, 10f, 40f, 30f)), UiSlot(10f, 10f, 40f, 30f)))
             add(UiDrawPrimitive.Quad(10f, 10f, 40f, 30f, red))
@@ -225,7 +226,7 @@ class ClipAndBorderTest {
             style = Style { shape(UiShapeSpec.CutCorner(8f.dp)) },
             clipContent = true
         ) { slot ->
-            emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, floatArrayOf(1f, 0f, 0f, 1f)))
+            emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, Color(1f, 0f, 0f, 1f)))
         }
 
         val primitives = ui.endFrame()

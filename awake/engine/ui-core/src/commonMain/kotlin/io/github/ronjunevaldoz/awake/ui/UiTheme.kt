@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+
 /**
  * Semantic color roles consumed by widgets and higher-level UI compositions.
  *
@@ -9,19 +11,19 @@ package io.github.ronjunevaldoz.awake.ui
  * design-system themes without growing [UiTheme] every time the widget surface expands.
  */
 interface UiColorTokens {
-    val background: FloatArray
-    val foreground: FloatArray
-    val primary: FloatArray
-    val primaryForeground: FloatArray
-    val secondary: FloatArray
-    val secondaryForeground: FloatArray
-    val muted: FloatArray
-    val mutedForeground: FloatArray
-    val accent: FloatArray
-    val accentForeground: FloatArray
-    val destructive: FloatArray
-    val destructiveForeground: FloatArray
-    val border: FloatArray
+    val background: Color
+    val foreground: Color
+    val primary: Color
+    val primaryForeground: Color
+    val secondary: Color
+    val secondaryForeground: Color
+    val muted: Color
+    val mutedForeground: Color
+    val accent: Color
+    val accentForeground: Color
+    val destructive: Color
+    val destructiveForeground: Color
+    val border: Color
 }
 
 /** hovered -> muted, active -> accent, base -> background. */
@@ -90,26 +92,21 @@ class CoreUiComponentStyles(tokens: UiColorTokens) : UiComponentStyles {
  */
 object CoreUiTheme : UiTheme {
     override val tokens = object : UiColorTokens {
-        override val background = floatArrayOf(0.25f, 0.25f, 0.28f, 0.9f)
-        override val foreground = floatArrayOf(1f, 1f, 1f, 1f)
-        override val primary = floatArrayOf(0.5f, 0.5f, 0.6f, 0.9f)
-        override val primaryForeground = floatArrayOf(1f, 1f, 1f, 1f)
-        override val secondary = floatArrayOf(0.35f, 0.35f, 0.4f, 0.9f)
-        override val secondaryForeground = floatArrayOf(1f, 1f, 1f, 1f)
-        override val muted = floatArrayOf(0.35f, 0.35f, 0.4f, 0.9f) // = old "hover" color
-        override val mutedForeground = floatArrayOf(0.8f, 0.8f, 0.8f, 1f)
-        override val accent = floatArrayOf(0.5f, 0.5f, 0.6f, 0.9f) // = old "active" color
-        override val accentForeground = floatArrayOf(1f, 1f, 1f, 1f)
-        override val destructive = floatArrayOf(0.8f, 0.2f, 0.2f, 0.9f)
-        override val destructiveForeground = floatArrayOf(1f, 1f, 1f, 1f)
-        override val border = floatArrayOf(0.4f, 0.4f, 0.45f, 0.9f)
+        override val background = Color(0.25f, 0.25f, 0.28f, 0.9f)
+        override val foreground = Color.White
+        override val primary = Color(0.5f, 0.5f, 0.6f, 0.9f)
+        override val primaryForeground = Color.White
+        override val secondary = Color(0.35f, 0.35f, 0.4f, 0.9f)
+        override val secondaryForeground = Color.White
+        override val muted = Color(0.35f, 0.35f, 0.4f, 0.9f) // = old "hover" color
+        override val mutedForeground = Color(0.8f, 0.8f, 0.8f, 1f)
+        override val accent = Color(0.5f, 0.5f, 0.6f, 0.9f) // = old "active" color
+        override val accentForeground = Color.White
+        override val destructive = Color(0.8f, 0.2f, 0.2f, 0.9f)
+        override val destructiveForeground = Color.White
+        override val border = Color(0.4f, 0.4f, 0.45f, 0.9f)
     }
     override val components: UiComponentStyles = CoreUiComponentStyles(tokens)
 }
 
-private fun brighten(color: FloatArray, brightness: Float): FloatArray = floatArrayOf(
-    (color[0] * brightness).coerceAtMost(1f),
-    (color[1] * brightness).coerceAtMost(1f),
-    (color[2] * brightness).coerceAtMost(1f),
-    color[3]
-)
+private fun brighten(color: Color, brightness: Float): Color = color.brighten(brightness)

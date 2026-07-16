@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.renderer
 
+import io.github.ronjunevaldoz.awake.core.colors.Color as AwakeColor
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
@@ -47,7 +48,7 @@ import io.ygdrasil.webgpu.BindGroupDescriptor
 import io.ygdrasil.webgpu.BindGroupEntry
 import io.ygdrasil.webgpu.BufferBinding
 import io.ygdrasil.webgpu.BufferDescriptor
-import io.ygdrasil.webgpu.Color
+import io.ygdrasil.webgpu.Color as GpuColor
 import io.ygdrasil.webgpu.Extent3D
 import io.ygdrasil.webgpu.GPUBindGroup
 import io.ygdrasil.webgpu.GPUBuffer
@@ -216,7 +217,7 @@ class Renderer(
                     RenderPassColorAttachment(
                         view = offscreen.colorView,
                         loadOp = GPULoadOp.Clear,
-                        clearValue = Color(0.0, 0.0, 0.0, 1.0),
+                        clearValue = GpuColor(0.0, 0.0, 0.0, 1.0),
                         storeOp = GPUStoreOp.Store
                     )
                 ),
@@ -518,7 +519,7 @@ class Renderer(
 
     private fun stageColoredTriangleMeshes(
         mesh: DynamicMesh,
-        geometries: List<Pair<io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, FloatArray>>,
+        geometries: List<Pair<io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, AwakeColor>>,
         label: String
     ) {
         val maxVertices = MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
@@ -612,7 +613,7 @@ class Renderer(
 
     private fun stageTexturedTriangleMeshes(
         mesh: DynamicMesh,
-        geometries: List<Pair<UiTexturedTriangleMesh, FloatArray>>,
+        geometries: List<Pair<UiTexturedTriangleMesh, AwakeColor>>,
         label: String
     ) {
         val maxVertices = MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
@@ -665,7 +666,7 @@ class Renderer(
         indices = intArrayOf(0, 1, 2, 2, 3, 0)
     )
 
-    private fun texturedGeometryBuffers(mesh: UiTexturedTriangleMesh, color: FloatArray): Pair<FloatArray, IntArray> {
+    private fun texturedGeometryBuffers(mesh: UiTexturedTriangleMesh, color: AwakeColor): Pair<FloatArray, IntArray> {
         val vertices = FloatArray(mesh.vertices.size * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
         var offset = 0
         mesh.vertices.forEach { vertex ->
@@ -704,24 +705,24 @@ class Renderer(
         out[offset + 6] = if (color.size > 3) color[3] else 1f
     }
 
-    private fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: FloatArray) {
+    private fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: AwakeColor) {
         out[offset] = x
         out[offset + 1] = y
-        out[offset + 2] = color[0]
-        out[offset + 3] = color[1]
-        out[offset + 4] = color[2]
-        out[offset + 5] = if (color.size > 3) color[3] else 1f
+        out[offset + 2] = color.r
+        out[offset + 3] = color.g
+        out[offset + 4] = color.b
+        out[offset + 5] = color.a
     }
 
-    private fun writeGlyphVertex(out: FloatArray, offset: Int, x: Float, y: Float, u: Float, v: Float, color: FloatArray) {
+    private fun writeGlyphVertex(out: FloatArray, offset: Int, x: Float, y: Float, u: Float, v: Float, color: AwakeColor) {
         out[offset] = x
         out[offset + 1] = y
         out[offset + 2] = u
         out[offset + 3] = v
-        out[offset + 4] = color[0]
-        out[offset + 5] = color[1]
-        out[offset + 6] = color[2]
-        out[offset + 7] = if (color.size > 3) color[3] else 1f
+        out[offset + 4] = color.r
+        out[offset + 5] = color.g
+        out[offset + 6] = color.b
+        out[offset + 7] = color.a
     }
 
     override fun draw(camera: Camera, drawCalls: List<DrawCall>) {
@@ -745,7 +746,7 @@ class Renderer(
                     RenderPassColorAttachment(
                         view = colorView,
                         loadOp = GPULoadOp.Clear,
-                        clearValue = Color(0.0, 0.0, 0.0, 1.0),
+                        clearValue = GpuColor(0.0, 0.0, 0.0, 1.0),
                         storeOp = GPUStoreOp.Store
                     )
                 ),
@@ -897,6 +898,6 @@ class Renderer(
     private companion object {
         const val MAX_UI_QUADS = 256
         const val MAX_DEBUG_LINES = 64
-        val WHITE_RGBA = floatArrayOf(1f, 1f, 1f, 1f)
+        val WHITE_RGBA = AwakeColor.White
     }
 }

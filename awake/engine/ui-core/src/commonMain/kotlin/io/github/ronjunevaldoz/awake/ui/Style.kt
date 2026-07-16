@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+
 data class UiInsets(
     val start: Dp = UiShape.none,
     val top: Dp = UiShape.none,
@@ -65,10 +67,10 @@ class MutableStyleState(
 }
 
 data class ResolvedStyle(
-    val background: FloatArray? = null,
-    val foreground: FloatArray? = null,
+    val background: Color? = null,
+    val foreground: Color? = null,
     val borderWidth: Dp = UiShape.none,
-    val borderColor: FloatArray? = null,
+    val borderColor: Color? = null,
     val shape: Dp = UiShape.none,
     val shapeSpec: UiShapeSpec? = null,
     val textScale: Float,
@@ -76,15 +78,15 @@ data class ResolvedStyle(
 )
 
 interface StyleScope {
-    fun background(color: FloatArray)
-    fun foreground(color: FloatArray)
-    fun border(width: Dp, color: FloatArray) {
+    fun background(color: Color)
+    fun foreground(color: Color)
+    fun border(width: Dp, color: Color) {
         borderWidth(width)
         borderColor(color)
     }
 
     fun borderWidth(width: Dp)
-    fun borderColor(color: FloatArray)
+    fun borderColor(color: Color)
     fun shape(radius: Dp)
     fun shape(shape: UiShapeSpec)
     fun textScale(scale: Float)
@@ -127,10 +129,10 @@ class Style private constructor(
 }
 
 private class ResolvedStyleBuilder(
-    var background: FloatArray? = null,
-    var foreground: FloatArray? = null,
+    var background: Color? = null,
+    var foreground: Color? = null,
     var borderWidth: Dp = UiShape.none,
-    var borderColor: FloatArray? = null,
+    var borderColor: Color? = null,
     var shape: Dp = UiShape.none,
     var shapeSpec: UiShapeSpec? = null,
     var textScale: Float,
@@ -164,11 +166,11 @@ private class StyleBuilder(
 
     fun build(): List<StyleRule> = rules
 
-    override fun background(color: FloatArray) {
+    override fun background(color: Color) {
         rules += StyleRule(predicate) { background = color }
     }
 
-    override fun foreground(color: FloatArray) {
+    override fun foreground(color: Color) {
         rules += StyleRule(predicate) { foreground = color }
     }
 
@@ -176,7 +178,7 @@ private class StyleBuilder(
         rules += StyleRule(predicate) { borderWidth = width }
     }
 
-    override fun borderColor(color: FloatArray) {
+    override fun borderColor(color: Color) {
         rules += StyleRule(predicate) { borderColor = color }
     }
 

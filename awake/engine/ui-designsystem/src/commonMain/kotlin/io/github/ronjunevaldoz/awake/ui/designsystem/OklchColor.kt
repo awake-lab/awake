@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import kotlin.math.cos
 import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.sin
 
 /**
- * OKLCH color token with conversion to the engine's normalized sRGB float-array format.
+ * OKLCH color token with conversion to the engine's shared sRGB [Color] type.
  *
  * Design-system code owns authored color decisions, so OKLCH lives here instead of `ui-core`.
  */
@@ -18,7 +19,7 @@ data class OklchColor(
     val hueDegrees: Float,
     val alpha: Float = 1f
 ) {
-    fun toSrgb(): FloatArray {
+    fun toSrgb(): Color {
         val hueRadians = hueDegrees.toDouble() * PI / 180.0
         val a = chroma * cos(hueRadians).toFloat()
         val b = chroma * sin(hueRadians).toFloat()
@@ -35,11 +36,11 @@ data class OklchColor(
         val greenLinear = (-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s).toFloat()
         val blueLinear = (-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s).toFloat()
 
-        return floatArrayOf(
-            redLinear.toSrgbChannel(),
-            greenLinear.toSrgbChannel(),
-            blueLinear.toSrgbChannel(),
-            alpha.coerceIn(0f, 1f).stableChannel()
+        return Color(
+            r = redLinear.toSrgbChannel(),
+            g = greenLinear.toSrgbChannel(),
+            b = blueLinear.toSrgbChannel(),
+            a = alpha.coerceIn(0f, 1f).stableChannel()
         )
     }
 }
@@ -49,7 +50,7 @@ fun oklch(
     chroma: Float,
     hueDegrees: Float = 0f,
     alpha: Float = 1f
-): FloatArray = OklchColor(lightness, chroma, hueDegrees, alpha).toSrgb()
+): Color = OklchColor(lightness, chroma, hueDegrees, alpha).toSrgb()
 
 private fun Float.toSrgbChannel(): Float {
     val clamped = coerceIn(0f, 1f)

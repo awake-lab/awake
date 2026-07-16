@@ -3,15 +3,15 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import kotlin.test.Test
-import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 class PresetUiThemesTest {
 
     @Test
     fun defaultPresetDelegatesToCoreFallbackPalette() {
-        assertContentEquals(DefaultUiTheme.tokens.background, DarkUiTheme.tokens.background)
-        assertContentEquals(
+        assertEquals(DefaultUiTheme.tokens.background, DarkUiTheme.tokens.background)
+        assertEquals(
             DefaultUiTheme.components.button.resolve().background!!,
             DarkUiTheme.components.button.resolve().background!!
         )
@@ -20,12 +20,12 @@ class PresetUiThemesTest {
     @Test
     fun lightPresetSwapsBackgroundLuminance() {
         assertNotEquals(
-            DefaultUiTheme.tokens.background.toList(),
-            LightUiTheme.tokens.background.toList()
+            DefaultUiTheme.tokens.background,
+            LightUiTheme.tokens.background
         )
         assertNotEquals(
-            DefaultUiTheme.tokens.foreground.toList(),
-            LightUiTheme.tokens.foreground.toList()
+            DefaultUiTheme.tokens.foreground,
+            LightUiTheme.tokens.foreground
         )
     }
 }

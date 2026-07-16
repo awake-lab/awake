@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
@@ -20,16 +21,16 @@ class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnThemeTracksOfficialNeutralDarkRoles() {
-        assertColorClose(floatArrayOf(0.039388f, 0.039388f, 0.039388f, 1f), AwakeShadcnTheme.tokens.background)
-        assertColorClose(floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f), AwakeShadcnTheme.tokens.foreground)
-        assertColorClose(floatArrayOf(0.898161f, 0.898161f, 0.898161f, 1f), AwakeShadcnTheme.tokens.primary)
-        assertColorClose(floatArrayOf(1f, 1f, 1f, 0.1f), AwakeShadcnTheme.tokens.border)
+        assertColorClose(Color(0.039388f, 0.039388f, 0.039388f, 1f), AwakeShadcnTheme.tokens.background)
+        assertColorClose(Color(0.980256f, 0.980256f, 0.980256f, 1f), AwakeShadcnTheme.tokens.foreground)
+        assertColorClose(Color(0.898161f, 0.898161f, 0.898161f, 1f), AwakeShadcnTheme.tokens.primary)
+        assertColorClose(Color(1f, 1f, 1f, 0.1f), AwakeShadcnTheme.tokens.border)
     }
 
     @Test
     fun oklchProducesExpectedNeutralSrgbValues() {
-        assertColorClose(floatArrayOf(1f, 1f, 1f, 0.1f), oklch(1f, 0f, alpha = 0.1f))
-        assertColorClose(floatArrayOf(0.630163f, 0.630163f, 0.630163f, 1f), oklch(0.708f, 0f))
+        assertColorClose(Color(1f, 1f, 1f, 0.1f), oklch(1f, 0f, alpha = 0.1f))
+        assertColorClose(Color(0.630163f, 0.630163f, 0.630163f, 1f), oklch(0.708f, 0f))
     }
 
     @Test
@@ -150,12 +151,16 @@ class AwakeShadcnDesignSystemTest {
     }
 }
 
-private fun assertColorClose(expected: FloatArray, actual: FloatArray, tolerance: Float = 0.005f) {
-    assertEquals(expected.size, actual.size, "color channel count mismatch")
-    expected.indices.forEach { index ->
+private fun assertColorClose(expected: Color, actual: Color, tolerance: Float = 0.005f) {
+    listOf(
+        expected.r to actual.r,
+        expected.g to actual.g,
+        expected.b to actual.b,
+        expected.a to actual.a
+    ).forEachIndexed { index, (expectedChannel, actualChannel) ->
         assertTrue(
-            abs(expected[index] - actual[index]) <= tolerance,
-            "channel $index expected ${expected[index]} but was ${actual[index]}"
+            abs(expectedChannel - actualChannel) <= tolerance,
+            "channel $index expected $expectedChannel but was $actualChannel"
         )
     }
 }

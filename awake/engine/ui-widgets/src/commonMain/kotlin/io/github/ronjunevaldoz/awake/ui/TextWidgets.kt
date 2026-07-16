@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.math.floor
 
@@ -21,7 +22,7 @@ fun UiScope.text(
     label: String,
     slot: UiSlot = claimSlot(Dimension.FillMax, Dimension.Fixed(((this.font?.let { it.cellSize * resolvedTextScale() } ?: 0f)).px)),
     font: BitmapFont? = this.font,
-    color: FloatArray = theme.tokens.foreground,
+    color: Color = theme.tokens.foreground,
     centered: Boolean = false,
     wrap: UiTextWrap = UiTextWrap.None,
     overflow: UiTextOverflow = UiTextOverflow.Visible,

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.containsPoint
@@ -21,16 +22,16 @@ private val tutorialManifestLock = Any()
 private fun List<UiDrawPrimitive>.rasterize(
     width: Int,
     height: Int,
-    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f),
+    background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
     font: BitmapFont? = null
 ): ByteArray {
     val pixels = ByteArray(width * height * 4)
     var i = 0
     while (i < pixels.size) {
-        pixels[i] = (background[0] * 255).toInt().toByte()
-        pixels[i + 1] = (background[1] * 255).toInt().toByte()
-        pixels[i + 2] = (background[2] * 255).toInt().toByte()
-        pixels[i + 3] = (if (background.size > 3) background[3] else 1f).let { (it * 255).toInt().toByte() }
+        pixels[i] = (background.r * 255).toInt().toByte()
+        pixels[i + 1] = (background.g * 255).toInt().toByte()
+        pixels[i + 2] = (background.b * 255).toInt().toByte()
+        pixels[i + 3] = (background.a * 255).toInt().toByte()
         i += 4
     }
 
@@ -44,15 +45,15 @@ private fun List<UiDrawPrimitive>.rasterize(
 
     fun passesPathClips(x: Float, y: Float): Boolean = activePathClips.all { it.containsPoint(x, y) }
 
-    fun fillRect(x: Float, y: Float, w: Float, h: Float, color: FloatArray) {
+    fun fillRect(x: Float, y: Float, w: Float, h: Float, color: Color) {
         val x0 = max(x, clipX0).toInt().coerceIn(0, width)
         val y0 = max(y, clipY0).toInt().coerceIn(0, height)
         val x1 = min(x + w, clipX1).toInt().coerceIn(0, width)
         val y1 = min(y + h, clipY1).toInt().coerceIn(0, height)
-        val r = (color[0] * 255).toInt().coerceIn(0, 255)
-        val g = (color[1] * 255).toInt().coerceIn(0, 255)
-        val b = (color[2] * 255).toInt().coerceIn(0, 255)
-        val a = ((if (color.size > 3) color[3] else 1f) * 255).toInt().coerceIn(0, 255)
+        val r = (color.r * 255).toInt().coerceIn(0, 255)
+        val g = (color.g * 255).toInt().coerceIn(0, 255)
+        val b = (color.b * 255).toInt().coerceIn(0, 255)
+        val a = (color.a * 255).toInt().coerceIn(0, 255)
         var py = y0
         while (py < y1) {
             var px = x0
@@ -77,10 +78,10 @@ private fun List<UiDrawPrimitive>.rasterize(
         val y0 = max(glyph.y, clipY0).toInt().coerceIn(0, height)
         val x1 = min(glyph.x + glyph.w, clipX1).toInt().coerceIn(0, width)
         val y1 = min(glyph.y + glyph.h, clipY1).toInt().coerceIn(0, height)
-        val r = (glyph.color[0] * 255).toInt().coerceIn(0, 255)
-        val g = (glyph.color[1] * 255).toInt().coerceIn(0, 255)
-        val b = (glyph.color[2] * 255).toInt().coerceIn(0, 255)
-        val tintAlpha = ((if (glyph.color.size > 3) glyph.color[3] else 1f) * 255).toInt().coerceIn(0, 255)
+        val r = (glyph.color.r * 255).toInt().coerceIn(0, 255)
+        val g = (glyph.color.g * 255).toInt().coerceIn(0, 255)
+        val b = (glyph.color.b * 255).toInt().coerceIn(0, 255)
+        val tintAlpha = (glyph.color.a * 255).toInt().coerceIn(0, 255)
         val atlasWidth = bitmapFont.atlasWidth
         val atlasHeight = bitmapFont.atlasHeight
         val atlasPixels = bitmapFont.atlasPixelsRgba
@@ -117,15 +118,15 @@ private fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
-    fun fillTriangle(ax: Float, ay: Float, bx: Float, by: Float, cx: Float, cy: Float, color: FloatArray) {
+    fun fillTriangle(ax: Float, ay: Float, bx: Float, by: Float, cx: Float, cy: Float, color: Color) {
         val minX = max(min(ax, min(bx, cx)), clipX0).toInt().coerceIn(0, width)
         val minY = max(min(ay, min(by, cy)), clipY0).toInt().coerceIn(0, height)
         val maxX = min(max(ax, max(bx, cx)), clipX1).toInt().coerceIn(0, width)
         val maxY = min(max(ay, max(by, cy)), clipY1).toInt().coerceIn(0, height)
-        val r = (color[0] * 255).toInt().coerceIn(0, 255)
-        val g = (color[1] * 255).toInt().coerceIn(0, 255)
-        val b = (color[2] * 255).toInt().coerceIn(0, 255)
-        val a = ((if (color.size > 3) color[3] else 1f) * 255).toInt().coerceIn(0, 255)
+        val r = (color.r * 255).toInt().coerceIn(0, 255)
+        val g = (color.g * 255).toInt().coerceIn(0, 255)
+        val b = (color.b * 255).toInt().coerceIn(0, 255)
+        val a = (color.a * 255).toInt().coerceIn(0, 255)
 
         fun edge(x0: Float, y0: Float, x1: Float, y1: Float, px: Float, py: Float): Float =
             (px - x0) * (y1 - y0) - (py - y0) * (x1 - x0)
@@ -153,7 +154,7 @@ private fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
-    fun fillTriangleMesh(path: io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, color: FloatArray) {
+    fun fillTriangleMesh(path: io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, color: Color) {
         var index = 0
         while (index + 2 < path.indices.size) {
             val a = path.points[path.indices[index]]
@@ -183,7 +184,7 @@ private fun List<UiDrawPrimitive>.rasterize(
                     fillRect(primitive.x + inset, primitive.y + inset, primitive.w - inset * 2, primitive.h - inset * 2, primitive.color)
                 }
             }
-            is UiDrawPrimitive.Texture -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, floatArrayOf(0.5f, 0.5f, 0.5f, 1f))
+            is UiDrawPrimitive.Texture -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, Color(0.5f, 0.5f, 0.5f, 1f))
             is UiDrawPrimitive.ClipPathPush -> {
                 clipStack.addLast(ClipSnapshot(floatArrayOf(clipX0, clipY0, clipX1, clipY1), activePathClips.size))
                 clipX0 = max(clipX0, primitive.boundsRect.x)
@@ -220,7 +221,7 @@ fun saveUiDslTutorialSnapshot(
     primitives: List<UiDrawPrimitive>,
     width: Int,
     height: Int,
-    background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f),
+    background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
     font: BitmapFont? = null
 ) {
     val pixels = primitives.rasterize(width, height, background, font)

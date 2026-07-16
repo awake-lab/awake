@@ -3,7 +3,37 @@
 package io.github.ronjunevaldoz.awake.core.colors
 
 data class Color(val r: Float = 0f, val g: Float = 0f, val b: Float = 0f, val a: Float = 1f) {
+    operator fun get(index: Int): Float = when (index) {
+        0 -> r
+        1 -> g
+        2 -> b
+        3 -> a
+        else -> throw IndexOutOfBoundsException("Color channel index $index is out of bounds.")
+    }
+
+    fun withAlpha(alpha: Float): Color = copy(a = alpha.coerceIn(0f, 1f))
+
+    fun brighten(multiplier: Float): Color = Color(
+        r = (r * multiplier).coerceAtMost(1f),
+        g = (g * multiplier).coerceAtMost(1f),
+        b = (b * multiplier).coerceAtMost(1f),
+        a = a
+    )
+
+    fun isTransparent(): Boolean = a <= 0f
+
+    fun toFloatArray(): FloatArray = floatArrayOf(r, g, b, a)
+
     companion object {
-        val White = Color()
+        val Transparent = Color(0f, 0f, 0f, 0f)
+        val Black = Color(0f, 0f, 0f, 1f)
+        val White = Color(1f, 1f, 1f, 1f)
+
+        fun fromChannels(channels: FloatArray): Color = Color(
+            r = channels.getOrElse(0) { 0f },
+            g = channels.getOrElse(1) { 0f },
+            b = channels.getOrElse(2) { 0f },
+            a = channels.getOrElse(3) { 1f }
+        )
     }
 }

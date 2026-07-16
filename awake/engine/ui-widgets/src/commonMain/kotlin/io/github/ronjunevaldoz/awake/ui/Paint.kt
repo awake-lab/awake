@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-internal val TransparentColor: FloatArray = floatArrayOf(0f, 0f, 0f, 0f)
+import io.github.ronjunevaldoz.awake.core.colors.Color
+
+internal val TransparentColor: Color = Color.Transparent
 
 /** Draws a [color] outline of [width] around an already-claimed [slot] as four thin
  * [UiDrawPrimitive.Quad] strips (top/right/bottom/left). */
-fun UiScope.border(slot: UiSlot, width: Dp = 1f.dp, color: FloatArray = theme.tokens.border, overlay: Boolean = false) {
+fun UiScope.border(slot: UiSlot, width: Dp = 1f.dp, color: Color = theme.tokens.border, overlay: Boolean = false) {
     val w = width.toPx()
     if (w <= 0f) return
     emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, w, color), overlay)
@@ -34,8 +36,8 @@ private fun UiScope.pathOnlyShape(slot: UiSlot, shapeSpec: UiShapeSpec?): UiShap
     is UiShapeSpec.CutCorner -> shapeSpec
 }
 
-private fun UiScope.emitFillShape(slot: UiSlot, color: FloatArray, radiusPx: Float, shapeSpec: UiShapeSpec?, overlay: Boolean = false) {
-    if (color[3] <= 0f) return
+private fun UiScope.emitFillShape(slot: UiSlot, color: Color, radiusPx: Float, shapeSpec: UiShapeSpec?, overlay: Boolean = false) {
+    if (color.isTransparent()) return
     val pathShape = pathOnlyShape(slot, shapeSpec)
     if (pathShape != null) {
         emitPrimitive(UiDrawPrimitive.FilledPath(pathShape.toPath(slot), color), overlay)
@@ -53,14 +55,14 @@ private fun UiScope.emitFillShape(slot: UiSlot, color: FloatArray, radiusPx: Flo
 /** Fill + border for one widget slot, sharing the corner radius correctly between the two. */
 fun UiScope.emitFillAndBorder(
     slot: UiSlot,
-    fillColor: FloatArray,
+    fillColor: Color,
     radiusPx: Float,
     borderWidth: Dp,
-    borderColor: FloatArray,
+    borderColor: Color,
     shapeSpec: UiShapeSpec? = null,
     overlay: Boolean = false
 ) {
-    val hasFill = fillColor[3] > 0f
+    val hasFill = !fillColor.isTransparent()
     val borderPx = borderWidth.toPx()
     val pathShape = pathOnlyShape(slot, shapeSpec)
     if (pathShape != null) {
