@@ -16,4 +16,8 @@ class WidgetState {
     fun <T> set(key: String, value: T) {
         values[key] = value
     }
+
+    fun remove(key: String) {
+        values.remove(key)
+    }
 }

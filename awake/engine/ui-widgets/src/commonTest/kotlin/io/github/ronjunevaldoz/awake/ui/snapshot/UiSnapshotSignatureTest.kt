@@ -70,11 +70,11 @@ private val expectedReviewSnapshotSignatures = mapOf(
 )
 
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0xd65138031cdebc12uL,
+    "ui-button-variants" to 0x8f473723504af057uL,
     "ui-shaped-panel" to 0x1880085cda2d8a85uL,
-    "ui-panel-controls" to 0xca6795603f601a79uL,
+    "ui-panel-controls" to 0x8f99ba7ade89fe8buL,
     "ui-rounded-clip-vector" to 0x014d4bd9cf8ae80auL,
-    "ui-awake-shadcn-showcase" to 0x315b80432510f034uL
+    "ui-awake-shadcn-showcase" to 0x1c105e5ec2db8100uL
 )
 
 private fun ULong.toHexString(): String {

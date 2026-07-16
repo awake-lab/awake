@@ -16,27 +16,27 @@ import io.github.ronjunevaldoz.awake.ui.dp
  * `ui-core` or `ui-widgets`.
  */
 object AwakeShadcnTheme : UiTheme {
-    internal val card = floatArrayOf(0.090527f, 0.090527f, 0.090527f, 1f)
+    internal val card = oklch(0.205f, 0f)
     internal val popover = card
-    internal val input = floatArrayOf(1f, 1f, 1f, 0.15f)
-    internal val ring = floatArrayOf(0.451519f, 0.451519f, 0.451519f, 1f)
-    private val hoverSurface = floatArrayOf(0.188f, 0.188f, 0.188f, 1f)
-    private val activeSurface = floatArrayOf(0.225f, 0.225f, 0.225f, 1f)
+    internal val input = oklch(1f, 0f, alpha = 0.15f)
+    internal val ring = oklch(0.556f, 0f)
+    private val hoverSurface = oklch(0.269f, 0f)
+    private val activeSurface = oklch(0.32f, 0f)
 
     override val tokens: UiColorTokens = object : UiColorTokens {
-        override val background = floatArrayOf(0.039388f, 0.039388f, 0.039388f, 1f)
-        override val foreground = floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f)
-        override val primary = floatArrayOf(0.898161f, 0.898161f, 0.898161f, 1f)
-        override val primaryForeground = floatArrayOf(0.090527f, 0.090527f, 0.090527f, 1f)
-        override val secondary = floatArrayOf(0.149382f, 0.149382f, 0.149382f, 1f)
-        override val secondaryForeground = floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f)
-        override val muted = floatArrayOf(0.149382f, 0.149382f, 0.149382f, 1f)
-        override val mutedForeground = floatArrayOf(0.630163f, 0.630163f, 0.630163f, 1f)
-        override val accent = floatArrayOf(0.149382f, 0.149382f, 0.149382f, 1f)
-        override val accentForeground = floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f)
-        override val destructive = floatArrayOf(1f, 0.391153f, 0.403857f, 1f)
-        override val destructiveForeground = floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f)
-        override val border = floatArrayOf(1f, 1f, 1f, 0.1f)
+        override val background = oklch(0.145f, 0f)
+        override val foreground = oklch(0.985f, 0f)
+        override val primary = oklch(0.922f, 0f)
+        override val primaryForeground = oklch(0.205f, 0f)
+        override val secondary = oklch(0.269f, 0f)
+        override val secondaryForeground = oklch(0.985f, 0f)
+        override val muted = oklch(0.269f, 0f)
+        override val mutedForeground = oklch(0.708f, 0f)
+        override val accent = oklch(0.269f, 0f)
+        override val accentForeground = oklch(0.985f, 0f)
+        override val destructive = oklch(0.704f, 0.191f, 22.216f)
+        override val destructiveForeground = oklch(0.985f, 0f)
+        override val border = oklch(1f, 0f, alpha = 0.1f)
     }
 
     override val components: UiComponentStyles = object : UiComponentStyles {

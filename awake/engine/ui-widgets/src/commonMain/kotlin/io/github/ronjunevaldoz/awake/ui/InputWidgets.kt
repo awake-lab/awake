@@ -69,15 +69,15 @@ fun UiScope.dropdown(
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Int? {
-    val state = widgetState(id)
+    val expandedState = rememberBooleanState(id, key = "expanded")
     val resolvedDefaults = theme.components.dropdown
     val selectedLabel = options.getOrNull(selectedIndex)
     val (clicked, slot) = buttonSlot(id, width, height, selectedLabel, modifier, style = resolvedDefaults then style)
     if (clicked) {
-        state.set("expanded", !state.get("expanded", false))
+        expandedState.update { !it }
     }
     var picked: Int? = null
-    if (state.get("expanded", false)) {
+    if (expandedState.value) {
         var anyOptionHovered = false
         options.forEachIndexed { index, option ->
             val optionSlot = UiSlot(slot.x, slot.y + slot.height * (index + 1), slot.width, slot.height)
@@ -146,7 +146,7 @@ fun UiScope.dropdown(
         }
         val headerHovered = hitTest(slot)
         if (!clicked && Input.pointerDown && !headerHovered && !anyOptionHovered) {
-            state.set("expanded", false)
+            expandedState.value = false
         }
     }
     return picked

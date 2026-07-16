@@ -25,7 +25,9 @@ import io.github.ronjunevaldoz.awake.ui.propertyCheckbox
 import io.github.ronjunevaldoz.awake.ui.propertyRow
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.slider
+import io.github.ronjunevaldoz.awake.ui.supportingText
 import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.toPx
@@ -433,6 +435,37 @@ fun UiColumnDslScope.awakeShadcnSurface(
     style = AwakeShadcnTheme.components.panel then style,
     content = content
 )
+
+fun UiColumnDslScope.awakeShadcnSectionTitle(
+    title: String,
+    style: Style = Style {
+        foreground(AwakeShadcnTheme.tokens.foreground)
+    }
+): UiSlot = sectionTitle(title = title, style = style)
+
+fun UiColumnDslScope.awakeShadcnSupportingText(
+    label: String,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style {
+        foreground(AwakeShadcnTheme.tokens.mutedForeground)
+    },
+    maxLines: Int = Int.MAX_VALUE
+): UiSlot = supportingText(
+    label = label,
+    modifier = modifier,
+    style = style,
+    maxLines = maxLines
+)
+
+fun UiColumnDslScope.awakeShadcnSectionHeader(
+    title: String,
+    description: String? = null
+) {
+    awakeShadcnSectionTitle(title)
+    if (!description.isNullOrBlank()) {
+        awakeShadcnSupportingText(description)
+    }
+}
 
 fun UiColumnDslScope.awakeShadcnPropertyToggle(
     id: String,

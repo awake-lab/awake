@@ -19,19 +19,19 @@ object DarkUiTheme : UiTheme by DefaultUiTheme
 
 object LightUiTheme : UiTheme {
     override val tokens: UiColorTokens = object : UiColorTokens {
-        override val background = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
-        override val foreground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
-        override val primary = floatArrayOf(0.2f, 0.2f, 0.24f, 1f)
-        override val primaryForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
-        override val secondary = floatArrayOf(0.9f, 0.9f, 0.92f, 1f)
-        override val secondaryForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
-        override val muted = floatArrayOf(0.9f, 0.9f, 0.92f, 1f)
-        override val mutedForeground = floatArrayOf(0.4f, 0.4f, 0.45f, 1f)
-        override val accent = floatArrayOf(0.85f, 0.85f, 0.88f, 1f)
-        override val accentForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
-        override val destructive = floatArrayOf(0.8f, 0.2f, 0.2f, 1f)
-        override val destructiveForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
-        override val border = floatArrayOf(0.8f, 0.8f, 0.83f, 1f)
+        override val background = oklch(1f, 0f)
+        override val foreground = oklch(0.145f, 0f)
+        override val primary = oklch(0.205f, 0f)
+        override val primaryForeground = oklch(0.985f, 0f)
+        override val secondary = oklch(0.97f, 0f)
+        override val secondaryForeground = oklch(0.205f, 0f)
+        override val muted = oklch(0.97f, 0f)
+        override val mutedForeground = oklch(0.556f, 0f)
+        override val accent = oklch(0.97f, 0f)
+        override val accentForeground = oklch(0.205f, 0f)
+        override val destructive = oklch(0.577f, 0.245f, 27.325f)
+        override val destructiveForeground = oklch(0.985f, 0f)
+        override val border = oklch(0.922f, 0f)
     }
 
     override val components = CoreUiComponentStyles(tokens)

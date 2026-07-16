@@ -19,13 +19,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertySlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSectionTitle
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.offset
-import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.shellPane
 import io.github.ronjunevaldoz.awake.ui.supportingLines
-import io.github.ronjunevaldoz.awake.ui.supportingText
 
 private val ShowcaseBadgeOptions = listOf("Primary", "Secondary", "Outline", "Danger")
 
@@ -47,10 +48,10 @@ internal fun GameUiRuntime.drawStarterShadcnShowcase(slot: UiSlot, state: Starte
 
 internal fun UiColumnDslScope.drawStarterShadcnShowcaseContent(state: StarterGameRuntimeState) {
     text("Awake Shadcn Showcase")
-    supportingText("Owned, Awake-native styling layered on top of the same core widgets and layout primitives.")
+    awakeShadcnSupportingText("Owned, Awake-native styling layered on top of the same core widgets and layout primitives.")
 
     spacer(6f)
-    sectionTitle("Buttons")
+    awakeShadcnSectionTitle("Buttons")
     row(height = 36f, gap = 8f) {
         awakeShadcnButton("showcase-primary", 120f, 36f, "Primary", variant = AwakeShadcnButtonVariant.Primary)
         awakeShadcnButton("showcase-secondary", 120f, 36f, "Secondary", variant = AwakeShadcnButtonVariant.Secondary)
@@ -62,7 +63,7 @@ internal fun UiColumnDslScope.drawStarterShadcnShowcaseContent(state: StarterGam
     }
 
     spacer(2f)
-    sectionTitle("Badges")
+    awakeShadcnSectionTitle("Badges")
     row(height = 30f, gap = 8f) {
         awakeShadcnBadge("LIVE", variant = AwakeShadcnBadgeVariant.Primary)
         awakeShadcnBadge("SCENE", variant = AwakeShadcnBadgeVariant.Secondary)
@@ -71,7 +72,7 @@ internal fun UiColumnDslScope.drawStarterShadcnShowcaseContent(state: StarterGam
     }
 
     spacer(2f)
-    sectionTitle("Controls")
+    awakeShadcnSectionTitle("Controls")
     val nextLive = awakeShadcnPropertyToggle(
         id = "showcase-live",
         label = "Live badge",
@@ -102,7 +103,7 @@ internal fun UiColumnDslScope.drawStarterShadcnShowcaseContent(state: StarterGam
     )
 
     spacer(2f)
-    sectionTitle("Preview")
+    awakeShadcnSectionTitle("Preview")
     val previewLift = context.animateFloat(
         id = "showcase-preview-lift",
         target = if (state.showcaseDangerMode) 10f else 0f,
@@ -122,7 +123,7 @@ internal fun UiColumnDslScope.drawStarterShadcnShowcaseContent(state: StarterGam
             variant = badgeVariant
         )
         text("Starter shell card")
-        supportingText("Buttons, badges, dropdowns, and sliders can all share the same branded token layer.")
+        awakeShadcnSupportingText("Buttons, badges, dropdowns, and sliders can all share the same branded token layer.")
         spacer(6f)
         row(height = 36f, gap = 8f) {
             if (
@@ -151,7 +152,7 @@ internal fun UiColumnDslScope.drawStarterShadcnShowcaseContent(state: StarterGam
     drawStarterCounterMviSample(state)
 
     spacer(2f)
-    sectionTitle("Why It Matters")
+    awakeShadcnSectionTitle("Why It Matters")
     supportingLines(
         listOf(
             "The sample still uses the shared scene router and platform-neutral game shell.",
@@ -168,8 +169,10 @@ private fun UiColumnDslScope.drawStarterCounterMviSample(state: StarterGameRunti
 
     val counterState = state.counterStore.state.value
 
-    sectionTitle("MVI Counter")
-    supportingText("A tiny Awake-native example: sealed intents drive a reducer-backed StateFlow, and one-shot effects stay off the persistent state.")
+    awakeShadcnSectionHeader(
+        title = "MVI Counter",
+        description = "A tiny Awake-native example: sealed intents drive a reducer-backed StateFlow, and one-shot effects stay off the persistent state."
+    )
 
     awakeShadcnSurface(
         id = "showcase-counter-mvi",
@@ -180,10 +183,10 @@ private fun UiColumnDslScope.drawStarterCounterMviSample(state: StarterGameRunti
     ) {
         awakeShadcnBadge("MVI", variant = AwakeShadcnBadgeVariant.Primary)
         text("Counter Contract")
-        supportingText("Good fit for upcoming demos once the UI has async actions, screen state, and one-shot events.")
+        awakeShadcnSupportingText("Good fit for upcoming demos once the UI has async actions, screen state, and one-shot events.")
         spacer(4f)
         text("Count: ${counterState.count}")
-        supportingText("Last effect: ${state.showcaseCounterEffectMessage ?: "None"}")
+        awakeShadcnSupportingText("Last effect: ${state.showcaseCounterEffectMessage ?: "None"}")
         spacer(6f)
         row(height = 36f, gap = 8f) {
             if (

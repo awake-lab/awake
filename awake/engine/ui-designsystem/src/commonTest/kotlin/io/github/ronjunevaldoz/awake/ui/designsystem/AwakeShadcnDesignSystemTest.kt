@@ -14,15 +14,22 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.math.abs
 
 class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnThemeTracksOfficialNeutralDarkRoles() {
-        assertEquals(floatArrayOf(0.039388f, 0.039388f, 0.039388f, 1f).toList(), AwakeShadcnTheme.tokens.background.toList())
-        assertEquals(floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f).toList(), AwakeShadcnTheme.tokens.foreground.toList())
-        assertEquals(floatArrayOf(0.898161f, 0.898161f, 0.898161f, 1f).toList(), AwakeShadcnTheme.tokens.primary.toList())
-        assertEquals(floatArrayOf(1f, 1f, 1f, 0.1f).toList(), AwakeShadcnTheme.tokens.border.toList())
+        assertColorClose(floatArrayOf(0.039388f, 0.039388f, 0.039388f, 1f), AwakeShadcnTheme.tokens.background)
+        assertColorClose(floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f), AwakeShadcnTheme.tokens.foreground)
+        assertColorClose(floatArrayOf(0.898161f, 0.898161f, 0.898161f, 1f), AwakeShadcnTheme.tokens.primary)
+        assertColorClose(floatArrayOf(1f, 1f, 1f, 0.1f), AwakeShadcnTheme.tokens.border)
+    }
+
+    @Test
+    fun oklchProducesExpectedNeutralSrgbValues() {
+        assertColorClose(floatArrayOf(1f, 1f, 1f, 0.1f), oklch(1f, 0f, alpha = 0.1f))
+        assertColorClose(floatArrayOf(0.630163f, 0.630163f, 0.630163f, 1f), oklch(0.708f, 0f))
     }
 
     @Test
@@ -140,5 +147,15 @@ class AwakeShadcnDesignSystemTest {
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
         assertEquals(4, glyphs.size)
         assertTrue(glyphs.maxOf { it.x + it.w } > 20f, "wrap-content badge should size itself to its label")
+    }
+}
+
+private fun assertColorClose(expected: FloatArray, actual: FloatArray, tolerance: Float = 0.005f) {
+    assertEquals(expected.size, actual.size, "color channel count mismatch")
+    expected.indices.forEach { index ->
+        assertTrue(
+            abs(expected[index] - actual[index]) <= tolerance,
+            "channel $index expected ${expected[index]} but was ${actual[index]}"
+        )
     }
 }
