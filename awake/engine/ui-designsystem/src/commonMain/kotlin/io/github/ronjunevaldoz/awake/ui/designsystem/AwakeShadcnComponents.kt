@@ -56,7 +56,8 @@ object AwakeShadcnStyles {
             borderWidth(1f.dp)
             borderColor(AwakeShadcnTheme.tokens.primary)
             shape(6f.dp)
-            hovered { background(brighten(AwakeShadcnTheme.tokens.primary, 1.05f)) }
+            hovered { background(dim(AwakeShadcnTheme.tokens.primary, 0.96f)) }
+            active { background(dim(AwakeShadcnTheme.tokens.primary, 0.92f)) }
         }
         AwakeShadcnButtonVariant.Secondary -> AwakeShadcnTheme.components.button
         AwakeShadcnButtonVariant.Outline -> Style {
@@ -65,13 +66,15 @@ object AwakeShadcnStyles {
             borderWidth(1f.dp)
             borderColor(AwakeShadcnTheme.tokens.border)
             shape(6f.dp)
-            hovered { background(AwakeShadcnTheme.tokens.muted) }
+            hovered { background(AwakeShadcnTheme.tokens.accent) }
+            active { background(dim(AwakeShadcnTheme.tokens.accent, 0.92f)) }
         }
         AwakeShadcnButtonVariant.Ghost -> Style {
             background(TRANSPARENT)
             foreground(AwakeShadcnTheme.tokens.foreground)
             shape(6f.dp)
-            hovered { background(AwakeShadcnTheme.tokens.muted) }
+            hovered { background(AwakeShadcnTheme.tokens.accent) }
+            active { background(dim(AwakeShadcnTheme.tokens.accent, 0.92f)) }
         }
         AwakeShadcnButtonVariant.Danger -> Style {
             background(AwakeShadcnTheme.tokens.destructive)
@@ -79,7 +82,8 @@ object AwakeShadcnStyles {
             borderWidth(1f.dp)
             borderColor(AwakeShadcnTheme.tokens.destructive)
             shape(6f.dp)
-            hovered { background(brighten(AwakeShadcnTheme.tokens.destructive, 1.05f)) }
+            hovered { background(dim(AwakeShadcnTheme.tokens.destructive, 0.94f)) }
+            active { background(dim(AwakeShadcnTheme.tokens.destructive, 0.88f)) }
         }
     }
 
@@ -115,30 +119,30 @@ object AwakeShadcnStyles {
     }
 
     val field: Style = Style {
-        background(AwakeShadcnTheme.tokens.secondary)
+        background(AwakeShadcnTheme.card)
         foreground(AwakeShadcnTheme.tokens.foreground)
         borderWidth(1f.dp)
-        borderColor(AwakeShadcnTheme.tokens.border)
+        borderColor(AwakeShadcnTheme.input)
         shape(8f.dp)
         hovered { background(AwakeShadcnTheme.tokens.accent) }
-        active { background(AwakeShadcnTheme.tokens.muted) }
+        active { background(dim(AwakeShadcnTheme.tokens.accent, 0.92f)) }
     }
 
     val checkbox: Style = Style {
-        background(AwakeShadcnTheme.tokens.background)
+        background(AwakeShadcnTheme.card)
         foreground(AwakeShadcnTheme.tokens.foreground)
         borderWidth(1f.dp)
-        borderColor(AwakeShadcnTheme.tokens.border)
+        borderColor(AwakeShadcnTheme.input)
         shape(6f.dp)
-        hovered { background(AwakeShadcnTheme.tokens.secondary) }
-        active { background(AwakeShadcnTheme.tokens.accent) }
+        hovered { background(AwakeShadcnTheme.tokens.accent) }
+        active { background(dim(AwakeShadcnTheme.tokens.accent, 0.92f)) }
     }
 
     val slider: Style = Style {
-        background(AwakeShadcnTheme.tokens.muted)
+        background(AwakeShadcnTheme.card)
         foreground(AwakeShadcnTheme.tokens.foreground)
         borderWidth(1f.dp)
-        borderColor(AwakeShadcnTheme.tokens.border)
+        borderColor(AwakeShadcnTheme.input)
         shape(999f.dp)
     }
 }
@@ -519,9 +523,9 @@ private fun AwakeShadcnButtonVariant.toUiButtonVariant(): UiButtonVariant = when
     else -> UiButtonVariant.Filled
 }
 
-private fun brighten(color: FloatArray, brightness: Float): FloatArray = floatArrayOf(
-    (color[0] * brightness).coerceAtMost(1f),
-    (color[1] * brightness).coerceAtMost(1f),
-    (color[2] * brightness).coerceAtMost(1f),
+private fun dim(color: FloatArray, brightness: Float): FloatArray = floatArrayOf(
+    (color[0] * brightness).coerceIn(0f, 1f),
+    (color[1] * brightness).coerceIn(0f, 1f),
+    (color[2] * brightness).coerceIn(0f, 1f),
     color[3]
 )

@@ -18,6 +18,14 @@ import kotlin.test.assertTrue
 class AwakeShadcnDesignSystemTest {
 
     @Test
+    fun awakeShadcnThemeTracksOfficialNeutralDarkRoles() {
+        assertEquals(floatArrayOf(0.039388f, 0.039388f, 0.039388f, 1f).toList(), AwakeShadcnTheme.tokens.background.toList())
+        assertEquals(floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f).toList(), AwakeShadcnTheme.tokens.foreground.toList())
+        assertEquals(floatArrayOf(0.898161f, 0.898161f, 0.898161f, 1f).toList(), AwakeShadcnTheme.tokens.primary.toList())
+        assertEquals(floatArrayOf(1f, 1f, 1f, 0.1f).toList(), AwakeShadcnTheme.tokens.border.toList())
+    }
+
+    @Test
     fun awakeShadcnBadgeRendersFromPublicUiApi() {
         Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()

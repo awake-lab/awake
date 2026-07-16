@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.startergame.ui
 
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
+import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterCounterContract
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
 import io.github.ronjunevaldoz.awake.ui.Style
@@ -147,14 +148,85 @@ internal fun UiColumnDslScope.drawStarterShadcnShowcaseContent(state: StarterGam
     }
 
     spacer(2f)
+    drawStarterCounterMviSample(state)
+
+    spacer(2f)
     sectionTitle("Why It Matters")
     supportingLines(
         listOf(
             "The sample still uses the shared scene router and platform-neutral game shell.",
             "The branded layer stays outside ui-core, but it composes on the same public widget stack.",
-            "This scene is the living reference for future design-system polish."
+            "The counter sample shows MVI with sealed intents, StateFlow state, and one-shot effects."
         )
     )
+}
+
+private fun UiColumnDslScope.drawStarterCounterMviSample(state: StarterGameRuntimeState) {
+    state.counterStore.drainEffects()
+        .lastOrNull()
+        ?.let { effect -> state.showcaseCounterEffectMessage = effect.toDebugLabel() }
+
+    val counterState = state.counterStore.state.value
+
+    sectionTitle("MVI Counter")
+    supportingText("A tiny Awake-native example: sealed intents drive a reducer-backed StateFlow, and one-shot effects stay off the persistent state.")
+
+    awakeShadcnSurface(
+        id = "showcase-counter-mvi",
+        height = Dimension.WrapContent,
+        style = Style {
+            shape(10f.dp)
+        }
+    ) {
+        awakeShadcnBadge("MVI", variant = AwakeShadcnBadgeVariant.Primary)
+        text("Counter Contract")
+        supportingText("Good fit for upcoming demos once the UI has async actions, screen state, and one-shot events.")
+        spacer(4f)
+        text("Count: ${counterState.count}")
+        supportingText("Last effect: ${state.showcaseCounterEffectMessage ?: "None"}")
+        spacer(6f)
+        row(height = 36f, gap = 8f) {
+            if (
+                awakeShadcnButton(
+                    id = "counter-decrement",
+                    width = 108f,
+                    height = 36f,
+                    label = "Decrement",
+                    variant = AwakeShadcnButtonVariant.Outline
+                )
+            ) {
+                state.counterStore.dispatch(StarterCounterContract.Intent.Decrement)
+            }
+            if (
+                awakeShadcnButton(
+                    id = "counter-increment",
+                    width = 108f,
+                    height = 36f,
+                    label = "Increment",
+                    variant = AwakeShadcnButtonVariant.Primary
+                )
+            ) {
+                state.counterStore.dispatch(StarterCounterContract.Intent.Increment)
+            }
+        }
+        row(height = 36f, gap = 8f) {
+            if (
+                awakeShadcnButton(
+                    id = "counter-reset",
+                    width = 108f,
+                    height = 36f,
+                    label = "Reset",
+                    variant = AwakeShadcnButtonVariant.Ghost
+                )
+            ) {
+                state.counterStore.dispatch(StarterCounterContract.Intent.Reset)
+            }
+            awakeShadcnBadge(
+                label = if (counterState.count >= 0) "FLOW" else "NEGATIVE",
+                variant = if (counterState.count >= 0) AwakeShadcnBadgeVariant.Secondary else AwakeShadcnBadgeVariant.Danger
+            )
+        }
+    }
 }
 
 private fun StarterGameRuntimeState.showcaseBadgeVariant(): AwakeShadcnBadgeVariant = when (showcaseBadgeVariantIndex) {
@@ -162,4 +234,9 @@ private fun StarterGameRuntimeState.showcaseBadgeVariant(): AwakeShadcnBadgeVari
     1 -> AwakeShadcnBadgeVariant.Secondary
     2 -> AwakeShadcnBadgeVariant.Outline
     else -> AwakeShadcnBadgeVariant.Danger
+}
+
+private fun StarterCounterContract.Effect.toDebugLabel(): String = when (this) {
+    is StarterCounterContract.Effect.MilestoneReached -> "Milestone reached at $count"
+    StarterCounterContract.Effect.ResetCompleted -> "Counter reset"
 }

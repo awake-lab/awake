@@ -13,12 +13,14 @@ internal data class StarterGameUiState(
     val showcaseLiveBadge: Boolean = true,
     val showcaseDangerMode: Boolean = false,
     val showcaseSurfaceRadius: Float = 12f,
-    val showcasePrimaryClicks: Int = 0
+    val showcasePrimaryClicks: Int = 0,
+    val showcaseCounterEffectMessage: String? = null
 )
 
 internal class StarterGameRuntimeState {
     private val _uiState = MutableStateFlow(StarterGameUiState())
     val uiState: StateFlow<StarterGameUiState> = _uiState.asStateFlow()
+    val counterStore = StarterCounterStore()
 
     var tipsVisible: Boolean
         get() = _uiState.value.tipsVisible
@@ -54,5 +56,11 @@ internal class StarterGameRuntimeState {
         get() = _uiState.value.showcasePrimaryClicks
         set(value) {
             _uiState.update { it.copy(showcasePrimaryClicks = value) }
+        }
+
+    var showcaseCounterEffectMessage: String?
+        get() = _uiState.value.showcaseCounterEffectMessage
+        set(value) {
+            _uiState.update { it.copy(showcaseCounterEffectMessage = value) }
         }
 }

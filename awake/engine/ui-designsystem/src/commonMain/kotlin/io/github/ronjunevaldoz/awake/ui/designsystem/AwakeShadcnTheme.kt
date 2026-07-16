@@ -16,20 +16,27 @@ import io.github.ronjunevaldoz.awake.ui.dp
  * `ui-core` or `ui-widgets`.
  */
 object AwakeShadcnTheme : UiTheme {
+    internal val card = floatArrayOf(0.090527f, 0.090527f, 0.090527f, 1f)
+    internal val popover = card
+    internal val input = floatArrayOf(1f, 1f, 1f, 0.15f)
+    internal val ring = floatArrayOf(0.451519f, 0.451519f, 0.451519f, 1f)
+    private val hoverSurface = floatArrayOf(0.188f, 0.188f, 0.188f, 1f)
+    private val activeSurface = floatArrayOf(0.225f, 0.225f, 0.225f, 1f)
+
     override val tokens: UiColorTokens = object : UiColorTokens {
-        override val background = floatArrayOf(0.02f, 0.024f, 0.035f, 1f)
-        override val foreground = floatArrayOf(0.985f, 0.988f, 0.995f, 1f)
-        override val primary = floatArrayOf(0.985f, 0.988f, 0.995f, 1f)
-        override val primaryForeground = floatArrayOf(0.075f, 0.08f, 0.11f, 1f)
-        override val secondary = floatArrayOf(0.115f, 0.125f, 0.165f, 1f)
-        override val secondaryForeground = floatArrayOf(0.985f, 0.988f, 0.995f, 1f)
-        override val muted = floatArrayOf(0.205f, 0.218f, 0.28f, 1f)
-        override val mutedForeground = floatArrayOf(0.76f, 0.79f, 0.86f, 1f)
-        override val accent = floatArrayOf(0.255f, 0.275f, 0.36f, 1f)
-        override val accentForeground = floatArrayOf(0.985f, 0.988f, 0.995f, 1f)
-        override val destructive = floatArrayOf(0.73f, 0.2f, 0.26f, 1f)
-        override val destructiveForeground = floatArrayOf(0.99f, 0.98f, 0.98f, 1f)
-        override val border = floatArrayOf(0.33f, 0.35f, 0.44f, 1f)
+        override val background = floatArrayOf(0.039388f, 0.039388f, 0.039388f, 1f)
+        override val foreground = floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f)
+        override val primary = floatArrayOf(0.898161f, 0.898161f, 0.898161f, 1f)
+        override val primaryForeground = floatArrayOf(0.090527f, 0.090527f, 0.090527f, 1f)
+        override val secondary = floatArrayOf(0.149382f, 0.149382f, 0.149382f, 1f)
+        override val secondaryForeground = floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f)
+        override val muted = floatArrayOf(0.149382f, 0.149382f, 0.149382f, 1f)
+        override val mutedForeground = floatArrayOf(0.630163f, 0.630163f, 0.630163f, 1f)
+        override val accent = floatArrayOf(0.149382f, 0.149382f, 0.149382f, 1f)
+        override val accentForeground = floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f)
+        override val destructive = floatArrayOf(1f, 0.391153f, 0.403857f, 1f)
+        override val destructiveForeground = floatArrayOf(0.980256f, 0.980256f, 0.980256f, 1f)
+        override val border = floatArrayOf(1f, 1f, 1f, 0.1f)
     }
 
     override val components: UiComponentStyles = object : UiComponentStyles {
@@ -39,33 +46,35 @@ object AwakeShadcnTheme : UiTheme {
             borderWidth(1f.dp)
             borderColor(tokens.border)
             shape(6f.dp)
-            hovered { background(tokens.accent) }
-            active { background(tokens.muted) }
+            hovered { background(hoverSurface) }
+            active { background(activeSurface) }
         }
         override val toggle: Style = button
         override val checkbox: Style = Style {
-            background(tokens.background)
+            background(card)
             foreground(tokens.foreground)
             borderWidth(1f.dp)
-            borderColor(tokens.border)
+            borderColor(input)
             shape(6f.dp)
-            hovered { background(tokens.secondary) }
-            active { background(tokens.accent) }
+            hovered { background(hoverSurface) }
+            active { background(activeSurface) }
         }
         override val slider: Style = Style {
-            background(tokens.muted)
+            background(card)
             foreground(tokens.foreground)
+            borderWidth(1f.dp)
+            borderColor(input)
             shape(999f.dp)
         }
         override val dropdown: Style = button then Style {
             contentPadding(UiSpacing.xs, UiSpacing.sm)
         }
         override val panel: Style = Style {
-            background(tokens.secondary)
+            background(card)
             foreground(tokens.foreground)
             borderWidth(1f.dp)
             borderColor(tokens.border)
-            shape(8f.dp)
+            shape(10f.dp)
             contentPadding(UiSpacing.sm)
         }
     }

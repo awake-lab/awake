@@ -21,6 +21,8 @@ import io.github.ronjunevaldoz.awake.sample.startergame.debug.starterDebugModule
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_EDITOR
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.STARTER_SCENE_OVERVIEW
 import io.github.ronjunevaldoz.awake.sample.startergame.scene.starterSceneModule
+import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterCounterContract
+import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterCounterStore
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameUiState
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.sample.startergame.ui.starterUiModule
@@ -150,9 +152,33 @@ class StarterGameTest {
                 showcaseLiveBadge = true,
                 showcaseDangerMode = true,
                 showcaseSurfaceRadius = 12f,
-                showcasePrimaryClicks = 2
+                showcasePrimaryClicks = 2,
+                showcaseCounterEffectMessage = null
             ),
             state.uiState.value
+        )
+    }
+
+    @Test
+    fun starterCounterStoreReducesStateAndPublishesEffects() {
+        val store = StarterCounterStore()
+
+        repeat(5) {
+            store.dispatch(StarterCounterContract.Intent.Increment)
+        }
+
+        assertEquals(5, store.state.value.count)
+        assertEquals(
+            listOf(StarterCounterContract.Effect.MilestoneReached(5)),
+            store.drainEffects()
+        )
+
+        store.dispatch(StarterCounterContract.Intent.Reset)
+
+        assertEquals(0, store.state.value.count)
+        assertEquals(
+            listOf(StarterCounterContract.Effect.ResetCompleted),
+            store.drainEffects()
         )
     }
 }
