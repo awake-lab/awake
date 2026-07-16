@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.ui
 
 internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
@@ -113,7 +113,7 @@ private fun renderUiShowcasePagePreviewFrame(
 ): AwakeUiPreviewFrame {
     val state = UiShowcaseRuntimeState()
     val theme = state.showcaseTheme()
-    val font = BitmapFont()
+    val font = UiFonts.default()
     val page = ShowcasePages.firstOrNull { it.id == pageId } ?: error("Unknown showcase page: $pageId")
     val ui = UiContext()
 

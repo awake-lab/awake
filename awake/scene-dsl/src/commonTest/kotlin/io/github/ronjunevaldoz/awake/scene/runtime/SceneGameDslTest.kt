@@ -19,7 +19,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.ui
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -328,7 +328,7 @@ private class RecordingRenderer : Renderer {
     override suspend fun readPixels(target: RenderTarget): TextureAsset =
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)
 
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) {
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) {
         lastUiPrimitives = primitives
     }
 

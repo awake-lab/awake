@@ -68,22 +68,22 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 }
 
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0xc56a5405fac411b5uL,
-    "toggle-checked" to 0x9488adb21fd13351uL,
-    "button-filled" to 0x74bd46fa0a1ade9fuL,
-    "button-outline" to 0x85eca633295c43a4uL,
-    "button-ghost" to 0x74bd46fa0a1ade9fuL,
-    "theme-dark" to 0x74bd46fa0a1ade9fuL,
-    "theme-light" to 0xd9088febcb8d6643uL,
-    "panel-with-children" to 0xc83494baea523568uL
+    "toggle-unchecked" to 0x12bffc42ff46a2d0uL,
+    "toggle-checked" to 0x90ad956321fcd9c8uL,
+    "button-filled" to 0x94191a15e06741a0uL,
+    "button-outline" to 0x1558a22d610468e3uL,
+    "button-ghost" to 0x94191a15e06741a0uL,
+    "theme-dark" to 0x94191a15e06741a0uL,
+    "theme-light" to 0x20b36f7ff1a5fb28uL,
+    "panel-with-children" to 0x54d643c886f7cfc4uL
 )
 
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0x58fdfbde6d8a9dc3uL,
-    "ui-shaped-panel" to 0x80fec6bc3c1ad8f7uL,
-    "ui-panel-controls" to 0x2d56bee17ec2b17fuL,
-    "ui-rounded-clip-vector" to 0x06cee56edf05a759uL,
-    "ui-awake-shadcn-showcase" to 0xef2bdffdcc3d320auL
+    "ui-button-variants" to 0x998833c448c1d9d4uL,
+    "ui-shaped-panel" to 0xff89a9a38d3e026auL,
+    "ui-panel-controls" to 0x5f45da8eb2e13d55uL,
+    "ui-rounded-clip-vector" to 0x4d0ab04bd0cf10e3uL,
+    "ui-awake-shadcn-showcase" to 0x344c986a573b2073uL
 )
 
 private fun ULong.toHexString(): String {

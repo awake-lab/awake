@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.containsPoint
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
@@ -73,10 +74,10 @@ fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
-    fun sampleGlyphAlpha(bitmapFont: UiFont, u: Float, v: Float): Int {
-        val atlasWidth = bitmapFont.atlasWidth
-        val atlasHeight = bitmapFont.atlasHeight
-        val atlasPixels = bitmapFont.atlasPixelsRgba
+    fun sampleAtlasRgba(font: UiFont, u: Float, v: Float): FloatArray {
+        val atlasWidth = font.atlasWidth
+        val atlasHeight = font.atlasHeight
+        val atlasPixels = font.atlasPixelsRgba
         val x = (u.coerceIn(0f, 1f) * atlasWidth - 0.5f).coerceIn(0f, (atlasWidth - 1).toFloat())
         val y = (v.coerceIn(0f, 1f) * atlasHeight - 0.5f).coerceIn(0f, (atlasHeight - 1).toFloat())
         val x0 = x.toInt().coerceIn(0, atlasWidth - 1)
@@ -86,11 +87,45 @@ fun List<UiDrawPrimitive>.rasterize(
         val tx = x - x0
         val ty = y - y0
 
-        fun alphaAt(px: Int, py: Int): Float = (atlasPixels[(py * atlasWidth + px) * 4 + 3].toInt() and 0xFF) / 255f
+        fun channelAt(px: Int, py: Int, channel: Int): Float =
+            (atlasPixels[(py * atlasWidth + px) * 4 + channel].toInt() and 0xFF) / 255f
 
-        val top = alphaAt(x0, y0) * (1f - tx) + alphaAt(x1, y0) * tx
-        val bottom = alphaAt(x0, y1) * (1f - tx) + alphaAt(x1, y1) * tx
-        return (((top * (1f - ty) + bottom * ty) * 255f).toInt()).coerceIn(0, 255)
+        fun sampleChannel(channel: Int): Float {
+            val top = channelAt(x0, y0, channel) * (1f - tx) + channelAt(x1, y0, channel) * tx
+            val bottom = channelAt(x0, y1, channel) * (1f - tx) + channelAt(x1, y1, channel) * tx
+            return top * (1f - ty) + bottom * ty
+        }
+
+        return floatArrayOf(
+            sampleChannel(0),
+            sampleChannel(1),
+            sampleChannel(2),
+            sampleChannel(3)
+        )
+    }
+
+    fun smoothstep(edge0: Float, edge1: Float, value: Float): Float {
+        if (edge0 == edge1) {
+            return if (value < edge0) 0f else 1f
+        }
+        val t = ((value - edge0) / (edge1 - edge0)).coerceIn(0f, 1f)
+        return t * t * (3f - 2f * t)
+    }
+
+    fun median3(a: Float, b: Float, c: Float): Float = max(min(a, b), min(max(a, b), c))
+
+    fun sampleGlyphAlpha(font: UiFont, glyph: UiDrawPrimitive.Glyph, u: Float, v: Float): Int {
+        val rgba = sampleAtlasRgba(font, u, v)
+        val coverage = when (font.samplingMode) {
+            UiFontSamplingMode.CoverageAlpha -> rgba[3]
+            UiFontSamplingMode.DistanceField -> {
+                val signedDistance = median3(rgba[0], rgba[1], rgba[2])
+                val glyphScale = min(glyph.w, glyph.h) / font.cellSize.toFloat()
+                val edgeSoftness = 0.5f / max(1f, font.distanceFieldRangePx * glyphScale)
+                smoothstep(0.5f - edgeSoftness, 0.5f + edgeSoftness, signedDistance)
+            }
+        }
+        return (coverage * 255f).toInt().coerceIn(0, 255)
     }
 
     fun fillGradientRect(x: Float, y: Float, w: Float, h: Float, gradient: io.github.ronjunevaldoz.awake.ui.UiLinearGradient) {
@@ -122,7 +157,7 @@ fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
-    fun drawGlyph(glyph: UiDrawPrimitive.Glyph, bitmapFont: UiFont) {
+    fun drawGlyph(glyph: UiDrawPrimitive.Glyph, font: UiFont) {
         val x0 = max(glyph.x, clipX0).toInt().coerceIn(0, width)
         val y0 = max(glyph.y, clipY0).toInt().coerceIn(0, height)
         val x1 = min(glyph.x + glyph.w, clipX1).toInt().coerceIn(0, width)
@@ -145,7 +180,8 @@ fun List<UiDrawPrimitive>.rasterize(
                 val u = ((sampleX - glyph.x) / glyph.w).coerceIn(0f, 0.9999f)
                 val v = ((sampleY - glyph.y) / glyph.h).coerceIn(0f, 0.9999f)
                 val sourceAlpha = sampleGlyphAlpha(
-                    bitmapFont,
+                    font,
+                    glyph,
                     glyph.u0 + (glyph.u1 - glyph.u0) * u,
                     glyph.v0 + (glyph.v1 - glyph.v0) * v
                 )

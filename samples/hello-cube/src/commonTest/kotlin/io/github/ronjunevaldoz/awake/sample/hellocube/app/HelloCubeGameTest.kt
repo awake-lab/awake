@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.DebugVec3
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugConfig
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugController
@@ -186,7 +186,7 @@ private object FakeRenderer : Renderer {
     override suspend fun readPixels(target: RenderTarget): TextureAsset =
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)
 
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) = Unit
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) = Unit
 
     override fun drawDebugLines(lines: List<LineSegment>) = Unit
 

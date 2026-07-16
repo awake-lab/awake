@@ -168,6 +168,7 @@ class Renderer(
     private var uiGlyphRenderPipeline: UiGlyphRenderPipeline? = null
     private var offscreenGlyphRenderPipeline: UiGlyphRenderPipeline? = null
     private var fontTexture: Texture? = null
+    private var currentUiFont: UiFont? = null
 
     // Lazily built on the first drawUi() call that has any Texture primitives -- see
     // ensureTextureQuadPipeline()'s doc comment. Reused every frame after that; a game that
@@ -430,6 +431,15 @@ class Renderer(
      * non-null [font] -- cached after that (a game calls [drawUi] with the same font every
      * frame). Requires [ensureUiQuadPipeline] to already have run (needs its render pass). */
     private fun ensureGlyphPipeline(font: UiFont) {
+        if (currentUiFont !== font) {
+            uiGlyphRenderPipeline?.destroy()
+            uiGlyphRenderPipeline = null
+            offscreenGlyphRenderPipeline?.destroy()
+            offscreenGlyphRenderPipeline = null
+            fontTexture?.destroy()
+            fontTexture = null
+            currentUiFont = font
+        }
         if (uiGlyphRenderPipeline != null) return
         val renderPass = requireNotNull(uiRenderPipeline) { "ensureUiQuadPipeline() must run first." }.renderPass
         val texture = ensureFontTexture(font)
@@ -439,11 +449,16 @@ class Renderer(
             renderPass,
             uiGlyphVertexShaderCode,
             uiGlyphFragmentShaderCode,
-            texture
+            texture,
+            font
         )
     }
 
     private fun ensureOffscreenGlyphPipeline(font: UiFont) {
+        if (currentUiFont !== font) {
+            offscreenGlyphRenderPipeline?.destroy()
+            offscreenGlyphRenderPipeline = null
+        }
         if (offscreenGlyphRenderPipeline != null) return
         offscreenGlyphRenderPipeline = UiGlyphRenderPipeline(
             graphicsDevice,
@@ -451,7 +466,8 @@ class Renderer(
             renderPipeline.renderPass,
             uiGlyphVertexShaderCode,
             uiGlyphFragmentShaderCode,
-            ensureFontTexture(font)
+            ensureFontTexture(font),
+            font
         )
     }
 

@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.propertyDropdown
 import io.github.ronjunevaldoz.awake.ui.propertySlider
 import io.github.ronjunevaldoz.awake.ui.sectionTitle
@@ -20,7 +20,7 @@ class UiDslTutorialDocsTest {
 
     @Test
     fun inspectorDslTutorial() {
-        val font = BitmapFont()
+        val font = UiFonts.default()
         Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
         ui.beginFrame(320f, 250f)

@@ -25,6 +25,8 @@ import io.github.ronjunevaldoz.awake.ui.checkbox
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.icon
 import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.panel
@@ -53,13 +55,13 @@ data class UiSnapshotScene(
     val height: Int,
     val primitives: List<io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive>,
     val background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
-    val font: BitmapFont? = null,
+    val font: UiFont? = null,
     val title: String? = null,
     val summary: String? = null
 )
 
 internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
-    val font = BitmapFont()
+    val font = UiFonts.default()
     parkPointerOffCanvas()
 
     val uncheckedUi = UiContext()
@@ -166,7 +168,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
 }
 
 internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
-    val font = BitmapFont()
+    val font = UiFonts.default()
     parkPointerOffCanvas()
 
     fun scene(
@@ -176,7 +178,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
         background: Color,
         title: String,
         summary: String,
-        build: UiContext.(BitmapFont) -> Unit
+        build: UiContext.(UiFont) -> Unit
     ): UiSnapshotScene {
         val ui = UiContext()
         ui.beginFrame(width.toFloat(), height.toFloat())

@@ -1,5 +1,6 @@
 struct Uniforms {
-    screenSize: vec2<f32>
+    screenSize: vec2<f32>,
+    fontInfo: vec2<f32>
 };
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var fontAtlas: texture_2d<f32>;
@@ -30,6 +31,16 @@ fn vertexMain(in: VertexIn) -> VertexOut {
 
 @fragment
 fn fragmentMain(in: VertexOut) -> @location(0) vec4<f32> {
-    let glyphAlpha = textureSample(fontAtlas, fontSampler, in.uv).a;
+    let atlas = textureSample(fontAtlas, fontSampler, in.uv);
+    let glyphAlpha = if (uniforms.fontInfo.x < 0.5) {
+        atlas.a
+    } else {
+        let atlasSize = vec2<f32>(textureDimensions(fontAtlas));
+        let unitRange = vec2<f32>(uniforms.fontInfo.y) / atlasSize;
+        let screenTexSize = vec2<f32>(1.0, 1.0) / fwidth(in.uv);
+        let screenPxRange = max(0.5 * dot(unitRange, screenTexSize), 1.0);
+        let signedDistance = max(min(atlas.r, atlas.g), min(max(atlas.r, atlas.g), atlas.b));
+        clamp(screenPxRange * (signedDistance - 0.5) + 0.5, 0.0, 1.0)
+    };
     return vec4<f32>(in.color.rgb, in.color.a * glyphAlpha);
 }

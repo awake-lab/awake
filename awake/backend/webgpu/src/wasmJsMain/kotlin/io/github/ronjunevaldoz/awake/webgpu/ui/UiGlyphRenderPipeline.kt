@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.webgpu.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
 import io.ygdrasil.webgpu.ArrayBuffer
@@ -54,7 +55,7 @@ class UiGlyphRenderPipeline(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     shaderCode: ByteArray,
-    font: UiFont
+    private val font: UiFont
 ) {
     private val device = graphicsDevice.wgpuContext.device
     val pipeline: GPURenderPipeline
@@ -115,7 +116,7 @@ class UiGlyphRenderPipeline(
 
         screenSizeBuffer = device.createBuffer(
             BufferDescriptor(
-                size = (2 * Float.SIZE_BYTES).toULong(),
+                size = (4 * Float.SIZE_BYTES).toULong(),
                 usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst
             )
         )
@@ -163,7 +164,18 @@ class UiGlyphRenderPipeline(
 
     /** Call once at construction and again whenever the canvas resizes. */
     fun writeScreenSize(width: Float, height: Float) {
-        device.queue.writeBuffer(screenSizeBuffer, 0uL, ArrayBuffer.of(floatArrayOf(width, height)))
+        device.queue.writeBuffer(
+            screenSizeBuffer,
+            0uL,
+            ArrayBuffer.of(
+                floatArrayOf(
+                    width,
+                    height,
+                    if (font.samplingMode == UiFontSamplingMode.DistanceField) 1f else 0f,
+                    font.distanceFieldRangePx
+                )
+            )
+        )
     }
 
     fun destroy() {

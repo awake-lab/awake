@@ -2,6 +2,7 @@
 
 layout(binding = 0) uniform UiUBO {
     vec2 screenSize;
+    vec2 fontInfo;
 } ubo;
 
 layout(location = 0) in vec2 inPosition;

@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -162,7 +162,7 @@ private class RecordingRenderer : Renderer {
     override suspend fun readPixels(target: RenderTarget): TextureAsset =
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)
 
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) {
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) {
         lastUiPrimitives = primitives
     }
 

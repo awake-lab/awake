@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.ui
 
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkBlendFactor
@@ -61,7 +63,8 @@ class UiGlyphRenderPipeline(
     private val renderPass: Long,
     vertShaderCode: ByteArray,
     fragShaderCode: ByteArray,
-    private val fontTexture: Texture
+    private val fontTexture: Texture,
+    private val font: UiFont
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -80,7 +83,7 @@ class UiGlyphRenderPipeline(
         createScreenSizeUniformBuffer()
         createDescriptorSet()
         createGraphicsPipeline(vertShaderCode, fragShaderCode)
-        writeScreenSize(swapchainManager.extent.width.toFloat(), swapchainManager.extent.height.toFloat())
+        writeUniforms(swapchainManager.extent.width.toFloat(), swapchainManager.extent.height.toFloat())
     }
 
     private fun createDescriptorSetLayout(): Long = VulkanDescriptors.vkCreateDescriptorSetLayout(
@@ -152,7 +155,21 @@ class UiGlyphRenderPipeline(
     }
 
     fun writeScreenSize(width: Float, height: Float) {
-        VulkanBuffers.writeBufferMemoryFloats(device, screenSizeBufferMemory, 0, floatArrayOf(width, height, 0f, 0f))
+        writeUniforms(width, height)
+    }
+
+    private fun writeUniforms(width: Float, height: Float) {
+        VulkanBuffers.writeBufferMemoryFloats(
+            device,
+            screenSizeBufferMemory,
+            0,
+            floatArrayOf(
+                width,
+                height,
+                if (font.samplingMode == UiFontSamplingMode.DistanceField) 1f else 0f,
+                font.distanceFieldRangePx
+            )
+        )
     }
 
     private fun createShaderModule(code: IntArray): Long =

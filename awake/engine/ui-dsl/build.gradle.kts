@@ -49,6 +49,7 @@ kotlin {
         named("desktopTest") {
             dependencies {
                 implementation(project(":awake:base"))
+                implementation(project(":awake:engine:testing"))
                 implementation(kotlin("test"))
             }
         }

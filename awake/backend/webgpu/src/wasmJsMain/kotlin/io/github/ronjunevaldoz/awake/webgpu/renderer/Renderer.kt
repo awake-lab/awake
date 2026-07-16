@@ -109,6 +109,7 @@ class Renderer(
     // drawUi never builds either pipeline at all.
     private var uiRenderPipeline: UiRenderPipeline? = null
     private var uiGlyphRenderPipeline: UiGlyphRenderPipeline? = null
+    private var currentUiFont: UiFont? = null
 
     // Lazily built on the first drawUi() call that has any Texture primitives -- see
     // ensureTextureQuadPipeline()'s doc comment.
@@ -301,6 +302,11 @@ class Renderer(
     /** Builds [uiGlyphRenderPipeline] on the first [drawUi] call that passes a non-null
      * [font] -- cached after that (a game calls [drawUi] with the same font every frame). */
     private fun ensureGlyphPipeline(font: UiFont) {
+        if (currentUiFont !== font) {
+            uiGlyphRenderPipeline?.destroy()
+            uiGlyphRenderPipeline = null
+            currentUiFont = font
+        }
         if (uiGlyphRenderPipeline != null) return
         uiGlyphRenderPipeline = UiGlyphRenderPipeline(graphicsDevice, swapchainManager, uiGlyphShaderCode, font)
     }

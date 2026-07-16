@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -260,7 +260,7 @@ private object FakeRenderer : Renderer {
 
     override suspend fun readPixels(target: RenderTarget): TextureAsset = TextureAsset(ByteArray(0), 0, 0)
 
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: BitmapFont?) = Unit
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) = Unit
 
     override fun drawDebugLines(lines: List<LineSegment>) = Unit
 

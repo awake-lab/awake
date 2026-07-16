@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -81,7 +82,7 @@ private fun UiScope.badge(
 
 private class DiagonalScope(
     context: UiContext,
-    font: BitmapFont?,
+    font: UiFont?,
     theme: UiTheme,
     private val startX: Float,
     private val startY: Float,
