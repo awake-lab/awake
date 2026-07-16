@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.vulkan.application
 import io.github.ronjunevaldoz.awake.core.application.DesktopGameLoop
 import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
+import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
 
 private const val GLFW_CLIENT_API = 0x00022001
@@ -54,10 +55,12 @@ fun runVulkanDesktopGame(
     VulkanWindow.glfwSetScrollCallback(window)
 
     try {
+        syncUiDensity(window)
         application.create(window)
         while (!VulkanWindow.glfwWindowShouldClose(window)) {
             VulkanWindow.glfwPollEvents()
             pollInput(window)
+            syncUiDensity(window)
             beforeFrame()
             DesktopGameLoop.startLoop { deltaTime ->
                 application.update(deltaTime.toFloat())
@@ -66,5 +69,15 @@ fun runVulkanDesktopGame(
     } finally {
         afterLoop()
         application.dispose()
+    }
+}
+
+private fun syncUiDensity(window: Long) {
+    val windowWidth = VulkanWindow.glfwGetWindowWidth(window)
+    val framebufferWidth = VulkanWindow.glfwGetFramebufferWidth(window)
+    UiDensity.scale = if (windowWidth > 0 && framebufferWidth > 0) {
+        framebufferWidth.toFloat() / windowWidth.toFloat()
+    } else {
+        1f
     }
 }

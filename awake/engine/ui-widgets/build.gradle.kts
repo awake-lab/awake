@@ -41,6 +41,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(project(":awake:engine:ui-designsystem"))
         }
         named("desktopTest") {
             dependencies {
@@ -173,4 +174,10 @@ tasks.register("uiTutorialDocsReport") {
         out.writeText(html)
         println("UI tutorial docs: file://${out.absolutePath}")
     }
+}
+
+tasks.register("uiCrossPlatformSnapshotCheck") {
+    group = "verification"
+    description = "Run shared UI snapshot regression tests on desktop and web targets."
+    dependsOn("desktopTest", "wasmJsBrowserTest")
 }

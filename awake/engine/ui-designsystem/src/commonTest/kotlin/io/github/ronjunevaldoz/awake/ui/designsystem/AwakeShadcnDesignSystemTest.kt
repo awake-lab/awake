@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.ui
 import kotlin.test.Test
@@ -91,5 +92,45 @@ class AwakeShadcnDesignSystemTest {
         val primitives = ui.endFrame()
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "DSL adapters should still render labeled content")
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 4, "surface, badge, and button should emit rounded surfaces through the DSL")
+    }
+
+    @Test
+    fun awakeShadcnFieldWrappersComposeInsideDsl() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(320f, 180f)
+
+        ui.ui(x = 20f, y = 20f, width = 280f, font = BitmapFont(), theme = AwakeShadcnTheme) {
+            awakeShadcnSurface(
+                id = "dsl-fields",
+                height = Dimension.WrapContent
+            ) {
+                awakeShadcnPropertyToggle("show-grid", "Show Grid", checked = true)
+                awakeShadcnPropertyDropdown("mode", "Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
+                awakeShadcnPropertySlider("speed", "Speed", min = 1f, max = 10f, value = 5f)
+            }
+        }
+
+        val primitives = ui.endFrame()
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "field wrappers should keep text rendering intact")
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 6, "surface and field wrappers should emit shaped chrome")
+    }
+
+    @Test
+    fun awakeShadcnBadgeSupportsWrapContentMeasurement() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(240f, 120f)
+
+        ui.absolute(20f, 20f, font = BitmapFont(), theme = AwakeShadcnTheme)
+            .awakeShadcnBadge(
+                label = "LIVE",
+                width = Dimension.WrapContent,
+                height = Dimension.WrapContent
+            )
+
+        val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
+        assertEquals(4, glyphs.size)
+        assertTrue(glyphs.maxOf { it.x + it.w } > 20f, "wrap-content badge should size itself to its label")
     }
 }

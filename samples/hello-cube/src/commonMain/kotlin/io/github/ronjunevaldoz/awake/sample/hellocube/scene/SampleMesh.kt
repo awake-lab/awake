@@ -4,13 +4,10 @@ package io.github.ronjunevaldoz.awake.sample.hellocube.scene
 
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 
-// Same interleaved position(vec3) + color(vec3) + uv(vec2) layout the shared
-// triangle.vert/.frag (Vulkan) and triangle.wgsl (WebGPU) shaders expect -- see the
-// (now-retired) awake-demo's VulkanApplication.kt for the full rationale behind this exact
-// vertex format/palette. Hoisted here (see docs/MVP_PLAN.md's decision log,
-// "GenericGameApplication a standalone render bootstrap") so it's written once in commonMain
-// instead of byte-for-byte duplicated between the (now-deleted) SampleApplication.kt/
-// WebGpuSampleApplication.kt.
+// Same interleaved position(vec3) + color(vec3) + uv(vec2) layout the shared sample cube
+// meshes already use. The canonical shader source now lives in src/commonMain/shaders and
+// only reads position+color today; UV remains in the mesh layout so Vulkan/WebGPU can stay
+// aligned with the existing renderer contract while the shared shader pipeline matures.
 val sampleVertexStride = 8 * Float.SIZE_BYTES
 
 private val cubeVertices = floatArrayOf(

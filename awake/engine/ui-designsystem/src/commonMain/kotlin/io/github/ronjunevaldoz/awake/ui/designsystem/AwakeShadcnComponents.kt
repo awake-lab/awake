@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiAbsoluteDslScope
@@ -14,13 +15,22 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.button
+import io.github.ronjunevaldoz.awake.ui.checkbox
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.propertyCheckbox
+import io.github.ronjunevaldoz.awake.ui.propertyRow
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.slider
 import io.github.ronjunevaldoz.awake.ui.text
-import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.toggle
+import io.github.ronjunevaldoz.awake.ui.verticalPx
 import io.github.ronjunevaldoz.awake.ui.dp
 
 enum class AwakeShadcnButtonVariant {
@@ -103,6 +113,34 @@ object AwakeShadcnStyles {
             borderColor(AwakeShadcnTheme.tokens.destructive)
         }
     }
+
+    val field: Style = Style {
+        background(AwakeShadcnTheme.tokens.secondary)
+        foreground(AwakeShadcnTheme.tokens.foreground)
+        borderWidth(1f.dp)
+        borderColor(AwakeShadcnTheme.tokens.border)
+        shape(8f.dp)
+        hovered { background(AwakeShadcnTheme.tokens.accent) }
+        active { background(AwakeShadcnTheme.tokens.muted) }
+    }
+
+    val checkbox: Style = Style {
+        background(AwakeShadcnTheme.tokens.background)
+        foreground(AwakeShadcnTheme.tokens.foreground)
+        borderWidth(1f.dp)
+        borderColor(AwakeShadcnTheme.tokens.border)
+        shape(6f.dp)
+        hovered { background(AwakeShadcnTheme.tokens.secondary) }
+        active { background(AwakeShadcnTheme.tokens.accent) }
+    }
+
+    val slider: Style = Style {
+        background(AwakeShadcnTheme.tokens.muted)
+        foreground(AwakeShadcnTheme.tokens.foreground)
+        borderWidth(1f.dp)
+        borderColor(AwakeShadcnTheme.tokens.border)
+        shape(999f.dp)
+    }
 }
 
 fun UiScope.awakeShadcnButton(
@@ -149,14 +187,23 @@ fun UiDslScope.awakeShadcnButton(
 
 fun UiScope.awakeShadcnBadge(
     label: String,
-    width: Float = 96f,
-    height: Float = 28f,
+    width: Dimension,
+    height: Dimension,
     modifier: UiModifier = UiModifier(),
     variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
     style: Style = Style.Empty
 ) {
-    val slot = claimModifiedSlot(width.toDimension(), height.toDimension(), modifier)
     val resolved = resolveStyle(style = style, defaults = AwakeShadcnStyles.badge(variant))
+    val glyphPx = font?.cellSize?.times(resolved.textScale) ?: 0f
+    val resolvedWidth = when (width) {
+        Dimension.WrapContent -> Dimension.Fixed((label.length * glyphPx + resolved.contentPadding.horizontalPx()).px)
+        else -> width
+    }
+    val resolvedHeight = when (height) {
+        Dimension.WrapContent -> Dimension.Fixed((glyphPx + resolved.contentPadding.verticalPx()).px)
+        else -> height
+    }
+    val slot = claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: TRANSPARENT,
@@ -167,6 +214,24 @@ fun UiScope.awakeShadcnBadge(
     if (font != null) {
         text(label, slot = slot, font = font, color = resolved.foreground ?: AwakeShadcnTheme.tokens.foreground, centered = true)
     }
+}
+
+fun UiScope.awakeShadcnBadge(
+    label: String,
+    width: Float = 96f,
+    height: Float = 28f,
+    modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
+    style: Style = Style.Empty
+) {
+    awakeShadcnBadge(
+        label = label,
+        width = width.toDimension(),
+        height = height.toDimension(),
+        modifier = modifier,
+        variant = variant,
+        style = style
+    )
 }
 
 fun UiDslScope.awakeShadcnBadge(
@@ -197,6 +262,158 @@ fun UiScope.awakeShadcnSurface(
     )
 }
 
+fun UiScope.awakeShadcnToggle(
+    id: String,
+    checked: Boolean,
+    width: Float,
+    height: Float = 32f,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = toggle(
+    id = id,
+    checked = checked,
+    width = width,
+    height = height,
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.field then style
+)
+
+fun UiScope.awakeShadcnCheckbox(
+    id: String,
+    checked: Boolean,
+    width: Float,
+    height: Float = 24f,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = checkbox(
+    id = id,
+    checked = checked,
+    width = width,
+    height = height,
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.checkbox then style
+)
+
+fun UiScope.awakeShadcnDropdown(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    width: Float,
+    height: Float = 28f,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Int? = dropdown(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    width = width,
+    height = height,
+    modifier = modifier,
+    style = AwakeShadcnStyles.field then style
+)
+
+fun UiScope.awakeShadcnSlider(
+    id: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    width: Float,
+    height: Float = 28f,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Float = slider(
+    id = id,
+    min = min,
+    max = max,
+    value = value,
+    width = width,
+    height = height,
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.slider then style
+)
+
+fun UiDslScope.awakeShadcnToggle(
+    id: String,
+    checked: Boolean,
+    width: Float,
+    height: Float = 32f,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = toggle(
+    id = id,
+    checked = checked,
+    width = width,
+    height = height,
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.field then style
+)
+
+fun UiDslScope.awakeShadcnCheckbox(
+    id: String,
+    checked: Boolean,
+    width: Float,
+    height: Float = 24f,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = checkbox(
+    id = id,
+    checked = checked,
+    width = width,
+    height = height,
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.checkbox then style
+)
+
+fun UiDslScope.awakeShadcnDropdown(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    width: Float,
+    height: Float = 28f,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Int? = dropdown(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    width = width,
+    height = height,
+    modifier = modifier,
+    style = AwakeShadcnStyles.field then style
+)
+
+fun UiDslScope.awakeShadcnSlider(
+    id: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    width: Float,
+    height: Float = 28f,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Float = slider(
+    id = id,
+    min = min,
+    max = max,
+    value = value,
+    width = width,
+    height = height,
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.slider then style
+)
+
 fun UiColumnDslScope.awakeShadcnSurface(
     id: String,
     width: Dimension = Dimension.FillMax,
@@ -212,6 +429,70 @@ fun UiColumnDslScope.awakeShadcnSurface(
     style = AwakeShadcnTheme.components.panel then style,
     content = content
 )
+
+fun UiColumnDslScope.awakeShadcnPropertyToggle(
+    id: String,
+    label: String,
+    checked: Boolean,
+    height: Float = 28f,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = propertyCheckbox(
+    id = id,
+    checked = checked,
+    label = label,
+    height = height,
+    modifier = modifier,
+    style = AwakeShadcnStyles.checkbox then style
+)
+
+fun UiColumnDslScope.awakeShadcnPropertyDropdown(
+    id: String,
+    label: String,
+    options: List<String>,
+    selectedIndex: Int,
+    height: Float = 28f,
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty
+): Int? {
+    var resolved: Int? = null
+    propertyRow(label = label, height = height, labelWidth = labelWidth) { slot ->
+        resolved = awakeShadcnDropdown(
+            id = id,
+            options = options,
+            selectedIndex = selectedIndex,
+            width = slot.width,
+            height = slot.height,
+            style = style
+        )
+    }
+    return resolved
+}
+
+fun UiColumnDslScope.awakeShadcnPropertySlider(
+    id: String,
+    label: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    height: Float = 28f,
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty
+): Float {
+    var resolved = value
+    propertyRow(label = label, height = height, labelWidth = labelWidth) { slot ->
+        resolved = awakeShadcnSlider(
+            id = id,
+            min = min,
+            max = max,
+            value = value,
+            width = slot.width,
+            height = slot.height,
+            style = style
+        )
+    }
+    return resolved
+}
 
 fun UiAbsoluteDslScope.awakeShadcnSurface(
     id: String,

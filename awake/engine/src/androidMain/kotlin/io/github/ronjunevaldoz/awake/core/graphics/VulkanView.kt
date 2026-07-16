@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.syncAwakeKeyInput
 import io.github.ronjunevaldoz.awake.core.input.syncAwakePointerInput
 import io.github.ronjunevaldoz.awake.core.utils.Frame
+import io.github.ronjunevaldoz.awake.ui.UiDensity
 
 
 class VulkanView(
@@ -28,9 +29,11 @@ class VulkanView(
         isFocusable = true
         isFocusableInTouchMode = true
         requestFocus()
+        syncUiDensity()
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
+        syncUiDensity()
         Frame.width = width
         Frame.height = height
         application.create(holder.surface)
@@ -54,6 +57,7 @@ class VulkanView(
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        syncUiDensity()
         application.resize(0, 0, width, height)
     }
 
@@ -91,5 +95,9 @@ class VulkanView(
 
     override fun surfaceRedrawNeeded(holder: SurfaceHolder) {
         //        TODO("Not yet implemented")
+    }
+
+    private fun syncUiDensity() {
+        UiDensity.scale = resources.displayMetrics.density
     }
 }

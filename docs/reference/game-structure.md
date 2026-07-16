@@ -118,6 +118,18 @@ Owns rendering-facing UI and presenter mapping.
 Leaf UI components should consume plain values and callbacks. They should not reach into
 `World`, `SceneGameRuntime`, or ECS systems directly.
 
+### Responsive Overlay Rule
+
+When a game or sample overlay needs to react to window size:
+
+- prefer `overlayBox(viewportWidth, viewportHeight) { constraints -> ... }`
+- treat the overlay root like a Compose `Box`
+- place children with `UiModifier.align(...)` and `UiModifier.padding(...)`
+- branch on `constraints.widthSizeClass` for `Compact`, `Medium`, and `Expanded`
+
+Use `overlayShell(...)` only when the layout is genuinely just "stick a pane in a corner."
+Do not create a new helper per placement pattern when a Box-style aligned overlay solves it.
+
 ### `debug/`
 
 Owns optional tooling.

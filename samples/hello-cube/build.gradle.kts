@@ -7,6 +7,7 @@ plugins {
     // doc comment. Applied module-wide (cheap, same as awake:scene's own usage) rather than
     // scoped to just desktopMain, since Gradle KMP plugins apply per-module, not per-source-set.
     alias(libs.plugins.kotlin.serialization)
+    id("awake.shader-pipeline-convention")
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")

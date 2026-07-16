@@ -29,7 +29,9 @@ class WebGpuGameApplication(
     vertexShaderResourcePath: String,
     fragmentShaderResourcePath: String,
     vertexStride: Int,
-    game: Game
+    game: Game,
+    private val vertexShaderEntryPoint: String = DEFAULT_VERTEX_SHADER_ENTRY_POINT,
+    private val fragmentShaderEntryPoint: String = DEFAULT_FRAGMENT_SHADER_ENTRY_POINT
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -44,7 +46,9 @@ class WebGpuGameApplication(
         vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
         vertexStride = vertexStride,
-        game = game
+        game = game,
+        vertexShaderEntryPoint = shaderSet.webGpu.vertexEntryPoint,
+        fragmentShaderEntryPoint = shaderSet.webGpu.fragmentEntryPoint
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -63,7 +67,9 @@ class WebGpuGameApplication(
             DescriptorSetLayoutHandle(0),
             readResourceBytes(vertexShaderResourcePath),
             ByteArray(0),
-            vertexStride
+            vertexStride,
+            vertexShaderEntryPoint,
+            fragmentShaderEntryPoint
         )
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
@@ -101,6 +107,8 @@ class WebGpuGameApplication(
 
     private companion object {
         const val MAX_FRAMES_IN_FLIGHT = 1
+        const val DEFAULT_VERTEX_SHADER_ENTRY_POINT = "vertexMain"
+        const val DEFAULT_FRAGMENT_SHADER_ENTRY_POINT = "fragmentMain"
 
         // Bundled once in this module (`awake-backend-webgpu/src/wasmJsMain/resources`),
         // not duplicated per consumer -- see VulkanGameApplication's identical companion

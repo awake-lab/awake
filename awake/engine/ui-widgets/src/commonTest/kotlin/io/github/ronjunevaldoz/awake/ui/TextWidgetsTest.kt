@@ -41,4 +41,19 @@ class TextWidgetsTest {
         assertEquals(listOf("Awake", "widget", "system"), layout.lines)
         assertTrue(!layout.truncated)
     }
+
+    @Test
+    fun wordWrapEllipsizesTheFinalVisibleLineWhenMaxLinesAreExceeded() {
+        val layout = layoutBitmapText(
+            label = "Awake widget system proves overflow",
+            glyphPx = 8f,
+            maxWidthPx = 48f,
+            wrap = UiTextWrap.Word,
+            overflow = UiTextOverflow.Ellipsis,
+            maxLines = 2
+        )
+
+        assertEquals(listOf("Awake", "wid..."), layout.lines)
+        assertTrue(layout.truncated)
+    }
 }

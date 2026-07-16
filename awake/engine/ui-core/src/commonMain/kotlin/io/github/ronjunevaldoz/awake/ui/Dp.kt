@@ -31,6 +31,11 @@ val Float.px: Dp get() = Dp(this / UiDensity.scale)
  */
 object UiDensity {
     var scale: Float = 1f
+        set(value) {
+            field = if (value.isFinite() && value > 0f) value else 1f
+        }
+
+    fun pxToDp(pixels: Float): Float = pixels / scale
 }
 
 fun Dp.toPx(): Float = value * UiDensity.scale

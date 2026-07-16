@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
 private const val PROPERTY_LABEL_GAP = 8f
+private const val PROPERTY_LABEL_MAX_FRACTION = 0.45f
+private const val PROPERTY_MIN_CONTROL_WIDTH_GLYPHS = 12
 private data class PropertyInteraction(
     val slot: UiSlot,
     val hovered: Boolean,
@@ -12,13 +14,25 @@ private data class PropertyInteraction(
 
 fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): UiSlot {
     val rowSlot = claimSlot(Dimension.FillMax, height.toDimension())
-    val labelWidthPx = labelWidth.toPx()
+    val glyphPx = font?.cellSize?.times(resolvedTextScale()) ?: 8f
+    val labelWidthPx = resolvePropertyLabelWidthPx(
+        rowWidthPx = rowSlot.width,
+        label = label,
+        requestedWidthPx = labelWidth.toPx(),
+        glyphPx = glyphPx
+    )
     val labelColor = theme.tokens.mutedForeground
     val resolvedFont = font
     if (resolvedFont != null) {
-        val glyphPx = resolvedFont.cellSize * resolvedTextScale()
         val labelSlot = UiSlot(rowSlot.x, rowSlot.y + (rowSlot.height - glyphPx) / 2f, labelWidthPx, glyphPx)
-        text(label, labelSlot, font = resolvedFont, color = labelColor, centered = false)
+        text(
+            label = label,
+            slot = labelSlot,
+            font = resolvedFont,
+            color = labelColor,
+            centered = false,
+            overflow = UiTextOverflow.Ellipsis
+        )
     }
     return UiSlot(
         rowSlot.x + labelWidthPx + PROPERTY_LABEL_GAP,
@@ -26,6 +40,28 @@ fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): 
         (rowSlot.width - labelWidthPx - PROPERTY_LABEL_GAP).coerceAtLeast(0f),
         rowSlot.height
     )
+}
+
+internal fun resolvePropertyLabelWidthPx(
+    rowWidthPx: Float,
+    label: String,
+    requestedWidthPx: Float,
+    glyphPx: Float
+): Float {
+    val availableLabelWidth = (rowWidthPx - PROPERTY_LABEL_GAP).coerceAtLeast(0f)
+    val minimumControlWidth = minOf(
+        (glyphPx * PROPERTY_MIN_CONTROL_WIDTH_GLYPHS).coerceAtLeast(96f),
+        availableLabelWidth
+    )
+    val preferredLabelCap = (rowWidthPx - minimumControlWidth - PROPERTY_LABEL_GAP).coerceAtLeast(0f)
+    val fractionalCap = (rowWidthPx * PROPERTY_LABEL_MAX_FRACTION).coerceAtLeast(0f)
+    val maxLabelWidth = if (preferredLabelCap > 0f) {
+        minOf(preferredLabelCap, fractionalCap)
+    } else {
+        availableLabelWidth
+    }
+    val baseWidth = maxOf(requestedWidthPx, label.length * glyphPx)
+    return baseWidth.coerceAtMost(maxLabelWidth)
 }
 
 fun UiScope.propertyCheckbox(
@@ -43,7 +79,14 @@ fun UiScope.propertyCheckbox(
     if (resolvedFont != null) {
         val glyphPx = resolvedFont.cellSize * resolvedTextScale()
         val labelSlot = UiSlot(interaction.slot.x, interaction.slot.y + (interaction.slot.height - glyphPx) / 2f, interaction.slot.width, glyphPx)
-        text(label, labelSlot, font = resolvedFont, color = labelColor, centered = false)
+        text(
+            label = label,
+            slot = labelSlot,
+            font = resolvedFont,
+            color = labelColor,
+            centered = false,
+            overflow = UiTextOverflow.Ellipsis
+        )
     }
 
     val resolved = resolveStyle(

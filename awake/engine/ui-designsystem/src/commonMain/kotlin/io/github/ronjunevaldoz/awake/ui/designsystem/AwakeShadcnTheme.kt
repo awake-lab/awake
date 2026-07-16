@@ -17,19 +17,19 @@ import io.github.ronjunevaldoz.awake.ui.dp
  */
 object AwakeShadcnTheme : UiTheme {
     override val tokens: UiColorTokens = object : UiColorTokens {
-        override val background = floatArrayOf(0.035f, 0.035f, 0.043f, 1f)
-        override val foreground = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
-        override val primary = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
-        override val primaryForeground = floatArrayOf(0.07f, 0.07f, 0.08f, 1f)
-        override val secondary = floatArrayOf(0.102f, 0.11f, 0.137f, 1f)
-        override val secondaryForeground = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
-        override val muted = floatArrayOf(0.168f, 0.176f, 0.215f, 1f)
-        override val mutedForeground = floatArrayOf(0.72f, 0.74f, 0.79f, 1f)
-        override val accent = floatArrayOf(0.195f, 0.208f, 0.258f, 1f)
-        override val accentForeground = floatArrayOf(0.98f, 0.98f, 0.985f, 1f)
-        override val destructive = floatArrayOf(0.64f, 0.18f, 0.22f, 1f)
+        override val background = floatArrayOf(0.02f, 0.024f, 0.035f, 1f)
+        override val foreground = floatArrayOf(0.985f, 0.988f, 0.995f, 1f)
+        override val primary = floatArrayOf(0.985f, 0.988f, 0.995f, 1f)
+        override val primaryForeground = floatArrayOf(0.075f, 0.08f, 0.11f, 1f)
+        override val secondary = floatArrayOf(0.115f, 0.125f, 0.165f, 1f)
+        override val secondaryForeground = floatArrayOf(0.985f, 0.988f, 0.995f, 1f)
+        override val muted = floatArrayOf(0.205f, 0.218f, 0.28f, 1f)
+        override val mutedForeground = floatArrayOf(0.76f, 0.79f, 0.86f, 1f)
+        override val accent = floatArrayOf(0.255f, 0.275f, 0.36f, 1f)
+        override val accentForeground = floatArrayOf(0.985f, 0.988f, 0.995f, 1f)
+        override val destructive = floatArrayOf(0.73f, 0.2f, 0.26f, 1f)
         override val destructiveForeground = floatArrayOf(0.99f, 0.98f, 0.98f, 1f)
-        override val border = floatArrayOf(0.246f, 0.258f, 0.316f, 1f)
+        override val border = floatArrayOf(0.33f, 0.35f, 0.44f, 1f)
     }
 
     override val components: UiComponentStyles = object : UiComponentStyles {

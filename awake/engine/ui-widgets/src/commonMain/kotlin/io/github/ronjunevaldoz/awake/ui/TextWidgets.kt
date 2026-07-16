@@ -131,7 +131,7 @@ fun layoutBitmapText(
         result[lastIndex] = when (overflow) {
             UiTextOverflow.Visible -> result[lastIndex]
             UiTextOverflow.Clip -> truncateLine(result[lastIndex], capacity, UiTextOverflow.Clip)
-            UiTextOverflow.Ellipsis -> ellipsizeLine(result[lastIndex], capacity)
+            UiTextOverflow.Ellipsis -> ellipsizeTruncatedLine(result[lastIndex], capacity)
         }
     }
     return UiBitmapTextLayout(lines = result.take(normalizedMaxLines), truncated = truncated)
@@ -160,4 +160,17 @@ private fun ellipsizeLine(line: String, capacity: Int): String {
         return ".".repeat(capacity)
     }
     return line.take(capacity - 3) + "..."
+}
+
+private fun ellipsizeTruncatedLine(line: String, capacity: Int): String {
+    if (capacity == Int.MAX_VALUE) {
+        return "$line..."
+    }
+    if (capacity <= 3) {
+        return ".".repeat(capacity)
+    }
+    if (line.length >= capacity) {
+        return line.take(capacity - 3) + "..."
+    }
+    return line.take((capacity - 3).coerceAtLeast(0)) + "..."
 }

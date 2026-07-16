@@ -144,3 +144,97 @@ class UiAbsoluteDslScope internal constructor(
         return slot
     }
 }
+
+@AwakeUiDsl
+class UiBoxDslScope internal constructor(
+    private val boxScope: BoxScope
+) : UiDslScope(boxScope) {
+
+    fun panel(
+        id: String,
+        width: Dimension = Dimension.WrapContent,
+        height: Dimension = Dimension.WrapContent,
+        radius: Dp = UiShape.md,
+        borderWidth: Dp = UiShape.none,
+        style: Style = Style.Empty,
+        modifier: UiModifier = UiModifier(),
+        clipContent: Boolean = false,
+        content: UiColumnDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = boxScope.panel(
+        id = id,
+        width = modifier.width ?: width,
+        height = modifier.height ?: height,
+        radius = radius,
+        borderWidth = borderWidth,
+        style = style,
+        modifier = modifier,
+        clipContent = clipContent
+    ) { slot ->
+        UiColumnDslScope(this).content(slot)
+    }
+
+    fun row(
+        width: Dimension,
+        height: Float,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        content: UiRowDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot {
+        val slot = boxScope.claimModifiedSlot(modifier.width ?: width, modifier.height ?: height.toDimension(), modifier)
+        UiRowDslScope(context.row(slot, font, theme, gap, textScale)).content(slot)
+        return slot
+    }
+
+    fun column(
+        width: Dimension,
+        height: Dimension,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        insets: UiInsets = UiInsets.Zero,
+        content: UiColumnDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot {
+        val requestedWidth = modifier.width ?: width
+        val requestedHeight = modifier.height ?: height
+        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+            val availableWidth = when (requestedWidth) {
+                is Dimension.Fixed -> requestedWidth.dp.toPx()
+                Dimension.FillMax, Dimension.WrapContent -> boxScope.fillWidthOrNull() ?: 0f
+            }
+            context.measureColumnContent(
+                width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
+                font = font,
+                theme = theme,
+                gap = gap,
+                textScale = textScale,
+                insets = insets
+            ) { measureSlot ->
+                UiColumnDslScope(this).content(measureSlot)
+            }
+        } else {
+            null
+        }
+        val resolvedWidth = when (requestedWidth) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width + insets.horizontalPx()).px)
+            else -> requestedWidth
+        }
+        val resolvedHeight = when (requestedHeight) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height + insets.verticalPx()).px)
+            else -> requestedHeight
+        }
+        val slot = boxScope.claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
+        UiColumnDslScope(context.column(slot, font, theme, gap, textScale, insets)).content(slot)
+        return slot
+    }
+
+    fun box(
+        width: Dimension = Dimension.FillMax,
+        height: Dimension = Dimension.FillMax,
+        modifier: UiModifier = UiModifier(),
+        contentAlignment: UiAlignment = UiAlignment.TopStart,
+        content: UiBoxDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot {
+        val slot = boxScope.claimModifiedSlot(modifier.width ?: width, modifier.height ?: height, modifier)
+        UiBoxDslScope(context.box(slot, font, theme, textScale, contentAlignment = contentAlignment)).content(slot)
+        return slot
+    }
+}

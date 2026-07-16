@@ -3,9 +3,12 @@
 package io.github.ronjunevaldoz.awake.webgpu.application
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.ygdrasil.webgpu.CompositeAlphaMode
+import io.ygdrasil.webgpu.GPUTextureFormat
 import io.ygdrasil.webgpu.GPUTextureUsage
 import io.ygdrasil.webgpu.SurfaceConfiguration
+import io.ygdrasil.webgpu.WGPUContext
 import io.ygdrasil.webgpu.canvasContextRenderer
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
@@ -36,13 +39,18 @@ fun launchWebGpuGame(
     canvas: HTMLCanvasElement,
     applicationFactory: () -> WebGpuGameApplication
 ) {
+    syncUiDensityFromWindow()
     bindWindowPointerInput()
     bindWindowKeyboardInput()
     val initialSize = currentCanvasSize()
     syncCanvasSize(canvas, initialSize.first, initialSize.second)
+    var wgpuContext: WGPUContext? = null
+    var application: WebGpuGameApplication? = null
     window.addEventListener("resize") {
         val (width, height) = currentCanvasSize()
         syncCanvasSize(canvas, width, height)
+        wgpuContext?.let(::configureSurface)
+        application?.resize(x = 0, y = 0, width = width, height = height)
     }
 
     MainScope().launch {
@@ -51,24 +59,21 @@ fun launchWebGpuGame(
             width = initialSize.first,
             height = initialSize.second
         )
-        val wgpuContext = canvasContext.wgpuContext
-        wgpuContext.surface.configure(
-            SurfaceConfiguration(
-                device = wgpuContext.device,
-                format = wgpuContext.renderingContext.textureFormat,
-                usage = GPUTextureUsage.RenderAttachment or GPUTextureUsage.CopySrc,
-                alphaMode = CompositeAlphaMode.Opaque
-            )
-        )
+        val resolvedContext = canvasContext.wgpuContext
+        wgpuContext = resolvedContext
+        configureSurface(resolvedContext)
 
-        val application = applicationFactory()
-        application.create(wgpuContext)
+        val resolvedApplication = applicationFactory()
+        application = resolvedApplication
+        resolvedApplication.resize(x = 0, y = 0, width = initialSize.first, height = initialSize.second)
+        resolvedApplication.create(resolvedContext)
 
         var lastFrameTime = window.performance.now()
         fun frame(time: Double) {
+            syncUiDensityFromWindow()
             val deltaSeconds = ((time - lastFrameTime) / 1000.0).toFloat()
             lastFrameTime = time
-            application.update(deltaSeconds)
+            resolvedApplication.update(deltaSeconds)
             window.requestAnimationFrame(::frame)
         }
         window.requestAnimationFrame(::frame)
@@ -90,10 +95,13 @@ val DefaultDomGameplayKeys: Map<String, io.github.ronjunevaldoz.awake.core.input
 )
 
 fun bindWindowPointerInput() {
-    fun scaledPointer(event: MouseEvent): Pair<Float, Float> = Pair(
-        (event.offsetX * window.devicePixelRatio).toFloat(),
-        (event.offsetY * window.devicePixelRatio).toFloat()
-    )
+    fun scaledPointer(event: MouseEvent): Pair<Float, Float> {
+        val density = currentWindowDensity()
+        return Pair(
+            (event.offsetX * density).toFloat(),
+            (event.offsetY * density).toFloat()
+        )
+    }
 
     window.addEventListener("mousemove") { event ->
         val (x, y) = scaledPointer(event as MouseEvent)
@@ -130,12 +138,36 @@ fun bindWindowKeyboardInput(
 }
 
 private fun currentCanvasSize(): Pair<Int, Int> {
-    val width = (window.innerWidth * window.devicePixelRatio).toInt().coerceAtLeast(1)
-    val height = (window.innerHeight * window.devicePixelRatio).toInt().coerceAtLeast(1)
+    val density = currentWindowDensity()
+    val width = (window.innerWidth * density).toInt().coerceAtLeast(1)
+    val height = (window.innerHeight * density).toInt().coerceAtLeast(1)
     return width to height
+}
+
+private fun currentWindowDensity(): Double {
+    val scale = window.devicePixelRatio
+    return if (scale.isFinite() && scale > 0.0) scale else 1.0
+}
+
+private fun syncUiDensityFromWindow() {
+    UiDensity.scale = currentWindowDensity().toFloat()
 }
 
 private fun syncCanvasSize(canvas: HTMLCanvasElement, width: Int, height: Int) {
     canvas.width = width
     canvas.height = height
+}
+
+private fun configureSurface(wgpuContext: WGPUContext) {
+    wgpuContext.surface.configure(
+        SurfaceConfiguration(
+            device = wgpuContext.device,
+            // Browsers on this stack currently expose an RGBA current texture even when
+            // renderingContext.textureFormat reports BGRA, which invalidates every command
+            // buffer if the pipeline target format follows that stale value.
+            format = GPUTextureFormat.RGBA8Unorm,
+            usage = GPUTextureUsage.RenderAttachment or GPUTextureUsage.CopySrc,
+            alphaMode = CompositeAlphaMode.Opaque
+        )
+    )
 }

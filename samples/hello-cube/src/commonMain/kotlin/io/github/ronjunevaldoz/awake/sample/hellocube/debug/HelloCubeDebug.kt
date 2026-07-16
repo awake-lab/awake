@@ -4,10 +4,10 @@ package io.github.ronjunevaldoz.awake.sample.hellocube.debug
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.utils.summarizePixels
 import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
 import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.sample.server.DebugService
 import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeDebugLines
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeCameraMode
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
@@ -49,21 +49,6 @@ internal val AwakeGame.helloCubeDebugConfig: HelloCubeDebugConfig
 internal val AwakeGame.helloCubeDebugController: HelloCubeDebugController
     get() = requireService()
 
-internal fun HelloCubeDebugController.asDebugService(): DebugService<DebugCommand, DebugSnapshot> =
-    object : DebugService<DebugCommand, DebugSnapshot> {
-        override fun handle(command: DebugCommand) {
-            when (command) {
-                is DebugCommand.SwitchDemo -> switchDemo(command.index)
-                is DebugCommand.SetCameraEye -> setCameraEye(Vec3(command.x, command.y, command.z))
-                is DebugCommand.SetCameraCenter -> setCameraCenter(Vec3(command.x, command.y, command.z))
-                is DebugCommand.SetMinimap -> setMinimap(command.enabled)
-                DebugCommand.GetState -> Unit
-            }
-        }
-
-        override fun snapshot(): DebugSnapshot = this@asDebugService.snapshot()
-    }
-
 internal suspend fun SceneGameRuntime.verifyHelloCubeOffscreenReadback() {
     val camera = Camera(
         eye = Vec3(2.5f, 2f, 4f),
@@ -74,13 +59,11 @@ internal suspend fun SceneGameRuntime.verifyHelloCubeOffscreenReadback() {
         flipYForClipSpace = renderer.flipYForClipSpace
     )
     val pixels = readback(camera, width = 128, height = 128)
-    val centerOffset = ((pixels.height / 2) * pixels.width + pixels.width / 2) * 4
+    val probe = summarizePixels(pixels.data, pixels.width, pixels.height)
     println(
-        "OFFSCREEN READBACK: ${pixels.width}x${pixels.height} (${collectDrawCalls().size} draw calls) center pixel RGBA = " +
-            "${pixels.data[centerOffset].toInt() and 0xFF}," +
-            "${pixels.data[centerOffset + 1].toInt() and 0xFF}," +
-            "${pixels.data[centerOffset + 2].toInt() and 0xFF}," +
-            "${pixels.data[centerOffset + 3].toInt() and 0xFF}"
+        "OFFSCREEN READBACK: ${pixels.width}x${pixels.height} (${collectDrawCalls().size} draw calls) " +
+            "center=${probe.center} topLeft=${probe.topLeft} topRight=${probe.topRight} " +
+            "bottomLeft=${probe.bottomLeft} bottomRight=${probe.bottomRight}"
     )
     saveDebugPng(pixels.data, pixels.width, pixels.height, "offscreen-debug.png")
 }

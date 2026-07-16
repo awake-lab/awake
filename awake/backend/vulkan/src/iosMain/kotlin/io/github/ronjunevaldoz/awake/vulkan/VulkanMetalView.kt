@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan
 
+import io.github.ronjunevaldoz.awake.ui.UiDensity
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCAction
@@ -50,12 +51,14 @@ class VulkanMetalView(
     private var created = false
 
     init {
+        contentScaleFactor = UIScreen.mainScreen.scale
         layer.addSublayer(metalLayer)
     }
 
     override fun layoutSubviews() {
         super.layoutSubviews()
         val scale = UIScreen.mainScreen.scale
+        UiDensity.scale = scale.toFloat()
         val width: Double
         val height: Double
         bounds.useContents {

@@ -2,10 +2,27 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
-data class ShaderProgramResources(
-    val vertexResourcePath: String,
-    val fragmentResourcePath: String
+data class ShaderStageResource(
+    val resourcePath: String,
+    val entryPoint: String
 )
+
+data class ShaderProgramResources(
+    val vertex: ShaderStageResource,
+    val fragment: ShaderStageResource
+) {
+    val vertexResourcePath: String
+        get() = vertex.resourcePath
+
+    val fragmentResourcePath: String
+        get() = fragment.resourcePath
+
+    val vertexEntryPoint: String
+        get() = vertex.entryPoint
+
+    val fragmentEntryPoint: String
+        get() = fragment.entryPoint
+}
 
 data class GameShaderSet(
     val vulkan: ShaderProgramResources,
@@ -27,12 +44,24 @@ fun gameShaderSet(
 ): GameShaderSet {
     return GameShaderSet(
         vulkan = ShaderProgramResources(
-            vertexResourcePath = "$vulkanDirectory/$name.vert.spv",
-            fragmentResourcePath = "$vulkanDirectory/$name.frag.spv"
+            vertex = ShaderStageResource(
+                resourcePath = "$vulkanDirectory/$name.vert.spv",
+                entryPoint = "vertexMain"
+            ),
+            fragment = ShaderStageResource(
+                resourcePath = "$vulkanDirectory/$name.frag.spv",
+                entryPoint = "fragmentMain"
+            )
         ),
         webGpu = ShaderProgramResources(
-            vertexResourcePath = "$webGpuDirectory/$name.wgsl",
-            fragmentResourcePath = "$webGpuDirectory/$name.wgsl"
+            vertex = ShaderStageResource(
+                resourcePath = "$webGpuDirectory/$name.wgsl",
+                entryPoint = "vertexMain"
+            ),
+            fragment = ShaderStageResource(
+                resourcePath = "$webGpuDirectory/$name.wgsl",
+                entryPoint = "fragmentMain"
+            )
         )
     )
 }

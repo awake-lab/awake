@@ -7,12 +7,18 @@ import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.ygdrasil.webgpu.ColorTargetState
+import io.ygdrasil.webgpu.DepthStencilState
 import io.ygdrasil.webgpu.FragmentState
+import io.ygdrasil.webgpu.GPUCompareFunction
+import io.ygdrasil.webgpu.GPUCullMode
+import io.ygdrasil.webgpu.GPUFrontFace
 import io.ygdrasil.webgpu.GPUPrimitiveTopology
+import io.ygdrasil.webgpu.GPUTextureFormat
 import io.ygdrasil.webgpu.GPUVertexFormat
 import io.ygdrasil.webgpu.PrimitiveState
 import io.ygdrasil.webgpu.RenderPipelineDescriptor
 import io.ygdrasil.webgpu.ShaderModuleDescriptor
+import io.ygdrasil.webgpu.StencilFaceState
 import io.ygdrasil.webgpu.VertexAttribute
 import io.ygdrasil.webgpu.VertexBufferLayout
 import io.ygdrasil.webgpu.VertexState
@@ -33,7 +39,9 @@ class RenderPipeline(
     descriptorSetLayout: DescriptorSetLayoutHandle,
     vertShaderCode: ByteArray,
     fragShaderCode: ByteArray,
-    vertexStride: Int
+    vertexStride: Int,
+    vertexEntryPoint: String = DEFAULT_VERTEX_ENTRY_POINT,
+    fragmentEntryPoint: String = DEFAULT_FRAGMENT_ENTRY_POINT
 ) {
     var renderPass: Long = 0
     var pipelineLayout: Long = 0
@@ -49,7 +57,7 @@ class RenderPipeline(
             RenderPipelineDescriptor(
                 vertex = VertexState(
                     module = shaderModule,
-                    entryPoint = "vertexMain",
+                    entryPoint = vertexEntryPoint,
                     buffers = listOf(
                         VertexBufferLayout(
                             arrayStride = vertexStride.toULong(),
@@ -70,12 +78,23 @@ class RenderPipeline(
                 ),
                 fragment = FragmentState(
                     module = shaderModule,
-                    entryPoint = "fragmentMain",
+                    entryPoint = fragmentEntryPoint,
                     targets = listOf(
                         ColorTargetState(format = swapchainManager.imageFormatWebGpu)
                     )
                 ),
-                primitive = PrimitiveState(topology = GPUPrimitiveTopology.TriangleList)
+                primitive = PrimitiveState(
+                    topology = GPUPrimitiveTopology.TriangleList,
+                    cullMode = GPUCullMode.None,
+                    frontFace = GPUFrontFace.CW
+                ),
+                depthStencil = DepthStencilState(
+                    format = GPUTextureFormat.Depth32Float,
+                    depthWriteEnabled = true,
+                    depthCompare = GPUCompareFunction.Less,
+                    stencilFront = StencilFaceState(),
+                    stencilBack = StencilFaceState()
+                )
             )
         )
         graphicsPipeline = longArrayOf(WebGpuHandles.register(pipeline))
@@ -87,5 +106,10 @@ class RenderPipeline(
 
     fun destroy() {
         WebGpuHandles.release(graphicsPipeline[0])
+    }
+
+    private companion object {
+        const val DEFAULT_VERTEX_ENTRY_POINT = "vertexMain"
+        const val DEFAULT_FRAGMENT_ENTRY_POINT = "fragmentMain"
     }
 }

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.testing
 
+import io.github.ronjunevaldoz.awake.core.utils.RgbaSample
+import io.github.ronjunevaldoz.awake.core.utils.summarizePixels
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -44,5 +46,23 @@ class PixelBaselineTest {
         assertFailsWith<IllegalArgumentException> {
             comparePixels(byteArrayOf(1, 2, 3, 4), byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8))
         }
+    }
+
+    @Test
+    fun pixelProbeSummarySamplesExpectedAnchorPixels() {
+        val pixels = byteArrayOf(
+            1, 2, 3, 4,
+            5, 6, 7, 8,
+            9, 10, 11, 12,
+            13, 14, 15, 16
+        )
+
+        val summary = summarizePixels(pixels, width = 2, height = 2)
+
+        assertEquals(RgbaSample(1, 2, 3, 4), summary.topLeft)
+        assertEquals(RgbaSample(5, 6, 7, 8), summary.topRight)
+        assertEquals(RgbaSample(9, 10, 11, 12), summary.bottomLeft)
+        assertEquals(RgbaSample(13, 14, 15, 16), summary.bottomRight)
+        assertEquals(RgbaSample(13, 14, 15, 16), summary.center)
     }
 }

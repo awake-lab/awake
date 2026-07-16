@@ -14,8 +14,9 @@ fun UIView.syncAwakePointerInput(
     down: Boolean
 ): Boolean {
     val touch = touches.firstOrNull() as? UITouch ?: return false
+    val scale = contentScaleFactor.toFloat()
     touch.locationInView(this).useContents {
-        Input.setPointer(down = down, x = x.toFloat(), y = y.toFloat())
+        Input.setPointer(down = down, x = x.toFloat() * scale, y = y.toFloat() * scale)
     }
     return true
 }

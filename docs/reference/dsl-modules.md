@@ -12,7 +12,7 @@ Keep the pleasant builder syntax without hiding the real reusable contracts.
 |---|---|---|
 | `awake:engine:game-dsl` | `game {}` / `gameSpec {}` / `gameModule {}` / `feature.createGame {}` / installer syntax | `awake:engine:game` |
 | `awake:scene-dsl` | `sceneGame {}`, `flow {}`, `sceneFlow {}`, and `game/module { ecs { ... } }` | `awake:scene`, `awake:engine:game-dsl`, `awake:engine:ui-dsl` |
-| `awake:engine:ui-dsl` | `gameUi {}`, `game/module { ui { ... } }`, generic shell helpers like `shellPane(...)` / `overlayShell(...)`, and neutral property-form composition | `awake:engine:game-dsl`, `ui-core`, `ui-widgets` |
+| `awake:engine:ui-dsl` | `gameUi {}`, `game/module { ui { ... } }`, responsive overlay authoring through `overlayBox(...)` + `UiBoxConstraints`, shell helpers like `shellPane(...)` / `overlayShell(...)`, and neutral property-form composition | `awake:engine:game-dsl`, `ui-core`, `ui-widgets` |
 
 ## Recommended Authoring Shape
 
@@ -57,7 +57,7 @@ That keeps:
 - `game-dsl` as the single top-level game shell
 - `gameModule {}` as the reusable authored feature layer
 - `scene-dsl` focused on scene authoring
-- `ui-dsl` focused on overlay authoring and reusable shell composition
+- `ui-dsl` focused on overlay authoring, responsive box-style composition, and reusable shell composition
 
 ## When To Use Specs Directly
 
@@ -95,3 +95,11 @@ generic infrastructure rather than authored syntax.
 
 `ui-dsl` stays neutral. Its defaults should use `CoreUiTheme`, while authored samples and
 games should opt into a named theme from `awake:engine:ui-designsystem`.
+
+## Overlay Rule
+
+Treat `overlayBox(...)` as the primary authored overlay surface:
+
+- use `UiModifier.align(...)` and `UiModifier.padding(...)` for placement
+- use `UiBoxConstraints.widthSizeClass` for `Compact` / `Medium` / `Expanded` decisions
+- keep `overlayShell(...)` as convenience sugar for simple corner HUDs, not the base mental model

@@ -57,6 +57,7 @@ import io.ygdrasil.webgpu.GPURenderPipeline
 import io.ygdrasil.webgpu.GPUStoreOp
 import io.ygdrasil.webgpu.GPUMapMode
 import io.ygdrasil.webgpu.RenderPassColorAttachment
+import io.ygdrasil.webgpu.RenderPassDepthStencilAttachment
 import io.ygdrasil.webgpu.RenderPassDescriptor
 import io.ygdrasil.webgpu.SamplerDescriptor
 import io.ygdrasil.webgpu.TexelCopyBufferInfo
@@ -218,6 +219,12 @@ class Renderer(
                         clearValue = Color(0.0, 0.0, 0.0, 1.0),
                         storeOp = GPUStoreOp.Store
                     )
+                ),
+                depthStencilAttachment = RenderPassDepthStencilAttachment(
+                    view = offscreen.depthView,
+                    depthClearValue = 1.0f,
+                    depthLoadOp = GPULoadOp.Clear,
+                    depthStoreOp = GPUStoreOp.Store
                 )
             )
         ) {
@@ -718,6 +725,7 @@ class Renderer(
     }
 
     override fun draw(camera: Camera, drawCalls: List<DrawCall>) {
+        swapchainManager.syncSurface()
         val device = graphicsDevice.wgpuContext.device
         val renderingContext = graphicsDevice.wgpuContext.renderingContext
         val pipeline = WebGpuHandles.resolve<GPURenderPipeline>(renderPipeline.graphicsPipeline[0])
@@ -740,6 +748,12 @@ class Renderer(
                         clearValue = Color(0.0, 0.0, 0.0, 1.0),
                         storeOp = GPUStoreOp.Store
                     )
+                ),
+                depthStencilAttachment = RenderPassDepthStencilAttachment(
+                    view = requireNotNull(swapchainManager.depthTextureView),
+                    depthClearValue = 1.0f,
+                    depthLoadOp = GPULoadOp.Clear,
+                    depthStoreOp = GPUStoreOp.Store
                 )
             )
         ) {
@@ -784,6 +798,9 @@ class Renderer(
         // pipeline at least once -- a game that never calls drawUi never pays for this pass.
         val quadPipeline = uiRenderPipeline
         if (quadPipeline != null && uiRuns.isNotEmpty()) {
+            quadPipeline.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
+            uiGlyphRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
+            uiTextureRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
             encoder.beginRenderPass(
                 RenderPassDescriptor(
                     colorAttachments = listOf(

@@ -27,7 +27,9 @@ class VulkanGameApplication(
     vertexShaderResourcePath: String,
     fragmentShaderResourcePath: String,
     vertexStride: Int,
-    game: Game
+    game: Game,
+    private val vertexShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
+    private val fragmentShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -42,7 +44,9 @@ class VulkanGameApplication(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
         vertexStride = vertexStride,
-        game = game
+        game = game,
+        vertexShaderEntryPoint = shaderSet.vulkan.vertexEntryPoint,
+        fragmentShaderEntryPoint = shaderSet.vulkan.fragmentEntryPoint
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -71,7 +75,9 @@ class VulkanGameApplication(
             pipelineLayoutMaterial.descriptorSetLayout,
             readResourceBytes(vertexShaderResourcePath),
             readResourceBytes(fragmentShaderResourcePath),
-            vertexStride
+            vertexStride,
+            vertexShaderEntryPoint,
+            fragmentShaderEntryPoint
         )
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
@@ -129,6 +135,7 @@ class VulkanGameApplication(
 
     private companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2
+        const val DEFAULT_SHADER_ENTRY_POINT = "main"
 
         // Bundled once in this module (`awake-backend-vulkan/src/commonMain/resources`),
         // not duplicated per consumer -- these files are identical for every

@@ -20,10 +20,8 @@ import io.ygdrasil.webgpu.TextureViewDescriptor
  * directly, so there's no render-pass-compatibility concern to design around here (see that
  * Vulkan class's doc comment for the format-matching constraint it has to work around).
  *
- * No depth attachment, matching this backend's existing main 3D pass (it also has none
- * today -- see `Renderer.draw`'s own doc comment) -- avoids an asymmetry where offscreen
- * renders would look "more correct" than on-screen ones. Real depth-testing for both is a
- * separate, later follow-up.
+ * Carries its own depth attachment so offscreen readbacks match the same occlusion rules as
+ * the on-screen WebGPU path.
  */
 class OffscreenRenderTarget(
     graphicsDevice: GraphicsDevice,
@@ -40,8 +38,18 @@ class OffscreenRenderTarget(
     )
 
     val colorView: GPUTextureView = colorTexture.createView(TextureViewDescriptor())
+    val depthTexture: GPUTexture = graphicsDevice.wgpuContext.device.createTexture(
+        TextureDescriptor(
+            size = Extent3D(width = width.toUInt(), height = height.toUInt()),
+            format = GPUTextureFormat.Depth32Float,
+            usage = GPUTextureUsage.RenderAttachment,
+            dimension = GPUTextureDimension.TwoD
+        )
+    )
+    val depthView: GPUTextureView = depthTexture.createView(TextureViewDescriptor())
 
     override fun destroy() {
         colorTexture.close()
+        depthTexture.close()
     }
 }

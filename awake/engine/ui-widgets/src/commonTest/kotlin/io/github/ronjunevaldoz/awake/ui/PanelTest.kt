@@ -76,4 +76,22 @@ class PanelTest {
 
         assertEquals(40f, panelSlot.height, "two 8px text rows + 8px row gap + 16px panel padding should size the panel")
     }
+
+    @Test
+    fun wrapContentWidthTracksChildContent() {
+        val ui = UiContext()
+        val font = io.github.ronjunevaldoz.awake.ui.font.BitmapFont()
+        val column = ui.column(x = 0f, y = 0f, width = 220f, font = font)
+
+        val panelSlot = column.panel(
+            id = "wrap-width",
+            width = Dimension.WrapContent,
+            height = Dimension.WrapContent
+        ) {
+            claimSlot(Dimension.Fixed(32f.px), Dimension.Fixed(8f.px))
+        }
+
+        assertEquals(48f, panelSlot.width, "four 8px glyphs plus 16px panel padding should size the panel width")
+        assertEquals(24f, panelSlot.height, "one 8px child row plus 16px panel padding should size the panel height")
+    }
 }

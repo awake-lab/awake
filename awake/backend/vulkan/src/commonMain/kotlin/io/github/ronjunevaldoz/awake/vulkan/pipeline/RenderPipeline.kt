@@ -52,7 +52,7 @@ import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
  * verbatim from `VulkanApplication`'s `createRenderPass`/`createGraphicsPipeline`/
  * `createShaderModule` functions and their backing fields (`renderPass`, `pipelineLayout`,
  * `pipelineCache`, `graphicsPipeline`). Same two color/depth attachments, same fixed
- * position/color/uv vertex layout, same `NONE` cull mode (see the rasterization state's
+ * position/color vertex attribute layout, same `NONE` cull mode (see the rasterization state's
  * comment for why) -- this is a structural move, not a behavior change.
  *
  * Takes compiled SPIR-V bytecode directly (`vertShaderCode`/`fragShaderCode`) rather than
@@ -65,10 +65,13 @@ import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
  * `Material`/`Shader` system with more than one descriptor set layout would change this
  * signature, but there's only one material in this demo today.
  *
- * The vertex attribute layout (position vec3 + color vec3 + uv vec2) is still hardcoded here,
- * same as before the extraction -- a real vertex-format abstraction (so different meshes
- * could use different layouts) is out of scope for this pass; only [vertexStride] is
- * parameterized so this class isn't hardcoded to the demo cube's specific stride constant.
+ * The vertex attribute layout (position vec3 + color vec3) is still hardcoded here. The
+ * shared cube meshes currently keep an unused trailing uv vec2 in their interleaved stride so
+ * Vulkan and WebGPU can stay aligned while the shared shader pipeline matures, but the active
+ * sample shader only consumes locations 0 and 1. A real vertex-format abstraction (so
+ * different meshes could use different layouts) is out of scope for this pass; only
+ * [vertexStride] is parameterized so this class isn't hardcoded to the demo cube's specific
+ * stride constant.
  */
 class RenderPipeline(
     graphicsDevice: GraphicsDevice,
@@ -76,7 +79,9 @@ class RenderPipeline(
     descriptorSetLayout: DescriptorSetLayoutHandle,
     vertShaderCode: ByteArray,
     fragShaderCode: ByteArray,
-    vertexStride: Int
+    vertexStride: Int,
+    vertexEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
+    fragmentEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT
 ) {
     private val graphicsDevice = graphicsDevice
     private val swapchainManager = swapchainManager
@@ -89,7 +94,14 @@ class RenderPipeline(
 
     init {
         renderPass = createRenderPass()
-        createGraphicsPipeline(descriptorSetLayout, vertShaderCode, fragShaderCode, vertexStride)
+        createGraphicsPipeline(
+            descriptorSetLayout = descriptorSetLayout,
+            vertShaderCode = vertShaderCode,
+            fragShaderCode = fragShaderCode,
+            vertexStride = vertexStride,
+            vertexEntryPoint = vertexEntryPoint,
+            fragmentEntryPoint = fragmentEntryPoint
+        )
     }
 
     private fun createRenderPass(): Long {
@@ -166,7 +178,9 @@ class RenderPipeline(
         descriptorSetLayout: DescriptorSetLayoutHandle,
         vertShaderCode: ByteArray,
         fragShaderCode: ByteArray,
-        vertexStride: Int
+        vertexStride: Int,
+        vertexEntryPoint: String,
+        fragmentEntryPoint: String
     ) {
         // WARNING: make sure the .spv vulkan version match, this might cause out of memory
         val fragShaderModule = createShaderModule(fragShaderCode.toIntArray())
@@ -176,12 +190,12 @@ class RenderPipeline(
         val fragShaderStageInfo = VkPipelineShaderStageCreateInfo(
             stage = VkShaderStageFlagBits.FRAGMENT,
             module = fragShaderModule,
-            pName = "main"
+            pName = fragmentEntryPoint
         )
         val vertShaderStageInfo = VkPipelineShaderStageCreateInfo(
             stage = VkShaderStageFlagBits.VERTEX,
             module = vertShaderModule,
-            pName = "main"
+            pName = vertexEntryPoint
         )
         val shaderStages = arrayOf(fragShaderStageInfo, vertShaderStageInfo)
 
@@ -207,12 +221,6 @@ class RenderPipeline(
                         format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
                         offset = 3 * Float.SIZE_BYTES
                     ),
-                    VkVertexInputAttributeDescription(
-                        location = 2,
-                        binding = 0,
-                        format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
-                        offset = 6 * Float.SIZE_BYTES
-                    )
                 )
             )
         )
@@ -331,5 +339,9 @@ class RenderPipeline(
         Vulkan.vkDestroyPipelineLayout(device, pipelineLayout)
         Vulkan.vkDestroyRenderPass(device, renderPass)
         Vulkan.vkDestroyPipelineCache(device, pipelineCache)
+    }
+
+    private companion object {
+        const val DEFAULT_SHADER_ENTRY_POINT = "main"
     }
 }

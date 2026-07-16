@@ -15,6 +15,30 @@ import kotlin.test.assertTrue
 class UiDslTest {
 
     @Test
+    fun propertyLabelWidthCanExpandForLongLabelsWhenRowHasSpace() {
+        val width = resolvePropertyLabelWidthPx(
+            rowWidthPx = 320f,
+            label = "Exposure Compensation",
+            requestedWidthPx = 64f,
+            glyphPx = 8f
+        )
+
+        assertEquals(144f, width, "wide rows should let long property labels claim more than the 64px default")
+    }
+
+    @Test
+    fun propertyLabelWidthShrinksBeforeStarvingTheControlArea() {
+        val width = resolvePropertyLabelWidthPx(
+            rowWidthPx = 150f,
+            label = "Exposure Compensation",
+            requestedWidthPx = 64f,
+            glyphPx = 8f
+        )
+
+        assertEquals(46f, width, "narrow rows should trim the label column so the control keeps usable width")
+    }
+
+    @Test
     fun dslCanComposeInspectorPanelFromPublicFacade() {
         Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
@@ -188,5 +212,170 @@ class UiDslTest {
         )
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
         assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
+    }
+
+    @Test
+    fun overlayShellPaneAutoFitsContentForBottomAnchors() {
+        val runtime = GameUiRuntime(
+            services = object : GameServiceLookup {
+                override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
+                override fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = error("unused")
+            },
+            spec = gameUi { }
+        )
+        runtime.uiContext.beginFrame(360f, 240f)
+
+        var bottomLeftSlot: UiSlot? = null
+
+        runtime.overlayShell(viewportWidth = 360f, viewportHeight = 240f) {
+            bottomLeftPane(
+                maxWidth = 180f,
+                margin = UiInsets(start = 20f.dp, bottom = 12f.dp)
+            ) { slot ->
+                bottomLeftSlot = slot
+                text("Debug")
+                text("Frame: 16ms")
+            }
+        }
+
+        val slot = requireNotNull(bottomLeftSlot)
+        val primitives = runtime.uiContext.endFrame()
+
+        assertEquals(40f, slot.height, "two 8px rows with one 8px gap plus panel padding should auto-fit the pane body")
+        assertEquals(228f, slot.y + slot.height, "the visible panel should honor the requested bottom margin")
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
+        assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
+    }
+
+    @Test
+    fun overlayBoxExposesResponsiveWidthClassesAndAlignment() {
+        val runtime = GameUiRuntime(
+            services = object : GameServiceLookup {
+                override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
+                override fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = error("unused")
+            },
+            spec = gameUi { }
+        )
+        runtime.uiContext.beginFrame(360f, 240f)
+
+        var widthClass: UiWidthSizeClass? = null
+        var panelSlot: UiSlot? = null
+
+        runtime.overlayBox(viewportWidth = 360f, viewportHeight = 240f) { constraints ->
+            widthClass = constraints.widthSizeClass
+            panelSlot = panel(
+                id = "overlay-panel",
+                width = 120f.toDimension(),
+                height = Dimension.WrapContent,
+                modifier = UiModifier()
+                    .align(UiAlignment.BottomEnd)
+                    .padding(start = 0f.dp, top = 0f.dp, end = 16f.dp, bottom = 12f.dp)
+            ) {
+                text("Status")
+            }
+        }
+
+        val primitives = runtime.uiContext.endFrame()
+        assertEquals(UiWidthSizeClass.Compact, widthClass)
+        assertEquals(UiSlot(224f, 204f, 120f, 24f), panelSlot)
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
+        assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
+    }
+
+    @Test
+    fun overlayBoxSupportsStackedResponsiveColumns() {
+        val runtime = GameUiRuntime(
+            services = object : GameServiceLookup {
+                override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
+                override fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = error("unused")
+            },
+            spec = gameUi { }
+        )
+        runtime.uiContext.beginFrame(900f, 600f)
+
+        var widthClass: UiWidthSizeClass? = null
+        var columnSlot: UiSlot? = null
+
+        runtime.overlayBox(viewportWidth = 900f, viewportHeight = 600f) { constraints ->
+            widthClass = constraints.widthSizeClass
+            columnSlot = column(
+                width = 320f.toDimension(),
+                height = Dimension.WrapContent,
+                modifier = UiModifier()
+                    .align(UiAlignment.TopStart)
+                    .padding(20f.dp)
+            ) {
+                panel(id = "one", width = Dimension.FillMax, height = Dimension.WrapContent) {
+                    text("One")
+                }
+                panel(id = "two", width = Dimension.FillMax, height = Dimension.WrapContent) {
+                    text("Two")
+                }
+            }
+        }
+
+        val primitives = runtime.uiContext.endFrame()
+        assertEquals(UiWidthSizeClass.Expanded, widthClass)
+        assertEquals(UiSlot(20f, 20f, 320f, 56f), columnSlot)
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
+        assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
+    }
+
+    @Test
+    fun overlayBoxUsesDensityIndependentWidthClasses() {
+        val originalScale = UiDensity.scale
+        UiDensity.scale = 2f
+        try {
+            val runtime = GameUiRuntime(
+                services = object : GameServiceLookup {
+                    override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
+                    override fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = error("unused")
+                },
+                spec = gameUi { }
+            )
+            runtime.uiContext.beginFrame(900f, 600f)
+
+            var widthClass: UiWidthSizeClass? = null
+            var maxWidth: Float? = null
+            var maxWidthPx: Float? = null
+
+            runtime.overlayBox(viewportWidth = 900f, viewportHeight = 600f) { constraints ->
+                widthClass = constraints.widthSizeClass
+                maxWidth = constraints.maxWidth
+                maxWidthPx = constraints.maxWidthPx
+            }
+
+            assertEquals(UiWidthSizeClass.Compact, widthClass)
+            assertEquals(450f, maxWidth)
+            assertEquals(900f, maxWidthPx)
+        } finally {
+            UiDensity.scale = originalScale
+        }
+    }
+
+    @Test
+    fun supportingTextWrapsInsideWrapContentPanels() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(280f, 220f)
+
+        var panelSlot: UiSlot? = null
+
+        ui.ui(x = 20f, y = 20f, width = 180f, font = BitmapFont()) {
+            panel(id = "copy", height = Dimension.WrapContent) { slot ->
+                panelSlot = slot
+                text("Copy")
+                supportingText(
+                    "Shared supporting copy should wrap cleanly and grow the panel instead of spilling outside its bounds.",
+                    maxLines = 4
+                )
+            }
+        }
+
+        val primitives = ui.endFrame()
+        val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
+        val resolvedPanel = assertNotNull(panelSlot)
+        assertTrue(resolvedPanel.height > 32f, "wrap-content panels should grow to fit multi-line supporting copy")
+        assertTrue(glyphs.any { it.y > resolvedPanel.y + 16f }, "wrapped supporting copy should render on more than one text row")
     }
 }

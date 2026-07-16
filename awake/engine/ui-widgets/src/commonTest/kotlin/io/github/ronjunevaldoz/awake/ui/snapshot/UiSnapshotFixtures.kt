@@ -1,0 +1,448 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.ui.snapshot
+
+import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.CoreUiComponentStyles
+import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
+import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.UiColorTokens
+import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiImageVector
+import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiShape
+import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
+import io.github.ronjunevaldoz.awake.ui.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.UiTheme
+import io.github.ronjunevaldoz.awake.ui.align
+import io.github.ronjunevaldoz.awake.ui.border
+import io.github.ronjunevaldoz.awake.ui.button
+import io.github.ronjunevaldoz.awake.ui.checkbox
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.dropdown
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.icon
+import io.github.ronjunevaldoz.awake.ui.offset
+import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.size
+import io.github.ronjunevaldoz.awake.ui.supportingLines
+import io.github.ronjunevaldoz.awake.ui.supportingText
+import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.toggle
+import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.uiImageVector
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertySlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
+
+data class UiSnapshotScene(
+    val name: String,
+    val width: Int,
+    val height: Int,
+    val primitives: List<io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive>,
+    val background: FloatArray = floatArrayOf(0.1f, 0.1f, 0.12f, 1f),
+    val font: BitmapFont? = null,
+    val title: String? = null,
+    val summary: String? = null
+)
+
+internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
+    val font = BitmapFont()
+    parkPointerOffCanvas()
+
+    val uncheckedUi = UiContext()
+    uncheckedUi.beginFrame(160f, 40f)
+    uncheckedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme)
+        .toggle("toggle-unchecked", checked = false, width = 160f, height = 40f, label = "ENABLED")
+
+    val checkedUi = UiContext()
+    checkedUi.beginFrame(160f, 40f)
+    checkedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme)
+        .toggle("toggle-checked", checked = true, width = 160f, height = 40f, label = "ENABLED")
+
+    val buttonVariants = UiButtonVariant.entries.map { variant ->
+        val variantId = buttonVariantId(variant)
+        val ui = UiContext()
+        ui.beginFrame(160f, 40f)
+        ui.absolute(0f, 0f, font = font, theme = CoreUiTheme)
+            .button("button-$variantId", 160f, 40f, label = "BUTTON", variant = variant, radius = UiShape.md)
+        UiSnapshotScene(
+            name = "button-$variantId",
+            width = 160,
+            height = 40,
+            primitives = ui.endFrame(),
+            background = CoreUiTheme.tokens.background,
+            font = font
+        )
+    }
+
+    val lightThemeUi = UiContext()
+    lightThemeUi.beginFrame(160f, 40f)
+    lightThemeUi.absolute(0f, 0f, font = font, theme = SnapshotLightUiTheme)
+        .button("theme-light", 160f, 40f, label = "BUTTON")
+
+    val darkThemeUi = UiContext()
+    darkThemeUi.beginFrame(160f, 40f)
+    darkThemeUi.absolute(0f, 0f, font = font, theme = CoreUiTheme)
+        .button("theme-dark", 160f, 40f, label = "BUTTON")
+
+    val panelUi = UiContext()
+    panelUi.beginFrame(240f, 200f)
+    val panelColumn = panelUi.column(x = 20f, y = 20f, width = 200f, font = font, theme = CoreUiTheme)
+    panelColumn.panel(
+        "inspector",
+        Dimension.FillMax,
+        Dimension.Fixed(140f.px),
+        radius = UiShape.md,
+        borderWidth = 1f.dp
+    ) {
+        text("CAMERA", color = CoreUiTheme.tokens.mutedForeground)
+        dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, 180f, 24f)
+        checkbox("debug", checked = true, width = 180f, height = 24f, label = "DEBUG")
+    }
+
+    return buildList {
+        add(
+            UiSnapshotScene(
+                name = "toggle-unchecked",
+                width = 160,
+                height = 40,
+                primitives = uncheckedUi.endFrame(),
+                font = font
+            )
+        )
+        add(
+            UiSnapshotScene(
+                name = "toggle-checked",
+                width = 160,
+                height = 40,
+                primitives = checkedUi.endFrame(),
+                font = font
+            )
+        )
+        addAll(buttonVariants)
+        add(
+            UiSnapshotScene(
+                name = "theme-dark",
+                width = 160,
+                height = 40,
+                primitives = darkThemeUi.endFrame(),
+                background = CoreUiTheme.tokens.background,
+                font = font
+            )
+        )
+        add(
+            UiSnapshotScene(
+                name = "theme-light",
+                width = 160,
+                height = 40,
+                primitives = lightThemeUi.endFrame(),
+                background = SnapshotLightUiTheme.tokens.background,
+                font = font
+            )
+        )
+        add(
+            UiSnapshotScene(
+                name = "panel-with-children",
+                width = 240,
+                height = 200,
+                primitives = panelUi.endFrame(),
+                font = font
+            )
+        )
+    }
+}
+
+internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
+    val font = BitmapFont()
+    parkPointerOffCanvas()
+
+    fun scene(
+        name: String,
+        width: Int,
+        height: Int,
+        background: FloatArray,
+        title: String,
+        summary: String,
+        build: UiContext.(BitmapFont) -> Unit
+    ): UiSnapshotScene {
+        val ui = UiContext()
+        ui.beginFrame(width.toFloat(), height.toFloat())
+        ui.build(font)
+        return UiSnapshotScene(
+            name = name,
+            width = width,
+            height = height,
+            primitives = ui.endFrame(),
+            background = background,
+            font = font,
+            title = title,
+            summary = summary
+        )
+    }
+
+    return listOf(
+        scene(
+            name = "ui-button-variants",
+            width = 620,
+            height = 200,
+            background = AwakeShadcnTheme.tokens.background,
+            title = "Button Variants",
+            summary = "The Awake shadcn layer keeps the same shared widget runtime while giving buttons a sharper, darker design language."
+        ) { snapshotFont ->
+            ui(x = 16f, y = 18f, width = 588f, font = snapshotFont, theme = AwakeShadcnTheme, gap = 10f, textScale = 2f) {
+                awakeShadcnSurface(
+                    id = "button-variants",
+                    width = Dimension.Fixed(588f.px),
+                    height = Dimension.WrapContent
+                ) {
+                    text("Awake Shadcn Buttons")
+                    supportingText("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")
+                    spacer(8f)
+                    row(height = 40f, gap = 8f) {
+                        awakeShadcnButton("primary", 138f, 40f, "Primary", variant = AwakeShadcnButtonVariant.Primary)
+                        awakeShadcnButton("secondary", 172f, 40f, "Secondary", variant = AwakeShadcnButtonVariant.Secondary)
+                        awakeShadcnButton("outline", 138f, 40f, "Outline", variant = AwakeShadcnButtonVariant.Outline)
+                    }
+                    row(height = 40f, gap = 8f) {
+                        awakeShadcnButton("ghost", 122f, 40f, "Ghost", variant = AwakeShadcnButtonVariant.Ghost)
+                        awakeShadcnButton("danger", 138f, 40f, "Danger", variant = AwakeShadcnButtonVariant.Danger)
+                    }
+                }
+            }
+        },
+        scene(
+            name = "ui-shaped-panel",
+            width = 300,
+            height = 180,
+            background = CoreUiTheme.tokens.background,
+            title = "Shaped Panel Composition",
+            summary = "Panels can opt into a custom shape and content clipping, which gives the DSL a reusable way to compose containers and controls."
+        ) { snapshotFont ->
+            absolute(20f, 20f, font = snapshotFont, theme = CoreUiTheme).panel(
+                id = "shape-panel",
+                width = Dimension.Fixed(260f.px),
+                height = Dimension.Fixed(120f.px),
+                style = Style {
+                    shape(UiShapeSpec.CutCorner(12f.dp))
+                    border(1f.dp, CoreUiTheme.tokens.border)
+                    contentPadding(12f.dp)
+                },
+                clipContent = true
+            ) { slot ->
+                text("Shaped Panel", color = CoreUiTheme.tokens.mutedForeground)
+                context.absolute(slot.x + 12f, slot.y + 44f, snapshotFont, CoreUiTheme)
+                    .button("launch", 180f, 36f, label = "Launch Scene", radius = UiShape.md)
+            }
+        },
+        scene(
+            name = "ui-panel-controls",
+            width = 430,
+            height = 320,
+            background = AwakeShadcnTheme.tokens.background,
+            title = "Panel Controls",
+            summary = "The same property-form scaffolds can be skinned by the shared shadcn layer, so tool surfaces look authored without moving logic into the sample."
+        ) { snapshotFont ->
+            ui(x = 20f, y = 20f, width = 390f, font = snapshotFont, theme = AwakeShadcnTheme, gap = 10f, textScale = 2f) {
+                awakeShadcnSurface(
+                    id = "inspector",
+                    width = Dimension.Fixed(390f.px),
+                    height = Dimension.WrapContent
+                ) {
+                    text("Controls")
+                    supportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
+                    spacer(4f)
+                    awakeShadcnPropertyDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0, labelWidth = 96f.dp)
+                    awakeShadcnPropertyToggle("debug", "Debug Frustum Overlay", checked = true)
+                    awakeShadcnPropertyToggle("grid", "Show Reference Grid", checked = false)
+                    awakeShadcnPropertySlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f, labelWidth = 96f.dp)
+                }
+            }
+        },
+        scene(
+            name = "ui-rounded-clip-vector",
+            width = 340,
+            height = 220,
+            background = CoreUiTheme.tokens.background,
+            title = "Rounded Clip And Vector",
+            summary = "Rounded surfaces, colored borders, Box-style alignment, and vector-path icons all compose through the same widget surface, with shape clipping trimming intentional overflow."
+        ) { snapshotFont ->
+            val panelScope = absolute(24f, 24f, font = snapshotFont, theme = CoreUiTheme)
+            panelScope.panel(
+                id = "vector-showcase",
+                width = Dimension.Fixed(292f.px),
+                height = Dimension.Fixed(164f.px),
+                style = Style {
+                    shape(UiShapeSpec.CutCorner(18f.dp))
+                    background(floatArrayOf(0.13f, 0.16f, 0.24f, 1f))
+                    border(2f.dp, floatArrayOf(0.38f, 0.58f, 0.94f, 1f))
+                    contentPadding(14f.dp)
+                },
+                clipContent = true
+            ) { slot ->
+                text("Rounded + Clip + Vector", color = floatArrayOf(0.94f, 0.96f, 1f, 1f))
+                text(
+                    "The icon intentionally overflows and gets clipped by the cut-corner shell.",
+                    color = CoreUiTheme.tokens.mutedForeground,
+                    wrap = UiTextWrap.Word
+                )
+
+                context.box(
+                    x = slot.x + 16f,
+                    y = slot.y + 56f,
+                    width = slot.width - 32f,
+                    height = 78f,
+                    font = snapshotFont,
+                    theme = CoreUiTheme,
+                    contentAlignment = UiAlignment.Center
+                ).apply {
+                    panel(
+                        id = "chip",
+                        width = Dimension.Fixed(180f.px),
+                        height = Dimension.Fixed(56f.px),
+                        style = Style {
+                            shape(28f.dp)
+                            background(floatArrayOf(0.2f, 0.24f, 0.36f, 1f))
+                            border(1f.dp, floatArrayOf(0.56f, 0.72f, 1f, 1f))
+                        },
+                        modifier = UiModifier().align(UiAlignment.Center)
+                    ) {
+                        text("ICON CHIP", color = floatArrayOf(0.95f, 0.97f, 1f, 1f))
+                    }
+                    icon(
+                        imageVector = tutorialSparkleIcon,
+                        modifier = UiModifier()
+                            .align(UiAlignment.CenterEnd)
+                            .offset(x = 18f.dp)
+                            .size(88f.dp, 88f.dp),
+                        tint = floatArrayOf(0.68f, 0.84f, 1f, 0.95f)
+                    )
+                }
+            }
+        },
+        scene(
+            name = "ui-awake-shadcn-showcase",
+            width = 560,
+            height = 360,
+            background = AwakeShadcnTheme.tokens.background,
+            title = "Awake Shadcn Showcase",
+            summary = "The starter design-system layer can already express a recognizable shadcn-style component set while staying fully inside Awake's owned widget stack."
+        ) { snapshotFont ->
+            ui(x = 20f, y = 20f, width = 520f, font = snapshotFont, theme = AwakeShadcnTheme, gap = 12f, textScale = 2f) {
+                awakeShadcnSurface(
+                    id = "shadcn-showcase",
+                    width = Dimension.Fixed(520f.px),
+                    height = Dimension.WrapContent
+                ) {
+                    text("Awake Shadcn")
+                    supportingText("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")
+                    spacer(8f)
+                    row(height = 40f, gap = 8f) {
+                        awakeShadcnButton("showcase-doc-primary", 138f, 40f, "Primary", variant = AwakeShadcnButtonVariant.Primary)
+                        awakeShadcnButton("showcase-doc-secondary", 172f, 40f, "Secondary", variant = AwakeShadcnButtonVariant.Secondary)
+                        awakeShadcnButton("showcase-doc-outline", 138f, 40f, "Outline", variant = AwakeShadcnButtonVariant.Outline)
+                    }
+                    row(height = 30f, gap = 8f) {
+                        awakeShadcnBadge("LIVE", variant = AwakeShadcnBadgeVariant.Primary)
+                        awakeShadcnBadge("NEUTRAL", variant = AwakeShadcnBadgeVariant.Secondary)
+                        awakeShadcnBadge("BETA", variant = AwakeShadcnBadgeVariant.Outline)
+                        awakeShadcnBadge("RISK", variant = AwakeShadcnBadgeVariant.Danger)
+                    }
+                    spacer(8f)
+                    awakeShadcnSurface(
+                        id = "shadcn-subcard",
+                        height = Dimension.WrapContent,
+                        style = Style {
+                            background(AwakeShadcnTheme.tokens.background)
+                        }
+                    ) {
+                        text("Preview Card")
+                        supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
+                        spacer(6f)
+                        row(height = 36f, gap = 8f) {
+                            awakeShadcnButton("showcase-doc-ghost", 112f, 36f, "Ghost", variant = AwakeShadcnButtonVariant.Ghost)
+                            awakeShadcnButton("showcase-doc-danger", 112f, 36f, "Danger", variant = AwakeShadcnButtonVariant.Danger)
+                        }
+                    }
+                    spacer(8f)
+                    supportingLines(
+                        listOf(
+                            "Sample overlays now rely on shared supporting/meta text helpers.",
+                            "Property rows stretch labels before starving the control column."
+                        )
+                    )
+                }
+            }
+        }
+    )
+}
+
+private fun parkPointerOffCanvas() {
+    Input.setPointer(down = false, x = -100f, y = -100f)
+}
+
+private fun buttonVariantId(variant: UiButtonVariant): String = when (variant) {
+    UiButtonVariant.Filled -> "filled"
+    UiButtonVariant.Outline -> "outline"
+    UiButtonVariant.Ghost -> "ghost"
+}
+
+private object SnapshotLightUiTheme : UiTheme {
+    override val tokens: UiColorTokens = object : UiColorTokens {
+        override val background = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
+        override val foreground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+        override val primary = floatArrayOf(0.2f, 0.2f, 0.24f, 1f)
+        override val primaryForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
+        override val secondary = floatArrayOf(0.9f, 0.9f, 0.92f, 1f)
+        override val secondaryForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+        override val muted = floatArrayOf(0.9f, 0.9f, 0.92f, 1f)
+        override val mutedForeground = floatArrayOf(0.4f, 0.4f, 0.45f, 1f)
+        override val accent = floatArrayOf(0.85f, 0.85f, 0.88f, 1f)
+        override val accentForeground = floatArrayOf(0.1f, 0.1f, 0.12f, 1f)
+        override val destructive = floatArrayOf(0.8f, 0.2f, 0.2f, 1f)
+        override val destructiveForeground = floatArrayOf(0.98f, 0.98f, 0.99f, 1f)
+        override val border = floatArrayOf(0.8f, 0.8f, 0.83f, 1f)
+    }
+
+    override val components = CoreUiComponentStyles(tokens)
+}
+
+private val tutorialSparkleIcon: UiImageVector = uiImageVector(
+    defaultWidth = 24f.dp,
+    defaultHeight = 24f.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f
+) {
+    path {
+        moveTo(12f, 1f)
+        lineTo(15f, 8.5f)
+        lineTo(23f, 12f)
+        lineTo(15f, 15.5f)
+        lineTo(12f, 23f)
+        lineTo(9f, 15.5f)
+        lineTo(1f, 12f)
+        lineTo(9f, 8.5f)
+        close()
+    }
+    path {
+        moveTo(17f, 2f)
+        lineTo(18f, 4.5f)
+        lineTo(20.5f, 5.5f)
+        lineTo(18f, 6.5f)
+        lineTo(17f, 9f)
+        lineTo(16f, 6.5f)
+        lineTo(13.5f, 5.5f)
+        lineTo(16f, 4.5f)
+        close()
+    }
+}
