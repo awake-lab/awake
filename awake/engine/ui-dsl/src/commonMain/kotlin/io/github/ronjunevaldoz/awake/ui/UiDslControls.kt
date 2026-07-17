@@ -95,6 +95,13 @@ sealed class UiDslScope protected constructor(
         radius: Dp = UiShape.none
     ): UiButtonResult = scope.buttonSlot(id, width, height, label, modifier, style, variant, radius)
 
+    /** Draws a select-style trigger's content (label left-aligned, expand chevron right) on
+     * an already-claimed slot -- see [io.github.ronjunevaldoz.awake.ui.drawDropdownTriggerContent].
+     * Exposed here since [scope] is protected and a custom dropdown built from this DSL scope
+     * (e.g. a design-system layer's own popup shape) still needs the same trigger visuals. */
+    fun drawDropdownTriggerContent(slot: UiSlot, label: String, expanded: Boolean, style: Style) =
+        scope.drawDropdownTriggerContent(slot, label, expanded, style)
+
     fun button(
         id: String,
         label: String,

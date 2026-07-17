@@ -73,11 +73,12 @@ fun UiScope.dropdown(
 ): Int? {
     val expandedState = rememberPopupState(id, key = "expanded")
     val resolvedDefaults = theme.components.dropdown
-    val selectedLabel = options.getOrNull(selectedIndex)
-    val (clicked, slot) = buttonSlot(id, width, height, selectedLabel, modifier, style = resolvedDefaults then style)
+    val selectedLabel = options.getOrNull(selectedIndex) ?: ""
+    val (clicked, slot) = buttonSlot(id, width, height, label = null, modifier, style = resolvedDefaults then style)
     if (clicked) {
         expandedState.toggle()
     }
+    drawDropdownTriggerContent(slot, selectedLabel, expandedState.expanded, resolvedDefaults then style)
     var picked: Int? = null
     val popupResult = popup(
         anchorSlot = slot,
@@ -116,4 +117,53 @@ fun UiScope.dropdown(
         expandedState.close()
     }
     return picked
+}
+
+/** Select-trigger content: label left-aligned, expand chevron right-aligned -- matches the
+ * real shadcn/ui Select trigger shape, not a big centered label ([buttonSlot]'s default).
+ * Public so design-system layers building their own custom dropdown trigger (e.g. one that
+ * also needs a popup menu shaped differently from [dropdown]'s own) can reuse the same
+ * label/chevron layout instead of re-deriving it. */
+fun UiScope.drawDropdownTriggerContent(
+    slot: UiSlot,
+    label: String,
+    expanded: Boolean,
+    style: Style
+) {
+    val resolvedFont = font ?: return
+    val resolved = resolveStyle(defaults = style, state = MutableStyleState(hovered = hitTest(slot), active = expanded))
+    val textColor = resolved.foreground ?: theme.tokens.foreground
+    // Raw px, not Dp -- `slot` (like every other widget's width/height param in this file)
+    // is already raw-pixel space; subtracting a `.dp.toPx()` value here would density-scale
+    // ONLY this padding and not `slot.width` itself, silently starving the label's available
+    // width on any display where UiDensity.scale != 1 (confirmed via a real run: labels
+    // truncated to just an ellipsis on a retina window before this fix).
+    val horizontalPad = 10f
+    val chevronGap = 6f
+    val chevronSize = 8f
+    text(
+        label,
+        slot = UiSlot(
+            x = slot.x + horizontalPad,
+            y = slot.y,
+            width = (slot.width - horizontalPad * 2 - chevronSize - chevronGap).coerceAtLeast(0f),
+            height = slot.height
+        ),
+        font = resolvedFont,
+        color = textColor,
+        centered = false,
+        verticallyCentered = true,
+        overflow = UiTextOverflow.Ellipsis,
+        textScale = resolved.textScale,
+        textSize = resolved.textSize
+    )
+    val chevronSlot = UiSlot(
+        x = slot.x + slot.width - horizontalPad - chevronSize,
+        y = slot.y + (slot.height - chevronSize * 0.6f) / 2f,
+        width = chevronSize,
+        height = chevronSize * 0.6f
+    )
+    UiIcons.chevronDown.fitTo(chevronSlot).forEach { vectorPath ->
+        emit(UiDrawPrimitive.FilledPath(vectorPath.path, vectorPath.fill ?: textColor))
+    }
 }

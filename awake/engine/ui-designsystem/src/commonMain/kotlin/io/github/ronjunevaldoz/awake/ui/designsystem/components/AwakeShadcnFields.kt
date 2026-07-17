@@ -144,7 +144,7 @@ fun UiDslScope.awakeShadcnDropdown(
     val triggerStyle = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
     val trigger = buttonSlot(
         id = id,
-        label = options.getOrNull(selectedIndex) ?: "",
+        label = "",
         width = width,
         height = height,
         modifier = modifier,
@@ -153,6 +153,7 @@ fun UiDslScope.awakeShadcnDropdown(
     if (trigger.clicked) {
         popupState.toggle()
     }
+    drawDropdownTriggerContent(trigger.slot, options.getOrNull(selectedIndex) ?: "", popupState.expanded, triggerStyle)
 
     val result = dropdownMenu(
         id = "$id.dropdown",
