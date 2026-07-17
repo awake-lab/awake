@@ -81,4 +81,19 @@ class UiInspectionTest {
 
         assertTrue(report.isClean, report.summary())
     }
+
+    @Test
+    fun reportsOverlappingBounds() {
+        val report = inspectNonOverlappingBounds(
+            label = "sample cards",
+            bounds = listOf(
+                UiSlot(0f, 0f, 80f, 40f),
+                UiSlot(60f, 20f, 80f, 40f),
+                UiSlot(180f, 20f, 40f, 40f)
+            )
+        )
+
+        assertFalse(report.isClean)
+        assertTrue(report.summary().contains("sample cards overlap"))
+    }
 }

@@ -73,6 +73,11 @@ fun UiScope.panel(
         borderColor = resolved.borderColor ?: theme.tokens.border,
         shapeSpec = resolved.shapeSpec
     )
+    recordSemantic(
+        role = UiSemanticRole.Panel,
+        id = id,
+        bounds = slot
+    )
     val contentScope = context.column(slot, font = font, theme = theme, gap = gap, textScale = resolved.textScale, insets = resolved.contentPadding)
     val effectiveShape = resolved.shapeSpec ?: if (resolved.shape.toPx() > 0f) UiShapeSpec.RoundedRectangle(resolved.shape) else null
     if (clipContent && effectiveShape != null) {

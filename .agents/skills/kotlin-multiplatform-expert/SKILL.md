@@ -13,7 +13,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: kmm-agent-skills
-  last-updated: '2026-07-11'
+  last-updated: '2026-07-14'
   keywords:
     - KMP expert
     - orchestrator
@@ -61,7 +61,8 @@ across module build files when creating or updating KMM projects.
 
 **Trigger keywords:** where do I start KMP, full KMP setup, new KMP feature, which skill,
 skill order, KMP architecture decision, KMM expert, KMP project plan, which pattern KMP,
-KMP checklist, review my KMP project.
+KMP checklist, review my KMP project, custom agent for project, custom command for project,
+project-specific agent, project-specific command, project-specific skill.
 
 **Freshness rule:** recheck the Skill Invocation Map and dependency graph entries whenever
 a new skill is added or removed — the routing table and skill count must stay in sync with
@@ -718,6 +719,94 @@ Use this when the user asks to audit or extend an existing project:
 skill by its full name: `kotlin-multiplatform-<topic>`. Never suggest a bare topic name
 without the `kotlin-multiplatform-` prefix. Then route to `/kmm-new-skill kotlin-multiplatform-<topic>`.
 
+## Project-Specific Commands/Agents/Skills — Source of Truth
+
+When a user asks for a custom command, agent, skill, or hook for **their own project**
+(not one of this collection's own), or an agent decides one is needed — author it at a
+project-owned source location first, then deploy a copy into `.claude/` for Claude Code
+to actually discover it. Never author directly into `.claude/agents/*.md`,
+`.claude/commands/*.md`, or `.claude/skills/*/` as the only copy.
+
+**The model to mirror is this very repo**: `kmm-agent-skills` itself keeps project-owned
+agent assets at the repo root, with runtime copies generated separately. A consumer
+project should do the same for its *own* custom artifacts so the source stays versioned
+next to the app code, reviewable in a normal PR diff, and portable if the project ever
+needs to regenerate or move its `.claude/` setup.
+
+Layout — flat, `<name>` is the artifact's own name, never the app/project name:
+```
+<project root>/
+├── agents/<agent-name>.md               ← source
+├── rules/<rule-name>.md                 ← source
+├── commands/<command-name>.md           ← source
+├── skills/<skill-name>/SKILL.md         ← source
+├── hooks/<hook-name>.sh                 ← source
+├── docs/reference/ai-collaboration.md   ← canonical cross-agent policy
+├── docs/reference/agent-catalog.md      ← canonical model-tier mapping
+├── AGENTS.md                            ← optional thin bootstrap
+├── CLAUDE.md                            ← optional thin bootstrap
+├── GEMINI.md                            ← optional thin bootstrap
+└── .claude/
+    ├── AGENTS.md                        ← deployed routing/context
+    ├── commands/<command-name>.md       ← deployed copy
+    ├── skills/<skill-name>/             ← deployed copy
+    └── settings.json                    ← permissions + hook wiring
+```
+
+Thin entrypoints (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`) should point to the canonical
+docs, keep only startup-critical guardrails, and avoid becoming the only copy of
+project policy. `docs/reference/agent-catalog.md` owns provider-neutral model tiers and
+provider-specific mappings. Do not hardcode stale provider model names across every
+agent file when one canonical catalog can carry that mapping.
+
+`rules/` exists for optional project-specific rule snippets or assistant overlays that
+should stay project-owned even if only one assistant consumes them today. Do **not**
+copy the same policy text from `docs/reference/ai-collaboration.md` into `rules/`.
+Keep the explanation canonical in `docs/reference/ai-collaboration.md`; use `rules/`
+only when the project genuinely needs short assistant-facing overlays in addition to
+that canonical doc.
+
+Use this split consistently:
+
+- `docs/*` answers "how is this project designed?"
+- `skills/*` answers "how should an agent work in this repo?"
+
+If a repo-local skill starts retelling architecture docs, stop and move the stable
+design guidance back into `docs/*`.
+
+If a project has no custom artifacts yet, still scaffold these folders with placeholder
+README files. Empty-but-present source locations make future additions land in the
+right place instead of drifting straight into `.claude/`.
+
+**Never nest a project artifact under an app/project-name folder** (e.g.
+`skills/<app-name>/<skill-name>/`). Verified against the real, official skill
+anatomy (`anthropic-skills:skill-creator`'s own documented convention): a skill's
+folder is named after what the skill *does*, flat under `skills/` — this is also how
+`.claude/skills/` is actually scanned. If a project-owned skill's name might collide
+with one of this collection's 63, resolve it by giving the project-owned skill a more
+specific name (e.g. `awaken-ecs-conventions`, not `ecs`) — not by nesting it under an
+app-name folder, which isn't a real convention Claude Code (or this collection)
+recognizes.
+
+Deploy the copy after every edit to the source — a stale `.claude/` copy that's drifted
+from its project-owned source is worse than no source at all, since it looks authoritative
+but silently isn't. Simple `cp`/`rsync` is enough; no need for a dedicated script unless
+the project has many artifacts to keep in sync. If the project uses
+`update-consumer-skills.sh`, that sync path should copy project-owned custom skills from
+`skills/<name>/` into `.claude/skills/<name>/` as part of the normal refresh.
+
+**Real gap this closes**: a review of a real KMP game-engine project found two custom
+agent definitions (`ecs-dev`, `game-framework-dev`) authored directly into
+`.claude/agents/` with no project-owned source anywhere — meaning the only copy of that
+authoring work lived in a directory this rule now treats as deploy-only.
+
+**Audited automatically**: `kotlin-multiplatform-audit`'s `_detect_project_skill_standards`
+checks every `skills/<name>/` folder it finds against the real skill anatomy — SKILL.md
+present, opening YAML frontmatter with `name`/`description`, body under ~500 lines unless
+a `references/` subdirectory exists. It also checks that the deployed `.claude/skills/`
+copy exists and is not stale. Run it any time a project skill is added or edited, not
+just once at creation.
+
 ## Recommendation Format
 
 When recommending an approach, always present it in this order:
@@ -779,6 +868,8 @@ Keep the response concise — this skill routes to other skills, not implements.
 
 | Date | Change |
 |---|---|
+| 2026-07-15 | Expanded the project-owned scaffold contract for Claude consumers: `rules/` and `docs/reference/ai-collaboration.md` are now part of the canonical source layout, and `CLAUDE.md` is explicitly treated as a thin bootstrap rather than the only copy of project policy. This keeps project-specific agent guidance at the repo root while `.claude/` remains the deployed runtime layer. |
+| 2026-07-14 | Added "Project-Specific Commands/Agents/Skills — Source of Truth": a real gap found while reviewing a consumer project (a KMP game engine) whose two custom agent definitions were authored directly into `.claude/agents/` with no project-owned source anywhere. Documents mirroring this repo's own layout (`agents/`, `commands/`, `skills/`, `hooks/` at the project root as canonical source, `.claude/` as the deployed copy) for any project-specific artifact that isn't from `kmm-agent-skills` itself. Cross-referenced from `/kmm-setup-agents`, which only deploys this collection's own skills/commands, not project-owned ones. Corrected same-day: the layout initially nested a skill under an app-name folder (`skills/<app-name>/<skill-name>/`) — verified against `anthropic-skills:skill-creator`'s real, official skill anatomy that this isn't a recognized convention; skills are flat, named after what they do. Fixed to `skills/<skill-name>/`, with name-collision guidance (rename the skill, don't nest it) instead. |
 | 2026-07-11 | Added an invocation-map row routing "composition over inheritance"/"abstract class in commonMain"/"agent over-abstracting" to `kotlin-multiplatform-clean-architecture`'s new Composition Over Inheritance section — a real, recurring anti-pattern where an agent creates a public abstract class in commonMain requiring consumer inheritance. |
 | 2026-07-11 | Added `kotlin-multiplatform-docs-site` (62nd skill) — public GitHub Pages developer guide for a published library (MkDocs Material + Dokka HTML + compiler-verified snippet extraction), explicitly gated to library projects with real surface area, never apps or trivial libraries. Added to the Meta list and Skill Invocation Map. |
 | 2026-07-10 | Two real gaps closed: (1) added a "Improve the performance of X" decision tree — there was no routing path for performance requests at all (only a model-routing hint, not a skill-routing rule); routes by naming what X is and explicitly stops rather than guessing when X is unnamed or whole-app; added `kotlin-multiplatform-benchmark` (61st skill) as its "get a real number" branch. (2) Broadened "Which transport for a backend call?" to check for an existing Ktor client by content (`HttpClient(`/`safeRequest`/`NetworkResult<`) before the kRPC-specific grep — the prior version only checked kRPC symbols, so a project with a plain (differently-named) Ktor client and no kRPC could still fall through to a raw HTTP call; cross-referenced to `kotlin-multiplatform-network-layer`'s new Step 0. |

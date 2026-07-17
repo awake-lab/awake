@@ -6,13 +6,17 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.propertyDropdown
 import io.github.ronjunevaldoz.awake.ui.propertySlider
 import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.toggle
 import io.github.ronjunevaldoz.awake.ui.ui
 import kotlin.test.Test
 
@@ -45,11 +49,11 @@ class UiDslTutorialDocsTest {
                 orbitYaw = propertySlider("slider-azimuth", "Azimuth", -3.14f, 3.14f, orbitYaw)
                 orbitDistance = propertySlider("slider-distance", "Distance", 3f, 20f, orbitDistance)
 
-                spacer(8f)
+                spacer(8f.dp)
                 sectionTitle("Debug")
-                showGrid = propertyCheckbox("grid", showGrid, "Show Grid", 28f)
-                showFrustum = propertyCheckbox("frustum", showFrustum, "Show Frustum", 28f)
-                toggle("hud", checked = true, height = 32f, label = "HUD")
+                showGrid = propertyCheckbox("grid", showGrid, "Show Grid", 28f.dp)
+                showFrustum = propertyCheckbox("frustum", showFrustum, "Show Frustum", 28f.dp)
+                toggle("hud", checked = true, modifier = UiModifier().height(32f.px), label = "HUD")
             }
         }
 

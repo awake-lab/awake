@@ -28,7 +28,9 @@ fun UiScope.text(
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     maxLines: Int = 1,
     textScale: Float = this.textScale,
-    textSize: Sp? = null
+    textSize: Sp? = null,
+    semanticId: String? = null,
+    semanticRole: UiSemanticRole = UiSemanticRole.Text
 ) {
     val resolvedFont = checkNotNull(font) { "text() requires a font, either from the UiScope or passed explicitly" }
     val glyphPx = resolveGlyphPx(resolvedFont, textScale, textSize)
@@ -45,6 +47,25 @@ fun UiScope.text(
     val lineGap = glyphPx * 0.25f
     val blockMetrics = measureTextBlock(layout, resolvedFont, glyphPx, lineGap)
     val shouldClip = wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || maxLines > 1
+    val contentBounds = resolveTextContentBounds(
+        slot = resolvedSlot,
+        lineWidths = layout.lineWidths,
+        blockHeight = blockMetrics.heightPx,
+        verticallyCentered = verticallyCentered,
+        centered = centered
+    )
+    val clippedBounds = if (shouldClip) contentBounds.intersect(resolvedSlot) else contentBounds
+
+    recordSemantic(
+        role = semanticRole,
+        id = semanticId,
+        label = label,
+        bounds = resolvedSlot,
+        contentBounds = contentBounds,
+        clippedBounds = clippedBounds,
+        truncated = layout.truncated,
+        lineCount = layout.lines.size
+    )
 
     fun emitLines() {
         var penY = if (verticallyCentered) {
@@ -85,6 +106,41 @@ fun UiScope.text(
     } else {
         emitLines()
     }
+}
+
+private fun resolveTextContentBounds(
+    slot: UiSlot,
+    lineWidths: List<Float>,
+    blockHeight: Float,
+    verticallyCentered: Boolean,
+    centered: Boolean
+): UiSlot {
+    val top = if (verticallyCentered) {
+        slot.y + (slot.height - blockHeight) / 2f
+    } else {
+        slot.y
+    }
+    val left = if (lineWidths.isEmpty()) {
+        slot.x
+    } else {
+        lineWidths.minOf { lineWidth ->
+            if (centered) slot.x + (slot.width - lineWidth) / 2f else slot.x
+        }
+    }
+    val right = if (lineWidths.isEmpty()) {
+        slot.x
+    } else {
+        lineWidths.maxOf { lineWidth ->
+            val lineLeft = if (centered) slot.x + (slot.width - lineWidth) / 2f else slot.x
+            lineLeft + lineWidth
+        }
+    }
+    return UiSlot(
+        x = left,
+        y = top,
+        width = (right - left).coerceAtLeast(0f),
+        height = blockHeight.coerceAtLeast(0f)
+    )
 }
 
 data class UiBitmapTextLayout(

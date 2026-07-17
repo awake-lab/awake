@@ -170,8 +170,35 @@ sealed class UiDslScope protected constructor(
      * an already-claimed slot -- see [io.github.ronjunevaldoz.awake.ui.drawDropdownTriggerContent].
      * Exposed here since [scope] is protected and a custom dropdown built from this DSL scope
      * (e.g. a design-system layer's own popup shape) still needs the same trigger visuals. */
-    fun drawDropdownTriggerContent(slot: UiSlot, label: String, expanded: Boolean, style: Style) =
-        scope.drawDropdownTriggerContent(slot, label, expanded, style)
+    fun drawDropdownTriggerContent(
+        slot: UiSlot,
+        label: String,
+        expanded: Boolean,
+        style: Style,
+        semanticId: String? = null
+    ) = scope.drawDropdownTriggerContent(slot, label, expanded, style, semanticId)
+
+    fun recordSemantic(
+        role: UiSemanticRole,
+        bounds: UiSlot,
+        id: String? = null,
+        label: String? = null,
+        contentBounds: UiSlot? = null,
+        clippedBounds: UiSlot? = null,
+        truncated: Boolean = false,
+        lineCount: Int = 0,
+        selected: Boolean? = null
+    ) = scope.recordSemantic(
+        role = role,
+        bounds = bounds,
+        id = id,
+        label = label,
+        contentBounds = contentBounds,
+        clippedBounds = clippedBounds,
+        truncated = truncated,
+        lineCount = lineCount,
+        selected = selected
+    )
 
     fun button(
         id: String,

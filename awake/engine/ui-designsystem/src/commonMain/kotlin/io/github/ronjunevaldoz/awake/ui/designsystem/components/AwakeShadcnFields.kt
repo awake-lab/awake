@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.UiDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.checkbox
@@ -16,11 +17,28 @@ import io.github.ronjunevaldoz.awake.ui.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.slider
 import io.github.ronjunevaldoz.awake.ui.toggle
+import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.width
 
+private fun awakeShadcnSizedModifier(
+    modifier: UiModifier,
+    width: Float,
+    height: Float
+): UiModifier = modifier.width(width.px).height(height.px)
+
+private fun awakeShadcnFieldStyle(theme: UiTheme, style: Style): Style =
+    AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+
+private fun awakeShadcnCheckboxStyle(theme: UiTheme, style: Style): Style =
+    AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
+
+private fun awakeShadcnSliderStyle(theme: UiTheme, style: Style): Style =
+    AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
+
 fun UiScope.awakeShadcnToggle(
     id: String,
     checked: Boolean,
@@ -32,9 +50,10 @@ fun UiScope.awakeShadcnToggle(
     checked = checked,
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+    style = awakeShadcnFieldStyle(theme, style)
 )
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiScope.awakeShadcnToggle(
     id: String,
     checked: Boolean,
@@ -47,8 +66,8 @@ fun UiScope.awakeShadcnToggle(
     id = id,
     checked = checked,
     label = label,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    style = awakeShadcnFieldStyle(theme, style)
 )
 
 fun UiScope.awakeShadcnCheckbox(
@@ -62,9 +81,10 @@ fun UiScope.awakeShadcnCheckbox(
     checked = checked,
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
+    style = awakeShadcnCheckboxStyle(theme, style)
 )
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiScope.awakeShadcnCheckbox(
     id: String,
     checked: Boolean,
@@ -77,8 +97,8 @@ fun UiScope.awakeShadcnCheckbox(
     id = id,
     checked = checked,
     label = label,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    style = awakeShadcnCheckboxStyle(theme, style)
 )
 
 fun UiScope.awakeShadcnDropdown(
@@ -92,9 +112,10 @@ fun UiScope.awakeShadcnDropdown(
     options = options,
     selectedIndex = selectedIndex,
     modifier = modifier,
-    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+    style = awakeShadcnFieldStyle(theme, style)
 )
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiScope.awakeShadcnDropdown(
     id: String,
     options: List<String>,
@@ -107,8 +128,8 @@ fun UiScope.awakeShadcnDropdown(
     id = id,
     options = options,
     selectedIndex = selectedIndex,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    style = awakeShadcnFieldStyle(theme, style)
 )
 
 fun UiScope.awakeShadcnSlider(
@@ -126,9 +147,10 @@ fun UiScope.awakeShadcnSlider(
     value = value,
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
+    style = awakeShadcnSliderStyle(theme, style)
 )
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiScope.awakeShadcnSlider(
     id: String,
     min: Float,
@@ -145,8 +167,8 @@ fun UiScope.awakeShadcnSlider(
     max = max,
     value = value,
     label = label,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    style = awakeShadcnSliderStyle(theme, style)
 )
 
 fun UiDslScope.awakeShadcnToggle(
@@ -160,9 +182,10 @@ fun UiDslScope.awakeShadcnToggle(
     checked = checked,
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+    style = awakeShadcnFieldStyle(theme, style)
 )
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiDslScope.awakeShadcnToggle(
     id: String,
     checked: Boolean,
@@ -175,8 +198,8 @@ fun UiDslScope.awakeShadcnToggle(
     id = id,
     checked = checked,
     label = label,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    style = awakeShadcnFieldStyle(theme, style)
 )
 
 fun UiDslScope.awakeShadcnCheckbox(
@@ -190,9 +213,10 @@ fun UiDslScope.awakeShadcnCheckbox(
     checked = checked,
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
+    style = awakeShadcnCheckboxStyle(theme, style)
 )
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiDslScope.awakeShadcnCheckbox(
     id: String,
     checked: Boolean,
@@ -205,8 +229,8 @@ fun UiDslScope.awakeShadcnCheckbox(
     id = id,
     checked = checked,
     label = label,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    style = awakeShadcnCheckboxStyle(theme, style)
 )
 
 fun UiDslScope.awakeShadcnDropdown(
@@ -217,17 +241,30 @@ fun UiDslScope.awakeShadcnDropdown(
     style: Style = Style.Empty
 ): Int? {
     val popupState = context.rememberPopupState(id, key = "expanded")
-    val triggerStyle = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+    val triggerStyle = awakeShadcnFieldStyle(theme, style)
     val trigger = buttonSlot(
-        id = id,
-        label = "",
+        id = "$id.trigger",
         modifier = modifier.height(36f.px),
         style = triggerStyle
-    )
+    ) { }
     if (trigger.clicked) {
         popupState.toggle()
     }
-    drawDropdownTriggerContent(trigger.slot, options.getOrNull(selectedIndex) ?: "", popupState.expanded, triggerStyle)
+    val selectedLabel = options.getOrNull(selectedIndex) ?: ""
+    drawDropdownTriggerContent(
+        slot = trigger.slot,
+        label = selectedLabel,
+        expanded = popupState.expanded,
+        style = triggerStyle,
+        semanticId = "$id.label"
+    )
+    recordSemantic(
+        role = UiSemanticRole.Dropdown,
+        id = id,
+        label = selectedLabel,
+        bounds = trigger.slot,
+        selected = popupState.expanded
+    )
 
     val result = dropdownMenu(
         id = "$id.dropdown",
@@ -251,6 +288,7 @@ fun UiDslScope.awakeShadcnDropdown(
     return result.selectedIndex
 }
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiDslScope.awakeShadcnDropdown(
     id: String,
     options: List<String>,
@@ -282,9 +320,10 @@ fun UiDslScope.awakeShadcnSlider(
     value = value,
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
+    style = awakeShadcnSliderStyle(theme, style)
 )
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiDslScope.awakeShadcnSlider(
     id: String,
     min: Float,
@@ -301,6 +340,6 @@ fun UiDslScope.awakeShadcnSlider(
     max = max,
     value = value,
     label = label,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    style = awakeShadcnSliderStyle(theme, style)
 )

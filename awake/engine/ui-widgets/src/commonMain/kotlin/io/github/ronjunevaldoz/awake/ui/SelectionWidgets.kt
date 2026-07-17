@@ -44,9 +44,18 @@ fun UiScope.toggle(
             centered = true,
             overflow = UiTextOverflow.Ellipsis,
             textScale = resolved.textScale,
-            textSize = resolved.textSize
+            textSize = resolved.textSize,
+            semanticId = "$id.label"
         )
     }
+    recordSemantic(
+        role = UiSemanticRole.Toggle,
+        id = id,
+        label = label,
+        bounds = interaction.slot,
+        truncated = false,
+        selected = newChecked
+    )
     return newChecked
 }
 
@@ -117,9 +126,18 @@ fun UiScope.checkbox(
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
             textScale = resolved.textScale,
-            textSize = resolved.textSize
+            textSize = resolved.textSize,
+            semanticId = "$id.label"
         )
     }
+    recordSemantic(
+        role = UiSemanticRole.Checkbox,
+        id = id,
+        label = label,
+        bounds = interaction.slot,
+        contentBounds = boxSlot,
+        selected = newChecked
+    )
     return newChecked
 }
 

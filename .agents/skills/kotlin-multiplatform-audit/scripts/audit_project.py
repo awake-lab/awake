@@ -326,6 +326,24 @@ def _detect_agent_setup(root: Path) -> list[str]:
     if not skills_dir.exists() or not any(skills_dir.iterdir()):
         findings.append("agent-setup [MEDIUM]: .claude/skills/ missing or empty — skills not deployed")
 
+    has_claude_setup = (root / "CLAUDE.md").exists() or claude.exists()
+    source_layout = {
+        "agents/": root / "agents",
+        "rules/": root / "rules",
+        "hooks/": root / "hooks",
+        "commands/": root / "commands",
+        "skills/": root / "skills",
+        "docs/reference/ai-collaboration.md": root / "docs" / "reference" / "ai-collaboration.md",
+        "docs/reference/agent-catalog.md": root / "docs" / "reference" / "agent-catalog.md",
+    }
+    missing_source_layout = [label for label, path in source_layout.items() if not path.exists()]
+    if has_claude_setup and missing_source_layout:
+        findings.append(
+            "agent-setup [MEDIUM]: project-owned agent scaffold incomplete — missing "
+            + ", ".join(missing_source_layout)
+            + "; keep project-specific agent sources at the repo root and `.claude/` as the deployed runtime"
+        )
+
     # Multi-surface project: AGENTS.md exists but only mentions one surface
     agents_md = claude / "AGENTS.md"
     if agents_md.exists():
@@ -1304,6 +1322,68 @@ def _detect_what_comment_in_control_flow(root: Path) -> list[str]:
     return findings
 
 
+# ── Long stacked // comment block, no docs/reference pointer ────────────────────
+# kotlin-multiplatform-code-quality's Comment & KDoc Conventions table says a // block
+# that "grows past ~4 lines" should be split: keep a one-sentence WHY inline, move the
+# rest to docs/reference/ with a pointer comment. That rule was documented but never
+# mechanically checked anywhere — a real, confirmed gap (no Detekt rule, no audit
+# detector), found when a user reported still seeing long stacked // blocks in their
+# project after this skill shipped.
+
+_COMMENT_LINE_RE = re.compile(r"^\s*//")
+_DOCS_REFERENCE_POINTER_RE = re.compile(r"docs/reference/")
+_LONG_COMMENT_BLOCK_MIN_LINES = 5
+
+
+def _detect_long_stacked_comment_block(root: Path) -> list[str]:
+    """Flag a run of 5+ consecutive // comment lines with no docs/reference/ pointer —
+    the exact shape kotlin-multiplatform-code-quality's own rule says to split, made
+    mechanically checkable instead of relying on human review to remember the rule.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        except OSError:
+            continue
+
+        block_start: int | None = None
+        block_lines: list[str] = []
+
+        def flush(end_index: int) -> None:
+            nonlocal block_start, block_lines
+            if block_start is not None and len(block_lines) >= _LONG_COMMENT_BLOCK_MIN_LINES:
+                # A comment block that's the very first thing in the file (only blank
+                # lines before it, if any) is a license/copyright header, not the
+                # inline-WHY-comment-grew-too-long problem this rule targets — skip it.
+                is_file_header = all(not lines[j].strip() for j in range(block_start))
+                joined = "\n".join(block_lines)
+                if not is_file_header and not _DOCS_REFERENCE_POINTER_RE.search(joined):
+                    findings.append(
+                        f"long stacked comment block [LOW]: {path.relative_to(root)}:{block_start + 1} "
+                        f"— {len(block_lines)} consecutive // lines with no docs/reference/ "
+                        f"pointer; per kotlin-multiplatform-code-quality's Comment & KDoc "
+                        f"Conventions, keep the one-sentence WHY inline and move the rest to "
+                        f"docs/reference/ with a pointer comment\n"
+                        f"    {block_start + 1} | {block_lines[0].strip()}"
+                    )
+            block_start = None
+            block_lines = []
+
+        for i, line in enumerate(lines):
+            if _COMMENT_LINE_RE.match(line):
+                if block_start is None:
+                    block_start = i
+                block_lines.append(line)
+            else:
+                flush(i)
+        flush(len(lines))
+
+    return findings
+
+
 # ── Extensible abstract class in commonMain ─────────────────────────────────────
 # commonMain APIs should be called or composed, not extended. An abstract class with
 # only abstract members (no concrete implementation at all) forces every consumer into
@@ -1493,6 +1573,144 @@ def _detect_module_layer_violation(root: Path) -> list[str]:
 # leave literal App* names on disk. This detector catches the case where a project has
 # already resolved and recorded a different prefix but App*-named declarations still
 # exist under core/designsystem — i.e. the substitution was skipped during generation.
+
+_FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
+_FRONTMATTER_NAME_RE = re.compile(r"^name:\s*\S", re.MULTILINE)
+_FRONTMATTER_DESCRIPTION_RE = re.compile(r"^description:\s*\S", re.MULTILINE)
+_SKILL_MD_MAX_LINES = 500
+
+
+def _detect_project_skill_standards(root: Path) -> list[str]:
+    """Flag a project-owned skill at <project root>/skills/<skill-name>/ that doesn't
+    meet the real, official skill anatomy (verified against anthropic-skills:skill-creator's
+    own documented convention, not assumed):
+
+      - skills/<name>/SKILL.md must exist (a skill folder with none is undiscoverable)
+      - SKILL.md must open with YAML frontmatter (--- ... ---)
+      - frontmatter must have both name: and description: — these are the primary
+        triggering mechanism; a skill missing either can't be found or won't trigger
+      - SKILL.md body should stay under ~500 lines unless it points to a references/
+        subdirectory for progressive disclosure (skill-creator's own stated guideline)
+
+    Scoped to the project's own top-level skills/ directory only — not this collection's
+    deployed .claude/skills/ copies, and not this repo's own skills/ when auditing itself.
+    """
+    findings: list[str] = []
+    skills_dir = root / "skills"
+    if not skills_dir.is_dir():
+        return findings
+
+    for skill_dir in sorted(p for p in skills_dir.iterdir() if p.is_dir()):
+        if _is_excluded(skill_dir, root):
+            continue
+        rel_dir = skill_dir.relative_to(root)
+        skill_md = skill_dir / "SKILL.md"
+
+        if not skill_md.is_file():
+            findings.append(
+                f"project skill missing SKILL.md [HIGH]: {rel_dir} — a skill folder "
+                f"needs SKILL.md to be discoverable at all (see anthropic-skills:skill-creator's "
+                f"skill anatomy)"
+            )
+            continue
+
+        try:
+            text = skill_md.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+
+        rel = skill_md.relative_to(root)
+        fm_match = _FRONTMATTER_RE.match(text)
+        if not fm_match:
+            findings.append(
+                f"project skill missing frontmatter [HIGH]: {rel} — SKILL.md must open "
+                f"with a --- ... --- YAML frontmatter block containing name and description"
+            )
+            continue
+
+        frontmatter = fm_match.group(1)
+        if not _FRONTMATTER_NAME_RE.search(frontmatter):
+            findings.append(
+                f"project skill frontmatter missing name [HIGH]: {rel} — name is the "
+                f"skill identifier; without it the skill can't be reliably referenced"
+            )
+        if not _FRONTMATTER_DESCRIPTION_RE.search(frontmatter):
+            findings.append(
+                f"project skill frontmatter missing description [HIGH]: {rel} — "
+                f"description is the primary triggering mechanism; a skill without one "
+                f"won't reliably trigger for the tasks it's meant to handle"
+            )
+
+        body = text[fm_match.end():]
+        body_lines = body.count("\n") + 1
+        if body_lines > _SKILL_MD_MAX_LINES and not (skill_dir / "references").is_dir():
+            findings.append(
+                f"project skill exceeds 500-line guideline [MEDIUM]: {rel} — body is "
+                f"~{body_lines} lines with no references/ subdirectory; skill-creator's "
+                f"own guideline is to add a references/ layer with clear pointers once "
+                f"approaching this size, not to let SKILL.md itself keep growing"
+            )
+
+    return findings
+
+
+def _detect_project_skill_deployment_drift(root: Path) -> list[str]:
+    """Flag project-owned skills under ./skills/ that were never deployed or drifted
+    from their deployed `.claude/skills/` copies.
+
+    Project-owned custom skills are authored at the repo root and then copied into the
+    assistant runtime directory. If the deployed copy is missing or stale, Claude loads
+    behavior that no longer matches the source of truth.
+    """
+    findings: list[str] = []
+    skills_dir = root / "skills"
+    deployed_skills_dir = root / ".claude" / "skills"
+    if not skills_dir.is_dir():
+        return findings
+
+    for skill_dir in sorted(p for p in skills_dir.iterdir() if p.is_dir()):
+        if _is_excluded(skill_dir, root):
+            continue
+        source_skill_md = skill_dir / "SKILL.md"
+        if not source_skill_md.is_file():
+            continue
+
+        deployed_dir = deployed_skills_dir / skill_dir.name
+        deployed_skill_md = deployed_dir / "SKILL.md"
+        rel = skill_dir.relative_to(root).as_posix()
+        if not deployed_skill_md.is_file():
+            findings.append(
+                f"project skill not deployed [MEDIUM]: {rel} — deploy it to "
+                f".claude/skills/{skill_dir.name}/ so Claude loads the project-owned copy"
+            )
+            continue
+
+        source_files: dict[str, str] = {}
+        deployed_files: dict[str, str] = {}
+        for path in skill_dir.rglob("*"):
+            if path.is_file():
+                source_files[path.relative_to(skill_dir).as_posix()] = path.read_text(encoding="utf-8", errors="ignore")
+        for path in deployed_dir.rglob("*"):
+            if path.is_file():
+                deployed_files[path.relative_to(deployed_dir).as_posix()] = path.read_text(encoding="utf-8", errors="ignore")
+
+        if set(source_files) != set(deployed_files):
+            findings.append(
+                f"project skill deployment drift [MEDIUM]: {rel} — deployed file set in "
+                f".claude/skills/{skill_dir.name}/ does not match the project-owned source"
+            )
+            continue
+
+        for rel_file, source_text in source_files.items():
+            if deployed_files.get(rel_file) != source_text:
+                findings.append(
+                    f"project skill deployment drift [MEDIUM]: {rel}/{rel_file} — "
+                    f"deployed copy under .claude/skills/{skill_dir.name}/ is stale"
+                )
+                break
+
+    return findings
+
 
 _COMPONENT_PREFIX_ROW_RE = re.compile(r"\|\s*Component prefix\s*\|\s*([A-Za-z][A-Za-z0-9]*)\s*\|")
 _APP_PREFIXED_DECL_RE = re.compile(
@@ -2297,15 +2515,30 @@ def _detect_positive_patterns(root: Path) -> list[dict]:
     # ── Agent setup ───────────────────────────────────────────────────────────
 
     claude = root / ".claude"
-    if (claude / "AGENTS.md").exists() and (claude / "commands").exists() and (root / "CLAUDE.md").exists():
+    source_layout = [
+        root / "agents",
+        root / "rules",
+        root / "hooks",
+        root / "commands",
+        root / "skills",
+        root / "docs" / "reference" / "ai-collaboration.md",
+        root / "docs" / "reference" / "agent-catalog.md",
+    ]
+    if (
+        (claude / "AGENTS.md").exists()
+        and (claude / "commands").exists()
+        and (claude / "skills").exists()
+        and (root / "CLAUDE.md").exists()
+        and all(path.exists() for path in source_layout)
+    ):
         lessons.append({
             "skill": "kotlin-multiplatform-audit",
-            "pattern": "Full agent setup (CLAUDE.md + AGENTS.md + commands)",
+            "pattern": "Full Claude scaffold (project-owned sources + deployed runtime)",
             "description": (
-                "Consumer has all three agent setup artifacts in place. "
+                "Consumer keeps both the project-owned source scaffold and the deployed Claude runtime in sync. "
                 "This project is a good reference for what the /kmm-setup-agents command should produce."
             ),
-            "evidence": "ls CLAUDE.md .claude/AGENTS.md .claude/commands/",
+            "evidence": "ls CLAUDE.md agents/ rules/ hooks/ commands/ skills/ docs/reference/ai-collaboration.md docs/reference/agent-catalog.md .claude/AGENTS.md .claude/commands/ .claude/skills/",
         })
 
     return lessons
@@ -2393,6 +2626,7 @@ def audit_project(root: Path) -> list[str]:
 
     # ── WHAT-comment inside a loop or conditional ────────────────────────────────
     findings.extend(_detect_what_comment_in_control_flow(root))
+    findings.extend(_detect_long_stacked_comment_block(root))
 
     # ── Extensible abstract class in commonMain ─────────────────────────────────
     findings.extend(_detect_extensible_abstract_class_in_common(root))
@@ -2405,6 +2639,10 @@ def audit_project(root: Path) -> list[str]:
 
     # ── Design system prefix mismatch ──────────────────────────────────────────
     findings.extend(_detect_design_system_prefix_mismatch(root))
+
+    # ── Project-owned skill standards (skills/<name>/SKILL.md anatomy) ─────────
+    findings.extend(_detect_project_skill_standards(root))
+    findings.extend(_detect_project_skill_deployment_drift(root))
 
     # ── Empty platform-specific source sets ────────────────────────────────────
     findings.extend(_detect_empty_platform_sourceset(root))

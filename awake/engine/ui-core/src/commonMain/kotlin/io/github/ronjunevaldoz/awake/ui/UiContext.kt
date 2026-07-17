@@ -30,6 +30,7 @@ class UiContext private constructor(
     private val widgetStates = HashMap<String, WidgetState>()
     private val primitives = ArrayList<UiDrawPrimitive>()
     private val overlayPrimitives = ArrayList<UiDrawPrimitive>()
+    private val semanticNodes = ArrayList<UiSemanticNode>()
     private var fullFrameRect = UiSlot(0f, 0f, 0f, 0f)
     private val clipStack = ArrayList<UiSlot>()
     private var frameDeltaSeconds: Float = 1f / 60f
@@ -39,6 +40,7 @@ class UiContext private constructor(
     fun beginFrame(screenWidth: Float, screenHeight: Float, deltaSeconds: Float = 1f / 60f) {
         primitives.clear()
         overlayPrimitives.clear()
+        semanticNodes.clear()
         fullFrameRect = UiSlot(0f, 0f, screenWidth, screenHeight)
         clipStack.clear()
         frameDeltaSeconds = deltaSeconds.coerceAtLeast(0f)
@@ -162,6 +164,8 @@ class UiContext private constructor(
         return primitives + overlayPrimitives
     }
 
+    fun semanticNodes(): List<UiSemanticNode> = semanticNodes.toList()
+
     // --- Shared state accessors, delegated to by AbstractUiScope in Layout.kt. Internal, not
     // part of the widget-authoring surface -- that's UiScope itself.
 
@@ -191,6 +195,11 @@ class UiContext private constructor(
     }
 
     internal fun widgetStateInternal(id: String): WidgetState = widgetStates.getOrPut(id) { WidgetState() }
+
+    internal fun recordSemanticInternal(node: UiSemanticNode) {
+        if (measuring) return
+        semanticNodes += node
+    }
 
     /** Intersects [rect] against whatever clip is currently active (or the full frame extent
      * if the stack is empty) and pushes the RESOLVED rect -- nesting is resolved here, once,

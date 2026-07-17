@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 @Target(AnnotationTarget.CLASS)
@@ -29,7 +30,8 @@ data class AwakeUiPreviewMetadata(
 data class AwakeUiPreviewFrame(
     val primitives: List<UiDrawPrimitive>,
     val background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
-    val font: UiFont? = null
+    val font: UiFont? = null,
+    val semantics: List<UiSemanticNode> = emptyList()
 )
 
 data class AwakeUiPreviewScene(

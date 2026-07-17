@@ -52,7 +52,7 @@ class UiDslTest {
             panel(id = "inspector", height = 120f.toDimension()) { slot ->
                 panelSlot = slot
                 text("Inspector")
-                propertyRow(label = "Mode", height = 28f) { propertySlot ->
+                propertyRow(label = "Mode", height = 28f.dp) { propertySlot ->
                     controlSlot = propertySlot
                     dropdown(
                         id = "mode",
@@ -65,7 +65,7 @@ class UiDslTest {
                     id = "visible",
                     checked = true,
                     label = "Visible",
-                    height = 28f
+                    height = 28f.dp
                 )
             }
         }
@@ -91,9 +91,9 @@ class UiDslTest {
         var second: UiButtonResult? = null
 
         ui.ui(x = 10f, y = 20f, width = 220f, font = BitmapFont(), gap = 0f) {
-            row(height = 30f, gap = 4f) {
+            row(height = 30f.dp, gap = 4f) {
                 first = buttonSlot(id = "one", label = "One", width = 60f, height = 30f)
-                spacer(width = 12f)
+                spacer(width = 12f.dp)
                 second = buttonSlot(id = "two", label = "Two", width = 60f, height = 30f)
             }
         }
@@ -156,7 +156,7 @@ class UiDslTest {
         ui.ui(x = 20f, y = 20f, width = 220f, font = BitmapFont()) {
             panel(id = "slot-panel", height = 100f.toDimension()) {
                 propertyRow(
-                    height = 28f,
+                    height = 28f.dp,
                     labelWidth = 80f.dp,
                     labelContent = {
                         text("Camera")
@@ -178,6 +178,65 @@ class UiDslTest {
         val primitives = ui.endFrame()
         assertEquals(80f + UiSpacing.sm.toPx(), resolvedControlSlot.x)
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "slot-based property labels should still render through the shared text pipeline")
+    }
+
+    @Test
+    fun propertyControlsCanUseModifierFirstSizingWithoutOverlap() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(320f, 180f)
+
+        val controlSlots = mutableListOf<UiSlot>()
+
+        ui.ui(x = 20f, y = 20f, width = 240f, font = BitmapFont()) {
+            panel(id = "modifier-props", height = Dimension.WrapContent) {
+                propertyRow(
+                    label = "Mode",
+                    modifier = UiModifier().height(32f.px)
+                ) { slot ->
+                    controlSlots += slot
+                    dropdown(
+                        id = "mode",
+                        options = listOf("Orbit", "Fly"),
+                        selectedIndex = 0,
+                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                    )
+                }
+                propertyRow(
+                    label = "Grid",
+                    modifier = UiModifier().height(32f.px)
+                ) { slot ->
+                    controlSlots += slot
+                    val toggled = toggle(
+                        id = "grid",
+                        checked = true,
+                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                    )
+                    assertTrue(toggled)
+                }
+                propertyRow(
+                    label = "Speed",
+                    modifier = UiModifier().height(32f.px)
+                ) { slot ->
+                    controlSlots += slot
+                    val sliderValue = slider(
+                        id = "speed",
+                        min = 1f,
+                        max = 10f,
+                        value = 4f,
+                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                    )
+                    assertEquals(4f, sliderValue)
+                }
+            }
+        }
+
+        ui.endFrame()
+        assertTrue(controlSlots.size >= 3)
+        val renderedSlots = controlSlots.takeLast(3)
+        renderedSlots.zipWithNext().forEach { (previous, next) ->
+            assertTrue(previous.y + previous.height <= next.y || next.y + next.height <= previous.y, "property control rows should not overlap when modifier drives their height")
+        }
     }
 
     @Test
@@ -220,8 +279,8 @@ class UiDslTest {
 
         runtime.overlayShell(viewportWidth = 360f, viewportHeight = 240f) {
             topRight(
-                width = 120f,
-                height = 80f,
+                width = 120f.dp,
+                height = 80f.dp,
                 margin = UiInsets(start = 0f.dp, top = 12f.dp, end = 16f.dp, bottom = 0f.dp)
             ) { slot ->
                 topRightSlot = slot
@@ -230,8 +289,8 @@ class UiDslTest {
                 }
             }
             bottomLeft(
-                width = 140f,
-                height = 60f,
+                width = 140f.dp,
+                height = 60f.dp,
                 margin = UiInsets(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 8f.dp)
             ) { slot ->
                 bottomLeftSlot = slot
@@ -255,6 +314,34 @@ class UiDslTest {
     }
 
     @Test
+    fun overlayShellSupportsModifierDrivenAnchoredPlacement() {
+        val runtime = GameUiRuntime(
+            services = object : GameServiceLookup {
+                override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
+                override fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = error("unused")
+            },
+            spec = gameUi { }
+        )
+        runtime.uiContext.beginFrame(360f, 240f)
+
+        var topRightSlot: UiSlot? = null
+        runtime.overlayShell(viewportWidth = 360f, viewportHeight = 240f) {
+            topRight(
+                modifier = UiModifier().width(120f.px).height(80f.px),
+                margin = UiInsets(start = 0f.dp, top = 12f.dp, end = 16f.dp, bottom = 0f.dp)
+            ) { slot ->
+                topRightSlot = slot
+                shellPane(slot = slot, id = "modifier-top-right") {
+                    text("TR")
+                }
+            }
+        }
+
+        runtime.uiContext.endFrame()
+        assertEquals(UiSlot(224f, 12f, 120f, 80f), topRightSlot)
+    }
+
+    @Test
     fun overlayShellPaneAutoFitsContentForBottomAnchors() {
         val runtime = GameUiRuntime(
             services = object : GameServiceLookup {
@@ -269,7 +356,7 @@ class UiDslTest {
 
         runtime.overlayShell(viewportWidth = 360f, viewportHeight = 240f) {
             bottomLeftPane(
-                maxWidth = 180f,
+                maxWidth = 180f.dp,
                 margin = UiInsets(start = 20f.dp, bottom = 12f.dp)
             ) { slot ->
                 bottomLeftSlot = slot

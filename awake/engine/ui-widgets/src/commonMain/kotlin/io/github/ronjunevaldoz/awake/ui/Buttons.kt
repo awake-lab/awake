@@ -13,6 +13,7 @@ private inline fun UiScope.buttonSlotInternal(
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
+    semanticLabel: String? = null,
     drawContent: AbsoluteScope.(contentSlot: UiSlot, resolved: ResolvedStyle) -> Unit
 ): UiButtonResult {
     val interaction = interact(id, width, height, modifier)
@@ -44,6 +45,13 @@ private inline fun UiScope.buttonSlotInternal(
         theme = theme,
         textScale = resolved.textScale
     ).drawContent(contentSlot, resolved)
+    recordSemantic(
+        role = UiSemanticRole.Button,
+        id = id,
+        label = semanticLabel,
+        bounds = interaction.slot,
+        contentBounds = contentSlot
+    )
     return UiButtonResult(interaction.clicked, interaction.slot)
 }
 
@@ -106,6 +114,7 @@ fun UiScope.buttonSlot(
     style = style,
     variant = variant,
     radius = radius,
+    semanticLabel = label,
     drawContent = { contentSlot, resolved ->
         if (label != null && font != null) {
             text(
@@ -117,7 +126,8 @@ fun UiScope.buttonSlot(
                 verticallyCentered = verticallyCentered,
                 overflow = UiTextOverflow.Ellipsis,
                 textScale = resolved.textScale,
-                textSize = resolved.textSize
+                textSize = resolved.textSize,
+                semanticId = "$id.label"
             )
         }
     }

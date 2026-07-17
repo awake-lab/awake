@@ -86,6 +86,13 @@ fun UiScope.scrollPanel(
         width = (innerSlot.width - scrollbarReservePx).coerceAtLeast(0f),
         height = innerSlot.height.coerceAtLeast(0f)
     )
+    recordSemantic(
+        role = UiSemanticRole.ScrollPanel,
+        id = id,
+        bounds = slot,
+        contentBounds = viewport,
+        clippedBounds = viewport
+    )
 
     state.update(viewportHeight = viewport.height, contentHeight = measured.height)
     if (state.canScroll && hitTest(slot)) {

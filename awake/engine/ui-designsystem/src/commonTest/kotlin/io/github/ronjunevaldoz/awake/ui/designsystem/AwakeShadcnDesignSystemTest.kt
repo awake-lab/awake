@@ -8,10 +8,13 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -109,14 +112,24 @@ class AwakeShadcnDesignSystemTest {
         Input.setPointer(down = true, x = 40f, y = 30f)
         ui.beginFrame(200f, 80f)
         clicked = ui.absolute(20f, 20f, font = BitmapFont(), theme = AwakeShadcnTheme)
-            .awakeShadcnButton("save", 120f, 32f, "SAVE", variant = AwakeShadcnButtonVariant.Primary)
+            .awakeShadcnButton(
+                id = "save",
+                label = "SAVE",
+                modifier = UiModifier().width(120f.px).height(32f.px),
+                variant = AwakeShadcnButtonVariant.Primary
+            )
         ui.endFrame()
         assertTrue(!clicked)
 
         Input.setPointer(down = false, x = 40f, y = 30f)
         ui.beginFrame(200f, 80f)
         clicked = ui.absolute(20f, 20f, font = BitmapFont(), theme = AwakeShadcnTheme)
-            .awakeShadcnButton("save", 120f, 32f, "SAVE", variant = AwakeShadcnButtonVariant.Primary)
+            .awakeShadcnButton(
+                id = "save",
+                label = "SAVE",
+                modifier = UiModifier().width(120f.px).height(32f.px),
+                variant = AwakeShadcnButtonVariant.Primary
+            )
         ui.endFrame()
 
         assertTrue(clicked, "design-system button must preserve the base widget click contract")
@@ -130,7 +143,7 @@ class AwakeShadcnDesignSystemTest {
 
         ui.column(20f, 20f, 200f, font = BitmapFont(), theme = AwakeShadcnTheme)
             .awakeShadcnSurface("surface", Dimension.Fixed(200f.px), Dimension.Fixed(100f.px)) {
-                awakeShadcnBadge("READY", width = 80f)
+                awakeShadcnBadge("READY", width = Dimension.Fixed(80f.px), height = Dimension.WrapContent)
             }
 
         val primitives = ui.endFrame()
@@ -151,9 +164,8 @@ class AwakeShadcnDesignSystemTest {
                 awakeShadcnBadge("READY", variant = AwakeShadcnBadgeVariant.Primary)
                 awakeShadcnButton(
                     id = "launch",
-                    width = 120f,
-                    height = 32f,
                     label = "Launch",
+                    modifier = UiModifier().width(120f.px).height(32f.px),
                     variant = AwakeShadcnButtonVariant.Secondary
                 )
             }
@@ -199,7 +211,7 @@ class AwakeShadcnDesignSystemTest {
             ) {
                 awakeShadcnSectionHeader(
                     title = {
-                        row(height = 20f, gap = 6f) {
+                        row(height = 20f.dp, gap = 6f) {
                             awakeShadcnBadge(
                                 "NEW",
                                 modifier = UiModifier(width = Dimension.Fixed(48f.px)),

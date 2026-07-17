@@ -9,8 +9,13 @@ class UiColumnDslScope internal constructor(
     private val columnScope: ColumnScope
 ) : UiDslScope(columnScope) {
 
-    fun spacer(height: Float) {
+    fun spacer(height: Dp) {
         columnScope.claimSlot(Dimension.FillMax, height.toDimension())
+    }
+
+    @Deprecated("Prefer Dp-based sizing in authored DSL code.")
+    fun spacer(height: Float) {
+        spacer(height.px)
     }
 
     fun panel(
@@ -39,7 +44,7 @@ class UiColumnDslScope internal constructor(
     }
 
     fun row(
-        height: Float,
+        height: Dp,
         width: Dimension = Dimension.FillMax,
         gap: Float = UiSpacing.sm.toPx(),
         modifier: UiModifier = UiModifier(),
@@ -49,6 +54,15 @@ class UiColumnDslScope internal constructor(
         UiRowDslScope(context.row(slot, font, theme, gap, textScale)).content(slot)
         return slot
     }
+
+    @Deprecated("Prefer Dp-based sizing in authored DSL code.")
+    fun row(
+        height: Float,
+        width: Dimension = Dimension.FillMax,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        content: UiRowDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = row(height.px, width, gap, modifier, content)
 
     fun column(
         height: Dimension,
@@ -64,12 +78,12 @@ class UiColumnDslScope internal constructor(
     }
 
     fun propertyRow(
-        height: Float,
+        modifier: UiModifier = UiModifier(),
         labelWidth: Dp = 64f.dp,
         labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit,
         content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
     ): UiSlot = columnScope.propertyRow(
-        height = height,
+        modifier = modifier,
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
@@ -77,16 +91,76 @@ class UiColumnDslScope internal constructor(
     }
 
     fun propertyRow(
-        label: String,
+        height: Dp,
+        labelWidth: Dp = 64f.dp,
+        labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit,
+        content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = columnScope.propertyRow(
+        height = height.toPx(),
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale)).content(slot)
+    }
+
+    @Deprecated("Prefer Dp-based sizing in authored DSL code.")
+    fun propertyRow(
         height: Float,
+        labelWidth: Dp = 64f.dp,
+        labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit,
+        content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = propertyRow(height.px, labelWidth, labelContent, content)
+
+    fun propertyRow(
+        label: String,
+        modifier: UiModifier = UiModifier(),
         labelWidth: Dp = 64f.dp,
         content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
-        val slot = columnScope.propertyRow(label, height, labelWidth)
+        val slot = columnScope.propertyRow(label, modifier, labelWidth)
         UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale)).content(slot)
         return slot
     }
 
+    fun propertyRow(
+        label: String,
+        height: Dp,
+        labelWidth: Dp = 64f.dp,
+        content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot {
+        val slot = columnScope.propertyRow(label, height.toPx(), labelWidth)
+        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale)).content(slot)
+        return slot
+    }
+
+    @Deprecated("Prefer Dp-based sizing in authored DSL code.")
+    fun propertyRow(
+        label: String,
+        height: Float,
+        labelWidth: Dp = 64f.dp,
+        content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = propertyRow(label, height.px, labelWidth, content)
+
+    fun propertyCheckbox(
+        id: String,
+        checked: Boolean,
+        label: String,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        boxSize: Dp = 16f.dp
+    ): Boolean = columnScope.propertyCheckbox(id, checked, label, modifier, style, boxSize)
+
+    fun propertyCheckbox(
+        id: String,
+        checked: Boolean,
+        label: String,
+        height: Dp,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        boxSize: Dp = 16f.dp
+    ): Boolean = columnScope.propertyCheckbox(id, checked, label, height.toPx(), modifier, style, boxSize)
+
+    @Deprecated("Prefer Dp-based sizing in authored DSL code.")
     fun propertyCheckbox(
         id: String,
         checked: Boolean,
@@ -95,7 +169,7 @@ class UiColumnDslScope internal constructor(
         modifier: UiModifier = UiModifier(),
         style: Style = Style.Empty,
         boxSize: Dp = 16f.dp
-    ): Boolean = columnScope.propertyCheckbox(id, checked, label, height, modifier, style, boxSize)
+    ): Boolean = propertyCheckbox(id, checked, label, height.px, modifier, style, boxSize)
 }
 
 @AwakeUiDsl
@@ -103,8 +177,13 @@ class UiRowDslScope internal constructor(
     private val rowScope: RowScope
 ) : UiDslScope(rowScope) {
 
-    fun spacer(width: Float) {
+    fun spacer(width: Dp) {
         rowScope.claimSlot(width.toDimension(), Dimension.FillMax)
+    }
+
+    @Deprecated("Prefer Dp-based sizing in authored DSL code.")
+    fun spacer(width: Float) {
+        spacer(width.px)
     }
 
     fun panel(
@@ -165,7 +244,7 @@ class UiAbsoluteDslScope internal constructor(
 
     fun row(
         width: Dimension,
-        height: Float,
+        height: Dp,
         gap: Float = UiSpacing.sm.toPx(),
         modifier: UiModifier = UiModifier(),
         content: UiRowDslScope.(slot: UiSlot) -> Unit
@@ -174,6 +253,15 @@ class UiAbsoluteDslScope internal constructor(
         UiRowDslScope(context.row(slot, font, theme, gap, textScale)).content(slot)
         return slot
     }
+
+    @Deprecated("Prefer Dp-based sizing in authored DSL code.")
+    fun row(
+        width: Dimension,
+        height: Float,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        content: UiRowDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = row(width, height.px, gap, modifier, content)
 
     fun column(
         width: Dimension,
@@ -240,7 +328,7 @@ class UiBoxDslScope internal constructor(
 
     fun row(
         width: Dimension,
-        height: Float,
+        height: Dp,
         gap: Float = UiSpacing.sm.toPx(),
         modifier: UiModifier = UiModifier(),
         content: UiRowDslScope.(slot: UiSlot) -> Unit
@@ -249,6 +337,15 @@ class UiBoxDslScope internal constructor(
         UiRowDslScope(context.row(slot, font, theme, gap, textScale)).content(slot)
         return slot
     }
+
+    @Deprecated("Prefer Dp-based sizing in authored DSL code.")
+    fun row(
+        width: Dimension,
+        height: Float,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        content: UiRowDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = row(width, height.px, gap, modifier, content)
 
     fun column(
         width: Dimension,

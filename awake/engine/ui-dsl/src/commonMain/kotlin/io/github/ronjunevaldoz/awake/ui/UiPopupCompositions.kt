@@ -139,13 +139,13 @@ fun UiDslScope.dropdownMenu(
             items.forEach { entry ->
                 when (entry) {
                     UiDropdownMenuSeparator -> {
-                        spacer(4f)
+                        spacer(4f.dp)
                         separator(
                             width = Dimension.FillMax,
                             thickness = 1f.dp,
                             color = theme.tokens.border.withAlpha(0.72f)
                         )
-                        spacer(4f)
+                        spacer(4f.dp)
                     }
                     is UiDropdownMenuItem -> {
                         val menuItemStyle = when {
@@ -239,7 +239,7 @@ fun UiDslScope.dialog(
             header?.invoke(this, slot)
             content(slot)
             if (actions != null) {
-                row(height = 36f, width = Dimension.FillMax) { actionSlot ->
+                row(height = 36f.dp, width = Dimension.FillMax) { actionSlot ->
                     actions(actionSlot)
                 }
             }
@@ -284,7 +284,7 @@ fun UiDslScope.alertDialog(
                     action = UiAlertDialogAction.Dismiss
                 }
             }
-            spacer(8f)
+            spacer(8f.dp)
             if (
                 button(
                     id = "$id.confirm",

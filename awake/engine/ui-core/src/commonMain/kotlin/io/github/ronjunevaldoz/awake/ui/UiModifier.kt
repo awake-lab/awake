@@ -28,6 +28,7 @@ sealed class Dimension {
  * gets the exact same convenience a built-in widget does, matching this module's "no
  * capability gap versus a built-in widget" guarantee. */
 fun Float.toDimension(): Dimension = if (this > 0f) Dimension.Fixed(this.px) else Dimension.FillMax
+fun Dp.toDimension(): Dimension = if (value > 0f) Dimension.Fixed(this) else Dimension.FillMax
 
 /**
  * Per-widget-call structural override only -- width/height are layout concerns, while fill,

@@ -153,7 +153,7 @@ private fun renderUiShowcasePagePreviewFrame(
                 title = page.title,
                 description = page.description
             )
-            spacer(10f)
+            spacer(10f.dp)
             renderUiShowcasePagePreview(page, state)
         }
     }
@@ -161,6 +161,7 @@ private fun renderUiShowcasePagePreviewFrame(
     return AwakeUiPreviewFrame(
         primitives = ui.endFrame(),
         background = theme.tokens.background,
-        font = font
+        font = font,
+        semantics = ui.semanticNodes()
     )
 }

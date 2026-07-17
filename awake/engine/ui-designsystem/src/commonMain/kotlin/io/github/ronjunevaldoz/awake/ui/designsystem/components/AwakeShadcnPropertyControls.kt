@@ -9,7 +9,10 @@ import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.propertyRow
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.width
 
 private fun UiAbsoluteDslScope.awakeShadcnPropertyLabel(label: String) {
     text(
@@ -25,7 +28,29 @@ private fun UiAbsoluteDslScope.awakeShadcnPropertyLabel(label: String) {
 fun UiColumnDslScope.awakeShadcnPropertyToggle(
     id: String,
     checked: Boolean,
-    height: Float = 36f,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): Boolean {
+    var resolved = checked
+    propertyRow(
+        modifier = modifier.height(36f.px),
+        labelContent = labelContent
+    ) { slot ->
+        resolved = awakeShadcnToggle(
+            id = id,
+            checked = checked,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            style = style
+        )
+    }
+    return resolved
+}
+
+fun UiColumnDslScope.awakeShadcnPropertyToggle(
+    id: String,
+    checked: Boolean,
+    height: Dp,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
     labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
@@ -38,9 +63,31 @@ fun UiColumnDslScope.awakeShadcnPropertyToggle(
         resolved = awakeShadcnToggle(
             id = id,
             checked = checked,
-            width = slot.width,
-            height = slot.height,
-            modifier = modifier,
+            modifier = modifier.width(slot.width.px).height(slot.height.px),
+            style = style
+        )
+    }
+    return resolved
+}
+
+@Deprecated("Prefer Dp-based sizing in authored DSL code.")
+fun UiColumnDslScope.awakeShadcnPropertyToggle(
+    id: String,
+    checked: Boolean,
+    height: Float,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): Boolean {
+    var resolved = checked
+    propertyRow(
+        height = height.px,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = awakeShadcnToggle(
+            id = id,
+            checked = checked,
+            modifier = modifier.width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -51,13 +98,29 @@ fun UiColumnDslScope.awakeShadcnPropertyToggle(
     id: String,
     label: String,
     checked: Boolean,
-    height: Float = 36f,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Boolean = awakeShadcnPropertyToggle(
     id = id,
     checked = checked,
-    height = height,
+    modifier = modifier,
+    style = style
+) {
+    awakeShadcnPropertyLabel(label)
+}
+
+@Deprecated("Prefer Dp-based sizing in authored DSL code.")
+fun UiColumnDslScope.awakeShadcnPropertyToggle(
+    id: String,
+    label: String,
+    checked: Boolean,
+    height: Float,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = awakeShadcnPropertyToggle(
+    id = id,
+    checked = checked,
+    height = height.px,
     modifier = modifier,
     style = style
 ) {
@@ -68,7 +131,33 @@ fun UiColumnDslScope.awakeShadcnPropertyDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
-    height: Float = 36f,
+    modifier: UiModifier = UiModifier(),
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): Int? {
+    var resolved: Int? = null
+    propertyRow(
+        modifier = modifier.height(36f.px),
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = awakeShadcnDropdown(
+            id = id,
+            options = options,
+            selectedIndex = selectedIndex,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            style = style
+        )
+    }
+    return resolved
+}
+
+fun UiColumnDslScope.awakeShadcnPropertyDropdown(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    height: Dp,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
     labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
@@ -83,8 +172,34 @@ fun UiColumnDslScope.awakeShadcnPropertyDropdown(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
-            width = slot.width,
-            height = slot.height,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            style = style
+        )
+    }
+    return resolved
+}
+
+@Deprecated("Prefer Dp-based sizing in authored DSL code.")
+fun UiColumnDslScope.awakeShadcnPropertyDropdown(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    height: Float,
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): Int? {
+    var resolved: Int? = null
+    propertyRow(
+        height = height.px,
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = awakeShadcnDropdown(
+            id = id,
+            options = options,
+            selectedIndex = selectedIndex,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -96,14 +211,34 @@ fun UiColumnDslScope.awakeShadcnPropertyDropdown(
     label: String,
     options: List<String>,
     selectedIndex: Int,
-    height: Float = 36f,
+    modifier: UiModifier = UiModifier(),
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
 ): Int? = awakeShadcnPropertyDropdown(
     id = id,
     options = options,
     selectedIndex = selectedIndex,
-    height = height,
+    modifier = modifier,
+    labelWidth = labelWidth,
+    style = style
+) {
+    awakeShadcnPropertyLabel(label)
+}
+
+@Deprecated("Prefer Dp-based sizing in authored DSL code.")
+fun UiColumnDslScope.awakeShadcnPropertyDropdown(
+    id: String,
+    label: String,
+    options: List<String>,
+    selectedIndex: Int,
+    height: Float,
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty
+): Int? = awakeShadcnPropertyDropdown(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    height = height.px,
     labelWidth = labelWidth,
     style = style
 ) {
@@ -115,7 +250,35 @@ fun UiColumnDslScope.awakeShadcnPropertySlider(
     min: Float,
     max: Float,
     value: Float,
-    height: Float = 36f,
+    modifier: UiModifier = UiModifier(),
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): Float {
+    var resolved = value
+    propertyRow(
+        modifier = modifier.height(36f.px),
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = awakeShadcnSlider(
+            id = id,
+            min = min,
+            max = max,
+            value = value,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            style = style
+        )
+    }
+    return resolved
+}
+
+fun UiColumnDslScope.awakeShadcnPropertySlider(
+    id: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    height: Dp,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
     labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
@@ -131,8 +294,36 @@ fun UiColumnDslScope.awakeShadcnPropertySlider(
             min = min,
             max = max,
             value = value,
-            width = slot.width,
-            height = slot.height,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            style = style
+        )
+    }
+    return resolved
+}
+
+@Deprecated("Prefer Dp-based sizing in authored DSL code.")
+fun UiColumnDslScope.awakeShadcnPropertySlider(
+    id: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    height: Float,
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): Float {
+    var resolved = value
+    propertyRow(
+        height = height.px,
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = awakeShadcnSlider(
+            id = id,
+            min = min,
+            max = max,
+            value = value,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -145,7 +336,7 @@ fun UiColumnDslScope.awakeShadcnPropertySlider(
     min: Float,
     max: Float,
     value: Float,
-    height: Float = 36f,
+    modifier: UiModifier = UiModifier(),
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
 ): Float = awakeShadcnPropertySlider(
@@ -153,7 +344,29 @@ fun UiColumnDslScope.awakeShadcnPropertySlider(
     min = min,
     max = max,
     value = value,
-    height = height,
+    modifier = modifier,
+    labelWidth = labelWidth,
+    style = style
+) {
+    awakeShadcnPropertyLabel(label)
+}
+
+@Deprecated("Prefer Dp-based sizing in authored DSL code.")
+fun UiColumnDslScope.awakeShadcnPropertySlider(
+    id: String,
+    label: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    height: Float,
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty
+): Float = awakeShadcnPropertySlider(
+    id = id,
+    min = min,
+    max = max,
+    value = value,
+    height = height.px,
     labelWidth = labelWidth,
     style = style
 ) {

@@ -58,9 +58,17 @@ fun UiScope.slider(
             centered = true,
             overflow = UiTextOverflow.Ellipsis,
             textScale = resolved.textScale,
-            textSize = resolved.textSize
+            textSize = resolved.textSize,
+            semanticId = "$id.label"
         )
     }
+    recordSemantic(
+        role = UiSemanticRole.Slider,
+        id = id,
+        label = label,
+        bounds = slot,
+        contentBounds = if (handleWidth > 0f) UiSlot(slot.x, slot.y, handleWidth, slot.height) else null
+    )
     return newValue
 }
 
@@ -95,15 +103,27 @@ fun UiScope.dropdown(
     val resolvedDefaults = theme.components.dropdown
     val selectedLabel = options.getOrNull(selectedIndex) ?: ""
     val (clicked, slot) = buttonSlot(
-        id = id,
-        label = null,
+        id = "$id.trigger",
         modifier = modifier.copy(height = modifier.height ?: Dimension.Fixed(36f.px)),
         style = resolvedDefaults then style
     )
     if (clicked) {
         expandedState.toggle()
     }
-    drawDropdownTriggerContent(slot, selectedLabel, expandedState.expanded, resolvedDefaults then style)
+    drawDropdownTriggerContent(
+        slot = slot,
+        label = selectedLabel,
+        expanded = expandedState.expanded,
+        style = resolvedDefaults then style,
+        semanticId = "$id.label"
+    )
+    recordSemantic(
+        role = UiSemanticRole.Dropdown,
+        id = id,
+        label = selectedLabel,
+        bounds = slot,
+        selected = expandedState.expanded
+    )
     var picked: Int? = null
     val popupResult = popup(
         anchorSlot = slot,
@@ -170,7 +190,8 @@ fun UiScope.drawDropdownTriggerContent(
     slot: UiSlot,
     label: String,
     expanded: Boolean,
-    style: Style
+    style: Style,
+    semanticId: String? = null
 ) {
     val resolvedFont = font ?: return
     val resolved = resolveStyle(defaults = style, state = MutableStyleState(hovered = hitTest(slot), active = expanded))
@@ -197,7 +218,8 @@ fun UiScope.drawDropdownTriggerContent(
         verticallyCentered = true,
         overflow = UiTextOverflow.Ellipsis,
         textScale = resolved.textScale,
-        textSize = resolved.textSize
+        textSize = resolved.textSize,
+        semanticId = semanticId
     )
     val chevronSlot = UiSlot(
         x = slot.x + slot.width - horizontalPad - chevronSize,

@@ -11,11 +11,58 @@ import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.button
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.width
 
+private fun awakeShadcnButtonStyle(
+    theme: UiTheme,
+    variant: AwakeShadcnButtonVariant,
+    style: Style
+): Style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style
+
+private fun awakeShadcnSizedModifier(
+    modifier: UiModifier,
+    width: Float,
+    height: Float
+): UiModifier = modifier.width(width.px).height(height.px)
+
+private inline fun awakeShadcnLabelButton(
+    id: String,
+    label: String,
+    modifier: UiModifier,
+    theme: UiTheme,
+    variant: AwakeShadcnButtonVariant,
+    style: Style,
+    centered: Boolean,
+    verticallyCentered: Boolean,
+    invoke: (id: String, label: String, modifier: UiModifier, style: Style, variant: UiButtonVariant, centered: Boolean, verticallyCentered: Boolean) -> Boolean
+): Boolean = invoke(
+    id,
+    label,
+    modifier,
+    awakeShadcnButtonStyle(theme, variant, style),
+    variant.toUiButtonVariant(),
+    centered,
+    verticallyCentered
+)
+
+private inline fun awakeShadcnContentButton(
+    id: String,
+    modifier: UiModifier,
+    theme: UiTheme,
+    variant: AwakeShadcnButtonVariant,
+    style: Style,
+    invoke: (id: String, modifier: UiModifier, style: Style, variant: UiButtonVariant) -> Boolean
+): Boolean = invoke(
+    id,
+    modifier,
+    awakeShadcnButtonStyle(theme, variant, style),
+    variant.toUiButtonVariant()
+)
+
 fun UiScope.awakeShadcnButton(
     id: String,
     label: String,
@@ -24,17 +71,20 @@ fun UiScope.awakeShadcnButton(
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered
-): Boolean = button(
-    id = id,
-    label = label,
-    modifier = modifier,
-    style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style,
-    variant = variant.toUiButtonVariant(),
-    radius = UiShape.none,
-    centered = centered,
-    verticallyCentered = verticallyCentered
-)
+): Boolean = awakeShadcnLabelButton(id, label, modifier, theme, variant, style, centered, verticallyCentered) { resolvedId, resolvedLabel, resolvedModifier, resolvedStyle, resolvedVariant, resolvedCentered, resolvedVerticallyCentered ->
+    button(
+        id = resolvedId,
+        label = resolvedLabel,
+        modifier = resolvedModifier,
+        style = resolvedStyle,
+        variant = resolvedVariant,
+        radius = UiShape.none,
+        centered = resolvedCentered,
+        verticallyCentered = resolvedVerticallyCentered
+    )
+}
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiScope.awakeShadcnButton(
     id: String,
     width: Float,
@@ -45,13 +95,12 @@ fun UiScope.awakeShadcnButton(
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered
-): Boolean = button(
+): Boolean = awakeShadcnButton(
     id = id,
     label = label,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style,
-    variant = variant.toUiButtonVariant(),
-    radius = UiShape.none,
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    variant = variant,
+    style = style,
     centered = centered,
     verticallyCentered = verticallyCentered
 )
@@ -64,17 +113,20 @@ fun UiDslScope.awakeShadcnButton(
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered
-): Boolean = button(
-    id = id,
-    label = label,
-    modifier = modifier,
-    style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style,
-    variant = variant.toUiButtonVariant(),
-    radius = UiShape.none,
-    centered = centered,
-    verticallyCentered = verticallyCentered
-)
+): Boolean = awakeShadcnLabelButton(id, label, modifier, theme, variant, style, centered, verticallyCentered) { resolvedId, resolvedLabel, resolvedModifier, resolvedStyle, resolvedVariant, resolvedCentered, resolvedVerticallyCentered ->
+    button(
+        id = resolvedId,
+        label = resolvedLabel,
+        modifier = resolvedModifier,
+        style = resolvedStyle,
+        variant = resolvedVariant,
+        radius = UiShape.none,
+        centered = resolvedCentered,
+        verticallyCentered = resolvedVerticallyCentered
+    )
+}
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiDslScope.awakeShadcnButton(
     id: String,
     width: Float,
@@ -85,13 +137,12 @@ fun UiDslScope.awakeShadcnButton(
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered
-): Boolean = button(
+): Boolean = awakeShadcnButton(
     id = id,
     label = label,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style,
-    variant = variant.toUiButtonVariant(),
-    radius = UiShape.none,
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    variant = variant,
+    style = style,
     centered = centered,
     verticallyCentered = verticallyCentered
 )
@@ -102,15 +153,18 @@ fun UiScope.awakeShadcnButton(
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
     style: Style = Style.Empty,
     content: AbsoluteScope.(slot: UiSlot) -> Unit
-): Boolean = button(
-    id = id,
-    modifier = modifier,
-    style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style,
-    variant = variant.toUiButtonVariant(),
-    radius = UiShape.none,
-    content = content
-)
+): Boolean = awakeShadcnContentButton(id, modifier, theme, variant, style) { resolvedId, resolvedModifier, resolvedStyle, resolvedVariant ->
+    button(
+        id = resolvedId,
+        modifier = resolvedModifier,
+        style = resolvedStyle,
+        variant = resolvedVariant,
+        radius = UiShape.none,
+        content = content
+    )
+}
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiScope.awakeShadcnButton(
     id: String,
     width: Float,
@@ -119,12 +173,11 @@ fun UiScope.awakeShadcnButton(
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
     style: Style = Style.Empty,
     content: AbsoluteScope.(slot: UiSlot) -> Unit
-): Boolean = button(
+): Boolean = awakeShadcnButton(
     id = id,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style,
-    variant = variant.toUiButtonVariant(),
-    radius = UiShape.none,
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    variant = variant,
+    style = style,
     content = content
 )
 
@@ -134,15 +187,18 @@ fun UiDslScope.awakeShadcnButton(
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
     style: Style = Style.Empty,
     content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
-): Boolean = button(
-    id = id,
-    modifier = modifier,
-    style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style,
-    variant = variant.toUiButtonVariant(),
-    radius = UiShape.none,
-    content = content
-)
+): Boolean = awakeShadcnContentButton(id, modifier, theme, variant, style) { resolvedId, resolvedModifier, resolvedStyle, resolvedVariant ->
+    button(
+        id = resolvedId,
+        modifier = resolvedModifier,
+        style = resolvedStyle,
+        variant = resolvedVariant,
+        radius = UiShape.none,
+        content = content
+    )
+}
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiDslScope.awakeShadcnButton(
     id: String,
     width: Float,
@@ -151,12 +207,11 @@ fun UiDslScope.awakeShadcnButton(
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
     style: Style = Style.Empty,
     content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
-): Boolean = button(
+): Boolean = awakeShadcnButton(
     id = id,
-    modifier = modifier.width(width.px).height(height.px),
-    style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style,
-    variant = variant.toUiButtonVariant(),
-    radius = UiShape.none,
+    modifier = awakeShadcnSizedModifier(modifier, width, height),
+    variant = variant,
+    style = style,
     content = content
 )
 

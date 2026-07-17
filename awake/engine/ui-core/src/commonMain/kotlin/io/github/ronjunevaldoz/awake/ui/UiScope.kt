@@ -135,3 +135,29 @@ fun UiScope.resolveStyle(
     defaults: Style = Style.Empty,
     state: StyleState = MutableStyleState()
 ): ResolvedStyle = (defaults then style).resolve(state, resolvedTextScale())
+
+fun UiScope.recordSemantic(
+    role: UiSemanticRole,
+    bounds: UiSlot,
+    id: String? = null,
+    label: String? = null,
+    contentBounds: UiSlot? = null,
+    clippedBounds: UiSlot? = null,
+    truncated: Boolean = false,
+    lineCount: Int = 0,
+    selected: Boolean? = null
+) {
+    context.recordSemanticInternal(
+        UiSemanticNode(
+            role = role,
+            bounds = bounds,
+            id = id,
+            label = label,
+            contentBounds = contentBounds,
+            clippedBounds = clippedBounds,
+            truncated = truncated,
+            lineCount = lineCount,
+            selected = selected
+        )
+    )
+}

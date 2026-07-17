@@ -22,6 +22,22 @@ import io.github.ronjunevaldoz.awake.ui.verticalPx
 
 fun UiScope.awakeShadcnBadge(
     label: String,
+    modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
+    style: Style = Style.Empty
+) {
+    awakeShadcnBadge(
+        label = label,
+        width = modifier.width ?: Dimension.WrapContent,
+        height = modifier.height ?: Dimension.WrapContent,
+        modifier = modifier,
+        variant = variant,
+        style = style
+    )
+}
+
+fun UiScope.awakeShadcnBadge(
+    label: String,
     width: Dimension,
     height: Dimension,
     modifier: UiModifier = UiModifier(),
@@ -58,6 +74,7 @@ fun UiScope.awakeShadcnBadge(
     }
 }
 
+@Deprecated("Prefer modifier-based sizing with Dp units.")
 fun UiScope.awakeShadcnBadge(
     label: String,
     width: Float = 96f,

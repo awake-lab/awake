@@ -37,6 +37,7 @@ pieces.
 - [2026-07-10-scene-runtime](tasks/2026-07-10-scene-runtime.md)
 - [2026-07-14-ui-dsl-audit](tasks/2026-07-14-ui-dsl-audit.md)
 - [2026-07-14-ui-module-split](tasks/2026-07-14-ui-module-split.md)
+- [2026-07-17-ui-api-simplification](tasks/2026-07-17-ui-api-simplification.md)
 
 ## Archive Index
 

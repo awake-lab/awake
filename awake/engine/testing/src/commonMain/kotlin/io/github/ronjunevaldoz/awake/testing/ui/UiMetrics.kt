@@ -143,6 +143,27 @@ fun inspectBoundsFit(
     return UiMetricsReport(issues)
 }
 
+fun inspectNonOverlappingBounds(
+    label: String,
+    bounds: List<UiSlot>,
+    tolerancePx: Float = 0f
+): UiMetricsReport {
+    val issues = ArrayList<String>()
+    bounds.forEachIndexed { index, current ->
+        bounds.drop(index + 1).forEachIndexed { offset, other ->
+            val otherIndex = index + offset + 1
+            val overlaps = current.x < other.x + other.width - tolerancePx &&
+                current.x + current.width > other.x + tolerancePx &&
+                current.y < other.y + other.height - tolerancePx &&
+                current.y + current.height > other.y + tolerancePx
+            if (overlaps) {
+                issues += "$label overlap between [$index]=$current and [$otherIndex]=$other with tolerance=$tolerancePx"
+            }
+        }
+    }
+    return UiMetricsReport(issues)
+}
+
 private fun compareBounds(
     label: String,
     reference: UiSlot?,

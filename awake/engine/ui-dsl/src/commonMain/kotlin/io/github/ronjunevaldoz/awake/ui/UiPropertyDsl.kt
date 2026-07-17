@@ -7,6 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 private const val PROPERTY_LABEL_GAP = 8f
 private const val PROPERTY_LABEL_MAX_FRACTION = 0.45f
 private const val PROPERTY_MIN_CONTROL_WIDTH_GLYPHS = 12
+private val DefaultPropertyRowHeight = 36f.px
+private val DefaultPropertyCheckboxHeight = 28f.px
 
 private data class PropertyInteraction(
     val slot: UiSlot,
@@ -21,12 +23,16 @@ private data class PropertyRowLayout(
 )
 
 fun UiScope.propertyRow(
-    height: Float,
+    modifier: UiModifier = UiModifier(),
     labelWidth: Dp = 64f.dp,
     labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit,
     content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val rowSlot = claimSlot(Dimension.FillMax, height.toDimension())
+    val rowSlot = claimModifiedSlot(
+        defaultWidth = Dimension.FillMax,
+        defaultHeight = Dimension.Fixed(DefaultPropertyRowHeight),
+        modifier = modifier
+    )
     val resolvedFont = font
     val glyphPx = resolvedFont?.let { resolveGlyphPx(it) } ?: 12f
     val layout = layoutPropertyRow(
@@ -46,8 +52,28 @@ fun UiScope.propertyRow(
     return layout.controlSlot
 }
 
-fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): UiSlot {
-    val rowSlot = claimSlot(Dimension.FillMax, height.toDimension())
+fun UiScope.propertyRow(
+    height: Float,
+    labelWidth: Dp = 64f.dp,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit,
+    content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): UiSlot = propertyRow(
+    modifier = UiModifier().height(height.px),
+    labelWidth = labelWidth,
+    labelContent = labelContent,
+    content = content
+)
+
+fun UiScope.propertyRow(
+    label: String,
+    modifier: UiModifier = UiModifier(),
+    labelWidth: Dp = 64f.dp
+): UiSlot {
+    val rowSlot = claimModifiedSlot(
+        defaultWidth = Dimension.FillMax,
+        defaultHeight = Dimension.Fixed(DefaultPropertyRowHeight),
+        modifier = modifier
+    )
     val resolvedFont = font
     val glyphPx = resolvedFont?.let { resolveGlyphPx(it) } ?: 12f
     val layout = layoutPropertyRow(
@@ -73,6 +99,9 @@ fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): 
     }
     return layout.controlSlot
 }
+
+fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): UiSlot =
+    propertyRow(label = label, modifier = UiModifier().height(height.px), labelWidth = labelWidth)
 
 internal fun resolvePropertyLabelWidthPx(
     rowWidthPx: Float,
@@ -114,12 +143,16 @@ fun UiScope.propertyCheckbox(
     id: String,
     checked: Boolean,
     label: String,
-    height: Float,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
     boxSize: Dp = 16f.dp
 ): Boolean {
-    val interaction = propertyInteract(id, Dimension.FillMax, modifier.height ?: height.toDimension())
+    val interaction = propertyInteract(
+        id = id,
+        width = Dimension.FillMax,
+        height = modifier.height ?: Dimension.Fixed(DefaultPropertyCheckboxHeight),
+        modifier = modifier
+    )
     val labelColor = theme.tokens.mutedForeground
     val resolvedFont = font
     if (resolvedFont != null) {
@@ -165,8 +198,30 @@ fun UiScope.propertyCheckbox(
     return newChecked
 }
 
-private fun UiScope.propertyInteract(id: String, width: Dimension, height: Dimension): PropertyInteraction {
-    val slot = claimSlot(width, height)
+fun UiScope.propertyCheckbox(
+    id: String,
+    checked: Boolean,
+    label: String,
+    height: Float,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    boxSize: Dp = 16f.dp
+): Boolean = propertyCheckbox(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier.height(height.px),
+    style = style,
+    boxSize = boxSize
+)
+
+private fun UiScope.propertyInteract(
+    id: String,
+    width: Dimension,
+    height: Dimension,
+    modifier: UiModifier = UiModifier()
+): PropertyInteraction {
+    val slot = claimModifiedSlot(width, height, modifier)
     val hovered = hitTest(slot)
     tryClaimActive(id, hovered)
     val wasActiveBeforeRelease = isActive(id)
