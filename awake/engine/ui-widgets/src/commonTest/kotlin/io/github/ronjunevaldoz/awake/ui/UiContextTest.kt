@@ -33,7 +33,7 @@ class UiContextTest {
         val ui = UiContext()
         var clicked = false
         ui.simulateClick(x = 5f, y = 5f, screenHeight = 100f) {
-            clicked = ui.absolute(20f, 20f).button("b", 120f, 40f)
+            clicked = ui.absolute(20f, 20f).button("b", modifier = UiModifier().width(120f.px).height(40f.px))
         }
         assertFalse(clicked, "click outside the widget's bounds must not register")
     }
@@ -84,6 +84,32 @@ class UiContextTest {
         value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = value, width = 100f, height = 20f)
         ui.endFrame()
         assertEquals(5f, value, "releasing should not further change the value")
+    }
+
+    @Test
+    fun dropdownCanUseModifierSizingAsPrimaryApi() {
+        val ui = UiContext()
+        Input.setPointer(down = false, x = 0f, y = 0f)
+        ui.beginFrame(220f, 160f)
+        val column = ui.column(20f, 20f, 160f)
+        val expandedState = column.widgetState("dd")
+        expandedState.set("expanded", true)
+
+        column.dropdown(
+            id = "dd",
+            options = listOf("A", "B"),
+            selectedIndex = 0,
+            modifier = UiModifier().fillMaxWidth().height(32f.px)
+        )
+
+        val optionBackgrounds = ui.endFrame().filter { primitive ->
+            when (primitive) {
+                is UiDrawPrimitive.Quad -> primitive.x == 20f && primitive.w == 160f && (primitive.y == 52f || primitive.y == 84f)
+                is UiDrawPrimitive.RoundedQuad -> primitive.x == 20f && primitive.w == 160f && (primitive.y == 52f || primitive.y == 84f)
+                else -> false
+            }
+        }
+        assertEquals(2, optionBackgrounds.size, "modifier-sized dropdown should still expand to full-width option rows")
     }
 
     @Test

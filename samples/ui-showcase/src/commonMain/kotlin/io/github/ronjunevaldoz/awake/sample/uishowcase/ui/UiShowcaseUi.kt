@@ -12,17 +12,20 @@ import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnSurfaceVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnScrollSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnScrollSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.gameUi
 import io.github.ronjunevaldoz.awake.ui.overlayBox
 import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 
+private val ShowcaseChromeTheme = awakeShadcnTheme(dark = false)
+
 internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec {
     return gameUi {
-        theme(AwakeShadcnTheme)
+        theme(ShowcaseChromeTheme)
         overlay { viewportWidth, viewportHeight ->
             drawUiShowcaseOverlay(
                 state = state,
@@ -38,7 +41,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
     viewportWidth: Float,
     viewportHeight: Float
 ) {
-    val chromeTheme = AwakeShadcnTheme
+    val chromeTheme = ShowcaseChromeTheme
     val showcaseTheme = state.showcaseTheme()
     val sidebarScroll = uiContext.rememberStateValue("ui-showcase-scroll", "sidebar") { UiScrollState() }
     val contentScroll = uiContext.rememberStateValue("ui-showcase-scroll", "content") { UiScrollState() }

@@ -41,6 +41,23 @@ class CheckboxTest {
     }
 
     @Test
+    fun checkboxCanUseModifierSizingAsPrimaryApi() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(220f, 100f)
+        ui.absolute(20f, 20f, font = BitmapFont()).checkbox(
+            id = "cb",
+            checked = false,
+            label = "ENABLED",
+            modifier = UiModifier().width(160f.px).height(40f.px)
+        )
+
+        val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
+        assertTrue(glyphs.isNotEmpty(), "modifier-sized checkbox should still render its label")
+        assertTrue(glyphs.first().x >= 44f, "label should still render to the right of the checkbox box when sizing comes from modifier")
+    }
+
+    @Test
     fun checkedBoxAddsAnInsetAccentQuad() {
         Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()

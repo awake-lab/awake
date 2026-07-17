@@ -38,6 +38,42 @@ class ReusableCompositionTest {
         assertEquals(UiSlot(10f, 20f, 100f, 30f), first.slot)
         assertEquals(UiSlot(25f, 30f, 100f, 30f), second.slot)
     }
+
+    @Test
+    fun buttonSlotCanHostCustomComposedContent() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(260f, 120f)
+
+        val result = ui.absolute(20f, 20f, font = BitmapFont()).buttonSlot(
+            id = "launch",
+            width = 180f,
+            height = 40f,
+            style = Style {
+                contentPadding(start = 12f.dp, top = 0f.dp, end = 12f.dp, bottom = 0f.dp)
+            }
+        ) { slot ->
+            text(
+                label = ">",
+                slot = UiSlot(slot.x, slot.y, 12f, slot.height),
+                font = font,
+                centered = false,
+                verticallyCentered = true
+            )
+            text(
+                label = "Launch",
+                slot = UiSlot(slot.x + 18f, slot.y, 72f, slot.height),
+                font = font,
+                centered = false,
+                verticallyCentered = true
+            )
+        }
+
+        val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
+        assertEquals(UiSlot(20f, 20f, 180f, 40f), result.slot)
+        assertTrue(glyphs.size >= 7, "custom button slot content should be able to emit multiple glyph runs")
+        assertTrue(glyphs.first().x >= 32f, "slot content should render inside the padded content region, not against the outer button edge")
+    }
 }
 
 private val BadgeToneKey = StyleStateKey(false)

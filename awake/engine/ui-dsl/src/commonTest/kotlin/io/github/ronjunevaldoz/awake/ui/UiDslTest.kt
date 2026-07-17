@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -57,8 +58,7 @@ class UiDslTest {
                         id = "mode",
                         options = listOf("Mesh", "Light"),
                         selectedIndex = 0,
-                        width = propertySlot.width,
-                        height = propertySlot.height
+                        modifier = UiModifier().width(propertySlot.width.px).height(propertySlot.height.px)
                     )
                 }
                 propertyCheckbox(
@@ -112,7 +112,12 @@ class UiDslTest {
 
         var checked = true
         ui.ui(x = 20f, y = 20f, width = 140f, font = BitmapFont()) {
-            checked = toggle(id = "grid", checked = checked, height = 32f, label = "GRID")
+            checked = toggle(
+                id = "grid",
+                checked = checked,
+                label = "GRID",
+                modifier = UiModifier().fillMaxWidth().height(32f.px)
+            )
         }
 
         val primitives = ui.endFrame()
@@ -439,5 +444,28 @@ class UiDslTest {
 
         assertEquals(20f, scrollState.offsetY)
         assertTrue(scrollState.canScroll)
+    }
+
+    @Test
+    fun dialogUsesNeutralDarkScrimByDefault() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(320f, 240f)
+
+        ui.ui(x = 20f, y = 20f, width = 240f, font = BitmapFont()) {
+            dialog(
+                id = "dialog",
+                expanded = true
+            ) {
+                text("Dialog body")
+            }
+        }
+
+        val scrim = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>().firstOrNull()
+        assertEquals(
+            Color.Black.withAlpha(0.48f),
+            scrim?.color,
+            "dialogs should default to a neutral dark scrim so light themes do not wash the scene out"
+        )
     }
 }

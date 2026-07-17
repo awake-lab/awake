@@ -87,13 +87,84 @@ sealed class UiDslScope protected constructor(
     fun buttonSlot(
         id: String,
         label: String,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        variant: UiButtonVariant = UiButtonVariant.Filled,
+        radius: Dp = UiShape.none,
+        centered: Boolean = true,
+        verticallyCentered: Boolean = centered
+    ): UiButtonResult = scope.buttonSlot(
+        id = id,
+        label = label,
+        modifier = modifier,
+        style = style,
+        variant = variant,
+        radius = radius,
+        centered = centered,
+        verticallyCentered = verticallyCentered
+    )
+
+    fun buttonSlot(
+        id: String,
+        label: String,
         width: Float = 0f,
         height: Float = 36f,
         modifier: UiModifier = UiModifier(),
         style: Style = Style.Empty,
         variant: UiButtonVariant = UiButtonVariant.Filled,
-        radius: Dp = UiShape.none
-    ): UiButtonResult = scope.buttonSlot(id, width, height, label, modifier, style, variant, radius)
+        radius: Dp = UiShape.none,
+        centered: Boolean = true,
+        verticallyCentered: Boolean = centered
+    ): UiButtonResult = scope.buttonSlot(
+        id = id,
+        width = width,
+        height = height,
+        label = label,
+        modifier = modifier,
+        style = style,
+        variant = variant,
+        radius = radius,
+        centered = centered,
+        verticallyCentered = verticallyCentered
+    )
+
+    fun buttonSlot(
+        id: String,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        variant: UiButtonVariant = UiButtonVariant.Filled,
+        radius: Dp = UiShape.none,
+        content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    ): UiButtonResult = scope.buttonSlot(
+        id = id,
+        modifier = modifier,
+        style = style,
+        variant = variant,
+        radius = radius
+    ) { slot ->
+        UiAbsoluteDslScope(this).content(slot)
+    }
+
+    fun buttonSlot(
+        id: String,
+        width: Float = 0f,
+        height: Float = 36f,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        variant: UiButtonVariant = UiButtonVariant.Filled,
+        radius: Dp = UiShape.none,
+        content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    ): UiButtonResult = scope.buttonSlot(
+        id = id,
+        width = width,
+        height = height,
+        modifier = modifier,
+        style = style,
+        variant = variant,
+        radius = radius
+    ) { slot ->
+        UiAbsoluteDslScope(this).content(slot)
+    }
 
     /** Draws a select-style trigger's content (label left-aligned, expand chevron right) on
      * an already-claimed slot -- see [io.github.ronjunevaldoz.awake.ui.drawDropdownTriggerContent].
@@ -105,13 +176,82 @@ sealed class UiDslScope protected constructor(
     fun button(
         id: String,
         label: String,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        variant: UiButtonVariant = UiButtonVariant.Filled,
+        radius: Dp = UiShape.none,
+        centered: Boolean = true,
+        verticallyCentered: Boolean = centered
+    ): Boolean = buttonSlot(
+        id = id,
+        label = label,
+        modifier = modifier,
+        style = style,
+        variant = variant,
+        radius = radius,
+        centered = centered,
+        verticallyCentered = verticallyCentered
+    ).clicked
+
+    fun button(
+        id: String,
+        label: String,
         width: Float = 0f,
         height: Float = 36f,
         modifier: UiModifier = UiModifier(),
         style: Style = Style.Empty,
         variant: UiButtonVariant = UiButtonVariant.Filled,
-        radius: Dp = UiShape.none
-    ): Boolean = buttonSlot(id, label, width, height, modifier, style, variant, radius).clicked
+        radius: Dp = UiShape.none,
+        centered: Boolean = true,
+        verticallyCentered: Boolean = centered
+    ): Boolean = buttonSlot(
+        id = id,
+        label = label,
+        width = width,
+        height = height,
+        modifier = modifier,
+        style = style,
+        variant = variant,
+        radius = radius,
+        centered = centered,
+        verticallyCentered = verticallyCentered
+    ).clicked
+
+    fun button(
+        id: String,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        variant: UiButtonVariant = UiButtonVariant.Filled,
+        radius: Dp = UiShape.none,
+        content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    ): Boolean = buttonSlot(
+        id = id,
+        modifier = modifier,
+        style = style,
+        variant = variant,
+        radius = radius,
+        content = content
+    ).clicked
+
+    fun button(
+        id: String,
+        width: Float = 0f,
+        height: Float = 36f,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        variant: UiButtonVariant = UiButtonVariant.Filled,
+        radius: Dp = UiShape.none,
+        content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    ): Boolean = buttonSlot(id, width, height, modifier, style, variant, radius, content).clicked
+
+    fun checkbox(
+        id: String,
+        checked: Boolean,
+        label: String? = null,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        boxSize: Dp = 16f.dp
+    ): Boolean = scope.checkbox(id, checked, label, modifier, style, boxSize)
 
     fun checkbox(
         id: String,
@@ -127,6 +267,14 @@ sealed class UiDslScope protected constructor(
     fun toggle(
         id: String,
         checked: Boolean,
+        label: String? = null,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty
+    ): Boolean = scope.toggle(id, checked, label, modifier, style)
+
+    fun toggle(
+        id: String,
+        checked: Boolean,
         width: Float = 0f,
         height: Float = 32f,
         label: String? = null,
@@ -138,11 +286,29 @@ sealed class UiDslScope protected constructor(
         id: String,
         options: List<String>,
         selectedIndex: Int,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty
+    ): Int? = scope.dropdown(id, options, selectedIndex, modifier, style)
+
+    fun dropdown(
+        id: String,
+        options: List<String>,
+        selectedIndex: Int,
         width: Float = 0f,
         height: Float = 28f,
         modifier: UiModifier = UiModifier(),
         style: Style = Style.Empty
     ): Int? = scope.dropdown(id, options, selectedIndex, width, height, modifier, style)
+
+    fun slider(
+        id: String,
+        min: Float,
+        max: Float,
+        value: Float,
+        label: String? = null,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty
+    ): Float = scope.slider(id, min, max, value, label, modifier, style)
 
     fun slider(
         id: String,

@@ -14,10 +14,26 @@ import io.github.ronjunevaldoz.awake.ui.checkbox
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.slider
 import io.github.ronjunevaldoz.awake.ui.toggle
+import io.github.ronjunevaldoz.awake.ui.width
+
+fun UiScope.awakeShadcnToggle(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = toggle(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+)
 
 fun UiScope.awakeShadcnToggle(
     id: String,
@@ -30,11 +46,23 @@ fun UiScope.awakeShadcnToggle(
 ): Boolean = toggle(
     id = id,
     checked = checked,
-    width = width,
-    height = height,
+    label = label,
+    modifier = modifier.width(width.px).height(height.px),
+    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+)
+
+fun UiScope.awakeShadcnCheckbox(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = checkbox(
+    id = id,
+    checked = checked,
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+    style = AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
 )
 
 fun UiScope.awakeShadcnCheckbox(
@@ -48,11 +76,23 @@ fun UiScope.awakeShadcnCheckbox(
 ): Boolean = checkbox(
     id = id,
     checked = checked,
-    width = width,
-    height = height,
     label = label,
-    modifier = modifier,
+    modifier = modifier.width(width.px).height(height.px),
     style = AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
+)
+
+fun UiScope.awakeShadcnDropdown(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Int? = dropdown(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    modifier = modifier,
+    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
 )
 
 fun UiScope.awakeShadcnDropdown(
@@ -67,10 +107,26 @@ fun UiScope.awakeShadcnDropdown(
     id = id,
     options = options,
     selectedIndex = selectedIndex,
-    width = width,
-    height = height,
-    modifier = modifier,
+    modifier = modifier.width(width.px).height(height.px),
     style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+)
+
+fun UiScope.awakeShadcnSlider(
+    id: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Float = slider(
+    id = id,
+    min = min,
+    max = max,
+    value = value,
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
 )
 
 fun UiScope.awakeShadcnSlider(
@@ -88,11 +144,23 @@ fun UiScope.awakeShadcnSlider(
     min = min,
     max = max,
     value = value,
-    width = width,
-    height = height,
+    label = label,
+    modifier = modifier.width(width.px).height(height.px),
+    style = AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
+)
+
+fun UiDslScope.awakeShadcnToggle(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = toggle(
+    id = id,
+    checked = checked,
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
+    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
 )
 
 fun UiDslScope.awakeShadcnToggle(
@@ -106,11 +174,23 @@ fun UiDslScope.awakeShadcnToggle(
 ): Boolean = toggle(
     id = id,
     checked = checked,
-    width = width,
-    height = height,
+    label = label,
+    modifier = modifier.width(width.px).height(height.px),
+    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+)
+
+fun UiDslScope.awakeShadcnCheckbox(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = checkbox(
+    id = id,
+    checked = checked,
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
+    style = AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
 )
 
 fun UiDslScope.awakeShadcnCheckbox(
@@ -124,10 +204,8 @@ fun UiDslScope.awakeShadcnCheckbox(
 ): Boolean = checkbox(
     id = id,
     checked = checked,
-    width = width,
-    height = height,
     label = label,
-    modifier = modifier,
+    modifier = modifier.width(width.px).height(height.px),
     style = AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
 )
 
@@ -135,8 +213,6 @@ fun UiDslScope.awakeShadcnDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
-    width: Float,
-    height: Float = 36f,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Int? {
@@ -145,9 +221,7 @@ fun UiDslScope.awakeShadcnDropdown(
     val trigger = buttonSlot(
         id = id,
         label = "",
-        width = width,
-        height = height,
-        modifier = modifier,
+        modifier = modifier.height(36f.px),
         style = triggerStyle
     )
     if (trigger.clicked) {
@@ -177,6 +251,40 @@ fun UiDslScope.awakeShadcnDropdown(
     return result.selectedIndex
 }
 
+fun UiDslScope.awakeShadcnDropdown(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    width: Float,
+    height: Float = 36f,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Int? = awakeShadcnDropdown(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    modifier = modifier.width(width.px).height(height.px),
+    style = style
+)
+
+fun UiDslScope.awakeShadcnSlider(
+    id: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Float = slider(
+    id = id,
+    min = min,
+    max = max,
+    value = value,
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
+)
+
 fun UiDslScope.awakeShadcnSlider(
     id: String,
     min: Float,
@@ -192,9 +300,7 @@ fun UiDslScope.awakeShadcnSlider(
     min = min,
     max = max,
     value = value,
-    width = width,
-    height = height,
     label = label,
-    modifier = modifier,
+    modifier = modifier.width(width.px).height(height.px),
     style = AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
 )

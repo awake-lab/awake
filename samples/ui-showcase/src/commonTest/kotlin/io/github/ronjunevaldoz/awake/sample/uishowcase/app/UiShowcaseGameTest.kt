@@ -25,6 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -163,6 +164,15 @@ class UiShowcaseGameTest {
             listOf(UiShowcaseCounterContract.Effect.ResetCompleted),
             store.drainEffects()
         )
+    }
+
+    @Test
+    fun uiShowcaseChromeUsesLightShellTheme() {
+        val state = UiShowcaseRuntimeState()
+        val shellTheme = awakeShadcnTheme(dark = false)
+
+        assertEquals(shellTheme.tokens.background, uiShowcaseUiSpec(state).theme.tokens.background)
+        assertTrue(shellTheme.tokens.background != AwakeShadcnTheme.tokens.background)
     }
 }
 

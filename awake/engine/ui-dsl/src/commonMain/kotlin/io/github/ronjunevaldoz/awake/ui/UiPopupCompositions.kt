@@ -42,6 +42,7 @@ data class UiDialogProperties(
 )
 
 private val DetachedPopupAnchor = UiSlot(-1f, -1f, 0f, 0f)
+private val DefaultDialogScrimColor = Color.Black.withAlpha(0.48f)
 
 fun UiDslScope.tooltip(
     anchorSlot: UiSlot,
@@ -212,7 +213,7 @@ fun UiDslScope.dialog(
                 frameBounds.y,
                 frameBounds.width,
                 frameBounds.height,
-                properties.scrimColor ?: theme.tokens.background.withAlpha(0.74f)
+                properties.scrimColor ?: DefaultDialogScrimColor
             )
         )
     }

@@ -9,13 +9,15 @@ fun UiScope.slider(
     min: Float,
     max: Float,
     value: Float,
-    width: Float,
-    height: Float,
     label: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Float {
-    val slot = claimModifiedSlot(width.toDimension(), height.toDimension(), modifier)
+    val slot = claimModifiedSlot(
+        defaultWidth = Dimension.FillMax,
+        defaultHeight = Dimension.Fixed(28f.px),
+        modifier = modifier
+    )
     val hovered = hitTest(slot)
     tryClaimActive(id, hovered)
     val dragging = isActive(id) && Input.pointerDown
@@ -62,19 +64,42 @@ fun UiScope.slider(
     return newValue
 }
 
+fun UiScope.slider(
+    id: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    width: Float,
+    height: Float,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Float = slider(
+    id = id,
+    min = min,
+    max = max,
+    value = value,
+    label = label,
+    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
+    style = style
+)
+
 fun UiScope.dropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
-    width: Float,
-    height: Float,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Int? {
     val expandedState = rememberPopupState(id, key = "expanded")
     val resolvedDefaults = theme.components.dropdown
     val selectedLabel = options.getOrNull(selectedIndex) ?: ""
-    val (clicked, slot) = buttonSlot(id, width, height, label = null, modifier, style = resolvedDefaults then style)
+    val (clicked, slot) = buttonSlot(
+        id = id,
+        label = null,
+        modifier = modifier.copy(height = modifier.height ?: Dimension.Fixed(36f.px)),
+        style = resolvedDefaults then style
+    )
     if (clicked) {
         expandedState.toggle()
     }
@@ -100,9 +125,10 @@ fun UiScope.dropdown(
             if (
                 button(
                     id = "$id.option$index",
-                    width = slot.width,
-                    height = slot.height,
                     label = option,
+                    modifier = UiModifier()
+                        .width(slot.width.px)
+                        .height(slot.height.px),
                     style = resolvedDefaults then style then optionStyle
                 )
             ) {
@@ -118,6 +144,22 @@ fun UiScope.dropdown(
     }
     return picked
 }
+
+fun UiScope.dropdown(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    width: Float,
+    height: Float,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Int? = dropdown(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
+    style = style
+)
 
 /** Select-trigger content: label left-aligned, expand chevron right-aligned -- matches the
  * real shadcn/ui Select trigger shape, not a big centered label ([buttonSlot]'s default).

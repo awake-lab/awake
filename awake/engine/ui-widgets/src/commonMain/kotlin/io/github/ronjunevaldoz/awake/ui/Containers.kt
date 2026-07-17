@@ -2,9 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-fun UiScope.textureQuad(width: Float, height: Float, material: Any, modifier: UiModifier = UiModifier()) {
-    val slot = claimModifiedSlot(width.toDimension(), height.toDimension(), modifier)
+fun UiScope.textureQuad(material: Any, modifier: UiModifier = UiModifier()) {
+    val slot = claimModifiedSlot(
+        defaultWidth = Dimension.FillMax,
+        defaultHeight = Dimension.FillMax,
+        modifier = modifier
+    )
     emit(UiDrawPrimitive.Texture(slot.x, slot.y, slot.width, slot.height, material))
+}
+
+fun UiScope.textureQuad(width: Float, height: Float, material: Any, modifier: UiModifier = UiModifier()) {
+    textureQuad(
+        material = material,
+        modifier = modifier.copy(width = width.toDimension(), height = height.toDimension())
+    )
 }
 
 fun UiScope.panel(

@@ -7,13 +7,16 @@ private const val CHECKBOX_LABEL_GAP = 8f
 fun UiScope.toggle(
     id: String,
     checked: Boolean,
-    width: Float,
-    height: Float,
     label: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Boolean {
-    val interaction = interact(id, width.toDimension(), height.toDimension(), modifier)
+    val interaction = interact(
+        id = id,
+        width = Dimension.FillMax,
+        height = Dimension.Fixed(32f.px),
+        modifier = modifier
+    )
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.toggle,
@@ -47,17 +50,36 @@ fun UiScope.toggle(
     return newChecked
 }
 
-fun UiScope.checkbox(
+fun UiScope.toggle(
     id: String,
     checked: Boolean,
     width: Float,
     height: Float,
     label: String? = null,
     modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Boolean = toggle(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
+    style = style
+)
+
+fun UiScope.checkbox(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
     boxSize: Dp = 16f.dp
 ): Boolean {
-    val interaction = interact(id, width.toDimension(), height.toDimension(), modifier)
+    val interaction = interact(
+        id = id,
+        width = Dimension.FillMax,
+        height = Dimension.Fixed(24f.px),
+        modifier = modifier
+    )
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.checkbox,
@@ -100,3 +122,21 @@ fun UiScope.checkbox(
     }
     return newChecked
 }
+
+fun UiScope.checkbox(
+    id: String,
+    checked: Boolean,
+    width: Float,
+    height: Float,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    boxSize: Dp = 16f.dp
+): Boolean = checkbox(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
+    style = style,
+    boxSize = boxSize
+)

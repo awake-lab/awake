@@ -137,6 +137,30 @@ class TextWidgetsTest {
             "top-aligned text should align the visible glyph top with the slot top instead of preserving baked atlas padding: bounds=$glyphBounds"
         )
     }
+
+    @Test
+    fun buttonCanLeftAlignTextInsideItsContentPadding() {
+        val font = UiFonts.trueSans()
+        val ui = UiContext()
+        ui.beginFrame(220f, 100f)
+        ui.absolute(0f, 0f, font = font).button(
+            id = "nav",
+            width = 180f,
+            height = 36f,
+            label = "Overview",
+            style = Style {
+                contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
+            },
+            centered = false
+        )
+
+        val glyphBounds = ui.endFrame().glyphBounds()
+
+        assertTrue(
+            kotlin.math.abs(glyphBounds.x - 14f) <= 1f,
+            "left-aligned button text should start from the padded content edge instead of the button center: bounds=$glyphBounds"
+        )
+    }
 }
 
 private fun List<UiDrawPrimitive>.glyphBounds(): UiSlot {
