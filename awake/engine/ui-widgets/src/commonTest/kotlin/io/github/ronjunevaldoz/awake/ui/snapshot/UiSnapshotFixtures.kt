@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.icon
 import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.panel
@@ -38,6 +39,7 @@ import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.toggle
 import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
+import io.github.ronjunevaldoz.awake.ui.width
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnSurfaceVariant
@@ -212,15 +214,15 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 ) {
                     text("Awake Shadcn Buttons")
                     supportingText("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")
-                    spacer(8f)
-                    row(height = 40f, gap = 8f) {
-                        awakeShadcnButton("primary", 138f, 40f, "Primary", variant = AwakeShadcnButtonVariant.Primary)
-                        awakeShadcnButton("secondary", 172f, 40f, "Secondary", variant = AwakeShadcnButtonVariant.Secondary)
-                        awakeShadcnButton("outline", 138f, 40f, "Outline", variant = AwakeShadcnButtonVariant.Outline)
+                    spacer(UiModifier().height(8f.dp))
+                    row(height = 40f.dp, gap = 8f) {
+                        awakeShadcnButton("primary", "Primary", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Primary)
+                        awakeShadcnButton("secondary", "Secondary", modifier = UiModifier().width(172f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Secondary)
+                        awakeShadcnButton("outline", "Outline", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
                     }
-                    row(height = 40f, gap = 8f) {
-                        awakeShadcnButton("ghost", 122f, 40f, "Ghost", variant = AwakeShadcnButtonVariant.Ghost)
-                        awakeShadcnButton("danger", 138f, 40f, "Danger", variant = AwakeShadcnButtonVariant.Danger)
+                    row(height = 40f.dp, gap = 8f) {
+                        awakeShadcnButton("ghost", "Ghost", modifier = UiModifier().width(122f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Ghost)
+                        awakeShadcnButton("danger", "Danger", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Danger)
                     }
                 }
             }
@@ -265,7 +267,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 ) {
                     text("Controls")
                     supportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
-                    spacer(4f)
+                    spacer(UiModifier().height(4f.dp))
                     awakeShadcnPropertyDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0, labelWidth = 96f.dp)
                     awakeShadcnPropertyToggle("debug", "Debug Frustum Overlay", checked = true)
                     awakeShadcnPropertyToggle("grid", "Show Reference Grid", checked = false)
@@ -350,19 +352,19 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 ) {
                     text("Awake Shadcn")
                     supportingText("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")
-                    spacer(8f)
-                    row(height = 40f, gap = 8f) {
-                        awakeShadcnButton("showcase-doc-primary", 138f, 40f, "Primary", variant = AwakeShadcnButtonVariant.Primary)
-                        awakeShadcnButton("showcase-doc-secondary", 172f, 40f, "Secondary", variant = AwakeShadcnButtonVariant.Secondary)
-                        awakeShadcnButton("showcase-doc-outline", 138f, 40f, "Outline", variant = AwakeShadcnButtonVariant.Outline)
+                    spacer(UiModifier().height(8f.dp))
+                    row(height = 40f.dp, gap = 8f) {
+                        awakeShadcnButton("showcase-doc-primary", "Primary", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Primary)
+                        awakeShadcnButton("showcase-doc-secondary", "Secondary", modifier = UiModifier().width(172f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Secondary)
+                        awakeShadcnButton("showcase-doc-outline", "Outline", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
                     }
-                    row(height = 30f, gap = 8f) {
+                    row(height = 30f.dp, gap = 8f) {
                         awakeShadcnBadge("LIVE", variant = AwakeShadcnBadgeVariant.Primary)
                         awakeShadcnBadge("NEUTRAL", variant = AwakeShadcnBadgeVariant.Secondary)
                         awakeShadcnBadge("BETA", variant = AwakeShadcnBadgeVariant.Outline)
                         awakeShadcnBadge("RISK", variant = AwakeShadcnBadgeVariant.Danger)
                     }
-                    spacer(8f)
+                    spacer(UiModifier().height(8f.dp))
                     awakeShadcnSurface(
                         id = "shadcn-subcard",
                         height = Dimension.WrapContent,
@@ -370,13 +372,13 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     ) {
                         text("Preview Card")
                         supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
-                        spacer(6f)
-                        row(height = 36f, gap = 8f) {
-                            awakeShadcnButton("showcase-doc-ghost", 112f, 36f, "Ghost", variant = AwakeShadcnButtonVariant.Ghost)
-                            awakeShadcnButton("showcase-doc-danger", 112f, 36f, "Danger", variant = AwakeShadcnButtonVariant.Danger)
+                        spacer(UiModifier().height(6f.dp))
+                        row(height = 36f.dp, gap = 8f) {
+                            awakeShadcnButton("showcase-doc-ghost", "Ghost", modifier = UiModifier().width(112f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Ghost)
+                            awakeShadcnButton("showcase-doc-danger", "Danger", modifier = UiModifier().width(112f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Danger)
                         }
                     }
-                    spacer(8f)
+                    spacer(UiModifier().height(8f.dp))
                     supportingLines(
                         listOf(
                             "Sample overlays now rely on shared supporting/meta text helpers.",

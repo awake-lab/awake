@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.gameUi
+import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.metaText
 import io.github.ronjunevaldoz.awake.ui.overlayBox
 import io.github.ronjunevaldoz.awake.ui.padding
@@ -143,15 +144,13 @@ private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterNavigat
         label = "Active: ${model.activeSceneLabel}",
         maxLines = 1
     )
-    spacer(8f)
+    spacer(UiModifier().height(8f.dp))
     model.sceneButtons.forEach { scene ->
         if (
             awakeShadcnButton(
                 id = "scene-${scene.id}",
                 label = scene.label,
-                width = 0f,
-                height = 32f,
-                modifier = UiModifier().fillMaxWidth(),
+                modifier = UiModifier().fillMaxWidth().height(32f.dp),
                 variant = if (scene.selected) AwakeShadcnButtonVariant.Primary else AwakeShadcnButtonVariant.Secondary
             )
         ) {
@@ -169,18 +168,19 @@ private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterInspect
     metaText("scene flow")
     metaText("shared UI shell")
     metaText("thin platform entrypoints")
-    spacer(10f)
+    spacer(UiModifier().height(10f.dp))
     val nextTipsVisible = awakeShadcnPropertyToggle(
         id = "starter-tips",
         checked = model.tipsVisible,
-        label = "Show notes",
-        height = 24f
-    )
+        height = 24f.dp
+    ) {
+        text("Show notes")
+    }
     if (nextTipsVisible != model.tipsVisible) {
         state.tipsVisible = nextTipsVisible
     }
     if (state.tipsVisible) {
-        spacer(8f)
+        spacer(UiModifier().height(8f.dp))
         supportingLines(model.notes)
     }
 }

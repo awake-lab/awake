@@ -22,13 +22,6 @@ import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.slider
 import io.github.ronjunevaldoz.awake.ui.toggle
 import io.github.ronjunevaldoz.awake.ui.UiTheme
-import io.github.ronjunevaldoz.awake.ui.width
-
-private fun awakeShadcnSizedModifier(
-    modifier: UiModifier,
-    width: Float,
-    height: Float
-): UiModifier = modifier.width(width.px).height(height.px)
 
 private fun awakeShadcnFieldStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
@@ -53,23 +46,6 @@ fun UiScope.awakeShadcnToggle(
     style = awakeShadcnFieldStyle(theme, style)
 )
 
-@Deprecated("Prefer modifier-based sizing with Dp units.")
-fun UiScope.awakeShadcnToggle(
-    id: String,
-    checked: Boolean,
-    width: Float,
-    height: Float = 32f,
-    label: String? = null,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Boolean = toggle(
-    id = id,
-    checked = checked,
-    label = label,
-    modifier = awakeShadcnSizedModifier(modifier, width, height),
-    style = awakeShadcnFieldStyle(theme, style)
-)
-
 fun UiScope.awakeShadcnCheckbox(
     id: String,
     checked: Boolean,
@@ -84,23 +60,6 @@ fun UiScope.awakeShadcnCheckbox(
     style = awakeShadcnCheckboxStyle(theme, style)
 )
 
-@Deprecated("Prefer modifier-based sizing with Dp units.")
-fun UiScope.awakeShadcnCheckbox(
-    id: String,
-    checked: Boolean,
-    width: Float,
-    height: Float = 24f,
-    label: String? = null,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Boolean = checkbox(
-    id = id,
-    checked = checked,
-    label = label,
-    modifier = awakeShadcnSizedModifier(modifier, width, height),
-    style = awakeShadcnCheckboxStyle(theme, style)
-)
-
 fun UiScope.awakeShadcnDropdown(
     id: String,
     options: List<String>,
@@ -112,23 +71,6 @@ fun UiScope.awakeShadcnDropdown(
     options = options,
     selectedIndex = selectedIndex,
     modifier = modifier,
-    style = awakeShadcnFieldStyle(theme, style)
-)
-
-@Deprecated("Prefer modifier-based sizing with Dp units.")
-fun UiScope.awakeShadcnDropdown(
-    id: String,
-    options: List<String>,
-    selectedIndex: Int,
-    width: Float,
-    height: Float = 36f,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Int? = dropdown(
-    id = id,
-    options = options,
-    selectedIndex = selectedIndex,
-    modifier = awakeShadcnSizedModifier(modifier, width, height),
     style = awakeShadcnFieldStyle(theme, style)
 )
 
@@ -150,27 +92,6 @@ fun UiScope.awakeShadcnSlider(
     style = awakeShadcnSliderStyle(theme, style)
 )
 
-@Deprecated("Prefer modifier-based sizing with Dp units.")
-fun UiScope.awakeShadcnSlider(
-    id: String,
-    min: Float,
-    max: Float,
-    value: Float,
-    width: Float,
-    height: Float = 36f,
-    label: String? = null,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Float = slider(
-    id = id,
-    min = min,
-    max = max,
-    value = value,
-    label = label,
-    modifier = awakeShadcnSizedModifier(modifier, width, height),
-    style = awakeShadcnSliderStyle(theme, style)
-)
-
 fun UiDslScope.awakeShadcnToggle(
     id: String,
     checked: Boolean,
@@ -185,23 +106,6 @@ fun UiDslScope.awakeShadcnToggle(
     style = awakeShadcnFieldStyle(theme, style)
 )
 
-@Deprecated("Prefer modifier-based sizing with Dp units.")
-fun UiDslScope.awakeShadcnToggle(
-    id: String,
-    checked: Boolean,
-    width: Float,
-    height: Float = 32f,
-    label: String? = null,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Boolean = toggle(
-    id = id,
-    checked = checked,
-    label = label,
-    modifier = awakeShadcnSizedModifier(modifier, width, height),
-    style = awakeShadcnFieldStyle(theme, style)
-)
-
 fun UiDslScope.awakeShadcnCheckbox(
     id: String,
     checked: Boolean,
@@ -213,23 +117,6 @@ fun UiDslScope.awakeShadcnCheckbox(
     checked = checked,
     label = label,
     modifier = modifier,
-    style = awakeShadcnCheckboxStyle(theme, style)
-)
-
-@Deprecated("Prefer modifier-based sizing with Dp units.")
-fun UiDslScope.awakeShadcnCheckbox(
-    id: String,
-    checked: Boolean,
-    width: Float,
-    height: Float = 24f,
-    label: String? = null,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Boolean = checkbox(
-    id = id,
-    checked = checked,
-    label = label,
-    modifier = awakeShadcnSizedModifier(modifier, width, height),
     style = awakeShadcnCheckboxStyle(theme, style)
 )
 
@@ -288,23 +175,6 @@ fun UiDslScope.awakeShadcnDropdown(
     return result.selectedIndex
 }
 
-@Deprecated("Prefer modifier-based sizing with Dp units.")
-fun UiDslScope.awakeShadcnDropdown(
-    id: String,
-    options: List<String>,
-    selectedIndex: Int,
-    width: Float,
-    height: Float = 36f,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Int? = awakeShadcnDropdown(
-    id = id,
-    options = options,
-    selectedIndex = selectedIndex,
-    modifier = modifier.width(width.px).height(height.px),
-    style = style
-)
-
 fun UiDslScope.awakeShadcnSlider(
     id: String,
     min: Float,
@@ -320,26 +190,5 @@ fun UiDslScope.awakeShadcnSlider(
     value = value,
     label = label,
     modifier = modifier,
-    style = awakeShadcnSliderStyle(theme, style)
-)
-
-@Deprecated("Prefer modifier-based sizing with Dp units.")
-fun UiDslScope.awakeShadcnSlider(
-    id: String,
-    min: Float,
-    max: Float,
-    value: Float,
-    width: Float,
-    height: Float = 36f,
-    label: String? = null,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Float = slider(
-    id = id,
-    min = min,
-    max = max,
-    value = value,
-    label = label,
-    modifier = awakeShadcnSizedModifier(modifier, width, height),
     style = awakeShadcnSliderStyle(theme, style)
 )

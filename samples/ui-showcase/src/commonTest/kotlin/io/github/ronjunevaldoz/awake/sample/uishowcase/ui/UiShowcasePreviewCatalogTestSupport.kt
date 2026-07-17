@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnBadge
@@ -18,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.ui
 
 internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
@@ -153,7 +155,7 @@ private fun renderUiShowcasePagePreviewFrame(
                 title = page.title,
                 description = page.description
             )
-            spacer(10f.dp)
+            spacer(UiModifier().height(10f.dp))
             renderUiShowcasePagePreview(page, state)
         }
     }

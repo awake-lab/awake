@@ -16,7 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.text
-import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.verticalPx
 
@@ -72,25 +71,6 @@ fun UiScope.awakeShadcnBadge(
     if (font != null) {
         text(label, slot = slot, font = font, color = resolved.foreground ?: shadcnTheme.tokens.foreground, centered = true)
     }
-}
-
-@Deprecated("Prefer modifier-based sizing with Dp units.")
-fun UiScope.awakeShadcnBadge(
-    label: String,
-    width: Float = 96f,
-    height: Float = 28f,
-    modifier: UiModifier = UiModifier(),
-    variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
-    style: Style = Style.Empty
-) {
-    awakeShadcnBadge(
-        label = label,
-        width = width.toDimension(),
-        height = height.toDimension(),
-        modifier = modifier,
-        variant = variant,
-        style = style
-    )
 }
 
 fun UiDslScope.awakeShadcnBadge(
