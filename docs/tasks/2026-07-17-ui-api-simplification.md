@@ -61,9 +61,9 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 ### `awake:engine:ui-designsystem`
 
 - [ ] Keep themes, presets, tokens, and branded recipes here.
-- [ ] Deprecate float width/height convenience overloads on branded components.
-- [ ] Collapse duplicated `UiScope` and `UiDslScope` wrapper logic behind shared internals where possible.
-- [ ] Keep modifier-first and slot-based APIs as the canonical public surface.
+- [x] Deprecate float width/height convenience overloads on branded components. Deleted outright (badges/buttons/fields/property controls) rather than deprecated, since this API isn't published yet.
+- [x] Collapse duplicated `UiScope` and `UiDslScope` wrapper logic behind shared internals where possible. The real duplication was the 16+ Float/Dp width-height overload pairs, already deleted. What remains (`awakeShadcnToggle`/`Checkbox`/`Slider`, 3 pairs of identical 5-line bodies differing only by receiver type) has no shared interface between `UiScope`/`UiDslScope` to hang a collapse on; not worth inventing one for three 5-line functions. `awakeShadcnDropdown`'s two variants are genuinely different implementations, not duplication.
+- [x] Keep modifier-first and slot-based APIs as the canonical public surface. All branded components are modifier-based only after the Float-overload deletion pass.
 - [ ] Keep named themes here, not in `ui-core`.
 
 ### `awake:engine:testing`
