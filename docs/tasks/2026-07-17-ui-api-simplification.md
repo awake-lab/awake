@@ -52,10 +52,10 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 ### `awake:engine:ui-dsl`
 
 - [ ] Keep generic composition templates, shells, property forms, and popup compositions.
-- [ ] Add `Dp`-first overloads where public height/width helpers still speak raw `Float`.
-- [ ] Deprecate float-based authored spacing/sizing helpers in favor of `Dp` or modifier-based sizing.
-- [ ] Shrink `UiShellDsl` to fewer canonical entry points.
-- [ ] Keep `overlayBox(...)` as the preferred responsive overlay surface.
+- [x] Add `Dp`-first overloads where public height/width helpers still speak raw `Float`.
+- [x] Deprecate float-based authored spacing/sizing helpers in favor of `Dp` or modifier-based sizing. Added `spacer(modifier: UiModifier)` as the single entry point for column and row spacing; deprecated the axis-named `spacer(height: Dp)`/`spacer(width: Dp)` overloads.
+- [x] Shrink `UiShellDsl` to fewer canonical entry points. Deprecated `OverlayShellScope`'s corner-specific named helpers (`topLeftSlot`/`topRight`/`bottomLeftPane`/etc.) in favor of the generic `slot`/`place`/`pane(UiAnchor, ...)` entry points.
+- [x] Keep `overlayBox(...)` as the preferred responsive overlay surface. All real production samples (hello-cube, starter-game, ui-showcase) already use `overlayBox` exclusively; `overlayShell` is now doc-commented as narrower corner-HUD sugar.
 - [ ] Avoid adding new named placement helpers when `align(...)` or an existing slot primitive can express the layout.
 
 ### `awake:engine:ui-designsystem`

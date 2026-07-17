@@ -29,6 +29,9 @@ data class UiBoxConstraints(
     val isExpanded: Boolean get() = widthSizeClass == UiWidthSizeClass.Expanded
 }
 
+/** Convenience sugar for simple corner-anchored HUDs -- [overlayBox] is the preferred,
+ * responsive overlay root for authored layouts; reach for this only when the layout is
+ * genuinely just "stick a pane in a corner." */
 fun GameUiRuntime.overlayShell(
     viewportWidth: Float,
     viewportHeight: Float,
