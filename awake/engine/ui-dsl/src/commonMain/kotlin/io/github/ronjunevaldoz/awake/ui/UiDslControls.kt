@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 
 @AwakeUiDsl
 sealed class UiDslScope protected constructor(
@@ -30,12 +31,13 @@ sealed class UiDslScope protected constructor(
             }
         )
         val glyphPx = scope.resolveGlyphPx(resolvedFont, resolved.textScale, resolved.textSize)
+        val labelWidthPx = resolvedFont.measureTextWidth(label, glyphPx)
         val defaultWidth: Dimension = when {
             modifier.width != null -> requireNotNull(modifier.width)
             wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || label.contains('\n') -> {
-                if (scope.fillWidthOrNull() != null) Dimension.FillMax else Dimension.Fixed((label.length * glyphPx + resolved.contentPadding.dslHorizontalPx()).px)
+                if (scope.fillWidthOrNull() != null) Dimension.FillMax else Dimension.Fixed((labelWidthPx + resolved.contentPadding.dslHorizontalPx()).px)
             }
-            else -> Dimension.Fixed((label.length * glyphPx + resolved.contentPadding.dslHorizontalPx()).px)
+            else -> Dimension.Fixed((labelWidthPx + resolved.contentPadding.dslHorizontalPx()).px)
         }
         val availableTextWidth = when (defaultWidth) {
             is Dimension.Fixed -> (defaultWidth.dp.toPx() - resolved.contentPadding.dslHorizontalPx()).coerceAtLeast(glyphPx)
@@ -48,7 +50,8 @@ sealed class UiDslScope protected constructor(
             maxWidthPx = availableTextWidth,
             wrap = wrap,
             overflow = overflow,
-            maxLines = maxLines
+            maxLines = maxLines,
+            advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
         )
         val lineGap = glyphPx * 0.25f
         val blockHeight = layout.blockHeight(glyphPx, lineGap)

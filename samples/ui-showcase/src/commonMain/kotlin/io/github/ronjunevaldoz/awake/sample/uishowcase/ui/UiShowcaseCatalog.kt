@@ -153,18 +153,18 @@ internal val ShowcasePages = listOf(
     ),
     ShowcasePage(
         id = "fonts",
-        title = "Bitmap And MSDF",
+        title = "Bitmap And True Font",
         category = ShowcaseCategory.Foundations,
-        description = "A direct specimen view of the legacy bitmap atlas beside the current MSDF-backed runtime font.",
+        description = "A direct specimen view of the current bitmap default beside a real TTF-derived atlas font.",
         usageCode = """
-            val bitmap = BitmapFont()
-            val msdf = UiFonts.default()
+            val bitmap = UiFonts.bitmap()
+            val trueSans = UiFonts.trueSans()
 
             // Render the same specimen strings with each font path.
         """.trimIndent(),
         notes = listOf(
-            "Both paths still share the same hand-authored glyph source today, which is why their character design still feels related.",
-            "This page is meant to make sizing, spacing, and edge quality differences obvious without guessing from the rest of the showcase."
+            "Bitmap remains available as the explicit pixel fallback and debug path.",
+            "The default runtime font now uses the true-font atlas so spacing and letterforms stop fighting the showcase."
         )
     ),
     ShowcasePage(
@@ -226,6 +226,26 @@ internal val ShowcasePages = listOf(
 
 private val ShowcasePagesByCategory = ShowcasePages.groupBy { it.category }
 
+private fun topBarFieldCardStyle(): Style = Style {
+    shape(10f.dp)
+    contentPadding(10f.dp)
+}
+
+private fun topBarClusterStyle(): Style = Style {
+    shape(12f.dp)
+    contentPadding(10f.dp)
+}
+
+private fun UiColumnDslScope.topBarFieldLabel(label: String) {
+    text(
+        label = label,
+        style = Style {
+            foreground(theme.tokens.mutedForeground)
+            textSize(theme.typography.caption)
+        }
+    )
+}
+
 internal fun UiColumnDslScope.drawUiShowcaseTopBar(
     state: UiShowcaseRuntimeState,
     compact: Boolean,
@@ -235,59 +255,62 @@ internal fun UiColumnDslScope.drawUiShowcaseTopBar(
         awakeShadcnHeadline("Awake UI Showcase")
         awakeShadcnSupportingText("A docs-style shell for our owned shadcn-inspired components.")
         spacer(10f)
-        row(height = 72f, gap = 8f) {
+        row(height = 84f, gap = 8f) {
             panel(
                 id = "ui-showcase-topbar-preset-compact",
                 width = Dimension.Fixed(150f.dp),
-                style = theme.components.panel then Style { shape(12f.dp) }
+                gap = 6f,
+                style = theme.components.panel then topBarFieldCardStyle()
             ) {
-                awakeShadcnSectionTitle("Preset")
+                topBarFieldLabel("Preset")
                 awakeShadcnDropdown(
                     id = "ui-showcase-topbar-style",
                     options = ShowcaseStyleOptions,
                     selectedIndex = state.showcaseStylePresetIndex,
-                    width = 118f
+                    width = 126f
                 )?.let { state.showcaseStylePresetIndex = it }
             }
             panel(
                 id = "ui-showcase-topbar-theme-compact",
                 width = Dimension.Fixed(150f.dp),
-                style = theme.components.panel then Style { shape(12f.dp) }
+                gap = 6f,
+                style = theme.components.panel then topBarFieldCardStyle()
             ) {
-                awakeShadcnSectionTitle("Theme")
+                topBarFieldLabel("Theme")
                 awakeShadcnDropdown(
                     id = "ui-showcase-topbar-theme-mode",
                     options = ShowcaseThemeModeOptions,
                     selectedIndex = state.showcaseThemeModeIndex,
-                    width = 118f
+                    width = 126f
                 )?.let { state.showcaseThemeModeIndex = it }
             }
         }
         return
     }
 
-    row(height = 76f, gap = 12f) {
+    row(height = 96f, gap = 12f) {
         panel(
             id = "ui-showcase-topbar-title",
-            width = Dimension.Fixed(324f.dp),
-            style = theme.components.panel then Style { shape(12f.dp) }
+            width = Dimension.Fixed(372f.dp),
+            gap = 4f,
+            style = theme.components.panel then topBarClusterStyle()
         ) {
             awakeShadcnBadge("CATALOG", variant = AwakeShadcnBadgeVariant.Primary)
             awakeShadcnHeadline("Awake UI Showcase")
-            awakeShadcnSupportingText("Structured like the shadcn-compose catalog: stable chrome, grouped sidebar, one detail page at a time.")
         }
         panel(
             id = "ui-showcase-topbar-controls",
-            width = Dimension.Fixed(584f.dp),
-            style = theme.components.panel then Style { shape(12f.dp) }
+            width = Dimension.Fixed(600f.dp),
+            style = theme.components.panel then topBarClusterStyle()
         ) {
-            row(height = 58f, gap = 8f) {
+            row(height = 76f, gap = 8f) {
                 panel(
                     id = "ui-showcase-topbar-style-card",
                     width = Dimension.Fixed(128f.dp),
-                    style = theme.components.panel then Style { shape(10f.dp) }
+                    gap = 6f,
+                    style = theme.components.panel then topBarFieldCardStyle()
                 ) {
-                    awakeShadcnSectionTitle("Preset")
+                    topBarFieldLabel("Preset")
                     awakeShadcnDropdown(
                         id = "ui-showcase-desktop-style",
                         options = ShowcaseStyleOptions,
@@ -298,9 +321,10 @@ internal fun UiColumnDslScope.drawUiShowcaseTopBar(
                 panel(
                     id = "ui-showcase-topbar-base-card",
                     width = Dimension.Fixed(128f.dp),
-                    style = theme.components.panel then Style { shape(10f.dp) }
+                    gap = 6f,
+                    style = theme.components.panel then topBarFieldCardStyle()
                 ) {
-                    awakeShadcnSectionTitle("Base")
+                    topBarFieldLabel("Base")
                     awakeShadcnDropdown(
                         id = "ui-showcase-desktop-base",
                         options = ShowcaseBaseColorOptions,
@@ -311,9 +335,10 @@ internal fun UiColumnDslScope.drawUiShowcaseTopBar(
                 panel(
                     id = "ui-showcase-topbar-accent-card",
                     width = Dimension.Fixed(128f.dp),
-                    style = theme.components.panel then Style { shape(10f.dp) }
+                    gap = 6f,
+                    style = theme.components.panel then topBarFieldCardStyle()
                 ) {
-                    awakeShadcnSectionTitle("Accent")
+                    topBarFieldLabel("Accent")
                     awakeShadcnDropdown(
                         id = "ui-showcase-desktop-accent",
                         options = ShowcaseAccentOptions,
@@ -324,9 +349,10 @@ internal fun UiColumnDslScope.drawUiShowcaseTopBar(
                 panel(
                     id = "ui-showcase-topbar-theme-card",
                     width = Dimension.Fixed(128f.dp),
-                    style = theme.components.panel then Style { shape(10f.dp) }
+                    gap = 6f,
+                    style = theme.components.panel then topBarFieldCardStyle()
                 ) {
-                    awakeShadcnSectionTitle("Theme")
+                    topBarFieldLabel("Theme")
                     awakeShadcnDropdown(
                         id = "ui-showcase-desktop-theme",
                         options = ShowcaseThemeModeOptions,
@@ -337,6 +363,10 @@ internal fun UiColumnDslScope.drawUiShowcaseTopBar(
             }
         }
     }
+    awakeShadcnSupportingText(
+        label = "Stable chrome, grouped navigation, and one detail page at a time.",
+        maxLines = 1
+    )
 }
 
 internal fun UiColumnDslScope.drawUiShowcaseSidebar(compact: Boolean) {
@@ -603,24 +633,24 @@ private fun UiColumnDslScope.drawUiShowcaseFontsPreview() {
             )
         }
         panel(
-            id = "showcase-font-msdf",
+            id = "showcase-font-truesans",
             width = Dimension.Fixed(240f.dp),
             height = Dimension.Fixed(292f.dp),
             style = Style { shape(14f.dp) }
         ) { slot ->
             drawUiShowcaseFontSpecimen(
                 slot = slot,
-                label = "MSDF",
-                detail = "Distance-field runtime path used by the current showcase.",
-                previewFont = UiFonts.default()
+                label = "True Font",
+                detail = "Real Roboto glyph atlas baked from a TTF source with proportional quad metrics.",
+                previewFont = UiFonts.trueSans()
             )
         }
     }
     spacer(8f)
     supportingLines(
         listOf(
-            "Bitmap stays closer to the authored pixel grid and will look chunkier at larger specimen sizes.",
-            "MSDF scales more gracefully, but because it still uses the same glyph source, it inherits the same underlying letterforms."
+            "Bitmap stays closer to the authored pixel grid and remains useful for low-fi or debug surfaces.",
+            "True Font uses real outline-derived glyphs, so spacing and letterforms stop fighting the renderer."
         )
     )
 }

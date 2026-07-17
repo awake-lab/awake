@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 
 sealed interface UiDropdownMenuEntry
 
@@ -312,7 +313,7 @@ private fun UiColumnDslScope.dropdownMenuItem(
     val resolvedFont = font
     val glyphPx = resolvedFont?.let { it.cellSize * pixelPerfectTextScale(textScale) } ?: 12f
     val trailingWidth = item.trailingLabel?.let { label ->
-        label.length * glyphPx + 8f
+        (resolvedFont?.measureTextWidth(label, glyphPx) ?: label.length * glyphPx) + 8f
     } ?: 0f
     val bodyWidth = (width - 24f - trailingWidth).coerceAtLeast(glyphPx)
     val supportingLayout = item.supportingText?.takeIf { it.isNotBlank() }?.let {
@@ -322,7 +323,8 @@ private fun UiColumnDslScope.dropdownMenuItem(
             maxWidthPx = (width - 24f).coerceAtLeast(glyphPx),
             wrap = UiTextWrap.Word,
             overflow = UiTextOverflow.Ellipsis,
-            maxLines = 2
+            maxLines = 2,
+            advanceOf = { char -> resolvedFont?.advanceFor(char, glyphPx) ?: glyphPx }
         )
     }
     val lineGap = glyphPx * 0.25f

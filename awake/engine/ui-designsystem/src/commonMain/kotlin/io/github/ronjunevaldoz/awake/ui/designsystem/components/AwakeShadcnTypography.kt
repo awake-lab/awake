@@ -68,11 +68,19 @@ fun UiColumnDslScope.awakeShadcnSupportingText(
 )
 
 fun UiColumnDslScope.awakeShadcnSectionHeader(
+    title: UiColumnDslScope.() -> Unit,
+    description: (UiColumnDslScope.() -> Unit)? = null
+) {
+    title()
+    description?.invoke(this)
+}
+
+fun UiColumnDslScope.awakeShadcnSectionHeader(
     title: String,
     description: String? = null
-) {
-    awakeShadcnSectionTitle(title)
-    if (!description.isNullOrBlank()) {
-        awakeShadcnSupportingText(description)
+): Unit = awakeShadcnSectionHeader(
+    title = { awakeShadcnSectionTitle(title) },
+    description = description?.takeIf { it.isNotBlank() }?.let { text ->
+        { awakeShadcnSupportingText(text) }
     }
-}
+)

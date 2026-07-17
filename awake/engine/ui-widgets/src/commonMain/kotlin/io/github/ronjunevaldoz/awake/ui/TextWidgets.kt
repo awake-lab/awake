@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import kotlin.math.floor
 
 /** Draws [label] as a row of glyph quads. */
 enum class UiTextWrap {
@@ -24,6 +23,7 @@ fun UiScope.text(
     font: UiFont? = this.font,
     color: Color = theme.tokens.foreground,
     centered: Boolean = false,
+    verticallyCentered: Boolean = centered,
     wrap: UiTextWrap = UiTextWrap.None,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     maxLines: Int = 1,
@@ -39,35 +39,40 @@ fun UiScope.text(
         maxWidthPx = resolvedSlot.width,
         wrap = wrap,
         overflow = overflow,
-        maxLines = maxLines
+        maxLines = maxLines,
+        advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
     )
     val lineGap = glyphPx * 0.25f
-    val blockHeight = layout.blockHeight(glyphPx, lineGap)
+    val blockMetrics = measureTextBlock(layout, resolvedFont, glyphPx, lineGap)
     val shouldClip = wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || maxLines > 1
 
     fun emitLines() {
-        var penY = if (centered) resolvedSlot.y + (resolvedSlot.height - blockHeight) / 2f else resolvedSlot.y
-        layout.lines.forEach { line ->
-            val textWidth = line.length * glyphPx
+        var penY = if (verticallyCentered) {
+            resolvedSlot.y + (resolvedSlot.height - blockMetrics.heightPx) / 2f - blockMetrics.topPx
+        } else {
+            resolvedSlot.y - blockMetrics.topPx
+        }
+        layout.lines.forEachIndexed { index, line ->
+            val textWidth = layout.lineWidths[index]
             var penX = if (centered) resolvedSlot.x + (resolvedSlot.width - textWidth) / 2f else resolvedSlot.x
             for (char in line) {
-                val uv = resolvedFont.uvFor(char)
-                if (uv != null) {
+                val glyph = resolvedFont.uvFor(char)
+                if (glyph != null) {
                     emit(
                         UiDrawPrimitive.Glyph(
-                            pixelPerfectPixel(penX),
-                            pixelPerfectPixel(penY),
-                            glyphPx,
-                            glyphPx,
-                            uv.u0,
-                            uv.v0,
-                            uv.u1,
-                            uv.v1,
+                            pixelPerfectPixel(penX + glyph.offsetXEm * glyphPx),
+                            pixelPerfectPixel(penY + glyph.offsetYEm * glyphPx),
+                            pixelPerfectPixel(glyph.widthEm * glyphPx).coerceAtLeast(1f),
+                            pixelPerfectPixel(glyph.heightEm * glyphPx).coerceAtLeast(1f),
+                            glyph.u0,
+                            glyph.v0,
+                            glyph.u1,
+                            glyph.v1,
                             color
                         )
                     )
                 }
-                penX += glyphPx
+                penX += resolvedFont.advanceFor(char, glyphPx)
             }
             penY += glyphPx + lineGap
         }
@@ -84,6 +89,7 @@ fun UiScope.text(
 
 data class UiBitmapTextLayout(
     val lines: List<String>,
+    val lineWidths: List<Float>,
     val truncated: Boolean
 ) {
     fun blockHeight(glyphPx: Float, lineGap: Float): Float {
@@ -94,19 +100,68 @@ data class UiBitmapTextLayout(
     }
 }
 
+private data class UiMeasuredTextBlock(
+    val topPx: Float,
+    val heightPx: Float
+)
+
+private fun measureTextBlock(
+    layout: UiBitmapTextLayout,
+    font: UiFont,
+    glyphPx: Float,
+    lineGap: Float
+): UiMeasuredTextBlock {
+    if (layout.lines.isEmpty()) {
+        return UiMeasuredTextBlock(topPx = 0f, heightPx = 0f)
+    }
+    var blockTopPx = Float.POSITIVE_INFINITY
+    var blockBottomPx = Float.NEGATIVE_INFINITY
+    layout.lines.forEachIndexed { index, line ->
+        val (lineTopEm, lineBottomEm) = measureVisibleLineBandEm(line, font)
+        val lineOriginY = index * (glyphPx + lineGap)
+        blockTopPx = minOf(blockTopPx, lineOriginY + lineTopEm * glyphPx)
+        blockBottomPx = maxOf(blockBottomPx, lineOriginY + lineBottomEm * glyphPx)
+    }
+    if (!blockTopPx.isFinite() || !blockBottomPx.isFinite() || blockBottomPx <= blockTopPx) {
+        return UiMeasuredTextBlock(topPx = 0f, heightPx = glyphPx)
+    }
+    return UiMeasuredTextBlock(
+        topPx = blockTopPx,
+        heightPx = blockBottomPx - blockTopPx
+    )
+}
+
+private fun measureVisibleLineBandEm(line: String, font: UiFont): Pair<Float, Float> {
+    var topEm = Float.POSITIVE_INFINITY
+    var bottomEm = Float.NEGATIVE_INFINITY
+    line.forEach { char ->
+        val glyph = font.uvFor(char) ?: return@forEach
+        if (glyph.heightEm <= 0f) {
+            return@forEach
+        }
+        topEm = minOf(topEm, glyph.offsetYEm)
+        bottomEm = maxOf(bottomEm, glyph.offsetYEm + glyph.heightEm)
+    }
+    if (!topEm.isFinite() || !bottomEm.isFinite() || bottomEm <= topEm) {
+        return font.visibleTopEm to font.visibleBottomEm
+    }
+    return topEm to bottomEm
+}
+
 fun layoutBitmapText(
     label: String,
     glyphPx: Float,
     maxWidthPx: Float,
     wrap: UiTextWrap,
     overflow: UiTextOverflow,
-    maxLines: Int
+    maxLines: Int,
+    advanceOf: (Char) -> Float = { glyphPx }
 ): UiBitmapTextLayout {
     val normalizedMaxLines = maxLines.coerceAtLeast(1)
-    val capacity = if (glyphPx <= 0f || maxWidthPx <= 0f) {
-        Int.MAX_VALUE
+    val safeMaxWidthPx = if (glyphPx <= 0f || maxWidthPx <= 0f) {
+        Float.POSITIVE_INFINITY
     } else {
-        floor(maxWidthPx / glyphPx).toInt().coerceAtLeast(1)
+        maxWidthPx.coerceAtLeast(glyphPx)
     }
     val result = ArrayList<String>()
     var truncated = false
@@ -118,7 +173,7 @@ fun layoutBitmapText(
             return@forEachIndexed
         }
         if (wrap == UiTextWrap.None) {
-            val line = truncateLine(paragraph, capacity, overflow)
+            val line = truncateLine(paragraph, safeMaxWidthPx, overflow, advanceOf)
             truncated = truncated || line != paragraph
             result += line
             return@forEachIndexed
@@ -129,19 +184,17 @@ fun layoutBitmapText(
             result += ""
         }
         while (remaining.isNotEmpty() && result.size < normalizedMaxLines) {
-            if (remaining.length <= capacity) {
+            if (measureLineWidth(remaining, advanceOf) <= safeMaxWidthPx) {
                 result += remaining
                 remaining = ""
                 break
             }
-            val splitIndex = remaining.substring(0, capacity.coerceAtMost(remaining.length))
-                .lastIndexOf(' ')
-                .takeIf { it > 0 }
-                ?: capacity
+            val fitIndex = fitPrefixByWidth(remaining, safeMaxWidthPx, advanceOf).coerceAtLeast(1)
+            val splitIndex = remaining.substring(0, fitIndex).lastIndexOf(' ').takeIf { it > 0 } ?: fitIndex
             val line = remaining.substring(0, splitIndex).trimEnd()
-            val safeLine = if (line.isEmpty()) remaining.substring(0, capacity) else line
+            val safeLine = if (line.isEmpty()) remaining.substring(0, fitIndex).trimEnd() else line
             result += safeLine
-            remaining = remaining.substring(safeLine.length).trimStart()
+            remaining = remaining.substring(splitIndex).trimStart()
         }
         if (remaining.isNotEmpty()) {
             truncated = true
@@ -158,47 +211,78 @@ fun layoutBitmapText(
         val lastIndex = result.lastIndex
         result[lastIndex] = when (overflow) {
             UiTextOverflow.Visible -> result[lastIndex]
-            UiTextOverflow.Clip -> truncateLine(result[lastIndex], capacity, UiTextOverflow.Clip)
-            UiTextOverflow.Ellipsis -> ellipsizeTruncatedLine(result[lastIndex], capacity)
+            UiTextOverflow.Clip -> truncateLine(result[lastIndex], safeMaxWidthPx, UiTextOverflow.Clip, advanceOf)
+            UiTextOverflow.Ellipsis -> ellipsizeTruncatedLine(result[lastIndex], safeMaxWidthPx, advanceOf)
         }
     }
-    return UiBitmapTextLayout(lines = result.take(normalizedMaxLines), truncated = truncated)
+    val finalLines = result.take(normalizedMaxLines)
+    return UiBitmapTextLayout(
+        lines = finalLines,
+        lineWidths = finalLines.map { line -> measureLineWidth(line, advanceOf) },
+        truncated = truncated
+    )
 }
 
 private fun truncateLine(
     line: String,
-    capacity: Int,
-    overflow: UiTextOverflow
+    maxWidthPx: Float,
+    overflow: UiTextOverflow,
+    advanceOf: (Char) -> Float
 ): String {
-    if (capacity == Int.MAX_VALUE || line.length <= capacity) {
+    if (maxWidthPx.isInfinite() || measureLineWidth(line, advanceOf) <= maxWidthPx) {
         return line
     }
     return when (overflow) {
         UiTextOverflow.Visible -> line
-        UiTextOverflow.Clip -> line.take(capacity)
-        UiTextOverflow.Ellipsis -> ellipsizeLine(line, capacity)
+        UiTextOverflow.Clip -> line.take(fitPrefixByWidth(line, maxWidthPx, advanceOf))
+        UiTextOverflow.Ellipsis -> ellipsizeLine(line, maxWidthPx, advanceOf)
     }
 }
 
-private fun ellipsizeLine(line: String, capacity: Int): String {
-    if (capacity == Int.MAX_VALUE || line.length <= capacity) {
+private fun ellipsizeLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> Float): String {
+    if (maxWidthPx.isInfinite() || measureLineWidth(line, advanceOf) <= maxWidthPx) {
         return line
     }
-    if (capacity <= 3) {
-        return ".".repeat(capacity)
+    val ellipsis = "..."
+    val ellipsisWidth = measureLineWidth(ellipsis, advanceOf)
+    if (ellipsisWidth >= maxWidthPx) {
+        return ellipsis.take(fitPrefixByWidth(ellipsis, maxWidthPx, advanceOf))
     }
-    return line.take(capacity - 3) + "..."
+    val prefixCount = fitPrefixByWidth(line, maxWidthPx - ellipsisWidth, advanceOf)
+    return line.take(prefixCount) + ellipsis
 }
 
-private fun ellipsizeTruncatedLine(line: String, capacity: Int): String {
-    if (capacity == Int.MAX_VALUE) {
-        return "$line..."
+private fun ellipsizeTruncatedLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> Float): String {
+    if (maxWidthPx.isInfinite()) {
+        return line + "..."
     }
-    if (capacity <= 3) {
-        return ".".repeat(capacity)
+    val ellipsis = "..."
+    val ellipsisWidth = measureLineWidth(ellipsis, advanceOf)
+    val currentWidth = measureLineWidth(line, advanceOf)
+    if (currentWidth + ellipsisWidth <= maxWidthPx) {
+        return line + ellipsis
     }
-    if (line.length >= capacity) {
-        return line.take(capacity - 3) + "..."
+    if (ellipsisWidth >= maxWidthPx) {
+        return ellipsis.take(fitPrefixByWidth(ellipsis, maxWidthPx, advanceOf))
     }
-    return line.take((capacity - 3).coerceAtLeast(0)) + "..."
+    val prefixCount = fitPrefixByWidth(line, maxWidthPx - ellipsisWidth, advanceOf)
+    return line.take(prefixCount) + ellipsis
+}
+
+private fun fitPrefixByWidth(line: String, maxWidthPx: Float, advanceOf: (Char) -> Float): Int {
+    var width = 0f
+    line.forEachIndexed { index, char ->
+        val nextWidth = width + advanceOf(char)
+        if (nextWidth > maxWidthPx) {
+            return index
+        }
+        width = nextWidth
+    }
+    return line.length
+}
+
+private fun measureLineWidth(line: String, advanceOf: (Char) -> Float): Float {
+    var width = 0f
+    line.forEach { char -> width += advanceOf(char) }
+    return width
 }

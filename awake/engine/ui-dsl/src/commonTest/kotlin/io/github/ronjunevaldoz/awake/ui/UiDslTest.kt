@@ -141,6 +141,41 @@ class UiDslTest {
     }
 
     @Test
+    fun propertyRowSupportsSlotBasedLabels() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(320f, 160f)
+
+        var controlSlot: UiSlot? = null
+
+        ui.ui(x = 20f, y = 20f, width = 220f, font = BitmapFont()) {
+            panel(id = "slot-panel", height = 100f.toDimension()) {
+                propertyRow(
+                    height = 28f,
+                    labelWidth = 80f.dp,
+                    labelContent = {
+                        text("Camera")
+                    }
+                ) { slot ->
+                    controlSlot = slot
+                    dropdown(
+                        id = "camera-mode",
+                        options = listOf("Orbit", "Fly"),
+                        selectedIndex = 0,
+                        width = slot.width,
+                        height = slot.height
+                    )
+                }
+            }
+        }
+
+        val resolvedControlSlot = assertNotNull(controlSlot)
+        val primitives = ui.endFrame()
+        assertEquals(80f + UiSpacing.sm.toPx(), resolvedControlSlot.x)
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "slot-based property labels should still render through the shared text pipeline")
+    }
+
+    @Test
     fun shellPaneBuildsReusableOverlayChrome() {
         val runtime = GameUiRuntime(
             services = object : GameServiceLookup {

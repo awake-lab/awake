@@ -71,9 +71,9 @@ internal object UiShowcaseThemePreview : AwakeUiPreviewEntry {
 
 @AwakeUiPreview(
     id = "ui-showcase-fonts",
-    title = "Bitmap And MSDF",
+    title = "Bitmap And True Font",
     group = "Foundations",
-    summary = "Direct specimen comparison between the legacy bitmap atlas and the current MSDF runtime font.",
+    summary = "Direct specimen comparison between the bitmap default and the new TTF-derived runtime font.",
     width = 920,
     height = 620
 )

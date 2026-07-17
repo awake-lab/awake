@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
@@ -29,9 +30,15 @@ fun UiScope.awakeShadcnBadge(
 ) {
     val shadcnTheme = theme.asAwakeShadcnTheme()
     val resolved = resolveStyle(style = style, defaults = AwakeShadcnStyles.badge(shadcnTheme, variant))
-    val glyphPx = font?.let { resolveGlyphPx(it, resolved.textScale, resolved.textSize) } ?: 0f
+    val resolvedFont = font
+    val glyphPx = resolvedFont?.let { resolveGlyphPx(it, resolved.textScale, resolved.textSize) } ?: 0f
     val resolvedWidth = when (width) {
-        Dimension.WrapContent -> Dimension.Fixed((label.length * glyphPx + resolved.contentPadding.horizontalPx()).px)
+        Dimension.WrapContent -> Dimension.Fixed(
+            (
+                (resolvedFont?.measureTextWidth(label, glyphPx) ?: label.length * glyphPx) +
+                    resolved.contentPadding.horizontalPx()
+                ).px
+        )
         else -> width
     }
     val resolvedHeight = when (height) {

@@ -71,6 +71,8 @@ class MsdfFont(
         return GlyphRect(u0 = u0, v0 = v0, u1 = u1, v1 = v1)
     }
 
+    override fun advanceFor(char: Char, glyphPx: Float): Float = GlyphAtlasSource.advanceFor(char, glyphPx)
+
     private fun buildBoundaries(rows: IntArray): List<Segment> {
         val segments = ArrayList<Segment>()
         repeat(GlyphAtlasSource.sourceCellSize) { y ->

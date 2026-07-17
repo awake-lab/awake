@@ -469,19 +469,72 @@ fun UiColumnDslScope.supportingLines(
 
 fun UiColumnDslScope.propertyToggle(
     id: String,
+    checked: Boolean,
+    height: Float = 28f,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): Boolean {
+    var resolved = checked
+    propertyRow(
+        height = height,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = toggle(
+            id = id,
+            checked = checked,
+            width = slot.width,
+            height = slot.height,
+            modifier = modifier,
+            style = style
+        )
+    }
+    return resolved
+}
+
+fun UiColumnDslScope.propertyToggle(
+    id: String,
     label: String,
     checked: Boolean,
     height: Float = 28f,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
-): Boolean = propertyCheckbox(
+): Boolean = propertyToggle(
     id = id,
     checked = checked,
-    label = label,
     height = height,
     modifier = modifier,
     style = style
-)
+) {
+    text(label)
+}
+
+fun UiColumnDslScope.propertyDropdown(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    height: Float = 28f,
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): Int? {
+    var resolved: Int? = null
+    propertyRow(
+        height = height,
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = dropdown(
+            id = id,
+            options = options,
+            selectedIndex = selectedIndex,
+            width = slot.width,
+            height = slot.height,
+            style = style
+        )
+    }
+    return resolved
+}
 
 fun UiColumnDslScope.propertyDropdown(
     id: String,
@@ -491,13 +544,38 @@ fun UiColumnDslScope.propertyDropdown(
     height: Float = 28f,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
-): Int? {
-    var resolved: Int? = null
-    propertyRow(label, height = height, labelWidth = labelWidth) { slot ->
-        resolved = dropdown(
+): Int? = propertyDropdown(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    height = height,
+    labelWidth = labelWidth,
+    style = style
+) {
+    text(label)
+}
+
+fun UiColumnDslScope.propertySlider(
+    id: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    height: Float = 28f,
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): Float {
+    var resolved = value
+    propertyRow(
+        height = height,
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = slider(
             id = id,
-            options = options,
-            selectedIndex = selectedIndex,
+            min = min,
+            max = max,
+            value = value,
             width = slot.width,
             height = slot.height,
             style = style
@@ -515,18 +593,14 @@ fun UiColumnDslScope.propertySlider(
     height: Float = 28f,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
-): Float {
-    var resolved = value
-    propertyRow(label, height = height, labelWidth = labelWidth) { slot ->
-        resolved = slider(
-            id = id,
-            min = min,
-            max = max,
-            value = value,
-            width = slot.width,
-            height = slot.height,
-            style = style
-        )
-    }
-    return resolved
+): Float = propertySlider(
+    id = id,
+    min = min,
+    max = max,
+    value = value,
+    height = height,
+    labelWidth = labelWidth,
+    style = style
+) {
+    text(label)
 }

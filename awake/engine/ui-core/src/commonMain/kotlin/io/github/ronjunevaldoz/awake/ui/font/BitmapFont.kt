@@ -8,13 +8,11 @@ package io.github.ronjunevaldoz.awake.ui.font
  * label, not user-facing typography, so a real signed-distance-field toolchain + shader
  * would be solving a problem this UI doesn't have yet.
  *
- * Covers the full uppercase A-Z/0-9 range plus the punctuation this repo's UI labels use
- * (` .-:_`). Lowercase input aliases to the matching uppercase cell so mixed-case labels stay
- * legible without doubling the atlas size for what is still intentionally a tiny debug font.
- * Extending coverage further means adding another row to [GLYPH_ROWS] below, each entry a
- * `Char` to 8 row-bitmasks (bit 7 = leftmost pixel). Builds its own atlas pixel buffer at
- * construction time rather than loading an external asset -- no offline generation step, no
- * metadata file to parse.
+ * Covers the uppercase, lowercase, digit, and punctuation labels this repo's UI actually
+ * uses. When a lowercase glyph is missing we still fall back to its uppercase sibling so
+ * the atlas degrades gracefully instead of dropping characters entirely. Builds its own
+ * atlas pixel buffer at construction time rather than loading an external asset -- no
+ * offline generation step, no metadata file to parse.
  *
  * The source drawings stay 8x8 bitmasks, but the uploaded atlas is a higher-resolution
  * coverage texture with a transparent gutter around every glyph. That gives the renderer a
@@ -82,6 +80,8 @@ class BitmapFont(
         val v1 = (atlasCellSize - atlasInsetPx).toFloat() / atlasHeight
         return GlyphRect(u0 = u0, v0 = v0, u1 = u1, v1 = v1)
     }
+
+    override fun advanceFor(char: Char, glyphPx: Float): Float = GlyphAtlasSource.advanceFor(char, glyphPx)
 
     private companion object {
         private const val SUPERSAMPLE_GRID = 4

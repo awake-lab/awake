@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -63,5 +64,34 @@ class CheckboxTest {
         )
         val primitive = ui.endFrame().first()
         assertIs<UiDrawPrimitive.RoundedQuad>(primitive, "style.shape() must round the checkbox's own box, not just buttons/panels")
+    }
+
+    @Test
+    fun trueFontCheckboxLabelStaysVerticallyCenteredInTheRow() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val font = UiFonts.trueSans()
+        val ui = UiContext()
+        ui.beginFrame(220f, 100f)
+        ui.absolute(20f, 20f, font = font).checkbox("cb", checked = false, width = 160f, height = 40f, label = "ENABLED")
+
+        val glyphBounds = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>().glyphBounds()
+        val rowCenterY = 40f
+        val glyphCenterY = glyphBounds.y + glyphBounds.height / 2f
+
+        assertTrue(
+            kotlin.math.abs(glyphCenterY - rowCenterY) <= 1f,
+            "checkbox label should stay vertically centered in its row with the true font: rowCenterY=$rowCenterY glyphCenterY=$glyphCenterY bounds=$glyphBounds"
+        )
+    }
+}
+
+private fun List<UiDrawPrimitive.Glyph>.glyphBounds(): UiSlot {
+    require(isNotEmpty()) { "expected at least one glyph primitive" }
+    return drop(1).fold(UiSlot(first().x, first().y, first().w, first().h)) { acc, glyph ->
+        val minX = minOf(acc.x, glyph.x)
+        val minY = minOf(acc.y, glyph.y)
+        val maxX = maxOf(acc.x + acc.width, glyph.x + glyph.w)
+        val maxY = maxOf(acc.y + acc.height, glyph.y + glyph.h)
+        UiSlot(minX, minY, maxX - minX, maxY - minY)
     }
 }

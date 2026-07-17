@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
+
 private const val PROPERTY_LABEL_GAP = 8f
 private const val PROPERTY_LABEL_MAX_FRACTION = 0.45f
 private const val PROPERTY_MIN_CONTROL_WIDTH_GLYPHS = 12
+
 private data class PropertyInteraction(
     val slot: UiSlot,
     val hovered: Boolean,
@@ -12,41 +15,71 @@ private data class PropertyInteraction(
     val clicked: Boolean
 )
 
+private data class PropertyRowLayout(
+    val labelSlot: UiSlot,
+    val controlSlot: UiSlot
+)
+
+fun UiScope.propertyRow(
+    height: Float,
+    labelWidth: Dp = 64f.dp,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit,
+    content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): UiSlot {
+    val rowSlot = claimSlot(Dimension.FillMax, height.toDimension())
+    val resolvedFont = font
+    val glyphPx = resolvedFont?.let { resolveGlyphPx(it) } ?: 12f
+    val layout = layoutPropertyRow(
+        rowSlot = rowSlot,
+        labelWidthPx = resolvePropertyLabelWidthPx(
+            rowWidthPx = rowSlot.width,
+            label = "",
+            requestedWidthPx = labelWidth.toPx(),
+            glyphPx = glyphPx,
+            labelTextWidthPx = labelWidth.toPx()
+        )
+    )
+    UiAbsoluteDslScope(context.absolute(layout.labelSlot, resolvedFont, theme, textScale))
+        .labelContent(layout.labelSlot)
+    UiAbsoluteDslScope(context.absolute(layout.controlSlot, resolvedFont, theme, textScale))
+        .content(layout.controlSlot)
+    return layout.controlSlot
+}
+
 fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): UiSlot {
     val rowSlot = claimSlot(Dimension.FillMax, height.toDimension())
-    val glyphPx = font?.let { resolveGlyphPx(it) } ?: 12f
-    val labelWidthPx = resolvePropertyLabelWidthPx(
+    val resolvedFont = font
+    val glyphPx = resolvedFont?.let { resolveGlyphPx(it) } ?: 12f
+    val layout = layoutPropertyRow(
+        rowSlot = rowSlot,
+        labelWidthPx = resolvePropertyLabelWidthPx(
         rowWidthPx = rowSlot.width,
         label = label,
         requestedWidthPx = labelWidth.toPx(),
-        glyphPx = glyphPx
+        glyphPx = glyphPx,
+        labelTextWidthPx = resolvedFont?.measureTextWidth(label, glyphPx) ?: label.length * glyphPx
+    )
     )
     val labelColor = theme.tokens.mutedForeground
-    val resolvedFont = font
     if (resolvedFont != null) {
-        val labelSlot = UiSlot(rowSlot.x, rowSlot.y + (rowSlot.height - glyphPx) / 2f, labelWidthPx, glyphPx)
         text(
             label = label,
-            slot = labelSlot,
+            slot = layout.labelSlot,
             font = resolvedFont,
             color = labelColor,
             centered = false,
             overflow = UiTextOverflow.Ellipsis
         )
     }
-    return UiSlot(
-        rowSlot.x + labelWidthPx + PROPERTY_LABEL_GAP,
-        rowSlot.y,
-        (rowSlot.width - labelWidthPx - PROPERTY_LABEL_GAP).coerceAtLeast(0f),
-        rowSlot.height
-    )
+    return layout.controlSlot
 }
 
 internal fun resolvePropertyLabelWidthPx(
     rowWidthPx: Float,
     label: String,
     requestedWidthPx: Float,
-    glyphPx: Float
+    glyphPx: Float,
+    labelTextWidthPx: Float = label.length * glyphPx
 ): Float {
     val availableLabelWidth = (rowWidthPx - PROPERTY_LABEL_GAP).coerceAtLeast(0f)
     val minimumControlWidth = minOf(
@@ -60,8 +93,21 @@ internal fun resolvePropertyLabelWidthPx(
     } else {
         availableLabelWidth
     }
-    val baseWidth = maxOf(requestedWidthPx, label.length * glyphPx)
+    val baseWidth = maxOf(requestedWidthPx, labelTextWidthPx)
     return baseWidth.coerceAtMost(maxLabelWidth)
+}
+
+private fun layoutPropertyRow(rowSlot: UiSlot, labelWidthPx: Float): PropertyRowLayout {
+    val resolvedLabelWidth = labelWidthPx.coerceAtLeast(0f).coerceAtMost((rowSlot.width - PROPERTY_LABEL_GAP).coerceAtLeast(0f))
+    return PropertyRowLayout(
+        labelSlot = UiSlot(rowSlot.x, rowSlot.y, resolvedLabelWidth, rowSlot.height),
+        controlSlot = UiSlot(
+            rowSlot.x + resolvedLabelWidth + PROPERTY_LABEL_GAP,
+            rowSlot.y,
+            (rowSlot.width - resolvedLabelWidth - PROPERTY_LABEL_GAP).coerceAtLeast(0f),
+            rowSlot.height
+        )
+    )
 }
 
 fun UiScope.propertyCheckbox(

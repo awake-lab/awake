@@ -53,6 +53,14 @@ Treat these as higher-level compositions:
 
 Rule: a primitive should still make sense outside the current sample or demo.
 
+Text ownership rule:
+
+- leaf widgets may expose simple text params such as `label`, `title`, or `supportingText`
+- structural or multi-region compositions should expose slots or restricted-scope regions as
+  the primary API, with string overloads kept only as convenience wrappers
+- if a reusable API owns both the container structure and all displayed text, it is usually too
+  coupled for long-term reuse
+
 ## Concrete Placement Examples
 
 | API shape | Correct home | Why |

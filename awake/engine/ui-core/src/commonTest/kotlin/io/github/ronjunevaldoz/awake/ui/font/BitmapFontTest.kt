@@ -3,14 +3,15 @@
 package io.github.ronjunevaldoz.awake.ui.font
 
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 
 class BitmapFontTest {
 
     @Test
-    fun lowercaseGlyphsAliasToUppercaseAtlasCells() {
+    fun lowercaseGlyphsHaveDedicatedAtlasCellsWhenAuthored() {
         val font = BitmapFont()
 
         val lower = font.uvFor('g')
@@ -18,7 +19,7 @@ class BitmapFontTest {
 
         assertNotNull(lower)
         assertNotNull(upper)
-        assertEquals(upper, lower)
+        assertNotEquals(upper, lower)
     }
 
     @Test

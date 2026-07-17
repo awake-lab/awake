@@ -80,13 +80,11 @@ fun UiScope.checkbox(
     }
     val resolvedFont = font
     if (label != null && resolvedFont != null) {
-        val glyphPx = resolveGlyphPx(resolvedFont, resolved.textScale, resolved.textSize)
-        val labelY = interaction.slot.y + (interaction.slot.height - glyphPx) / 2f
         val labelSlot = UiSlot(
             boxSlot.x + boxPx + CHECKBOX_LABEL_GAP,
-            labelY,
+            interaction.slot.y,
             interaction.slot.width - boxPx - CHECKBOX_LABEL_GAP,
-            glyphPx
+            interaction.slot.height
         )
         text(
             label,
@@ -94,6 +92,7 @@ fun UiScope.checkbox(
             font = resolvedFont,
             color = resolved.foreground ?: theme.tokens.foreground,
             centered = false,
+            verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
             textScale = resolved.textScale,
             textSize = resolved.textSize

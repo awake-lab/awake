@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.px
@@ -183,6 +184,74 @@ class AwakeShadcnDesignSystemTest {
         val primitives = ui.endFrame()
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "field wrappers should keep text rendering intact")
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 6, "surface and field wrappers should emit shaped chrome")
+    }
+
+    @Test
+    fun awakeShadcnSectionHeaderSupportsSlotContent() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(280f, 180f)
+
+        ui.ui(x = 20f, y = 20f, width = 240f, font = BitmapFont(), theme = AwakeShadcnTheme) {
+            awakeShadcnSurface(
+                id = "slot-header",
+                height = Dimension.WrapContent
+            ) {
+                awakeShadcnSectionHeader(
+                    title = {
+                        row(height = 20f, gap = 6f) {
+                            awakeShadcnBadge(
+                                "NEW",
+                                modifier = UiModifier(width = Dimension.Fixed(48f.px)),
+                                variant = AwakeShadcnBadgeVariant.Outline
+                            )
+                            text("Scene Settings")
+                        }
+                    },
+                    description = {
+                        awakeShadcnSupportingText("Slot content keeps the header structure reusable.")
+                    }
+                )
+            }
+        }
+
+        val primitives = ui.endFrame()
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().isNotEmpty())
+    }
+
+    @Test
+    fun awakeShadcnPropertyControlsSupportSlotLabels() {
+        Input.setPointer(down = false, x = -100f, y = -100f)
+        val ui = UiContext()
+        ui.beginFrame(320f, 200f)
+
+        ui.ui(x = 20f, y = 20f, width = 280f, font = BitmapFont(), theme = AwakeShadcnTheme) {
+            awakeShadcnSurface(
+                id = "slot-fields",
+                height = Dimension.WrapContent
+            ) {
+                awakeShadcnPropertyDropdown(
+                    id = "mode",
+                    options = listOf("Orbit", "Fly"),
+                    selectedIndex = 0,
+                    labelContent = {
+                        text("Camera Mode")
+                    }
+                )
+                awakeShadcnPropertyToggle(
+                    id = "grid",
+                    checked = true,
+                    labelContent = {
+                        text("Reference Grid")
+                    }
+                )
+            }
+        }
+
+        val primitives = ui.endFrame()
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 5)
     }
 
     @Test

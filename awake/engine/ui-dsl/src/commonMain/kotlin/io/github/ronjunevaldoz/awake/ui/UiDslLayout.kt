@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
+
 @AwakeUiDsl
 class UiColumnDslScope internal constructor(
     private val columnScope: ColumnScope
@@ -59,6 +61,19 @@ class UiColumnDslScope internal constructor(
         val slot = columnScope.claimSlot(modifier.width ?: width, modifier.height ?: height)
         UiColumnDslScope(context.column(slot, font, theme, gap, textScale, insets)).content(slot)
         return slot
+    }
+
+    fun propertyRow(
+        height: Float,
+        labelWidth: Dp = 64f.dp,
+        labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit,
+        content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = columnScope.propertyRow(
+        height = height,
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale)).content(slot)
     }
 
     fun propertyRow(
@@ -172,6 +187,25 @@ class UiAbsoluteDslScope internal constructor(
         UiColumnDslScope(context.column(slot, font, theme, gap, textScale, insets)).content(slot)
         return slot
     }
+}
+
+fun UiContext.measureDslColumnContent(
+    width: Float,
+    font: UiFont?,
+    theme: UiTheme,
+    gap: Float = UiSpacing.sm.toPx(),
+    textScale: Float = 1f,
+    insets: UiInsets = UiInsets.Zero,
+    content: UiColumnDslScope.(slot: UiSlot) -> Unit
+): UiMeasuredContent = measureColumnContent(
+    width = width,
+    font = font,
+    theme = theme,
+    gap = gap,
+    textScale = textScale,
+    insets = insets
+) { slot ->
+    UiColumnDslScope(this).content(slot)
 }
 
 @AwakeUiDsl
