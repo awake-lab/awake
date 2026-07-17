@@ -77,7 +77,7 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 ### `samples:ui-showcase`
 
 - [ ] Keep this as the proof app for the intended public API.
-- [ ] Remove unnecessary `.px` authored sizing from sample UI code.
+- [x] Remove unnecessary `.px` authored sizing from sample UI code. Converted all 23 `Nf.px` modifier sizes in `UiShowcaseCatalog.kt` to `Nf.dp` -- `.px` divides by density scale (raw-pixel match), `.dp` is the correct density-independent authored unit; zero `.px` remain in the sample.
 - [ ] Add dedicated proof pages for layout, typography, slot APIs, and theme switching.
 - [ ] Make sample code demonstrate the preferred modifier-first usage path.
 

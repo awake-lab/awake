@@ -46,7 +46,6 @@ import io.github.ronjunevaldoz.awake.ui.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.gradientRect
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.offset
-import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
@@ -131,13 +130,13 @@ internal val ShowcasePages = listOf(
             awakeShadcnButton(
                 id = "primary",
                 label = "Primary",
-                modifier = UiModifier().width(120f.px).height(36f.px)
+                modifier = UiModifier().width(120f.dp).height(36f.dp)
             )
             awakeShadcnDropdown(
                 id = "style",
                 options = options,
                 selectedIndex = 0,
-                modifier = UiModifier().width(128f.px)
+                modifier = UiModifier().width(128f.dp)
             )
             awakeShadcnSurface("card", variant = AwakeShadcnSurfaceVariant.Card) { ... }
         """.trimIndent(),
@@ -189,7 +188,7 @@ internal val ShowcasePages = listOf(
             awakeShadcnButton(
                 id = "save",
                 label = "Save",
-                modifier = UiModifier().width(120f.px).height(36f.px),
+                modifier = UiModifier().width(120f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Primary
             )
             awakeShadcnBadge("LIVE", variant = AwakeShadcnBadgeVariant.Secondary)
@@ -208,7 +207,7 @@ internal val ShowcasePages = listOf(
             val trigger = buttonSlot(
                 id = "actions",
                 label = "Actions",
-                modifier = UiModifier().width(112f.px).height(36f.px)
+                modifier = UiModifier().width(112f.dp).height(36f.dp)
             )
             val result = dropdownMenu(
                 id = "actions.menu",
@@ -329,7 +328,7 @@ private fun UiColumnDslScope.drawUiShowcaseSidebarMenu(
                     label = page.title,
                     modifier = UiModifier()
                         .fillMaxWidth()
-                        .height(36f.px),
+                        .height(36f.dp),
                     style = Style {
                         contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
                     },
@@ -354,7 +353,7 @@ private fun UiColumnDslScope.drawUiShowcasePreviewCodeSection(
         awakeShadcnButton(
             id = "ui-showcase-preview-tab-${page.id}",
             label = "Preview",
-            modifier = UiModifier().width(96f.px).height(36f.px),
+            modifier = UiModifier().width(96f.dp).height(36f.dp),
             variant = if (!showCode.value) AwakeShadcnButtonVariant.Primary else AwakeShadcnButtonVariant.Ghost
         ).also { clicked ->
             if (clicked) showCode.value = false
@@ -362,7 +361,7 @@ private fun UiColumnDslScope.drawUiShowcasePreviewCodeSection(
         awakeShadcnButton(
             id = "ui-showcase-code-tab-${page.id}",
             label = "Code",
-            modifier = UiModifier().width(88f.px).height(36f.px),
+            modifier = UiModifier().width(88f.dp).height(36f.dp),
             variant = if (showCode.value) AwakeShadcnButtonVariant.Primary else AwakeShadcnButtonVariant.Ghost
         ).also { clicked ->
             if (clicked) showCode.value = true
@@ -458,8 +457,8 @@ private fun UiColumnDslScope.drawUiShowcaseReferenceComparisonPreview() {
             awakeShadcnSupportingText("Typography is tighter, menu surfaces are contained, and the gray slab effect is reduced.", maxLines = 4)
             spacer(UiModifier().height(8f.dp))
             row(height = 36f.dp, gap = 8f) {
-                awakeShadcnButton("reference-primary", "Primary", modifier = UiModifier().width(100f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Primary)
-                awakeShadcnButton("reference-outline", "Outline", modifier = UiModifier().width(96f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Outline)
+                awakeShadcnButton("reference-primary", "Primary", modifier = UiModifier().width(100f.dp).height(36f.dp), variant = AwakeShadcnButtonVariant.Primary)
+                awakeShadcnButton("reference-outline", "Outline", modifier = UiModifier().width(96f.dp).height(36f.dp), variant = AwakeShadcnButtonVariant.Outline)
             }
             spacer(UiModifier().height(8f.dp))
             awakeShadcnBadge("AWAKE", variant = AwakeShadcnBadgeVariant.Primary)
@@ -470,13 +469,13 @@ private fun UiColumnDslScope.drawUiShowcaseReferenceComparisonPreview() {
 private fun UiColumnDslScope.drawUiShowcaseButtonsPreview() {
     awakeShadcnSectionTitle("Buttons")
     row(height = 36f.dp, gap = 10f) {
-        awakeShadcnButton("showcase-primary", "Primary", modifier = UiModifier().width(120f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Primary)
-        awakeShadcnButton("showcase-secondary", "Secondary", modifier = UiModifier().width(120f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Secondary)
+        awakeShadcnButton("showcase-primary", "Primary", modifier = UiModifier().width(120f.dp).height(36f.dp), variant = AwakeShadcnButtonVariant.Primary)
+        awakeShadcnButton("showcase-secondary", "Secondary", modifier = UiModifier().width(120f.dp).height(36f.dp), variant = AwakeShadcnButtonVariant.Secondary)
     }
     row(height = 36f.dp, gap = 10f) {
-        awakeShadcnButton("showcase-outline", "Outline", modifier = UiModifier().width(112f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Outline)
-        awakeShadcnButton("showcase-ghost", "Ghost", modifier = UiModifier().width(100f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Ghost)
-        awakeShadcnButton("showcase-danger", "Danger", modifier = UiModifier().width(104f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Danger)
+        awakeShadcnButton("showcase-outline", "Outline", modifier = UiModifier().width(112f.dp).height(36f.dp), variant = AwakeShadcnButtonVariant.Outline)
+        awakeShadcnButton("showcase-ghost", "Ghost", modifier = UiModifier().width(100f.dp).height(36f.dp), variant = AwakeShadcnButtonVariant.Ghost)
+        awakeShadcnButton("showcase-danger", "Danger", modifier = UiModifier().width(104f.dp).height(36f.dp), variant = AwakeShadcnButtonVariant.Danger)
     }
     spacer(UiModifier().height(10f.dp))
     awakeShadcnSectionTitle("Badges")
@@ -546,7 +545,7 @@ private fun UiColumnDslScope.drawUiShowcaseFontSpecimen(
     )
     specimenScope.awakeShadcnBadge(
         label.uppercase(),
-        modifier = UiModifier().width(84f.px).height(28f.px),
+        modifier = UiModifier().width(84f.dp).height(28f.dp),
         variant = AwakeShadcnBadgeVariant.Outline
     )
     specimenScope.text(
@@ -705,7 +704,7 @@ private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRunt
                 awakeShadcnButton(
                     id = "preview-primary-action",
                     label = "Inspect",
-                    modifier = UiModifier().width(112f.px).height(36f.px),
+                    modifier = UiModifier().width(112f.dp).height(36f.dp),
                     variant = AwakeShadcnButtonVariant.Primary
                 )
             ) {
@@ -714,7 +713,7 @@ private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRunt
             awakeShadcnButton(
                 id = "preview-secondary-action",
                 label = if (state.showcaseDangerMode) "Rollback" else "Publish",
-                modifier = UiModifier().width(120f.px).height(36f.px),
+                modifier = UiModifier().width(120f.dp).height(36f.dp),
                 variant = if (state.showcaseDangerMode) AwakeShadcnButtonVariant.Danger else AwakeShadcnButtonVariant.Outline
             )
         }
@@ -781,7 +780,7 @@ private fun UiColumnDslScope.drawUiShowcaseCounterPreview(state: UiShowcaseRunti
             awakeShadcnButton(
                 id = "counter-decrement",
                 label = "Decrement",
-                modifier = UiModifier().width(112f.px).height(36f.px),
+                modifier = UiModifier().width(112f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Outline
             )
         ) {
@@ -791,7 +790,7 @@ private fun UiColumnDslScope.drawUiShowcaseCounterPreview(state: UiShowcaseRunti
             awakeShadcnButton(
                 id = "counter-increment",
                 label = "Increment",
-                modifier = UiModifier().width(112f.px).height(36f.px),
+                modifier = UiModifier().width(112f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Primary
             )
         ) {
@@ -803,7 +802,7 @@ private fun UiColumnDslScope.drawUiShowcaseCounterPreview(state: UiShowcaseRunti
             awakeShadcnButton(
                 id = "counter-reset",
                 label = "Reset",
-                modifier = UiModifier().width(112f.px).height(36f.px),
+                modifier = UiModifier().width(112f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Ghost
             )
         ) {
@@ -834,7 +833,7 @@ private fun UiColumnDslScope.drawUiShowcasePopupPreview() {
         val menuTrigger = buttonSlot(
             id = "ui-showcase-menu-trigger",
             label = "Actions",
-            modifier = UiModifier().width(112f.px).height(36f.px),
+            modifier = UiModifier().width(112f.dp).height(36f.dp),
             style = theme.components.button,
             variant = UiButtonVariant.Filled
         )
@@ -866,7 +865,7 @@ private fun UiColumnDslScope.drawUiShowcasePopupPreview() {
             awakeShadcnButton(
                 id = "ui-showcase-delete-trigger",
                 label = "Open Dialog",
-                modifier = UiModifier().width(128f.px).height(36f.px),
+                modifier = UiModifier().width(128f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Outline
             )
         ) {
