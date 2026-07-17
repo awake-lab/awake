@@ -9,8 +9,13 @@ class UiColumnDslScope internal constructor(
     private val columnScope: ColumnScope
 ) : UiDslScope(columnScope) {
 
+    fun spacer(modifier: UiModifier) {
+        columnScope.claimSlot(modifier.width ?: Dimension.FillMax, modifier.height ?: Dimension.FillMax)
+    }
+
+    @Deprecated("Prefer spacer(modifier = UiModifier().height(height)) -- one generic entry point for both column and row spacers.", ReplaceWith("spacer(UiModifier().height(height))"))
     fun spacer(height: Dp) {
-        columnScope.claimSlot(Dimension.FillMax, height.toDimension())
+        spacer(UiModifier().height(height))
     }
 
     @Deprecated("Prefer Dp-based sizing in authored DSL code.")
@@ -177,8 +182,13 @@ class UiRowDslScope internal constructor(
     private val rowScope: RowScope
 ) : UiDslScope(rowScope) {
 
+    fun spacer(modifier: UiModifier) {
+        rowScope.claimSlot(modifier.width ?: Dimension.FillMax, modifier.height ?: Dimension.FillMax)
+    }
+
+    @Deprecated("Prefer spacer(modifier = UiModifier().width(width)) -- one generic entry point for both column and row spacers.", ReplaceWith("spacer(UiModifier().width(width))"))
     fun spacer(width: Dp) {
-        rowScope.claimSlot(width.toDimension(), Dimension.FillMax)
+        spacer(UiModifier().width(width))
     }
 
     @Deprecated("Prefer Dp-based sizing in authored DSL code.")

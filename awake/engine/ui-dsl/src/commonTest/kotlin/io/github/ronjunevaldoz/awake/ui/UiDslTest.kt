@@ -93,7 +93,7 @@ class UiDslTest {
         ui.ui(x = 10f, y = 20f, width = 220f, font = BitmapFont(), gap = 0f) {
             row(height = 30f.dp, gap = 4f) {
                 first = buttonSlot(id = "one", label = "One", width = 60f, height = 30f)
-                spacer(width = 12f.dp)
+                spacer(UiModifier().width(12f.dp))
                 second = buttonSlot(id = "two", label = "Two", width = 60f, height = 30f)
             }
         }
@@ -278,7 +278,8 @@ class UiDslTest {
         var bottomLeftSlot: UiSlot? = null
 
         runtime.overlayShell(viewportWidth = 360f, viewportHeight = 240f) {
-            topRight(
+            place(
+                anchor = UiAnchor.TopRight,
                 width = 120f.dp,
                 height = 80f.dp,
                 margin = UiInsets(start = 0f.dp, top = 12f.dp, end = 16f.dp, bottom = 0f.dp)
@@ -288,7 +289,8 @@ class UiDslTest {
                     text("TR")
                 }
             }
-            bottomLeft(
+            place(
+                anchor = UiAnchor.BottomLeft,
                 width = 140f.dp,
                 height = 60f.dp,
                 margin = UiInsets(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 8f.dp)
@@ -326,7 +328,8 @@ class UiDslTest {
 
         var topRightSlot: UiSlot? = null
         runtime.overlayShell(viewportWidth = 360f, viewportHeight = 240f) {
-            topRight(
+            place(
+                anchor = UiAnchor.TopRight,
                 modifier = UiModifier().width(120f.px).height(80f.px),
                 margin = UiInsets(start = 0f.dp, top = 12f.dp, end = 16f.dp, bottom = 0f.dp)
             ) { slot ->
@@ -355,7 +358,8 @@ class UiDslTest {
         var bottomLeftSlot: UiSlot? = null
 
         runtime.overlayShell(viewportWidth = 360f, viewportHeight = 240f) {
-            bottomLeftPane(
+            pane(
+                anchor = UiAnchor.BottomLeft,
                 maxWidth = 180f.dp,
                 margin = UiInsets(start = 20f.dp, bottom = 12f.dp)
             ) { slot ->

@@ -103,26 +103,31 @@ class OverlayShellScope internal constructor(
         margin: UiInsets = UiInsets.Zero
     ): UiSlot = slot(anchor, width.px, height.px, margin)
 
+    @Deprecated("Prefer slot(UiAnchor.TopLeft, modifier, margin) -- one generic entry point for all four corners.", ReplaceWith("slot(UiAnchor.TopLeft, modifier, margin)"))
     fun topLeftSlot(
         modifier: UiModifier = UiModifier(),
         margin: UiInsets = UiInsets.Zero
     ): UiSlot = slot(UiAnchor.TopLeft, modifier, margin)
 
+    @Deprecated("Prefer slot(UiAnchor.TopRight, modifier, margin) -- one generic entry point for all four corners.", ReplaceWith("slot(UiAnchor.TopRight, modifier, margin)"))
     fun topRightSlot(
         modifier: UiModifier = UiModifier(),
         margin: UiInsets = UiInsets.Zero
     ): UiSlot = slot(UiAnchor.TopRight, modifier, margin)
 
+    @Deprecated("Prefer slot(UiAnchor.BottomLeft, modifier, margin) -- one generic entry point for all four corners.", ReplaceWith("slot(UiAnchor.BottomLeft, modifier, margin)"))
     fun bottomLeftSlot(
         modifier: UiModifier = UiModifier(),
         margin: UiInsets = UiInsets.Zero
     ): UiSlot = slot(UiAnchor.BottomLeft, modifier, margin)
 
+    @Deprecated("Prefer slot(UiAnchor.BottomRight, modifier, margin) -- one generic entry point for all four corners.", ReplaceWith("slot(UiAnchor.BottomRight, modifier, margin)"))
     fun bottomRightSlot(
         modifier: UiModifier = UiModifier(),
         margin: UiInsets = UiInsets.Zero
     ): UiSlot = slot(UiAnchor.BottomRight, modifier, margin)
 
+    @Deprecated("Prefer slot(UiAnchor.TopLeft, width, height, margin).", ReplaceWith("slot(UiAnchor.TopLeft, width, height, margin)"))
     fun topLeftSlot(
         width: Dp,
         height: Dp,
@@ -136,6 +141,7 @@ class OverlayShellScope internal constructor(
         margin: UiInsets = UiInsets.Zero
     ): UiSlot = topLeftSlot(width.px, height.px, margin)
 
+    @Deprecated("Prefer slot(UiAnchor.TopRight, width, height, margin).", ReplaceWith("slot(UiAnchor.TopRight, width, height, margin)"))
     fun topRightSlot(
         width: Dp,
         height: Dp,
@@ -149,6 +155,7 @@ class OverlayShellScope internal constructor(
         margin: UiInsets = UiInsets.Zero
     ): UiSlot = topRightSlot(width.px, height.px, margin)
 
+    @Deprecated("Prefer slot(UiAnchor.BottomLeft, width, height, margin).", ReplaceWith("slot(UiAnchor.BottomLeft, width, height, margin)"))
     fun bottomLeftSlot(
         width: Dp,
         height: Dp,
@@ -162,6 +169,7 @@ class OverlayShellScope internal constructor(
         margin: UiInsets = UiInsets.Zero
     ): UiSlot = bottomLeftSlot(width.px, height.px, margin)
 
+    @Deprecated("Prefer slot(UiAnchor.BottomRight, width, height, margin).", ReplaceWith("slot(UiAnchor.BottomRight, width, height, margin)"))
     fun bottomRightSlot(
         width: Dp,
         height: Dp,
@@ -205,6 +213,7 @@ class OverlayShellScope internal constructor(
         place(anchor, width.px, height.px, margin, content)
     }
 
+    @Deprecated("Prefer place(UiAnchor.TopLeft, ...) -- one generic entry point for all four corners.", ReplaceWith("place(UiAnchor.TopLeft, width, height, margin, content)"))
     fun topLeft(
         modifier: UiModifier = UiModifier(),
         margin: UiInsets = UiInsets.Zero,
@@ -213,6 +222,7 @@ class OverlayShellScope internal constructor(
         place(UiAnchor.TopLeft, modifier, margin, content)
     }
 
+    @Deprecated("Prefer place(UiAnchor.TopLeft, ...) -- one generic entry point for all four corners.", ReplaceWith("place(UiAnchor.TopLeft, width, height, margin, content)"))
     fun topLeft(
         width: Dp,
         height: Dp,
@@ -232,6 +242,7 @@ class OverlayShellScope internal constructor(
         topLeft(width.px, height.px, margin, content)
     }
 
+    @Deprecated("Prefer place(UiAnchor.TopRight, ...) -- one generic entry point for all four corners.", ReplaceWith("place(UiAnchor.TopRight, width, height, margin, content)"))
     fun topRight(
         modifier: UiModifier = UiModifier(),
         margin: UiInsets = UiInsets.Zero,
@@ -240,6 +251,7 @@ class OverlayShellScope internal constructor(
         place(UiAnchor.TopRight, modifier, margin, content)
     }
 
+    @Deprecated("Prefer place(UiAnchor.TopRight, ...) -- one generic entry point for all four corners.", ReplaceWith("place(UiAnchor.TopRight, width, height, margin, content)"))
     fun topRight(
         width: Dp,
         height: Dp,
@@ -259,6 +271,7 @@ class OverlayShellScope internal constructor(
         topRight(width.px, height.px, margin, content)
     }
 
+    @Deprecated("Prefer place(UiAnchor.BottomLeft, ...) -- one generic entry point for all four corners.", ReplaceWith("place(UiAnchor.BottomLeft, width, height, margin, content)"))
     fun bottomLeft(
         modifier: UiModifier = UiModifier(),
         margin: UiInsets = UiInsets.Zero,
@@ -267,6 +280,7 @@ class OverlayShellScope internal constructor(
         place(UiAnchor.BottomLeft, modifier, margin, content)
     }
 
+    @Deprecated("Prefer place(UiAnchor.BottomLeft, ...) -- one generic entry point for all four corners.", ReplaceWith("place(UiAnchor.BottomLeft, width, height, margin, content)"))
     fun bottomLeft(
         width: Dp,
         height: Dp,
@@ -286,6 +300,7 @@ class OverlayShellScope internal constructor(
         bottomLeft(width.px, height.px, margin, content)
     }
 
+    @Deprecated("Prefer place(UiAnchor.BottomRight, ...) -- one generic entry point for all four corners.", ReplaceWith("place(UiAnchor.BottomRight, width, height, margin, content)"))
     fun bottomRight(
         modifier: UiModifier = UiModifier(),
         margin: UiInsets = UiInsets.Zero,
@@ -294,6 +309,7 @@ class OverlayShellScope internal constructor(
         place(UiAnchor.BottomRight, modifier, margin, content)
     }
 
+    @Deprecated("Prefer place(UiAnchor.BottomRight, ...) -- one generic entry point for all four corners.", ReplaceWith("place(UiAnchor.BottomRight, width, height, margin, content)"))
     fun bottomRight(
         width: Dp,
         height: Dp,
@@ -386,6 +402,7 @@ class OverlayShellScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot = pane(anchor, maxWidth.px, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)
 
+    @Deprecated("Prefer pane(UiAnchor.TopLeft, ...) -- one generic entry point for all four corners.", ReplaceWith("pane(UiAnchor.TopLeft, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)"))
     fun topLeftPane(
         maxWidth: Dimension = Dimension.FillMax,
         margin: UiInsets = UiInsets.Zero,
@@ -400,6 +417,7 @@ class OverlayShellScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot = pane(UiAnchor.TopLeft, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)
 
+    @Deprecated("Prefer pane(UiAnchor.TopLeft, ...) -- one generic entry point for all four corners.", ReplaceWith("pane(UiAnchor.TopLeft, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)"))
     fun topLeftPane(
         maxWidth: Dp,
         margin: UiInsets = UiInsets.Zero,
@@ -429,6 +447,7 @@ class OverlayShellScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot = topLeftPane(maxWidth.px, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)
 
+    @Deprecated("Prefer pane(UiAnchor.TopRight, ...) -- one generic entry point for all four corners.", ReplaceWith("pane(UiAnchor.TopRight, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)"))
     fun topRightPane(
         maxWidth: Dimension = Dimension.FillMax,
         margin: UiInsets = UiInsets.Zero,
@@ -443,6 +462,7 @@ class OverlayShellScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot = pane(UiAnchor.TopRight, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)
 
+    @Deprecated("Prefer pane(UiAnchor.TopRight, ...) -- one generic entry point for all four corners.", ReplaceWith("pane(UiAnchor.TopRight, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)"))
     fun topRightPane(
         maxWidth: Dp,
         margin: UiInsets = UiInsets.Zero,
@@ -472,6 +492,7 @@ class OverlayShellScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot = topRightPane(maxWidth.px, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)
 
+    @Deprecated("Prefer pane(UiAnchor.BottomLeft, ...) -- one generic entry point for all four corners.", ReplaceWith("pane(UiAnchor.BottomLeft, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)"))
     fun bottomLeftPane(
         maxWidth: Dimension = Dimension.FillMax,
         margin: UiInsets = UiInsets.Zero,
@@ -486,6 +507,7 @@ class OverlayShellScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot = pane(UiAnchor.BottomLeft, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)
 
+    @Deprecated("Prefer pane(UiAnchor.BottomLeft, ...) -- one generic entry point for all four corners.", ReplaceWith("pane(UiAnchor.BottomLeft, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)"))
     fun bottomLeftPane(
         maxWidth: Dp,
         margin: UiInsets = UiInsets.Zero,
@@ -515,6 +537,7 @@ class OverlayShellScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot = bottomLeftPane(maxWidth.px, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)
 
+    @Deprecated("Prefer pane(UiAnchor.BottomRight, ...) -- one generic entry point for all four corners.", ReplaceWith("pane(UiAnchor.BottomRight, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)"))
     fun bottomRightPane(
         maxWidth: Dimension = Dimension.FillMax,
         margin: UiInsets = UiInsets.Zero,
@@ -529,6 +552,7 @@ class OverlayShellScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot = pane(UiAnchor.BottomRight, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)
 
+    @Deprecated("Prefer pane(UiAnchor.BottomRight, ...) -- one generic entry point for all four corners.", ReplaceWith("pane(UiAnchor.BottomRight, maxWidth, margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)"))
     fun bottomRightPane(
         maxWidth: Dp,
         margin: UiInsets = UiInsets.Zero,

@@ -49,7 +49,7 @@ class UiDslTutorialDocsTest {
                 orbitYaw = propertySlider("slider-azimuth", "Azimuth", -3.14f, 3.14f, orbitYaw)
                 orbitDistance = propertySlider("slider-distance", "Distance", 3f, 20f, orbitDistance)
 
-                spacer(8f.dp)
+                spacer(UiModifier().height(8f.dp))
                 sectionTitle("Debug")
                 showGrid = propertyCheckbox("grid", showGrid, "Show Grid", 28f.dp)
                 showFrustum = propertyCheckbox("frustum", showFrustum, "Show Frustum", 28f.dp)
