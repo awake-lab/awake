@@ -180,6 +180,41 @@ internal val ShowcasePages = listOf(
         )
     ),
     ShowcasePage(
+        id = "layout",
+        title = "Layout Primitives",
+        category = ShowcaseCategory.Foundations,
+        description = "row(...) and column(...) -- the modifier-first layout primitives every other page in this catalog is built from.",
+        usageCode = """
+            row(height = 48f.dp, gap = 8f) {
+                panel(id = "a", width = Dimension.Fixed(80f.dp), height = Dimension.FillMax) { }
+                panel(id = "b", width = Dimension.Fixed(120f.dp), height = Dimension.FillMax) { }
+            }
+            column(height = Dimension.Fixed(112f.dp), width = Dimension.Fixed(200f.dp), gap = 6f) {
+                panel(id = "a", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp)) { }
+            }
+        """.trimIndent(),
+        notes = listOf(
+            "row/column advance a cursor along one axis -- each child claims the next slot in call order.",
+            "Neither has a flex-grow concept: FillMax only resolves against the enclosing scope's own fixed axis (a column's configured width, not a row's advancing width)."
+        )
+    ),
+    ShowcasePage(
+        id = "slot-apis",
+        title = "Slot APIs",
+        category = ShowcaseCategory.Patterns,
+        description = "buttonSlot(...)'s content-lambda form composes arbitrary content inside a widget's own claimed slot instead of a fixed label string.",
+        usageCode = """
+            buttonSlot(id = "launch", modifier = UiModifier().width(180f.dp).height(40f.dp)) {
+                text(">", modifier = UiModifier().offset(x = 12f.dp).width(16f.dp))
+                text("Launch", modifier = UiModifier().offset(x = 32f.dp))
+            }
+        """.trimIndent(),
+        notes = listOf(
+            "The label-string overload is sugar over this content-lambda form -- there is no capability gap between them.",
+            "A custom widget (like this catalog's own recipes) uses this exact same slot-content pattern, not a special library-only path."
+        )
+    ),
+    ShowcasePage(
         id = "buttons",
         title = "Buttons And Badges",
         category = ShowcaseCategory.Foundations,
@@ -403,6 +438,8 @@ internal fun UiColumnDslScope.renderUiShowcasePagePreview(
         "reference" -> drawUiShowcaseReferenceComparisonPreview()
         "theming" -> drawUiShowcaseControlsPreview(state)
         "fonts" -> drawUiShowcaseFontsPreview()
+        "layout" -> drawUiShowcaseLayoutPreview()
+        "slot-apis" -> drawUiShowcaseSlotApiPreview()
         "buttons" -> drawUiShowcaseButtonsPreview()
         "popups" -> drawUiShowcasePopupPreview()
         "state" -> drawUiShowcaseCounterPreview(state)
@@ -528,6 +565,43 @@ private fun UiColumnDslScope.drawUiShowcaseFontsPreview() {
             "True Font uses real outline-derived glyphs, so spacing and letterforms stop fighting the renderer."
         )
     )
+}
+
+private fun UiColumnDslScope.drawUiShowcaseLayoutPreview() {
+    awakeShadcnSectionTitle("Row")
+    awakeShadcnSupportingText("row(...) advances a cursor along the horizontal axis; each child claims the next slot in call order.")
+    spacer(UiModifier().height(8f.dp))
+    row(height = 48f.dp, gap = 8f) {
+        panel(id = "layout-row-a", width = Dimension.Fixed(80f.dp), height = Dimension.FillMax, style = Style { background(theme.tokens.primary) }) { }
+        panel(id = "layout-row-b", width = Dimension.Fixed(120f.dp), height = Dimension.FillMax, style = Style { background(theme.tokens.secondary) }) { }
+        panel(id = "layout-row-c", width = Dimension.Fixed(160f.dp), height = Dimension.FillMax, style = Style { background(theme.tokens.muted) }) { }
+    }
+    spacer(UiModifier().height(16f.dp))
+    awakeShadcnSectionTitle("Column")
+    awakeShadcnSupportingText("column(...) advances a cursor along the vertical axis -- the default layout for every page in this catalog.")
+    spacer(UiModifier().height(8f.dp))
+    column(height = Dimension.Fixed(112f.dp), width = Dimension.Fixed(200f.dp), gap = 6f) {
+        panel(id = "layout-col-a", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp), style = Style { background(theme.tokens.primary) }) { }
+        panel(id = "layout-col-b", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp), style = Style { background(theme.tokens.secondary) }) { }
+        panel(id = "layout-col-c", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp), style = Style { background(theme.tokens.muted) }) { }
+    }
+}
+
+private fun UiColumnDslScope.drawUiShowcaseSlotApiPreview() {
+    awakeShadcnSectionTitle("buttonSlot(...) content lambda")
+    awakeShadcnSupportingText("The label-string overload is sugar over this content-lambda form -- there is no capability gap between them.")
+    spacer(UiModifier().height(8f.dp))
+    buttonSlot(
+        id = "slot-api-launch",
+        modifier = UiModifier().width(180f.dp).height(40f.dp),
+        style = theme.components.button
+    ) {
+        text(">", modifier = UiModifier().offset(x = 12f.dp).width(16f.dp))
+        text("Launch", modifier = UiModifier().offset(x = 32f.dp))
+    }
+    spacer(UiModifier().height(16f.dp))
+    awakeShadcnSectionTitle("Custom widgets, same primitives")
+    awakeShadcnSupportingText("samples:hello-cube's Gauge.kt is a fully custom widget built from the same claimSlot()/emit() primitives a built-in widget uses -- no library-only capability gap.")
 }
 
 private fun UiColumnDslScope.drawUiShowcaseFontSpecimen(

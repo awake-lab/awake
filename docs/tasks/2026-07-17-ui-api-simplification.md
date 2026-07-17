@@ -37,7 +37,7 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 - [ ] Keep `Dp` / `Sp` / `Dimension` / `UiModifier` / `Style` / `UiTheme` as the stable public base.
 - [ ] Keep raw pixel math in layout and renderer internals only.
 - [x] Add semantic debug metadata on widget output so tests and debug tooling can identify intent.
-- [ ] Add a first-class wireframe/layout debug overlay for bounds, padding, clip rects, and baselines.
+- [x] Add a first-class wireframe/layout debug overlay for bounds, padding, clip rects, and baselines. `UiDebugOverlay.kt`: `UiSemanticNode.debugOverlayPrimitives()`/`UiContext.debugOverlayPrimitives()` render bounds (blue), contentBounds (green), and clippedBounds (red) as stroked outlines from recorded semantic nodes -- append after a frame's own primitives to paint the wireframe on top.
 - [ ] Keep `CoreUiTheme` only as the neutral fallback theme.
 - [ ] Do not move named authored themes into `ui-core`.
 
@@ -71,14 +71,14 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 - [ ] Keep primitive-count and bounds drift checks.
 - [x] Add semantic widget-role inspection.
 - [x] Add text-fit, truncation, and alignment assertions.
-- [ ] Add sample-level golden layout verification.
+- [x] Add sample-level golden layout verification. `UiLayoutSignature.kt`: `layoutSignature(nodes)` fingerprints a full page's semantic-node roles/ids/bounds independent of color/style; wired into `samples:ui-showcase`'s `UiShowcaseLayoutSignatureTest` across all 9 catalog pages. Catches layout drift (a widget moving/resizing/vanishing) without pixel-screenshot flakiness -- a pure recolor leaves the signature untouched.
 - [ ] Stop treating screenshot eyeballing as the main UI correctness gate.
 
 ### `samples:ui-showcase`
 
 - [ ] Keep this as the proof app for the intended public API.
 - [x] Remove unnecessary `.px` authored sizing from sample UI code. Converted all 23 `Nf.px` modifier sizes in `UiShowcaseCatalog.kt` to `Nf.dp` -- `.px` divides by density scale (raw-pixel match), `.dp` is the correct density-independent authored unit; zero `.px` remain in the sample.
-- [ ] Add dedicated proof pages for layout, typography, slot APIs, and theme switching.
+- [x] Add dedicated proof pages for layout, typography, slot APIs, and theme switching. Typography and theme switching were already covered (`fonts`/`theming` pages); added new `layout` (row/column primitives) and `slot-apis` (`buttonSlot(...)`'s content-lambda form) pages, each wired into the sidebar, the preview catalog, and the golden-layout signature test.
 - [ ] Make sample code demonstrate the preferred modifier-first usage path.
 
 ## Delete / Deprecate / Keep

@@ -27,6 +27,8 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseReferencePreview,
     UiShowcaseThemePreview,
     UiShowcaseFontsPreview,
+    UiShowcaseLayoutPreview,
+    UiShowcaseSlotApisPreview,
     UiShowcaseButtonsPreview,
     UiShowcasePopupsPreview,
     UiShowcaseStatePreview
@@ -82,6 +84,32 @@ internal object UiShowcaseThemePreview : AwakeUiPreviewEntry {
 internal object UiShowcaseFontsPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "fonts")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-layout",
+    title = "Layout Primitives",
+    group = "Foundations",
+    summary = "row/column/spacer, the modifier-first layout primitives every other page is built from.",
+    width = 900,
+    height = 460
+)
+internal object UiShowcaseLayoutPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "layout")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-slot-apis",
+    title = "Slot APIs",
+    group = "Patterns",
+    summary = "buttonSlot(...)'s content-lambda form composing arbitrary content inside a widget's own claimed slot.",
+    width = 900,
+    height = 360
+)
+internal object UiShowcaseSlotApisPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "slot-apis")
 }
 
 @AwakeUiPreview(
