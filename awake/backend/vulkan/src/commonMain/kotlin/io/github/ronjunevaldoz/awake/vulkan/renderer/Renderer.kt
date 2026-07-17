@@ -30,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
@@ -473,6 +474,16 @@ class Renderer(
 
     private fun ensureFontTexture(font: UiFont): Texture {
         fontTexture?.let { return it }
+        // Distance-field atlases (MSDF) need linear sampling for their median/smoothstep
+        // technique to work at all -- that's the whole point. A plain CoverageAlpha bitmap
+        // atlas is tightly packed with zero inter-glyph padding, so linear-filtering it
+        // bleeds neighboring glyph cells into each other and shimmers as text moves/scales;
+        // nearest-neighbor sampling is both correct and pixel-perfect for that atlas type.
+        val glyphFilter = if (font.samplingMode == UiFontSamplingMode.DistanceField) {
+            VkFilter.VK_FILTER_LINEAR
+        } else {
+            VkFilter.VK_FILTER_NEAREST
+        }
         return Texture(
             graphicsDevice,
             transferContext::runOneTimeCommands,
@@ -480,12 +491,12 @@ class Renderer(
             font.atlasWidth,
             font.atlasHeight,
             samplerCreateInfo = VkSamplerCreateInfo(
-                magFilter = VkFilter.VK_FILTER_LINEAR,
-                minFilter = VkFilter.VK_FILTER_LINEAR,
+                magFilter = glyphFilter,
+                minFilter = glyphFilter,
                 addressModeU = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
                 addressModeV = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
                 addressModeW = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-                mipmapMode = VkSamplerMipmapMode.VK_SAMPLER_MIPMAP_MODE_LINEAR
+                mipmapMode = VkSamplerMipmapMode.VK_SAMPLER_MIPMAP_MODE_NEAREST
             )
         ).also { fontTexture = it }
     }

@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
 import io.github.ronjunevaldoz.awake.ui.GameUiSpec
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.Style
@@ -234,10 +235,16 @@ internal fun measureUiShowcaseTopBarHeight(
     width: Float,
     theme: UiTheme = AwakeShadcnTheme
 ): Float {
+    // `width` arrives in dp space (callers pass `UiBoxConstraints.maxWidthDp`), but
+    // measureDslColumnContent/UiSlot layout math is raw-pixel space (see Dp.kt's contract).
+    // Convert at this boundary and convert the measured px height back to dp before
+    // returning, since callers re-wrap the result with `.dp` (Dimension.Fixed(...)) --
+    // skipping this double-converts through UiDensity.scale on any non-1x display.
+    val widthPx = width.dp.toPx()
     val resolved = context.absolute(0f, 0f, font = font, theme = theme).resolveStyle(
         style = theme.components.panel then Style { shape(16f.dp) }
     )
-    val availableWidth = (width - resolved.contentPadding.horizontalPx()).coerceAtLeast(0f)
+    val availableWidth = (widthPx - resolved.contentPadding.horizontalPx()).coerceAtLeast(0f)
     val measured = context.measureDslColumnContent(
         width = availableWidth,
         font = font,
@@ -247,5 +254,6 @@ internal fun measureUiShowcaseTopBarHeight(
     ) { slot ->
         drawUiShowcaseTopBar(state = state, compact = compact)
     }
-    return (measured.height + resolved.contentPadding.verticalPx()).coerceAtLeast(0f)
+    val heightPx = (measured.height + resolved.contentPadding.verticalPx()).coerceAtLeast(0f)
+    return UiDensity.pxToDp(heightPx)
 }

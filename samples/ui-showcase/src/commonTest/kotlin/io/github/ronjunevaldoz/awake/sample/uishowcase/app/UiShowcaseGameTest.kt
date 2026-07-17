@@ -33,12 +33,20 @@ import io.github.ronjunevaldoz.awake.testing.ui.measureUiFrame
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.measureDslColumnContent
+import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.verticalPx
+import kotlin.math.abs
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -261,6 +269,61 @@ class UiShowcaseGameTest {
             allowedBounds = frame,
             tolerancePx = 1f
         ).requireClean()
+    }
+
+    /**
+     * Regression coverage for the topbar dead-space bug: [measureUiShowcaseTopBarHeight] is
+     * called with a dp-space width (`UiBoxConstraints.maxWidthDp`) and its dp-space result
+     * gets wrapped back into pixels via `Dimension.Fixed(topBarHeight.dp).toPx()`. This test
+     * drives that exact real-caller shape at a non-1x [UiDensity.scale] (e.g. a retina
+     * window) and asserts the resulting fixed pixel height of the topbar surface actually
+     * matches what the content needs when measured directly at the true pixel width -- a
+     * unit mismatch here silently doubled/inflated the surface height, which the existing
+     * bounds-fit tests below could never catch since their `allowedBounds` is derived from
+     * the very same (possibly wrong) measurement they're checking.
+     */
+    @Test
+    fun uiShowcaseTopBarFixedHeightMatchesActualContentAtRetinaDensity() {
+        val state = UiShowcaseRuntimeState()
+        val font = UiFonts.default()
+        val originalScale = UiDensity.scale
+        try {
+            UiDensity.scale = 2f
+            val outerPadding = 24f
+            val topBarWidthDp = 1392f - (outerPadding * 2f)
+
+            val topBarHeightDp = measureUiShowcaseTopBarHeight(
+                context = UiContext(),
+                font = font,
+                state = state,
+                compact = false,
+                width = topBarWidthDp
+            )
+            val fixedSurfacePx = topBarHeightDp.dp.toPx()
+
+            // Ground truth: measure the same content directly at the true pixel width the
+            // surface actually receives once claimSlot resolves Dimension.Fixed(...dp).
+            val truePxWidth = topBarWidthDp.dp.toPx()
+            val groundTruthContext = UiContext()
+            val resolved = groundTruthContext.absolute(0f, 0f, font = font, theme = AwakeShadcnTheme)
+                .resolveStyle(style = AwakeShadcnTheme.components.panel then Style { shape(16f.dp) })
+            val measured = groundTruthContext.measureDslColumnContent(
+                width = (truePxWidth - resolved.contentPadding.horizontalPx()).coerceAtLeast(0f),
+                font = font,
+                theme = AwakeShadcnTheme,
+                gap = UiSpacing.sm.toPx(),
+                textScale = resolved.textScale
+            ) { drawUiShowcaseTopBar(state = state, compact = false) }
+            val truePxHeight = measured.height + resolved.contentPadding.verticalPx()
+
+            assertTrue(
+                abs(fixedSurfacePx - truePxHeight) < 4f,
+                "topbar surface pixel height ($fixedSurfacePx) drifted from its actual content " +
+                    "pixel height ($truePxHeight) at UiDensity.scale=2 -- dp/px unit mismatch regression"
+            )
+        } finally {
+            UiDensity.scale = originalScale
+        }
     }
 
     @Test
