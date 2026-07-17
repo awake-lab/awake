@@ -44,8 +44,8 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 ### `awake:engine:ui-widgets`
 
 - [ ] Keep only generic leaf widgets and generic containers.
-- [ ] Deprecate authored convenience overloads that take width/height as raw `Float`.
-- [ ] Prefer modifier-first sizing on public entry points.
+- [x] Deprecate authored convenience overloads that take width/height as raw `Float`. Deleted outright (button/buttonSlot/toggle/checkbox/dropdown/slider/textureQuad in ui-widgets, plus the mirrored copies in ui-dsl's `UiDslControls.kt`) rather than deprecated, since this API isn't published yet -- migrated all 51 real call sites onto modifier-based sizing.
+- [x] Prefer modifier-first sizing on public entry points. Byproduct of the Float-overload deletion above -- every remaining public widget entry point is modifier-based only.
 - [ ] Add slot-based variants only where content structure genuinely matters.
 - [ ] Keep simple `label`/`title` params on leaf widgets when that is still the cleanest API.
 
@@ -79,20 +79,20 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 - [ ] Keep this as the proof app for the intended public API.
 - [x] Remove unnecessary `.px` authored sizing from sample UI code. Converted all 23 `Nf.px` modifier sizes in `UiShowcaseCatalog.kt` to `Nf.dp` -- `.px` divides by density scale (raw-pixel match), `.dp` is the correct density-independent authored unit; zero `.px` remain in the sample.
 - [x] Add dedicated proof pages for layout, typography, slot APIs, and theme switching. Typography and theme switching were already covered (`fonts`/`theming` pages); added new `layout` (row/column primitives) and `slot-apis` (`buttonSlot(...)`'s content-lambda form) pages, each wired into the sidebar, the preview catalog, and the golden-layout signature test.
-- [ ] Make sample code demonstrate the preferred modifier-first usage path.
+- [x] Make sample code demonstrate the preferred modifier-first usage path. Byproduct of the raw-Float overload deletion and `.px` -> `.dp` conversion above -- no remaining call site in `samples:ui-showcase` uses raw-`Float`/`.px` authored sizing.
 
 ## Delete / Deprecate / Keep
 
 ### Delete
 
-- [ ] Duplicate convenience wrappers whose only work is `Float -> .px -> modifier`.
-- [ ] Extra placement helpers that only rename corner anchoring patterns already expressible by existing primitives.
+- [x] Duplicate convenience wrappers whose only work is `Float -> .px -> modifier`. Deleted across ui-widgets, ui-dsl, and ui-designsystem (badges/buttons/fields/property controls) rather than deprecated, since this API isn't published yet.
+- [x] Extra placement helpers that only rename corner anchoring patterns already expressible by existing primitives. `OverlayShellScope`'s `topLeftSlot`/`topRight`/`bottomLeftPane`/etc. deprecated in favor of the generic `slot`/`place`/`pane(UiAnchor, ...)`.
 
 ### Deprecate
 
-- [ ] Raw `Float` authored sizing in public DSL and design-system APIs.
+- [x] Raw `Float` authored sizing in public DSL and design-system APIs. Deleted outright rather than deprecated (unpublished API) across ui-widgets/ui-dsl/ui-designsystem; zero raw-`Float` sizing overloads remain.
 - [ ] Composition APIs that tightly own both structure and all displayed text when slots are the better contract.
-- [ ] Sample usage patterns that teach `.px` first instead of `Dp` or `UiModifier`.
+- [x] Sample usage patterns that teach `.px` first instead of `Dp` or `UiModifier`. All 23 `.px` authored-sizing call sites in `samples:ui-showcase` converted to `.dp`.
 
 ### Keep
 
