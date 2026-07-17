@@ -11,13 +11,6 @@ fun UiScope.textureQuad(material: Any, modifier: UiModifier = UiModifier()) {
     emit(UiDrawPrimitive.Texture(slot.x, slot.y, slot.width, slot.height, material))
 }
 
-fun UiScope.textureQuad(width: Float, height: Float, material: Any, modifier: UiModifier = UiModifier()) {
-    textureQuad(
-        material = material,
-        modifier = modifier.copy(width = width.toDimension(), height = height.toDimension())
-    )
-}
-
 fun UiScope.panel(
     id: String,
     width: Dimension,

@@ -276,8 +276,7 @@ fun UiDslScope.alertDialog(
                     button(
                         id = "$id.dismiss",
                         label = label,
-                        width = 96f,
-                        height = 32f,
+                        modifier = UiModifier().width(96f.px).height(32f.px),
                         variant = dismissVariant
                     )
                 ) {
@@ -289,8 +288,7 @@ fun UiDslScope.alertDialog(
                 button(
                     id = "$id.confirm",
                     label = confirmLabel,
-                    width = 96f,
-                    height = 32f,
+                    modifier = UiModifier().width(96f.px).height(32f.px),
                     variant = confirmVariant
                 )
             ) {
@@ -339,8 +337,7 @@ private fun UiColumnDslScope.dropdownMenuItem(
     val slot = buttonSlot(
         id = id,
         label = "",
-        width = width,
-        height = height,
+        modifier = UiModifier().width(width.px).height(height.px),
         style = style,
         variant = UiButtonVariant.Ghost
     )

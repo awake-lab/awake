@@ -32,8 +32,8 @@ class ReusableCompositionTest {
         ui.beginFrame(240f, 120f)
 
         val scope = DiagonalScope(ui, BitmapFont(), CoreUiTheme, startX = 10f, startY = 20f, stepX = 15f, stepY = 10f)
-        val first = scope.buttonSlot("one", 100f, 30f, label = "ONE")
-        val second = scope.buttonSlot("two", 100f, 30f, label = "TWO")
+        val first = scope.buttonSlot("one", label = "ONE", modifier = UiModifier().width(100f.px).height(30f.px))
+        val second = scope.buttonSlot("two", label = "TWO", modifier = UiModifier().width(100f.px).height(30f.px))
 
         assertEquals(UiSlot(10f, 20f, 100f, 30f), first.slot)
         assertEquals(UiSlot(25f, 30f, 100f, 30f), second.slot)
@@ -47,8 +47,7 @@ class ReusableCompositionTest {
 
         val result = ui.absolute(20f, 20f, font = BitmapFont()).buttonSlot(
             id = "launch",
-            width = 180f,
-            height = 40f,
+            modifier = UiModifier().width(180f.px).height(40f.px),
             style = Style {
                 contentPadding(start = 12f.dp, top = 0f.dp, end = 12f.dp, bottom = 0f.dp)
             }

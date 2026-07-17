@@ -17,13 +17,13 @@ class UiContextTest {
         // Frame 1: pointer moves over the button, not yet pressed.
         var checked = false
         ui.simulateFrame(pointerDown = false, x = 60f, y = 40f, screenHeight = 100f) {
-            checked = ui.absolute(20f, 20f).toggle("t", checked, 120f, 40f)
+            checked = ui.absolute(20f, 20f).toggle("t", checked, modifier = UiModifier().width(120f.px).height(40f.px))
         }
         assertFalse(checked, "should not toggle on hover alone")
 
         // Press+release while hovered -- click fires on the release frame.
         ui.simulateClick(x = 60f, y = 40f, screenHeight = 100f) {
-            checked = ui.absolute(20f, 20f).toggle("t", checked, 120f, 40f)
+            checked = ui.absolute(20f, 20f).toggle("t", checked, modifier = UiModifier().width(120f.px).height(40f.px))
         }
         assertTrue(checked, "should toggle on press+release inside bounds")
     }
@@ -68,20 +68,20 @@ class UiContextTest {
         // pointer position (matches button's own press-edge semantics).
         Input.setPointer(down = true, x = 20f, y = 30f)
         ui.beginFrame(200f, 100f)
-        var value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = 0f, width = 100f, height = 20f)
+        var value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = 0f, modifier = UiModifier().width(100f.px).height(20f.px))
         ui.endFrame()
 
         // Drag to the track's midpoint while still held.
         Input.setPointer(down = true, x = 70f, y = 30f)
         ui.beginFrame(200f, 100f)
-        value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = value, width = 100f, height = 20f)
+        value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = value, modifier = UiModifier().width(100f.px).height(20f.px))
         ui.endFrame()
         assertEquals(5f, value, "dragging to the track midpoint should map to the midpoint value")
 
         // Release -- value should hold at whatever it last was.
         Input.setPointer(down = false, x = 70f, y = 30f)
         ui.beginFrame(200f, 100f)
-        value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = value, width = 100f, height = 20f)
+        value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = value, modifier = UiModifier().width(100f.px).height(20f.px))
         ui.endFrame()
         assertEquals(5f, value, "releasing should not further change the value")
     }
@@ -126,11 +126,11 @@ class UiContextTest {
         // Expand the dropdown first (simulating it was already expanded from a prior frame).
         val expandedState = column.widgetState("dd")
         expandedState.set("expanded", true)
-        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
 
         // A sibling widget drawn AFTER the dropdown in this same frame, at a position that
         // would spatially overlap the dropdown's first expanded option row.
-        column.toggle("sibling", false, 160f, 32f)
+        column.toggle("sibling", false, modifier = UiModifier().width(160f.px).height(32f.px))
 
         val allPrimitives = ui.endFrame()
         val siblingIndex = allPrimitives.indexOfLast { primitive ->
@@ -174,13 +174,13 @@ class UiContextTest {
 
         ui.simulateFrame(pointerDown = false, x = 0f, y = 0f) {
             column.widgetState("dd").set("expanded", true)
-            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
         }
         assertTrue(column.widgetState("dd").get("expanded", false), "sanity check: still expanded before the outside click")
 
         // Press far outside the header (y in [20,52]) and both option rows (y in [52,116]).
         ui.simulateFrame(pointerDown = true, x = 190f, y = 190f) {
-            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
         }
 
         assertFalse(column.widgetState("dd").get("expanded", true), "an outside click must collapse the dropdown")
@@ -193,12 +193,12 @@ class UiContextTest {
 
         ui.simulateFrame(pointerDown = false, x = 0f, y = 0f) {
             column.widgetState("dd").set("expanded", true)
-            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
         }
 
         // Press inside the first option row (directly below the 32px-tall header at y=20).
         ui.simulateFrame(pointerDown = true, x = 30f, y = 60f) {
-            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+            column.dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
         }
 
         assertTrue(column.widgetState("dd").get("expanded", false), "a click on an option row must not be treated as an outside click")

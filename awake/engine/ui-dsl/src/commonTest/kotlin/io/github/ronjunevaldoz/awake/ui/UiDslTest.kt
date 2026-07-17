@@ -92,9 +92,9 @@ class UiDslTest {
 
         ui.ui(x = 10f, y = 20f, width = 220f, font = BitmapFont(), gap = 0f) {
             row(height = 30f.dp, gap = 4f) {
-                first = buttonSlot(id = "one", label = "One", width = 60f, height = 30f)
+                first = buttonSlot(id = "one", label = "One", modifier = UiModifier().width(60f.px).height(30f.px))
                 spacer(UiModifier().width(12f.dp))
-                second = buttonSlot(id = "two", label = "Two", width = 60f, height = 30f)
+                second = buttonSlot(id = "two", label = "Two", modifier = UiModifier().width(60f.px).height(30f.px))
             }
         }
 
@@ -167,8 +167,7 @@ class UiDslTest {
                         id = "camera-mode",
                         options = listOf("Orbit", "Fly"),
                         selectedIndex = 0,
-                        width = slot.width,
-                        height = slot.height
+                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
                     )
                 }
             }

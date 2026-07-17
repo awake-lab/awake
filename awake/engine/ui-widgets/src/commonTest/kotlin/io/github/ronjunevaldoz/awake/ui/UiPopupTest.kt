@@ -57,13 +57,13 @@ class UiPopupTest {
 
         Input.setPointer(down = true, x = 30f, y = 60f)
         ui.beginFrame(240f, 200f)
-        var picked = ui.column(20f, 20f, 160f).dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        var picked = ui.column(20f, 20f, 160f).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
         ui.endFrame()
         assertEquals(null, picked)
 
         Input.setPointer(down = false, x = 30f, y = 60f)
         ui.beginFrame(240f, 200f)
-        picked = ui.column(20f, 20f, 160f).dropdown("dd", listOf("A", "B"), selectedIndex = 0, width = 160f, height = 32f)
+        picked = ui.column(20f, 20f, 160f).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
         ui.endFrame()
 
         assertEquals(0, picked)

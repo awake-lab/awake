@@ -69,19 +69,19 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
     val uncheckedUi = UiContext()
     uncheckedUi.beginFrame(160f, 40f)
     uncheckedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme)
-        .toggle("toggle-unchecked", checked = false, width = 160f, height = 40f, label = "ENABLED")
+        .toggle("toggle-unchecked", checked = false, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
 
     val checkedUi = UiContext()
     checkedUi.beginFrame(160f, 40f)
     checkedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme)
-        .toggle("toggle-checked", checked = true, width = 160f, height = 40f, label = "ENABLED")
+        .toggle("toggle-checked", checked = true, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
 
     val buttonVariants = UiButtonVariant.entries.map { variant ->
         val variantId = buttonVariantId(variant)
         val ui = UiContext()
         ui.beginFrame(160f, 40f)
         ui.absolute(0f, 0f, font = font, theme = CoreUiTheme)
-            .button("button-$variantId", 160f, 40f, label = "BUTTON", variant = variant, radius = UiShape.md)
+            .button("button-$variantId", label = "BUTTON", modifier = UiModifier().width(160f.px).height(40f.px), variant = variant, radius = UiShape.md)
         UiSnapshotScene(
             name = "button-$variantId",
             width = 160,
@@ -95,12 +95,12 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
     val lightThemeUi = UiContext()
     lightThemeUi.beginFrame(160f, 40f)
     lightThemeUi.absolute(0f, 0f, font = font, theme = SnapshotLightUiTheme)
-        .button("theme-light", 160f, 40f, label = "BUTTON")
+        .button("theme-light", label = "BUTTON", modifier = UiModifier().width(160f.px).height(40f.px))
 
     val darkThemeUi = UiContext()
     darkThemeUi.beginFrame(160f, 40f)
     darkThemeUi.absolute(0f, 0f, font = font, theme = CoreUiTheme)
-        .button("theme-dark", 160f, 40f, label = "BUTTON")
+        .button("theme-dark", label = "BUTTON", modifier = UiModifier().width(160f.px).height(40f.px))
 
     val panelUi = UiContext()
     panelUi.beginFrame(240f, 200f)
@@ -113,8 +113,8 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
         borderWidth = 1f.dp
     ) {
         text("CAMERA", color = CoreUiTheme.tokens.mutedForeground)
-        dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, 180f, 24f)
-        checkbox("debug", checked = true, width = 180f, height = 24f, label = "DEBUG")
+        dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = UiModifier().width(180f.px).height(24f.px))
+        checkbox("debug", checked = true, label = "DEBUG", modifier = UiModifier().width(180f.px).height(24f.px))
     }
 
     return buildList {
@@ -248,7 +248,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             ) { slot ->
                 text("Shaped Panel", color = CoreUiTheme.tokens.mutedForeground)
                 context.absolute(slot.x + 12f, slot.y + 44f, snapshotFont, CoreUiTheme)
-                    .button("launch", 180f, 36f, label = "Launch Scene", radius = UiShape.md)
+                    .button("launch", label = "Launch Scene", modifier = UiModifier().width(180f.px).height(36f.px), radius = UiShape.md)
             }
         },
         scene(

@@ -110,7 +110,7 @@ class ClipAndBorderTest {
         val ui = UiContext()
         ui.beginFrame(200f, 200f)
         val scope = ui.absolute(0f, 0f)
-        scope.buttonSlot("b", 100f, 40f, style = Style { shape(UiShape.md) }, radius = UiShape.none)
+        scope.buttonSlot("b", modifier = UiModifier().width(100f.px).height(40f.px), style = Style { shape(UiShape.md) }, radius = UiShape.none)
         val primitive = ui.endFrame().first()
         assertIs<UiDrawPrimitive.RoundedQuad>(primitive, "style.shape() must produce a RoundedQuad even though radius param was UiShape.none")
     }
@@ -124,8 +124,7 @@ class ClipAndBorderTest {
         val customColor = Color(1f, 0f, 0f, 1f)
         scope.buttonSlot(
             "b",
-            100f,
-            40f,
+            modifier = UiModifier().width(100f.px).height(40f.px),
             style = Style { border(3f.dp, customColor) },
             variant = UiButtonVariant.Filled
         )
@@ -144,8 +143,7 @@ class ClipAndBorderTest {
 
         scope.buttonSlot(
             "b",
-            100f,
-            40f,
+            modifier = UiModifier().width(100f.px).height(40f.px),
             style = Style {
                 shape(UiShapeSpec.CutCorner(8f.dp))
                 border(2f.dp, customBorder)
@@ -166,8 +164,7 @@ class ClipAndBorderTest {
 
         scope.buttonSlot(
             "circle",
-            120f,
-            40f,
+            modifier = UiModifier().width(120f.px).height(40f.px),
             style = Style { shape(UiShapeSpec.Circle) }
         )
 

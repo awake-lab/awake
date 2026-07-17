@@ -20,8 +20,7 @@ class UiSemanticWidgetsTest {
         context.beginFrame(240f, 96f)
         context.absolute(20f, 20f, font = font).button(
             id = "primary-action",
-            width = 180f,
-            height = 44f,
+            modifier = UiModifier().width(180f.px).height(44f.px),
             label = "Awake Button"
         )
 

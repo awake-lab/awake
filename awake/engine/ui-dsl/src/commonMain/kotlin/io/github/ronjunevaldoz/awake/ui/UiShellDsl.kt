@@ -356,9 +356,7 @@ fun UiColumnDslScope.propertyToggle(
         resolved = toggle(
             id = id,
             checked = checked,
-            width = slot.width,
-            height = slot.height,
-            modifier = modifier,
+            modifier = modifier.width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -442,8 +440,7 @@ fun UiColumnDslScope.propertyDropdown(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
-            width = slot.width,
-            height = slot.height,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -537,8 +534,7 @@ fun UiColumnDslScope.propertySlider(
             min = min,
             max = max,
             value = value,
-            width = slot.width,
-            height = slot.height,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
             style = style
         )
     }

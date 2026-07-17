@@ -145,8 +145,7 @@ class TextWidgetsTest {
         ui.beginFrame(220f, 100f)
         ui.absolute(0f, 0f, font = font).button(
             id = "nav",
-            width = 180f,
-            height = 36f,
+            modifier = UiModifier().width(180f.px).height(36f.px),
             label = "Overview",
             style = Style {
                 contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)

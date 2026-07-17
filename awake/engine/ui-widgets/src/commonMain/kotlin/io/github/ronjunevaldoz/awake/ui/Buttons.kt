@@ -75,28 +75,6 @@ fun UiScope.button(
     verticallyCentered = verticallyCentered
 ).clicked
 
-fun UiScope.button(
-    id: String,
-    width: Float,
-    height: Float,
-    label: String? = null,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty,
-    variant: UiButtonVariant = UiButtonVariant.Filled,
-    radius: Dp = UiShape.none,
-    centered: Boolean = true,
-    verticallyCentered: Boolean = centered
-): Boolean = buttonSlot(
-    id = id,
-    label = label,
-    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
-    style = style,
-    variant = variant,
-    radius = radius,
-    centered = centered,
-    verticallyCentered = verticallyCentered
-).clicked
-
 fun UiScope.buttonSlot(
     id: String,
     label: String? = null,
@@ -135,28 +113,6 @@ fun UiScope.buttonSlot(
 
 fun UiScope.buttonSlot(
     id: String,
-    width: Float,
-    height: Float,
-    label: String? = null,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty,
-    variant: UiButtonVariant = UiButtonVariant.Filled,
-    radius: Dp = UiShape.none,
-    centered: Boolean = true,
-    verticallyCentered: Boolean = centered
-): UiButtonResult = buttonSlot(
-    id = id,
-    label = label,
-    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
-    style = style,
-    variant = variant,
-    radius = radius,
-    centered = centered,
-    verticallyCentered = verticallyCentered
-)
-
-fun UiScope.buttonSlot(
-    id: String,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
@@ -174,24 +130,6 @@ fun UiScope.buttonSlot(
     content(contentSlot)
 }
 
-fun UiScope.buttonSlot(
-    id: String,
-    width: Float,
-    height: Float,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty,
-    variant: UiButtonVariant = UiButtonVariant.Filled,
-    radius: Dp = UiShape.none,
-    content: AbsoluteScope.(slot: UiSlot) -> Unit
-): UiButtonResult = buttonSlot(
-    id = id,
-    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
-    style = style,
-    variant = variant,
-    radius = radius,
-    content = content
-)
-
 fun UiScope.button(
     id: String,
     modifier: UiModifier = UiModifier(),
@@ -202,24 +140,6 @@ fun UiScope.button(
 ): Boolean = buttonSlot(
     id = id,
     modifier = modifier,
-    style = style,
-    variant = variant,
-    radius = radius,
-    content = content
-).clicked
-
-fun UiScope.button(
-    id: String,
-    width: Float,
-    height: Float,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty,
-    variant: UiButtonVariant = UiButtonVariant.Filled,
-    radius: Dp = UiShape.none,
-    content: AbsoluteScope.(slot: UiSlot) -> Unit
-): Boolean = buttonSlot(
-    id = id,
-    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
     style = style,
     variant = variant,
     radius = radius,

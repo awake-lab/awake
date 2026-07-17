@@ -72,26 +72,6 @@ fun UiScope.slider(
     return newValue
 }
 
-fun UiScope.slider(
-    id: String,
-    min: Float,
-    max: Float,
-    value: Float,
-    width: Float,
-    height: Float,
-    label: String? = null,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Float = slider(
-    id = id,
-    min = min,
-    max = max,
-    value = value,
-    label = label,
-    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
-    style = style
-)
-
 fun UiScope.dropdown(
     id: String,
     options: List<String>,
@@ -164,22 +144,6 @@ fun UiScope.dropdown(
     }
     return picked
 }
-
-fun UiScope.dropdown(
-    id: String,
-    options: List<String>,
-    selectedIndex: Int,
-    width: Float,
-    height: Float,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-): Int? = dropdown(
-    id = id,
-    options = options,
-    selectedIndex = selectedIndex,
-    modifier = modifier.copy(width = width.toDimension(), height = height.toDimension()),
-    style = style
-)
 
 /** Select-trigger content: label left-aligned, expand chevron right-aligned -- matches the
  * real shadcn/ui Select trigger shape, not a big centered label ([buttonSlot]'s default).
