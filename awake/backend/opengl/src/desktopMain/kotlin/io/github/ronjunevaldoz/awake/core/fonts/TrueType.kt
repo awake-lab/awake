@@ -108,12 +108,6 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
 
                 val cp = pCodePoint[0]
                 if (cp == '\n'.code) {
-//                    if (isLineBBEnabled()) {
-//                        glEnd()
-//                        renderLineBB(lineStart, i - 1, y[0], scale)
-//                        glBegin(GL_QUADS)
-//                    }
-
                     y.put(0, lineY + (metrics.ascent - metrics.descent + metrics.lineGap) * scale)
                     x.put(0, 0.0f)
 

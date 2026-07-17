@@ -26,11 +26,8 @@ internal class QueryCollector(
             return results
         }
 
-        // Resolves every requested type's store up front into a plain array instead of
-        // `types.mapNotNull { ... }` -- avoids both the intermediate `List` allocation and
-        // (via the `filter { queryStores.all { ... } }` this replaces below) re-walking that
-        // list once per candidate entity. Bails out to `emptyList()` as soon as any type
-        // has no store yet, same semantics as the old size-mismatch check.
+        // Plain array instead of `types.mapNotNull { ... }` to avoid the intermediate List
+        // and re-walking it once per candidate entity via `filter { queryStores.all { ... } }`.
         val queryStores = arrayOfNulls<ComponentStore<Any>>(types.size)
         var resolvedIndex = 0
         for (type in types) {
@@ -48,12 +45,9 @@ internal class QueryCollector(
             }
         }
 
-        // Iterates the smallest store's own dense arrays via `forEach` instead of
-        // `smallestStore.entities.filter { ... }` -- `entities` exposes a `List<Entity>`,
-        // and `Entity` (a value class) boxes on every access through that interface, plus
-        // `filter`/`Iterable.all` allocate their own iterators. `forEach` walks the typed
-        // dense arrays directly (see `ComponentStore.forEach`), so entities here are never
-        // boxed until they're actually added to `results`.
+        // `forEach` walks the typed dense arrays directly instead of
+        // `smallestStore.entities.filter { ... }`, which would box every Entity (a value
+        // class) through the `List<Entity>` interface and allocate a `filter` iterator.
         val results = ArrayList<Entity>(smallestStore.size)
         smallestStore.forEach { entity, _ ->
             if (entities.isAlive(entity) && matchesAll(queryStores, entity)) {

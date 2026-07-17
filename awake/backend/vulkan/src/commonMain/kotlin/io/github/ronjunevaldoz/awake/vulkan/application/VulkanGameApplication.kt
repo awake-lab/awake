@@ -137,14 +137,8 @@ class VulkanGameApplication(
         const val MAX_FRAMES_IN_FLIGHT = 2
         const val DEFAULT_SHADER_ENTRY_POINT = "main"
 
-        // Bundled once in this module (`awake-backend-vulkan/src/commonMain/resources`),
-        // not duplicated per consumer -- these files are identical for every
-        // VulkanGameApplication subclass, so they live with the framework code that reads
-        // them and reach every consumer transitively via normal KMP resource bundling (see
-        // docs/MVP_PLAN.md's custom-UI decision log entry, and AGENTS.md's resource-
-        // bundling rule). Per-app shaders (each subclass's own vertexShaderResourcePath/
-        // fragmentShaderResourcePath) are different: they vary per game, so they stay
-        // constructor-injected and consumer-owned.
+        // Identical for every subclass, so bundled once here rather than per consumer.
+        // Per-app shaders vary per game and stay constructor-injected instead.
         const val UI_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.vert.spv"
         const val UI_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.frag.spv"
         const val UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.vert.spv"

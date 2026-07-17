@@ -96,14 +96,9 @@ private const val NUM_BODY_MUTEXES = 0u
 private const val MAX_BODY_PAIRS = 65_536u
 private const val MAX_CONTACTS = 20_480u
 
-// JoltC callback function pointer tables (JPC_BroadPhaseLayerInterfaceFns/
-// JPC_ObjectVsBroadPhaseLayerFilterFns/JPC_ObjectLayerPairFilterFns) require plain top-level
-// `staticCFunction`s -- no captured state allowed, matching this class's own single-broadphase-
-// layer/two-object-layer scheme, which is a compile-time constant, not per-instance state.
-// Only one broadphase layer exists (index 0) since this slice needs no broadphase-level
-// culling beyond what the (small) object-layer scheme already gives -- mirrors the desktop/
-// Android backend's own `BroadPhaseLayerInterfaceTable`/`ObjectVsBroadPhaseLayerFilterTable`
-// mapping both object layers to broadphase layer 0.
+// JoltC's callback fn-pointer tables require plain top-level `staticCFunction`s (no captured
+// state), so the single-broadphase-layer/two-object-layer scheme below is hardcoded rather
+// than instance state -- mirrors the desktop/Android backend's own layer mapping.
 @OptIn(ExperimentalForeignApi::class)
 private fun getNumBroadPhaseLayers(self: COpaquePointer?): UInt = 1u
 
@@ -127,13 +122,9 @@ private fun objectLayerPairShouldCollide(
     layer2: JPC_ObjectLayer
 ): Boolean = !(layer1 == OBJECT_LAYER_NON_MOVING && layer2 == OBJECT_LAYER_NON_MOVING)
 
-// JoltC exposes JPC_Vec3/JPC_Quat two different ways depending on where they appear:
-// as a plain FUNCTION PARAMETER (e.g. JPC_PhysicsSystem_SetGravity's `inGravity`), cinterop
-// generates a by-value `CValue<JPC_Vec3>` parameter -- [vec3Value]/[quatValue] build that.
-// As a NESTED STRUCT FIELD (e.g. JPC_BodyCreationSettings.Position), cinterop instead
-// exposes a read-only `val` returning a live view into the parent struct's own memory --
-// there is no setter to assign a whole `CValue` to, so writing one requires setting each
-// scalar field of that view directly -- [JPC_Vec3.write]/[JPC_Quat.write] do that.
+// Function-parameter Vec3/Quat cinterop as by-value CValue ([vec3Value]/[quatValue]), but
+// nested struct fields (e.g. JPC_BodyCreationSettings.Position) expose only a read-only view
+// with no CValue setter, so those need field-by-field writes ([JPC_Vec3.write]/[JPC_Quat.write]).
 @OptIn(ExperimentalForeignApi::class)
 private fun vec3Value(v: Vec3): CValue<JPC_Vec3> = cValue {
     x = v.x

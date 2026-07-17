@@ -36,11 +36,8 @@ class AwakeContext(override val gl: OpenGL, override val config: Config) : Conte
                     gl = gl,
                     config = resolvedConfig
                 )
-                // GameLoop (awake-core) is backend-agnostic and can't depend on this
-                // OpenGL-specific Context/Config -- mirror the fps/ups this Context was
-                // configured with into the generic holder GameLoop actuals actually read,
-                // so existing `AwakeContext.init { fps = X }` call sites keep working
-                // unchanged (see docs/MVP_PLAN.md's Decision Log, D11 follow-up).
+                // GameLoop is backend-agnostic and can't depend on this OpenGL Context/Config,
+                // so mirror fps/ups into the generic holder it actually reads (D11 follow-up).
                 EngineConfigHolder.config = EngineConfig(
                     fps = resolvedConfig.fps,
                     ups = resolvedConfig.ups

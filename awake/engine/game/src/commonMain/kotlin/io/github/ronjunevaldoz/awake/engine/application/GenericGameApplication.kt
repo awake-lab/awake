@@ -46,11 +46,8 @@ abstract class GenericGameApplication(
 
     final override fun create(surface: Any?) {
         // NOT MainScope(): its Dispatchers.Main can resolve to a Swing/AWT dispatcher on
-        // desktop, which deadlocks against -XstartOnFirstThread (already claimed by GLFW) --
-        // see awake-backend-vulkan's VulkanGameApplication git history for the incident this
-        // avoids. createBackendResources()/Game.ready() never touch Swing/AWT, so
-        // Dispatchers.Unconfined keeps every call on this calling thread, per this project's
-        // "one thread owns the render backend" rule.
+        // desktop, deadlocking against -XstartOnFirstThread (already claimed by GLFW).
+        // Dispatchers.Unconfined keeps every call on this calling thread instead.
         surface?.let { window -> CoroutineScope(Dispatchers.Unconfined).launch { setupCommon(window) } }
     }
 

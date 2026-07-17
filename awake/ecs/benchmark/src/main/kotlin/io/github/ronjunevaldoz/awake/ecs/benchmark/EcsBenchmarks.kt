@@ -133,12 +133,9 @@ open class EcsBenchmarks {
         return entities.count { it.getComponent(AshleyTransform::class.java) != null }
     }
 
-    // The four benchmarks below specifically stress structural churn (remove + re-add a
-    // component) on entities that are already members of a *built* family -- i.e. the
-    // family cache's own indexOf()/remove()/add() path, not just ComponentStore's. None of
-    // the awake*ComponentAddRemove benchmarks above exercise this: they never call
-    // world.family<...>(), so no family cache exists for them to churn against. See
-    // docs/ecs-benchmark-scorecard.md for why this gap mattered.
+    // The four benchmarks below stress structural churn on entities already in a *built*
+    // family (the family cache's indexOf()/remove()/add() path), unlike the
+    // awake*ComponentAddRemove benchmarks above which never build a family to churn against.
     // Pooled type-id fast path.
     @Benchmark
     fun awakeFamilyChurn(state: AwakeFamilyChurnState): Int {
@@ -186,13 +183,9 @@ open class EcsBenchmarks {
         return state.family.size
     }
 
-    // Isolates QueryCollector.collect's recompute cost -- the vararg `world.query(...)`
-    // path general callers use, as opposed to the maintained Family1/Family2 caches
-    // RenderSystem/TransformSystem use for their own per-frame iteration (already the
-    // fastest rows in this suite and untouched by this benchmark). Toggles a component on
-    // a scratch entity every call specifically to force `QueryCache` to miss and re-run
-    // `QueryCollector.collect` each time, since a cache hit is just a map lookup and
-    // wouldn't exercise the collection path this benchmark targets.
+    // Isolates QueryCollector.collect's recompute cost (the vararg world.query path, not
+    // the maintained Family caches). Toggles a scratch component every call to force a
+    // QueryCache miss, since a cache hit is just a map lookup and wouldn't exercise collect.
     @Benchmark
     fun awakeGeneralQueryIteration(state: AwakeGeneralQueryState): Int {
         val world = state.world

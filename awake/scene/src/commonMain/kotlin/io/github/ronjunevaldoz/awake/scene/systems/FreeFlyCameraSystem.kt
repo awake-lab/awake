@@ -57,12 +57,8 @@ class FreeFlyCameraSystem(
             if (wasDragging) {
                 val dx = Input.pointerX - lastPointerX
                 val dy = Input.pointerY - lastPointerY
-                // At yaw=0, forward=(0,0,-1) and right=(1,0,0) -- i.e. +X is "right" from the
-                // camera's own point of view (see right/rightX below). Dragging left (dx<0)
-                // must turn the camera to look left (forwardX should decrease, toward -X), so
-                // yaw needs to DECREASE when dx is negative -- i.e. yaw += dx, not yaw -= dx
-                // (the latter was inverted: dragging left made yaw increase, swinging forward
-                // toward +X/"right" instead, the exact bug reported: "drag left, it goes right").
+                // yaw += dx, not yaw -= dx: the latter was inverted, causing the reported bug
+                // "drag left, it goes right" (dragging left must decrease yaw to look left).
                 yaw += dx * rotateSpeed
                 pitch = (pitch - dy * rotateSpeed).coerceIn(MIN_PITCH, MAX_PITCH)
             }
@@ -102,12 +98,9 @@ class FreeFlyCameraSystem(
             moveX -= rightX * step; moveZ -= rightZ * step
         }
 
-        // Trackpad pinch (surfaced through GLFW's scroll callback on macOS -- see
-        // Input.scrollDeltaY's doc comment) dollies the spectator camera forward/back along
-        // its own look direction, same forward vector WASD already uses above. No min-
-        // distance clamp here -- unlike OrbitCameraSystem.distance, this camera has no
-        // orbit target to avoid crossing, so it moves freely, same as WASD movement already
-        // does.
+        // Trackpad pinch dollies the camera along the same forward vector WASD uses. No
+        // min-distance clamp: unlike OrbitCameraSystem.distance, there's no orbit target
+        // to avoid crossing, so it moves freely.
         val pinchStep = Input.consumeScrollDeltaY() * pinchZoomSpeed
         moveX += forwardX * pinchStep; moveY += forwardY * pinchStep; moveZ += forwardZ * pinchStep
 

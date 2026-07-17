@@ -37,15 +37,10 @@ class VulkanView(
         Frame.width = width
         Frame.height = height
         application.create(holder.surface)
-        // AndroidGameLoop.startLoop runs a single tick (delta/FPS bookkeeping + frame-rate
-        // throttling) per call -- the caller owns the actual repetition, same contract
-        // desktop's createFrame() uses via its own `while (!window.shouldClose())` loop.
-        // This used to call startLoop exactly once here with no surrounding loop at all, so
-        // frameCount (and therefore the demo cube's rotation) only ever advanced by a
-        // single frame before rendering stopped. A dedicated thread is required rather than
-        // looping on the calling (UI) thread: drawFrame()'s vkWaitForFences/
-        // vkQueuePresentKHR block, and SurfaceView (unlike GLSurfaceView) has no built-in
-        // render thread of its own.
+        // startLoop runs one tick per call; caller owns repetition (previously called once
+        // with no surrounding loop, so rendering stopped after a single frame). A dedicated
+        // thread is required since drawFrame()'s vk*/vkQueuePresentKHR block, and SurfaceView
+        // (unlike GLSurfaceView) has no built-in render thread of its own.
         running = true
         renderThread = Thread({
             while (running) {
@@ -69,11 +64,9 @@ class VulkanView(
         application.dispose()
     }
 
-    // Fires on the UI thread, not the dedicated "VulkanView-Render" thread `update()` runs
-    // on -- Input's fields are @Volatile specifically so this cross-thread write is safe
-    // to read from the render thread's next update() call without further synchronization.
-    // Only ACTION_DOWN/MOVE/UP are handled (single-pointer); multi-touch isn't modeled by
-    // Input yet, matching this pass's "minimal, not exhaustive" input scope.
+    // Fires on the UI thread, not the "VulkanView-Render" thread `update()` runs on --
+    // Input's fields are @Volatile so this cross-thread write is safe without further sync.
+    // Only ACTION_DOWN/MOVE/UP are handled; multi-touch isn't modeled by Input yet.
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return event.syncAwakePointerInput() || super.onTouchEvent(event)
     }

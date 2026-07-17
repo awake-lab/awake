@@ -3,13 +3,9 @@
 package io.github.ronjunevaldoz.awake.vulkan.gen
 
 actual object VulkanWindow {
-    // Every `object` with `external fun` needs the native library loaded before its first
-    // call -- Kotlin objects are lazily initialized independently, so relying on some
-    // *other* object's (e.g. Vulkan's) init block to have already run first is not safe
-    // (surfaced as a real UnsatisfiedLinkError when this object was touched before
-    // Vulkan in a test run). Same fix belongs on VulkanBuffers/VulkanDescriptors/
-    // VulkanImages if they're ever exercised standalone before Vulkan; deferred since
-    // every current real call site already goes through Vulkan first in practice.
+    // Kotlin objects init lazily/independently, so this can't rely on another object's
+    // (e.g. Vulkan's) init block having loaded the library first -- caused a real
+    // UnsatisfiedLinkError when touched before Vulkan in a test run.
     init {
         System.loadLibrary("awake-vulkan")
     }

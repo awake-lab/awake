@@ -11,12 +11,9 @@ import org.khronos.webgl.Int8Array
 import org.khronos.webgl.get
 import org.w3c.fetch.Response
 
-// Web demo (see docs/MVP_PLAN.md's decision log): a real browser fetch() implementation --
-// resource files under commonMain/resources are served at the same relative path by
-// webpack-dev-server/the production bundle, so a plain relative fetch() works without any
-// extra asset-copying step. wasmJs's `await()` infers its return type from call-site
-// context (it's not derived from the Promise's own type argument), so both awaits need an
-// explicit type -- confirmed the hard way ("Cannot infer type for type parameter 'T'").
+// Resources are served at the same relative path by webpack, so plain fetch() works.
+// wasmJs's `await()` infers its return type from call-site context, not the Promise's own
+// type argument, so both awaits below need an explicit type or inference fails.
 actual suspend fun readResourceBytes(path: String): ByteArray {
     val response: Response = window.fetch(path).await()
     if (!response.ok) {

@@ -51,13 +51,9 @@ private object JoltModule {
     }
 }
 
-// --- @JsFun glue: each function below is one self-contained JoltPhysics.js call sequence,
-// mirroring the exact boilerplate jrouwe/JoltPhysics.js's own Examples/js/example.js uses
-// (setupCollisionFiltering/initPhysics/createBox/createSphere/addToScene/removeFromScene/
-// updatePhysics) -- see that file for the upstream original this was copied from. Every
-// `jolt.XXX`-shaped value threaded through is the same namespace object [JoltModule.get]
-// resolves; there is deliberately no separate typed wrapper class for it (see that object's
-// doc comment for why one isn't possible here).
+// @JsFun glue below mirrors jrouwe/JoltPhysics.js's Examples/js/example.js call sequence
+// verbatim; `jolt.XXX` values are read from the untyped namespace object [JoltModule.get]
+// resolves since Kotlin/Wasm has no per-field typed handle for them (no `dynamic`).
 
 /**
  * [jolt.JoltInterface]'s own object-layer/broadphase-layer collision-filtering setup, plus

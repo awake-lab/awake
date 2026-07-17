@@ -90,14 +90,6 @@ fun createImage(text: String, fontSize: Double): UIImage {
     // Create text storage and add the attributed string
     val textStorage = NSTextStorage.create(textString)
     val textSize = textString.size()
-//    val rect  = textString.boundingRectWithSize(
-//        size = CGSizeMake(Double.MAX_VALUE, Double.MAX_VALUE),
-//        options = NSStringDrawingUsesLineFragmentOrigin,
-//        context = null
-//    )
-//
-//    val width = ceil(CGRectGetWidth(rect))
-//    val height = ceil(CGRectGetHeight(rect))
 
     // Create text container with fixed size for text layout
     val textContainer = NSTextContainer(CGSizeMake(48.0, 48.0 + 2))

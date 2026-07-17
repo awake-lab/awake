@@ -45,12 +45,9 @@ class FixedTimestepLoop(
             steps += 1
         }
         if (steps == maxStepsPerFrame) {
-            // Spiral-of-death guard: if the simulation can't keep up with real time (each
-            // fixedUpdate call takes longer than fixedDelta itself), draining the full
-            // accumulator would mean running more and more steps every subsequent frame,
-            // permanently falling further behind. Drop the remainder instead -- the
-            // simulation visibly slows down under sustained overload rather than freezing
-            // the render thread trying to catch up.
+            // Spiral-of-death guard: if fixedUpdate can't keep up with real time, draining
+            // the full accumulator would fall further behind every frame. Drop the
+            // remainder instead so the sim slows down visibly rather than freezing render.
             accumulator = 0f
         }
         render(accumulator / fixedDelta)

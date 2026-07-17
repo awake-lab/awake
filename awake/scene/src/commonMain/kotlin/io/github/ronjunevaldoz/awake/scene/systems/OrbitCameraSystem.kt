@@ -67,14 +67,10 @@ class OrbitCameraSystem(
     private var wasDragging = false
 
     override fun update(world: World, delta: Float) {
-        // A UI widget (button/toggle/slider) already claimed this pointer -- see
-        // Input.pointerCapturedByUi's doc comment. Gate BOTH the drag-derived yaw/pitch AND
-        // auto-rotate on this, not just the drag path: auto-rotate previously ran whenever
-        // `draggingPointer` was false for ANY reason, which included "the pointer is down
-        // but a UI slider claimed it" -- so dragging a slider still visibly spun the camera
-        // via auto-rotate even after drag-delta itself was correctly suppressed (confirmed
-        // by real user testing after the initial pointerCapturedByUi fix landed). W/S zoom
-        // stays independent of pointer state entirely, since it's keyboard-driven.
+        // Gate BOTH drag-derived yaw/pitch AND auto-rotate on pointerCapturedByUi, not just
+        // the drag path -- auto-rotate previously fired whenever draggingPointer was false
+        // for any reason, so dragging a UI slider still visibly spun the camera (confirmed
+        // by real user testing). W/S zoom stays independent since it's keyboard-driven.
         val pointerCapturedByUi = Input.pointerCapturedByUi
         val draggingPointer = Input.pointerDown && !pointerCapturedByUi
         if (draggingPointer) {
@@ -97,12 +93,8 @@ class OrbitCameraSystem(
         if (Input.isKeyDown(Key.W)) distance = (distance - zoomSpeed * delta).coerceAtLeast(MIN_DISTANCE)
         if (Input.isKeyDown(Key.S)) distance += zoomSpeed * delta
 
-        // Trackpad pinch (surfaced through GLFW's scroll callback on macOS -- see
-        // Input.scrollDeltaY's doc comment). Sign convention: GLFW's positive yoffset is
-        // "scroll up" / pinch-out, which this maps to zooming IN (distance decreases),
-        // matching W's existing "zoom in decreases distance" convention above -- the
-        // intuitive default for a trackpad pinch-out gesture (spreading fingers apart, as if
-        // pulling the subject closer).
+        // GLFW's positive yoffset is "scroll up"/pinch-out, mapped here to zooming IN
+        // (distance decreases) -- matches W's "zoom in decreases distance" convention above.
         distance = (distance - Input.consumeScrollDeltaY() * pinchZoomSpeed).coerceAtLeast(MIN_DISTANCE)
 
         val cosPitch = cos(pitch)

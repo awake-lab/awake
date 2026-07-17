@@ -50,14 +50,9 @@ private const val MAX_CONTACTS = 20_480
  * reinventing jolt-jni's own API.
  */
 class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
-    // Kotlin runs property initializers and `init {}` blocks in textual declaration order --
-    // a companion object's own `init` always runs before any instance member, which is the
-    // only ordering guarantee strong enough here (an instance `init {}` block placed above
-    // `tempAllocator`'s property initializer is still just as easy to accidentally reorder
-    // later). Confirmed the hard way: with `JoltNative.ensureLoaded()` in an instance `init`
-    // block below `tempAllocator`'s declaration, `TempAllocatorMalloc()`'s own native
-    // constructor call ran first and threw `UnsatisfiedLinkError` before the native library
-    // was ever loaded.
+    // Companion object init always runs before any instance member -- the only ordering
+    // guarantee strong enough to load the native lib before tempAllocator's native constructor
+    // call (confirmed via UnsatisfiedLinkError when this lived in an instance init instead).
     private companion object {
         init {
             JoltNative.ensureLoaded()
