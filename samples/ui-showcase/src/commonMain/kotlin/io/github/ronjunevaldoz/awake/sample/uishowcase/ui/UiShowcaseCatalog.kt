@@ -683,6 +683,18 @@ private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRunt
     )
 
     spacer(UiModifier().height(10f.dp))
+    val nextBitmapFont = awakeShadcnPropertyToggle(
+        id = "showcase-bitmap-font",
+        label = "Bitmap font",
+        checked = state.showcaseUseBitmapFont
+    )
+    if (nextBitmapFont != state.showcaseUseBitmapFont) state.showcaseUseBitmapFont = nextBitmapFont
+    awakeShadcnSupportingText(
+        "Swaps the whole app's font at runtime -- bitmap stays pixel-grid-aligned, true font uses real outline glyphs. See the Foundations > Bitmap And True Font page for a side-by-side.",
+        maxLines = 3
+    )
+
+    spacer(UiModifier().height(10f.dp))
     awakeShadcnSectionTitle("Live preview")
     val nextLive = awakeShadcnPropertyToggle(
         id = "showcase-live",

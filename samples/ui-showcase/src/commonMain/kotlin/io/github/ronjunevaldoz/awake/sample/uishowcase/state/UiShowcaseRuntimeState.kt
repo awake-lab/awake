@@ -23,7 +23,8 @@ internal data class UiShowcaseUiState(
     val showcaseDangerMode: Boolean = false,
     val showcaseSurfaceRadius: Float = 12f,
     val showcasePrimaryClicks: Int = 0,
-    val showcaseCounterEffectMessage: String? = null
+    val showcaseCounterEffectMessage: String? = null,
+    val showcaseUseBitmapFont: Boolean = false
 )
 
 internal class UiShowcaseRuntimeState {
@@ -95,6 +96,12 @@ internal class UiShowcaseRuntimeState {
         get() = _uiState.value.showcaseCounterEffectMessage
         set(value) {
             _uiState.update { it.copy(showcaseCounterEffectMessage = value) }
+        }
+
+    var showcaseUseBitmapFont: Boolean
+        get() = _uiState.value.showcaseUseBitmapFont
+        set(value) {
+            _uiState.update { it.copy(showcaseUseBitmapFont = value) }
         }
 
     fun showcaseTheme(): UiTheme = awakeShadcnTheme(

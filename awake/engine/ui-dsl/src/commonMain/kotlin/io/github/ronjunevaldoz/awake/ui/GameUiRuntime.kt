@@ -32,7 +32,13 @@ class GameUiRuntime internal constructor(
     private val spec: GameUiSpec
 ) : GameServiceLookup by services {
     val uiContext = UiContext()
-    val font: UiFont = UiFonts.default()
+
+    /** Settable so a game can swap fonts at runtime (e.g. a bitmap/true-font toggle) --
+     * reassign to a stable, memoized [UiFont] instance rather than constructing a new one
+     * per frame, since backends key their glyph pipeline/texture cache off font identity
+     * (`currentUiFont !== font`); a fresh instance every frame forces a texture rebuild
+     * every frame. */
+    var font: UiFont = UiFonts.default()
     val theme: UiTheme
         get() = spec.theme
 

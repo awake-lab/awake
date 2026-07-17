@@ -56,7 +56,7 @@ private fun previewMetadataFor(entry: AwakeUiPreviewEntry): AwakeUiPreviewMetada
 private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-overview" to 0x44612df645c45491uL,
     "ui-showcase-reference" to 0x8aa119eaada2bffduL,
-    "ui-showcase-theming" to 0x83e63ff4d3033dc0uL,
+    "ui-showcase-theming" to 0xe0143c011b0298e2uL,
     "ui-showcase-fonts" to 0x794e83b39e69d69buL,
     "ui-showcase-layout" to 0xb3d64c9c5e74ede5uL,
     "ui-showcase-slot-apis" to 0x30872c3f6ec22bdbuL,
