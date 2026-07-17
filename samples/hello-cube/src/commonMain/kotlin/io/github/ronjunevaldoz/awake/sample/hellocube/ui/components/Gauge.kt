@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.hellocube.ui.components
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -22,8 +23,8 @@ fun UiScope.gauge(
     width: Float = 120f,
     height: Float = 12f,
     modifier: UiModifier = UiModifier(),
-    trackColor: FloatArray = floatArrayOf(0.2f, 0.2f, 0.2f, 1f),
-    fillColor: FloatArray = floatArrayOf(0.3f, 0.7f, 0.3f, 1f)
+    trackColor: Color = Color(0.2f, 0.2f, 0.2f, 1f),
+    fillColor: Color = Color(0.3f, 0.7f, 0.3f, 1f)
 ) {
     val slot = claimModifiedSlot(width.toDimension(), height.toDimension(), modifier)
     emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, trackColor))
