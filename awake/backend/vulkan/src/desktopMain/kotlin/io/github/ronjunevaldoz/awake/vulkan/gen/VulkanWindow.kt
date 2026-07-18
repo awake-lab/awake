@@ -15,6 +15,7 @@ actual object VulkanWindow {
     actual external fun glfwWindowHint(hint: Int, value: Int)
     actual external fun glfwCreateWindow(width: Int, height: Int, title: String): Long
     actual external fun glfwDestroyWindow(window: Long)
+    actual external fun glfwFocusWindow(window: Long)
     actual external fun glfwWindowShouldClose(window: Long): Boolean
     actual external fun glfwPollEvents()
     actual external fun glfwGetFramebufferWidth(window: Long): Int

@@ -52,6 +52,7 @@ fun runVulkanDesktopGame(
         game.windowConfig.title
     )
     check(window != 0L) { "glfwCreateWindow returned null" }
+    VulkanWindow.glfwFocusWindow(window)
     VulkanWindow.glfwSetScrollCallback(window)
 
     try {

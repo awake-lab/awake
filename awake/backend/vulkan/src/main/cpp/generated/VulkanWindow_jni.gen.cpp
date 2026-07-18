@@ -125,6 +125,24 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwDestroyWindow(
 }
 
 
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwFocusWindow(
+        JNIEnv* env,
+        jclass clazz,
+        jlong window) {
+    // --- Marshalling ---
+    void* window_ptr = reinterpret_cast<void*>(window);
+
+    // --- Error handling ---
+    if (!window_ptr) {
+        throw_illegal_state(env, "glfwFocusWindow: window not initialized");
+        return;
+    }
+
+    glfwFocusWindow(reinterpret_cast<GLFWwindow*>(window_ptr));
+}
+
+
 extern "C" JNIEXPORT jboolean JNICALL
 Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwWindowShouldClose(
         JNIEnv* env,

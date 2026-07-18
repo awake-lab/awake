@@ -23,6 +23,14 @@ expect object VulkanWindow {
 
     fun glfwCreateWindow(width: Int, height: Int, title: String): Long
     fun glfwDestroyWindow(window: Long)
+
+    /** Brings [window] to the front and gives it OS input focus (`glfwFocusWindow`). Needed
+     * on top of default focus-on-show behavior for a bare JVM process with no macOS app
+     * bundle/`NSApplication` activation, which can leave the window frontmost but not the
+     * OS-focused one -- keyboard/scroll input silently fails to reach it in that state even
+     * though mouse clicks still route correctly (mouse events go to whatever window is under
+     * the cursor regardless of app-level focus). */
+    fun glfwFocusWindow(window: Long)
     fun glfwWindowShouldClose(window: Long): Boolean
     fun glfwPollEvents()
     fun glfwGetFramebufferWidth(window: Long): Int

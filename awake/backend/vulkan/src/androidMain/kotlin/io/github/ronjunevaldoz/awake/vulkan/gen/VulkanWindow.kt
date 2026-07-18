@@ -26,6 +26,10 @@ actual object VulkanWindow {
         TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
     }
 
+    actual fun glfwFocusWindow(window: Long) {
+        TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
+    }
+
     actual fun glfwWindowShouldClose(window: Long): Boolean {
         TODO("Not applicable on Android -- see VulkanWindow.kt's doc comment.")
     }
