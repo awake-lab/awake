@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.testing.comparePixels
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
@@ -109,6 +110,22 @@ class RendererHeadlessUiGlyphBaselineTest {
             assertTrue(
                 pixels.data.any { it.toInt() != 0 },
                 "large headless glyph runs should render non-empty output instead of tripping the mesh capacity guard"
+            )
+        }
+    }
+
+    @Test
+    fun headlessUiGlyphRenderSupportsLargeMipChainFont() {
+        withHeadlessUiRenderer { renderer ->
+            val font = UiFonts.trueSans()
+            val target = renderer.createRenderTarget(128, 128)
+            val glyphs = glyphRun("AWAKE", font, x = 8f, y = 8f, scale = 2f, color = Color(0.96f, 0.97f, 1f, 1f))
+
+            renderer.renderUiGlyphsToTexture(target, glyphs, font)
+            val pixels = runBlocking { renderer.readPixels(target) }
+            assertTrue(
+                pixels.data.any { it.toInt() != 0 },
+                "TrueSans (large mip chain, ~11 levels) should render non-empty output, not sample an UNDEFINED-layout mip"
             )
         }
     }
@@ -222,7 +239,7 @@ class RendererHeadlessUiGlyphBaselineTest {
 
         fun glyphRun(
             label: String,
-            font: BitmapFont,
+            font: io.github.ronjunevaldoz.awake.ui.font.UiFont,
             x: Float,
             y: Float,
             scale: Float,

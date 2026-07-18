@@ -118,8 +118,8 @@ actual object VulkanImages {
             maxAnisotropy = createInfo.maxAnisotropy
             compareEnable = 0u
             compareOp = 0u
-            minLod = 0f
-            maxLod = 0f
+            minLod = createInfo.minLod
+            maxLod = createInfo.maxLod
             borderColor = createInfo.borderColor.toUInt()
             unnormalizedCoordinates = if (createInfo.unnormalizedCoordinates) 1u else 0u
         }
@@ -139,7 +139,8 @@ actual object VulkanImages {
         commandBuffer: Long,
         image: Long,
         oldLayout: Int,
-        newLayout: Int
+        newLayout: Int,
+        levelCount: Int
     ) = memScoped {
         val barrier = alloc<NativeVkImageMemoryBarrier>().apply {
             sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER
@@ -152,7 +153,10 @@ actual object VulkanImages {
             subresourceRange.apply {
                 aspectMask = VK_IMAGE_ASPECT_COLOR_BIT.toUInt()
                 baseMipLevel = 0u
-                levelCount = 1u
+                // Explicit level count, not VK_REMAINING_MIP_LEVELS -- see the JNI/desktop
+                // actual's matching comment: that sentinel silently transitioned only level 0
+                // on MoltenVK, confirmed via validation errors on every level above 0.
+                this.levelCount = levelCount.toUInt()
                 baseArrayLayer = 0u
                 layerCount = 1u
             }

@@ -155,12 +155,24 @@ class SwapchainManager(
         }
     }
 
+    /** Deliberately prefers `_UNORM` formats, not `_SRGB` -- every [io.github.ronjunevaldoz
+     * .awake.core.colors.Color] this engine produces (`AwakeShadcnTheme`'s OKLCH palette,
+     * every widget's authored color) is already gamma-encoded sRGB bytes by the time it
+     * reaches a draw call (see `OklchColor.toSrgbChannel()`). An `_SRGB` swapchain format
+     * makes the GPU apply ITS OWN linear->sRGB encoding on write, double-encoding colors that
+     * are already sRGB-encoded -- this washed every dark/mid-tone color toward gray (a
+     * should-be-near-black `(10,10,10)` foreground rendered as `(56,56,56)`, confirmed by
+     * sampling a real screenshot), while leaving pure black/white untouched (both endpoints
+     * are fixed points of gamma encoding) -- exactly the "pale UI, colors look washed out"
+     * symptom this fixes. `colorSpace` stays `SRGB_NONLINEAR_KHR` (unchanged) so the display
+     * still presents the swapchain contents as sRGB, which they genuinely are now that
+     * there's exactly one gamma-encoding step (software), not two. */
     private fun chooseSwapSurfaceFormat(availableFormats: List<VkSurfaceFormatKHR>): VkSurfaceFormatKHR {
         require(availableFormats.isNotEmpty()) { "AvailableFormats must not be empty." }
         val preferedFormats = listOf(
-            VkFormat.VK_FORMAT_R8G8B8A8_SRGB,
-            VkFormat.VK_FORMAT_B8G8R8A8_SRGB,
-            VkFormat.VK_FORMAT_A8B8G8R8_SRGB_PACK32,
+            VkFormat.VK_FORMAT_R8G8B8A8_UNORM,
+            VkFormat.VK_FORMAT_B8G8R8A8_UNORM,
+            VkFormat.VK_FORMAT_A8B8G8R8_UNORM_PACK32,
         )
         return availableFormats.find { surfaceFormat ->
             preferedFormats.contains(surfaceFormat.format) && surfaceFormat.colorSpace == VkColorSpaceKHR.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR

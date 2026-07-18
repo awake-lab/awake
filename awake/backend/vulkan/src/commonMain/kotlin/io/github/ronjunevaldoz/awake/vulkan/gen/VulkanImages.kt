@@ -27,12 +27,19 @@ expect object VulkanImages {
     fun vkCreateSampler(device: Long, createInfo: VkSamplerCreateInfo): Long
     fun vkDestroySampler(device: Long, sampler: Long)
 
-    /** `oldLayout`/`newLayout` use the plain-`Int` [io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageLayout2] values. */
+    /** `oldLayout`/`newLayout` use the plain-`Int` [io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageLayout2] values.
+     * [levelCount] defaults to `1` (every pre-existing caller -- swapchain images, offscreen
+     * render targets -- is single-mip). A multi-mip [io.github.ronjunevaldoz.awake.vulkan.texture.Texture]
+     * must pass its real level count explicitly: `VK_REMAINING_MIP_LEVELS` was tried first and
+     * silently transitions only level 0 on MoltenVK (confirmed via validation errors -- every
+     * level above 0 stayed `UNDEFINED`), so this takes an explicit count instead of relying on
+     * that sentinel being portable. */
     fun vkTransitionImageLayout(
         commandBuffer: Long,
         image: Long,
         oldLayout: Int,
-        newLayout: Int
+        newLayout: Int,
+        levelCount: Int = 1
     )
 
     fun vkCmdCopyBufferToImage(

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.texture
 
+import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.render.texture.mipChain
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
@@ -60,11 +62,23 @@ class Texture(
     var sampler: SamplerHandle = SamplerHandle(0)
 
     init {
-        val imageSize = data.size.toLong()
+        // Neither backend has GPU-side mip generation (no vkCmdBlitImage binding here, no
+        // native blit-based mip gen in WebGPU either) -- the whole chain is box-filtered on
+        // the CPU once at load time and every level uploaded directly. See MipChain.kt.
+        val mipLevels = TextureAsset(data, width, height).mipChain()
+        val combined = ByteArray(mipLevels.sumOf { it.data.size })
+        var writeOffset = 0
+        val levelOffsets = IntArray(mipLevels.size)
+        mipLevels.forEachIndexed { index, level ->
+            levelOffsets[index] = writeOffset
+            level.data.copyInto(combined, writeOffset)
+            writeOffset += level.data.size
+        }
+
         val stagingBuffer = VulkanBuffers.vkCreateBuffer(
             device,
             VkBufferCreateInfo(
-                size = imageSize,
+                size = combined.size.toLong(),
                 usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             )
         )
@@ -83,7 +97,7 @@ class Texture(
             )
         )
         VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
-        VulkanBuffers.writeBufferMemoryBytes(device, stagingMemory, 0, data)
+        VulkanBuffers.writeBufferMemoryBytes(device, stagingMemory, 0, combined)
 
         // The staging buffer/memory must be freed even if image creation, allocation, or the
         // copy/transition commands below throw -- otherwise a failed upload leaks GPU memory
@@ -104,6 +118,7 @@ class Texture(
                     tiling = VkImageTiling.VK_IMAGE_TILING_OPTIMAL,
                     initialLayout = VkImageLayout2.VK_IMAGE_LAYOUT_UNDEFINED,
                     sharingMode = VkSharingMode2.VK_SHARING_MODE_EXCLUSIVE,
+                    mipLevels = mipLevels.size
                 )
             )
             val imageRequirements = VulkanImages.vkGetImageMemoryRequirements(device, rawImage)
@@ -126,19 +141,28 @@ class Texture(
                     commandBuffer,
                     rawImage,
                     VkImageLayout2.VK_IMAGE_LAYOUT_UNDEFINED,
-                    VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+                    VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    levelCount = mipLevels.size
                 )
-                VulkanImages.vkCmdCopyBufferToImage(
-                    commandBuffer,
-                    stagingBuffer,
-                    rawImage,
-                    VkBufferImageCopy(imageWidth = width, imageHeight = height)
-                )
+                mipLevels.forEachIndexed { index, level ->
+                    VulkanImages.vkCmdCopyBufferToImage(
+                        commandBuffer,
+                        stagingBuffer,
+                        rawImage,
+                        VkBufferImageCopy(
+                            imageWidth = level.width,
+                            imageHeight = level.height,
+                            bufferOffset = levelOffsets[index].toLong(),
+                            mipLevel = index
+                        )
+                    )
+                }
                 VulkanImages.vkTransitionImageLayout(
                     commandBuffer,
                     rawImage,
                     VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                    VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                    levelCount = mipLevels.size
                 )
             }
         } finally {
@@ -158,7 +182,7 @@ class Texture(
                     subresourceRange = VkImageSubresourceRange(
                         aspectMask = VkImageAspectFlagBits.VK_IMAGE_ASPECT_COLOR_BIT.value,
                         baseMipLevel = 0,
-                        levelCount = 1,
+                        levelCount = mipLevels.size,
                         baseArrayLayer = 0,
                         layerCount = 1
                     )
@@ -166,7 +190,30 @@ class Texture(
             )
         )
 
-        sampler = SamplerHandle(VulkanImages.vkCreateSampler(device, samplerCreateInfo))
+        // minLod/maxLod always reflect this texture's own real mip count, overriding
+        // whatever the caller passed -- the caller can't know the chain length in advance
+        // (it depends on width/height, resolved above), and a mismatched maxLod either
+        // clamps sampling to level 0 (wasting the chain we just uploaded) or references
+        // levels that don't exist.
+        sampler = SamplerHandle(
+            VulkanImages.vkCreateSampler(
+                device,
+                VkSamplerCreateInfo(
+                    magFilter = samplerCreateInfo.magFilter,
+                    minFilter = samplerCreateInfo.minFilter,
+                    addressModeU = samplerCreateInfo.addressModeU,
+                    addressModeV = samplerCreateInfo.addressModeV,
+                    addressModeW = samplerCreateInfo.addressModeW,
+                    anisotropyEnable = samplerCreateInfo.anisotropyEnable,
+                    maxAnisotropy = samplerCreateInfo.maxAnisotropy,
+                    borderColor = samplerCreateInfo.borderColor,
+                    unnormalizedCoordinates = samplerCreateInfo.unnormalizedCoordinates,
+                    mipmapMode = samplerCreateInfo.mipmapMode,
+                    minLod = 0f,
+                    maxLod = (mipLevels.size - 1).toFloat()
+                )
+            )
+        )
     }
 
     fun destroy() {

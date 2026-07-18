@@ -30,7 +30,6 @@ import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
@@ -474,16 +473,15 @@ class Renderer(
 
     private fun ensureFontTexture(font: UiFont): Texture {
         fontTexture?.let { return it }
-        // Distance-field atlases (MSDF) need linear sampling for their median/smoothstep
-        // technique to work at all -- that's the whole point. A plain CoverageAlpha bitmap
-        // atlas is tightly packed with zero inter-glyph padding, so linear-filtering it
-        // bleeds neighboring glyph cells into each other and shimmers as text moves/scales;
-        // nearest-neighbor sampling is both correct and pixel-perfect for that atlas type.
-        val glyphFilter = if (font.samplingMode == UiFontSamplingMode.DistanceField) {
-            VkFilter.VK_FILTER_LINEAR
-        } else {
-            VkFilter.VK_FILTER_NEAREST
-        }
+        // Both atlas types use linear sampling -- matches the WebGPU backend's
+        // UiGlyphRenderPipeline, which always samples Linear regardless of samplingMode.
+        // Nearest-neighbor on a CoverageAlpha atlas made minified text look thin: at typical
+        // UI sizes the on-screen glyph is much smaller than the baked atlas cell, and nearest
+        // sampling picks single texels that miss thin strokes entirely instead of blending
+        // them in. generate_ui_font_atlas.py crops each glyph with a few px of raster
+        // headroom so linear filtering blends into blank atlas margin, not a neighboring
+        // glyph's cell.
+        val glyphFilter = VkFilter.VK_FILTER_LINEAR
         return Texture(
             graphicsDevice,
             transferContext::runOneTimeCommands,

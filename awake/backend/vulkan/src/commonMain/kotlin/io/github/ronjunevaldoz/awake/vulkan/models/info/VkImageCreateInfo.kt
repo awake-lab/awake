@@ -73,6 +73,13 @@ class VkSamplerCreateInfo(
     val borderColor: Int = VkBorderColor.VK_BORDER_COLOR_INT_OPAQUE_BLACK,
     val unnormalizedCoordinates: Boolean = false,
     val mipmapMode: Int = VkSamplerMipmapMode.VK_SAMPLER_MIPMAP_MODE_LINEAR,
+    /** Sampling is clamped to `[minLod, maxLod]` -- a single-mip texture (the default
+     * everywhere until [io.github.ronjunevaldoz.awake.vulkan.texture.Texture] builds a real
+     * mip chain) only ever has level 0, so `maxLod = 0f` is correct there; a texture with a
+     * real mip chain must set `maxLod` to its highest level index or the GPU clamps sampling
+     * to level 0 regardless of how many levels the image actually has. */
+    val minLod: Float = 0f,
+    val maxLod: Float = 0f,
 )
 
 object VkFilter {

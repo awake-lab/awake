@@ -170,6 +170,8 @@ struct JNI_VkSamplerCreateInfo {
     int32_t borderColor;
     bool unnormalizedCoordinates;
     int32_t mipmapMode;
+    float minLod;
+    float maxLod;
 };
 
 inline JNI_VkSamplerCreateInfo extract_VkSamplerCreateInfo(JNIEnv* env, jobject obj) {
@@ -186,6 +188,8 @@ inline JNI_VkSamplerCreateInfo extract_VkSamplerCreateInfo(JNIEnv* env, jobject 
     jfieldID fid_borderColor = env->GetFieldID(cls, "borderColor", "I");
     jfieldID fid_unnormalizedCoordinates = env->GetFieldID(cls, "unnormalizedCoordinates", "Z");
     jfieldID fid_mipmapMode = env->GetFieldID(cls, "mipmapMode", "I");
+    jfieldID fid_minLod = env->GetFieldID(cls, "minLod", "F");
+    jfieldID fid_maxLod = env->GetFieldID(cls, "maxLod", "F");
     env->DeleteLocalRef(cls);
     out.magFilter = static_cast<int32_t>(env->GetIntField(obj, fid_magFilter));
     out.minFilter = static_cast<int32_t>(env->GetIntField(obj, fid_minFilter));
@@ -197,15 +201,17 @@ inline JNI_VkSamplerCreateInfo extract_VkSamplerCreateInfo(JNIEnv* env, jobject 
     out.borderColor = static_cast<int32_t>(env->GetIntField(obj, fid_borderColor));
     out.unnormalizedCoordinates = (env->GetBooleanField(obj, fid_unnormalizedCoordinates) == JNI_TRUE);
     out.mipmapMode = static_cast<int32_t>(env->GetIntField(obj, fid_mipmapMode));
+    out.minLod = static_cast<float>(env->GetFloatField(obj, fid_minLod));
+    out.maxLod = static_cast<float>(env->GetFloatField(obj, fid_maxLod));
     return out;
 }
 
 inline jobject make_VkSamplerCreateInfo(JNIEnv* env, const JNI_VkSamplerCreateInfo& val) {
     jclass cls = env->FindClass("io/github/ronjunevaldoz/awake/vulkan/models/info/VkSamplerCreateInfo");
     if (!cls) return nullptr;
-    jmethodID ctor = env->GetMethodID(cls, "<init>", "(IIIIIZFIZI)V");
+    jmethodID ctor = env->GetMethodID(cls, "<init>", "(IIIIIZFIZIFF)V");
     if (!ctor) { env->DeleteLocalRef(cls); return nullptr; }
-    jobject result = env->NewObject(cls, ctor, val.magFilter, val.minFilter, val.addressModeU, val.addressModeV, val.addressModeW, static_cast<jboolean>(val.anisotropyEnable ? JNI_TRUE : JNI_FALSE), val.maxAnisotropy, val.borderColor, static_cast<jboolean>(val.unnormalizedCoordinates ? JNI_TRUE : JNI_FALSE), val.mipmapMode);
+    jobject result = env->NewObject(cls, ctor, val.magFilter, val.minFilter, val.addressModeU, val.addressModeV, val.addressModeW, static_cast<jboolean>(val.anisotropyEnable ? JNI_TRUE : JNI_FALSE), val.maxAnisotropy, val.borderColor, static_cast<jboolean>(val.unnormalizedCoordinates ? JNI_TRUE : JNI_FALSE), val.mipmapMode, val.minLod, val.maxLod);
     if (!result) { env->DeleteLocalRef(cls); return nullptr; }
     env->DeleteLocalRef(cls);
     return result;
@@ -396,8 +402,8 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanImages_vkCreateSampler(
     samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
     samplerInfo.mipmapMode = static_cast<VkSamplerMipmapMode>(createInfo_val.mipmapMode);
     samplerInfo.mipLodBias = 0.0f;
-    samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = 0.0f;
+    samplerInfo.minLod = createInfo_val.minLod;
+    samplerInfo.maxLod = createInfo_val.maxLod;
 
     VkSampler sampler = VK_NULL_HANDLE;
     VkResult result = vkCreateSampler(
@@ -445,12 +451,14 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanImages_vkTransitionImageLayo
         jlong commandBuffer,
         jlong image,
         jint oldLayout,
-        jint newLayout) {
+        jint newLayout,
+        jint levelCount) {
     // --- Marshalling ---
     void* commandBuffer_ptr = reinterpret_cast<void*>(commandBuffer);
     void* image_ptr = reinterpret_cast<void*>(image);
     int32_t oldLayout_val = static_cast<int32_t>(oldLayout);
     int32_t newLayout_val = static_cast<int32_t>(newLayout);
+    int32_t levelCount_val = static_cast<int32_t>(levelCount);
 
     // --- Error handling ---
     if (!commandBuffer_ptr) {
@@ -474,7 +482,12 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanImages_vkTransitionImageLayo
     barrier.image = reinterpret_cast<VkImage>(image_ptr);
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = 1;
+    // Explicit level count from the caller, not VK_REMAINING_MIP_LEVELS -- that sentinel was
+    // tried first and silently transitioned only level 0 on MoltenVK (confirmed via real
+    // validation errors: every level above 0 stayed UNDEFINED). A texture with a real mip
+    // chain (see Texture.kt) passes its real level count; every other caller (swapchain
+    // images, offscreen render targets) passes the default 1.
+    barrier.subresourceRange.levelCount = static_cast<uint32_t>(levelCount_val);
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
 
