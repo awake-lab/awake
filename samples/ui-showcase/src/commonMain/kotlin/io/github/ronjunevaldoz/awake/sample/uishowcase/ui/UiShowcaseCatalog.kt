@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.destructiveStyle
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
@@ -964,7 +965,9 @@ private fun UiColumnDslScope.drawUiShowcasePopupPreview() {
         id = "ui-showcase-delete-dialog",
         expanded = deleteDialogState.expanded,
         title = "Delete showcase card?",
-        message = "This sample does not really delete anything. It exists to prove the alert dialog composition and confirm or dismiss flow."
+        message = "This sample does not really delete anything. It exists to prove the alert dialog composition and confirm or dismiss flow.",
+        confirmLabel = "Delete",
+        confirmStyle = theme.tokens.destructiveStyle()
     )
     when (dialogResult.action) {
         UiAlertDialogAction.Confirm -> {

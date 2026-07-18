@@ -258,6 +258,8 @@ fun UiDslScope.alertDialog(
     dismissLabel: String? = "Cancel",
     confirmVariant: UiButtonVariant = UiButtonVariant.Filled,
     dismissVariant: UiButtonVariant = UiButtonVariant.Ghost,
+    confirmStyle: Style = Style.Empty,
+    dismissStyle: Style = Style.Empty,
     properties: UiDialogProperties = UiDialogProperties(),
     style: Style = Style.Empty
 ): UiAlertDialogResult {
@@ -277,7 +279,9 @@ fun UiDslScope.alertDialog(
                         id = "$id.dismiss",
                         label = label,
                         modifier = UiModifier().width(96f.px).height(32f.px),
-                        variant = dismissVariant
+                        style = dismissStyle,
+                        variant = dismissVariant,
+                        radius = UiShape.sm
                     )
                 ) {
                     action = UiAlertDialogAction.Dismiss
@@ -289,7 +293,9 @@ fun UiDslScope.alertDialog(
                     id = "$id.confirm",
                     label = confirmLabel,
                     modifier = UiModifier().width(96f.px). height(32f.px),
-                    variant = confirmVariant
+                    style = confirmStyle,
+                    variant = confirmVariant,
+                    radius = UiShape.sm
                 )
             ) {
                 action = UiAlertDialogAction.Confirm
