@@ -35,6 +35,20 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseStatePreview
 )
 
+internal fun previewMetadataFor(entry: AwakeUiPreviewEntry): AwakeUiPreviewMetadata {
+    val annotation = requireNotNull(entry.javaClass.getAnnotation(AwakeUiPreview::class.java)) {
+        "missing @AwakeUiPreview on ${entry.javaClass.name}"
+    }
+    return AwakeUiPreviewMetadata(
+        id = annotation.id,
+        title = annotation.title,
+        group = annotation.group,
+        summary = annotation.summary,
+        width = annotation.width,
+        height = annotation.height
+    )
+}
+
 @AwakeUiPreview(
     id = "ui-showcase-overview",
     title = "Overview",

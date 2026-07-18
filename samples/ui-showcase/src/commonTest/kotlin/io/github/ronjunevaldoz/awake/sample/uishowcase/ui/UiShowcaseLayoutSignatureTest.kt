@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.describeLayout
 import io.github.ronjunevaldoz.awake.testing.ui.layoutSignature
 import kotlin.test.Test
@@ -39,25 +38,11 @@ class UiShowcaseLayoutSignatureTest {
     }
 }
 
-private fun previewMetadataFor(entry: AwakeUiPreviewEntry): AwakeUiPreviewMetadata {
-    val annotation = requireNotNull(entry.javaClass.getAnnotation(AwakeUiPreview::class.java)) {
-        "missing @AwakeUiPreview on ${entry.javaClass.name}"
-    }
-    return AwakeUiPreviewMetadata(
-        id = annotation.id,
-        title = annotation.title,
-        group = annotation.group,
-        summary = annotation.summary,
-        width = annotation.width,
-        height = annotation.height
-    )
-}
-
 private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-overview" to 0x44612df645c45491uL,
     "ui-showcase-reference" to 0x8aa119eaada2bffduL,
     "ui-showcase-theming" to 0x4bc26926abb4f5fduL,
-    "ui-showcase-fonts" to 0xddaada2c303874efuL,
+    "ui-showcase-fonts" to 0xea0360db99b53b45uL,
     "ui-showcase-layout" to 0xb8537cfb6ec2c94cuL,
     "ui-showcase-slot-apis" to 0xee60c0ef52b671c4uL,
     "ui-showcase-buttons" to 0xe322cd27ce79b44euL,

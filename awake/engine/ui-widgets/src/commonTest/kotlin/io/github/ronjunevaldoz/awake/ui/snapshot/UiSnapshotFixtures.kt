@@ -19,12 +19,10 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.align
-import io.github.ronjunevaldoz.awake.ui.border
 import io.github.ronjunevaldoz.awake.ui.button
 import io.github.ronjunevaldoz.awake.ui.checkbox
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.dropdown
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
@@ -33,23 +31,25 @@ import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.panel
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.size
+import io.github.ronjunevaldoz.awake.ui.slider
 import io.github.ronjunevaldoz.awake.ui.supportingLines
 import io.github.ronjunevaldoz.awake.ui.supportingText
 import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.textField
 import io.github.ronjunevaldoz.awake.ui.toggle
 import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
 import io.github.ronjunevaldoz.awake.ui.width
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertySlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.alertDialog
 
 data class UiSnapshotScene(
@@ -292,6 +292,35 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     title = "Delete this very long showcase card title that must wrap?",
                     message = "This sample does not really delete anything."
                 )
+            }
+        },
+        scene(
+            name = "ui-component-state-matrix",
+            width = 460,
+            height = 360,
+            background = AwakeShadcnTheme.tokens.background,
+            title = "Component State Matrix",
+            summary = "Every state a component can be in, side by side under the shadcn theme -- not just its default rest look. This is the gallery page that would have shown the toggle/slider/checkbox color-inversion bug and the dropdown-row styling bug at a glance instead of requiring a live click-through."
+        ) { snapshotFont ->
+            requestFocus("state-matrix-focused-field")
+            ui(x = 20f, y = 20f, width = 420f, font = snapshotFont, theme = AwakeShadcnTheme, gap = 14f, textScale = 2f) {
+                row(height = 40f.dp, gap = 16f) {
+                    toggle("state-matrix-toggle-off", checked = false, modifier = UiModifier().width(120f.px).height(24f.px))
+                    toggle("state-matrix-toggle-on", checked = true, modifier = UiModifier().width(120f.px).height(24f.px))
+                }
+                row(height = 32f.dp, gap = 16f) {
+                    checkbox("state-matrix-checkbox-off", checked = false, modifier = UiModifier().width(180f.px).height(24f.px))
+                    checkbox("state-matrix-checkbox-on", checked = true, modifier = UiModifier().width(180f.px).height(24f.px))
+                }
+                row(height = 36f.dp, gap = 16f) {
+                    slider("state-matrix-slider-empty", min = 0f, max = 100f, value = 0f, modifier = UiModifier().width(120f.px).height(36f.px))
+                    slider("state-matrix-slider-half", min = 0f, max = 100f, value = 50f, modifier = UiModifier().width(120f.px).height(36f.px))
+                    slider("state-matrix-slider-full", min = 0f, max = 100f, value = 100f, modifier = UiModifier().width(120f.px).height(36f.px))
+                }
+                row(height = 36f.dp, gap = 16f) {
+                    textField("state-matrix-empty-field", value = "", placeholder = "Placeholder", modifier = UiModifier().width(190f.px).height(36f.px))
+                    textField("state-matrix-focused-field", value = "Typed", modifier = UiModifier().width(190f.px).height(36f.px))
+                }
             }
         },
         scene(

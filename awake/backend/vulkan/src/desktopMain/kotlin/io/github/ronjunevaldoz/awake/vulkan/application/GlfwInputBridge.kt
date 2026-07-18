@@ -54,7 +54,14 @@ fun pollGlfwInput(
         x = cursor[0].toFloat() * scale.first,
         y = cursor[1].toFloat() * scale.second
     )
-    Input.scrollDeltaY = VulkanWindow.glfwConsumeScrollDeltaY(window).toFloat()
+    val rawScroll = VulkanWindow.glfwConsumeScrollDeltaY(window).toFloat()
+    Input.scrollDeltaY = rawScroll
+    if (rawScroll != 0f) {
+        System.err.println("[DEBUG] pollGlfwInput: rawScroll=$rawScroll")
+    }
+    if (keys.values.any { Input.isKeyDown(it) }) {
+        System.err.println("[DEBUG] pollGlfwInput: gameplay key down=${keys.filterValues { Input.isKeyDown(it) }}")
+    }
 }
 
 private fun framebufferScale(window: Long): Pair<Float, Float> {

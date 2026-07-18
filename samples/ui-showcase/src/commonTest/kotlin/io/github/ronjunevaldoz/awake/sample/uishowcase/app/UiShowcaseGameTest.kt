@@ -20,10 +20,10 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterSt
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseUiState
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.previewMetadataFor
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.UiShowcaseThemePreview
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.inspectNonOverlappingBounds
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticContentFit
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
@@ -261,20 +261,6 @@ class UiShowcaseGameTest {
             tolerancePx = 1f
         ).requireClean()
     }
-}
-
-private fun previewMetadataFor(entry: AwakeUiPreviewEntry): AwakeUiPreviewMetadata {
-    val annotation = requireNotNull(entry.javaClass.getAnnotation(AwakeUiPreview::class.java)) {
-        "missing @AwakeUiPreview on ${entry.javaClass.name}"
-    }
-    return AwakeUiPreviewMetadata(
-        id = annotation.id,
-        title = annotation.title,
-        group = annotation.group,
-        summary = annotation.summary,
-        width = annotation.width,
-        height = annotation.height
-    )
 }
 
 private fun UiDrawPrimitive.RoundedQuad.matchesRegion(

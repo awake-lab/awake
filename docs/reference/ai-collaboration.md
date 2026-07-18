@@ -102,7 +102,8 @@ For most Awake work:
 2. [docs/reference/ai-collaboration.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ai-collaboration.md)
 3. [docs/reference/agent-catalog.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-catalog.md)
 4. [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md)
-5. [docs/reference/game-structure.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/game-structure.md)
-6. [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
-7. [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md)
-8. the relevant `skills/awake/agents/*.md` file for the task
+5. [docs/reference/ui-validation.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-validation.md)
+6. [docs/reference/game-structure.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/game-structure.md)
+7. [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
+8. [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md)
+9. the relevant `skills/awake/agents/*.md` file for the task

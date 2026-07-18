@@ -52,6 +52,9 @@ Use them like this:
 - `docs/reference/ui-ownership.md`
   - canonical placement rules for reusable UI primitives, compositions, design-system pieces,
     and sample adapters
+- `docs/reference/ui-validation.md`
+  - canonical UI correctness gate for previews, semantic checks, truncation/content-fit rules,
+    and animation/state proof requirements
 - `docs/reference/ai-collaboration.md`
   - the cross-agent contract for `docs/*`, entrypoints, and `skills/*`
 - `docs/reference/agent-catalog.md`
@@ -109,8 +112,10 @@ signature?"
    - `awake/engine/ui-widgets/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiTutorialDocsTest.kt`
 2. Render the example with `saveUiTutorialSnapshot(...)`
 3. Keep the title and summary short and tutorial-oriented
-4. Re-run the matching desktop test task
-5. Open the generated HTML report for that module
+4. Add machine-checkable validation for semantics, text fit, clipping, and state coverage per
+   `docs/reference/ui-validation.md`
+5. Re-run the matching desktop test task
+6. Open the generated HTML report for that module
 
 The important convention is that tutorial screenshots are generated from tests, not from
 manually curated images. That gives us docs that stay close to the code and fail loudly when

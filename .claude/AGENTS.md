@@ -9,6 +9,7 @@ as the long-form home for project policy.
 - [docs/reference/ai-collaboration.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ai-collaboration.md)
 - [docs/reference/agent-catalog.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-catalog.md)
 - [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md)
+- [docs/reference/ui-validation.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-validation.md)
 - [docs/reference/game-structure.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/game-structure.md)
 - [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
 - [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md)
@@ -28,6 +29,8 @@ as the long-form home for project policy.
 - Engine modules do not follow the app-style 6-layer clean-architecture split.
 - Reusable UI boundaries are canonical in
   [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md).
+- Shared UI verification rules are canonical in
+  [docs/reference/ui-validation.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-validation.md).
 
 ## Skill Routing
 

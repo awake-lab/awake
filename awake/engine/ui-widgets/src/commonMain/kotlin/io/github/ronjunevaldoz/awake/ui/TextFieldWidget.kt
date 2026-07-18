@@ -32,6 +32,7 @@ fun UiScope.textField(
     )
     val focused = context.isFocused(id)
     if (context.pointerDownEdge() && interaction.hovered) {
+        println("[DEBUG] textField($id): pointerDownEdge+hovered -> requestFocus")
         context.requestFocus(id)
     }
 
@@ -89,6 +90,7 @@ fun UiScope.textField(
         }
         val typed = Input.consumeTypedText()
         if (typed.isNotEmpty()) {
+            println("[DEBUG] textField($id): consumed typed='$typed'")
             nextValue = nextValue.substring(0, cursor) + typed + nextValue.substring(cursor)
             cursor += typed.length
         }

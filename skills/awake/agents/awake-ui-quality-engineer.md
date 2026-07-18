@@ -17,6 +17,7 @@ You work on Awake's UI validation surface. Read
 [docs/reference/ai-collaboration.md](../../../docs/reference/ai-collaboration.md),
 [docs/reference/agent-catalog.md](../../../docs/reference/agent-catalog.md),
 [docs/reference/ui-ownership.md](../../../docs/reference/ui-ownership.md), and
+[docs/reference/ui-validation.md](../../../docs/reference/ui-validation.md), and
 [docs/reference/developer-docs.md](../../../docs/reference/developer-docs.md) first.
 
 ## Owns
@@ -39,6 +40,7 @@ You work on Awake's UI validation surface. Read
 - prefer machine-checkable assertions before manual screenshot review
 - treat snapshots as one layer of proof, not the only proof
 - add structural inspections for overlap, out-of-bounds content, clip-stack correctness, and text-fit before expanding golden-image coverage
+- shared UI work is not done until previews/snapshots and machine-checkable validation exist for the relevant states, theme variants, and animated phases described in `docs/reference/ui-validation.md`
 - validate shared UI across light, dark, and auto modes when the feature supports them
 - validate density-sensitive UI with more than one effective scale when the behavior depends on sizing
 - route primitive/layout fixes to `awake-ui-systems-engineer`

@@ -78,6 +78,16 @@ object Input {
     @Volatile
     var pointerCapturedByUi: Boolean = false
 
+    /** Set by [io.github.ronjunevaldoz.awake.ui.UiContext] whenever a text-input widget holds
+     * keyboard focus this frame -- the signal a platform bridge with no other way to know
+     * "the user should see a keyboard right now" (Android's soft keyboard, iOS's on-screen
+     * keyboard) polls to decide when to call `showSoftInput`/`becomeFirstResponder` and when
+     * to dismiss it. Desktop has no such concept (a physical keyboard is always "shown"), so
+     * only the mobile platform bridges need to read this. Same writer/reader convention as
+     * [pointerCapturedByUi]. */
+    @Volatile
+    var textInputFocused: Boolean = false
+
     /** Accumulated scroll/pinch delta along GLFW's `yoffset` axis (trackpad pinch surfaces
      * through GLFW's scroll callback on macOS, with a different feel than a mouse wheel but
      * the same callback/API), since the last [consumeScrollDeltaY] call. Unlike

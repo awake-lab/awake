@@ -9,6 +9,14 @@ import javax.imageio.ImageIO
 private val previewManifestLock = Any()
 
 fun renderAnnotatedUiPreview(entry: AwakeUiPreviewEntry): AwakeUiPreviewScene {
+    val scenes = renderAnnotatedUiPreviews(entry)
+    require(scenes.size == 1) {
+        "Preview entry ${entry::class.qualifiedName} produced ${scenes.size} samples. Use renderAnnotatedUiPreviews(...) instead."
+    }
+    return scenes.single()
+}
+
+fun renderAnnotatedUiPreviews(entry: AwakeUiPreviewEntry): List<AwakeUiPreviewScene> {
     val annotation = entry::class.java.getAnnotation(AwakeUiPreview::class.java)
         ?: error("Preview entry ${entry::class.qualifiedName} is missing @AwakeUiPreview")
     val metadata = AwakeUiPreviewMetadata(
@@ -19,13 +27,22 @@ fun renderAnnotatedUiPreview(entry: AwakeUiPreviewEntry): AwakeUiPreviewScene {
         width = annotation.width,
         height = annotation.height
     )
-    val frame = entry.render(metadata)
-    return AwakeUiPreviewScene(
-        metadata = metadata,
-        primitives = frame.primitives,
-        background = frame.background,
-        font = frame.font
-    )
+    return entry.renderSamples(metadata).map { sample ->
+        AwakeUiPreviewScene(
+            metadata = AwakeUiPreviewMetadata(
+                id = sample.id,
+                title = sample.title,
+                group = sample.group,
+                summary = sample.summary,
+                width = sample.width,
+                height = sample.height
+            ),
+            primitives = sample.frame.primitives,
+            background = sample.frame.background,
+            font = sample.frame.font,
+            semantics = sample.frame.semantics
+        )
+    }
 }
 
 fun saveAwakeUiPreview(scene: AwakeUiPreviewScene) {

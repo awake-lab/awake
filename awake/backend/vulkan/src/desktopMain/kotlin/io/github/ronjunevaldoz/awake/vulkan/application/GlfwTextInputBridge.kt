@@ -67,18 +67,29 @@ private val repeatStates = HashMap<Int, KeyRepeatState>()
  * Pure polling (matches [pollGlfwInput]'s style, no GLFW char/key callbacks): tracks rising
  * edges plus a simple hold-to-repeat cadence per key.
  */
+private var debugFrameCounter = 0
+
 fun pollGlfwTextInput(window: Long, deltaSeconds: Double = 1.0 / 60.0) {
+    debugFrameCounter++
+    if (debugFrameCounter % 120 == 0) {
+        val rawA = VulkanWindow.glfwGetKey(window, 65)
+        System.err.println("[DEBUG] pollGlfwTextInput: heartbeat frame=$debugFrameCounter rawGlfwGetKey(A)=$rawA Input.textInputFocused=${Input.textInputFocused}")
+    }
     val shiftDown = VulkanWindow.glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
         VulkanWindow.glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS
 
     PrintableKeys.forEach { (glfwKey, char) ->
         pollKey(window, glfwKey, deltaSeconds) {
             val shifted = if (shiftDown && char.isLetter()) char.uppercaseChar() else char
+            System.err.println("[DEBUG] pollGlfwTextInput: firing char='$shifted' glfwKey=$glfwKey")
             Input.pushTypedText(shifted.toString())
         }
     }
     EditKeys.forEach { (glfwKey, action) ->
-        pollKey(window, glfwKey, deltaSeconds) { Input.pushEditAction(action) }
+        pollKey(window, glfwKey, deltaSeconds) {
+            System.err.println("[DEBUG] pollGlfwTextInput: firing action=$action glfwKey=$glfwKey")
+            Input.pushEditAction(action)
+        }
     }
 }
 

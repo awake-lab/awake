@@ -27,6 +27,16 @@ data class AwakeUiPreviewMetadata(
     val height: Int
 )
 
+data class AwakeUiPreviewSample(
+    val id: String,
+    val title: String,
+    val group: String,
+    val summary: String,
+    val width: Int,
+    val height: Int,
+    val frame: AwakeUiPreviewFrame
+)
+
 data class AwakeUiPreviewFrame(
     val primitives: List<UiDrawPrimitive>,
     val background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
@@ -38,9 +48,29 @@ data class AwakeUiPreviewScene(
     val metadata: AwakeUiPreviewMetadata,
     val primitives: List<UiDrawPrimitive>,
     val background: Color,
-    val font: UiFont?
+    val font: UiFont?,
+    val semantics: List<UiSemanticNode> = emptyList()
 )
 
 interface AwakeUiPreviewEntry {
     fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame
+
+    fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> = listOf(
+        metadata.sample(frame = render(metadata))
+    )
 }
+
+fun AwakeUiPreviewMetadata.sample(
+    frame: AwakeUiPreviewFrame,
+    idSuffix: String = "",
+    titleSuffix: String = "",
+    summarySuffix: String = ""
+): AwakeUiPreviewSample = AwakeUiPreviewSample(
+    id = if (idSuffix.isBlank()) id else "$id-$idSuffix",
+    title = if (titleSuffix.isBlank()) title else "$title - $titleSuffix",
+    group = group,
+    summary = if (summarySuffix.isBlank()) summary else "$summary $summarySuffix".trim(),
+    width = width,
+    height = height,
+    frame = frame
+)

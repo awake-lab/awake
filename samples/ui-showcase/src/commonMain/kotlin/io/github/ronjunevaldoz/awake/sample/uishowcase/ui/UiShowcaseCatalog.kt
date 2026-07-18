@@ -589,7 +589,7 @@ private fun UiColumnDslScope.drawUiShowcaseFontsPreview() {
     row(height = 292f.dp, gap = 12f) {
         panel(
             id = "showcase-font-bitmap",
-            width = Dimension.Fixed(240f.dp),
+            width = Dimension.Fixed(264f.dp),
             height = Dimension.Fixed(292f.dp),
             style = Style { shape(14f.dp) }
         ) { slot ->
@@ -602,7 +602,7 @@ private fun UiColumnDslScope.drawUiShowcaseFontsPreview() {
         }
         panel(
             id = "showcase-font-truesans",
-            width = Dimension.Fixed(240f.dp),
+            width = Dimension.Fixed(264f.dp),
             height = Dimension.Fixed(292f.dp),
             style = Style { shape(14f.dp) }
         ) { slot ->
@@ -697,6 +697,7 @@ private fun UiColumnDslScope.drawUiShowcaseFontSpecimen(
     )
     specimenScope.text(
         label = detail,
+        slot = specimenScope.claimSlot(Dimension.FillMax, Dimension.Fixed(44f.dp)),
         color = theme.tokens.mutedForeground,
         wrap = UiTextWrap.Word,
         overflow = UiTextOverflow.Ellipsis,

@@ -9,8 +9,8 @@ import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.metaText
 import io.github.ronjunevaldoz.awake.ui.overlayBox
 import io.github.ronjunevaldoz.awake.ui.padding
