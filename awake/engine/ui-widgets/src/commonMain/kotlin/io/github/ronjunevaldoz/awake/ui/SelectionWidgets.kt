@@ -4,6 +4,14 @@ package io.github.ronjunevaldoz.awake.ui
 
 private const val CHECKBOX_LABEL_GAP = 8f
 
+// A real iOS-style switch, not a stretched checkbox -- fixed compact size (a switch has one
+// natural size, unlike a button/row that should fill available width), pill-shaped track, and
+// a sliding circular knob instead of checkbox's centered inset-square "check" mark.
+private const val TOGGLE_WIDTH_PX = 40f
+private const val TOGGLE_HEIGHT_PX = 22f
+private const val TOGGLE_KNOB_INSET_PX = 2f
+private const val TOGGLE_LABEL_GAP = 8f
+
 fun UiScope.toggle(
     id: String,
     checked: Boolean,
@@ -13,8 +21,8 @@ fun UiScope.toggle(
 ): Boolean {
     val interaction = interact(
         id = id,
-        width = Dimension.FillMax,
-        height = Dimension.Fixed(32f.px),
+        width = Dimension.Fixed(TOGGLE_WIDTH_PX.px),
+        height = Dimension.Fixed(TOGGLE_HEIGHT_PX.px),
         modifier = modifier
     )
     val resolved = resolveStyle(
@@ -22,26 +30,44 @@ fun UiScope.toggle(
         defaults = theme.components.toggle,
         state = MutableStyleState(hovered = interaction.hovered, active = interaction.active, selected = checked)
     )
+    val newChecked = if (interaction.clicked) !checked else checked
+    val trackFill = if (newChecked) theme.tokens.accent else (resolved.background ?: theme.tokens.background)
     emitFillAndBorder(
         slot = interaction.slot,
-        fillColor = resolved.background ?: theme.tokens.background,
-        radiusPx = resolved.shape.toPx(),
+        fillColor = trackFill,
+        radiusPx = 0f,
         borderWidth = resolved.borderWidth,
         borderColor = resolved.borderColor ?: theme.tokens.border,
-        shapeSpec = resolved.shapeSpec
+        shapeSpec = UiShapeSpec.Pill
     )
-    val newChecked = if (interaction.clicked) !checked else checked
-    if (newChecked) {
-        val inset = minOf(interaction.slot.width, interaction.slot.height) * 0.2f
-        emitInsetAccent(interaction.slot, inset, resolved.shape.toPx(), resolved.shapeSpec)
+    val knobDiameter = interaction.slot.height - TOGGLE_KNOB_INSET_PX * 2f
+    val knobX = if (newChecked) {
+        interaction.slot.x + interaction.slot.width - TOGGLE_KNOB_INSET_PX - knobDiameter
+    } else {
+        interaction.slot.x + TOGGLE_KNOB_INSET_PX
     }
+    emitFillAndBorder(
+        slot = UiSlot(knobX, interaction.slot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter),
+        fillColor = theme.tokens.background,
+        radiusPx = 0f,
+        borderWidth = UiShape.none,
+        borderColor = TransparentColor,
+        shapeSpec = UiShapeSpec.Pill
+    )
     if (label != null && font != null) {
+        val labelWidth = (fillWidthOrNull()?.let { it - interaction.slot.width - TOGGLE_LABEL_GAP } ?: 160f).coerceAtLeast(0f)
         text(
             label,
-            slot = interaction.slot,
+            slot = UiSlot(
+                interaction.slot.x + interaction.slot.width + TOGGLE_LABEL_GAP,
+                interaction.slot.y,
+                labelWidth,
+                interaction.slot.height
+            ),
             font = font,
             color = resolved.foreground ?: theme.tokens.foreground,
-            centered = true,
+            centered = false,
+            verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
             textScale = resolved.textScale,
             textSize = resolved.textSize,

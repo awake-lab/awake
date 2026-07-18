@@ -497,7 +497,7 @@ fun UiColumnDslScope.propertySlider(
 ): Float {
     var resolved = value
     propertyRow(
-        modifier = modifier.height(28f.px),
+        modifier = modifier,
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->

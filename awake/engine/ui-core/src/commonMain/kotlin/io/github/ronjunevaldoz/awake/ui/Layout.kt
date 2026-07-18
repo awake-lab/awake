@@ -27,6 +27,7 @@ abstract class AbstractUiScope(
     final override val textScale: Float = 1f,
     private val emitToOverlay: Boolean = false
 ) : UiScope {
+    final override val emitsToOverlay: Boolean = emitToOverlay
     final override fun hitTest(slot: UiSlot) = context.hitTestInternal(slot)
     final override fun isActive(id: String) = context.isActiveInternal(id)
     final override fun tryClaimActive(id: String, hovered: Boolean) = context.tryClaimActiveInternal(id, hovered)

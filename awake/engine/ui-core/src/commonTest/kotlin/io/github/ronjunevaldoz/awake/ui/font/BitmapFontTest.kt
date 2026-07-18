@@ -37,4 +37,19 @@ class BitmapFontTest {
 
         assertTrue(alphas.any { it in 1 until 255 }, "coverage atlas should include partially transparent edge pixels")
     }
+
+    @Test
+    fun advanceMatchesQuadWidthForEveryPrintableGlyph() {
+        val font = BitmapFont()
+        val glyphPx = 18f
+        for (char in ('!'..'~')) {
+            val glyph = font.uvFor(char) ?: continue
+            assertEquals(
+                glyph.widthEm * glyphPx,
+                font.advanceFor(char, glyphPx),
+                "'$char' advance must match its quad width -- BitmapFont draws a full 1em-wide" +
+                    " quad per glyph, so a narrower advance makes consecutive glyphs overlap"
+            )
+        }
+    }
 }

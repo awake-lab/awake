@@ -46,7 +46,7 @@ class UiColumnDslScope internal constructor(
         content: UiRowDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val slot = columnScope.claimSlot(modifier.width ?: width, modifier.height ?: height.toDimension())
-        UiRowDslScope(context.row(slot, font, theme, gap, textScale)).content(slot)
+        UiRowDslScope(context.row(slot, font, theme, gap, textScale, overlayOnly = emitsToOverlay)).content(slot)
         return slot
     }
 
@@ -59,7 +59,7 @@ class UiColumnDslScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val slot = columnScope.claimSlot(modifier.width ?: width, modifier.height ?: height)
-        UiColumnDslScope(context.column(slot, font, theme, gap, textScale, insets)).content(slot)
+        UiColumnDslScope(context.column(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)).content(slot)
         return slot
     }
 
@@ -73,7 +73,7 @@ class UiColumnDslScope internal constructor(
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale)).content(slot)
+        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale, overlayOnly = emitsToOverlay)).content(slot)
     }
 
     fun propertyRow(
@@ -86,7 +86,7 @@ class UiColumnDslScope internal constructor(
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale)).content(slot)
+        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale, overlayOnly = emitsToOverlay)).content(slot)
     }
 
     fun propertyRow(
@@ -96,7 +96,7 @@ class UiColumnDslScope internal constructor(
         content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val slot = columnScope.propertyRow(label, modifier, labelWidth)
-        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale)).content(slot)
+        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale, overlayOnly = emitsToOverlay)).content(slot)
         return slot
     }
 
@@ -107,7 +107,7 @@ class UiColumnDslScope internal constructor(
         content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val slot = columnScope.propertyRow(label, height.toPx(), labelWidth)
-        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale)).content(slot)
+        UiAbsoluteDslScope(context.absolute(slot, font, theme, textScale, overlayOnly = emitsToOverlay)).content(slot)
         return slot
     }
 
@@ -204,7 +204,7 @@ class UiAbsoluteDslScope internal constructor(
         content: UiRowDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val slot = absoluteScope.claimSlot(modifier.width ?: width, modifier.height ?: height.toDimension())
-        UiRowDslScope(context.row(slot, font, theme, gap, textScale)).content(slot)
+        UiRowDslScope(context.row(slot, font, theme, gap, textScale, overlayOnly = emitsToOverlay)).content(slot)
         return slot
     }
 
@@ -217,7 +217,7 @@ class UiAbsoluteDslScope internal constructor(
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val slot = absoluteScope.claimSlot(modifier.width ?: width, modifier.height ?: height)
-        UiColumnDslScope(context.column(slot, font, theme, gap, textScale, insets)).content(slot)
+        UiColumnDslScope(context.column(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)).content(slot)
         return slot
     }
 }
@@ -279,7 +279,7 @@ class UiBoxDslScope internal constructor(
         content: UiRowDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val slot = boxScope.claimModifiedSlot(modifier.width ?: width, modifier.height ?: height.toDimension(), modifier)
-        UiRowDslScope(context.row(slot, font, theme, gap, textScale)).content(slot)
+        UiRowDslScope(context.row(slot, font, theme, gap, textScale, overlayOnly = emitsToOverlay)).content(slot)
         return slot
     }
 
@@ -320,7 +320,7 @@ class UiBoxDslScope internal constructor(
             else -> requestedHeight
         }
         val slot = boxScope.claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
-        UiColumnDslScope(context.column(slot, font, theme, gap, textScale, insets)).content(slot)
+        UiColumnDslScope(context.column(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)).content(slot)
         return slot
     }
 
@@ -332,7 +332,7 @@ class UiBoxDslScope internal constructor(
         content: UiBoxDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val slot = boxScope.claimModifiedSlot(modifier.width ?: width, modifier.height ?: height, modifier)
-        UiBoxDslScope(context.box(slot, font, theme, textScale, contentAlignment = contentAlignment)).content(slot)
+        UiBoxDslScope(context.box(slot, font, theme, textScale, contentAlignment = contentAlignment, overlayOnly = emitsToOverlay)).content(slot)
         return slot
     }
 }

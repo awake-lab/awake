@@ -109,7 +109,8 @@ fun UiScope.scrollPanel(
         font = font,
         theme = theme,
         gap = gap,
-        textScale = resolved.textScale
+        textScale = resolved.textScale,
+        overlayOnly = emitsToOverlay
     )
     clip(viewport) {
         contentScope.content(viewport)

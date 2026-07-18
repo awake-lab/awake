@@ -13,6 +13,7 @@ sealed class UiDslScope protected constructor(
     val font get() = scope.font
     val theme: UiTheme get() = scope.theme
     val textScale: Float get() = scope.textScale
+    val emitsToOverlay: Boolean get() = scope.emitsToOverlay
 
     fun text(
         label: String,

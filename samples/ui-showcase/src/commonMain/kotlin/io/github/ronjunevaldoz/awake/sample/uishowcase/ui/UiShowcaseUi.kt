@@ -16,19 +16,12 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnScrollSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.gameUi
 import io.github.ronjunevaldoz.awake.ui.overlayBox
 import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 
 private val ShowcaseChromeTheme = awakeShadcnTheme(dark = false)
-
-// Built once, not per frame -- backends key their glyph pipeline/texture cache off font
-// identity, so reassigning GameUiRuntime.font to a fresh instance every frame would force a
-// texture rebuild every frame.
-private val ShowcaseTrueSansFont = UiFonts.default()
-private val ShowcaseBitmapFont = UiFonts.bitmap()
 
 internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec {
     return gameUi {
@@ -48,7 +41,6 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
     viewportWidth: Float,
     viewportHeight: Float
 ) {
-    font = if (state.showcaseUseBitmapFont) ShowcaseBitmapFont else ShowcaseTrueSansFont
     val chromeTheme = ShowcaseChromeTheme
     val showcaseTheme = state.showcaseTheme()
     val sidebarScroll = uiContext.rememberStateValue("ui-showcase-scroll", "sidebar") { UiScrollState() }

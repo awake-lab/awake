@@ -36,11 +36,10 @@ fun UiColumnDslScope.awakeShadcnPropertyToggle(
     propertyRow(
         modifier = modifier.height(36f.px),
         labelContent = labelContent
-    ) { slot ->
+    ) { _ ->
         resolved = awakeShadcnToggle(
             id = id,
             checked = checked,
-            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -59,11 +58,11 @@ fun UiColumnDslScope.awakeShadcnPropertyToggle(
     propertyRow(
         height = height,
         labelContent = labelContent
-    ) { slot ->
+    ) { _ ->
         resolved = awakeShadcnToggle(
             id = id,
             checked = checked,
-            modifier = modifier.width(slot.width.px).height(slot.height.px),
+            modifier = modifier,
             style = style
         )
     }

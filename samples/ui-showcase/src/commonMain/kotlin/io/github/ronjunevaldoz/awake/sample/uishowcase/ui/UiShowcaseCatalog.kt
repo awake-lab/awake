@@ -33,6 +33,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnHeadline
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertySlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSectionTitle
@@ -205,8 +206,9 @@ internal val ShowcasePages = listOf(
         description = "buttonSlot(...)'s content-lambda form composes arbitrary content inside a widget's own claimed slot instead of a fixed label string.",
         usageCode = """
             buttonSlot(id = "launch", modifier = UiModifier().width(180f.dp).height(40f.dp)) {
-                text(">", modifier = UiModifier().offset(x = 12f.dp).width(16f.dp))
-                text("Launch", modifier = UiModifier().offset(x = 32f.dp))
+                val labelSize = Style { textSize(theme.typography.label) }
+                text(">", modifier = UiModifier().offset(x = 12f.dp).width(16f.dp), style = labelSize)
+                text("Launch", modifier = UiModifier().offset(x = 32f.dp), style = labelSize)
             }
         """.trimIndent(),
         notes = listOf(
@@ -596,8 +598,9 @@ private fun UiColumnDslScope.drawUiShowcaseSlotApiPreview() {
         modifier = UiModifier().width(180f.dp).height(40f.dp),
         style = theme.components.button
     ) {
-        text(">", modifier = UiModifier().offset(x = 12f.dp).width(16f.dp))
-        text("Launch", modifier = UiModifier().offset(x = 32f.dp))
+        val labelSize = Style { textSize(theme.typography.label) }
+        text(">", modifier = UiModifier().offset(x = 12f.dp).width(16f.dp), style = labelSize)
+        text("Launch", modifier = UiModifier().offset(x = 32f.dp), style = labelSize)
     }
     spacer(UiModifier().height(16f.dp))
     awakeShadcnSectionTitle("Custom widgets, same primitives")
@@ -683,18 +686,6 @@ private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRunt
     )
 
     spacer(UiModifier().height(10f.dp))
-    val nextBitmapFont = awakeShadcnPropertyToggle(
-        id = "showcase-bitmap-font",
-        label = "Bitmap font",
-        checked = state.showcaseUseBitmapFont
-    )
-    if (nextBitmapFont != state.showcaseUseBitmapFont) state.showcaseUseBitmapFont = nextBitmapFont
-    awakeShadcnSupportingText(
-        "Swaps the whole app's font at runtime -- bitmap stays pixel-grid-aligned, true font uses real outline glyphs. See the Foundations > Bitmap And True Font page for a side-by-side.",
-        maxLines = 3
-    )
-
-    spacer(UiModifier().height(10f.dp))
     awakeShadcnSectionTitle("Live preview")
     val nextLive = awakeShadcnPropertyToggle(
         id = "showcase-live",
@@ -709,6 +700,12 @@ private fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRunt
         checked = state.showcaseDangerMode
     )
     if (nextDanger != state.showcaseDangerMode) state.showcaseDangerMode = nextDanger
+
+    state.showcaseNotifyChecked = awakeShadcnCheckbox(
+        id = "showcase-notify",
+        checked = state.showcaseNotifyChecked,
+        label = "Notify on publish"
+    )
 
     awakeShadcnPropertyDropdown(
         id = "showcase-badge-variant",

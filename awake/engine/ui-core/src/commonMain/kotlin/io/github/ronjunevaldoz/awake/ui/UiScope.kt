@@ -68,6 +68,21 @@ interface UiScope {
     val textScale: Float
 
     /**
+     * Whether this scope's own [emit] routes to the overlay layer (painted after every
+     * regular primitive this frame, regardless of call order -- see
+     * [UiContext.endFrame]/[emitOverlay]). A composite widget that opens a **new** nested
+     * scope to draw part of its own content (e.g. [buttonSlotInternal]'s `context.absolute(...)`
+     * for its label) must pass this through explicitly -- a fresh scope defaults to
+     * non-overlay, so failing to propagate it silently splits one widget's background and
+     * label across two different paint passes. Confirmed as a real bug this way: a dropdown
+     * popup's [button]-based options drew their background quad to the overlay layer (correct,
+     * inherited from the popup's own overlay scope) but their label glyphs to the regular
+     * layer (wrong, from a freshly-defaulted nested scope) -- the background, painted last,
+     * silently covered the label.
+     */
+    val emitsToOverlay: Boolean
+
+    /**
      * Direct reference to the owning context -- mirrors kool-engine's `UiScope.surface`. Lets
      * a composite widget (e.g. [panel]) build a nested scope from the SAME public factories
      * ([UiContext.column]/[row]/[box]/[absolute]) every top-level caller already uses,

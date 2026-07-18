@@ -71,7 +71,15 @@ fun UiScope.panel(
         id = id,
         bounds = slot
     )
-    val contentScope = context.column(slot, font = font, theme = theme, gap = gap, textScale = resolved.textScale, insets = resolved.contentPadding)
+    val contentScope = context.column(
+        slot,
+        font = font,
+        theme = theme,
+        gap = gap,
+        textScale = resolved.textScale,
+        insets = resolved.contentPadding,
+        overlayOnly = emitsToOverlay
+    )
     val effectiveShape = resolved.shapeSpec ?: if (resolved.shape.toPx() > 0f) UiShapeSpec.RoundedRectangle(resolved.shape) else null
     if (clipContent && effectiveShape != null) {
         clip(effectiveShape, slot) { contentScope.content(slot) }

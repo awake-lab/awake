@@ -43,7 +43,8 @@ private inline fun UiScope.buttonSlotInternal(
         slot = contentSlot,
         font = font,
         theme = theme,
-        textScale = resolved.textScale
+        textScale = resolved.textScale,
+        overlayOnly = emitsToOverlay
     ).drawContent(contentSlot, resolved)
     recordSemantic(
         role = UiSemanticRole.Button,

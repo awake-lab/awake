@@ -15,24 +15,18 @@ internal object GlyphAtlasSource {
 
     fun rowsFor(char: Char): IntArray? = glyphRows[atlasCharFor(char)]
 
+    /** [BitmapFont] draws every glyph as a full 1em-wide quad (see its `uvFor`), so the
+     * advance must match that quad width exactly -- true monospace, matching this object's
+     * own "8x8 monospace bitmap font" design. A narrower, ink-proportional advance previously
+     * used here caused consecutive glyph quads to overlap (a glyph's quad always spans a full
+     * cell, but the next character started before that cell ended), corrupting text into
+     * unreadable overlapping strokes -- worst for narrow glyphs like 'i'/'l'/'.'. */
     fun advanceFor(char: Char, glyphPx: Float): Float {
         val atlasChar = atlasCharFor(char)
-        val rows = glyphRows[atlasChar]
-        if (rows == null) {
-            return glyphPx
-        }
-        if (atlasChar == ' ') {
+        if (atlasChar == ' ' || glyphRows[atlasChar] == null) {
             return glyphPx * 0.5f
         }
-        val occupied = occupiedColumnRange(rows) ?: return glyphPx * 0.5f
-        val inkWidth = occupied.last - occupied.first + 1
-        val padding = when (atlasChar) {
-            'i', 'l', '.', ',', ':', ';', '!', '\'', '"' -> 1
-            'm', 'M', 'w', 'W' -> 2
-            else -> 2
-        }
-        val advanceColumns = (inkWidth + padding).coerceIn(2, sourceCellSize)
-        return glyphPx * advanceColumns / sourceCellSize.toFloat()
+        return glyphPx
     }
 
     fun isFilled(rows: IntArray, sourceX: Int, sourceY: Int): Boolean {
@@ -75,20 +69,6 @@ internal object GlyphAtlasSource {
         rows.getOrElse(rowIndex) { "........" }.fold(0) { bits, cell ->
             (bits shl 1) or if (cell == '#') 1 else 0
         }
-    }
-
-    private fun occupiedColumnRange(rows: IntArray): IntRange? {
-        var minX = sourceCellSize
-        var maxX = -1
-        repeat(sourceCellSize) { y ->
-            repeat(sourceCellSize) { x ->
-                if (isFilled(rows, x, y)) {
-                    minX = minOf(minX, x)
-                    maxX = maxOf(maxX, x)
-                }
-            }
-        }
-        return if (maxX < minX) null else minX..maxX
     }
 
     private val glyphRows: Map<Char, IntArray> = mapOf(

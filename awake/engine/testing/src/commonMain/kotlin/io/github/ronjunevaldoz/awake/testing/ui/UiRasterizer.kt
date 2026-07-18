@@ -157,6 +157,14 @@ fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
+    /** Minifying a glyph (source atlas footprint bigger than the on-screen quad -- the common
+     * case for [io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode.CoverageAlpha]
+     * atlases like `BitmapFont`, whose raster resolution is baked well above typical render
+     * sizes) with a single bilinear tap aliases badly: fine 8x8-grid structure falls between
+     * samples and the glyph reads as noise instead of a letterform. There's no mip chain here,
+     * so this box-filters instead -- averaging a small supersample grid per output pixel,
+     * sized to the actual minification ratio on each axis (1 tap when not minifying, more as
+     * the source footprint grows relative to the destination pixel, capped for performance). */
     fun drawGlyph(glyph: UiDrawPrimitive.Glyph, font: UiFont) {
         val x0 = max(glyph.x, clipX0).toInt().coerceIn(0, width)
         val y0 = max(glyph.y, clipY0).toInt().coerceIn(0, height)
@@ -167,24 +175,35 @@ fun List<UiDrawPrimitive>.rasterize(
         val b = (glyph.color[2] * 255).toInt().coerceIn(0, 255)
         val tintAlpha = (glyph.color.a * 255).toInt().coerceIn(0, 255)
 
+        val sourceTexelsX = (glyph.u1 - glyph.u0) * font.atlasWidth
+        val sourceTexelsY = (glyph.v1 - glyph.v0) * font.atlasHeight
+        val samplesX = (sourceTexelsX / glyph.w.coerceAtLeast(1f)).toInt().coerceIn(1, 6)
+        val samplesY = (sourceTexelsY / glyph.h.coerceAtLeast(1f)).toInt().coerceIn(1, 6)
+
         var py = y0
         while (py < y1) {
             var px = x0
             while (px < x1) {
-                val sampleX = px + 0.5f
-                val sampleY = py + 0.5f
-                if (!passesPathClips(sampleX, sampleY)) {
+                if (!passesPathClips(px + 0.5f, py + 0.5f)) {
                     px += 1
                     continue
                 }
-                val u = ((sampleX - glyph.x) / glyph.w).coerceIn(0f, 0.9999f)
-                val v = ((sampleY - glyph.y) / glyph.h).coerceIn(0f, 0.9999f)
-                val sourceAlpha = sampleGlyphAlpha(
-                    font,
-                    glyph,
-                    glyph.u0 + (glyph.u1 - glyph.u0) * u,
-                    glyph.v0 + (glyph.v1 - glyph.v0) * v
-                )
+                var alphaSum = 0
+                for (sy in 0 until samplesY) {
+                    for (sx in 0 until samplesX) {
+                        val sampleX = px + (sx + 0.5f) / samplesX
+                        val sampleY = py + (sy + 0.5f) / samplesY
+                        val u = ((sampleX - glyph.x) / glyph.w).coerceIn(0f, 0.9999f)
+                        val v = ((sampleY - glyph.y) / glyph.h).coerceIn(0f, 0.9999f)
+                        alphaSum += sampleGlyphAlpha(
+                            font,
+                            glyph,
+                            glyph.u0 + (glyph.u1 - glyph.u0) * u,
+                            glyph.v0 + (glyph.v1 - glyph.v0) * v
+                        )
+                    }
+                }
+                val sourceAlpha = alphaSum / (samplesX * samplesY)
                 if (sourceAlpha == 0) {
                     px += 1
                     continue

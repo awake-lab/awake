@@ -288,7 +288,7 @@ fun UiDslScope.alertDialog(
                 button(
                     id = "$id.confirm",
                     label = confirmLabel,
-                    modifier = UiModifier().width(96f.px).height(32f.px),
+                    modifier = UiModifier().width(96f.px). height(32f.px),
                     variant = confirmVariant
                 )
             ) {
@@ -310,7 +310,8 @@ private fun UiColumnDslScope.dropdownMenuItem(
     selected: Boolean
 ): Boolean {
     val resolvedFont = font
-    val glyphPx = resolvedFont?.let { it.cellSize * pixelPerfectTextScale(textScale) } ?: 12f
+    val labelSize = theme.typography.label
+    val glyphPx = pixelPerfectPixel(labelSize.toPx().coerceAtLeast(1f)).coerceAtLeast(1f)
     val trailingWidth = item.trailingLabel?.let { label ->
         (resolvedFont?.measureTextWidth(label, glyphPx) ?: label.length * glyphPx) + 8f
     } ?: 0f
@@ -370,7 +371,8 @@ private fun UiColumnDslScope.dropdownMenuItem(
             ),
             font = resolvedFont,
             color = textColor,
-            overflow = UiTextOverflow.Ellipsis
+            overflow = UiTextOverflow.Ellipsis,
+            textSize = labelSize
         )
     item.trailingLabel?.let { label ->
         contentScope.text(
@@ -384,7 +386,8 @@ private fun UiColumnDslScope.dropdownMenuItem(
             font = resolvedFont,
             color = trailingColor,
             centered = true,
-            overflow = UiTextOverflow.Ellipsis
+            overflow = UiTextOverflow.Ellipsis,
+            textSize = labelSize
         )
     }
     supportingLayout?.let { layout ->
@@ -400,7 +403,8 @@ private fun UiColumnDslScope.dropdownMenuItem(
             color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
             wrap = UiTextWrap.Word,
             overflow = UiTextOverflow.Ellipsis,
-            maxLines = 2
+            maxLines = 2,
+            textSize = labelSize
         )
     }
     return slot.clicked && item.enabled

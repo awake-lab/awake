@@ -79,7 +79,21 @@ class CoreUiComponentStyles(
         borderColor(tokens.border)
         textSize(typography.label)
     }
-    override val slider: Style = tokens.neutralStyle() then Style {
+    // Not tokens.neutralStyle(): that style's "active" means "currently pressed" (a button/
+    // toggle's momentary press-feedback, correctly swapping the whole surface to accent) --
+    // a slider's "active" means "currently being dragged", which can last seconds, and the
+    // slider already paints its own accent-colored progress fill on top of this background.
+    // Reusing neutralStyle made the ENTIRE track flash to solid accent for the whole drag
+    // (visually indistinguishable from the progress fill, looked like a color-swap bug).
+    // A border highlight during drag (matching AwakeShadcnStyles.slider's own active rule)
+    // is the correct, non-button affordance here.
+    override val slider: Style = Style {
+        background(tokens.background)
+        foreground(tokens.foreground)
+        borderWidth(1f.dp)
+        borderColor(tokens.border)
+        hovered { background(tokens.muted) }
+        active { borderColor(tokens.accent) }
         textSize(typography.label)
     }
     override val dropdown: Style = tokens.neutralStyle() then Style {

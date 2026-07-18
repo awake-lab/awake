@@ -96,10 +96,15 @@ def main() -> None:
             width_em = 0.0
             height_em = 0.0
         else:
-            left = cell_x + max(0, bbox[0] - 1)
-            top = cell_y + max(0, bbox[1] - 1)
-            right = cell_x + min(cell_width_px, bbox[2] + 1)
-            bottom = cell_y + min(cell_height_px, bbox[3] + 1)
+            # 1px of raster headroom around each glyph's tight ink bbox. Widening this
+            # grows the glyph quad without growing its pen advance, so adjacent glyphs start
+            # overlapping at small sizes (confirmed visually -- do not increase this without
+            # also adjusting advance_em to match).
+            crop_bleed = 1
+            left = cell_x + max(0, bbox[0] - crop_bleed)
+            top = cell_y + max(0, bbox[1] - crop_bleed)
+            right = cell_x + min(cell_width_px, bbox[2] + crop_bleed)
+            bottom = cell_y + min(cell_height_px, bbox[3] + crop_bleed)
             offset_x_em = (left - cell_x) / args.oversample / base_cell_size
             offset_y_em = (top - cell_y) / args.oversample / base_cell_size
             width_em = max(1, right - left) / args.oversample / base_cell_size

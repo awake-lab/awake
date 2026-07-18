@@ -134,11 +134,11 @@ class UiContextTest {
 
         val allPrimitives = ui.endFrame()
         val siblingIndex = allPrimitives.indexOfLast { primitive ->
-            primitive is UiDrawPrimitive.Quad &&
-                primitive.x == 20f &&
-                primitive.y == 60f &&
-                primitive.w == 160f &&
-                primitive.h == 32f
+            when (primitive) {
+                is UiDrawPrimitive.Quad -> primitive.x == 20f && primitive.y == 60f && primitive.w == 160f && primitive.h == 32f
+                is UiDrawPrimitive.RoundedQuad -> primitive.x == 20f && primitive.y == 60f && primitive.w == 160f && primitive.h == 32f
+                else -> false
+            }
         }
         val optionIndices = buildList {
             allPrimitives.forEachIndexed { index, primitive ->

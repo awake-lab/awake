@@ -4,6 +4,14 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 
+// Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a
+// circular knob straddling it at the current value -- the claimed slot stays the full
+// hit-test/hover target (so dragging doesn't require pixel-precise aim at a thin line), but
+// only a slice of it is painted as the track, and the knob is drawn on top, not "no knob at
+// all" (the previous version only drew a flat fill rectangle with no handle).
+private const val SLIDER_TRACK_HEIGHT_PX = 6f
+private const val SLIDER_KNOB_DIAMETER_PX = 16f
+
 fun UiScope.slider(
     id: String,
     min: Float,
@@ -29,26 +37,46 @@ fun UiScope.slider(
         defaults = theme.components.slider,
         state = MutableStyleState(hovered = hovered, active = dragging)
     )
+    val trackSlot = UiSlot(
+        slot.x,
+        slot.y + (slot.height - SLIDER_TRACK_HEIGHT_PX) / 2f,
+        slot.width,
+        SLIDER_TRACK_HEIGHT_PX
+    )
     emitFillAndBorder(
-        slot = slot,
+        slot = trackSlot,
         fillColor = resolved.background ?: theme.tokens.background,
-        radiusPx = resolved.shape.toPx(),
+        radiusPx = 0f,
         borderWidth = resolved.borderWidth,
         borderColor = resolved.borderColor ?: theme.tokens.border,
-        shapeSpec = resolved.shapeSpec
+        shapeSpec = UiShapeSpec.Pill
     )
     val fraction = ((newValue - min) / (max - min)).coerceIn(0f, 1f)
-    val handleWidth = (slot.width * fraction).coerceAtLeast(0f)
+    val handleWidth = (trackSlot.width * fraction).coerceAtLeast(0f)
     if (handleWidth > 0f) {
         emitFillAndBorder(
-            slot = UiSlot(slot.x, slot.y, handleWidth, slot.height),
+            slot = UiSlot(trackSlot.x, trackSlot.y, handleWidth, trackSlot.height),
             fillColor = theme.tokens.accent,
-            radiusPx = resolved.shape.toPx(),
+            radiusPx = 0f,
             borderWidth = UiShape.none,
             borderColor = TransparentColor,
-            shapeSpec = resolved.shapeSpec
+            shapeSpec = UiShapeSpec.Pill
         )
     }
+    val knobCenterX = trackSlot.x + handleWidth
+    emitFillAndBorder(
+        slot = UiSlot(
+            knobCenterX - SLIDER_KNOB_DIAMETER_PX / 2f,
+            slot.y + (slot.height - SLIDER_KNOB_DIAMETER_PX) / 2f,
+            SLIDER_KNOB_DIAMETER_PX,
+            SLIDER_KNOB_DIAMETER_PX
+        ),
+        fillColor = theme.tokens.background,
+        radiusPx = 0f,
+        borderWidth = resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
+        borderColor = theme.tokens.accent,
+        shapeSpec = UiShapeSpec.Pill
+    )
     if (label != null && font != null) {
         text(
             label,

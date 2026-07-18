@@ -15,10 +15,15 @@ class TextWidgetsTest {
         val font = BitmapFont()
         val ui = UiContext()
         val scope = ui.absolute(x = 10f, y = 20f, font = font)
+        // BitmapFont is true monospace (every glyph advances a full glyphPx, see
+        // GlyphAtlasSource.advanceFor) -- the slot must be wide enough to fit the 3-dot
+        // ellipsis itself (3 * glyphPx) plus at least one real character, or there's no
+        // valid truncation to assert on.
+        val slotWidthPx = 60f
         val layout = layoutBitmapText(
             label = "TOOLONG",
             glyphPx = 12f,
-            maxWidthPx = 32f,
+            maxWidthPx = slotWidthPx,
             wrap = UiTextWrap.None,
             overflow = UiTextOverflow.Ellipsis,
             maxLines = 1,
@@ -27,7 +32,7 @@ class TextWidgetsTest {
 
         scope.text(
             label = "TOOLONG",
-            slot = UiSlot(10f, 20f, 32f, 12f),
+            slot = UiSlot(10f, 20f, slotWidthPx, 12f),
             font = font,
             overflow = UiTextOverflow.Ellipsis
         )
@@ -35,7 +40,7 @@ class TextWidgetsTest {
         val frame = ui.endFrame()
         val clipPushes = frame.filterIsInstance<UiDrawPrimitive.ClipPush>()
         assertTrue(layout.lines.single().endsWith("..."), "ellipsis overflow should append a visible ellipsis when text is truncated")
-        assertTrue(layout.lineWidths.single() <= 32f, "ellipsized text layout must measure within the slot width")
+        assertTrue(layout.lineWidths.single() <= slotWidthPx, "ellipsized text layout must measure within the slot width")
         assertTrue(
             clipPushes.isNotEmpty(),
             "ellipsized text should clip to the slot bounds even when the final glyph quad extends past the right edge"
@@ -73,7 +78,12 @@ class TextWidgetsTest {
     }
 
     @Test
-    fun lineWidthsReflectVariableGlyphAdvance() {
+    fun lineWidthsAreMonospaceAcrossGlyphs() {
+        // BitmapFont is true monospace -- every glyph's quad spans a full 1em cell (see
+        // BitmapFont.uvFor), so advance must match that width exactly regardless of a
+        // character's ink shape (GlyphAtlasSource.advanceFor), or consecutive glyph quads
+        // overlap. A narrow character ("i"/"l") and a wide one ("W") must therefore measure
+        // to the same line width, not a narrower one.
         val font = BitmapFont()
         val narrow = layoutBitmapText(
             label = "ill",
@@ -94,7 +104,7 @@ class TextWidgetsTest {
             advanceOf = { char -> font.advanceFor(char, 12f) }
         )
 
-        assertTrue(narrow.lineWidths.single() < wide.lineWidths.single())
+        assertEquals(narrow.lineWidths.single(), wide.lineWidths.single())
     }
 
     @Test

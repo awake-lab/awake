@@ -34,7 +34,7 @@ fun UiScope.propertyRow(
         modifier = modifier
     )
     val resolvedFont = font
-    val glyphPx = resolvedFont?.let { resolveGlyphPx(it) } ?: 12f
+    val glyphPx = resolvedFont?.let { resolveGlyphPx(it, textScale, theme.typography.caption) } ?: 12f
     val layout = layoutPropertyRow(
         rowSlot = rowSlot,
         labelWidthPx = resolvePropertyLabelWidthPx(
@@ -45,9 +45,9 @@ fun UiScope.propertyRow(
             labelTextWidthPx = labelWidth.toPx()
         )
     )
-    UiAbsoluteDslScope(context.absolute(layout.labelSlot, resolvedFont, theme, textScale))
+    UiAbsoluteDslScope(context.absolute(layout.labelSlot, resolvedFont, theme, textScale, overlayOnly = emitsToOverlay))
         .labelContent(layout.labelSlot)
-    UiAbsoluteDslScope(context.absolute(layout.controlSlot, resolvedFont, theme, textScale))
+    UiAbsoluteDslScope(context.absolute(layout.controlSlot, resolvedFont, theme, textScale, overlayOnly = emitsToOverlay))
         .content(layout.controlSlot)
     return layout.controlSlot
 }
@@ -75,7 +75,8 @@ fun UiScope.propertyRow(
         modifier = modifier
     )
     val resolvedFont = font
-    val glyphPx = resolvedFont?.let { resolveGlyphPx(it) } ?: 12f
+    val labelSize = theme.typography.caption
+    val glyphPx = resolvedFont?.let { resolveGlyphPx(it, textScale, labelSize) } ?: 12f
     val layout = layoutPropertyRow(
         rowSlot = rowSlot,
         labelWidthPx = resolvePropertyLabelWidthPx(
@@ -94,7 +95,8 @@ fun UiScope.propertyRow(
             font = resolvedFont,
             color = labelColor,
             centered = false,
-            overflow = UiTextOverflow.Ellipsis
+            overflow = UiTextOverflow.Ellipsis,
+            textSize = labelSize
         )
     }
     return layout.controlSlot
@@ -156,7 +158,8 @@ fun UiScope.propertyCheckbox(
     val labelColor = theme.tokens.mutedForeground
     val resolvedFont = font
     if (resolvedFont != null) {
-        val glyphPx = resolveGlyphPx(resolvedFont)
+        val labelSize = theme.typography.caption
+        val glyphPx = resolveGlyphPx(resolvedFont, textScale, labelSize)
         val labelSlot = UiSlot(interaction.slot.x, interaction.slot.y + (interaction.slot.height - glyphPx) / 2f, interaction.slot.width, glyphPx)
         text(
             label = label,
@@ -164,7 +167,8 @@ fun UiScope.propertyCheckbox(
             font = resolvedFont,
             color = labelColor,
             centered = false,
-            overflow = UiTextOverflow.Ellipsis
+            overflow = UiTextOverflow.Ellipsis,
+            textSize = labelSize
         )
     }
 
