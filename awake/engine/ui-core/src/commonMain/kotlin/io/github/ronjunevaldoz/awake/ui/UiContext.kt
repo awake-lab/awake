@@ -27,6 +27,10 @@ class UiContext private constructor(
     constructor() : this(measuring = false)
 
     private var activeId: String? = null
+    private var focusedId: String? = null
+    private var pointerDownLastFrame = false
+    private var pointerDownEdgeThisFrame = false
+    private var focusClaimedThisFrame = false
     private val widgetStates = HashMap<String, WidgetState>()
     private val primitives = ArrayList<UiDrawPrimitive>()
     private val overlayPrimitives = ArrayList<UiDrawPrimitive>()
@@ -46,6 +50,8 @@ class UiContext private constructor(
         frameDeltaSeconds = deltaSeconds.coerceAtLeast(0f)
         measuredMaxRight = 0f
         measuredMaxBottom = 0f
+        pointerDownEdgeThisFrame = Input.pointerDown && !pointerDownLastFrame
+        focusClaimedThisFrame = false
     }
 
     /** Reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
@@ -161,6 +167,17 @@ class UiContext private constructor(
      * sibling widgets: the option rows always go through [UiScope.emitOverlay]. */
     fun endFrame(): List<UiDrawPrimitive> {
         Input.pointerCapturedByUi = activeId != null
+        if (pointerDownEdgeThisFrame && !focusClaimedThisFrame) {
+            focusedId = null
+        }
+        // Nothing is focused to receive it -- discard rather than let it sit in the shared
+        // queue until some unrelated field happens to gain focus later and gets a stale,
+        // unrelated keystroke dumped into it on its very first focused frame.
+        if (focusedId == null) {
+            Input.consumeTypedText()
+            Input.consumeEditActions()
+        }
+        pointerDownLastFrame = Input.pointerDown
         return primitives + overlayPrimitives
     }
 
@@ -182,6 +199,27 @@ class UiContext private constructor(
     internal fun releaseActiveIfMatchesInternal(id: String) {
         if (measuring) return
         if (!Input.pointerDown && activeId == id) activeId = null
+    }
+
+    /** Whether a fresh pointer-down happened this frame (down now, wasn't down last frame) --
+     * a text-input widget uses this to distinguish "just clicked into me" from "still holding
+     * the mouse button down from an earlier frame." */
+    internal fun pointerDownEdgeInternal(): Boolean = pointerDownEdgeThisFrame
+
+    internal fun isFocusedInternal(id: String): Boolean = focusedId == id
+
+    /** Grants persistent keyboard focus to [id], surviving across frames until something else
+     * claims it, [clearFocusIfMatchesInternal] releases it, or a fresh click lands outside
+     * every focusable widget this frame (see [endFrame]'s unclaimed-click-edge check). */
+    internal fun requestFocusInternal(id: String) {
+        if (measuring) return
+        focusedId = id
+        focusClaimedThisFrame = true
+    }
+
+    internal fun clearFocusIfMatchesInternal(id: String) {
+        if (measuring) return
+        if (focusedId == id) focusedId = null
     }
 
     internal fun emitInternal(p: UiDrawPrimitive) {
@@ -222,6 +260,16 @@ class UiContext private constructor(
     }
 
     fun popClip(): UiSlot = popClipInternal()
+
+    fun pointerDownEdge(): Boolean = pointerDownEdgeInternal()
+
+    fun isFocused(id: String): Boolean = isFocusedInternal(id)
+
+    fun requestFocus(id: String) = requestFocusInternal(id)
+
+    fun clearFocusIfMatches(id: String) = clearFocusIfMatchesInternal(id)
+
+    fun frameDeltaSeconds(): Float = frameDeltaSecondsInternal()
 
     fun frameBounds(): UiSlot = fullFrameRect
 

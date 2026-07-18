@@ -233,6 +233,16 @@ private class ConfiguredAwakeShadcnTheme(
             shape(radii.xl)
             contentPadding(metrics.panelPadding)
         }
+        override val textField: Style = Style {
+            background(palette.background)
+            foreground(palette.foreground)
+            borderWidth(1f.dp)
+            borderColor(palette.input)
+            shape(radii.md)
+            contentPadding(metrics.fieldPaddingX, metrics.fieldPaddingY)
+            textSize(typography.label)
+            focused { borderColor(palette.ring) }
+        }
     }
 }
 

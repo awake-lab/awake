@@ -12,11 +12,11 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnSurfaceVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSectionHeader
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height

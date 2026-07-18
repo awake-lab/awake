@@ -60,6 +60,7 @@ interface UiComponentStyles {
     val slider: Style
     val dropdown: Style
     val panel: Style
+    val textField: Style
 }
 
 /**
@@ -117,6 +118,16 @@ class CoreUiComponentStyles(
         background(tokens.background)
         foreground(tokens.foreground)
         contentPadding(UiSpacing.sm)
+    }
+    override val textField: Style = Style {
+        background(tokens.background)
+        foreground(tokens.foreground)
+        borderWidth(1f.dp)
+        borderColor(tokens.border)
+        shape(UiShape.sm)
+        contentPadding(UiSpacing.sm)
+        textSize(typography.label)
+        focused { borderColor(tokens.primary) }
     }
 }
 
