@@ -22,7 +22,9 @@ fun UiScope.textField(
     value: String,
     placeholder: String = "",
     modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    isError: Boolean = false
 ): String {
     val interaction = interact(
         id = id,
@@ -30,23 +32,28 @@ fun UiScope.textField(
         height = Dimension.Fixed(36f.px),
         modifier = modifier
     )
-    val focused = context.isFocused(id)
-    if (context.pointerDownEdge() && interaction.hovered) {
-        println("[DEBUG] textField($id): pointerDownEdge+hovered -> requestFocus")
+    // Disabled fields never claim focus or consume input -- if a field was focused and then
+    // became disabled mid-session, drop that focus too, the same way a real disabled input
+    // stops receiving keystrokes immediately, not just stops accepting new clicks.
+    val focused = enabled && context.isFocused(id)
+    if (!enabled) {
+        context.clearFocusIfMatches(id)
+    } else if (context.pointerDownEdge() && interaction.hovered) {
         context.requestFocus(id)
     }
 
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.textField,
-        state = MutableStyleState(hovered = interaction.hovered, focused = focused)
+        state = MutableStyleState(hovered = interaction.hovered, focused = focused, disabled = !enabled)
     )
+    val borderColor = if (isError) theme.tokens.destructive else (resolved.borderColor ?: theme.tokens.border)
     emitFillAndBorder(
         slot = interaction.slot,
         fillColor = resolved.background ?: theme.tokens.background,
         radiusPx = resolved.shape.toPx(),
-        borderWidth = if (focused) 1.5f.dp else resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border,
+        borderWidth = if (focused || isError) 1.5f.dp else resolved.borderWidth,
+        borderColor = borderColor,
         shapeSpec = resolved.shapeSpec
     )
 
@@ -90,7 +97,6 @@ fun UiScope.textField(
         }
         val typed = Input.consumeTypedText()
         if (typed.isNotEmpty()) {
-            println("[DEBUG] textField($id): consumed typed='$typed'")
             nextValue = nextValue.substring(0, cursor) + typed + nextValue.substring(cursor)
             cursor += typed.length
         }

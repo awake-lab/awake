@@ -128,6 +128,11 @@ class CoreUiComponentStyles(
         contentPadding(UiSpacing.sm)
         textSize(typography.label)
         focused { borderColor(tokens.primary) }
+        disabled {
+            background(tokens.muted)
+            foreground(tokens.mutedForeground)
+            borderColor(tokens.border)
+        }
     }
 }
 

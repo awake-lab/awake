@@ -236,8 +236,10 @@ sealed class UiDslScope protected constructor(
         value: String,
         placeholder: String = "",
         modifier: UiModifier = UiModifier(),
-        style: Style = Style.Empty
-    ): String = scope.textField(id, value, placeholder, modifier, style)
+        style: Style = Style.Empty,
+        enabled: Boolean = true,
+        isError: Boolean = false
+    ): String = scope.textField(id, value, placeholder, modifier, style, enabled, isError)
 
     fun dropdown(
         id: String,

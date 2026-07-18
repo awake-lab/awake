@@ -67,13 +67,17 @@ fun UiScope.awakeShadcnTextField(
     value: String,
     placeholder: String = "",
     modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    isError: Boolean = false
 ): String = textField(
     id = id,
     value = value,
     placeholder = placeholder,
     modifier = modifier,
-    style = awakeShadcnFieldStyle(theme, style)
+    style = awakeShadcnFieldStyle(theme, style),
+    enabled = enabled,
+    isError = isError
 )
 
 fun UiScope.awakeShadcnDropdown(
@@ -127,13 +131,17 @@ fun UiDslScope.awakeShadcnTextField(
     value: String,
     placeholder: String = "",
     modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    isError: Boolean = false
 ): String = textField(
     id = id,
     value = value,
     placeholder = placeholder,
     modifier = modifier,
-    style = awakeShadcnFieldStyle(theme, style)
+    style = awakeShadcnFieldStyle(theme, style),
+    enabled = enabled,
+    isError = isError
 )
 
 fun UiDslScope.awakeShadcnCheckbox(

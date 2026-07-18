@@ -82,7 +82,7 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
     id = "awake-textfield-states-light",
     title = "Awake TextField States (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/text-field_states_light.png's arrangement -- Awake's textField() only has one look today, so this deliberately shows the gap (no Filled/Ghost/invalid/disabled variants exist yet).",
+    summary = "Matches docs/reference/shadcn-previews/text-field_states_light.png's arrangement. Still no Filled/Ghost variant, but error and disabled states now exist.",
     width = 296,
     height = 322
 )
@@ -95,8 +95,8 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
         ui.ui(x = 24f, y = 24f, width = 248f, font = font, theme = theme, gap = 16f) {
             awakeShadcnTextField("parity-field-1", value = "", placeholder = "Default", modifier = UiModifier().width(248f.px).height(40f.px))
             awakeShadcnTextField("parity-field-2", value = "", placeholder = "No Filled/Ghost variant yet", modifier = UiModifier().width(248f.px).height(40f.px))
-            awakeShadcnTextField("parity-field-3", value = "", placeholder = "No invalid state yet", modifier = UiModifier().width(248f.px).height(40f.px))
-            awakeShadcnTextField("parity-field-4", value = "", placeholder = "No disabled state yet", modifier = UiModifier().width(248f.px).height(40f.px))
+            awakeShadcnTextField("parity-field-3", value = "Invalid value", modifier = UiModifier().width(248f.px).height(40f.px), isError = true)
+            awakeShadcnTextField("parity-field-4", value = "", placeholder = "Disabled", modifier = UiModifier().width(248f.px).height(40f.px), enabled = false)
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),

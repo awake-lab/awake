@@ -242,6 +242,11 @@ private class ConfiguredAwakeShadcnTheme(
             contentPadding(metrics.fieldPaddingX, metrics.fieldPaddingY)
             textSize(typography.label)
             focused { borderColor(palette.ring) }
+            disabled {
+                background(palette.muted)
+                foreground(palette.mutedForeground)
+                borderColor(palette.input)
+            }
         }
     }
 }
