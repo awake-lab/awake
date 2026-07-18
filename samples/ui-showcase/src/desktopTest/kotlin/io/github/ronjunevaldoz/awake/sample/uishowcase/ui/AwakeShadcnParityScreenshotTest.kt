@@ -12,7 +12,9 @@ import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextField
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -40,7 +42,7 @@ class AwakeShadcnParityScreenshotTest {
     @Test
     fun writeParityScreenshots() {
         Input.setPointer(down = false, x = -100f, y = -100f)
-        listOf(AwakeButtonVariantsLightPreview, AwakeTextFieldStatesLightPreview).forEach { entry ->
+        listOf(AwakeButtonVariantsLightPreview, AwakeTextFieldStatesLightPreview, AwakeBadgeVariantsLightPreview).forEach { entry ->
             saveAwakeUiPreview(renderAnnotatedUiPreview(entry))
         }
     }
@@ -68,6 +70,38 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
                 awakeShadcnButton("parity-ghost", "Ghost", modifier = UiModifier().width(80f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Ghost)
                 awakeShadcnButton("parity-destructive", "Destructive", modifier = UiModifier().width(110f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Danger)
                 awakeShadcnButton("parity-link", "Link", modifier = UiModifier().width(60f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Link)
+            }
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-badge-variants-light",
+    title = "Awake Badge Variants (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews/badge_variants_light.png's arrangement for a direct side-by-side.",
+    width = 479,
+    height = 116
+)
+internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = awakeShadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat())
+        ui.ui(x = 30f, y = 42f, width = 420f, font = font, theme = theme, gap = 10f) {
+            row(height = 30f.dp, gap = 10f) {
+                awakeShadcnBadge("Default", modifier = UiModifier().width(72f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Primary)
+                awakeShadcnBadge("Secondary", modifier = UiModifier().width(90f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Secondary)
+                awakeShadcnBadge("Destructive", modifier = UiModifier().width(100f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Danger)
+                awakeShadcnBadge("Outline", modifier = UiModifier().width(80f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Outline)
+                awakeShadcnBadge("Ghost", modifier = UiModifier().width(70f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Ghost)
             }
         }
         return AwakeUiPreviewFrame(

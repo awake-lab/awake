@@ -169,9 +169,8 @@ components, not all at once up front.
    against `docs/reference/awake-previews/awake-textfield-states-light.png`.
 2. ~~Add a `Link` button variant~~ -- done: `AwakeShadcnButtonVariant.Link`. Verified visually
    against `docs/reference/awake-previews/awake-button-variants-light.png`.
-3. ~~Add a `Ghost` badge variant~~ -- done: `AwakeShadcnBadgeVariant.Ghost`. Not yet verified
-   against a screenshot (no badge parity preview exists yet -- add one before trusting this
-   blindly).
+3. ~~Add a `Ghost` badge variant~~ -- done: `AwakeShadcnBadgeVariant.Ghost`. Verified visually
+   against `docs/reference/awake-previews/awake-badge-variants-light.png`.
 4. Still open: `ButtonSize` axis (Xs/Sm/Md/Lg/Icon), `textField()`'s `Filled`/`Ghost`
    variants.
 5. When building the still-missing components from
