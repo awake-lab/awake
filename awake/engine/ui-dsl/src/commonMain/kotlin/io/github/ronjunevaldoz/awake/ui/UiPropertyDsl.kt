@@ -190,10 +190,10 @@ fun UiScope.propertyCheckbox(
         val inset = boxPx * 0.25f
         emitFillAndBorder(
             slot = UiSlot(boxSlot.x + inset, boxSlot.y + inset, boxSlot.width - inset * 2f, boxSlot.height - inset * 2f),
-            fillColor = theme.tokens.accent,
+            fillColor = theme.tokens.primary,
             radiusPx = (resolved.shape.toPx() - inset).coerceAtLeast(0f),
             borderWidth = UiShape.none,
-            borderColor = theme.tokens.accent,
+            borderColor = theme.tokens.primary,
             shapeSpec = resolved.shapeSpec
         )
     }

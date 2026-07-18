@@ -133,7 +133,7 @@ internal fun UiScope.emitInsetAccent(slot: UiSlot, inset: Float, radiusPx: Float
     val h = slot.height - inset * 2
     emitFillShape(
         slot = UiSlot(x, y, w, h),
-        color = theme.tokens.accent,
+        color = theme.tokens.primary,
         radiusPx = (radiusPx - inset).coerceAtLeast(0f),
         shapeSpec = shapeSpec
     )

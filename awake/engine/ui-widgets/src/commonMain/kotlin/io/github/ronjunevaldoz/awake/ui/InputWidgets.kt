@@ -56,7 +56,7 @@ fun UiScope.slider(
     if (handleWidth > 0f) {
         emitFillAndBorder(
             slot = UiSlot(trackSlot.x, trackSlot.y, handleWidth, trackSlot.height),
-            fillColor = theme.tokens.accent,
+            fillColor = theme.tokens.primary,
             radiusPx = 0f,
             borderWidth = UiShape.none,
             borderColor = TransparentColor,
@@ -74,7 +74,7 @@ fun UiScope.slider(
         fillColor = theme.tokens.background,
         radiusPx = 0f,
         borderWidth = resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
-        borderColor = theme.tokens.accent,
+        borderColor = theme.tokens.primary,
         shapeSpec = UiShapeSpec.Pill
     )
     if (label != null && font != null) {

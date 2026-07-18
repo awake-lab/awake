@@ -128,7 +128,7 @@ fun UiScope.scrollPanel(
         )
         emitFillAndBorder(
             slot = thumb.thumb,
-            fillColor = theme.tokens.accent,
+            fillColor = theme.tokens.primary,
             radiusPx = scrollbarWidthPx / 2f,
             borderWidth = UiShape.none,
             borderColor = TransparentColor

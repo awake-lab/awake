@@ -31,7 +31,7 @@ fun UiScope.toggle(
         state = MutableStyleState(hovered = interaction.hovered, active = interaction.active, selected = checked)
     )
     val newChecked = if (interaction.clicked) !checked else checked
-    val trackFill = if (newChecked) theme.tokens.accent else (resolved.background ?: theme.tokens.background)
+    val trackFill = if (newChecked) theme.tokens.primary else (resolved.background ?: theme.tokens.background)
     emitFillAndBorder(
         slot = interaction.slot,
         fillColor = trackFill,
