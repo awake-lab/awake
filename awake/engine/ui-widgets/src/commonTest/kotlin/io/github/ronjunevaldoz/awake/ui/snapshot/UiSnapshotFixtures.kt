@@ -50,6 +50,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertySlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.alertDialog
 
 data class UiSnapshotScene(
     val name: String,
@@ -274,6 +275,23 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     awakeShadcnPropertySlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f, labelWidth = 96f.dp)
                     checkbox("wireframe", checked = true, label = "Wireframe Overlay")
                 }
+            }
+        },
+        scene(
+            name = "ui-alert-dialog",
+            width = 360,
+            height = 260,
+            background = AwakeShadcnTheme.tokens.background,
+            title = "Alert Dialog",
+            summary = "A long title must wrap and stay clipped inside the dialog panel instead of overflowing past its bounds."
+        ) { snapshotFont ->
+            ui(x = 0f, y = 0f, width = 360f, font = snapshotFont, theme = AwakeShadcnTheme, textScale = 2f) {
+                alertDialog(
+                    id = "snapshot-alert",
+                    expanded = true,
+                    title = "Delete this very long showcase card title that must wrap?",
+                    message = "This sample does not really delete anything."
+                )
             }
         },
         scene(

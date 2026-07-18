@@ -234,7 +234,8 @@ fun UiDslScope.dialog(
             width = width,
             height = height,
             radius = UiShape.md,
-            style = theme.components.panel then properties.surfaceStyle
+            style = theme.components.panel then properties.surfaceStyle,
+            clipContent = true
         ) { slot ->
             header?.invoke(this, slot)
             content(slot)
@@ -270,7 +271,7 @@ fun UiDslScope.alertDialog(
         width = width,
         properties = properties.copy(surfaceStyle = properties.surfaceStyle then style),
         header = {
-            text(title, style = Style { textSize(theme.typography.title) })
+            text(title, style = Style { textSize(theme.typography.title) }, wrap = UiTextWrap.Word)
         },
         actions = {
             dismissLabel?.let { label ->
