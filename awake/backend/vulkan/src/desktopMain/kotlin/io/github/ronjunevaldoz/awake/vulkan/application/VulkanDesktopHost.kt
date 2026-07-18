@@ -60,6 +60,7 @@ fun runVulkanDesktopGame(
         while (!VulkanWindow.glfwWindowShouldClose(window)) {
             VulkanWindow.glfwPollEvents()
             pollInput(window)
+            pollGlfwTextInput(window)
             syncUiDensity(window)
             beforeFrame()
             DesktopGameLoop.startLoop { deltaTime ->

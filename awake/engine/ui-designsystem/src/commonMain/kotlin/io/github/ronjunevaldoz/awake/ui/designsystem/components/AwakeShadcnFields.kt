@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.designsystem
+package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.Dimension
@@ -10,18 +10,20 @@ import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.checkbox
 import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.slider
+import io.github.ronjunevaldoz.awake.ui.textField
 import io.github.ronjunevaldoz.awake.ui.toggle
 import io.github.ronjunevaldoz.awake.ui.UiTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 
 private fun awakeShadcnFieldStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
@@ -58,6 +60,20 @@ fun UiScope.awakeShadcnCheckbox(
     label = label,
     modifier = modifier,
     style = awakeShadcnCheckboxStyle(theme, style)
+)
+
+fun UiScope.awakeShadcnTextField(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): String = textField(
+    id = id,
+    value = value,
+    placeholder = placeholder,
+    modifier = modifier,
+    style = awakeShadcnFieldStyle(theme, style)
 )
 
 fun UiScope.awakeShadcnDropdown(
@@ -102,6 +118,20 @@ fun UiDslScope.awakeShadcnToggle(
     id = id,
     checked = checked,
     label = label,
+    modifier = modifier,
+    style = awakeShadcnFieldStyle(theme, style)
+)
+
+fun UiDslScope.awakeShadcnTextField(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): String = textField(
+    id = id,
+    value = value,
+    placeholder = placeholder,
     modifier = modifier,
     style = awakeShadcnFieldStyle(theme, style)
 )

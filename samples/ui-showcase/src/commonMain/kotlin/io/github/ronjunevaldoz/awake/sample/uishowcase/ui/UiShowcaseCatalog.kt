@@ -34,6 +34,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnDropd
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnHeadline
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertySlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyTextField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
@@ -89,8 +90,10 @@ private val ShowcaseActionMenuItems = listOf(
 
 internal enum class ShowcaseCategory(val title: String) {
     GettingStarted("Getting Started"),
-    Foundations("Foundations"),
+    Inputs("Inputs"),
     Overlays("Overlays"),
+    Layout("Layout"),
+    Typography("Typography"),
     Patterns("Patterns"),
 }
 
@@ -168,7 +171,7 @@ internal val ShowcasePages = listOf(
     ShowcasePage(
         id = "fonts",
         title = "Bitmap And True Font",
-        category = ShowcaseCategory.Foundations,
+        category = ShowcaseCategory.Typography,
         description = "A direct specimen view of the current bitmap default beside a real TTF-derived atlas font.",
         usageCode = """
             val bitmap = UiFonts.bitmap()
@@ -184,7 +187,7 @@ internal val ShowcasePages = listOf(
     ShowcasePage(
         id = "layout",
         title = "Layout Primitives",
-        category = ShowcaseCategory.Foundations,
+        category = ShowcaseCategory.Layout,
         description = "row(...) and column(...) -- the modifier-first layout primitives every other page in this catalog is built from.",
         usageCode = """
             row(height = 48f.dp, gap = 8f) {
@@ -220,7 +223,7 @@ internal val ShowcasePages = listOf(
     ShowcasePage(
         id = "buttons",
         title = "Buttons And Badges",
-        category = ShowcaseCategory.Foundations,
+        category = ShowcaseCategory.Inputs,
         description = "Core action and status components with tighter sizing and the current shadcn-style variants.",
         usageCode = """
             awakeShadcnButton(
@@ -234,6 +237,25 @@ internal val ShowcasePages = listOf(
         notes = listOf(
             "These are the first controls that reveal whether spacing and typography feel right.",
             "Their default height now sits closer to the official 36px rhythm."
+        )
+    ),
+    ShowcasePage(
+        id = "text-input",
+        title = "Text Input",
+        category = ShowcaseCategory.Inputs,
+        description = "A real, typeable single-line field -- click to focus, type, backspace, and use the arrow keys to move the cursor.",
+        usageCode = """
+            var name by remember { "" }
+            name = awakeShadcnTextField(
+                id = "name",
+                value = name,
+                placeholder = "Jane Doe",
+                modifier = UiModifier().width(240f.dp).height(36f.dp)
+            )
+        """.trimIndent(),
+        notes = listOf(
+            "Works with a real keyboard on every platform: GLFW key polling on desktop, the IME on Android, UIKeyInput on iOS.",
+            "No selection or clipboard yet -- click-to-position, type, backspace/delete, arrow keys, home/end."
         )
     ),
     ShowcasePage(
@@ -445,6 +467,7 @@ internal fun UiColumnDslScope.renderUiShowcasePagePreview(
         "layout" -> drawUiShowcaseLayoutPreview()
         "slot-apis" -> drawUiShowcaseSlotApiPreview()
         "buttons" -> drawUiShowcaseButtonsPreview()
+        "text-input" -> drawUiShowcaseTextInputPreview(state)
         "popups" -> drawUiShowcasePopupPreview()
         "state" -> drawUiShowcaseCounterPreview(state)
     }
@@ -526,6 +549,35 @@ private fun UiColumnDslScope.drawUiShowcaseButtonsPreview() {
         awakeShadcnBadge("BETA", variant = AwakeShadcnBadgeVariant.Outline)
         awakeShadcnBadge("RISK", variant = AwakeShadcnBadgeVariant.Danger)
     }
+}
+
+private fun UiColumnDslScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntimeState) {
+    val name = context.rememberStateValue("ui-showcase-text-input", "name") { "" }
+    val email = context.rememberStateValue("ui-showcase-text-input", "email") { "" }
+
+    awakeShadcnSectionTitle("Text Input")
+    awakeShadcnSupportingText("Click a field, type, backspace, and use the arrow keys -- this is a real keyboard-driven widget, not a mockup.")
+    spacer(UiModifier().height(8f.dp))
+    awakeShadcnPropertyTextField(
+        id = "showcase-name",
+        label = "Name",
+        value = name.value,
+        placeholder = "Jane Doe"
+    ).also { name.value = it }
+    awakeShadcnPropertyTextField(
+        id = "showcase-email",
+        label = "Email",
+        value = email.value,
+        placeholder = "jane@example.com"
+    ).also { email.value = it }
+    spacer(UiModifier().height(8f.dp))
+    awakeShadcnSupportingText(
+        if (name.value.isEmpty() && email.value.isEmpty()) {
+            "Nothing typed yet."
+        } else {
+            "You typed: ${name.value.ifEmpty { "(name)" }} / ${email.value.ifEmpty { "(email)" }}"
+        }
+    )
 }
 
 private fun UiColumnDslScope.drawUiShowcaseFontsPreview() {

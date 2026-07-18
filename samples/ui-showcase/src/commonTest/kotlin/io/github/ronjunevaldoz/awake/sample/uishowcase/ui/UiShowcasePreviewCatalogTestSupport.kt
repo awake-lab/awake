@@ -30,6 +30,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseLayoutPreview,
     UiShowcaseSlotApisPreview,
     UiShowcaseButtonsPreview,
+    UiShowcaseTextInputPreview,
     UiShowcasePopupsPreview,
     UiShowcaseStatePreview
 )
@@ -76,7 +77,7 @@ internal object UiShowcaseThemePreview : AwakeUiPreviewEntry {
 @AwakeUiPreview(
     id = "ui-showcase-fonts",
     title = "Bitmap And True Font",
-    group = "Foundations",
+    group = "Typography",
     summary = "Direct specimen comparison between the bitmap default and the new TTF-derived runtime font.",
     width = 920,
     height = 620
@@ -89,7 +90,7 @@ internal object UiShowcaseFontsPreview : AwakeUiPreviewEntry {
 @AwakeUiPreview(
     id = "ui-showcase-layout",
     title = "Layout Primitives",
-    group = "Foundations",
+    group = "Layout",
     summary = "row/column/spacer, the modifier-first layout primitives every other page is built from.",
     width = 900,
     height = 460
@@ -115,7 +116,7 @@ internal object UiShowcaseSlotApisPreview : AwakeUiPreviewEntry {
 @AwakeUiPreview(
     id = "ui-showcase-buttons",
     title = "Buttons And Badges",
-    group = "Foundations",
+    group = "Inputs",
     summary = "Core action and status components rendered with the current Awake shadcn recipe.",
     width = 900,
     height = 560
@@ -123,6 +124,19 @@ internal object UiShowcaseSlotApisPreview : AwakeUiPreviewEntry {
 internal object UiShowcaseButtonsPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "buttons")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-text-input",
+    title = "Text Input",
+    group = "Inputs",
+    summary = "A real, typeable single-line field with click-to-position cursor and keyboard editing.",
+    width = 900,
+    height = 460
+)
+internal object UiShowcaseTextInputPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "text-input")
 }
 
 @AwakeUiPreview(

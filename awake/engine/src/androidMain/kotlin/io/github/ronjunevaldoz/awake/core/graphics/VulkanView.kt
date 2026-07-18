@@ -7,8 +7,12 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import io.github.ronjunevaldoz.awake.core.application.AndroidGameLoop
+import io.github.ronjunevaldoz.awake.core.input.AndroidSoftKeyboardBridge
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.createAwakeInputConnection
 import io.github.ronjunevaldoz.awake.core.input.syncAwakeKeyInput
 import io.github.ronjunevaldoz.awake.core.input.syncAwakePointerInput
 import io.github.ronjunevaldoz.awake.core.utils.Frame
@@ -23,6 +27,7 @@ class VulkanView(
     @Volatile
     private var running = false
     private var renderThread: Thread? = null
+    private val softKeyboardBridge = AndroidSoftKeyboardBridge(this)
 
     init {
         holder.addCallback(this)
@@ -31,6 +36,11 @@ class VulkanView(
         requestFocus()
         syncUiDensity()
     }
+
+    override fun onCheckIsTextEditor(): Boolean = true
+
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection =
+        createAwakeInputConnection(outAttrs)
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         syncUiDensity()
@@ -46,6 +56,9 @@ class VulkanView(
             while (running) {
                 AndroidGameLoop.startLoop { deltaTime ->
                     application.update(deltaTime.toFloat())
+                    // showSoftInput/requestFocus require the UI thread; update() runs on this
+                    // dedicated render thread (see the class doc comment above), so hop over.
+                    post { softKeyboardBridge.syncSoftKeyboardVisibility() }
                 }
             }
         }, "VulkanView-Render").apply { start() }

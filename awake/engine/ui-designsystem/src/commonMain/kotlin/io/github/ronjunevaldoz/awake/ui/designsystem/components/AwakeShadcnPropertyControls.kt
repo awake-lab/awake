@@ -8,9 +8,12 @@ import io.github.ronjunevaldoz.awake.ui.UiAbsoluteDslScope
 import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggle
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
-import io.github.ronjunevaldoz.awake.ui.propertyRow
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.width
 
@@ -148,6 +151,51 @@ fun UiColumnDslScope.awakeShadcnPropertyDropdown(
     id = id,
     options = options,
     selectedIndex = selectedIndex,
+    modifier = modifier,
+    labelWidth = labelWidth,
+    style = style
+) {
+    awakeShadcnPropertyLabel(label)
+}
+
+fun UiColumnDslScope.awakeShadcnPropertyTextField(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: UiModifier = UiModifier(),
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): String {
+    var resolved = value
+    propertyRow(
+        modifier = modifier.height(36f.px),
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = awakeShadcnTextField(
+            id = id,
+            value = value,
+            placeholder = placeholder,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            style = style
+        )
+    }
+    return resolved
+}
+
+fun UiColumnDslScope.awakeShadcnPropertyTextField(
+    id: String,
+    label: String,
+    value: String,
+    placeholder: String = "",
+    modifier: UiModifier = UiModifier(),
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty
+): String = awakeShadcnPropertyTextField(
+    id = id,
+    value = value,
+    placeholder = placeholder,
     modifier = modifier,
     labelWidth = labelWidth,
     style = style

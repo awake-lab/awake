@@ -16,6 +16,7 @@ import platform.Foundation.NSSelectorFromString
 import platform.QuartzCore.CADisplayLink
 import platform.QuartzCore.CAMetalLayer
 import platform.UIKit.UIEvent
+import platform.UIKit.UIKeyInputProtocol
 import platform.UIKit.UIScreen
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
@@ -33,6 +34,10 @@ import platform.UIKit.UIWindow
  * `awake-core` (only `awake-base`; see docs/MVP_PLAN.md's D11), and this view has no need to
  * force that dependency just to reuse one interface shape. The demo layer's own
  * `Application` implementation can adapt to these lambdas trivially.
+ *
+ * Also conforms to `UIKeyInput` (not the full `UITextInput`) so it's eligible to become first
+ * responder and receive on-screen-keyboard text -- see `AwakeUIKitTextInputBridge.kt` for the
+ * `Input`-facing plumbing behind [insertText]/[deleteBackward]/[hasText].
  */
 @OptIn(ExperimentalForeignApi::class)
 class VulkanMetalView(
@@ -42,13 +47,14 @@ class VulkanMetalView(
     private val onResize: (width: Int, height: Int) -> Unit,
     private val onPause: () -> Unit,
     private val onResume: () -> Unit
-) : UIView(frame) {
+) : UIView(frame), UIKeyInputProtocol {
 
     val metalLayer = CAMetalLayer()
 
     private var displayLink: CADisplayLink? = null
     private var previousTimestamp: CFTimeInterval = 0.0
     private var created = false
+    private var textInputWasFocused = false
 
     init {
         contentScaleFactor = UIScreen.mainScreen.scale
@@ -80,8 +86,17 @@ class VulkanMetalView(
         val currentTimestamp = displayLink.timestamp
         val deltaTime = (currentTimestamp - previousTimestamp).toFloat()
         previousTimestamp = currentTimestamp
+        textInputWasFocused = syncAwakeTextInputFocus(textInputWasFocused)
         onUpdate(deltaTime)
     }
+
+    override fun canBecomeFirstResponder(): Boolean = true
+
+    override fun hasText(): Boolean = true
+
+    override fun insertText(text: String) = syncAwakeTextInsert(text)
+
+    override fun deleteBackward() = syncAwakeTextDeleteBackward()
 
     override fun willMoveToWindow(newWindow: UIWindow?) {
         super.willMoveToWindow(newWindow)
