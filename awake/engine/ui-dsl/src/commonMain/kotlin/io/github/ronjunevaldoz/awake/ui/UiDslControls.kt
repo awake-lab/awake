@@ -77,9 +77,10 @@ sealed class UiDslScope protected constructor(
         )
         val lineGap = glyphPx * 0.25f
         val blockHeight = layout.blockHeight(glyphPx, lineGap)
-        val slot = scope.claimSlot(
+        val slot = scope.claimModifiedSlot(
             defaultWidth,
-            modifier.height ?: Dimension.Fixed((blockHeight + resolved.contentPadding.dslVerticalPx()).px)
+            Dimension.Fixed((blockHeight + resolved.contentPadding.dslVerticalPx()).px),
+            modifier
         )
         if (resolved.background != null || resolved.borderWidth.toPx() > 0f || resolved.shapeSpec != null || resolved.shape.toPx() > 0f) {
             scope.emitFillAndBorder(
