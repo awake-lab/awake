@@ -7,14 +7,16 @@ enum class AwakeShadcnButtonVariant {
     Secondary,
     Outline,
     Ghost,
-    Danger
+    Danger,
+    Link
 }
 
 enum class AwakeShadcnBadgeVariant {
     Primary,
     Secondary,
     Outline,
-    Danger
+    Danger,
+    Ghost
 }
 
 enum class AwakeShadcnSurfaceVariant {

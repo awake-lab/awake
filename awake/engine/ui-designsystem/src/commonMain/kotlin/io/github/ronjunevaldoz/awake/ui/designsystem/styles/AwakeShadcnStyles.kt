@@ -67,6 +67,21 @@ object AwakeShadcnStyles {
             hovered { background(theme.palette.destructiveHover) }
             active { background(theme.palette.destructivePressed) }
         }
+        // Real shadcn's Link renders as underlined text with zero button chrome (no fill,
+        // no border, no padding box). No hovered/active background rule here on purpose --
+        // Ghost's resolveFill only shows a background when hovered/active AND the resolved
+        // background differs from the base rule; since this style never overrides
+        // background() in either state, it stays AwakeShadcnTransparent throughout, so hover
+        // only shifts foreground color, never paints a fill. No underline: this engine's
+        // Style system has no text-decoration property yet -- a real, documented gap, not a
+        // silently-dropped corner.
+        AwakeShadcnButtonVariant.Link -> Style {
+            background(AwakeShadcnTransparent)
+            foreground(theme.palette.primary)
+            shape(0f.dp)
+            textSize(theme.typography.label)
+            hovered { foreground(theme.palette.primaryHover) }
+        }
     }
 
     fun badge(variant: AwakeShadcnBadgeVariant): Style = badge(AwakeShadcnTheme, variant)
@@ -98,6 +113,12 @@ object AwakeShadcnStyles {
         AwakeShadcnBadgeVariant.Danger -> Style {
             background(theme.palette.destructive)
             foreground(theme.palette.destructiveForeground)
+            shape(theme.radii.full)
+            textSize(theme.typography.caption)
+        }
+        AwakeShadcnBadgeVariant.Ghost -> Style {
+            background(AwakeShadcnTransparent)
+            foreground(theme.tokens.foreground)
             shape(theme.radii.full)
             textSize(theme.typography.caption)
         }

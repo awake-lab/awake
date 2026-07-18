@@ -67,6 +67,7 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
                 awakeShadcnButton("parity-outline", "Outline", modifier = UiModifier().width(90f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
                 awakeShadcnButton("parity-ghost", "Ghost", modifier = UiModifier().width(80f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Ghost)
                 awakeShadcnButton("parity-destructive", "Destructive", modifier = UiModifier().width(110f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Danger)
+                awakeShadcnButton("parity-link", "Link", modifier = UiModifier().width(60f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Link)
             }
         }
         return AwakeUiPreviewFrame(

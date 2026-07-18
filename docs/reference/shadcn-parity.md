@@ -143,9 +143,9 @@ field/overlay/selection families; this inventory is what to consult when decidin
 
 | Component | Real shadcn properties | Awake has | Gap |
 |---|---|---|---|
-| `button` | `ButtonVariant`: Default, Outline, Secondary, Ghost, Destructive, **Link**; `ButtonSize`: Xs, Sm, Md, Lg, Icon | `AwakeShadcnButtonVariant`: Primary, Secondary, Outline, Ghost, Danger. No size axis -- every call site hardcodes its own px width/height. | Missing **Link** variant. No `ButtonSize` equivalent at all. |
-| `badge` | `BadgeVariant`: Default, Secondary, Destructive, Outline, **Ghost** | `AwakeShadcnBadgeVariant`: Primary, Secondary, Outline, Danger | Missing **Ghost** variant. |
-| `text-field` | `TextFieldVariant`: Default, **Filled**, **Ghost** | `textField()`/`awakeShadcnTextField()`: single fixed look, no variant axis | Missing all 3 variants as a concept -- no error/invalid state, no disabled state either (see below). |
+| `button` | `ButtonVariant`: Default, Outline, Secondary, Ghost, Destructive, Link; `ButtonSize`: Xs, Sm, Md, Lg, Icon | `AwakeShadcnButtonVariant`: Primary, Secondary, Outline, Ghost, Danger, **Link** (added) | Still no `ButtonSize` equivalent -- every call site hardcodes its own px width/height. |
+| `badge` | `BadgeVariant`: Default, Secondary, Destructive, Outline, Ghost | `AwakeShadcnBadgeVariant`: Primary, Secondary, Outline, Danger, **Ghost** (added) | Closed. |
+| `text-field` | `TextFieldVariant`: Default, Filled, Ghost | `textField()`/`awakeShadcnTextField()`: **error/invalid and disabled states added** (red border + helper text row, muted disabled look); still no Filled/Ghost variant | Filled/Ghost variants still missing -- error/disabled (the higher-value gap) closed. |
 | `select` | `SelectVariant`: Default | `awakeShadcnDropdown()`: no variant axis | Matches (both effectively single-variant). |
 | `checkbox` / `switch` / `slider` / `tabs` / `tooltip` / `popover` / `dropdown-menu` / `dialog` / `alert-dialog` | No variant axis in the real component either | Matches | No gap -- these are correctly single-look on both sides. |
 | `toggle` | `ToggleVariant`: Default, Outline | We have no separate "Toggle" component from "Switch" -- Awake's `toggle()` is the switch equivalent; a bordered-button-style toggle (shadcn's actual `Toggle`, a different component from `Switch`) doesn't exist here. | Not a gap in the switch we have -- a genuinely separate missing *component* (icon/text toggle-button, not a boolean switch). |
@@ -164,11 +164,17 @@ components, not all at once up front.
 
 ## Recommended next steps, in priority order
 
-1. Add `textField()`'s missing states first (error/invalid with helper text, disabled) --
-   the single gap this doc found with the clearest real-world need.
-2. Add a `Link` button variant.
-3. Add a `Ghost` badge variant.
-4. When building the still-missing components from
+1. ~~Add `textField()`'s missing states~~ -- done: `enabled`/`isError` on `textField()` and
+   `awakeShadcnTextField()`, `errorText` on `awakeShadcnPropertyTextField()`. Verified visually
+   against `docs/reference/awake-previews/awake-textfield-states-light.png`.
+2. ~~Add a `Link` button variant~~ -- done: `AwakeShadcnButtonVariant.Link`. Verified visually
+   against `docs/reference/awake-previews/awake-button-variants-light.png`.
+3. ~~Add a `Ghost` badge variant~~ -- done: `AwakeShadcnBadgeVariant.Ghost`. Not yet verified
+   against a screenshot (no badge parity preview exists yet -- add one before trusting this
+   blindly).
+4. Still open: `ButtonSize` axis (Xs/Sm/Md/Lg/Icon), `textField()`'s `Filled`/`Ghost`
+   variants.
+5. When building the still-missing components from
    [`docs/tasks/2026-07-18-ui-showcase-cleanup.md`](../tasks/2026-07-18-ui-showcase-cleanup.md)'s
    Phase 3 checklist (textarea, select variants, popover, tabs, radio group, etc), pull that
    component's real preview image from `component-metadata.json` first and look at it before
