@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -179,5 +180,28 @@ class UiPopupCompositionsTest {
 
         assertEquals(UiAlertDialogAction.Confirm, assertNotNull(result).action)
         assertFalse(assertNotNull(result).popup.dismissed)
+    }
+
+    @Test
+    fun popupMeasurementDoesNotInflateWrapContentLayouts() {
+        val ui = UiContext()
+
+        val measured = ui.measureDslColumnContent(
+            width = 220f,
+            font = BitmapFont(),
+            theme = CoreUiTheme
+        ) { _ ->
+            text("Popup proof")
+            alertDialog(
+                id = "measure-only-dialog",
+                expanded = true,
+                title = "Delete this scene?",
+                message = "The dialog should not affect the parent column height while measuring."
+            )
+            text("Footer")
+        }
+
+        assertTrue(measured.height < 120f, "overlay popups should not poison wrap-content measurement")
+        assertNotEquals(0f, measured.height, "normal inline content should still contribute to measurement")
     }
 }

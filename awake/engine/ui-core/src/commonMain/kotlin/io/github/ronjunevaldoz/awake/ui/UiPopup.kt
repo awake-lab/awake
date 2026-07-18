@@ -117,6 +117,10 @@ fun UiScope.popup(
         return UiPopupResult(slot = popupSlot, dismissed = true)
     }
 
+    if (context.isMeasuring()) {
+        return UiPopupResult(slot = popupSlot, dismissed = false)
+    }
+
     context.column(
         slot = popupSlot,
         font = font,

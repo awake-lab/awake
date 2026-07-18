@@ -15,7 +15,8 @@ annotation class AwakeUiPreview(
     val group: String = "",
     val summary: String = "",
     val width: Int = 960,
-    val height: Int = 720
+    val height: Int = 720,
+    val reportScale: Int = 1
 )
 
 data class AwakeUiPreviewMetadata(
@@ -24,8 +25,12 @@ data class AwakeUiPreviewMetadata(
     val group: String,
     val summary: String,
     val width: Int,
-    val height: Int
-)
+    val height: Int,
+    val reportScale: Int = 1
+) {
+    val rasterWidth: Int get() = width * reportScale.coerceAtLeast(1)
+    val rasterHeight: Int get() = height * reportScale.coerceAtLeast(1)
+}
 
 data class AwakeUiPreviewSample(
     val id: String,
@@ -34,6 +39,7 @@ data class AwakeUiPreviewSample(
     val summary: String,
     val width: Int,
     val height: Int,
+    val reportScale: Int,
     val frame: AwakeUiPreviewFrame
 )
 
@@ -72,5 +78,6 @@ fun AwakeUiPreviewMetadata.sample(
     summary = if (summarySuffix.isBlank()) summary else "$summary $summarySuffix".trim(),
     width = width,
     height = height,
+    reportScale = reportScale,
     frame = frame
 )

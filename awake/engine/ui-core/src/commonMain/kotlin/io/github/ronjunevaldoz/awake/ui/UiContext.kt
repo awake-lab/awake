@@ -274,6 +274,8 @@ class UiContext private constructor(
 
     fun frameBounds(): UiSlot = fullFrameRect
 
+    fun isMeasuring(): Boolean = measuring
+
     internal fun recordMeasuredSlot(slot: UiSlot) {
         if (!measuring) return
         measuredMaxRight = max(measuredMaxRight, slot.x + slot.width)

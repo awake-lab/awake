@@ -178,7 +178,7 @@ tasks.register("uiShowcasePreviewReport") {
                 .filter { it.isNotBlank() }
                 .mapNotNull { line ->
                     val columns = line.split('\t')
-                    if (columns.size < 6) null else columns
+                    if (columns.size < 7) null else columns
                 }
                 .sortedWith(compareBy({ it[2] }, { it[0] }))
         } else {
@@ -206,10 +206,11 @@ tasks.register("uiShowcasePreviewReport") {
             val summary = columns[3]
             val width = columns[4]
             val height = columns[5]
+            val reportScale = columns[6].toIntOrNull()?.coerceAtLeast(1) ?: 1
             val png = root.resolve("$id.png")
             val image = if (png.exists()) {
                 val base64 = Base64.getEncoder().encodeToString(png.readBytes())
-                """<img src="data:image/png;base64,$base64" alt="${escapeHtml(title)}" style="display:block;border:1px solid #2f2f2f;border-radius:12px;max-width:100%;height:auto" />"""
+                """<img src="data:image/png;base64,$base64" alt="${escapeHtml(title)}" width="${escapeHtml(width)}" height="${escapeHtml(height)}" style="display:block;border:1px solid #2f2f2f;border-radius:12px;max-width:100%;width:min(100%, ${escapeHtml(width)}px);height:auto" />"""
             } else {
                 """<p style="color:#f88">Missing preview image: ${escapeHtml(id)}.png</p>"""
             }
@@ -219,7 +220,7 @@ tasks.register("uiShowcasePreviewReport") {
                     <p style="margin:0 0 0.35rem 0;color:#a1a1aa;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em">${escapeHtml(group)}</p>
                     <h2 style="margin:0 0 0.5rem 0">${escapeHtml(title)}</h2>
                     <p style="margin:0 0 0.5rem 0;color:#d4d4d8">${escapeHtml(summary)}</p>
-                    <p style="margin:0;color:#71717a;font-size:0.9rem">${escapeHtml(width)}x${escapeHtml(height)}</p>
+                    <p style="margin:0;color:#71717a;font-size:0.9rem">${escapeHtml(width)}x${escapeHtml(height)}${if (reportScale > 1) " @ ${reportScale}x export" else ""}</p>
                 </div>
                 $image
             </article>

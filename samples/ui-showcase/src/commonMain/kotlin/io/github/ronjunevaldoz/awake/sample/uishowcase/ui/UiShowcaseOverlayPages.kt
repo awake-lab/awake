@@ -1,0 +1,193 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
+
+import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
+import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.UiAlertDialogAction
+import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
+import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.alertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.destructiveStyle
+import io.github.ronjunevaldoz.awake.ui.dropdownMenu
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.rememberPopupState
+import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.width
+
+private val ShowcaseActionMenuItems = listOf(
+    UiDropdownMenuItem(
+        label = "Pinned action",
+        enabled = false,
+        supportingText = "Disabled actions stay visible without becoming clickable."
+    ),
+    UiDropdownMenuSeparator,
+    UiDropdownMenuItem(
+        label = "Duplicate panel",
+        trailingLabel = "Cmd+D",
+        supportingText = "Example of a richer menu row with trailing metadata."
+    ),
+    UiDropdownMenuItem(
+        label = "Delete scene",
+        destructive = true,
+        trailingLabel = "Del",
+        supportingText = "Routes into the alert dialog flow instead of doing anything immediately."
+    )
+)
+
+internal fun UiColumnDslScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeState) {
+    state.counterStore.drainEffects()
+        .lastOrNull()
+        ?.let { effect -> state.showcaseCounterEffectMessage = effect.toDebugLabel() }
+
+    val counterState = state.counterStore.state.value
+    awakeShadcnSectionHeader(
+        title = "MVI Counter",
+        description = "A tiny reducer-backed example with effects kept off persistent state."
+    )
+    awakeShadcnBadge("MVI", variant = AwakeShadcnBadgeVariant.Primary)
+    awakeShadcnBodyText("Count: ${counterState.count}")
+    awakeShadcnSupportingText("Last effect: ${state.showcaseCounterEffectMessage ?: "None"}")
+    spacer(UiModifier().height(6f.dp))
+    row(height = 36f.dp, gap = 10f) {
+        if (
+            awakeShadcnButton(
+                id = "counter-decrement",
+                label = "Decrement",
+                modifier = UiModifier().width(112f.dp).height(36f.dp),
+                variant = AwakeShadcnButtonVariant.Outline
+            )
+        ) {
+            state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Decrement)
+        }
+        if (
+            awakeShadcnButton(
+                id = "counter-increment",
+                label = "Increment",
+                modifier = UiModifier().width(112f.dp).height(36f.dp),
+                variant = AwakeShadcnButtonVariant.Primary
+            )
+        ) {
+            state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Increment)
+        }
+    }
+    row(height = 36f.dp, gap = 10f) {
+        if (
+            awakeShadcnButton(
+                id = "counter-reset",
+                label = "Reset",
+                modifier = UiModifier().width(112f.dp).height(36f.dp),
+                variant = AwakeShadcnButtonVariant.Ghost
+            )
+        ) {
+            state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Reset)
+        }
+        awakeShadcnBadge(
+            label = if (counterState.count >= 0) "FLOW" else "NEGATIVE",
+            variant = if (counterState.count >= 0) AwakeShadcnBadgeVariant.Secondary else AwakeShadcnBadgeVariant.Danger
+        )
+    }
+}
+
+internal fun UiColumnDslScope.drawUiShowcasePopupPreview() {
+    val actionMenuState = context.rememberPopupState("ui-showcase-action-menu")
+    val deleteDialogState = context.rememberPopupState("ui-showcase-delete-dialog")
+    val feedbackMessage = context.rememberStateValue("ui-showcase-popup-feedback") {
+        "Try the action menu and dialog to inspect the popup layer."
+    }
+
+    awakeShadcnSectionHeader(
+        title = "Popup Components",
+        description = "Menu and dialog proofs running through the shared DSL surface."
+    )
+    awakeShadcnBadge("OVERLAY", variant = AwakeShadcnBadgeVariant.Outline)
+    awakeShadcnSupportingText("The action menu anchors to the trigger and opens inside a contained popover surface.")
+    spacer(UiModifier().height(6f.dp))
+    row(height = 36f.dp, gap = 10f) {
+        val menuTrigger = buttonSlot(
+            id = "ui-showcase-menu-trigger",
+            label = "Actions",
+            modifier = UiModifier().width(112f.dp).height(36f.dp),
+            style = theme.components.button,
+            variant = UiButtonVariant.Filled
+        )
+        if (menuTrigger.clicked) {
+            actionMenuState.toggle()
+        }
+        val menuResult = dropdownMenu(
+            id = "ui-showcase-action-menu",
+            anchorSlot = menuTrigger.slot,
+            expanded = actionMenuState.expanded,
+            items = ShowcaseActionMenuItems,
+            style = Style { contentPadding(4f.dp) }
+        )
+        when (menuResult.selectedIndex) {
+            1 -> {
+                feedbackMessage.value = "Duplicate panel queued from the dropdown menu."
+                actionMenuState.close()
+            }
+            2 -> {
+                feedbackMessage.value = "Delete requested from the dropdown menu."
+                actionMenuState.close()
+                deleteDialogState.open()
+            }
+        }
+        if (menuResult.dismissed) {
+            actionMenuState.close()
+        }
+        if (
+            awakeShadcnButton(
+                id = "ui-showcase-delete-trigger",
+                label = "Open Dialog",
+                modifier = UiModifier().width(128f.dp).height(36f.dp),
+                variant = AwakeShadcnButtonVariant.Outline
+            )
+        ) {
+            deleteDialogState.open()
+        }
+    }
+    spacer(UiModifier().height(4f.dp))
+    awakeShadcnSupportingText(feedbackMessage.value)
+
+    val dialogResult = alertDialog(
+        id = "ui-showcase-delete-dialog",
+        expanded = deleteDialogState.expanded,
+        title = "Delete showcase card?",
+        message = "This sample does not really delete anything. It exists to prove the alert dialog composition and confirm or dismiss flow.",
+        confirmLabel = "Delete",
+        confirmStyle = theme.tokens.destructiveStyle()
+    )
+    when (dialogResult.action) {
+        UiAlertDialogAction.Confirm -> {
+            feedbackMessage.value = "Confirmed from the alert dialog."
+            deleteDialogState.close()
+        }
+        UiAlertDialogAction.Dismiss -> {
+            feedbackMessage.value = "Dismissed from the alert dialog."
+            deleteDialogState.close()
+        }
+        null -> {
+            if (dialogResult.popup.dismissed) {
+                feedbackMessage.value = "Dismissed by clicking outside the alert dialog."
+                deleteDialogState.close()
+            }
+        }
+    }
+}
+
+private fun UiShowcaseCounterContract.Effect.toDebugLabel(): String = when (this) {
+    is UiShowcaseCounterContract.Effect.MilestoneReached -> "Milestone reached at $count"
+    UiShowcaseCounterContract.Effect.ResetCompleted -> "Counter reset"
+}

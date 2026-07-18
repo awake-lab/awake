@@ -25,7 +25,8 @@ fun renderAnnotatedUiPreviews(entry: AwakeUiPreviewEntry): List<AwakeUiPreviewSc
         group = annotation.group,
         summary = annotation.summary,
         width = annotation.width,
-        height = annotation.height
+        height = annotation.height,
+        reportScale = annotation.reportScale
     )
     return entry.renderSamples(metadata).map { sample ->
         AwakeUiPreviewScene(
@@ -35,7 +36,8 @@ fun renderAnnotatedUiPreviews(entry: AwakeUiPreviewEntry): List<AwakeUiPreviewSc
                 group = sample.group,
                 summary = sample.summary,
                 width = sample.width,
-                height = sample.height
+                height = sample.height,
+                reportScale = sample.reportScale
             ),
             primitives = sample.frame.primitives,
             background = sample.frame.background,
@@ -46,16 +48,18 @@ fun renderAnnotatedUiPreviews(entry: AwakeUiPreviewEntry): List<AwakeUiPreviewSc
 }
 
 fun saveAwakeUiPreview(scene: AwakeUiPreviewScene) {
+    val rasterWidth = scene.metadata.rasterWidth
+    val rasterHeight = scene.metadata.rasterHeight
     val pixels = scene.primitives.rasterize(
-        width = scene.metadata.width,
-        height = scene.metadata.height,
+        width = rasterWidth,
+        height = rasterHeight,
         background = scene.background,
         font = scene.font
     )
-    val image = BufferedImage(scene.metadata.width, scene.metadata.height, BufferedImage.TYPE_INT_ARGB)
+    val image = BufferedImage(rasterWidth, rasterHeight, BufferedImage.TYPE_INT_ARGB)
     var offset = 0
-    for (y in 0 until scene.metadata.height) {
-        for (x in 0 until scene.metadata.width) {
+    for (y in 0 until rasterHeight) {
+        for (x in 0 until rasterWidth) {
             val r = pixels[offset].toInt() and 0xFF
             val g = pixels[offset + 1].toInt() and 0xFF
             val b = pixels[offset + 2].toInt() and 0xFF
@@ -79,7 +83,8 @@ fun saveAwakeUiPreview(scene: AwakeUiPreviewScene) {
             escapedGroup,
             escapedSummary,
             scene.metadata.width.toString(),
-            scene.metadata.height.toString()
+            scene.metadata.height.toString(),
+            scene.metadata.reportScale.toString()
         ).joinToString("\t")
         val entries = linkedMapOf<String, String>()
         if (manifest.exists()) {
