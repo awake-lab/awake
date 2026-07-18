@@ -164,9 +164,6 @@ fun UiDslScope.awakeShadcnDropdown(
         positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
         style = AwakeShadcnStyles.surface(theme.asAwakeShadcnTheme(), AwakeShadcnSurfaceVariant.Popover) then Style {
             contentPadding(4f.dp)
-        },
-        itemStyle = Style {
-            shape(theme.asAwakeShadcnTheme().radii.md)
         }
     )
     if (result.dismissed || result.selectedIndex != null) {

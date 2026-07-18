@@ -319,8 +319,8 @@ internal fun UiColumnDslScope.drawUiShowcasePageContent(
 
     awakeShadcnBadge(page.category.title.uppercase(), variant = AwakeShadcnBadgeVariant.Outline)
     awakeShadcnSectionHeader(
-        title = page.title,
-        description = page.description
+        title = { awakeShadcnSectionTitle(page.title) },
+        description = { awakeShadcnBodyText(page.description) }
     )
     spacer(UiModifier().height(8f.dp))
     drawUiShowcasePreviewCodeSection(page, state)
@@ -424,6 +424,7 @@ private fun UiColumnDslScope.drawUiShowcaseCodeBlock(code: String) {
         lines = code.trimIndent().lines(),
         style = Style {
             foreground(theme.tokens.foreground)
+            textSize(theme.typography.label)
         },
         wrap = UiTextWrap.Word,
         overflow = UiTextOverflow.Clip,

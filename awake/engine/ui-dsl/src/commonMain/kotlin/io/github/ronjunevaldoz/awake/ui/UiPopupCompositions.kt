@@ -167,7 +167,7 @@ fun UiDslScope.dropdownMenu(
                             item = entry,
                             width = popupSlot.width,
                             baseHeight = itemHeight,
-                            style = theme.components.dropdown then itemStyle then menuItemStyle,
+                            style = itemStyle then menuItemStyle,
                             selected = actionIndex == selectedIndex
                         )
                         if (clicked && entry.enabled) {
@@ -268,7 +268,7 @@ fun UiDslScope.alertDialog(
         width = width,
         properties = properties.copy(surfaceStyle = properties.surfaceStyle then style),
         header = {
-            text(title)
+            text(title, style = Style { textSize(theme.typography.title) })
         },
         actions = {
             dismissLabel?.let { label ->
@@ -340,7 +340,7 @@ private fun UiColumnDslScope.dropdownMenuItem(
         label = "",
         modifier = UiModifier().width(width.px).height(height.px),
         style = style,
-        variant = UiButtonVariant.Ghost
+        variant = if (selected) UiButtonVariant.Filled else UiButtonVariant.Ghost
     )
     val contentScope = context.absolute(
         slot = slot.slot,
