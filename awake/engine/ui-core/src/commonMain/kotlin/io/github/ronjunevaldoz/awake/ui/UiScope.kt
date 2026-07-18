@@ -145,6 +145,43 @@ fun UiScope.claimModifiedSlot(
     ).also(context::recordMeasuredSlot)
 }
 
+/**
+ * Nested-scope factories that inherit [UiScope.font]/[UiScope.theme]/[UiScope.textScale]/
+ * [UiScope.emitsToOverlay] from the receiver automatically, instead of every call site
+ * threading those four values (especially `overlayOnly`) through [UiContext.column]/[row]/
+ * [absolute]/[box] by hand. A composite widget opening a nested scope to draw part of its own
+ * content should always prefer these over the raw [UiContext] factories -- forgetting to pass
+ * `overlayOnly = emitsToOverlay` on a raw call is exactly what caused dropdown option labels to
+ * silently paint behind their own backgrounds (see [UiScope.emitsToOverlay]); these make that
+ * mistake impossible to make.
+ */
+fun UiScope.childColumn(
+    slot: UiSlot,
+    gap: Float = UiSpacing.sm.toPx(),
+    insets: UiInsets = UiInsets.Zero,
+    textScale: Float = this.textScale
+): ColumnScope = context.column(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)
+
+fun UiScope.childRow(
+    slot: UiSlot,
+    gap: Float = UiSpacing.sm.toPx(),
+    insets: UiInsets = UiInsets.Zero,
+    textScale: Float = this.textScale
+): RowScope = context.row(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)
+
+fun UiScope.childAbsolute(
+    slot: UiSlot,
+    insets: UiInsets = UiInsets.Zero,
+    textScale: Float = this.textScale
+): AbsoluteScope = context.absolute(slot, font, theme, textScale, insets, overlayOnly = emitsToOverlay)
+
+fun UiScope.childBox(
+    slot: UiSlot,
+    insets: UiInsets = UiInsets.Zero,
+    contentAlignment: UiAlignment = UiAlignment.TopStart,
+    textScale: Float = this.textScale
+): BoxScope = context.box(slot, font, theme, textScale, insets, contentAlignment, overlayOnly = emitsToOverlay)
+
 fun UiScope.resolveStyle(
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,

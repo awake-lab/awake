@@ -39,13 +39,7 @@ private inline fun UiScope.buttonSlotInternal(
         borderColor = resolved.borderColor ?: theme.tokens.border,
         shapeSpec = resolved.shapeSpec
     )
-    context.absolute(
-        slot = contentSlot,
-        font = font,
-        theme = theme,
-        textScale = resolved.textScale,
-        overlayOnly = emitsToOverlay
-    ).drawContent(contentSlot, resolved)
+    childAbsolute(slot = contentSlot, textScale = resolved.textScale).drawContent(contentSlot, resolved)
     recordSemantic(
         role = UiSemanticRole.Button,
         id = id,

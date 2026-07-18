@@ -15,6 +15,27 @@ sealed class UiDslScope protected constructor(
     val textScale: Float get() = scope.textScale
     val emitsToOverlay: Boolean get() = scope.emitsToOverlay
 
+    /** Nested-scope builders for DSL layout functions (row/column/absolute/box) -- delegate to
+     * [scope]'s own [childColumn]/[childRow]/[childAbsolute]/[childBox], so every DSL nesting
+     * call site automatically inherits [emitsToOverlay] the same way a [UiScope]-level widget
+     * would, without repeating `overlayOnly = emitsToOverlay` by hand. Declared here (not as
+     * top-level [UiScope] extensions called with an explicit receiver) so they resolve
+     * correctly even when the lexical `this` inside a DSL builder lambda is a *different*
+     * [UiDslScope] subtype than the one whose function body it's written in -- see
+     * [UiPropertyDsl.propertyRow]'s `content` lambda, which runs with a freshly-constructed
+     * [UiAbsoluteDslScope] as its receiver. */
+    fun childColumn(slot: UiSlot, gap: Float = UiSpacing.sm.toPx(), insets: UiInsets = UiInsets.Zero): ColumnScope =
+        scope.childColumn(slot, gap, insets, textScale)
+
+    fun childRow(slot: UiSlot, gap: Float = UiSpacing.sm.toPx(), insets: UiInsets = UiInsets.Zero): RowScope =
+        scope.childRow(slot, gap, insets, textScale)
+
+    fun childAbsolute(slot: UiSlot, insets: UiInsets = UiInsets.Zero): AbsoluteScope =
+        scope.childAbsolute(slot, insets, textScale)
+
+    fun childBox(slot: UiSlot, insets: UiInsets = UiInsets.Zero, contentAlignment: UiAlignment = UiAlignment.TopStart): BoxScope =
+        scope.childBox(slot, insets, contentAlignment, textScale)
+
     fun text(
         label: String,
         modifier: UiModifier = UiModifier(),

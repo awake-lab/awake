@@ -102,15 +102,10 @@ fun UiScope.scrollPanel(
         }
     }
 
-    val contentScope = context.column(
-        x = viewport.x,
-        y = viewport.y - state.offsetY,
-        width = viewport.width,
-        font = font,
-        theme = theme,
+    val contentScope = childColumn(
+        slot = UiSlot(viewport.x, viewport.y - state.offsetY, viewport.width, viewport.height),
         gap = gap,
-        textScale = resolved.textScale,
-        overlayOnly = emitsToOverlay
+        textScale = resolved.textScale
     )
     clip(viewport) {
         contentScope.content(viewport)

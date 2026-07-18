@@ -45,10 +45,8 @@ fun UiScope.propertyRow(
             labelTextWidthPx = labelWidth.toPx()
         )
     )
-    UiAbsoluteDslScope(context.absolute(layout.labelSlot, resolvedFont, theme, textScale, overlayOnly = emitsToOverlay))
-        .labelContent(layout.labelSlot)
-    UiAbsoluteDslScope(context.absolute(layout.controlSlot, resolvedFont, theme, textScale, overlayOnly = emitsToOverlay))
-        .content(layout.controlSlot)
+    UiAbsoluteDslScope(childAbsolute(layout.labelSlot)).labelContent(layout.labelSlot)
+    UiAbsoluteDslScope(childAbsolute(layout.controlSlot)).content(layout.controlSlot)
     return layout.controlSlot
 }
 
