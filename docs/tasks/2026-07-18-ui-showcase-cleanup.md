@@ -45,4 +45,4 @@ spaghetti.
 
 - [ ] decide which sample-local compositions should be promoted into `ui-dsl`
 - [ ] add web preview validation so desktop is not the only proof lane
-- [ ] add a dedicated shadcn parity scorecard against `ui.shadcn.com`
+- [x] add a dedicated shadcn parity scorecard -- see [`docs/reference/shadcn-parity.md`](../reference/shadcn-parity.md), built from `ronjunevaldoz/shadcn-compose`'s published `component-metadata.json` (real variant lists + real rendered preview images) rather than scraping `ui.shadcn.com` directly
