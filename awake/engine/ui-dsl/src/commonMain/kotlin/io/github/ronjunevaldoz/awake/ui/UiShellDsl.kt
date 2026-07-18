@@ -246,6 +246,7 @@ fun UiColumnDslScope.sectionTitle(
     title: String,
     style: Style = Style {
         foreground(theme.tokens.mutedForeground)
+        textSize(theme.typography.label)
     }
 ): UiSlot = text(title, style = style)
 
@@ -254,6 +255,7 @@ fun UiColumnDslScope.metaText(
     modifier: UiModifier = UiModifier(),
     style: Style = Style {
         foreground(theme.tokens.mutedForeground)
+        textSize(theme.typography.caption)
     },
     maxLines: Int = 1
 ): UiSlot = text(
@@ -269,6 +271,7 @@ fun UiColumnDslScope.supportingText(
     modifier: UiModifier = UiModifier(),
     style: Style = Style {
         foreground(theme.tokens.mutedForeground)
+        textSize(theme.typography.caption)
     },
     maxLines: Int = Int.MAX_VALUE
 ): UiSlot = text(
