@@ -13,12 +13,23 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 interface UiColorTokens {
     val background: Color
     val foreground: Color
+
+    /** The brand/emphasis color -- use this for a widget's persistent "on" state: a checked
+     * toggle/checkbox mark, a slider's filled track, a progress indicator, a scrollbar thumb.
+     * In a theme like the shadcn skin, [primary] and [accent] are visually very different
+     * (accent is deliberately pale); reaching for [accent] here renders the "on" state paler
+     * than its own "off" background -- confirmed as a real, repeated bug this way. */
     val primary: Color
     val primaryForeground: Color
     val secondary: Color
     val secondaryForeground: Color
     val muted: Color
     val mutedForeground: Color
+
+    /** A transient surface-highlight color -- hover/press feedback ([neutralStyle]'s
+     * `active` state), a selected menu/dropdown row's background. Not a substitute for
+     * [primary]: it is deliberately subdued (e.g. a pale near-background tint in the shadcn
+     * skin), not a strong emphasis color. */
     val accent: Color
     val accentForeground: Color
     val destructive: Color

@@ -254,7 +254,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
         scene(
             name = "ui-panel-controls",
             width = 430,
-            height = 320,
+            height = 360,
             background = AwakeShadcnTheme.tokens.background,
             title = "Panel Controls",
             summary = "The same property-form scaffolds can be skinned by the shared shadcn layer, so tool surfaces look authored without moving logic into the sample."
@@ -272,6 +272,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     awakeShadcnPropertyToggle("debug", "Debug Frustum Overlay", checked = true)
                     awakeShadcnPropertyToggle("grid", "Show Reference Grid", checked = false)
                     awakeShadcnPropertySlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f, labelWidth = 96f.dp)
+                    checkbox("wireframe", checked = true, label = "Wireframe Overlay")
                 }
             }
         },
