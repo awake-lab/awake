@@ -105,21 +105,33 @@ fun UiScope.emitFillAndBorder(
 
     val resolvedRadius = roundedRadiusFor(slot, radiusPx, shapeSpec)
     if (resolvedRadius > 0f && borderPx > 0f) {
-        emitPrimitive(UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, borderColor, resolvedRadius), overlay)
-        if (hasFill) {
-            val innerRadius = (resolvedRadius - borderPx).coerceAtLeast(0f)
-            emitPrimitive(
-                UiDrawPrimitive.RoundedQuad(
-                    slot.x + borderPx,
-                    slot.y + borderPx,
-                    slot.width - 2 * borderPx,
-                    slot.height - 2 * borderPx,
-                    fillColor,
-                    innerRadius
-                ),
-                overlay
-            )
+        if (!hasFill) {
+            // The "full border-colored quad, then an inset fill-colored quad punched on
+            // top" trick below assumes a fill always exists to cover the interior -- with
+            // no fill (an Outline-style button: transparent background, border only), the
+            // punch-out quad never gets drawn and the border-colored background quad shows
+            // through solid, covering the WHOLE shape instead of reading as a thin ring.
+            // Confirmed via a real rendered screenshot (docs/reference/awake-previews/
+            // awake-button-variants-light.png): Outline rendered as a solid gray fill,
+            // pixel-identical to the border color, not a bordered/transparent button.
+            // Stroking the actual ring path avoids ever drawing a solid interior.
+            val ringShape = shapeSpec ?: UiShapeSpec.RoundedRectangle(resolvedRadius.px)
+            emitPrimitive(UiDrawPrimitive.StrokedPath(ringShape.toPath(slot), UiStroke(borderWidth), borderColor), overlay)
+            return
         }
+        emitPrimitive(UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, borderColor, resolvedRadius), overlay)
+        val innerRadius = (resolvedRadius - borderPx).coerceAtLeast(0f)
+        emitPrimitive(
+            UiDrawPrimitive.RoundedQuad(
+                slot.x + borderPx,
+                slot.y + borderPx,
+                slot.width - 2 * borderPx,
+                slot.height - 2 * borderPx,
+                fillColor,
+                innerRadius
+            ),
+            overlay
+        )
         return
     }
     if (hasFill) emitFillShape(slot, fillColor, resolvedRadius, shapeSpec, overlay)

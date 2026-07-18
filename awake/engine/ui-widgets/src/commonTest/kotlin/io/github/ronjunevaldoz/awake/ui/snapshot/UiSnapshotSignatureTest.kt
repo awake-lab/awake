@@ -71,7 +71,7 @@ private val expectedReviewSnapshotSignatures = mapOf(
     "toggle-unchecked" to 0x6854fe453d58a031uL,
     "toggle-checked" to 0x29a81be38aaad5abuL,
     "button-filled" to 0x0d0e346a89b128ebuL,
-    "button-outline" to 0x9e39c0f79a46e67buL,
+    "button-outline" to 0x8b7771db93b66c88uL,
     "button-ghost" to 0x0d0e346a89b128ebuL,
     "theme-dark" to 0x0d0e346a89b128ebuL,
     "theme-light" to 0xb1b12af74057ca57uL,
@@ -79,13 +79,13 @@ private val expectedReviewSnapshotSignatures = mapOf(
 )
 
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0xb8e6c0d1f0b1ebbfuL,
+    "ui-button-variants" to 0x68440683230a8a3fuL,
     "ui-shaped-panel" to 0x1d60a4bcd7d84cb5uL,
     "ui-panel-controls" to 0x2f285e4695975243uL,
     "ui-alert-dialog" to 0xfecdf3a70662e423uL,
     "ui-component-state-matrix" to 0x4a5edb48f250372duL,
     "ui-rounded-clip-vector" to 0x3ee797a9ba8c18abuL,
-    "ui-awake-shadcn-showcase" to 0x1826286485e7aabeuL
+    "ui-awake-shadcn-showcase" to 0x222a4e0d40a3e82fuL
 )
 
 private fun ULong.toHexString(): String {
