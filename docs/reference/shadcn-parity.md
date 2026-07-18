@@ -23,6 +23,122 @@ curl -sL "https://raw.githubusercontent.com/ronjunevaldoz/shadcn-compose/main/do
 # re-run the download step in this doc's own history (git log this file) to see the exact script
 ```
 
+## Full component inventory
+
+The variant table below only covers components Awake already has. This section is the other
+half: every component in shadcn-compose's own catalog
+([`docs/components.md`](https://github.com/ronjunevaldoz/shadcn-compose/blob/main/docs/components.md)),
+64 total, checked against what actually exists in `ui-designsystem`/`ui-dsl` today. ✓ means a
+real, callable component exists (`awakeShadcn*` or a themed `ui-dsl` primitive) -- not "a
+widget that could be styled to look similar."
+
+### Core primitives (7)
+
+| Component | Status |
+|---|---|
+| Button | ✓ `awakeShadcnButton` |
+| Card | ✓ `awakeShadcnSurface(variant = Card)` |
+| Badge | ✓ `awakeShadcnBadge` |
+| Chip | ✗ |
+| TextField | ✓ `awakeShadcnTextField` (built this session -- see gaps above) |
+| Text | ✓ `awakeShadcnBodyText`/`Headline`/`SectionTitle`/`SupportingText` |
+| Icon | ✓ `icon()` (ui-widgets, theme-agnostic; no shadcn-specific auto-tint wrapper) |
+
+### Forms & inputs (12)
+
+| Component | Status |
+|---|---|
+| Label | ✗ (inline labels only, via `propertyRow`'s `labelContent`) |
+| Checkbox | ✓ `awakeShadcnCheckbox` |
+| RadioGroup | ✗ |
+| Switch | ✓ `awakeShadcnToggle` (this is shadcn's `Switch`, not its `Toggle` -- see below) |
+| Toggle | ✗ (shadcn's pressable two-state button, e.g. bold/italic toolbar buttons -- a different component from Switch, we don't have it) |
+| Slider | ✓ `awakeShadcnSlider` |
+| ToggleGroup | ✗ |
+| InputGroup | ✗ |
+| ButtonGroup | ✗ |
+| Textarea | ✗ |
+| Field/FieldGroup | ~ partial (`propertyRow` gives label+control layout; no description/error-text slot) |
+| InputOTP | ✗ |
+
+### Data display (6)
+
+| Component | Status |
+|---|---|
+| Avatar | ✗ |
+| AspectRatio | ✗ |
+| Separator | ✓ `separator()` (ui-widgets; no shadcn-specific style wrapper, but themeable via the caller) |
+| Kbd | ✗ |
+| Item/ItemGroup | ✗ |
+| Empty | ✗ |
+
+### Feedback (5)
+
+| Component | Status |
+|---|---|
+| Alert | ✗ (only `alertDialog`, a modal -- no inline banner) |
+| Progress | ✗ |
+| Skeleton | ✗ |
+| Spinner | ✗ |
+| Toast/Toaster | ✗ |
+
+### Disclosure & navigation (4)
+
+| Component | Status |
+|---|---|
+| Collapsible | ✗ |
+| Accordion | ✗ |
+| Tabs | ✗ |
+| Breadcrumb | ✗ |
+
+### Overlays & navigation (15)
+
+| Component | Status |
+|---|---|
+| Tooltip | ✓ `tooltip`/`tooltipText` (ui-dsl; caller supplies shadcn styling, no dedicated `awakeShadcnTooltip`) |
+| Popover | ~ partial (`awakeShadcnSurface(variant = Popover)` is the surface building block; no anchored-trigger recipe) |
+| HoverCard | ✗ |
+| DropdownMenu | ✓ `dropdownMenu` (ui-dsl) |
+| ContextMenu | ✗ |
+| Dialog | ✓ `dialog` (ui-dsl) |
+| AlertDialog | ✓ `alertDialog` (ui-dsl) |
+| Sheet | ✗ |
+| Drawer | ✗ |
+| Combobox | ✗ |
+| Select | ✓ `awakeShadcnDropdown` (non-searchable, matches real shadcn's plain Select) |
+| Date Picker | ✗ |
+| Command | ✗ |
+| Menubar | ✗ |
+| NavigationMenu | ✗ |
+
+### Data & layout (8)
+
+| Component | Status |
+|---|---|
+| Table | ✗ |
+| Pagination | ✗ |
+| ScrollArea | ✓ `awakeShadcnScrollSurface` |
+| Chart | ✗ |
+| Calendar | ✗ |
+| Carousel | ✗ |
+| ResizablePanelGroup | ✗ |
+| Sidebar | ~ partial (the showcase app has its own sidebar composition; not a reusable `ui-designsystem` component) |
+
+### AI Elements (5) and Utils (2)
+
+Not evaluated -- chat/AI-assistant primitives (Message, Bubble, Attachment, Marker,
+MessageScroller) and the shimmer/scroll-fade modifiers are a real part of shadcn-compose's
+catalog but not something a game-engine UI layer has an obvious use for yet. Revisit if a
+concrete use case shows up rather than building speculatively.
+
+**Tally (57 evaluated, AI Elements/Utils excluded): 16 full ✓, 4 partial ~, 37 not built.**
+That's the honest current state -- "shadcn-inspired design system" is still mostly a
+core-primitives-and-overlays layer, not full coverage. Cross-reference this against
+[`docs/tasks/2026-07-18-ui-showcase-cleanup.md`](../tasks/2026-07-18-ui-showcase-cleanup.md)'s
+Phase 3 checklist before picking what to build next -- that task doc already sequences the
+field/overlay/selection families; this inventory is what to consult when deciding what's
+*not yet even on that list*.
+
 ## Variant/size coverage gaps
 
 | Component | Real shadcn properties | Awake has | Gap |
