@@ -618,7 +618,8 @@ private fun UiColumnDslScope.drawUiShowcaseFontSpecimen(
         font = previewFont,
         theme = theme,
         gap = 8f,
-        insets = UiInsets(16f.dp)
+        insets = UiInsets(16f.dp),
+        overlayOnly = emitsToOverlay
     )
     specimenScope.awakeShadcnBadge(
         label.uppercase(),
