@@ -95,10 +95,17 @@ fun UiScope.scrollPanel(
     )
 
     state.update(viewportHeight = viewport.height, contentHeight = measured.height)
-    if (state.canScroll && hitTest(slot)) {
-        val scrollDelta = Input.consumeScrollDeltaY()
-        if (scrollDelta != 0f) {
-            state.scrollBy(-scrollDelta * scrollSpeed)
+    if (hitTest(slot)) {
+        // UI is interested in the scroll axis.
+        context.onOverScrollable()
+        
+        if (state.canScroll) {
+            val scrollDelta = Input.scrollDeltaY
+            if (scrollDelta != 0f) {
+                state.scrollBy(-scrollDelta * scrollSpeed)
+                // Report that this delta was used so others don't also use it.
+                context.onScrollConsumed()
+            }
         }
     }
 

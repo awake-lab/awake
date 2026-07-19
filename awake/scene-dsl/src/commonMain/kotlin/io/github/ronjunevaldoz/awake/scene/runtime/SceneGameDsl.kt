@@ -74,8 +74,8 @@ class SceneGameDsl internal constructor() {
     private val systemsDsl = SceneSystemsDsl()
     private var updateBlock: SceneUpdateBlock = { delta -> runAllSystems(delta) }
     private var overlayBlock: SceneOverlayBlock = { _, _ -> }
-    private var onReadyBlock: SceneReadyBlock = {}
-    private var onDisposeBlock: SceneDisposeBlock = {}
+    private val onReadyBlocks = mutableListOf<SceneReadyBlock>()
+    private val onDisposeBlocks = mutableListOf<SceneDisposeBlock>()
     private val serviceRegistrations = mutableListOf<SceneServiceRegistration<*>>()
 
     fun scene(
@@ -128,11 +128,11 @@ class SceneGameDsl internal constructor() {
     }
 
     fun onReady(block: SceneReadyBlock) {
-        onReadyBlock = block
+        onReadyBlocks += block
     }
 
     fun onDispose(block: SceneDisposeBlock) {
-        onDisposeBlock = block
+        onDisposeBlocks += block
     }
 
     fun <T : Any> service(type: KClass<T>, factory: SceneGameRuntime.() -> T) {
@@ -150,8 +150,8 @@ class SceneGameDsl internal constructor() {
         systems = systemsDsl.build(),
         updateBlock = updateBlock,
         overlayBlock = overlayBlock,
-        onReadyBlock = onReadyBlock,
-        onDisposeBlock = onDisposeBlock,
+        onReadyBlock = { onReadyBlocks.forEach { it(this) } },
+        onDisposeBlock = { onDisposeBlocks.forEach { it(this) } },
         serviceRegistrations = serviceRegistrations.toList()
     )
 }
@@ -184,14 +184,20 @@ fun SceneGameDsl.orbitCameraSystem(
     target: String,
     camera: String,
     initialDistance: Float = 5f,
+    initialPitch: Float = 0.4f,
     autoRotateSpeed: Float = 0f,
     configure: OrbitCameraSystem.() -> Unit = {}
 ): SceneSystemHandle<OrbitCameraSystem> {
+    onReady {
+        val cameraEntity = requireEntity(camera)
+        world.add(cameraEntity, io.github.ronjunevaldoz.awake.scene.components.OrbitControl().apply {
+            this.target = requireTransform(target)
+            this.distance = initialDistance
+            this.pitch = initialPitch
+        })
+    }
     return system(name) {
         OrbitCameraSystem(
-            target = requireTransform(target),
-            camera = requireCamera(camera),
-            initialDistance = initialDistance,
             autoRotateSpeed = autoRotateSpeed
         ).also(configure)
     }
@@ -202,8 +208,28 @@ fun SceneGameDsl.freeFlyCameraSystem(
     camera: String,
     configure: FreeFlyCameraSystem.() -> Unit = {}
 ): SceneSystemHandle<FreeFlyCameraSystem> {
+    onReady {
+        val cameraEntity = requireEntity(camera)
+        world.add(cameraEntity, io.github.ronjunevaldoz.awake.scene.components.FreeFlyControl())
+    }
     return system(name) {
-        FreeFlyCameraSystem(requireCamera(camera)).also(configure)
+        FreeFlyCameraSystem().also(configure)
+    }
+}
+
+fun SceneGameDsl.playerControlSystem(
+    name: String = "playerControl",
+    rotateSpeed: Float = 0.01f,
+    zoomSpeed: Float = 4f,
+    pinchZoomSpeed: Float = 0.5f
+): SceneSystemHandle<io.github.ronjunevaldoz.awake.scene.systems.PlayerControlSystem> {
+    return system(name) {
+        io.github.ronjunevaldoz.awake.scene.systems.PlayerControlSystem(
+            rotateSpeed = rotateSpeed,
+            zoomSpeed = zoomSpeed,
+            pinchZoomSpeed = pinchZoomSpeed,
+            uiResultProvider = { uiContext.inputResult() }
+        )
     }
 }
 

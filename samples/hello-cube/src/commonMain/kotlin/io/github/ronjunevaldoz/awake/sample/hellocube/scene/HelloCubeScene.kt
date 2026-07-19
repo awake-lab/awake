@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.freeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.meshEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.orbitCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.playerControlSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.sceneGame
 import io.github.ronjunevaldoz.awake.sample.hellocube.debug.updateHelloCubeHud
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeCameraMode
@@ -44,16 +45,17 @@ internal fun helloCubeSceneSpec(state: HelloCubeRuntimeState): SceneGameSpec {
                 renderer.createMaterial()
             }
         }
+        val playerControl = playerControlSystem()
         val orbitSystem = orbitCameraSystem(
             target = "cube",
             camera = "camera",
             initialDistance = 8f,
+            initialPitch = 0.4f,
             autoRotateSpeed = 0.4f
-        ) {
-            pitch = 0.4f
-        }
+        )
         val freeFlySystem = freeFlyCameraSystem(camera = "camera")
         update { delta ->
+            update(playerControl, delta)
             when (state.mode) {
                 HelloCubeCameraMode.ORBIT -> update(orbitSystem, delta)
                 HelloCubeCameraMode.FREE_FLY -> update(freeFlySystem, delta)

@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameSpec
 import io.github.ronjunevaldoz.awake.scene.runtime.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.meshEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.orbitCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.playerControlSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.sceneGame
 
 internal const val UI_SHOWCASE_SCENE_CATALOG = "catalog"
@@ -53,7 +54,16 @@ internal fun uiShowcaseSceneSpec(): SceneGameSpec = sceneGame {
             renderer.createMaterial()
         }
     }
-    orbitCameraSystem(target = "centerpiece", camera = "camera", initialDistance = 8.5f, autoRotateSpeed = 0.15f) {
-        pitch = 0.22f
+    val playerControl = playerControlSystem()
+    val orbitSystem = orbitCameraSystem(
+        target = "centerpiece",
+        camera = "camera",
+        initialDistance = 8.5f,
+        initialPitch = 0.22f,
+        autoRotateSpeed = 0.15f
+    )
+    update { delta ->
+        update(playerControl, delta)
+        update(orbitSystem, delta)
     }
 }

@@ -56,5 +56,6 @@ internal fun pollGlfwInput(
         x = reader.cursorX().toFloat() * reader.framebufferScaleX(),
         y = reader.cursorY().toFloat() * reader.framebufferScaleY()
     )
+    // Clear and populate the frame's stable scroll delta
     Input.scrollDeltaY = reader.consumeScrollDeltaY().toFloat()
 }

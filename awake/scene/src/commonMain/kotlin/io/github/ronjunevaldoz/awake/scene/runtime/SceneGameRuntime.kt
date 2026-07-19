@@ -74,6 +74,18 @@ class SceneGameRuntime internal constructor(
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
+        // UI's own frame runs FIRST, before any gameplay system touches Input -- UI is always
+        // the visually topmost layer (drawUi composites after the 3D pass below), so it must
+        // also resolve pointer ownership first. Running it after gameplay (the previous order)
+        // meant every gate read a frame-stale value: real symptom was the 3D camera's
+        // pinch-zoom intermittently stealing scroll input a scrollPanel should have owned,
+        // because the gameplay update this tick always saw last frame's hover state, never
+        // this one. Only the CPU-side computation moves -- uiPrimitives is just data, so the
+        // actual GPU submission order (3D draw() then drawUi()) is unchanged below.
+        uiContext.beginFrame(viewportWidth, viewportHeight, delta)
+        spec.overlayBlock(this, viewportWidth, viewportHeight)
+        val uiPrimitives = uiContext.endFrame()
+
         fixedTimestepLoop.advance(
             frameDelta = delta,
             fixedUpdate = { step -> spec.updateBlock(this, step) },
@@ -82,9 +94,7 @@ class SceneGameRuntime internal constructor(
                 renderSystem.update(world, delta)
             }
         )
-        uiContext.beginFrame(viewportWidth, viewportHeight)
-        spec.overlayBlock(this, viewportWidth, viewportHeight)
-        renderer.drawUi(uiContext.endFrame(), font)
+        renderer.drawUi(uiPrimitives, font)
     }
 
     override fun dispose() {

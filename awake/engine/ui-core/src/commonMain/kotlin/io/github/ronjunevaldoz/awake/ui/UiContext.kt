@@ -40,6 +40,8 @@ class UiContext private constructor(
     private var frameDeltaSeconds: Float = 1f / 60f
     private var measuredMaxRight = 0f
     private var measuredMaxBottom = 0f
+    private var isOverScrollableThisFrame = false
+    private var isScrollConsumedThisFrame = false
 
     fun beginFrame(screenWidth: Float, screenHeight: Float, deltaSeconds: Float = 1f / 60f) {
         primitives.clear()
@@ -52,7 +54,10 @@ class UiContext private constructor(
         measuredMaxBottom = 0f
         pointerDownEdgeThisFrame = Input.pointerDown && !pointerDownLastFrame
         focusClaimedThisFrame = false
+        isOverScrollableThisFrame = false
+        isScrollConsumedThisFrame = false
     }
+
 
     /** Reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
     fun column(
@@ -154,19 +159,20 @@ class UiContext private constructor(
         return box(content.x, content.y, content.width, content.height, font, theme, textScale, contentAlignment, overlayOnly)
     }
 
-    /** Publishes this frame's [activeId] state to [Input.pointerCapturedByUi] before handing
-     * back the frame's draw primitives, so scene-facing drag consumers (
-     * [io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem]/`FreeFlyCameraSystem`)
-     * know a widget already claimed the pointer this frame. Done here (end of the UI's own
-     * frame) rather than in [beginFrame] (start of the *next* UI frame) so the flag reflects
-     * "as of the widgets that just ran," not a stale value carried from two frames ago.
-     *
-     * Overlay primitives are appended last -- always painted on top of this frame's regular
-     * primitives, regardless of which widget called [UiScope.emit] vs [UiScope.emitOverlay]
-     * or in what order. This is the structural fix for dropdown option lists overlapping
-     * sibling widgets: the option rows always go through [UiScope.emitOverlay]. */
+    /** Aggregated result of this frame's input interactions. Call after all widgets have
+     * executed for the current frame. */
+    fun inputResult(): UiInputResult = UiInputResult(
+        isCaptured = activeId != null,
+        isOverScrollable = isOverScrollableThisFrame,
+        isScrollConsumed = isScrollConsumedThisFrame
+    )
+
+    /** Collects this frame's [UiDrawPrimitive]s for the renderer. Always painted after
+     * regular primitives, regardless of which widget called [UiScope.emit] vs
+     * [UiScope.emitOverlay] or in what order. This is the structural fix for dropdown
+     * option lists overlapping sibling widgets: the option rows always go through
+     * [UiScope.emitOverlay]. */
     fun endFrame(): List<UiDrawPrimitive> {
-        Input.pointerCapturedByUi = activeId != null
         if (pointerDownEdgeThisFrame && !focusClaimedThisFrame) {
             focusedId = null
         }
@@ -180,6 +186,21 @@ class UiContext private constructor(
         }
         pointerDownLastFrame = Input.pointerDown
         return primitives + overlayPrimitives
+    }
+
+    /** Called by scrollable widgets (e.g. scrollPanel) whenever the pointer is within
+     * their viewport bounds this frame. */
+    fun onOverScrollable() {
+        if (!measuring) {
+            isOverScrollableThisFrame = true
+        }
+    }
+
+    /** Marks the current frame's scroll delta as consumed by a UI widget. */
+    fun onScrollConsumed() {
+        if (!measuring) {
+            isScrollConsumedThisFrame = true
+        }
     }
 
     fun semanticNodes(): List<UiSemanticNode> = semanticNodes.toList()
@@ -319,6 +340,18 @@ class UiContext private constructor(
 data class UiMeasuredContent(
     val width: Float,
     val height: Float
+)
+
+/**
+ * Aggregated input ownership result for a single UI frame.
+ */
+data class UiInputResult(
+    /** Whether a widget has explicitly captured the pointer (e.g. mid-drag on a slider). */
+    val isCaptured: Boolean = false,
+    /** Whether the pointer is currently hovering over a scrollable region. */
+    val isOverScrollable: Boolean = false,
+    /** Whether the scroll delta was actually used by a UI widget this frame. */
+    val isScrollConsumed: Boolean = false
 )
 
 /** Pure value-from-pointer-position math for the built-in `slider`, pulled out to a
