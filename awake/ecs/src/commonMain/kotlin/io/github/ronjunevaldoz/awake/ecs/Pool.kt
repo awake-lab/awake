@@ -20,13 +20,17 @@ interface Poolable {
  * both-end operations this pool never uses; a plain array + `size` counter needs no index
  * wraparound at all for single-end push/pop.
  */
+@PublishedApi
 internal class ComponentPool<T : Any>(
     private val factory: () -> T
 ) {
-    private var items = arrayOfNulls<Any?>(DEFAULT_CAPACITY)
-    private var size = 0
+    @PublishedApi
+    internal var items = arrayOfNulls<Any?>(DEFAULT_CAPACITY)
+    @PublishedApi
+    internal var size = 0
 
-    fun obtain(): T {
+    @PublishedApi
+    internal fun obtain(): T {
         if (size == 0) {
             return factory()
         }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ecs
 
+@PublishedApi
 internal class EntityArena {
     private var entityGenerations = IntArray(DEFAULT_CAPACITY)
     private var entityAlive = LongArray(DEFAULT_CAPACITY / 64 + 1)
