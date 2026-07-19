@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnResolvedTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.UiShape
 
 internal val AwakeShadcnTransparent = Color.Transparent
 
@@ -159,21 +160,53 @@ object AwakeShadcnStyles {
 
     val field: Style get() = field(AwakeShadcnTheme)
 
-    internal fun field(theme: AwakeShadcnResolvedTheme): Style = Style {
-        background(theme.tokens.background)
-        foreground(theme.tokens.foreground)
-        borderWidth(1f.dp)
-        borderColor(theme.input)
-        shape(theme.radii.lg)
-        contentPadding(theme.metrics.fieldPaddingX, theme.metrics.fieldPaddingY)
-        textSize(theme.typography.label)
-        hovered {
-            background(theme.card)
-            borderColor(theme.tokens.border)
+    internal fun field(theme: AwakeShadcnResolvedTheme): Style = field(theme, AwakeShadcnTextFieldVariant.Default)
+
+    fun field(variant: AwakeShadcnTextFieldVariant): Style = field(AwakeShadcnTheme, variant)
+
+    internal fun field(theme: AwakeShadcnResolvedTheme, variant: AwakeShadcnTextFieldVariant): Style = when (variant) {
+        AwakeShadcnTextFieldVariant.Default -> Style {
+            background(theme.tokens.background)
+            foreground(theme.tokens.foreground)
+            borderWidth(1f.dp)
+            borderColor(theme.input)
+            shape(theme.radii.lg)
+            contentPadding(theme.metrics.fieldPaddingX, theme.metrics.fieldPaddingY)
+            textSize(theme.typography.label)
+            hovered {
+                background(theme.card)
+                borderColor(theme.tokens.border)
+            }
+            active {
+                background(theme.card)
+                borderColor(theme.ring)
+            }
         }
-        active {
-            background(theme.card)
-            borderColor(theme.ring)
+        // Real shadcn's Filled text field: solid muted-gray fill, no border at all. Explicit
+        // borderWidth(0) is required -- resolveStyle falls back to theme.components.textField's
+        // 1dp default border for any property this style doesn't set, it doesn't start blank.
+        AwakeShadcnTextFieldVariant.Filled -> Style {
+            background(theme.palette.muted)
+            foreground(theme.tokens.foreground)
+            borderWidth(UiShape.none)
+            shape(theme.radii.lg)
+            contentPadding(theme.metrics.fieldPaddingX, theme.metrics.fieldPaddingY)
+            textSize(theme.typography.label)
+            hovered { background(theme.palette.secondary) }
+        }
+        // Real shadcn's Ghost text field: no fill, no border -- label only, chrome appears
+        // only once focused so the user still gets an affordance while typing.
+        AwakeShadcnTextFieldVariant.Ghost -> Style {
+            background(AwakeShadcnTransparent)
+            foreground(theme.tokens.foreground)
+            borderWidth(UiShape.none)
+            shape(theme.radii.lg)
+            contentPadding(theme.metrics.fieldPaddingX, theme.metrics.fieldPaddingY)
+            textSize(theme.typography.label)
+            focused {
+                borderWidth(1f.dp)
+                borderColor(theme.ring)
+            }
         }
     }
 
@@ -210,5 +243,42 @@ object AwakeShadcnStyles {
 
     internal fun badgeContent(theme: AwakeShadcnResolvedTheme): Style = Style {
         contentPadding(theme.metrics.badgePaddingX, theme.metrics.badgePaddingY)
+    }
+
+    val kbd: Style get() = kbd(AwakeShadcnTheme)
+
+    // Real shadcn's Kbd: small monospace-ish key cap -- muted fill, thin border, tight
+    // padding, sm radius (not badge's full pill).
+    internal fun kbd(theme: AwakeShadcnResolvedTheme): Style = Style {
+        background(theme.palette.muted)
+        foreground(theme.tokens.mutedForeground)
+        borderWidth(1f.dp)
+        borderColor(theme.tokens.border)
+        shape(theme.radii.sm)
+        contentPadding(theme.metrics.badgePaddingX, theme.metrics.badgePaddingY)
+        textSize(theme.typography.caption)
+    }
+
+    fun alert(variant: AwakeShadcnAlertVariant): Style = alert(AwakeShadcnTheme, variant)
+
+    // Real shadcn's Alert has no hover/press states -- it's a static banner, not an
+    // interactive control, so this is the only style call in this file with no state rules.
+    internal fun alert(theme: AwakeShadcnResolvedTheme, variant: AwakeShadcnAlertVariant): Style = when (variant) {
+        AwakeShadcnAlertVariant.Default -> Style {
+            background(theme.tokens.background)
+            foreground(theme.tokens.foreground)
+            borderWidth(1f.dp)
+            borderColor(theme.tokens.border)
+            shape(theme.radii.lg)
+            contentPadding(theme.metrics.panelPadding)
+        }
+        AwakeShadcnAlertVariant.Destructive -> Style {
+            background(theme.tokens.background)
+            foreground(theme.palette.destructive)
+            borderWidth(1f.dp)
+            borderColor(theme.palette.destructive)
+            shape(theme.radii.lg)
+            contentPadding(theme.metrics.panelPadding)
+        }
     }
 }

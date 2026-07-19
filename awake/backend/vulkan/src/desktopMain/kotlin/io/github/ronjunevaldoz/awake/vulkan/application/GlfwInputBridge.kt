@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.vulkan.application
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
-import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
 
 private const val GLFW_KEY_SPACE = 32
 private const val GLFW_KEY_ESCAPE = 256
@@ -17,7 +16,6 @@ private const val GLFW_KEY_D = 68
 private const val GLFW_KEY_S = 83
 private const val GLFW_KEY_W = 87
 private const val GLFW_MOUSE_BUTTON_LEFT = 0
-private const val GLFW_PRESS = 1
 
 val DefaultGlfwGameplayKeys: Map<Int, Key> = linkedMapOf(
     GLFW_KEY_W to Key.W,
@@ -41,28 +39,22 @@ val DefaultGlfwGameplayKeys: Map<Int, Key> = linkedMapOf(
 fun pollGlfwInput(
     window: Long,
     keys: Map<Int, Key> = DefaultGlfwGameplayKeys
+): Unit = pollGlfwInput(glfwWindowInput(window), keys)
+
+/** Testable core: takes the [GlfwWindowInput] seam instead of a raw window handle, so a
+ * desktopTest can fake key/pointer/scroll state and assert the resulting [Input] calls. */
+internal fun pollGlfwInput(
+    reader: GlfwWindowInput,
+    keys: Map<Int, Key> = DefaultGlfwGameplayKeys
 ) {
     keys.forEach { (glfwKey, key) ->
-        Input.setKeyDown(key, VulkanWindow.glfwGetKey(window, glfwKey) == GLFW_PRESS)
+        Input.setKeyDown(key, reader.isKeyDown(glfwKey))
     }
 
-    val cursor = VulkanWindow.glfwGetCursorPos(window)
-    val scale = framebufferScale(window)
-    val leftButtonDown = VulkanWindow.glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS
     Input.setPointer(
-        down = leftButtonDown,
-        x = cursor[0].toFloat() * scale.first,
-        y = cursor[1].toFloat() * scale.second
+        down = reader.isMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT),
+        x = reader.cursorX().toFloat() * reader.framebufferScaleX(),
+        y = reader.cursorY().toFloat() * reader.framebufferScaleY()
     )
-    Input.scrollDeltaY = VulkanWindow.glfwConsumeScrollDeltaY(window).toFloat()
-}
-
-private fun framebufferScale(window: Long): Pair<Float, Float> {
-    val windowWidth = VulkanWindow.glfwGetWindowWidth(window)
-    val windowHeight = VulkanWindow.glfwGetWindowHeight(window)
-    val framebufferWidth = VulkanWindow.glfwGetFramebufferWidth(window)
-    val framebufferHeight = VulkanWindow.glfwGetFramebufferHeight(window)
-    val scaleX = if (windowWidth != 0) framebufferWidth.toFloat() / windowWidth else 1f
-    val scaleY = if (windowHeight != 0) framebufferHeight.toFloat() / windowHeight else 1f
-    return scaleX to scaleY
+    Input.scrollDeltaY = reader.consumeScrollDeltaY().toFloat()
 }

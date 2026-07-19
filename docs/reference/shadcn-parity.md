@@ -50,7 +50,7 @@ widget that could be styled to look similar."
 |---|---|
 | Label | ✗ (inline labels only, via `propertyRow`'s `labelContent`) |
 | Checkbox | ✓ `awakeShadcnCheckbox` |
-| RadioGroup | ✗ |
+| RadioGroup | ✓ `awakeShadcnRadioGroup` (circular `checkbox()` reused via `UiShapeSpec.Circle`) |
 | Switch | ✓ `awakeShadcnToggle` (this is shadcn's `Switch`, not its `Toggle` -- see below) |
 | Toggle | ✗ (shadcn's pressable two-state button, e.g. bold/italic toolbar buttons -- a different component from Switch, we don't have it) |
 | Slider | ✓ `awakeShadcnSlider` |
@@ -65,10 +65,10 @@ widget that could be styled to look similar."
 
 | Component | Status |
 |---|---|
-| Avatar | ✗ |
+| Avatar | ~ partial -- `awakeShadcnAvatar` (new `avatarFallback()` primitive, `ui-widgets`) is fallback-only (initials on a muted circle); no image-loading pipeline wired into this rasterizer yet, so the actual image slot doesn't exist |
 | AspectRatio | ✗ |
 | Separator | ✓ `separator()` (ui-widgets; no shadcn-specific style wrapper, but themeable via the caller) |
-| Kbd | ✗ |
+| Kbd | ✓ `awakeShadcnKbd` |
 | Item/ItemGroup | ✗ |
 | Empty | ✗ |
 
@@ -76,20 +76,20 @@ widget that could be styled to look similar."
 
 | Component | Status |
 |---|---|
-| Alert | ✗ (only `alertDialog`, a modal -- no inline banner) |
-| Progress | ✗ |
-| Skeleton | ✗ |
-| Spinner | ✗ |
+| Alert | ✓ `awakeShadcnAlert` (Default/Destructive) |
+| Progress | ✓ `awakeShadcnProgress` (new `progressBar()` primitive in `ui-widgets`, reuses `slider()`'s track/fill painting minus the knob/drag handling) |
+| Skeleton | ✓ `awakeShadcnSkeleton` (new `skeleton()` primitive, `ui-widgets`, real per-widget opacity pulse -- not a static box) |
+| Spinner | ~ partial -- `awakeShadcnSpinner` (new `spinner()` primitive, `ui-widgets`): an orbiting-dots loader, a real animation, approximating shadcn's CSS-rotated Lucide icon which this engine has no SVG-rotation pipeline to reproduce exactly |
 | Toast/Toaster | ✗ |
 
 ### Disclosure & navigation (4)
 
 | Component | Status |
 |---|---|
-| Collapsible | ✗ |
-| Accordion | ✗ |
-| Tabs | ✗ |
-| Breadcrumb | ✗ |
+| Collapsible | ✓ `awakeShadcnCollapsible` (no expand/collapse animation -- height-transition primitive doesn't exist yet) |
+| Accordion | ~ partial -- caller composes multiple `awakeShadcnCollapsible`s and tracks which id is open, same pattern as `awakeShadcnRadioGroup`; no dedicated single-open-at-a-time helper yet |
+| Tabs | ✓ `awakeShadcnTabs` (composed from `awakeShadcnButton`, same reuse-existing-variant approach as `awakeShadcnRadioGroup`) |
+| Breadcrumb | ✓ `awakeShadcnBreadcrumb` |
 
 ### Overlays & navigation (15)
 
@@ -131,7 +131,7 @@ MessageScroller) and the shimmer/scroll-fade modifiers are a real part of shadcn
 catalog but not something a game-engine UI layer has an obvious use for yet. Revisit if a
 concrete use case shows up rather than building speculatively.
 
-**Tally (57 evaluated, AI Elements/Utils excluded): 16 full ✓, 4 partial ~, 37 not built.**
+**Tally (57 evaluated, AI Elements/Utils excluded): 24 full ✓, 7 partial ~, 26 not built.**
 That's the honest current state -- "shadcn-inspired design system" is still mostly a
 core-primitives-and-overlays layer, not full coverage. Cross-reference this against
 [`docs/tasks/2026-07-18-ui-showcase-cleanup.md`](../tasks/2026-07-18-ui-showcase-cleanup.md)'s
@@ -143,9 +143,9 @@ field/overlay/selection families; this inventory is what to consult when decidin
 
 | Component | Real shadcn properties | Awake has | Gap |
 |---|---|---|---|
-| `button` | `ButtonVariant`: Default, Outline, Secondary, Ghost, Destructive, Link; `ButtonSize`: Xs, Sm, Md, Lg, Icon | `AwakeShadcnButtonVariant`: Primary, Secondary, Outline, Ghost, Danger, **Link** (added) | Still no `ButtonSize` equivalent -- every call site hardcodes its own px width/height. |
+| `button` | `ButtonVariant`: Default, Outline, Secondary, Ghost, Destructive, Link; `ButtonSize`: Xs, Sm, Md, Lg, Icon | `AwakeShadcnButtonVariant`: Primary, Secondary, Outline, Ghost, Danger, Link; `AwakeShadcnButtonSize`: Xs, Sm, Md, Lg, Icon (**added** -- height-only, width still comes from caller's modifier/content) | Closed. |
 | `badge` | `BadgeVariant`: Default, Secondary, Destructive, Outline, Ghost | `AwakeShadcnBadgeVariant`: Primary, Secondary, Outline, Danger, **Ghost** (added) | Closed. |
-| `text-field` | `TextFieldVariant`: Default, Filled, Ghost | `textField()`/`awakeShadcnTextField()`: **error/invalid and disabled states added** (red border + helper text row, muted disabled look); still no Filled/Ghost variant | Filled/Ghost variants still missing -- error/disabled (the higher-value gap) closed. |
+| `text-field` | `TextFieldVariant`: Default, Filled, Ghost | `AwakeShadcnTextFieldVariant`: Default, **Filled**, **Ghost** (added); error/invalid and disabled states already existed | Closed. |
 | `select` | `SelectVariant`: Default | `awakeShadcnDropdown()`: no variant axis | Matches (both effectively single-variant). |
 | `checkbox` / `switch` / `slider` / `tabs` / `tooltip` / `popover` / `dropdown-menu` / `dialog` / `alert-dialog` | No variant axis in the real component either | Matches | No gap -- these are correctly single-look on both sides. |
 | `toggle` | `ToggleVariant`: Default, Outline | We have no separate "Toggle" component from "Switch" -- Awake's `toggle()` is the switch equivalent; a bordered-button-style toggle (shadcn's actual `Toggle`, a different component from `Switch`) doesn't exist here. | Not a gap in the switch we have -- a genuinely separate missing *component* (icon/text toggle-button, not a boolean switch). |
@@ -171,9 +171,55 @@ components, not all at once up front.
    against `docs/reference/awake-previews/awake-button-variants-light.png`.
 3. ~~Add a `Ghost` badge variant~~ -- done: `AwakeShadcnBadgeVariant.Ghost`. Verified visually
    against `docs/reference/awake-previews/awake-badge-variants-light.png`.
-4. Still open: `ButtonSize` axis (Xs/Sm/Md/Lg/Icon), `textField()`'s `Filled`/`Ghost`
-   variants.
-5. When building the still-missing components from
+4. ~~Add a `ButtonSize` axis~~ -- done: `AwakeShadcnButtonSize` (Xs/Sm/Md/Lg/Icon), applied
+   as a default height when the caller's modifier doesn't already set one.
+5. ~~Add `textField()`'s `Filled`/`Ghost` variants~~ -- done: `AwakeShadcnTextFieldVariant`.
+   Verified visually against `docs/reference/awake-previews/awake-textfield-states-light.png`
+   -- caught and fixed a real bug in the process: `resolveStyle` falls back to
+   `theme.components.textField`'s 1dp default border for any property a variant style
+   doesn't explicitly set, so both new variants leaked a border until `borderWidth(UiShape.none)`
+   was added explicitly.
+6. ~~Build `Alert`~~ -- done: `awakeShadcnAlert` (Default/Destructive), composed entirely from
+   existing primitives (`panel`, `awakeShadcnBodyText`/`SupportingText`), no new ui-widgets
+   work needed. Verified visually against
+   `docs/reference/awake-previews/awake-alert-variants-light.png`.
+7. ~~Build `RadioGroup`~~ -- done: `awakeShadcnRadioGroup`, reusing `checkbox()` with a
+   `UiShapeSpec.Circle` shape instead of a new low-level widget; single-select logic
+   composed on top (clicking the already-selected item is a no-op, matching real radio
+   semantics). Verified visually against
+   `docs/reference/awake-previews/awake-radiogroup-light.png`.
+8. ~~Build `Progress`~~ -- done: `progressBar()` (new primitive, `ui-widgets`) +
+   `awakeShadcnProgress` -- the one component this round that needed real `ui-widgets` work
+   rather than pure composition, since nothing existing painted a static (non-interactive,
+   non-min/max) fraction bar. Verified visually against
+   `docs/reference/awake-previews/awake-progress-light.png`.
+9. ~~Build `Avatar`~~ -- done, partially: `avatarFallback()` (new primitive, `ui-widgets`) +
+   `awakeShadcnAvatar`. Fallback-only (initials on a muted circle) -- no image-loading
+   pipeline exists yet for the actual image slot, a real gap not a corner cut silently.
+   Verified visually against `docs/reference/awake-previews/awake-avatar-light.png`.
+10. ~~Build `Kbd`, `Skeleton`, `Tabs`~~ -- done. `Kbd`: pure composition (`awakeShadcnKbd`),
+    same measure-and-draw recipe as `awakeShadcnBadge`. `Skeleton`: new `skeleton()` primitive
+    (`ui-widgets`) with a real per-widget sine-wave opacity pulse over elapsed time, not a
+    static box. `Tabs`: `awakeShadcnTabs` composes `awakeShadcnButton` per tab -- caught and
+    fixed a real bug in the process: `UiButtonVariant.Ghost`'s `resolveFill` hardcodes fill to
+    transparent unless hovered/active, silently ignoring any style background override, so the
+    active tab never showed its card-colored background at rest. Fixed by using the
+    `Filled`-mapped variant (which always honors the resolved background) for the active tab
+    only. Verified visually against `docs/reference/awake-previews/awake-kbd-light.png`,
+    `awake-skeleton-light.png`, `awake-tabs-light.png`.
+11. ~~Build `Breadcrumb`, `Collapsible`/`Accordion`, `Spinner`~~ -- done. `Breadcrumb`: pure
+    composition (row of text + separator glyph). `Collapsible`: header toggle + conditional
+    content lay-out, no animation. `Accordion`: caller-composed from multiple `Collapsible`s
+    (marked partial -- no dedicated single-open helper). `Spinner`: new `spinner()` primitive
+    (`ui-widgets`), an orbiting-dots loader (marked partial -- approximates shadcn's rotated
+    icon, no SVG-rotation pipeline exists to match exactly). Verified visually against
+    `docs/reference/awake-previews/awake-breadcrumb-light.png`,
+    `awake-collapsible-light.png`, `awake-spinner-light.png` -- caught and fixed a real bug:
+    the collapsible header used the unicode minus sign (U+2212) which this engine's ASCII-only
+    bitmap font rendered as a missing-glyph `?`; switched to plain ASCII `-`.
+12. Still open: `Textarea` (needs real multi-line text editing, not composable from existing
+    `textField()` -- an actual new capability, not just a style/composition exercise like most
+    of the above). When building it or any other still-missing components from
    [`docs/tasks/2026-07-18-ui-showcase-cleanup.md`](../tasks/2026-07-18-ui-showcase-cleanup.md)'s
    Phase 3 checklist (textarea, select variants, popover, tabs, radio group, etc), pull that
    component's real preview image from `component-metadata.json` first and look at it before

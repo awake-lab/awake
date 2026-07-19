@@ -4,9 +4,7 @@ package io.github.ronjunevaldoz.awake.vulkan.application
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.TextEditAction
-import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
 
-private const val GLFW_PRESS = 1
 private const val GLFW_KEY_LEFT_SHIFT = 340
 private const val GLFW_KEY_RIGHT_SHIFT = 344
 private const val GLFW_KEY_SPACE = 32
@@ -59,6 +57,12 @@ private class KeyRepeatState {
 // file's polling style -- promote to an instance if multi-window ever lands.
 private val repeatStates = HashMap<Int, KeyRepeatState>()
 
+/** Test-only: [repeatStates] is shared module state, so a desktopTest exercising hold-to-repeat
+ * across multiple cases must clear it between them or an earlier test's held key leaks in. */
+internal fun resetGlfwTextInputRepeatStateForTest() {
+    repeatStates.clear()
+}
+
 /**
  * Polls a GLFW window's keyboard state each frame and feeds Awake's shared text-input API
  * ([Input.pushTypedText]/[Input.pushEditAction]) -- separate from [pollGlfwInput], which only
@@ -67,24 +71,29 @@ private val repeatStates = HashMap<Int, KeyRepeatState>()
  * Pure polling (matches [pollGlfwInput]'s style, no GLFW char/key callbacks): tracks rising
  * edges plus a simple hold-to-repeat cadence per key.
  */
-fun pollGlfwTextInput(window: Long, deltaSeconds: Double = 1.0 / 60.0) {
-    val shiftDown = VulkanWindow.glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-        VulkanWindow.glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS
+fun pollGlfwTextInput(window: Long, deltaSeconds: Double = 1.0 / 60.0): Unit =
+    pollGlfwTextInput(glfwWindowInput(window), deltaSeconds)
+
+/** Testable core: takes the [GlfwWindowInput] seam instead of a raw window handle, so a
+ * desktopTest can fake key-hold state across frames and assert the resulting
+ * [Input.pushTypedText]/[Input.pushEditAction] calls, including shift and hold-to-repeat. */
+internal fun pollGlfwTextInput(reader: GlfwWindowInput, deltaSeconds: Double = 1.0 / 60.0) {
+    val shiftDown = reader.isKeyDown(GLFW_KEY_LEFT_SHIFT) || reader.isKeyDown(GLFW_KEY_RIGHT_SHIFT)
 
     PrintableKeys.forEach { (glfwKey, char) ->
-        pollKey(window, glfwKey, deltaSeconds) {
+        pollKey(reader, glfwKey, deltaSeconds) {
             val shifted = if (shiftDown && char.isLetter()) char.uppercaseChar() else char
             Input.pushTypedText(shifted.toString())
         }
     }
     EditKeys.forEach { (glfwKey, action) ->
-        pollKey(window, glfwKey, deltaSeconds) { Input.pushEditAction(action) }
+        pollKey(reader, glfwKey, deltaSeconds) { Input.pushEditAction(action) }
     }
 }
 
-private inline fun pollKey(window: Long, glfwKey: Int, deltaSeconds: Double, fire: () -> Unit) {
+private inline fun pollKey(reader: GlfwWindowInput, glfwKey: Int, deltaSeconds: Double, fire: () -> Unit) {
     val state = repeatStates.getOrPut(glfwKey) { KeyRepeatState() }
-    val down = VulkanWindow.glfwGetKey(window, glfwKey) == GLFW_PRESS
+    val down = reader.isKeyDown(glfwKey)
     if (!down) {
         state.wasDown = false
         state.heldSeconds = 0.0

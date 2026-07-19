@@ -231,6 +231,32 @@ sealed class UiDslScope protected constructor(
         style: Style = Style.Empty
     ): Boolean = scope.toggle(id, checked, label, modifier, style)
 
+    fun progressBar(
+        id: String,
+        value: Float,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty
+    ): Unit = scope.progressBar(id, value, modifier, style)
+
+    fun avatarFallback(
+        initials: String,
+        modifier: UiModifier = UiModifier(),
+        diameter: Dp = 40f.dp,
+        style: Style = Style.Empty
+    ): Unit = scope.avatarFallback(initials, modifier, diameter, style)
+
+    fun skeleton(
+        id: String,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty
+    ): Unit = scope.skeleton(id, modifier, style)
+
+    fun spinner(
+        id: String,
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty
+    ): Unit = scope.spinner(id, modifier, style)
+
     fun textField(
         id: String,
         value: String,

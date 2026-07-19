@@ -13,9 +13,15 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.button
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.height
+
+private fun UiModifier.withShadcnSize(size: AwakeShadcnButtonSize): UiModifier =
+    if (height == null) height(size.heightDp.dp) else this
 
 private fun awakeShadcnButtonStyle(
     theme: UiTheme,
@@ -62,10 +68,11 @@ fun UiScope.awakeShadcnButton(
     label: String,
     modifier: UiModifier = UiModifier(),
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
+    size: AwakeShadcnButtonSize = AwakeShadcnButtonSize.Md,
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered
-): Boolean = awakeShadcnLabelButton(id, label, modifier, theme, variant, style, centered, verticallyCentered) { resolvedId, resolvedLabel, resolvedModifier, resolvedStyle, resolvedVariant, resolvedCentered, resolvedVerticallyCentered ->
+): Boolean = awakeShadcnLabelButton(id, label, modifier.withShadcnSize(size), theme, variant, style, centered, verticallyCentered) { resolvedId, resolvedLabel, resolvedModifier, resolvedStyle, resolvedVariant, resolvedCentered, resolvedVerticallyCentered ->
     button(
         id = resolvedId,
         label = resolvedLabel,
@@ -83,10 +90,11 @@ fun UiDslScope.awakeShadcnButton(
     label: String,
     modifier: UiModifier = UiModifier(),
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
+    size: AwakeShadcnButtonSize = AwakeShadcnButtonSize.Md,
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered
-): Boolean = awakeShadcnLabelButton(id, label, modifier, theme, variant, style, centered, verticallyCentered) { resolvedId, resolvedLabel, resolvedModifier, resolvedStyle, resolvedVariant, resolvedCentered, resolvedVerticallyCentered ->
+): Boolean = awakeShadcnLabelButton(id, label, modifier.withShadcnSize(size), theme, variant, style, centered, verticallyCentered) { resolvedId, resolvedLabel, resolvedModifier, resolvedStyle, resolvedVariant, resolvedCentered, resolvedVerticallyCentered ->
     button(
         id = resolvedId,
         label = resolvedLabel,
@@ -103,9 +111,10 @@ fun UiScope.awakeShadcnButton(
     id: String,
     modifier: UiModifier = UiModifier(),
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
+    size: AwakeShadcnButtonSize = AwakeShadcnButtonSize.Md,
     style: Style = Style.Empty,
     content: AbsoluteScope.(slot: UiSlot) -> Unit
-): Boolean = awakeShadcnContentButton(id, modifier, theme, variant, style) { resolvedId, resolvedModifier, resolvedStyle, resolvedVariant ->
+): Boolean = awakeShadcnContentButton(id, modifier.withShadcnSize(size), theme, variant, style) { resolvedId, resolvedModifier, resolvedStyle, resolvedVariant ->
     button(
         id = resolvedId,
         modifier = resolvedModifier,
@@ -120,9 +129,10 @@ fun UiDslScope.awakeShadcnButton(
     id: String,
     modifier: UiModifier = UiModifier(),
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
+    size: AwakeShadcnButtonSize = AwakeShadcnButtonSize.Md,
     style: Style = Style.Empty,
     content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
-): Boolean = awakeShadcnContentButton(id, modifier, theme, variant, style) { resolvedId, resolvedModifier, resolvedStyle, resolvedVariant ->
+): Boolean = awakeShadcnContentButton(id, modifier.withShadcnSize(size), theme, variant, style) { resolvedId, resolvedModifier, resolvedStyle, resolvedVariant ->
     button(
         id = resolvedId,
         modifier = resolvedModifier,

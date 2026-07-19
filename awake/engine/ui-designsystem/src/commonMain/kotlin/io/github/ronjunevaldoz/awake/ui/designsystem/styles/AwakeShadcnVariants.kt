@@ -11,6 +11,16 @@ enum class AwakeShadcnButtonVariant {
     Link
 }
 
+// Mirrors real shadcn's ButtonSize axis (Xs/Sm/Md/Lg/Icon). Height only -- width still
+// comes from the caller's modifier or content, same as every other Awake button call site.
+enum class AwakeShadcnButtonSize(val heightDp: Float) {
+    Xs(28f),
+    Sm(32f),
+    Md(36f),
+    Lg(40f),
+    Icon(36f)
+}
+
 enum class AwakeShadcnBadgeVariant {
     Primary,
     Secondary,
@@ -24,4 +34,15 @@ enum class AwakeShadcnSurfaceVariant {
     Sidebar,
     Popover,
     Muted
+}
+
+enum class AwakeShadcnTextFieldVariant {
+    Default,
+    Filled,
+    Ghost
+}
+
+enum class AwakeShadcnAlertVariant {
+    Default,
+    Destructive
 }

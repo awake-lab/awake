@@ -4,6 +4,8 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.UiDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
@@ -15,21 +17,36 @@ import io.github.ronjunevaldoz.awake.ui.dropdown
 import io.github.ronjunevaldoz.awake.ui.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.progressBar
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
+import io.github.ronjunevaldoz.awake.ui.skeleton
 import io.github.ronjunevaldoz.awake.ui.slider
+import io.github.ronjunevaldoz.awake.ui.spinner
 import io.github.ronjunevaldoz.awake.ui.textField
 import io.github.ronjunevaldoz.awake.ui.toggle
+import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 
 private fun awakeShadcnFieldStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
 
+private fun awakeShadcnFieldStyle(theme: UiTheme, variant: AwakeShadcnTextFieldVariant, style: Style): Style =
+    AwakeShadcnStyles.field(theme.asAwakeShadcnTheme(), variant) then style
+
 private fun awakeShadcnCheckboxStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
+
+// Real shadcn's RadioGroup item is a circular checkbox.checkbox() -- same box/inset-dot
+// mechanics, just a Circle shapeSpec instead of a rounded square. No separate ui-widgets
+// primitive needed for that alone.
+private fun awakeShadcnRadioStyle(theme: UiTheme, style: Style): Style =
+    AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then Style { shape(UiShapeSpec.Circle) } then style
 
 private fun awakeShadcnSliderStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
@@ -62,11 +79,156 @@ fun UiScope.awakeShadcnCheckbox(
     style = awakeShadcnCheckboxStyle(theme, style)
 )
 
+// Single-select among [options] -- clicking an unselected item selects it; clicking the
+// already-selected item is a no-op (checkbox()'s own toggle-off return is discarded), since
+// a real radio group has no way to end up with nothing selected once one item is chosen.
+fun UiColumnDslScope.awakeShadcnRadioGroup(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: UiModifier = UiModifier(),
+    gap: Dp = 8f.dp,
+    style: Style = Style.Empty
+): Int {
+    var resolved = selectedIndex
+    val radioStyle = awakeShadcnRadioStyle(theme, style)
+    options.forEachIndexed { index, label ->
+        val clicked = checkbox(
+            id = "$id.$index",
+            checked = index == selectedIndex,
+            label = label,
+            modifier = modifier.height(24f.px),
+            style = radioStyle,
+            boxSize = 16f.dp
+        )
+        if (clicked) resolved = index
+        if (index != options.lastIndex) spacer(UiModifier().height(gap))
+    }
+    return resolved
+}
+
+fun UiScope.awakeShadcnProgress(
+    id: String,
+    value: Float,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Unit = progressBar(
+    id = id,
+    value = value,
+    modifier = modifier,
+    style = awakeShadcnSliderStyle(theme, style)
+)
+
+fun UiDslScope.awakeShadcnProgress(
+    id: String,
+    value: Float,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Unit = progressBar(
+    id = id,
+    value = value,
+    modifier = modifier,
+    style = awakeShadcnSliderStyle(theme, style)
+)
+
+private fun awakeShadcnSkeletonStyle(theme: UiTheme, style: Style): Style {
+    val shadcnTheme = theme.asAwakeShadcnTheme()
+    return Style {
+        background(shadcnTheme.palette.muted)
+        shape(shadcnTheme.radii.md)
+    } then style
+}
+
+fun UiScope.awakeShadcnSkeleton(
+    id: String,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Unit = skeleton(id = id, modifier = modifier, style = awakeShadcnSkeletonStyle(theme, style))
+
+fun UiDslScope.awakeShadcnSkeleton(
+    id: String,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Unit = skeleton(id = id, modifier = modifier, style = awakeShadcnSkeletonStyle(theme, style))
+
+private fun awakeShadcnSpinnerStyle(theme: UiTheme, style: Style): Style {
+    val shadcnTheme = theme.asAwakeShadcnTheme()
+    return Style { foreground(shadcnTheme.tokens.mutedForeground) } then style
+}
+
+fun UiScope.awakeShadcnSpinner(
+    id: String,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Unit = spinner(id = id, modifier = modifier, style = awakeShadcnSpinnerStyle(theme, style))
+
+fun UiDslScope.awakeShadcnSpinner(
+    id: String,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty
+): Unit = spinner(id = id, modifier = modifier, style = awakeShadcnSpinnerStyle(theme, style))
+
+// Real shadcn's TabsList is a muted rounded track; the active TabsTrigger gets a raised
+// card-colored background, inactive ones are chromeless labels. Composed from
+// awakeShadcnButton the same way awakeShadcnRadioGroup composes from checkbox(): reuse the
+// existing variant/style system rather than a new low-level widget.
+fun UiColumnDslScope.awakeShadcnTabs(
+    id: String,
+    tabs: List<String>,
+    selectedIndex: Int,
+    modifier: UiModifier = UiModifier(),
+    tabWidth: Dp = 96f.dp,
+    height: Dp = 32f.dp
+): Int {
+    var resolved = selectedIndex
+    val shadcnTheme = theme.asAwakeShadcnTheme()
+    panel(
+        id = "$id.track",
+        width = modifier.width ?: Dimension.WrapContent,
+        height = Dimension.Fixed(height),
+        modifier = modifier,
+        radius = shadcnTheme.radii.md,
+        style = Style { background(shadcnTheme.palette.muted) }
+    ) {
+        row(height = height, gap = 2f) {
+            tabs.forEachIndexed { index, label ->
+                val active = index == selectedIndex
+                val tabStyle: Style = if (active) {
+                    Style {
+                        background(shadcnTheme.card)
+                        foreground(shadcnTheme.tokens.foreground)
+                    }
+                } else {
+                    Style { foreground(shadcnTheme.tokens.mutedForeground) }
+                }
+                val tabHeight: Dp = (height.value - 4f).dp
+                val tabModifier = UiModifier(width = Dimension.Fixed(tabWidth), height = Dimension.Fixed(tabHeight))
+                // UiButtonVariant.Ghost's resolveFill hardcodes fill to transparent unless
+                // hovered/active, ignoring any style override -- so the active tab (which must
+                // show its card-colored background at rest, not just on hover) uses Primary
+                // (-> UiButtonVariant.Filled, which always honors the resolved background)
+                // with that background/foreground overridden by tabStyle; inactive tabs stay
+                // Ghost for the real chromeless-until-hover look.
+                val clicked = awakeShadcnButton(
+                    id = "$id.$index",
+                    label = label,
+                    modifier = tabModifier,
+                    variant = if (active) AwakeShadcnButtonVariant.Primary else AwakeShadcnButtonVariant.Ghost,
+                    style = tabStyle
+                )
+                if (clicked) resolved = index
+            }
+        }
+    }
+    return resolved
+}
+
 fun UiScope.awakeShadcnTextField(
     id: String,
     value: String,
     placeholder: String = "",
     modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnTextFieldVariant = AwakeShadcnTextFieldVariant.Default,
     style: Style = Style.Empty,
     enabled: Boolean = true,
     isError: Boolean = false
@@ -75,7 +237,7 @@ fun UiScope.awakeShadcnTextField(
     value = value,
     placeholder = placeholder,
     modifier = modifier,
-    style = awakeShadcnFieldStyle(theme, style),
+    style = awakeShadcnFieldStyle(theme, variant, style),
     enabled = enabled,
     isError = isError
 )
@@ -131,6 +293,7 @@ fun UiDslScope.awakeShadcnTextField(
     value: String,
     placeholder: String = "",
     modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnTextFieldVariant = AwakeShadcnTextFieldVariant.Default,
     style: Style = Style.Empty,
     enabled: Boolean = true,
     isError: Boolean = false
@@ -139,7 +302,7 @@ fun UiDslScope.awakeShadcnTextField(
     value = value,
     placeholder = placeholder,
     modifier = modifier,
-    style = awakeShadcnFieldStyle(theme, style),
+    style = awakeShadcnFieldStyle(theme, variant, style),
     enabled = enabled,
     isError = isError
 )
