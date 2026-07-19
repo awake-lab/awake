@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.TextEditAction
 
 private const val TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS = 1f
@@ -14,8 +13,7 @@ private const val TEXT_FIELD_CARET_WIDTH_PX = 1.5f
  * blink phase live in [WidgetState], keyed on [id], the same way a dropdown's expanded flag
  * does. No selection, no multi-line, no clipboard yet -- the smallest version that lets a
  * user actually type and edit a value, not a mockup of one; those are real gaps to fill in
- * later, not corners silently cut and hoped nobody notices (see [Input.pushTypedText]/
- * [Input.consumeEditActions] for what a platform bridge needs to feed this).
+ * later, not corners silently cut and hoped nobody notices.
  */
 fun UiScope.textField(
     id: String,
@@ -67,7 +65,7 @@ fun UiScope.textField(
     var nextValue = value
     if (focused && resolvedFont != null) {
         val clickIndex = if (interaction.clicked || (context.pointerDownEdge() && interaction.hovered)) {
-            indexForPointerX(value, resolvedFont, glyphPx, contentSlot.x, Input.pointerX)
+            indexForPointerX(value, resolvedFont, glyphPx, contentSlot.x, context.inputSnapshot.pointerX)
         } else {
             null
         }
@@ -75,11 +73,8 @@ fun UiScope.textField(
             cursor = clickIndex
         }
 
-        // Edit actions (cursor moves, deletes) before the newly typed text -- otherwise
-        // "ArrowLeft then type" would insert at the pre-move cursor, since both queues are
-        // drained independently and typed text has no ordering relative to edit actions
-        // within the same frame.
-        Input.consumeEditActions().forEach { action ->
+        // Edit actions (cursor moves, deletes) before the newly typed text
+        context.inputSnapshot.editActions.forEach { action ->
             when (action) {
                 TextEditAction.Backspace -> if (cursor > 0) {
                     nextValue = nextValue.substring(0, cursor - 1) + nextValue.substring(cursor)
@@ -95,7 +90,7 @@ fun UiScope.textField(
                 TextEditAction.Enter -> context.clearFocusIfMatches(id)
             }
         }
-        val typed = Input.consumeTypedText()
+        val typed = context.inputSnapshot.typedText
         if (typed.isNotEmpty()) {
             nextValue = nextValue.substring(0, cursor) + typed + nextValue.substring(cursor)
             cursor += typed.length

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.core.input.Input
 
 data class UiScrollPanelResult(
     val slot: UiSlot,
@@ -100,7 +99,7 @@ fun UiScope.scrollPanel(
         context.onOverScrollable()
         
         if (state.canScroll) {
-            val scrollDelta = Input.scrollDeltaY
+            val scrollDelta = context.inputSnapshot.scrollDeltaY
             if (scrollDelta != 0f) {
                 state.scrollBy(-scrollDelta * scrollSpeed)
                 // Report that this delta was used so others don't also use it.

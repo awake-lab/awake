@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.core.input.Input
 
 data class UiPopupSize(
     val width: Float,
@@ -109,7 +108,7 @@ fun UiScope.popup(
     }
 
     val dismissed = properties.dismissOnClickOutside &&
-        Input.pointerDown &&
+        context.pointerDown() &&
         !hitTest(anchorSlot) &&
         !hitTest(popupSlot)
 

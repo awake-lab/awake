@@ -38,27 +38,26 @@ val DefaultGlfwGameplayKeys: Map<Int, Key> = linkedMapOf(
  */
 fun pollGlfwInput(
     window: Long,
+    input: Input,
     keys: Map<Int, Key> = DefaultGlfwGameplayKeys
-): Unit = pollGlfwInput(glfwWindowInput(window), keys)
+): Unit = pollGlfwInput(glfwWindowInput(window), input, keys)
 
 /** Testable core: takes the [GlfwWindowInput] seam instead of a raw window handle, so a
  * desktopTest can fake key/pointer/scroll state and assert the resulting [Input] calls. */
 internal fun pollGlfwInput(
     reader: GlfwWindowInput,
+    input: Input,
     keys: Map<Int, Key> = DefaultGlfwGameplayKeys
 ) {
-    // Clear transient frame state before polling new hardware events
-    Input.clearFrameInput()
-
     keys.forEach { (glfwKey, key) ->
-        Input.setKeyDown(key, reader.isKeyDown(glfwKey))
+        input.setKeyDown(key, reader.isKeyDown(glfwKey))
     }
 
-    Input.setPointer(
+    input.setPointer(
         down = reader.isMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT),
         x = reader.cursorX().toFloat() * reader.framebufferScaleX(),
         y = reader.cursorY().toFloat() * reader.framebufferScaleY()
     )
-    // Clear and populate the frame's stable scroll delta
-    Input.scrollDeltaY = reader.consumeScrollDeltaY().toFloat()
+    // Accumulate the hardware delta until the runtime snapshots it.
+    input.scrollDeltaY += reader.consumeScrollDeltaY().toFloat()
 }

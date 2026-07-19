@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlin.math.max
 
@@ -11,12 +12,6 @@ import kotlin.math.max
  * retained widget tree, no ECS entities), deliberately not declarative/Compose-style (no
  * composer/recomposer needed for this small a widget set) and not backed by [io.github
  * .ronjunevaldoz.awake.ecs.World] (widgets have no persistent gameplay state).
- *
- * Usage: call [beginFrame] once per real frame (not fixed-timestep -- see
- * `VulkanGameApplication.onRender`/`WebGpuGameApplication.onRender`), then get a [UiScope]
- * from [column]/[absolute] and call widget functions (`button`/`toggle`/etc, defined as
- * extension functions on [UiScope]) in any order, then [endFrame] to collect
- * this frame's [UiDrawPrimitive]s for the renderer.
  *
  * Ids are caller-supplied stable strings (e.g. `"debug-toggle"`) -- no auto-disambiguation
  * (`##` suffixes) yet, a known simplification for this widget count.
@@ -43,7 +38,15 @@ class UiContext private constructor(
     private var isOverScrollableThisFrame = false
     private var isScrollConsumedThisFrame = false
 
-    fun beginFrame(screenWidth: Float, screenHeight: Float, deltaSeconds: Float = 1f / 60f) {
+    // Frame-local input state
+    private lateinit var frameInputSnapshot: InputSnapshot
+
+    fun beginFrame(
+        screenWidth: Float,
+        screenHeight: Float,
+        inputSnapshot: InputSnapshot,
+        deltaSeconds: Float = 1f / 60f
+    ) {
         primitives.clear()
         overlayPrimitives.clear()
         semanticNodes.clear()
@@ -52,14 +55,14 @@ class UiContext private constructor(
         frameDeltaSeconds = deltaSeconds.coerceAtLeast(0f)
         measuredMaxRight = 0f
         measuredMaxBottom = 0f
-        pointerDownEdgeThisFrame = Input.pointerDown && !pointerDownLastFrame
+        pointerDownEdgeThisFrame = inputSnapshot.pointerDown && !pointerDownLastFrame
         focusClaimedThisFrame = false
         isOverScrollableThisFrame = false
         isScrollConsumedThisFrame = false
+        frameInputSnapshot = inputSnapshot
     }
 
-
-    /** Reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
+    /** reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
     fun column(
         x: Float,
         y: Float,
@@ -164,20 +167,16 @@ class UiContext private constructor(
     fun inputResult(): UiInputResult = UiInputResult(
         isCaptured = activeId != null,
         isOverScrollable = isOverScrollableThisFrame,
-        isScrollConsumed = isScrollConsumedThisFrame
+        isScrollConsumed = isScrollConsumedThisFrame,
+        isTextInputFocused = focusedId != null
     )
 
-    /** Collects this frame's [UiDrawPrimitive]s for the renderer. Always painted after
-     * regular primitives, regardless of which widget called [UiScope.emit] vs
-     * [UiScope.emitOverlay] or in what order. This is the structural fix for dropdown
-     * option lists overlapping sibling widgets: the option rows always go through
-     * [UiScope.emitOverlay]. */
+    /** Collects this frame's [UiDrawPrimitive]s for the renderer. */
     fun endFrame(): List<UiDrawPrimitive> {
         if (pointerDownEdgeThisFrame && !focusClaimedThisFrame) {
             focusedId = null
         }
-        Input.textInputFocused = focusedId != null
-        pointerDownLastFrame = Input.pointerDown
+        pointerDownLastFrame = frameInputSnapshot.pointerDown
         return primitives + overlayPrimitives
     }
 
@@ -202,18 +201,18 @@ class UiContext private constructor(
     // part of the widget-authoring surface -- that's UiScope itself.
 
     internal fun hitTestInternal(slot: UiSlot): Boolean =
-        !measuring && Input.pointerX in slot.x..(slot.x + slot.width) && Input.pointerY in slot.y..(slot.y + slot.height)
+        !measuring && frameInputSnapshot.pointerX in slot.x..(slot.x + slot.width) && frameInputSnapshot.pointerY in slot.y..(slot.y + slot.height)
 
     internal fun isActiveInternal(id: String): Boolean = activeId == id
 
     internal fun tryClaimActiveInternal(id: String, hovered: Boolean) {
         if (measuring) return
-        if (hovered && Input.pointerDown && activeId == null) activeId = id
+        if (hovered && frameInputSnapshot.pointerDown && activeId == null) activeId = id
     }
 
     internal fun releaseActiveIfMatchesInternal(id: String) {
         if (measuring) return
-        if (!Input.pointerDown && activeId == id) activeId = null
+        if (!frameInputSnapshot.pointerDown && activeId == id) activeId = null
     }
 
     /** Whether a fresh pointer-down happened this frame (down now, wasn't down last frame) --
@@ -312,6 +311,15 @@ class UiContext private constructor(
         measureContext.beginFrame(
             screenWidth = outerSlot.width.coerceAtLeast(1f),
             screenHeight = outerSlot.height,
+            inputSnapshot = InputSnapshot(
+                pointerX = -1f,
+                pointerY = -1f,
+                pointerDown = false,
+                scrollDeltaY = 0f,
+                keysDown = emptySet(),
+                typedText = "",
+                editActions = emptyList()
+            ),
             deltaSeconds = 0f
         )
         val measureScope = measureContext.column(
@@ -328,6 +336,12 @@ class UiContext private constructor(
             height = measureContext.measuredMaxBottom
         )
     }
+
+    val inputSnapshot: InputSnapshot get() = frameInputSnapshot
+
+    fun pointerX(): Float = frameInputSnapshot.pointerX
+    fun pointerY(): Float = frameInputSnapshot.pointerY
+    fun pointerDown(): Boolean = frameInputSnapshot.pointerDown
 }
 
 data class UiMeasuredContent(
@@ -344,7 +358,9 @@ data class UiInputResult(
     /** Whether the pointer is currently hovering over a scrollable region. */
     val isOverScrollable: Boolean = false,
     /** Whether the scroll delta was actually used by a UI widget this frame. */
-    val isScrollConsumed: Boolean = false
+    val isScrollConsumed: Boolean = false,
+    /** Whether a text-input widget has keyboard focus this frame. */
+    val isTextInputFocused: Boolean = false
 )
 
 /** Pure value-from-pointer-position math for the built-in `slider`, pulled out to a

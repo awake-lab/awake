@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.vulkan.application
 
 import io.github.ronjunevaldoz.awake.core.application.DesktopGameLoop
+import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.ui.UiDensity
@@ -21,7 +22,7 @@ private const val GLFW_NO_API = 0
 fun runVulkanDesktopGame(
     game: AwakeGame,
     applicationFactory: (AwakeGame) -> VulkanGameApplication,
-    pollInput: (window: Long) -> Unit = ::pollGlfwInput,
+    pollInput: (window: Long, input: Input) -> Unit = ::pollGlfwInput,
     beforeFrame: () -> Unit = {},
     afterLoop: () -> Unit = {}
 ) {
@@ -37,7 +38,7 @@ fun runVulkanDesktopGame(
 fun runVulkanDesktopGame(
     game: AwakeGame,
     application: VulkanGameApplication,
-    pollInput: (window: Long) -> Unit = ::pollGlfwInput,
+    pollInput: (window: Long, input: Input) -> Unit = ::pollGlfwInput,
     beforeFrame: () -> Unit = {},
     afterLoop: () -> Unit = {}
 ) {
@@ -60,8 +61,8 @@ fun runVulkanDesktopGame(
         application.create(window)
         while (!VulkanWindow.glfwWindowShouldClose(window)) {
             VulkanWindow.glfwPollEvents()
-            pollInput(window)
-            pollGlfwTextInput(window)
+            pollInput(window, application.input)
+            pollGlfwTextInput(window, application.input)
             syncUiDensity(window)
             beforeFrame()
             DesktopGameLoop.startLoop { deltaTime ->

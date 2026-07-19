@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
 import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
@@ -32,6 +33,7 @@ class GameUiRuntime internal constructor(
     private val spec: GameUiSpec
 ) : GameServiceLookup by services {
     val uiContext = UiContext()
+    val input = Input()
 
     /** Settable so a game can swap fonts at runtime (e.g. a bitmap/true-font toggle) --
      * reassign to a stable, memoized [UiFont] instance rather than constructing a new one
@@ -54,11 +56,16 @@ class GameUiRuntime internal constructor(
         if (spec.overlays.isEmpty()) {
             return
         }
-        uiContext.beginFrame(viewportWidth, viewportHeight, deltaSeconds)
+        val inputSnapshot = input.snapshot()
+        uiContext.beginFrame(viewportWidth, viewportHeight, inputSnapshot, deltaSeconds)
         spec.overlays.forEach { overlay ->
             overlay(this, viewportWidth, viewportHeight)
         }
+        val uiResult = uiContext.inputResult()
         renderer.drawUi(uiContext.endFrame(), font)
+
+        // Sync focused state back to hardware for OS bridge
+        input.textInputFocused = uiResult.isTextInputFocused
     }
 
     fun dispose() {

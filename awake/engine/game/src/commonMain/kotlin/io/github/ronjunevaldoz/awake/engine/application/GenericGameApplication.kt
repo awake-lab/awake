@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.engine.application
 
 import io.github.ronjunevaldoz.awake.core.graphics.Application
+import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +28,8 @@ abstract class GenericGameApplication(
     protected val vertexStride: Int,
     private val game: Game
 ) : Application {
+    val input = Input()
+
     /** Same "create() stays synchronous, launch internally" reasoning the original
      * `VulkanApplication`/`WebGpuApplication` used -- [update] is a no-op until
      * [createBackendResources] (and [Game.ready]) finish. */

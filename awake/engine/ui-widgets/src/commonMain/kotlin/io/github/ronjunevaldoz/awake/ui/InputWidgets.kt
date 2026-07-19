@@ -28,8 +28,9 @@ fun UiScope.slider(
     )
     val hovered = hitTest(slot)
     tryClaimActive(id, hovered)
-    val dragging = isActive(id) && Input.pointerDown
-    val newValue = if (dragging) sliderValueFromPointerX(Input.pointerX, slot.x, slot.width, min, max) else value
+    val pointerDown = context.pointerDown() // We need this in UiScope or context
+    val dragging = isActive(id) && pointerDown
+    val newValue = if (dragging) sliderValueFromPointerX(context.pointerX(), slot.x, slot.width, min, max) else value
     releaseActiveIfMatches(id)
 
     val resolved = resolveStyle(

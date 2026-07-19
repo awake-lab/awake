@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
+import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.System
@@ -17,6 +19,7 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.systems.PlayerControlSystem
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
@@ -28,12 +31,14 @@ class SceneGameRuntime internal constructor(
 ) : Game {
     private val fixedTimestepLoop = FixedTimestepLoop()
     private val transformSystem = TransformSystem()
+    private var playerControlSystem: PlayerControlSystem? = null
     private val registeredSystems = linkedMapOf<SceneSystemHandle<out System>, System>()
     private val systemNames = linkedMapOf<String, SceneSystemHandle<out System>>()
     private val namedEntities = linkedMapOf<String, Entity>()
 
     val uiContext = UiContext()
     val font: UiFont = UiFonts.default()
+    val input = Input()
     val sceneDocument: SceneDocument
         get() = spec.sceneDocument
     val sceneName: String
@@ -69,22 +74,25 @@ class SceneGameRuntime internal constructor(
             val system = registration.factory(this)
             registeredSystems[registration.handle] = system
             systemNames[registration.handle.name] = registration.handle
+            if (system is PlayerControlSystem) {
+                playerControlSystem = system
+            }
         }
         transformSystem.update(world, 0f)
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
-        // UI's own frame runs FIRST, before any gameplay system touches Input -- UI is always
-        // the visually topmost layer (drawUi composites after the 3D pass below), so it must
-        // also resolve pointer ownership first. Running it after gameplay (the previous order)
-        // meant every gate read a frame-stale value: real symptom was the 3D camera's
-        // pinch-zoom intermittently stealing scroll input a scrollPanel should have owned,
-        // because the gameplay update this tick always saw last frame's hover state, never
-        // this one. Only the CPU-side computation moves -- uiPrimitives is just data, so the
-        // actual GPU submission order (3D draw() then drawUi()) is unchanged below.
-        uiContext.beginFrame(viewportWidth, viewportHeight, delta)
+        // Capture a stable hardware snapshot for the entire frame
+        val inputSnapshot = input.snapshot()
+
+        // UI Pass (uses snapshot)
+        uiContext.beginFrame(viewportWidth, viewportHeight, inputSnapshot, delta)
         spec.overlayBlock(this, viewportWidth, viewportHeight)
         val uiPrimitives = uiContext.endFrame()
+        val uiResult = uiContext.inputResult()
+
+        // Update intent (this needs the snapshot)
+        playerControlSystem?.update(world, delta, inputSnapshot)
 
         fixedTimestepLoop.advance(
             frameDelta = delta,
@@ -95,6 +103,9 @@ class SceneGameRuntime internal constructor(
             }
         )
         renderer.drawUi(uiPrimitives, font)
+        
+        // Sync focused state back to hardware for OS bridge
+        input.textInputFocused = uiResult.isTextInputFocused
     }
 
     override fun dispose() {

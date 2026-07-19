@@ -71,23 +71,23 @@ internal fun resetGlfwTextInputRepeatStateForTest() {
  * Pure polling (matches [pollGlfwInput]'s style, no GLFW char/key callbacks): tracks rising
  * edges plus a simple hold-to-repeat cadence per key.
  */
-fun pollGlfwTextInput(window: Long, deltaSeconds: Double = 1.0 / 60.0): Unit =
-    pollGlfwTextInput(glfwWindowInput(window), deltaSeconds)
+fun pollGlfwTextInput(window: Long, input: Input, deltaSeconds: Double = 1.0 / 60.0): Unit =
+    pollGlfwTextInput(glfwWindowInput(window), input, deltaSeconds)
 
 /** Testable core: takes the [GlfwWindowInput] seam instead of a raw window handle, so a
  * desktopTest can fake key-hold state across frames and assert the resulting
  * [Input.pushTypedText]/[Input.pushEditAction] calls, including shift and hold-to-repeat. */
-internal fun pollGlfwTextInput(reader: GlfwWindowInput, deltaSeconds: Double = 1.0 / 60.0) {
+internal fun pollGlfwTextInput(reader: GlfwWindowInput, input: Input, deltaSeconds: Double = 1.0 / 60.0) {
     val shiftDown = reader.isKeyDown(GLFW_KEY_LEFT_SHIFT) || reader.isKeyDown(GLFW_KEY_RIGHT_SHIFT)
 
     PrintableKeys.forEach { (glfwKey, char) ->
         pollKey(reader, glfwKey, deltaSeconds) {
             val shifted = if (shiftDown && char.isLetter()) char.uppercaseChar() else char
-            Input.pushTypedText(shifted.toString())
+            input.pushTypedText(shifted.toString())
         }
     }
     EditKeys.forEach { (glfwKey, action) ->
-        pollKey(reader, glfwKey, deltaSeconds) { Input.pushEditAction(action) }
+        pollKey(reader, glfwKey, deltaSeconds) { input.pushEditAction(action) }
     }
 }
 
