@@ -177,13 +177,6 @@ class UiContext private constructor(
             focusedId = null
         }
         Input.textInputFocused = focusedId != null
-        // Nothing is focused to receive it -- discard rather than let it sit in the shared
-        // queue until some unrelated field happens to gain focus later and gets a stale,
-        // unrelated keystroke dumped into it on its very first focused frame.
-        if (focusedId == null) {
-            Input.consumeTypedText()
-            Input.consumeEditActions()
-        }
         pointerDownLastFrame = Input.pointerDown
         return primitives + overlayPrimitives
     }

@@ -47,6 +47,9 @@ internal fun pollGlfwInput(
     reader: GlfwWindowInput,
     keys: Map<Int, Key> = DefaultGlfwGameplayKeys
 ) {
+    // Clear transient frame state before polling new hardware events
+    Input.clearFrameInput()
+
     keys.forEach { (glfwKey, key) ->
         Input.setKeyDown(key, reader.isKeyDown(glfwKey))
     }

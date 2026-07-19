@@ -76,6 +76,14 @@ object Input {
     @Volatile
     var scrollDeltaY: Float = 0f
 
+    /** Resets transient frame state (text buffers, scroll deltas).
+     * Called by platform input bridges at the start of a window poll. */
+    fun clearFrameInput() {
+        scrollDeltaY = 0f
+        typedText.clear()
+        pendingEditActions.clear()
+    }
+
     fun isKeyDown(key: Key): Boolean = keysDown.contains(key)
 
     private val typedText = StringBuilder()
