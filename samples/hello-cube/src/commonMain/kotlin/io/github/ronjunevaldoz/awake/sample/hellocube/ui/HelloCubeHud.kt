@@ -18,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.supportingLines
 import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeOverlayModel
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
+import io.github.ronjunevaldoz.awake.ui.panel
 import io.github.ronjunevaldoz.awake.ui.toDimension
 
 internal fun GameUiRuntime.drawHelloCubeOverlay(

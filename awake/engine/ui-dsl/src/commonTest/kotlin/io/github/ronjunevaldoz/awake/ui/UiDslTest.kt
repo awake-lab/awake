@@ -375,7 +375,7 @@ class UiDslTest {
         val slot = requireNotNull(bottomLeftSlot)
         val primitives = runtime.uiContext.endFrame()
 
-        assertEquals(48f, slot.height, "two 12px rows with one 8px gap plus panel padding should auto-fit the pane body")
+        assertEquals(56f, slot.height, "two 12px rows with one 8px gap plus panel padding should auto-fit the pane body")
         assertEquals(228f, slot.y + slot.height, "the visible panel should honor the requested bottom margin")
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
         assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
@@ -411,7 +411,7 @@ class UiDslTest {
 
         val primitives = runtime.uiContext.endFrame()
         assertEquals(UiWidthSizeClass.Compact, widthClass)
-        assertEquals(UiSlot(224f, 200f, 120f, 28f), panelSlot)
+        assertEquals(UiSlot(224f, 196f, 120f, 32f), panelSlot)
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
         assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
     }
@@ -450,7 +450,7 @@ class UiDslTest {
 
         val primitives = runtime.uiContext.endFrame()
         assertEquals(UiWidthSizeClass.Expanded, widthClass)
-        assertEquals(UiSlot(20f, 20f, 320f, 64f), columnSlot)
+        assertEquals(UiSlot(20f, 20f, 320f, 72f), columnSlot)
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
         assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
     }

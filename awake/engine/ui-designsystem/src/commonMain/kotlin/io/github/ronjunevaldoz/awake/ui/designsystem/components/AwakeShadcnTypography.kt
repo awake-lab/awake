@@ -2,15 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.supportingText
+import io.github.ronjunevaldoz.awake.ui.text
 
-fun UiColumnDslScope.awakeShadcnSectionTitle(
+/** [sectionTitle] with Shadcn tokens. */
+fun ColumnScope.awakeShadcnSectionTitle(
     title: String,
     style: Style = Style.Empty
 ): UiSlot = sectionTitle(
@@ -22,7 +24,8 @@ fun UiColumnDslScope.awakeShadcnSectionTitle(
     } then style
 )
 
-fun UiColumnDslScope.awakeShadcnHeadline(
+/** Larger headline text using Shadcn tokens. */
+fun ColumnScope.awakeShadcnHeadline(
     label: String,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
@@ -36,7 +39,8 @@ fun UiColumnDslScope.awakeShadcnHeadline(
     } then style
 )
 
-fun UiColumnDslScope.awakeShadcnBodyText(
+/** Standard body text using Shadcn tokens. */
+fun ColumnScope.awakeShadcnBodyText(
     label: String,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
@@ -52,7 +56,8 @@ fun UiColumnDslScope.awakeShadcnBodyText(
     maxLines = maxLines
 )
 
-fun UiColumnDslScope.awakeShadcnSupportingText(
+/** Muted caption/supporting text using Shadcn tokens. */
+fun ColumnScope.awakeShadcnSupportingText(
     label: String,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
@@ -68,15 +73,17 @@ fun UiColumnDslScope.awakeShadcnSupportingText(
     maxLines = maxLines
 )
 
-fun UiColumnDslScope.awakeShadcnSectionHeader(
-    title: UiColumnDslScope.() -> Unit,
-    description: (UiColumnDslScope.() -> Unit)? = null
+/** Common section header layout (title + optional description). */
+fun ColumnScope.awakeShadcnSectionHeader(
+    title: ColumnScope.() -> Unit,
+    description: (ColumnScope.() -> Unit)? = null
 ) {
     title()
     description?.invoke(this)
 }
 
-fun UiColumnDslScope.awakeShadcnSectionHeader(
+/** Convenience [awakeShadcnSectionHeader] for plain string labels. */
+fun ColumnScope.awakeShadcnSectionHeader(
     title: String,
     description: String? = null
 ): Unit = awakeShadcnSectionHeader(

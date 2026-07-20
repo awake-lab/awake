@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.UiTextWrap
@@ -24,11 +24,13 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.spacer
 import io.github.ronjunevaldoz.awake.ui.supportingLines
 import io.github.ronjunevaldoz.awake.ui.textLines
 import io.github.ronjunevaldoz.awake.ui.width
 
-internal fun UiColumnDslScope.drawUiShowcaseSidebar(compact: Boolean) {
+internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
     val selectedPage = context.rememberStateValue("ui-showcase-page", "entry") {
         ShowcasePages.first().id
     }
@@ -49,7 +51,7 @@ internal fun UiColumnDslScope.drawUiShowcaseSidebar(compact: Boolean) {
     )
 }
 
-internal fun UiColumnDslScope.drawUiShowcasePageContent(
+internal fun ColumnScope.drawUiShowcasePageContent(
     state: UiShowcaseRuntimeState,
     showInlineMenu: Boolean,
 ) {
@@ -98,14 +100,14 @@ internal fun UiColumnDslScope.drawUiShowcasePageContent(
     }
 }
 
-internal fun UiColumnDslScope.renderUiShowcasePagePreview(
+internal fun ColumnScope.renderUiShowcasePagePreview(
     page: ShowcasePage,
     state: UiShowcaseRuntimeState,
 ) {
     page.renderPreview(this, state)
 }
 
-private fun UiColumnDslScope.drawUiShowcaseSidebarMenu(
+private fun ColumnScope.drawUiShowcaseSidebarMenu(
     compact: Boolean,
     selectedPageId: String,
     onSelect: (ShowcasePage) -> Unit,
@@ -142,7 +144,7 @@ private fun UiColumnDslScope.drawUiShowcaseSidebarMenu(
     }
 }
 
-private fun UiColumnDslScope.drawUiShowcasePreviewCodeSection(
+private fun ColumnScope.drawUiShowcasePreviewCodeSection(
     page: ShowcasePage,
     state: UiShowcaseRuntimeState,
 ) {
@@ -180,7 +182,7 @@ private fun UiColumnDslScope.drawUiShowcasePreviewCodeSection(
     }
 }
 
-private fun UiColumnDslScope.drawUiShowcaseCodeBlock(code: String) {
+private fun ColumnScope.drawUiShowcaseCodeBlock(code: String) {
     textLines(
         lines = code.trimIndent().lines(),
         style = Style {

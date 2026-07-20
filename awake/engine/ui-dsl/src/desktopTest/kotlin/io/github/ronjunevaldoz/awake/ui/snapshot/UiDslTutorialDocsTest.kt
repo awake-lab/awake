@@ -18,16 +18,22 @@ import io.github.ronjunevaldoz.awake.ui.propertySlider
 import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.toggle
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import io.github.ronjunevaldoz.awake.ui.tooltip
 import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.spacer
+import io.github.ronjunevaldoz.awake.ui.propertyCheckbox
 import kotlin.test.Test
 
-/** Builds a one-off [InputSnapshot] for a test frame -- [Input] is a per-session instance
+/** Builds a one-off [UiInputState] for a test frame -- [Input] is a per-session instance
  * now (no longer a global object), so tests construct their own throwaway one instead of
  * writing into shared static state. */
-private fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false): InputSnapshot {
+private fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false): UiInputState {
     val input = Input()
     input.setPointer(down, x, y)
-    return input.updateSnapshot()
+    return input.updateSnapshot().toUiInputState()
 }
 
 class UiDslTutorialDocsTest {

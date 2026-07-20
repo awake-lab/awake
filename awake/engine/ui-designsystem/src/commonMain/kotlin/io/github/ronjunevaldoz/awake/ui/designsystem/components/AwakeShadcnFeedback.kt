@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnAlertVariant
@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.panel
  * yet (a real gap, not a silently-cut corner: shadcn's own Alert doesn't have one either,
  * that's ButtonGroup/actions composed alongside it by the caller).
  */
-fun UiColumnDslScope.awakeShadcnAlert(
+fun ColumnScope.awakeShadcnAlert(
     id: String,
     title: String,
     description: String? = null,

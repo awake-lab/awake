@@ -87,7 +87,7 @@ class GameUiRuntime internal constructor(
         theme: UiTheme = this.theme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
-        block: UiColumnDslScope.() -> Unit
+        block: ColumnScope.() -> Unit
     ) {
         uiContext.ui(
             x = x,
@@ -107,7 +107,7 @@ class GameUiRuntime internal constructor(
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
-        block: UiColumnDslScope.() -> Unit
+        block: ColumnScope.() -> Unit
     ) {
         uiContext.ui(
             slot = slot,
@@ -125,7 +125,7 @@ class GameUiRuntime internal constructor(
         y: Float,
         theme: UiTheme = this.theme,
         textScale: Float = 1f,
-        block: UiAbsoluteDslScope.() -> Unit
+        block: AbsoluteScope.() -> Unit
     ) {
         uiContext.uiAbsolute(
             x = x,
@@ -142,16 +142,14 @@ class GameUiRuntime internal constructor(
         theme: UiTheme = this.theme,
         textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
-        block: UiAbsoluteDslScope.() -> Unit
+        block: AbsoluteScope.() -> Unit
     ) {
-        UiAbsoluteDslScope(
-            uiContext.absolute(
-                slot = slot,
-                font = font,
-                theme = theme,
-                textScale = textScale,
-                insets = insets
-            )
+        uiContext.absolute(
+            slot = slot,
+            font = font,
+            theme = theme,
+            textScale = textScale,
+            insets = insets
         ).block()
     }
 }

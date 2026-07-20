@@ -12,14 +12,14 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/** Builds a one-off [InputSnapshot] for a test frame -- [Input] is a per-session instance
+/** Builds a one-off [UiInputState] for a test frame -- [Input] is a per-session instance
  * now (no longer a global object), so tests construct their own throwaway one instead of
  * writing into shared static state. */
-private fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): InputSnapshot {
+private fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): UiInputState {
     val input = Input()
     input.setPointer(down, x, y)
     input.scrollDeltaY = scrollDeltaY
-    return input.updateSnapshot()
+    return input.updateSnapshot().toUiInputState()
 }
 
 class UiPopupCompositionsTest {

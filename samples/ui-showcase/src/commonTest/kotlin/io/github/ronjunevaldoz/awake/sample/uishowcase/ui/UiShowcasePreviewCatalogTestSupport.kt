@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
@@ -11,7 +10,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
@@ -44,6 +43,11 @@ import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.tooltip
 import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.spacer
+import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.scrollPanel
 
 internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseOverviewPreview,
@@ -402,7 +406,7 @@ private fun renderUiShowcaseCardPreviewFrame(
     title: String,
     summary: String,
     focusedNodeId: String? = null,
-    content: UiColumnDslScope.() -> Unit
+    content: ColumnScope.() -> Unit
 ): AwakeUiPreviewFrame {
     val previewScale = metadata.reportScale.coerceAtLeast(1)
     val state = UiShowcaseRuntimeState()
@@ -453,7 +457,7 @@ private fun renderUiShowcaseCardPreviewFrame(
     }
 }
 
-private fun UiColumnDslScope.drawUiShowcaseButtonMatrixContent() {
+private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
     row(height = 36f.dp, gap = 10f) {
         awakeShadcnButton(
             id = "showcase-matrix-button-primary",
@@ -497,7 +501,7 @@ private fun UiColumnDslScope.drawUiShowcaseButtonMatrixContent() {
     awakeShadcnSupportingText("This matrix is the quick read for control height, horizontal padding, and long-label fit.")
 }
 
-private fun UiColumnDslScope.drawUiShowcaseFieldMatrixContent() {
+private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
     row(height = 36f.dp, gap = 12f) {
         awakeShadcnTextField(
             id = "showcase-matrix-field-empty",
@@ -555,7 +559,7 @@ private fun UiColumnDslScope.drawUiShowcaseFieldMatrixContent() {
     }
 }
 
-private fun UiColumnDslScope.drawUiShowcaseSliderMatrixContent() {
+private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
     awakeShadcnSupportingText("Sliders catch subtle spacing bugs quickly because thumb, fill, and label alignment drift together.")
     spacer(UiModifier().height(8f.dp))
     awakeShadcnSlider(
@@ -584,7 +588,7 @@ private fun UiColumnDslScope.drawUiShowcaseSliderMatrixContent() {
     )
 }
 
-private fun UiColumnDslScope.drawUiShowcaseDropdownOpenContent() {
+private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
     awakeShadcnSupportingText(
         "This preview intentionally renders the menu in its expanded state so row spacing and popover chrome are reviewable in docs."
     )
@@ -616,7 +620,7 @@ private fun UiColumnDslScope.drawUiShowcaseDropdownOpenContent() {
     }
 }
 
-private fun UiColumnDslScope.drawUiShowcaseTooltipOpenContent() {
+private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
     awakeShadcnSupportingText("A tooltip is a tiny overlay, but it still needs proper container chrome, spacing, and wrap behavior.")
     spacer(UiModifier().height(8f.dp))
     row(height = 36f.dp, gap = 12f) {
@@ -629,7 +633,7 @@ private fun UiColumnDslScope.drawUiShowcaseTooltipOpenContent() {
         tooltip(
             anchorSlot = trigger.slot,
             visible = true,
-            width = Dimension.Fixed(260f.px),
+            width = Dimension.Fixed(260f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
         ) {
             text(
@@ -642,13 +646,13 @@ private fun UiColumnDslScope.drawUiShowcaseTooltipOpenContent() {
         awakeShadcnButton(
             id = "showcase-matrix-tooltip-secondary",
             label = "Reference",
-            modifier = UiModifier().width(120f.px).height(36f.dp),
+            modifier = UiModifier().width(120f.dp).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Secondary
         )
     }
 }
 
-private fun UiColumnDslScope.drawUiShowcaseAlertDialogContent() {
+private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
     awakeShadcnSupportingText(
         "The dialog is rendered open on purpose so title wrapping, message rhythm, scrim color, and action widths can be checked without live interaction."
     )
@@ -669,7 +673,7 @@ private fun UiColumnDslScope.drawUiShowcaseAlertDialogContent() {
     )
 }
 
-private fun UiColumnDslScope.drawUiShowcaseScrollPanelContent() {
+private fun ColumnScope.drawUiShowcaseScrollPanelContent() {
     val scrollState = UiScrollState(initialOffsetY = 34f)
     awakeShadcnSupportingText("This static proof starts partially scrolled so viewport clipping and the scrollbar thumb are visible immediately.")
     spacer(UiModifier().height(8f.dp))

@@ -116,7 +116,7 @@ class AbsoluteScope internal constructor(
     // resolve against on this scope, so it resolves to 0f -- the same literal passthrough
     // behavior, not a new error mode.
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot =
-        UiSlot(x, y, width.resolve { 0f }, height.resolve { 0f }).also(context::recordMeasuredSlot)
+        UiSlot(x, y, width.resolve { 4096f }, height.resolve { 4096f }).also(context::recordMeasuredSlot)
 }
 
 /**

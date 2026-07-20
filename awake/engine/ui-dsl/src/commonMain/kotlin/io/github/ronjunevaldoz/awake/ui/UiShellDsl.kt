@@ -22,17 +22,15 @@ fun GameUiRuntime.overlayBox(
     theme: UiTheme = this.theme,
     textScale: Float = 1f,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
-    block: UiBoxDslScope.(constraints: UiBoxConstraints) -> Unit
+    block: BoxScope.(constraints: UiBoxConstraints) -> Unit
 ) {
     val rootSlot = UiSlot(0f, 0f, viewportWidth, viewportHeight)
-    UiBoxDslScope(
-        uiContext.box(
-            slot = rootSlot,
-            font = font,
-            theme = theme,
-            textScale = textScale,
-            contentAlignment = contentAlignment
-        )
+    uiContext.box(
+        slot = rootSlot,
+        font = font,
+        theme = theme,
+        textScale = textScale,
+        contentAlignment = contentAlignment
     ).block(
         UiBoxConstraints(
             maxWidthPx = viewportWidth,
@@ -102,7 +100,7 @@ class OverlayShellScope internal constructor(
         borderWidth: Dp = 1f.dp,
         style: Style = Style.Empty,
         clipContent: Boolean = false,
-        content: UiColumnDslScope.(slot: UiSlot) -> Unit
+        content: ColumnScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val outerSlot = measuredPaneSlot(
             anchor = anchor,
@@ -144,7 +142,7 @@ class OverlayShellScope internal constructor(
         borderWidth: Dp = 1f.dp,
         style: Style = Style.Empty,
         clipContent: Boolean = false,
-        content: UiColumnDslScope.(slot: UiSlot) -> Unit
+        content: ColumnScope.(slot: UiSlot) -> Unit
     ): UiSlot = pane(anchor, Dimension.Fixed(maxWidth), margin, theme, gap, textScale, insets, radius, borderWidth, style, clipContent, content)
 
     private fun measuredPaneSlot(
@@ -158,7 +156,7 @@ class OverlayShellScope internal constructor(
         radius: Dp,
         borderWidth: Dp,
         style: Style,
-        content: UiColumnDslScope.(slot: UiSlot) -> Unit
+        content: ColumnScope.(slot: UiSlot) -> Unit
     ): UiSlot {
         val resolved = runtime.uiContext.absolute(0f, 0f, font = runtime.font, theme = theme, textScale = textScale)
             .resolveStyle(
@@ -179,10 +177,9 @@ class OverlayShellScope internal constructor(
             font = runtime.font,
             theme = theme,
             gap = gap,
-            textScale = resolved.textScale
-        ) { measureSlot ->
-            UiColumnDslScope(this).content(measureSlot)
-        }
+            textScale = resolved.textScale,
+            content = content
+        )
         val panelWidth = (measured.width + panelPaddingWidth).coerceAtMost(panelMaxWidth).coerceAtLeast(0f)
         val panelHeight = (measured.height + panelPaddingHeight).coerceAtLeast(0f)
         val panelSlot = slot(
@@ -218,7 +215,7 @@ fun GameUiRuntime.shellPane(
     borderWidth: Dp = 1f.dp,
     style: Style = Style.Empty,
     clipContent: Boolean = false,
-    content: UiColumnDslScope.(slot: UiSlot) -> Unit
+    content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     lateinit var panelSlot: UiSlot
     val panelHeight = (slot.height - insets.top.toPx() - insets.bottom.toPx()).coerceAtLeast(0f).toDimension()
@@ -242,7 +239,7 @@ fun GameUiRuntime.shellPane(
     return panelSlot
 }
 
-fun UiColumnDslScope.sectionTitle(
+fun ColumnScope.sectionTitle(
     title: String,
     style: Style = Style {
         foreground(theme.tokens.mutedForeground)
@@ -250,7 +247,7 @@ fun UiColumnDslScope.sectionTitle(
     }
 ): UiSlot = text(title, style = style)
 
-fun UiColumnDslScope.metaText(
+fun ColumnScope.metaText(
     label: String,
     modifier: UiModifier = UiModifier(),
     style: Style = Style {
@@ -266,7 +263,7 @@ fun UiColumnDslScope.metaText(
     maxLines = maxLines
 )
 
-fun UiColumnDslScope.supportingText(
+fun ColumnScope.supportingText(
     label: String,
     modifier: UiModifier = UiModifier(),
     style: Style = Style {
@@ -283,7 +280,7 @@ fun UiColumnDslScope.supportingText(
     maxLines = maxLines
 )
 
-fun UiColumnDslScope.textLines(
+fun ColumnScope.textLines(
     lines: Iterable<String>,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
@@ -303,7 +300,7 @@ fun UiColumnDslScope.textLines(
     }
 }
 
-fun UiColumnDslScope.supportingLines(
+fun ColumnScope.supportingLines(
     lines: Iterable<String>,
     modifier: UiModifier = UiModifier(),
     style: Style = Style {
@@ -321,12 +318,12 @@ fun UiColumnDslScope.supportingLines(
     )
 }
 
-fun UiColumnDslScope.propertyToggle(
+fun ColumnScope.propertyToggle(
     id: String,
     checked: Boolean,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
-    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
     var resolved = checked
     propertyRow(
@@ -343,13 +340,13 @@ fun UiColumnDslScope.propertyToggle(
     return resolved
 }
 
-fun UiColumnDslScope.propertyToggle(
+fun ColumnScope.propertyToggle(
     id: String,
     checked: Boolean,
     height: Float,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
-    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
     var resolved = checked
     propertyRow(
@@ -366,7 +363,7 @@ fun UiColumnDslScope.propertyToggle(
     return resolved
 }
 
-fun UiColumnDslScope.propertyToggle(
+fun ColumnScope.propertyToggle(
     id: String,
     label: String,
     checked: Boolean,
@@ -381,7 +378,7 @@ fun UiColumnDslScope.propertyToggle(
     text(label)
 }
 
-fun UiColumnDslScope.propertyToggle(
+fun ColumnScope.propertyToggle(
     id: String,
     label: String,
     checked: Boolean,
@@ -398,14 +395,14 @@ fun UiColumnDslScope.propertyToggle(
     text(label)
 }
 
-fun UiColumnDslScope.propertyDropdown(
+fun ColumnScope.propertyDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
     modifier: UiModifier = UiModifier(),
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
-    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Int? {
     var resolved: Int? = null
     propertyRow(
@@ -424,14 +421,14 @@ fun UiColumnDslScope.propertyDropdown(
     return resolved
 }
 
-fun UiColumnDslScope.propertyDropdown(
+fun ColumnScope.propertyDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
     height: Float,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
-    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Int? {
     var resolved: Int? = null
     propertyRow(
@@ -450,7 +447,7 @@ fun UiColumnDslScope.propertyDropdown(
     return resolved
 }
 
-fun UiColumnDslScope.propertyDropdown(
+fun ColumnScope.propertyDropdown(
     id: String,
     label: String,
     options: List<String>,
@@ -469,7 +466,7 @@ fun UiColumnDslScope.propertyDropdown(
     text(label)
 }
 
-fun UiColumnDslScope.propertyDropdown(
+fun ColumnScope.propertyDropdown(
     id: String,
     label: String,
     options: List<String>,
@@ -488,7 +485,7 @@ fun UiColumnDslScope.propertyDropdown(
     text(label)
 }
 
-fun UiColumnDslScope.propertySlider(
+fun ColumnScope.propertySlider(
     id: String,
     min: Float,
     max: Float,
@@ -496,7 +493,7 @@ fun UiColumnDslScope.propertySlider(
     modifier: UiModifier = UiModifier(),
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
-    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Float {
     var resolved = value
     propertyRow(
@@ -516,7 +513,7 @@ fun UiColumnDslScope.propertySlider(
     return resolved
 }
 
-fun UiColumnDslScope.propertySlider(
+fun ColumnScope.propertySlider(
     id: String,
     min: Float,
     max: Float,
@@ -524,7 +521,7 @@ fun UiColumnDslScope.propertySlider(
     height: Float,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
-    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Float {
     var resolved = value
     propertyRow(
@@ -544,7 +541,7 @@ fun UiColumnDslScope.propertySlider(
     return resolved
 }
 
-fun UiColumnDslScope.propertySlider(
+fun ColumnScope.propertySlider(
     id: String,
     label: String,
     min: Float,
@@ -565,7 +562,7 @@ fun UiColumnDslScope.propertySlider(
     text(label)
 }
 
-fun UiColumnDslScope.propertySlider(
+fun ColumnScope.propertySlider(
     id: String,
     label: String,
     min: Float,

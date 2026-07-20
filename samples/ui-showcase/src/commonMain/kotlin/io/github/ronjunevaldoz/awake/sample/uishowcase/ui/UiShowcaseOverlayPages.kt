@@ -4,11 +4,11 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.UiModifier
@@ -32,6 +32,10 @@ import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.tooltip
 import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.spacer
+import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.buttonSlot
 
 private val ShowcaseActionMenuItems = listOf(
     UiDropdownMenuItem(
@@ -53,7 +57,7 @@ private val ShowcaseActionMenuItems = listOf(
     )
 )
 
-internal fun UiColumnDslScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeState) {
+internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeState) {
     state.counterStore.drainEffects()
         .lastOrNull()
         ?.let { effect -> state.showcaseCounterEffectMessage = effect.toDebugLabel() }
@@ -107,7 +111,7 @@ internal fun UiColumnDslScope.drawUiShowcaseCounterPreview(state: UiShowcaseRunt
     }
 }
 
-internal fun UiColumnDslScope.drawUiShowcasePopupPreview() {
+internal fun ColumnScope.drawUiShowcasePopupPreview() {
     val actionMenuState = context.rememberPopupState("ui-showcase-action-menu")
     val deleteDialogState = context.rememberPopupState("ui-showcase-delete-dialog")
     val feedbackMessage = context.rememberStateValue("ui-showcase-popup-feedback") {
@@ -193,7 +197,7 @@ internal fun UiColumnDslScope.drawUiShowcasePopupPreview() {
     }
 }
 
-internal fun UiColumnDslScope.drawUiShowcaseTooltipPreview() {
+internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
     awakeShadcnSectionTitle("Tooltip")
     awakeShadcnSupportingText("Tooltips stay small and contextual: anchored to a trigger, wrapped inside a surfaced popup, and dismissible without changing the surrounding layout.")
     spacer(UiModifier().height(8f.dp))

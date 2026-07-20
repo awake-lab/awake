@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiTheme
@@ -21,18 +20,6 @@ private fun awakeShadcnAvatarStyle(theme: UiTheme, style: Style): Style {
 }
 
 fun UiScope.awakeShadcnAvatar(
-    initials: String,
-    modifier: UiModifier = UiModifier(),
-    diameter: Dp = 40f.dp,
-    style: Style = Style.Empty
-): Unit = avatarFallback(
-    initials = initials,
-    modifier = modifier,
-    diameter = diameter,
-    style = awakeShadcnAvatarStyle(theme, style)
-)
-
-fun UiDslScope.awakeShadcnAvatar(
     initials: String,
     modifier: UiModifier = UiModifier(),
     diameter: Dp = 40f.dp,

@@ -39,21 +39,21 @@ class UiShowcaseLayoutSignatureTest {
 }
 
 private val expectedShowcaseLayoutSignatures = mapOf(
-    "ui-showcase-overview" to 0x44612df645c45491uL,
-    "ui-showcase-reference" to 0x8aa119eaada2bffduL,
-    "ui-showcase-theming" to 0x4bc26926abb4f5fduL,
-    "ui-showcase-fonts" to 0xea0360db99b53b45uL,
-    "ui-showcase-layout" to 0xb8537cfb6ec2c94cuL,
-    "ui-showcase-slot-apis" to 0xee60c0ef52b671c4uL,
-    "ui-showcase-buttons" to 0xe322cd27ce79b44euL,
-    "ui-showcase-text-input" to 0x9d1859d8f90fc313uL,
-    "ui-showcase-popups" to 0xc2124a527e286c9auL,
-    "ui-showcase-state" to 0xc8da84b5eb581396uL,
-    "ui-showcase-button-matrix" to 0x492648f5fe43ca6auL,
-    "ui-showcase-field-matrix" to 0xc5551c72f7f6cc7buL,
-    "ui-showcase-slider-matrix" to 0x6a7662e603131b54uL,
-    "ui-showcase-dropdown-open" to 0x427858ad97504290uL,
-    "ui-showcase-tooltip-open" to 0xdde4bee2cc9f4b86uL,
-    "ui-showcase-alert-dialog" to 0x4aa15bc9c4dd0e88uL,
-    "ui-showcase-scroll-panel" to 0xc898729cfcc6f93buL
+    "ui-showcase-overview" to 0xdb73fa3ce2c0336euL,
+    "ui-showcase-reference" to 0xa3f7df2ee2ab5fc8uL,
+    "ui-showcase-theming" to 0xb062605c8a59bd8auL,
+    "ui-showcase-fonts" to 0x27e0b63ac2ca638uL,
+    "ui-showcase-layout" to 0xb3ccf472ef367febuL,
+    "ui-showcase-slot-apis" to 0x5e9bebca181ed7dfuL,
+    "ui-showcase-buttons" to 0x7951ef0c4776d215uL,
+    "ui-showcase-text-input" to 0xb05ee83c9004f900uL,
+    "ui-showcase-popups" to 0x325ecf706695c581uL,
+    "ui-showcase-state" to 0x62af572b2808b631uL,
+    "ui-showcase-button-matrix" to 0x93a68f5998cc7acbuL,
+    "ui-showcase-field-matrix" to 0x1024093ed18c54eauL,
+    "ui-showcase-slider-matrix" to 0x45c6a2e040913314uL,
+    "ui-showcase-dropdown-open" to 0x9cc95bab02b03960uL,
+    "ui-showcase-tooltip-open" to 0x8dba379989660404uL,
+    "ui-showcase-alert-dialog" to 0x6c9b815bc67de57auL,
+    "ui-showcase-scroll-panel" to 0x589e0dfc44f9479fuL
 )

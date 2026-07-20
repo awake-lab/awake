@@ -169,7 +169,8 @@ fun UiScope.textarea(
         label = if (nextValue.isEmpty()) placeholder else nextValue,
         bounds = interaction.slot,
         contentBounds = contentSlot,
-        selected = focused
+        selected = focused,
+        lineCount = layout.lines.size
     )
     return nextValue
 }
@@ -182,10 +183,6 @@ private fun UiScope.caretBlinkElapsedSeconds(id: String): Float {
 }
 
 private fun cursorToLineAndCol(layout: UiBitmapTextLayout, value: String, cursor: Int): Pair<Int, Int> {
-    var remaining = cursor
-    var lineIdx = 0
-    var charIdx = 0
-    
     // layout.lines contains the visual lines. 
     // Since trim = false, layoutBitmapText splits by \n first, then by width.
     // Each \n in the original string creates a new line in layout.lines.

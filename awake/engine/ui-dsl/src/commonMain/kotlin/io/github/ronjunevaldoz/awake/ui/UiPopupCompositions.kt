@@ -44,7 +44,7 @@ data class UiDialogProperties(
 private val DetachedPopupAnchor = UiSlot(-1f, -1f, 0f, 0f)
 private val DefaultDialogScrimColor = Color.Black.withAlpha(0.48f)
 
-fun UiDslScope.tooltip(
+fun UiScope.tooltip(
     anchorSlot: UiSlot,
     visible: Boolean,
     width: Dimension = Dimension.WrapContent,
@@ -56,7 +56,7 @@ fun UiDslScope.tooltip(
     ),
     properties: UiPopupProperties = UiPopupProperties(),
     style: Style = Style.Empty,
-    content: UiColumnDslScope.(slot: UiSlot) -> Unit
+    content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiPopupResult = popup(
     anchorSlot = anchorSlot,
     expanded = visible,
@@ -77,7 +77,7 @@ fun UiDslScope.tooltip(
     }
 }
 
-fun UiDslScope.tooltipText(
+fun UiScope.tooltipText(
     anchorSlot: UiSlot,
     visible: Boolean,
     text: String,
@@ -102,7 +102,7 @@ fun UiDslScope.tooltipText(
     )
 }
 
-fun UiDslScope.dropdownMenu(
+fun UiScope.dropdownMenu(
     id: String,
     anchorSlot: UiSlot,
     expanded: Boolean,
@@ -186,15 +186,15 @@ fun UiDslScope.dropdownMenu(
     )
 }
 
-fun UiDslScope.dialog(
+fun UiScope.dialog(
     id: String,
     expanded: Boolean,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
     properties: UiDialogProperties = UiDialogProperties(),
-    header: (UiColumnDslScope.(slot: UiSlot) -> Unit)? = null,
-    actions: (UiRowDslScope.(slot: UiSlot) -> Unit)? = null,
-    content: UiColumnDslScope.(slot: UiSlot) -> Unit
+    header: (ColumnScope.(slot: UiSlot) -> Unit)? = null,
+    actions: (RowScope.(slot: UiSlot) -> Unit)? = null,
+    content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiPopupResult {
     if (!expanded) return UiPopupResult(slot = null, dismissed = false)
 
@@ -249,7 +249,7 @@ fun UiDslScope.dialog(
     return popupResult
 }
 
-fun UiDslScope.alertDialog(
+fun UiScope.alertDialog(
     id: String,
     expanded: Boolean,
     title: String,
@@ -308,7 +308,7 @@ fun UiDslScope.alertDialog(
     return UiAlertDialogResult(popup = popup, action = action)
 }
 
-private fun UiColumnDslScope.dropdownMenuItem(
+private fun ColumnScope.dropdownMenuItem(
     id: String,
     item: UiDropdownMenuItem,
     width: Float,

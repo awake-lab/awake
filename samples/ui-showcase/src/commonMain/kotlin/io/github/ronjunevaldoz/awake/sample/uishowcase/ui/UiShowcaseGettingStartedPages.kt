@@ -4,17 +4,18 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyDropdown
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertySlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertySlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
@@ -33,8 +34,12 @@ import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.supportingLines
 import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.spacer
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.text
 
-internal fun UiColumnDslScope.drawUiShowcaseOverviewPreview() {
+internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
     awakeShadcnBadge("SHOWCASE", variant = AwakeShadcnBadgeVariant.Secondary)
     awakeShadcnBodyText("Dedicated sample route")
     awakeShadcnSupportingText("This page shell exists so the design system is judged as a product surface, not just as loose demo widgets.")
@@ -48,7 +53,7 @@ internal fun UiColumnDslScope.drawUiShowcaseOverviewPreview() {
     )
 }
 
-internal fun UiColumnDslScope.drawUiShowcaseReferenceComparisonPreview() {
+internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
     val cardWidth = 220f
     row(height = 284f.dp, gap = 12f) {
         panel(
@@ -104,7 +109,7 @@ internal fun UiColumnDslScope.drawUiShowcaseReferenceComparisonPreview() {
     }
 }
 
-internal fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState) {
+internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState) {
     awakeShadcnSectionTitle("Theme controls")
     awakeShadcnPropertyDropdown(
         id = "showcase-style-preset",
@@ -177,7 +182,7 @@ internal fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRun
     )
 
     spacer(UiModifier().height(10f.dp))
-    val previewLift = context.animateFloat(
+    val previewLift = animateFloat(
         id = "showcase-preview-lift",
         target = if (state.showcaseDangerMode) 10f else 0f,
         responsiveness = 10f
@@ -189,13 +194,13 @@ internal fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRun
         variant = AwakeShadcnSurfaceVariant.Muted,
         style = Style { shape(state.showcaseSurfaceRadius.dp) }
     ) { previewSlot ->
-        val shimmerForward = context.rememberBooleanState("showcase-preview-shimmer-direction", initial = true)
+        val shimmerForward = rememberBooleanState("showcase-preview-shimmer-direction", initial = true)
         val shimmerTarget = when {
             !state.showcaseLiveBadge -> 0f
             shimmerForward.value -> 1f
             else -> 0f
         }
-        val shimmerPhase = context.animateFloat(
+        val shimmerPhase = animateFloat(
             id = "showcase-preview-shimmer",
             target = shimmerTarget,
             initial = 0f,
@@ -258,7 +263,7 @@ internal fun UiColumnDslScope.drawUiShowcaseControlsPreview(state: UiShowcaseRun
     }
 }
 
-private fun UiColumnDslScope.drawShowcaseGradientChrome(
+private fun ColumnScope.drawShowcaseGradientChrome(
     slot: UiSlot,
     shimmerPhase: Float,
     dangerMode: Boolean,

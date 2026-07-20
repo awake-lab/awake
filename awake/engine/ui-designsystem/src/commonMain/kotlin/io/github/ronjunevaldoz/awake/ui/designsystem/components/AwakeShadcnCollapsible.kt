@@ -2,17 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.animatedHeight
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.text
 
 /**
  * Real shadcn's `Collapsible` (and `Accordion`, a group of these with only one open at a
@@ -20,13 +22,13 @@ import io.github.ronjunevaldoz.awake.ui.width
  * [awakeShadcnRadioGroup]'s single-select): a clickable header toggles [expanded].
  * Now includes animated height transition.
  */
-fun UiColumnDslScope.awakeShadcnCollapsible(
+fun ColumnScope.awakeShadcnCollapsible(
     id: String,
     title: String,
     expanded: Boolean,
     modifier: UiModifier = UiModifier(),
     onExpandedChange: (Boolean) -> Unit = {},
-    content: UiColumnDslScope.() -> Unit
+    content: ColumnScope.() -> Unit
 ): Boolean {
     val shadcnTheme = theme.asAwakeShadcnTheme()
     val trigger = buttonSlot(

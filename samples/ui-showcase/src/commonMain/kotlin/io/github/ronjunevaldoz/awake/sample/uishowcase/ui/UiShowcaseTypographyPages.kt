@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
@@ -22,8 +22,12 @@ import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.supportingLines
 import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.column
+import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.spacer
 
-internal fun UiColumnDslScope.drawUiShowcaseFontsPreview() {
+internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     awakeShadcnSectionHeader(
         title = "Font pipeline comparison",
         description = "The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly."
@@ -66,7 +70,7 @@ internal fun UiColumnDslScope.drawUiShowcaseFontsPreview() {
     )
 }
 
-private fun UiColumnDslScope.drawUiShowcaseFontSpecimen(
+private fun ColumnScope.drawUiShowcaseFontSpecimen(
     slot: UiSlot,
     label: String,
     detail: String,
@@ -82,7 +86,7 @@ private fun UiColumnDslScope.drawUiShowcaseFontSpecimen(
     )
     specimenScope.awakeShadcnBadge(
         label.uppercase(),
-        modifier = UiModifier().width(84f.dp).height(28f.dp),
+        modifier = UiModifier().width(120f.dp).height(28f.dp),
         variant = AwakeShadcnBadgeVariant.Outline
     )
     specimenScope.text(

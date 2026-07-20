@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
@@ -23,22 +22,23 @@ import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.verticalPx
 
+/** Real shadcn's `Badge`: an inline status pill -- defaults to Secondary, but
+ * [AwakeShadcnBadgeVariant] covers all semantic variants (Primary, Secondary, Outline,
+ * Destructive). */
 fun UiScope.awakeShadcnBadge(
     label: String,
     modifier: UiModifier = UiModifier(),
     variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
     style: Style = Style.Empty
-) {
-    awakeShadcnBadge(
-        label = label,
-        width = modifier.width ?: Dimension.WrapContent,
-        height = modifier.height ?: Dimension.WrapContent,
-        modifier = modifier,
-        variant = variant,
-        style = style
-    )
-}
+): UiSlot = text(
+    label = label,
+    modifier = modifier,
+    style = AwakeShadcnStyles.badge(theme.asAwakeShadcnTheme(), variant) then AwakeShadcnStyles.badgeContent(theme.asAwakeShadcnTheme()) then style,
+    centered = true
+)
 
+/** Full-slot [awakeShadcnBadge] override for when the caller already owns the [width] and
+ * [height] intent (e.g. from an absolute-anchored HUD corner). */
 fun UiScope.awakeShadcnBadge(
     label: String,
     width: Dimension,
@@ -46,7 +46,7 @@ fun UiScope.awakeShadcnBadge(
     modifier: UiModifier = UiModifier(),
     variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
     style: Style = Style.Empty
-) {
+): UiSlot {
     val shadcnTheme = theme.asAwakeShadcnTheme()
     val resolved = resolveStyle(style = style, defaults = AwakeShadcnStyles.badge(shadcnTheme, variant))
     val resolvedFont = font
@@ -73,54 +73,22 @@ fun UiScope.awakeShadcnBadge(
         borderColor = resolved.borderColor ?: shadcnTheme.tokens.border
     )
     if (font != null) {
-        text(label, slot = slot, font = font, color = resolved.foreground ?: shadcnTheme.tokens.foreground, centered = true)
+        text(
+            label = label,
+            slot = slot,
+            font = font,
+            color = resolved.foreground ?: shadcnTheme.tokens.foreground,
+            centered = true,
+            textScale = resolved.textScale,
+            textSize = resolved.textSize
+        )
     }
+    return slot
 }
-
-fun UiDslScope.awakeShadcnBadge(
-    label: String,
-    modifier: UiModifier = UiModifier(),
-    variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
-    style: Style = Style.Empty
-): UiSlot = text(
-    label = label,
-    modifier = modifier,
-    style = AwakeShadcnStyles.badge(theme.asAwakeShadcnTheme(), variant) then AwakeShadcnStyles.badgeContent(theme.asAwakeShadcnTheme()) then style,
-    centered = true
-)
 
 /** Real shadcn's `Kbd`: an inline key-cap label, same "measure text, draw a box, draw the
  * label" mechanics as [awakeShadcnBadge] with a different (sm-radius, muted) style. */
 fun UiScope.awakeShadcnKbd(
-    label: String,
-    modifier: UiModifier = UiModifier(),
-    style: Style = Style.Empty
-) {
-    val shadcnTheme = theme.asAwakeShadcnTheme()
-    val resolved = resolveStyle(style = AwakeShadcnStyles.kbd(shadcnTheme) then style)
-    val resolvedFont = font
-    val glyphPx = resolvedFont?.let { resolveGlyphPx(it, resolved.textScale, resolved.textSize) } ?: 0f
-    val width = modifier.width ?: Dimension.Fixed(
-        (
-            (resolvedFont?.measureTextWidth(label, glyphPx) ?: label.length * glyphPx) +
-                resolved.contentPadding.horizontalPx()
-            ).px
-    )
-    val height = modifier.height ?: Dimension.Fixed((glyphPx + resolved.contentPadding.verticalPx()).px)
-    val slot = claimModifiedSlot(width, height, modifier)
-    emitFillAndBorder(
-        slot = slot,
-        fillColor = resolved.background ?: shadcnTheme.palette.muted,
-        radiusPx = resolved.shape.toPx(),
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: shadcnTheme.tokens.border
-    )
-    if (resolvedFont != null) {
-        text(label, slot = slot, font = resolvedFont, color = resolved.foreground ?: shadcnTheme.tokens.mutedForeground, centered = true)
-    }
-}
-
-fun UiDslScope.awakeShadcnKbd(
     label: String,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty

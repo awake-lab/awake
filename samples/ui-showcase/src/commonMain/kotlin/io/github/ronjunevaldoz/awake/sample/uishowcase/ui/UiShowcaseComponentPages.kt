@@ -3,42 +3,32 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
-import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
-import io.github.ronjunevaldoz.awake.ui.UiScrollState
-import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyTextField
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyTextarea
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnCollapsible
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnScrollSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.width
-import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.sp
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.column
+import io.github.ronjunevaldoz.awake.ui.spacer
+import io.github.ronjunevaldoz.awake.ui.text
 
-internal fun UiColumnDslScope.drawUiShowcaseButtonsPreview() {
+internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
     awakeShadcnSectionTitle("Buttons")
     awakeShadcnSupportingText("Matches docs/reference/shadcn-previews/button_variants_light.png for a direct side-by-side.")
     spacer(UiModifier().height(8f.dp))
@@ -53,7 +43,7 @@ internal fun UiColumnDslScope.drawUiShowcaseButtonsPreview() {
     }
 }
 
-internal fun UiColumnDslScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntimeState) {
+internal fun ColumnScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntimeState) {
     val name = context.rememberStateValue("ui-showcase-text-input", "name") { "" }
     val email = context.rememberStateValue("ui-showcase-text-input", "email") { "" }
 
@@ -92,7 +82,7 @@ internal fun UiColumnDslScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRu
     )
 }
 
-internal fun UiColumnDslScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRuntimeState) {
+internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRuntimeState) {
     val expanded = context.rememberStateValue("ui-showcase-collapsible", "expanded") { false }
 
     awakeShadcnSectionTitle("Collapsible")
@@ -120,7 +110,7 @@ internal fun UiColumnDslScope.drawUiShowcaseCollapsiblePreview(state: UiShowcase
     }
 }
 
-internal fun UiColumnDslScope.drawUiShowcaseSliderPreview() {
+internal fun ColumnScope.drawUiShowcaseSliderPreview() {
     val exposure = context.rememberStateValue("ui-showcase-slider", "exposure") { 52f }
     val bloom = context.rememberStateValue("ui-showcase-slider", "bloom") { 18f }
 
@@ -146,7 +136,7 @@ internal fun UiColumnDslScope.drawUiShowcaseSliderPreview() {
     spacer(UiModifier().height(8f.dp))
 }
 
-internal fun UiColumnDslScope.drawUiShowcaseSelectionPreview() {
+internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
     val wireframe = context.rememberStateValue("ui-showcase-selection", "wireframe") { true }
     val stats = context.rememberStateValue("ui-showcase-selection", "stats") { false }
 

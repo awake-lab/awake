@@ -44,6 +44,17 @@ import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.column
+import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.spacer
+import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.button
+import io.github.ronjunevaldoz.awake.ui.slider
+import io.github.ronjunevaldoz.awake.ui.textarea
+import io.github.ronjunevaldoz.awake.ui.toggle
+import io.github.ronjunevaldoz.awake.ui.textField
+import io.github.ronjunevaldoz.awake.ui.switch
 import kotlin.test.Test
 
 /**

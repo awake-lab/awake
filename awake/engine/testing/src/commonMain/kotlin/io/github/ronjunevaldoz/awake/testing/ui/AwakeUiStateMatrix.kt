@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.testing.ui
 
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.ui
 fun AwakeUiPreviewMetadata.componentStateMatrix(
     font: UiFont = UiFonts.default(),
     theme: UiTheme? = null,
-    block: UiColumnDslScope.(UiModifier) -> Unit
+    block: ColumnScope.(UiModifier) -> Unit
 ): List<AwakeUiPreviewSample> {
     val states = listOf(
         "default" to UiModifier(),

@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.sample.startergame.presentation.starterOverlayModel
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
 import io.github.ronjunevaldoz.awake.ui.GameUiSpec
@@ -19,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
@@ -31,6 +32,10 @@ import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.supportingLines
 import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.column
+import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.spacer
+import io.github.ronjunevaldoz.awake.ui.text
 
 internal fun starterGameUiSpec(state: StarterGameRuntimeState): GameUiSpec {
     return gameUi {
@@ -134,7 +139,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
     }
 }
 
-private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterNavigation(
+private fun ColumnScope.drawStarterNavigation(
     model: io.github.ronjunevaldoz.awake.sample.startergame.presentation.StarterOverlayModel,
     router: SceneRouterRuntime
 ) {
@@ -159,7 +164,7 @@ private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterNavigat
     }
 }
 
-private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterInspectorPanel(
+private fun ColumnScope.drawStarterInspectorPanel(
     model: io.github.ronjunevaldoz.awake.sample.startergame.presentation.StarterOverlayModel,
     state: StarterGameRuntimeState
 ) {
@@ -185,7 +190,7 @@ private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterInspect
     }
 }
 
-private fun io.github.ronjunevaldoz.awake.ui.UiColumnDslScope.drawStarterFooter() {
+private fun ColumnScope.drawStarterFooter() {
     awakeShadcnBadge("REFERENCE", variant = AwakeShadcnBadgeVariant.Secondary)
     supportingLines(
         listOf(

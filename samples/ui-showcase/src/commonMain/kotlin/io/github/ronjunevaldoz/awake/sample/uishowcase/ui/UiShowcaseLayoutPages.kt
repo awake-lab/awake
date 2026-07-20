@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
@@ -18,8 +18,12 @@ import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.supportingLines
 import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.column
+import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.spacer
 
-internal fun UiColumnDslScope.drawUiShowcaseLayoutPreview() {
+internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
     awakeShadcnSectionTitle("Row")
     awakeShadcnSupportingText("row(...) advances a cursor along the horizontal axis; each child claims the next slot in call order.")
     spacer(UiModifier().height(8f.dp))
@@ -39,7 +43,7 @@ internal fun UiColumnDslScope.drawUiShowcaseLayoutPreview() {
     }
 }
 
-internal fun UiColumnDslScope.drawUiShowcaseScrollPanelPreview() {
+internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
     val scrollState = context.rememberStateValue("ui-showcase-scroll-panel", "state") { UiScrollState() }
 
     awakeShadcnSectionTitle("Scroll Panel")

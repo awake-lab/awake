@@ -22,11 +22,15 @@ private data class PropertyRowLayout(
     val controlSlot: UiSlot
 )
 
+/**
+ * Standard property row with a label and a control area.
+ * Returns the slot reserved for the control.
+ */
 fun UiScope.propertyRow(
     modifier: UiModifier = UiModifier(),
     labelWidth: Dp = 64f.dp,
-    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit,
-    content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    labelContent: BoxScope.(slot: UiSlot) -> Unit,
+    content: BoxScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val rowSlot = claimModifiedSlot(
         defaultWidth = Dimension.FillMax,
@@ -45,23 +49,25 @@ fun UiScope.propertyRow(
             labelTextWidthPx = labelWidth.toPx()
         )
     )
-    UiAbsoluteDslScope(childAbsolute(layout.labelSlot)).labelContent(layout.labelSlot)
-    UiAbsoluteDslScope(childAbsolute(layout.controlSlot)).content(layout.controlSlot)
+    childBox(layout.labelSlot).labelContent(layout.labelSlot)
+    childBox(layout.controlSlot).content(layout.controlSlot)
     return layout.controlSlot
 }
 
+/** [propertyRow] convenience with a fixed height. */
 fun UiScope.propertyRow(
-    height: Float,
+    height: Dp,
     labelWidth: Dp = 64f.dp,
-    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit,
-    content: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+    labelContent: BoxScope.(slot: UiSlot) -> Unit,
+    content: BoxScope.(slot: UiSlot) -> Unit
 ): UiSlot = propertyRow(
-    modifier = UiModifier().height(height.px),
+    modifier = UiModifier().height(height),
     labelWidth = labelWidth,
     labelContent = labelContent,
     content = content
 )
 
+/** [propertyRow] convenience with a plain string label. */
 fun UiScope.propertyRow(
     label: String,
     modifier: UiModifier = UiModifier(),
@@ -78,12 +84,12 @@ fun UiScope.propertyRow(
     val layout = layoutPropertyRow(
         rowSlot = rowSlot,
         labelWidthPx = resolvePropertyLabelWidthPx(
-        rowWidthPx = rowSlot.width,
-        label = label,
-        requestedWidthPx = labelWidth.toPx(),
-        glyphPx = glyphPx,
-        labelTextWidthPx = resolvedFont?.measureTextWidth(label, glyphPx) ?: label.length * glyphPx
-    )
+            rowWidthPx = rowSlot.width,
+            label = label,
+            requestedWidthPx = labelWidth.toPx(),
+            glyphPx = glyphPx,
+            labelTextWidthPx = resolvedFont?.measureTextWidth(label, glyphPx) ?: label.length * glyphPx
+        )
     )
     val labelColor = theme.tokens.mutedForeground
     if (resolvedFont != null) {
@@ -100,44 +106,25 @@ fun UiScope.propertyRow(
     return layout.controlSlot
 }
 
-fun UiScope.propertyRow(label: String, height: Float, labelWidth: Dp = 64f.dp): UiSlot =
-    propertyRow(label = label, modifier = UiModifier().height(height.px), labelWidth = labelWidth)
-
-internal fun resolvePropertyLabelWidthPx(
-    rowWidthPx: Float,
+/** [propertyRow] convenience with a plain string label and a content lambda for the control. */
+fun UiScope.propertyRow(
     label: String,
-    requestedWidthPx: Float,
-    glyphPx: Float,
-    labelTextWidthPx: Float = label.length * glyphPx
-): Float {
-    val availableLabelWidth = (rowWidthPx - PROPERTY_LABEL_GAP).coerceAtLeast(0f)
-    val minimumControlWidth = minOf(
-        (glyphPx * PROPERTY_MIN_CONTROL_WIDTH_GLYPHS).coerceAtLeast(96f),
-        availableLabelWidth
-    )
-    val preferredLabelCap = (rowWidthPx - minimumControlWidth - PROPERTY_LABEL_GAP).coerceAtLeast(0f)
-    val fractionalCap = (rowWidthPx * PROPERTY_LABEL_MAX_FRACTION).coerceAtLeast(0f)
-    val maxLabelWidth = if (preferredLabelCap > 0f) {
-        minOf(preferredLabelCap, fractionalCap)
-    } else {
-        availableLabelWidth
-    }
-    val baseWidth = maxOf(requestedWidthPx, labelTextWidthPx)
-    return baseWidth.coerceAtMost(maxLabelWidth)
+    modifier: UiModifier = UiModifier(),
+    labelWidth: Dp = 64f.dp,
+    content: BoxScope.(slot: UiSlot) -> Unit
+): UiSlot {
+    val slot = propertyRow(label, modifier, labelWidth)
+    childBox(slot).content(slot)
+    return slot
 }
 
-private fun layoutPropertyRow(rowSlot: UiSlot, labelWidthPx: Float): PropertyRowLayout {
-    val resolvedLabelWidth = labelWidthPx.coerceAtLeast(0f).coerceAtMost((rowSlot.width - PROPERTY_LABEL_GAP).coerceAtLeast(0f))
-    return PropertyRowLayout(
-        labelSlot = UiSlot(rowSlot.x, rowSlot.y, resolvedLabelWidth, rowSlot.height),
-        controlSlot = UiSlot(
-            rowSlot.x + resolvedLabelWidth + PROPERTY_LABEL_GAP,
-            rowSlot.y,
-            (rowSlot.width - resolvedLabelWidth - PROPERTY_LABEL_GAP).coerceAtLeast(0f),
-            rowSlot.height
-        )
-    )
-}
+/** [propertyRow] convenience with a plain string label and fixed height. */
+fun UiScope.propertyRow(
+    label: String,
+    height: Dp,
+    labelWidth: Dp = 64f.dp,
+    content: BoxScope.(slot: UiSlot) -> Unit
+): UiSlot = propertyRow(label, UiModifier().height(height), labelWidth, content)
 
 fun UiScope.propertyCheckbox(
     id: String,
@@ -200,11 +187,12 @@ fun UiScope.propertyCheckbox(
     return newChecked
 }
 
+/** [propertyCheckbox] convenience with fixed height. */
 fun UiScope.propertyCheckbox(
     id: String,
     checked: Boolean,
     label: String,
-    height: Float,
+    height: Dp,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
     boxSize: Dp = 16f.dp
@@ -212,10 +200,46 @@ fun UiScope.propertyCheckbox(
     id = id,
     checked = checked,
     label = label,
-    modifier = modifier.height(height.px),
+    modifier = modifier.height(height),
     style = style,
     boxSize = boxSize
 )
+
+internal fun resolvePropertyLabelWidthPx(
+    rowWidthPx: Float,
+    label: String,
+    requestedWidthPx: Float,
+    glyphPx: Float,
+    labelTextWidthPx: Float = label.length * glyphPx
+): Float {
+    val availableLabelWidth = (rowWidthPx - PROPERTY_LABEL_GAP).coerceAtLeast(0f)
+    val minimumControlWidth = minOf(
+        (glyphPx * PROPERTY_MIN_CONTROL_WIDTH_GLYPHS).coerceAtLeast(96f),
+        availableLabelWidth
+    )
+    val preferredLabelCap = (rowWidthPx - minimumControlWidth - PROPERTY_LABEL_GAP).coerceAtLeast(0f)
+    val fractionalCap = (rowWidthPx * PROPERTY_LABEL_MAX_FRACTION).coerceAtLeast(0f)
+    val maxLabelWidth = if (preferredLabelCap > 0f) {
+        minOf(preferredLabelCap, fractionalCap)
+    } else {
+        availableLabelWidth
+    }
+    val baseWidth = maxOf(requestedWidthPx, labelTextWidthPx)
+    return baseWidth.coerceAtMost(maxLabelWidth)
+}
+
+private fun layoutPropertyRow(rowSlot: UiSlot, labelWidthPx: Float): PropertyRowLayout {
+    val resolvedLabelWidth = labelWidthPx.coerceAtLeast(0f).coerceAtMost((rowSlot.width - PROPERTY_LABEL_GAP).coerceAtLeast(0f))
+    return PropertyRowLayout(
+        labelSlot = UiSlot(rowSlot.x, rowSlot.y, resolvedLabelWidth, rowSlot.height),
+        controlSlot = UiSlot(
+            rowSlot.x + resolvedLabelWidth + PROPERTY_LABEL_GAP,
+            rowSlot.y,
+            (rowSlot.width - resolvedLabelWidth - PROPERTY_LABEL_GAP).coerceAtLeast(0f),
+            rowSlot.height
+        )
+    )
+}
 
 private fun UiScope.propertyInteract(
     id: String,

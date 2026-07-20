@@ -67,8 +67,8 @@ class UiShowcaseTextareaIntegrationTest {
         val ui = UiContext()
         val input = Input()
         
-        // Use a narrow width to force wrapping
-        val width = 400f
+        // Use a very narrow width to force wrapping
+        val width = 160f
         val height = 600f
 
         fun frame(value: String): List<UiDrawPrimitive> {
@@ -80,9 +80,9 @@ class UiShowcaseTextareaIntegrationTest {
             return ui.endFrame()
         }
 
-        // Frame 1: Type a long string without newlines
-        val longString = "This is a very long string that should definitely wrap into multiple lines given the narrow width of the container."
-        frame(longString)
+        // Frame 1: Type a very long word to ensure it wraps even without spaces
+        val longWord = "ANTIDISESTABLISHMENTARIANISM_ANTIDISESTABLISHMENTARIANISM"
+        frame(longWord)
         
         val bioNode = ui.semanticNodes().firstOrNull { it.role == UiSemanticRole.Text && it.id == "showcase-bio" }
         requireNotNull(bioNode)

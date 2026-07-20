@@ -12,9 +12,9 @@ fun UiContext.ui(
     theme: UiTheme = CoreUiTheme,
     gap: Float = UiSpacing.sm.toPx(),
     textScale: Float = 1f,
-    block: UiColumnDslScope.() -> Unit
+    block: ColumnScope.() -> Unit
 ) {
-    UiColumnDslScope(column(x, y, width, font, theme, gap, textScale)).block()
+    column(x, y, width, font, theme, gap, textScale).block()
 }
 
 fun UiContext.ui(
@@ -24,9 +24,9 @@ fun UiContext.ui(
     gap: Float = UiSpacing.sm.toPx(),
     textScale: Float = 1f,
     insets: UiInsets = UiInsets.Zero,
-    block: UiColumnDslScope.() -> Unit
+    block: ColumnScope.() -> Unit
 ) {
-    UiColumnDslScope(column(slot, font, theme, gap, textScale, insets)).block()
+    column(slot, font, theme, gap, textScale, insets).block()
 }
 
 fun UiContext.uiAbsolute(
@@ -35,13 +35,13 @@ fun UiContext.uiAbsolute(
     font: UiFont? = null,
     theme: UiTheme = CoreUiTheme,
     textScale: Float = 1f,
-    block: UiAbsoluteDslScope.() -> Unit
+    block: AbsoluteScope.() -> Unit
 ) {
-    UiAbsoluteDslScope(absolute(x, y, font, theme, textScale)).block()
+    absolute(x, y, font, theme, textScale).block()
 }
 
 fun ColumnScope.ui(
-    block: UiColumnDslScope.() -> Unit
+    block: ColumnScope.() -> Unit
 ) {
-    UiColumnDslScope(this).block()
+    this.block()
 }

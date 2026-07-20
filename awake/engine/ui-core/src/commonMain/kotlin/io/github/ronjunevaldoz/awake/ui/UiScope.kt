@@ -46,6 +46,7 @@ fun UiScope.resolveGlyphPx(
  * `fun UiScope.myWidget(...) { val slot = claimSlot(...); ... }` -- no library change, no
  * capability gap versus a built-in widget.
  */
+@AwakeUiDsl
 interface UiScope {
     val font: UiFont?
 

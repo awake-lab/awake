@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.text
 
 /**
  * Real shadcn's `Breadcrumb`: a trail of muted links with a separator glyph between each,
@@ -16,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
  * that's caller-owned routing, same as every other Awake nav element; this only lays out the
  * trail and its visual states.
  */
-fun UiColumnDslScope.awakeShadcnBreadcrumb(
+fun ColumnScope.awakeShadcnBreadcrumb(
     items: List<String>,
     modifier: UiModifier = UiModifier(),
     separator: String = "/",

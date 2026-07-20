@@ -22,8 +22,6 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseUiState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.previewMetadataFor
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.UiShowcaseThemePreview
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
 import io.github.ronjunevaldoz.awake.testing.ui.inspectNonOverlappingBounds
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticContentFit
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
@@ -45,8 +43,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.text
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.panel
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
