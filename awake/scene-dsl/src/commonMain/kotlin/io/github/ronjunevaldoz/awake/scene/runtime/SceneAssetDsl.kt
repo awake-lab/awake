@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime
 
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.AwakeSceneDsl
+
 @AwakeSceneDsl
 class SceneAssetsDsl internal constructor() {
     private val meshFactories = linkedMapOf<String, SceneMeshFactory>()

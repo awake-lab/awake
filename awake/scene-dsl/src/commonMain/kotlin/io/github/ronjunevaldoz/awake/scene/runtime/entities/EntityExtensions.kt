@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime.entities
 
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneCameraDsl
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameDsl
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneTransformDsl
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneCameraDsl
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneTransformDsl
 
 fun SceneGameDsl.cameraEntity(
     name: String,
