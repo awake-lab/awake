@@ -1384,6 +1384,56 @@ def _detect_long_stacked_comment_block(root: Path) -> list[str]:
     return findings
 
 
+# ── Destructive-read accessor (single-writer snapshot anti-pattern) ────────────
+# kotlin-multiplatform-code-quality's Side-Effect-Free Accessors rule: a getter/consume
+# function must never mutate shared state as a side effect of being read — a second
+# caller in the same tick/request silently sees the already-cleared value. Heuristic-only:
+# matches the exact "read field into local, clear that same field, return the local"
+# 3-line shape — the real bug shape found (and fixed) in awaken's Input.consumeTypedText()/
+# consumeEditActions(), before they were replaced by a single owned snapshot() call.
+
+_DESTRUCTIVE_READ_LOCAL_RE = re.compile(r"^\s*val\s+(\w+)\s*=\s*(\w+)(?:\.\w+\(\))?\s*$")
+_DESTRUCTIVE_READ_CLEAR_RE = re.compile(
+    r'^\s*(\w+)\s*(?:=\s*(?:0f?|""|null|false|emptyList\(\)|emptySet\(\))|\.clear\(\))\s*$'
+)
+_DESTRUCTIVE_READ_RETURN_RE = re.compile(r"^\s*return\s+(\w+)\s*$")
+
+
+def _detect_destructive_read_accessor(root: Path) -> list[str]:
+    """Flag a function that reads a field into a local, clears that same field, then
+    returns the local — fine with exactly one caller, but breaks silently the moment a
+    second caller reads the same accessor in the same tick/request.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        except OSError:
+            continue
+        for i in range(len(lines) - 2):
+            local_match = _DESTRUCTIVE_READ_LOCAL_RE.match(lines[i])
+            if not local_match:
+                continue
+            local_name, field_name = local_match.groups()
+            clear_match = _DESTRUCTIVE_READ_CLEAR_RE.match(lines[i + 1])
+            if not clear_match or clear_match.group(1) != field_name:
+                continue
+            return_match = _DESTRUCTIVE_READ_RETURN_RE.match(lines[i + 2])
+            if not return_match or return_match.group(1) != local_name:
+                continue
+            findings.append(
+                f"destructive read accessor [MEDIUM]: {path.relative_to(root)}:{i + 1} "
+                f"— reads '{field_name}' into a local then clears it before returning; a "
+                f"second caller in the same tick/request sees the already-cleared value. "
+                f"Per kotlin-multiplatform-code-quality's Side-Effect-Free Accessors rule, "
+                f"expose a single snapshot()/drain() owned by one caller instead\n"
+                f"    {i + 1} | {lines[i].strip()}"
+            )
+    return findings
+
+
 # ── Extensible abstract class in commonMain ─────────────────────────────────────
 # commonMain APIs should be called or composed, not extended. An abstract class with
 # only abstract members (no concrete implementation at all) forces every consumer into
@@ -1710,6 +1760,180 @@ def _detect_project_skill_deployment_drift(root: Path) -> list[str]:
                 break
 
     return findings
+
+
+# ── Project-owned agent file standards + deployment drift ───────────────────────
+# Mirrors _detect_project_skill_standards/_detect_project_skill_deployment_drift for
+# agents/*.md (Claude-style source) and .codex/agents/*.toml (Codex's real, verified
+# format — name/description/developer_instructions required, per Codex's own docs).
+# Also catches the exact real bug found and fixed in docs/reference/agent-catalog.md
+# this same session: a tier name (flagship-coding/balanced-coding/fast-utility/
+# precision-review) written into `model:` instead of a real, resolvable model id —
+# Claude Code has no concept of a tier name and the agent's model won't resolve.
+
+_TIER_NAME_LITERALS = {"flagship-coding", "balanced-coding", "fast-utility", "precision-review"}
+_AGENT_MODEL_FIELD_RE = re.compile(r"^model:\s*['\"]?([\w.-]+)['\"]?\s*$", re.MULTILINE)
+_TOML_KEY_RE = {
+    "name": re.compile(r'^\s*name\s*=\s*["\'].+["\']', re.MULTILINE),
+    "description": re.compile(r'^\s*description\s*=\s*["\'].+["\']', re.MULTILINE),
+    "developer_instructions": re.compile(r'^\s*developer_instructions\s*=', re.MULTILINE),
+}
+
+
+def _detect_agent_file_standards(root: Path) -> list[str]:
+    """Flag a project-owned agent file (agents/*.md or .codex/agents/*.toml) that
+    doesn't meet its real, verified format requirements, or a tier-name literal
+    written into a Markdown agent's model: field instead of a real model id.
+    """
+    findings: list[str] = []
+
+    agents_dir = root / "agents"
+    if agents_dir.is_dir():
+        for agent_md in sorted(agents_dir.glob("*.md")):
+            if _is_excluded(agent_md, root):
+                continue
+            try:
+                text = agent_md.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            rel = agent_md.relative_to(root)
+            fm_match = _FRONTMATTER_RE.match(text)
+            if not fm_match:
+                findings.append(
+                    f"project agent missing frontmatter [HIGH]: {rel} — agent files "
+                    f"need a --- ... --- YAML frontmatter block with name and description"
+                )
+                continue
+            frontmatter = fm_match.group(1)
+            if not _FRONTMATTER_NAME_RE.search(frontmatter):
+                findings.append(
+                    f"project agent frontmatter missing name [HIGH]: {rel}"
+                )
+            if not _FRONTMATTER_DESCRIPTION_RE.search(frontmatter):
+                findings.append(
+                    f"project agent frontmatter missing description [HIGH]: {rel}"
+                )
+            model_match = _AGENT_MODEL_FIELD_RE.search(frontmatter)
+            if model_match and model_match.group(1) in _TIER_NAME_LITERALS:
+                findings.append(
+                    f"project agent uses tier name as model [HIGH]: {rel} — "
+                    f"model: {model_match.group(1)} is a provider-neutral tier name, "
+                    f"not a real model id; look up the real id for this tier in "
+                    f"docs/reference/agent-catalog.md's Mapping Rule table (see "
+                    f"kotlin-multiplatform-expert's Project-Specific Commands/Agents/"
+                    f"Skills section)"
+                )
+
+    codex_agents_dir = root / ".codex" / "agents"
+    if codex_agents_dir.is_dir():
+        # .codex is normally in _EXCLUDED_DIRS (avoids scanning deployed skill bundle
+        # templates as if they were real project code) — that exclusion doesn't apply
+        # here since .codex/agents/*.toml is exactly this detector's real target.
+        for agent_toml in sorted(codex_agents_dir.glob("*.toml")):
+            try:
+                text = agent_toml.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            rel = agent_toml.relative_to(root)
+            missing = [key for key, pattern in _TOML_KEY_RE.items() if not pattern.search(text)]
+            if missing:
+                findings.append(
+                    f"codex agent missing required field(s) [HIGH]: {rel} — "
+                    f"{', '.join(missing)}; Codex CLI requires name, description, and "
+                    f"developer_instructions on every subagent TOML file"
+                )
+
+    return findings
+
+
+def _detect_agent_deployment_drift(root: Path) -> list[str]:
+    """Flag a project-owned agents/*.md file that was never deployed to
+    .claude/agents/, or has drifted from its deployed copy — same pattern as
+    _detect_project_skill_deployment_drift.
+    """
+    findings: list[str] = []
+    agents_dir = root / "agents"
+    deployed_dir = root / ".claude" / "agents"
+    if not agents_dir.is_dir():
+        return findings
+
+    for agent_md in sorted(agents_dir.glob("*.md")):
+        if _is_excluded(agent_md, root):
+            continue
+        deployed_md = deployed_dir / agent_md.name
+        rel = agent_md.relative_to(root).as_posix()
+        if not deployed_md.is_file():
+            findings.append(
+                f"project agent not deployed [MEDIUM]: {rel} — deploy it to "
+                f".claude/agents/{agent_md.name} so Claude loads the project-owned copy"
+            )
+            continue
+        try:
+            source_text = agent_md.read_text(encoding="utf-8", errors="ignore")
+            deployed_text = deployed_md.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if source_text != deployed_text:
+            findings.append(
+                f"project agent deployment drift [MEDIUM]: {rel} — deployed copy "
+                f"under .claude/agents/{agent_md.name} is stale"
+            )
+
+    return findings
+
+
+# ── Mixed component library: ShadcnTheme + AppTheme both in real use ────────────
+# kotlin-multiplatform-shadcn-compose's SKILL.md says "Never combine with
+# kotlin-multiplatform-design-system" — documented but never mechanically checked
+# anywhere. Scoped to the two theme wrappers (ShadcnTheme/AppTheme call sites) rather than
+# individual App*-prefixed component names: a generic `App[A-Z]\w*(` call-site pattern
+# would false-positive on unrelated real identifiers (AppConfig(...), AppDatabase(...),
+# etc.) that have nothing to do with either design system. The theme wrapper is the one
+# call every screen in a project realistically makes, making it the highest-confidence,
+# lowest-false-positive signal that both systems are genuinely wired into the same
+# project rather than just mentioned in passing (e.g. a comment, a migration doc).
+
+# Both theme wrappers' last param is a trailing content lambda with every other param
+# defaulted, so real usage is commonly a parenthesis-free trailing-lambda call
+# (`AppTheme { ... }`), not just `AppTheme(...)` — matching only "(" missed this shape.
+_SHADCN_THEME_CALL_RE = re.compile(r"\bShadcnTheme\s*[({]")
+_APP_THEME_CALL_RE = re.compile(r"\bAppTheme\s*[({]")
+
+
+def _detect_mixed_design_system_usage(root: Path) -> list[str]:
+    """Flag a project that calls both ShadcnTheme(...) and AppTheme(...) in real
+    (non-test, non-excluded) source — the two systems are documented as mutually
+    exclusive alternatives, never meant to coexist in the same project.
+    """
+    shadcn_files: list[Path] = []
+    app_theme_files: list[Path] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if _SHADCN_THEME_CALL_RE.search(text):
+            shadcn_files.append(path)
+        if _APP_THEME_CALL_RE.search(text):
+            app_theme_files.append(path)
+
+    if not shadcn_files or not app_theme_files:
+        return []
+
+    shadcn_example = shadcn_files[0].relative_to(root)
+    app_example = app_theme_files[0].relative_to(root)
+    return [
+        f"mixed component library usage [HIGH]: project calls both ShadcnTheme(...) "
+        f"(e.g. {shadcn_example}) and AppTheme(...) (e.g. {app_example}) in real source "
+        f"— kotlin-multiplatform-shadcn-compose and kotlin-multiplatform-design-system "
+        f"are documented mutually-exclusive alternatives, never meant to coexist. If the "
+        f"project has genuinely migrated to shadcn-compose, finish the migration "
+        f"(/kmm-migrate-to-shadcn) and remove the remaining AppTheme/App* usage rather "
+        f"than leaving both wired in; if design-system is still the intended system, "
+        f"remove the shadcn-compose dependency instead."
+    ]
 
 
 _COMPONENT_PREFIX_ROW_RE = re.compile(r"\|\s*Component prefix\s*\|\s*([A-Za-z][A-Za-z0-9]*)\s*\|")
@@ -2559,6 +2783,10 @@ def audit_project(root: Path) -> list[str]:
     # ── Agent & consumer setup ─────────────────────────────────────────────────
     findings.extend(_detect_agent_setup(root))
 
+    # ── Project-owned agent file standards + deployment drift ──────────────────
+    findings.extend(_detect_agent_file_standards(root))
+    findings.extend(_detect_agent_deployment_drift(root))
+
     # ── MVI base class placement ───────────────────────────────────────────────
     findings.extend(_detect_mvi_placement(root))
 
@@ -2628,6 +2856,9 @@ def audit_project(root: Path) -> list[str]:
     findings.extend(_detect_what_comment_in_control_flow(root))
     findings.extend(_detect_long_stacked_comment_block(root))
 
+    # ── Destructive-read accessor (single-writer snapshot anti-pattern) ─────────
+    findings.extend(_detect_destructive_read_accessor(root))
+
     # ── Extensible abstract class in commonMain ─────────────────────────────────
     findings.extend(_detect_extensible_abstract_class_in_common(root))
 
@@ -2639,6 +2870,9 @@ def audit_project(root: Path) -> list[str]:
 
     # ── Design system prefix mismatch ──────────────────────────────────────────
     findings.extend(_detect_design_system_prefix_mismatch(root))
+
+    # ── Mixed component library (ShadcnTheme + AppTheme both wired in) ─────────
+    findings.extend(_detect_mixed_design_system_usage(root))
 
     # ── Project-owned skill standards (skills/<name>/SKILL.md anatomy) ─────────
     findings.extend(_detect_project_skill_standards(root))
