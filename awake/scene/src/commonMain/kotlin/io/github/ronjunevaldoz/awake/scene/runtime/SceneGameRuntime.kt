@@ -47,10 +47,6 @@ private fun io.github.ronjunevaldoz.awake.core.input.TextEditAction.toUiAction()
 
 /**
  * Orchestrates a single 3D scene session.
- *
- * A pure ECS coordinator: manages [World] and steps two sets of systems:
- * 1. Simulation Systems: Run at a fixed timestep (gameplay/physics).
- * 2. Infrastructure Systems: Run at frame rate (transform/rendering).
  */
 class SceneGameRuntime internal constructor(
     private val spec: SceneGameSpec
@@ -87,8 +83,12 @@ class SceneGameRuntime internal constructor(
         this.services = services
         this.world = World()
         this.assetLibrary = spec.assetLibraryFactory?.invoke()
+    }
 
-        // Install all registered systems (mandatory and user-defined)
+    override suspend fun ready(renderer: Renderer) {
+        this.renderer = renderer
+        
+        // 1. Instantiate systems (after renderer is available)
         spec.systems.forEach { registration ->
             val system = registration.factory(this)
             registeredSystems[registration.handle] = system
@@ -99,16 +99,12 @@ class SceneGameRuntime internal constructor(
                 SystemFrequency.Infrastructure -> infrastructureSystems.add(system)
             }
         }
-    }
 
-    override suspend fun ready(renderer: Renderer) {
-        this.renderer = renderer
-        
-        // 1. Instantiate document entities
+        // 2. Instantiate document entities
         val scene = spec.sceneDocument.instantiate(flipYForClipSpace = renderer.flipYForClipSpace, world = world)
         scene.attachRenderableComponents { request -> spec.renderableFactory(this, request) }
         
-        // 2. Initial sync pass for all frame-rate systems
+        // 3. Initial sync pass for all frame-rate systems
         infrastructureSystems.forEach { it.update(world, 0f) }
         
         spec.onReadyBlock(this)
@@ -209,7 +205,8 @@ class SceneGameRuntime internal constructor(
         ?: error("System $name not found")
 
     fun <T : System> update(handle: SceneSystemHandle<T>, delta: Float) {
-        system(handle).update(world, delta)
+        val system = system(handle)
+        system.update(world, delta)
     }
 
     fun findEntity(name: String): Entity? {
@@ -231,4 +228,6 @@ class SceneGameRuntime internal constructor(
 
     fun requireCamera(name: String): Camera = world.get(requireEntity(name), Camera::class)
         ?: error("Entity '$name' has no Camera component")
+
+    val inputState: UiInputState get() = uiContext.inputState
 }

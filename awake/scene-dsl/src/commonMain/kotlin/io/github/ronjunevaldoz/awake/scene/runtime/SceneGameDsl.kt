@@ -78,13 +78,6 @@ class SceneGameDsl internal constructor() {
     private val onDisposeBlocks = mutableListOf<SceneDisposeBlock>()
     private val serviceRegistrations = mutableListOf<SceneServiceRegistration<*>>()
 
-    init {
-        // Core infrastructure: must run every frame (Infrastructure frequency).
-        // Registration via DSL makes them indistinguishable from user systems to the runtime.
-        system("transform") { io.github.ronjunevaldoz.awake.scene.systems.TransformSystem() }
-        system("render") { io.github.ronjunevaldoz.awake.scene.systems.RenderSystem(renderer) }
-    }
-
     fun scene(
         name: String? = null,
         block: SceneDocumentDsl.() -> Unit
@@ -150,17 +143,24 @@ class SceneGameDsl internal constructor() {
         service(T::class, factory)
     }
 
-    internal fun build(): SceneGameSpec = SceneGameSpec(
-        sceneDocument = sceneDocumentDsl.build(),
-        renderableFactory = renderableFactory,
-        assetLibraryFactory = assetLibraryFactory,
-        systems = systemsDsl.build(),
-        updateBlock = updateBlock,
-        overlayBlock = overlayBlock,
-        onReadyBlock = { onReadyBlocks.forEach { it(this) } },
-        onDisposeBlock = { onDisposeBlocks.forEach { it(this) } },
-        serviceRegistrations = serviceRegistrations.toList()
-    )
+    internal fun build(): SceneGameSpec {
+        // Core infrastructure: must run every frame (Infrastructure frequency).
+        // Added at the end of build so they always execute LAST in the pipeline.
+        system("transform") { io.github.ronjunevaldoz.awake.scene.systems.TransformSystem() }
+        system("render") { io.github.ronjunevaldoz.awake.scene.systems.RenderSystem(renderer) }
+
+        return SceneGameSpec(
+            sceneDocument = sceneDocumentDsl.build(),
+            renderableFactory = renderableFactory,
+            assetLibraryFactory = assetLibraryFactory,
+            systems = systemsDsl.build(),
+            updateBlock = updateBlock,
+            overlayBlock = overlayBlock,
+            onReadyBlock = { onReadyBlocks.forEach { it(this) } },
+            onDisposeBlock = { onDisposeBlocks.forEach { it(this) } },
+            serviceRegistrations = serviceRegistrations.toList()
+        )
+    }
 }
 
 fun SceneGameDsl.cameraEntity(
