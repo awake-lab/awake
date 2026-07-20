@@ -13,11 +13,14 @@ enum class UiSemanticRole {
     Text,
     Button,
     Toggle,
+    Switch,
     Checkbox,
     Slider,
     Dropdown,
     Panel,
-    ScrollPanel
+    ScrollPanel,
+    Skeleton,
+    Spinner
 }
 
 data class UiSemanticNode(

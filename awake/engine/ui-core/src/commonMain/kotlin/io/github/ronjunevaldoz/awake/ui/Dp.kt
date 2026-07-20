@@ -10,7 +10,12 @@ import kotlin.jvm.JvmInline
  * cursor math stay raw pixel [Float], the same contract every backend already consumes.
  */
 @JvmInline
-value class Dp(val value: Float)
+value class Dp(val value: Float) {
+    operator fun plus(other: Dp): Dp = Dp(value + other.value)
+    operator fun minus(other: Dp): Dp = Dp(value - other.value)
+    operator fun times(other: Float): Dp = Dp(value * other)
+    operator fun div(other: Float): Dp = Dp(value / other)
+}
 
 @JvmInline
 value class Sp(val value: Float)

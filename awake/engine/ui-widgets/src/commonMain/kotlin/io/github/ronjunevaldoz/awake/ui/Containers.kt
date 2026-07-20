@@ -11,6 +11,30 @@ fun UiScope.textureQuad(material: Any, modifier: UiModifier = UiModifier()) {
     emit(UiDrawPrimitive.Texture(slot.x, slot.y, slot.width, slot.height, material))
 }
 
+inline fun UiScope.row(
+    width: Dimension = Dimension.FillMax,
+    height: Dimension = Dimension.WrapContent,
+    gap: Float = UiSpacing.sm.toPx(),
+    modifier: UiModifier = UiModifier(),
+    content: RowScope.(slot: UiSlot) -> Unit
+): UiSlot {
+    val slot = claimModifiedSlot(width, height, modifier)
+    childRow(slot, gap = gap).content(slot)
+    return slot
+}
+
+inline fun UiScope.column(
+    width: Dimension = Dimension.FillMax,
+    height: Dimension = Dimension.WrapContent,
+    gap: Float = UiSpacing.sm.toPx(),
+    modifier: UiModifier = UiModifier(),
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiSlot {
+    val slot = claimModifiedSlot(width, height, modifier)
+    childColumn(slot, gap = gap).content(slot)
+    return slot
+}
+
 fun UiScope.panel(
     id: String,
     width: Dimension,

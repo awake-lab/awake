@@ -93,3 +93,23 @@ jobs:
 
       - name: Desktop Vulkan smoke test (real vkCreateInstance via lavapipe)
         run: ./gradlew :awake:backend:vulkan:desktopTest
+
+  web-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle (with cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Wasm/WebGPU browser verification (headless Chrome)
+        run: ./gradlew :samples:ui-showcase:wasmJsBrowserTest

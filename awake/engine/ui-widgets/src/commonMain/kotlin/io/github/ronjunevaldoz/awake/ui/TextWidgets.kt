@@ -211,6 +211,7 @@ fun layoutBitmapText(
     wrap: UiTextWrap,
     overflow: UiTextOverflow,
     maxLines: Int,
+    trim: Boolean = true,
     advanceOf: (Char) -> Float = { glyphPx }
 ): UiBitmapTextLayout {
     val normalizedMaxLines = maxLines.coerceAtLeast(1)
@@ -247,10 +248,10 @@ fun layoutBitmapText(
             }
             val fitIndex = fitPrefixByWidth(remaining, safeMaxWidthPx, advanceOf).coerceAtLeast(1)
             val splitIndex = remaining.substring(0, fitIndex).lastIndexOf(' ').takeIf { it > 0 } ?: fitIndex
-            val line = remaining.substring(0, splitIndex).trimEnd()
-            val safeLine = if (line.isEmpty()) remaining.substring(0, fitIndex).trimEnd() else line
+            val line = if (trim) remaining.substring(0, splitIndex).trimEnd() else remaining.substring(0, splitIndex)
+            val safeLine = if (line.isEmpty() && trim) remaining.substring(0, fitIndex).trimEnd() else if (line.isEmpty()) remaining.substring(0, fitIndex) else line
             result += safeLine
-            remaining = remaining.substring(splitIndex).trimStart()
+            remaining = if (trim) remaining.substring(splitIndex).trimStart() else remaining.substring(splitIndex)
         }
         if (remaining.isNotEmpty()) {
             truncated = true

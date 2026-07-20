@@ -26,23 +26,28 @@ fun UiScope.textField(
     val interaction = interact(
         id = id,
         width = Dimension.FillMax,
-        height = Dimension.Fixed(36f.px),
+        height = Dimension.Fixed(40f.dp),
         modifier = modifier
     )
     // Disabled fields never claim focus or consume input -- if a field was focused and then
     // became disabled mid-session, drop that focus too, the same way a real disabled input
     // stops receiving keystrokes immediately, not just stops accepting new clicks.
-    val focused = enabled && context.isFocused(id)
+    val focused = enabled && (context.isFocused(id) || modifier.forceFocus == true)
     if (!enabled) {
         context.clearFocusIfMatches(id)
-    } else if (context.pointerDownEdge() && interaction.hovered) {
+    } else if (context.pointerDownEdge() && (interaction.hovered || modifier.forceHover == true)) {
         context.requestFocus(id)
     }
 
+    val styleState = MutableStyleState(
+        hovered = interaction.hovered || modifier.forceHover == true,
+        focused = focused,
+        disabled = !enabled
+    )
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.textField,
-        state = MutableStyleState(hovered = interaction.hovered, focused = focused, disabled = !enabled)
+        state = styleState
     )
     val borderColor = if (isError) theme.tokens.destructive else (resolved.borderColor ?: theme.tokens.border)
     emitFillAndBorder(
@@ -84,6 +89,8 @@ fun UiScope.textField(
                 }
                 UiTextEditAction.ArrowLeft -> cursor = (cursor - 1).coerceAtLeast(0)
                 UiTextEditAction.ArrowRight -> cursor = (cursor + 1).coerceAtMost(nextValue.length)
+                UiTextEditAction.ArrowUp -> {}
+                UiTextEditAction.ArrowDown -> {}
                 UiTextEditAction.Home -> cursor = 0
                 UiTextEditAction.End -> cursor = nextValue.length
                 UiTextEditAction.Enter -> context.clearFocusIfMatches(id)

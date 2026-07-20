@@ -50,14 +50,22 @@ kotlin {
         browser()
     }
 
-    // No platform-specific code -- comparePixels is pure common Kotlin over ByteArray
-    // (readPixels/TextureAsset already return the same RGBA8 layout on every backend, so
-    // there's nothing platform-specific to bridge here). Baseline bytes are loaded via
-    // awake:base's readResourceBytes, already expect/actual'd for all 5 targets.
     sourceSets {
+        val commonMain by getting
+        val iosMain by creating {
+            dependsOn(commonMain)
+        }
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
         commonMain.dependencies {
             implementation(project(":awake:base"))
             implementation(project(":awake:engine:ui-core"))
+            implementation(project(":awake:engine:ui-dsl"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

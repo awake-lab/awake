@@ -29,13 +29,14 @@ fun UiScope.resolvedTextScale(): Float = pixelPerfectTextScale(textScale, font?.
 fun pixelPerfectPixel(value: Float): Float = value.roundToInt().toFloat()
 
 fun UiScope.resolveGlyphPx(
-    font: UiFont,
+    font: io.github.ronjunevaldoz.awake.ui.font.UiFont,
     textScale: Float = this.textScale,
     textSize: Sp? = null
-): Float = pixelPerfectPixel(
-    textSize?.toPx()?.coerceAtLeast(1f)
-        ?: (font.cellSize * pixelPerfectTextScale(textScale, font.textScaleStep))
-).coerceAtLeast(1f)
+): Float {
+    val baseSize = textSize ?: theme.typography.body
+    val scale = pixelPerfectTextScale(textScale, font.textScaleStep)
+    return pixelPerfectPixel(baseSize.value * UiDensity.scale * UiDensity.fontScale * scale).coerceAtLeast(1f)
+}
 
 /**
  * The full set of primitives any widget -- built-in or consumer-defined -- is built from.

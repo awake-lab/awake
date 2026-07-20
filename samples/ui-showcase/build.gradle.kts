@@ -112,6 +112,7 @@ kotlin {
             dependencies {
                 implementation(project(":awake:engine"))
                 implementation(project(":awake:backend:webgpu"))
+                implementation(libs.kotlinx.browser)
             }
             resources.srcDir(project(":awake:backend:webgpu").file("src/wasmJsMain/resources"))
         }
@@ -123,6 +124,7 @@ tasks.named<Test>("desktopTest") {
         delete(layout.buildDirectory.dir("ui-previews"))
         delete(layout.buildDirectory.dir("reports/ui-previews"))
     }
+    systemProperty("AWAKE_SNAPSHOT_ROOT", project.rootDir.absolutePath)
     finalizedBy("uiShowcasePreviewReport")
 }
 

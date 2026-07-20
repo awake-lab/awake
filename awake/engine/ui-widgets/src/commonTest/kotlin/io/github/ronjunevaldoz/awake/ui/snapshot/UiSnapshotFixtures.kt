@@ -249,7 +249,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             ) { slot ->
                 text("Shaped Panel", color = CoreUiTheme.tokens.mutedForeground)
                 context.absolute(slot.x + 12f, slot.y + 44f, snapshotFont, CoreUiTheme)
-                    .button("launch", label = "Launch Scene", modifier = UiModifier().width(180f.px).height(36f.px), radius = UiShape.md)
+                    .button("launch", label = "Launch Scene", modifier = UiModifier().width(180f.px).height(36f.dp), radius = UiShape.md)
             }
         },
         scene(
@@ -313,13 +313,13 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     checkbox("state-matrix-checkbox-on", checked = true, modifier = UiModifier().width(180f.px).height(24f.px))
                 }
                 row(height = 36f.dp, gap = 16f) {
-                    slider("state-matrix-slider-empty", min = 0f, max = 100f, value = 0f, modifier = UiModifier().width(120f.px).height(36f.px))
-                    slider("state-matrix-slider-half", min = 0f, max = 100f, value = 50f, modifier = UiModifier().width(120f.px).height(36f.px))
-                    slider("state-matrix-slider-full", min = 0f, max = 100f, value = 100f, modifier = UiModifier().width(120f.px).height(36f.px))
+                    slider("state-matrix-slider-empty", min = 0f, max = 100f, value = 0f, modifier = UiModifier().width(120f.px).height(36f.dp))
+                    slider("state-matrix-slider-half", min = 0f, max = 100f, value = 50f, modifier = UiModifier().width(120f.px).height(36f.dp))
+                    slider("state-matrix-slider-full", min = 0f, max = 100f, value = 100f, modifier = UiModifier().width(120f.px).height(36f.dp))
                 }
                 row(height = 36f.dp, gap = 16f) {
-                    textField("state-matrix-empty-field", value = "", placeholder = "Placeholder", modifier = UiModifier().width(190f.px).height(36f.px))
-                    textField("state-matrix-focused-field", value = "Typed", modifier = UiModifier().width(190f.px).height(36f.px))
+                    textField("state-matrix-empty-field", value = "", placeholder = "Placeholder", modifier = UiModifier().width(190f.px).height(36f.dp))
+                    textField("state-matrix-focused-field", value = "Typed", modifier = UiModifier().width(190f.px).height(36f.dp))
                 }
             }
         },
@@ -422,8 +422,8 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
                         spacer(UiModifier().height(6f.dp))
                         row(height = 36f.dp, gap = 8f) {
-                            awakeShadcnButton("showcase-doc-ghost", "Ghost", modifier = UiModifier().width(112f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Ghost)
-                            awakeShadcnButton("showcase-doc-danger", "Danger", modifier = UiModifier().width(112f.px).height(36f.px), variant = AwakeShadcnButtonVariant.Danger)
+                            awakeShadcnButton("showcase-doc-ghost", "Ghost", modifier = UiModifier().width(112f.px).height(36f.dp), variant = AwakeShadcnButtonVariant.Ghost)
+                            awakeShadcnButton("showcase-doc-danger", "Danger", modifier = UiModifier().width(112f.px).height(36f.dp), variant = AwakeShadcnButtonVariant.Danger)
                         }
                     }
                     spacer(UiModifier().height(8f.dp))

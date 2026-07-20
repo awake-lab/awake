@@ -40,6 +40,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.tooltip
 import io.github.ronjunevaldoz.awake.ui.ui
 import io.github.ronjunevaldoz.awake.ui.width
@@ -84,23 +85,10 @@ private val PreviewOverlayMenuItems = listOf(
     )
 )
 
-internal fun previewMetadataFor(
+internal expect fun previewMetadataFor(
     entry: AwakeUiPreviewEntry,
     reportScale: Int = 1
-): AwakeUiPreviewMetadata {
-    val annotation = requireNotNull(entry.javaClass.getAnnotation(AwakeUiPreview::class.java)) {
-        "missing @AwakeUiPreview on ${entry.javaClass.name}"
-    }
-    return AwakeUiPreviewMetadata(
-        id = annotation.id,
-        title = annotation.title,
-        group = annotation.group,
-        summary = annotation.summary,
-        width = annotation.width,
-        height = annotation.height,
-        reportScale = reportScale
-    )
-}
+): AwakeUiPreviewMetadata
 
 @AwakeUiPreview(
     id = "ui-showcase-overview",
@@ -427,7 +415,7 @@ private fun renderUiShowcaseCardPreviewFrame(
         val contentGapPx = 10f * previewScale
         val previewInput = Input()
         previewInput.setPointer(down = false, x = -100f, y = -100f)
-        ui.beginFrame(metadata.rasterWidth.toFloat(), metadata.rasterHeight.toFloat(), previewInput.updateSnapshot())
+        ui.beginFrame(metadata.rasterWidth.toFloat(), metadata.rasterHeight.toFloat(), previewInput.updateSnapshot().toUiInputState())
         if (focusedNodeId != null) {
             ui.requestFocus(focusedNodeId)
         }
@@ -470,19 +458,19 @@ private fun UiColumnDslScope.drawUiShowcaseButtonMatrixContent() {
         awakeShadcnButton(
             id = "showcase-matrix-button-primary",
             label = "Primary",
-            modifier = UiModifier().width(120f.px).height(36f.px),
+            modifier = UiModifier().width(120f.px).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Primary
         )
         awakeShadcnButton(
             id = "showcase-matrix-button-secondary",
             label = "Secondary",
-            modifier = UiModifier().width(120f.px).height(36f.px),
+            modifier = UiModifier().width(120f.px).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Secondary
         )
         awakeShadcnButton(
             id = "showcase-matrix-button-outline",
             label = "Outline",
-            modifier = UiModifier().width(112f.px).height(36f.px),
+            modifier = UiModifier().width(112f.px).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Outline
         )
     }
@@ -490,19 +478,19 @@ private fun UiColumnDslScope.drawUiShowcaseButtonMatrixContent() {
         awakeShadcnButton(
             id = "showcase-matrix-button-ghost",
             label = "Ghost",
-            modifier = UiModifier().width(100f.px).height(36f.px),
+            modifier = UiModifier().width(100f.px).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Ghost
         )
         awakeShadcnButton(
             id = "showcase-matrix-button-danger",
             label = "Danger",
-            modifier = UiModifier().width(108f.px).height(36f.px),
+            modifier = UiModifier().width(108f.px).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Danger
         )
         awakeShadcnButton(
             id = "showcase-matrix-button-long",
             label = "Primary action with a long label",
-            modifier = UiModifier().width(248f.px).height(36f.px),
+            modifier = UiModifier().width(248f.px).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Primary
         )
     }
@@ -515,12 +503,12 @@ private fun UiColumnDslScope.drawUiShowcaseFieldMatrixContent() {
             id = "showcase-matrix-field-empty",
             value = "",
             placeholder = "Placeholder",
-            modifier = UiModifier().width(200f.px).height(36f.px)
+            modifier = UiModifier().width(200f.px).height(36f.dp)
         )
         awakeShadcnTextField(
             id = "showcase-matrix-field-focused",
             value = "Typed text",
-            modifier = UiModifier().width(200f.px).height(36f.px)
+            modifier = UiModifier().width(200f.px).height(36f.dp)
         )
     }
     row(height = 36f.dp, gap = 12f) {
@@ -605,7 +593,7 @@ private fun UiColumnDslScope.drawUiShowcaseDropdownOpenContent() {
         val trigger = buttonSlot(
             id = "showcase-matrix-dropdown-trigger",
             label = "Actions",
-            modifier = UiModifier().width(124f.px).height(36f.px),
+            modifier = UiModifier().width(124f.px).height(36f.dp),
             style = theme.components.button
         )
         dropdownMenu(
@@ -622,7 +610,7 @@ private fun UiColumnDslScope.drawUiShowcaseDropdownOpenContent() {
         awakeShadcnButton(
             id = "showcase-matrix-dropdown-secondary",
             label = "Secondary",
-            modifier = UiModifier().width(132f.px).height(36f.px),
+            modifier = UiModifier().width(132f.px).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Outline
         )
     }
@@ -635,7 +623,7 @@ private fun UiColumnDslScope.drawUiShowcaseTooltipOpenContent() {
         val trigger = buttonSlot(
             id = "showcase-matrix-tooltip-trigger",
             label = "Hover target",
-            modifier = UiModifier().width(132f.px).height(36f.px),
+            modifier = UiModifier().width(132f.px).height(36f.dp),
             style = theme.components.button
         )
         tooltip(
@@ -654,7 +642,7 @@ private fun UiColumnDslScope.drawUiShowcaseTooltipOpenContent() {
         awakeShadcnButton(
             id = "showcase-matrix-tooltip-secondary",
             label = "Reference",
-            modifier = UiModifier().width(120f.px).height(36f.px),
+            modifier = UiModifier().width(120f.px).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Secondary
         )
     }
@@ -668,7 +656,7 @@ private fun UiColumnDslScope.drawUiShowcaseAlertDialogContent() {
     awakeShadcnButton(
         id = "showcase-matrix-dialog-trigger",
         label = "Open Dialog",
-        modifier = UiModifier().width(140f.px).height(36f.px),
+        modifier = UiModifier().width(140f.px).height(36f.dp),
         variant = AwakeShadcnButtonVariant.Outline
     )
     alertDialog(

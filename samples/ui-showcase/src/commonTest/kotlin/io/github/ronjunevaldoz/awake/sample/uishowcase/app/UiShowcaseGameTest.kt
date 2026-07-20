@@ -45,7 +45,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -313,7 +315,7 @@ private fun List<UiDrawPrimitive.RoundedQuad>.deduplicatedCards(): List<UiDrawPr
 
 private fun renderSidebarSurfaceColor(theme: io.github.ronjunevaldoz.awake.ui.UiTheme): Color {
     val ui = io.github.ronjunevaldoz.awake.ui.UiContext()
-    ui.beginFrame(360f, 240f, io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot())
+    ui.beginFrame(360f, 240f, io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot().toUiInputState())
     ui.ui(x = 24f, y = 24f, width = 264f, font = BitmapFont(), theme = theme) {
         awakeShadcnSurface(
             id = "sidebar-probe",

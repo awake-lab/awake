@@ -15,7 +15,7 @@ enum class Key {
  * Discrete text-editing commands.
  */
 enum class TextEditAction {
-    Backspace, Delete, Enter, ArrowLeft, ArrowRight, Home, End
+    Backspace, Delete, Enter, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Home, End
 }
 
 /**

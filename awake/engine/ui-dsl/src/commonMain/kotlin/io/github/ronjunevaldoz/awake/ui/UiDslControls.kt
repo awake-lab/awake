@@ -7,13 +7,21 @@ import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 
 @AwakeUiDsl
 sealed class UiDslScope protected constructor(
-    protected val scope: UiScope
+    val scope: UiScope
 ) {
     val context: UiContext get() = scope.context
     val font get() = scope.font
     val theme: UiTheme get() = scope.theme
     val textScale: Float get() = scope.textScale
     val emitsToOverlay: Boolean get() = scope.emitsToOverlay
+
+    fun animateFloat(
+        id: String,
+        target: Float,
+        initial: Float = target,
+        responsiveness: Float = 12f,
+        snapDistance: Float = 0.001f
+    ): Float = scope.animateFloat(id, target, initial, responsiveness, snapDistance)
 
     /** Nested-scope builders for DSL layout functions (row/column/absolute/box) -- delegate to
      * [scope]'s own [childColumn]/[childRow]/[childAbsolute]/[childBox], so every DSL nesting
@@ -227,9 +235,29 @@ sealed class UiDslScope protected constructor(
         id: String,
         checked: Boolean,
         label: String? = null,
+        width: Dimension = Dimension.FillMax,
+        height: Dimension = Dimension.Fixed(40f.dp),
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        enabled: Boolean = true,
+        onCheckedChange: (Boolean) -> Unit = {}
+    ): Boolean = scope.toggle(id, checked, label, width, height, modifier, style, enabled, onCheckedChange)
+
+    fun switch(
+        id: String,
+        checked: Boolean,
+        label: String? = null,
         modifier: UiModifier = UiModifier(),
         style: Style = Style.Empty
-    ): Boolean = scope.toggle(id, checked, label, modifier, style)
+    ): Boolean = scope.switchWidget(id, checked, label, modifier, style)
+
+    fun toggleGroup(
+        id: String,
+        options: List<String>,
+        selectedIndex: Int,
+        modifier: UiModifier = UiModifier(),
+        onIndexChange: (Int) -> Unit = {}
+    ) = scope.toggleGroup(id, options, selectedIndex, modifier, onIndexChange)
 
     fun progressBar(
         id: String,
@@ -266,6 +294,17 @@ sealed class UiDslScope protected constructor(
         enabled: Boolean = true,
         isError: Boolean = false
     ): String = scope.textField(id, value, placeholder, modifier, style, enabled, isError)
+
+    fun textarea(
+        id: String,
+        value: String,
+        placeholder: String = "",
+        modifier: UiModifier = UiModifier(),
+        style: Style = Style.Empty,
+        enabled: Boolean = true,
+        isError: Boolean = false,
+        minLines: Int = 3
+    ): String = scope.textarea(id, value, placeholder, modifier, style, enabled, isError, minLines)
 
     fun dropdown(
         id: String,

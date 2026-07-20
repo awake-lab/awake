@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -22,7 +23,7 @@ fun UiScope.skeleton(
 ) {
     val slot = claimModifiedSlot(
         defaultWidth = Dimension.FillMax,
-        defaultHeight = Dimension.Fixed(16f.px),
+        defaultHeight = Dimension.Fixed(16f.dp),
         modifier = modifier
     )
     val resolved = resolveStyle(style = style, defaults = theme.components.slider)
@@ -37,6 +38,12 @@ fun UiScope.skeleton(
         fillColor = baseColor.withAlpha(baseColor.a * pulse),
         radiusPx = resolved.shape.toPx(),
         borderWidth = UiShape.none,
-        borderColor = TransparentColor
+        borderColor = Color.Transparent
+    )
+
+    recordSemantic(
+        role = UiSemanticRole.Skeleton,
+        id = id,
+        bounds = slot
     )
 }

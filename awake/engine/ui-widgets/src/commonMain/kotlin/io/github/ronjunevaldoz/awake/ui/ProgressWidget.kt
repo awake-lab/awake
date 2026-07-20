@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-private const val PROGRESS_TRACK_HEIGHT_PX = 8f
+private const val PROGRESS_TRACK_HEIGHT_DP = 8f
 
 /**
  * Non-interactive progress track -- [slider]'s track/fill painting without the knob or drag
@@ -18,7 +18,7 @@ fun UiScope.progressBar(
 ) {
     val slot = claimModifiedSlot(
         defaultWidth = Dimension.FillMax,
-        defaultHeight = Dimension.Fixed(PROGRESS_TRACK_HEIGHT_PX.px),
+        defaultHeight = Dimension.Fixed(PROGRESS_TRACK_HEIGHT_DP.dp),
         modifier = modifier
     )
     val resolved = resolveStyle(style = style, defaults = theme.components.slider)

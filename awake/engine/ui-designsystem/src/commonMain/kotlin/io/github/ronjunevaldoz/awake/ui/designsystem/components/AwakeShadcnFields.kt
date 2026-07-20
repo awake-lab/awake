@@ -23,8 +23,11 @@ import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.skeleton
 import io.github.ronjunevaldoz.awake.ui.slider
 import io.github.ronjunevaldoz.awake.ui.spinner
+import io.github.ronjunevaldoz.awake.ui.switchWidget
 import io.github.ronjunevaldoz.awake.ui.textField
+import io.github.ronjunevaldoz.awake.ui.textarea
 import io.github.ronjunevaldoz.awake.ui.toggle
+import io.github.ronjunevaldoz.awake.ui.toggleGroup
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
@@ -51,18 +54,36 @@ private fun awakeShadcnRadioStyle(theme: UiTheme, style: Style): Style =
 private fun awakeShadcnSliderStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.slider(theme.asAwakeShadcnTheme()) then style
 
-fun UiScope.awakeShadcnToggle(
+fun UiScope.awakeShadcnSwitch(
     id: String,
     checked: Boolean,
     label: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
-): Boolean = toggle(
+): Boolean = switchWidget(
     id = id,
     checked = checked,
     label = label,
     modifier = modifier,
     style = awakeShadcnFieldStyle(theme, style)
+)
+
+fun UiScope.awakeShadcnToggle(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit = {}
+): Boolean = toggle(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier,
+    style = style,
+    enabled = enabled,
+    onCheckedChange = onCheckedChange
 )
 
 fun UiScope.awakeShadcnCheckbox(
@@ -97,7 +118,7 @@ fun UiColumnDslScope.awakeShadcnRadioGroup(
             id = "$id.$index",
             checked = index == selectedIndex,
             label = label,
-            modifier = modifier.height(24f.px),
+            modifier = modifier.height(24f.dp),
             style = radioStyle,
             boxSize = 16f.dp
         )
@@ -242,6 +263,27 @@ fun UiScope.awakeShadcnTextField(
     isError = isError
 )
 
+fun UiScope.awakeShadcnTextarea(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnTextFieldVariant = AwakeShadcnTextFieldVariant.Default,
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    minLines: Int = 3
+): String = textarea(
+    id = id,
+    value = value,
+    placeholder = placeholder,
+    modifier = modifier,
+    style = awakeShadcnFieldStyle(theme, variant, style),
+    enabled = enabled,
+    isError = isError,
+    minLines = minLines
+)
+
 fun UiScope.awakeShadcnDropdown(
     id: String,
     options: List<String>,
@@ -274,18 +316,44 @@ fun UiScope.awakeShadcnSlider(
     style = awakeShadcnSliderStyle(theme, style)
 )
 
-fun UiDslScope.awakeShadcnToggle(
+fun UiScope.awakeShadcnToggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: UiModifier = UiModifier(),
+    onIndexChange: (Int) -> Unit = {}
+) = toggleGroup(id, options, selectedIndex, modifier, onIndexChange)
+
+fun UiDslScope.awakeShadcnSwitch(
     id: String,
     checked: Boolean,
     label: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
-): Boolean = toggle(
+): Boolean = switch(
     id = id,
     checked = checked,
     label = label,
     modifier = modifier,
     style = awakeShadcnFieldStyle(theme, style)
+)
+
+fun UiDslScope.awakeShadcnToggle(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit = {}
+): Boolean = toggle(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier,
+    style = style,
+    enabled = enabled,
+    onCheckedChange = onCheckedChange
 )
 
 fun UiDslScope.awakeShadcnTextField(
@@ -305,6 +373,27 @@ fun UiDslScope.awakeShadcnTextField(
     style = awakeShadcnFieldStyle(theme, variant, style),
     enabled = enabled,
     isError = isError
+)
+
+fun UiDslScope.awakeShadcnTextarea(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnTextFieldVariant = AwakeShadcnTextFieldVariant.Default,
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    minLines: Int = 3
+): String = textarea(
+    id = id,
+    value = value,
+    placeholder = placeholder,
+    modifier = modifier,
+    style = awakeShadcnFieldStyle(theme, variant, style),
+    enabled = enabled,
+    isError = isError,
+    minLines = minLines
 )
 
 fun UiDslScope.awakeShadcnCheckbox(
@@ -332,7 +421,7 @@ fun UiDslScope.awakeShadcnDropdown(
     val triggerStyle = awakeShadcnFieldStyle(theme, style)
     val trigger = buttonSlot(
         id = "$id.trigger",
-        modifier = modifier.height(36f.px),
+        modifier = modifier.height(40f.dp),
         style = triggerStyle
     ) { }
     if (trigger.clicked) {
@@ -390,3 +479,11 @@ fun UiDslScope.awakeShadcnSlider(
     modifier = modifier,
     style = awakeShadcnSliderStyle(theme, style)
 )
+
+fun UiDslScope.awakeShadcnToggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: UiModifier = UiModifier(),
+    onIndexChange: (Int) -> Unit = {}
+) = toggleGroup(id, options, selectedIndex, modifier, onIndexChange)

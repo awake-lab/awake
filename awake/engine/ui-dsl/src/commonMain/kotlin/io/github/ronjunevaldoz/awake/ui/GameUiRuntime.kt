@@ -3,33 +3,18 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
-import io.github.ronjunevaldoz.awake.core.input.TextEditAction
 import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
 import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 
-private fun InputSnapshot.toUiInputState(): UiInputState = UiInputState(
-    pointerX = pointerX,
-    pointerY = pointerY,
-    pointerDown = pointerDown,
-    scrollDeltaY = scrollDeltaY,
-    typedText = typedText,
-    editActions = editActions.map { it.toUiAction() }
-)
 
-private fun TextEditAction.toUiAction(): UiTextEditAction = when (this) {
-    TextEditAction.Backspace -> UiTextEditAction.Backspace
-    TextEditAction.Delete -> UiTextEditAction.Delete
-    TextEditAction.Enter -> UiTextEditAction.Enter
-    TextEditAction.ArrowLeft -> UiTextEditAction.ArrowLeft
-    TextEditAction.ArrowRight -> UiTextEditAction.ArrowRight
-    TextEditAction.Home -> UiTextEditAction.Home
-    TextEditAction.End -> UiTextEditAction.End
-}
+/**
+ * Orchestrates a single 3D scene session.
+ */
 
 class GameUiSpec internal constructor(
     internal val theme: UiTheme,

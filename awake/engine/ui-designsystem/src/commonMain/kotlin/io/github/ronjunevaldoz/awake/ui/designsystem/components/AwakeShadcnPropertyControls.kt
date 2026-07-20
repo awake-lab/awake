@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiAbsoluteDslScope
@@ -12,10 +13,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnDropd
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggle
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.width
 
 private fun UiAbsoluteDslScope.awakeShadcnPropertyLabel(label: String) {
@@ -38,7 +43,7 @@ fun UiColumnDslScope.awakeShadcnPropertyToggle(
 ): Boolean {
     var resolved = checked
     propertyRow(
-        modifier = modifier.height(36f.px),
+        modifier = modifier.height(40f.dp),
         labelContent = labelContent
     ) { _ ->
         resolved = awakeShadcnToggle(
@@ -99,7 +104,7 @@ fun UiColumnDslScope.awakeShadcnPropertyDropdown(
 ): Int? {
     var resolved: Int? = null
     propertyRow(
-        modifier = modifier.height(36f.px),
+        modifier = modifier.height(40f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
@@ -177,7 +182,7 @@ fun UiColumnDslScope.awakeShadcnPropertyTextField(
 ): String {
     var resolved = value
     propertyRow(
-        modifier = modifier.height(36f.px),
+        modifier = modifier.height(40f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
@@ -223,6 +228,81 @@ fun UiColumnDslScope.awakeShadcnPropertyTextField(
     awakeShadcnPropertyLabel(label)
 }
 
+fun UiColumnDslScope.awakeShadcnPropertyTextarea(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: UiModifier = UiModifier(),
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    errorText: String? = null,
+    minLines: Int = 3,
+    labelContent: UiAbsoluteDslScope.(slot: UiSlot) -> Unit
+): String {
+    val resolvedDefaults = theme.components.textField
+    val resolvedStyle = scope.resolveStyle(
+        style = style,
+        defaults = resolvedDefaults,
+        state = io.github.ronjunevaldoz.awake.ui.MutableStyleState(disabled = !enabled)
+    )
+    val fontHeight = font?.let { scope.resolveGlyphPx(it, resolvedStyle.textScale, resolvedStyle.textSize) } ?: 0f
+    val padding = resolvedStyle.contentPadding
+    val totalPadding = padding.top + padding.bottom
+    val lineGap = fontHeight * 0.25f
+    val minHeight = (fontHeight * minLines) + (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
+
+    var resolved = value
+    propertyRow(
+        modifier = modifier.height(minHeight.px),
+        labelWidth = labelWidth,
+        labelContent = labelContent
+    ) { slot ->
+        resolved = awakeShadcnTextarea(
+            id = id,
+            value = value,
+            placeholder = placeholder,
+            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            style = style,
+            enabled = enabled,
+            isError = errorText != null,
+            minLines = minLines
+        )
+    }
+    if (errorText != null) {
+        awakeShadcnSupportingText(
+            errorText,
+            style = Style { foreground(theme.asAwakeShadcnTheme().tokens.destructive) }
+        )
+    }
+    return resolved
+}
+
+fun UiColumnDslScope.awakeShadcnPropertyTextarea(
+    id: String,
+    label: String,
+    value: String,
+    placeholder: String = "",
+    modifier: UiModifier = UiModifier(),
+    labelWidth: Dp = 64f.dp,
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    errorText: String? = null,
+    minLines: Int = 3
+): String = awakeShadcnPropertyTextarea(
+    id = id,
+    value = value,
+    placeholder = placeholder,
+    modifier = modifier,
+    labelWidth = labelWidth,
+    style = style,
+    enabled = enabled,
+    errorText = errorText,
+    minLines = minLines
+) {
+    awakeShadcnPropertyLabel(label)
+}
+
 fun UiColumnDslScope.awakeShadcnPropertySlider(
     id: String,
     min: Float,
@@ -235,7 +315,7 @@ fun UiColumnDslScope.awakeShadcnPropertySlider(
 ): Float {
     var resolved = value
     propertyRow(
-        modifier = modifier.height(36f.px),
+        modifier = modifier.height(40f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->

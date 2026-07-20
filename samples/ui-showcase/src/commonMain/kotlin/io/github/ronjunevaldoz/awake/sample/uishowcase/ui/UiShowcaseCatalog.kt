@@ -346,6 +346,29 @@ internal val ShowcasePages = listOf(
             "This page is the reusable API story: callers bring content, the scroll surface owns the rest."
         ),
         renderPreview = { drawUiShowcaseScrollPanelPreview() }
+    ),
+    ShowcasePage(
+        id = "collapsible",
+        title = "Collapsible",
+        category = ShowcaseCategory.Layout,
+        description = "An interactive disclosure panel that toggles visibility of its content with an animated height transition.",
+        usageCode = """
+            var expanded by remember { false }
+            awakeShadcnCollapsible(
+                id = "my-panel",
+                title = "Show more",
+                expanded = expanded,
+                onExpandedChange = { expanded = it }
+            ) {
+                text("The hidden content goes here.")
+            }
+        """.trimIndent(),
+        notes = listOf(
+            "Uses a ghost-variant button as the header.",
+            "Lays out and animates height changes using a per-widget state-based measure pass.",
+            "Hidden content costs nothing to lay out while fully collapsed."
+        ),
+        renderPreview = { state -> drawUiShowcaseCollapsiblePreview(state) }
     )
 )
 

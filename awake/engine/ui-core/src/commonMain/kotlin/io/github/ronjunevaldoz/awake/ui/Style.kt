@@ -254,5 +254,3 @@ private class StyleBuilder(
         rules += nestedBuilder.build()
     }
 }
-
-private operator fun Dp.plus(other: Dp): Dp = Dp(value + other.value)

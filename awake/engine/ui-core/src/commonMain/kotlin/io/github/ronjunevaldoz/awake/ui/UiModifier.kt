@@ -43,11 +43,20 @@ data class UiModifier(
     val alignment: UiAlignment? = null,
     val offsetX: Dp = UiShape.none,
     val offsetY: Dp = UiShape.none,
-    val insets: UiInsets = UiInsets.Zero
+    val insets: UiInsets = UiInsets.Zero,
+    val forceHover: Boolean? = null,
+    val forceActive: Boolean? = null,
+    val forceFocus: Boolean? = null
 )
+
+fun UiModifier.forceHover(value: Boolean = true): UiModifier = copy(forceHover = value)
+fun UiModifier.forceActive(value: Boolean = true): UiModifier = copy(forceActive = value)
+fun UiModifier.forceFocus(value: Boolean = true): UiModifier = copy(forceFocus = value)
 
 fun UiModifier.width(dp: Dp): UiModifier = copy(width = Dimension.Fixed(dp))
 fun UiModifier.height(dp: Dp): UiModifier = copy(height = Dimension.Fixed(dp))
+fun UiModifier.width(dimension: Dimension): UiModifier = copy(width = dimension)
+fun UiModifier.height(dimension: Dimension): UiModifier = copy(height = dimension)
 fun UiModifier.size(width: Dp, height: Dp): UiModifier = copy(width = Dimension.Fixed(width), height = Dimension.Fixed(height))
 fun UiModifier.fillMaxWidth(): UiModifier = copy(width = Dimension.FillMax)
 fun UiModifier.fillMaxHeight(): UiModifier = copy(height = Dimension.FillMax)

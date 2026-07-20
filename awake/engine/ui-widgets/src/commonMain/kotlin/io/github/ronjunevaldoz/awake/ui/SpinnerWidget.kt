@@ -21,8 +21,8 @@ fun UiScope.spinner(
     style: Style = Style.Empty
 ) {
     val slot = claimModifiedSlot(
-        defaultWidth = Dimension.Fixed(24f.px),
-        defaultHeight = Dimension.Fixed(24f.px),
+        defaultWidth = Dimension.Fixed(24f.dp),
+        defaultHeight = Dimension.Fixed(24f.dp),
         modifier = modifier
     )
     val resolved = resolveStyle(style = style)
@@ -51,4 +51,10 @@ fun UiScope.spinner(
             shapeSpec = UiShapeSpec.Circle
         )
     }
+
+    recordSemantic(
+        role = UiSemanticRole.Spinner,
+        id = id,
+        bounds = slot
+    )
 }

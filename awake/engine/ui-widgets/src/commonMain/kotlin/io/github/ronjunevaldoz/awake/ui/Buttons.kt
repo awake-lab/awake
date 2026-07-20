@@ -23,10 +23,14 @@ private inline fun UiScope.buttonSlotInternal(
             borderWidth(1f.dp)
         }
     }
+    val styleState = MutableStyleState(
+        hovered = interaction.hovered || modifier.forceHover == true,
+        active = interaction.active || modifier.forceActive == true
+    )
     val resolved = resolveStyle(
         style = style,
         defaults = defaults,
-        state = MutableStyleState(hovered = interaction.hovered, active = interaction.active)
+        state = styleState
     )
     val baseFill = resolved.background ?: theme.tokens.background
     val fillColor = variant.resolveFill(baseFill, interaction.hovered, interaction.active)
@@ -82,7 +86,7 @@ fun UiScope.buttonSlot(
 ): UiButtonResult = buttonSlotInternal(
     id = id,
     width = Dimension.FillMax,
-    height = Dimension.Fixed(36f.px),
+    height = Dimension.Fixed(40f.dp),
     modifier = modifier,
     style = style,
     variant = variant,
@@ -116,7 +120,7 @@ fun UiScope.buttonSlot(
 ): UiButtonResult = buttonSlotInternal(
     id = id,
     width = Dimension.FillMax,
-    height = Dimension.Fixed(36f.px),
+    height = Dimension.Fixed(40f.dp),
     modifier = modifier,
     style = style,
     variant = variant,

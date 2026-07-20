@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
@@ -11,11 +12,15 @@ import io.github.ronjunevaldoz.awake.ui.UiColumnDslScope
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
+import io.github.ronjunevaldoz.awake.ui.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.alertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
@@ -25,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.tooltip
 import io.github.ronjunevaldoz.awake.ui.width
 
 private val ShowcaseActionMenuItems = listOf(
@@ -185,6 +191,41 @@ internal fun UiColumnDslScope.drawUiShowcasePopupPreview() {
             }
         }
     }
+}
+
+internal fun UiColumnDslScope.drawUiShowcaseTooltipPreview() {
+    awakeShadcnSectionTitle("Tooltip")
+    awakeShadcnSupportingText("Tooltips stay small and contextual: anchored to a trigger, wrapped inside a surfaced popup, and dismissible without changing the surrounding layout.")
+    spacer(UiModifier().height(8f.dp))
+    row(height = 36f.dp, gap = 12f) {
+        val trigger = buttonSlot(
+            id = "showcase-tooltip-trigger",
+            label = "Scene info",
+            modifier = UiModifier().width(132f.dp).height(36f.dp),
+            style = theme.components.button
+        )
+        tooltip(
+            anchorSlot = trigger.slot,
+            visible = true,
+            width = Dimension.Fixed(260f.dp),
+            positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
+        ) {
+            text(
+                label = "Frame pacing, draw calls, and scene counters can live in a tooltip without forcing a dedicated panel.",
+                wrap = UiTextWrap.Word,
+                overflow = UiTextOverflow.Ellipsis,
+                maxLines = 3
+            )
+        }
+        awakeShadcnButton(
+            id = "showcase-tooltip-reference",
+            label = "Reference",
+            modifier = UiModifier().width(120f.dp).height(36f.dp),
+            variant = AwakeShadcnButtonVariant.Secondary
+        )
+    }
+    spacer(UiModifier().height(8f.dp))
+    awakeShadcnSupportingText("The preview suite keeps an open-state proof so tooltip width, wrap, and anchoring stay reviewable without hover automation.")
 }
 
 private fun UiShowcaseCounterContract.Effect.toDebugLabel(): String = when (this) {

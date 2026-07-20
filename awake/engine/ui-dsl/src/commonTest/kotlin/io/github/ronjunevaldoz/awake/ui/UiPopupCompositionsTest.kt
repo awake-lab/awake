@@ -189,7 +189,7 @@ class UiPopupCompositionsTest {
     fun popupMeasurementDoesNotInflateWrapContentLayouts() {
         val ui = UiContext()
 
-        val measured = ui.measureDslColumnContent(
+        val measured = ui.measureColumnContent(
             width = 220f,
             font = BitmapFont(),
             theme = CoreUiTheme

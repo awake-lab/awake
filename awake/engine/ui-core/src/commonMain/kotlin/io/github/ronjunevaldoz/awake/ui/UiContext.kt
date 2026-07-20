@@ -259,6 +259,10 @@ class UiContext private constructor(
 
     fun pointerDownEdge(): Boolean = pointerDownEdgeThisFrame
 
+    fun setActive(id: String?) {
+        activeId = id
+    }
+
     fun isFocused(id: String): Boolean = isFocusedInternal(id)
 
     fun requestFocus(id: String) = requestFocusInternal(id)
@@ -281,8 +285,8 @@ class UiContext private constructor(
         width: Float,
         font: UiFont?,
         theme: UiTheme,
-        gap: Float,
-        textScale: Float,
+        gap: Float =  UiSpacing.sm.toPx(),
+        textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
         content: ColumnScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent {
@@ -295,6 +299,38 @@ class UiContext private constructor(
             deltaSeconds = 0f
         )
         val measureScope = measureContext.column(
+            slot = outerSlot,
+            font = font,
+            theme = theme,
+            gap = gap,
+            textScale = textScale,
+            insets = insets
+        )
+        measureScope.content(outerSlot)
+        return UiMeasuredContent(
+            width = measureContext.measuredMaxRight,
+            height = measureContext.measuredMaxBottom
+        )
+    }
+
+    fun measureRowContent(
+        height: Float,
+        font: UiFont?,
+        theme: UiTheme,
+        gap: Float,
+        textScale: Float,
+        insets: UiInsets = UiInsets.Zero,
+        content: RowScope.(slot: UiSlot) -> Unit
+    ): UiMeasuredContent {
+        val measureContext = UiContext(measuring = true)
+        val outerSlot = UiSlot(0f, 0f, 100_000f, height.coerceAtLeast(0f))
+        measureContext.beginFrame(
+            screenWidth = outerSlot.width,
+            screenHeight = outerSlot.height.coerceAtLeast(1f),
+            inputState = UiInputState(),
+            deltaSeconds = 0f
+        )
+        val measureScope = measureContext.row(
             slot = outerSlot,
             font = font,
             theme = theme,

@@ -16,9 +16,9 @@ enum class AwakeShadcnButtonVariant {
 enum class AwakeShadcnButtonSize(val heightDp: Float) {
     Xs(28f),
     Sm(32f),
-    Md(36f),
-    Lg(40f),
-    Icon(36f)
+    Md(40f),
+    Lg(44f),
+    Icon(40f)
 }
 
 enum class AwakeShadcnBadgeVariant {

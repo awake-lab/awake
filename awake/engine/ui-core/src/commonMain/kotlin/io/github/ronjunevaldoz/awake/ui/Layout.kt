@@ -70,9 +70,9 @@ class ColumnScope internal constructor(
     font: UiFont?,
     theme: UiTheme,
     private val x: Float,
-    startY: Float,
-    private val width: Float,
-    private val gap: Float,
+    private val startY: Float,
+    val width: Float,
+    val gap: Float,
     textScale: Float = 1f,
     emitToOverlay: Boolean = false
 ) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {

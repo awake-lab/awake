@@ -12,7 +12,7 @@ private const val TOGGLE_HEIGHT_PX = 22f
 private const val TOGGLE_KNOB_INSET_PX = 2f
 private const val TOGGLE_LABEL_GAP = 8f
 
-fun UiScope.toggle(
+fun UiScope.switchWidget(
     id: String,
     checked: Boolean,
     label: String? = null,
@@ -21,14 +21,19 @@ fun UiScope.toggle(
 ): Boolean {
     val interaction = interact(
         id = id,
-        width = Dimension.Fixed(TOGGLE_WIDTH_PX.px),
-        height = Dimension.Fixed(TOGGLE_HEIGHT_PX.px),
+        width = Dimension.Fixed(TOGGLE_WIDTH_PX.dp),
+        height = Dimension.Fixed(TOGGLE_HEIGHT_PX.dp),
         modifier = modifier
+    )
+    val styleState = MutableStyleState(
+        hovered = interaction.hovered || modifier.forceHover == true,
+        active = interaction.active || modifier.forceActive == true,
+        selected = checked
     )
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.toggle,
-        state = MutableStyleState(hovered = interaction.hovered, active = interaction.active, selected = checked)
+        state = styleState
     )
     val newChecked = if (interaction.clicked) !checked else checked
     val trackFill = if (newChecked) theme.tokens.primary else (resolved.background ?: theme.tokens.background)
@@ -75,7 +80,7 @@ fun UiScope.toggle(
         )
     }
     recordSemantic(
-        role = UiSemanticRole.Toggle,
+        role = UiSemanticRole.Switch,
         id = id,
         label = label,
         bounds = interaction.slot,
@@ -96,16 +101,21 @@ fun UiScope.checkbox(
     val interaction = interact(
         id = id,
         width = Dimension.FillMax,
-        height = Dimension.Fixed(24f.px),
+        height = Dimension.Fixed(24f.dp),
         modifier = modifier
+    )
+    val boxPx = boxSize.toPx()
+    val boxSlot = UiSlot(interaction.slot.x, interaction.slot.y + (interaction.slot.height - boxPx) / 2f, boxPx, boxPx)
+    val styleState = MutableStyleState(
+        hovered = interaction.hovered || modifier.forceHover == true,
+        active = interaction.active || modifier.forceActive == true,
+        selected = checked
     )
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.checkbox,
-        state = MutableStyleState(hovered = interaction.hovered, active = interaction.active, selected = checked)
+        state = styleState
     )
-    val boxPx = boxSize.toPx()
-    val boxSlot = UiSlot(interaction.slot.x, interaction.slot.y + (interaction.slot.height - boxPx) / 2f, boxPx, boxPx)
     emitFillAndBorder(
         slot = boxSlot,
         fillColor = resolved.background ?: theme.tokens.background,

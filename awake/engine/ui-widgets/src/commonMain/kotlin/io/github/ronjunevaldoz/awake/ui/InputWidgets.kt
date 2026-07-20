@@ -22,7 +22,7 @@ fun UiScope.slider(
 ): Float {
     val slot = claimModifiedSlot(
         defaultWidth = Dimension.FillMax,
-        defaultHeight = Dimension.Fixed(28f.px),
+        defaultHeight = Dimension.Fixed(28f.dp),
         modifier = modifier
     )
     val hovered = hitTest(slot)
@@ -32,10 +32,14 @@ fun UiScope.slider(
     val newValue = if (dragging) sliderValueFromPointerX(context.pointerX(), slot.x, slot.width, min, max) else value
     releaseActiveIfMatches(id)
 
+    val styleState = MutableStyleState(
+        hovered = hovered || modifier.forceHover == true,
+        active = dragging || modifier.forceActive == true
+    )
     val resolved = resolveStyle(
         style = style,
         defaults = theme.components.slider,
-        state = MutableStyleState(hovered = hovered, active = dragging)
+        state = styleState
     )
     val trackSlot = UiSlot(
         slot.x,
@@ -112,7 +116,7 @@ fun UiScope.dropdown(
     val selectedLabel = options.getOrNull(selectedIndex) ?: ""
     val (clicked, slot) = buttonSlot(
         id = "$id.trigger",
-        modifier = modifier.copy(height = modifier.height ?: Dimension.Fixed(36f.px)),
+        modifier = modifier.copy(height = modifier.height ?: Dimension.Fixed(36f.dp)),
         style = resolvedDefaults then style
     )
     if (clicked) {

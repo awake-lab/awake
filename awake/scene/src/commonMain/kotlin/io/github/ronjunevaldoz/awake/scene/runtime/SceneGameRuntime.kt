@@ -22,28 +22,10 @@ import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 
-private fun io.github.ronjunevaldoz.awake.core.input.InputSnapshot.toUiInputState(): UiInputState = UiInputState(
-    pointerX = pointerX,
-    pointerY = pointerY,
-    pointerDown = pointerDown,
-    scrollDeltaY = scrollDeltaY,
-    typedText = typedText,
-    editActions = editActions.map { it.toUiAction() }
-)
-
-private fun io.github.ronjunevaldoz.awake.core.input.TextEditAction.toUiAction(): UiTextEditAction = when (this) {
-    io.github.ronjunevaldoz.awake.core.input.TextEditAction.Backspace -> UiTextEditAction.Backspace
-    io.github.ronjunevaldoz.awake.core.input.TextEditAction.Delete -> UiTextEditAction.Delete
-    io.github.ronjunevaldoz.awake.core.input.TextEditAction.Enter -> UiTextEditAction.Enter
-    io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowLeft -> UiTextEditAction.ArrowLeft
-    io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowRight -> UiTextEditAction.ArrowRight
-    io.github.ronjunevaldoz.awake.core.input.TextEditAction.Home -> UiTextEditAction.Home
-    io.github.ronjunevaldoz.awake.core.input.TextEditAction.End -> UiTextEditAction.End
-}
 
 /**
  * Orchestrates a single 3D scene session.

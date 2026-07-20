@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 private const val PROPERTY_LABEL_GAP = 8f
 private const val PROPERTY_LABEL_MAX_FRACTION = 0.45f
 private const val PROPERTY_MIN_CONTROL_WIDTH_GLYPHS = 12
-private val DefaultPropertyRowHeight = 36f.px
-private val DefaultPropertyCheckboxHeight = 28f.px
+private val DefaultPropertyRowHeight = 40f.dp
+private val DefaultPropertyCheckboxHeight = 28f.dp
 
 private data class PropertyInteraction(
     val slot: UiSlot,

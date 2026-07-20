@@ -7,9 +7,11 @@ import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.UiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.UiTypography
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.AwakeShadcnMetrics
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.AwakeShadcnPalette
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.AwakeShadcnRadiusScale
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.sp
 
@@ -313,8 +315,16 @@ private fun createPalette(config: AwakeShadcnThemeConfig): AwakeShadcnPalette {
         accentPressed = mix(accentSurface, foreground, if (dark) 0.16f else 0.06f),
         destructive = if (dark) oklch(0.704f, 0.191f, 22.216f) else oklch(0.577f, 0.245f, 27.325f),
         destructiveForeground = if (dark) oklch(0.985f, 0f) else Color.White,
-        destructiveHover = if (dark) oklch(0.652f, 0.191f, 22.216f) else oklch(0.537f, 0.245f, 27.325f),
-        destructivePressed = if (dark) oklch(0.604f, 0.191f, 22.216f) else oklch(0.507f, 0.245f, 27.325f),
+        destructiveHover = if (dark) oklch(0.652f, 0.191f, 22.216f) else oklch(
+            0.537f,
+            0.245f,
+            27.325f
+        ),
+        destructivePressed = if (dark) oklch(0.604f, 0.191f, 22.216f) else oklch(
+            0.507f,
+            0.245f,
+            27.325f
+        ),
         border = border,
         ring = ring,
         input = input,

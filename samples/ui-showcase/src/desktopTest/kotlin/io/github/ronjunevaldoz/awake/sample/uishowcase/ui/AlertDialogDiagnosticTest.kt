@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.alertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.ui
 import kotlin.test.Test
 
@@ -47,7 +48,7 @@ internal object AlertDialogDiagnosticPreview : AwakeUiPreviewEntry {
         val theme = awakeShadcnTheme(dark = false)
         val font = UiFonts.default()
         val ui = UiContext()
-        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), diagnosticTestSnapshot())
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), diagnosticTestSnapshot().toUiInputState())
         ui.ui(x = 0f, y = 0f, width = metadata.width.toFloat(), font = font, theme = theme) {
             alertDialog(
                 id = "diagnostic-delete-dialog",

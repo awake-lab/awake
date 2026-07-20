@@ -3,14 +3,17 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
-import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreview
+import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewSample
+import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
+import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
+import io.github.ronjunevaldoz.awake.testing.ui.componentStateMatrix
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
@@ -27,8 +30,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnRadio
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSkeleton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSpinner
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.Dimension
@@ -52,20 +58,50 @@ import kotlin.test.Test
  * `docs/reference/awake-previews/` when actually publishing a side-by-side comparison,
  * the same manual step already used for `docs/reference/shadcn-previews/`.
  */
-/** Builds a one-off [InputSnapshot] for a preview frame -- [Input] is a per-session
+import io.github.ronjunevaldoz.awake.ui.UiInputState
+
+/** Builds a one-off [UiInputState] for a preview frame -- [Input] is a per-session
  * instance now (no longer a global object), so tests construct their own throwaway one. */
-private fun parityTestSnapshot(): InputSnapshot {
+private fun parityTestSnapshot(): UiInputState {
     val input = Input()
     input.setPointer(down = false, x = -100f, y = -100f)
-    return input.updateSnapshot()
+    return input.updateSnapshot().toUiInputState()
 }
 
 class AwakeShadcnParityScreenshotTest {
 
     @Test
-    fun writeParityScreenshots() {
-        listOf(AwakeButtonVariantsLightPreview, AwakeTextFieldStatesLightPreview, AwakeBadgeVariantsLightPreview, AwakeAlertVariantsLightPreview, AwakeRadioGroupLightPreview, AwakeProgressLightPreview, AwakeAvatarLightPreview, AwakeKbdLightPreview, AwakeSkeletonLightPreview, AwakeTabsLightPreview, AwakeBreadcrumbLightPreview, AwakeCollapsibleLightPreview, AwakeSpinnerLightPreview).forEach { entry ->
-            saveAwakeUiPreview(renderAnnotatedUiPreview(entry))
+    fun verifyParityScreenshots() {
+        val record = System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.toBoolean() ?: false
+        listOf(
+            AwakeButtonVariantsLightPreview,
+            AwakeTextFieldStatesLightPreview,
+            AwakeTextareaStatesLightPreview,
+            AwakeSwitchVariantsLightPreview,
+            AwakeToggleButtonVariantsLightPreview,
+            AwakeBadgeVariantsLightPreview,
+            AwakeAlertVariantsLightPreview,
+            AwakeRadioGroupLightPreview,
+            AwakeProgressLightPreview,
+            AwakeAvatarLightPreview,
+            AwakeKbdLightPreview,
+            AwakeSkeletonLightPreview,
+            AwakeTabsLightPreview,
+            AwakeBreadcrumbLightPreview,
+            AwakeCollapsibleLightPreview,
+            AwakeSpinnerLightPreview,
+            AwakeSliderMatrixLightPreview,
+            AwakeTextareaMatrixLightPreview,
+            AwakeToggleMatrixLightPreview,
+            AwakeTextFieldMatrixLightPreview,
+            AwakeSwitchMatrixLightPreview
+        ).forEach { entry ->
+            renderAnnotatedUiPreviews(entry).forEach { scene ->
+                // Always save to build/ui-previews for report generation
+                saveAwakeUiPreview(scene)
+                // Verify against golden baseline
+                verifyAwakeUiPreview(scene, record = record)
+            }
         }
     }
 }
@@ -453,4 +489,186 @@ internal object AwakeSpinnerLightPreview : AwakeUiPreviewEntry {
             semantics = ui.semanticNodes()
         )
     }
+}
+
+@AwakeUiPreview(
+    id = "awake-textarea-states-light",
+    title = "Awake Textarea States (light)",
+    group = "Shadcn Parity",
+    summary = "Multi-line text input with manual newline support.",
+    width = 320,
+    height = 360
+)
+internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = awakeShadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.ui(x = 24f, y = 24f, width = 272f, font = font, theme = theme, gap = 16f) {
+            awakeShadcnTextarea("parity-textarea-1", value = "", placeholder = "Default textarea", modifier = UiModifier().width(272f.px))
+            awakeShadcnTextarea("parity-textarea-2", value = "Line 1\nLine 2\nLine 3", modifier = UiModifier().width(272f.px))
+            awakeShadcnTextarea("parity-textarea-3", value = "", placeholder = "Disabled textarea", modifier = UiModifier().width(272f.px), enabled = false)
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-switch-variants-light",
+    title = "Awake Switch Variants (light)",
+    group = "Shadcn Parity",
+    summary = "Pill-shaped boolean switch, matches real shadcn Switch.",
+    width = 200,
+    height = 100
+)
+internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = awakeShadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.ui(x = 24f, y = 24f, width = 152f, font = font, theme = theme, gap = 12f) {
+            awakeShadcnSwitch("parity-switch-off", checked = false, label = "Airplane Mode")
+            awakeShadcnSwitch("parity-switch-on", checked = true, label = "Airplane Mode")
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-toggle-button-variants-light",
+    title = "Awake Toggle Button Variants (light)",
+    group = "Shadcn Parity",
+    summary = "Pressable two-state button, matches real shadcn Toggle.",
+    width = 240,
+    height = 120
+)
+internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = awakeShadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.ui(x = 24f, y = 24f, width = 192f, font = font, theme = theme, gap = 10f) {
+            row(height = 40f.dp, gap = 10f) {
+                awakeShadcnToggle("parity-toggle-off", checked = false, label = "B", modifier = UiModifier().width(40f.px).height(40f.px))
+                awakeShadcnToggle("parity-toggle-on", checked = true, label = "B", modifier = UiModifier().width(40f.px).height(40f.px))
+                awakeShadcnToggle("parity-toggle-disabled", checked = false, label = "B", modifier = UiModifier().width(40f.px).height(40f.px), enabled = false)
+            }
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-slider-matrix-light",
+    title = "Awake Slider Matrix (light)",
+    group = "Component Matrix",
+    summary = "Shows Slider in all interaction states.",
+    width = 320,
+    height = 240
+)
+internal object AwakeSliderMatrixLightPreview : AwakeUiPreviewEntry {
+    override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
+        val theme = awakeShadcnTheme(dark = false)
+        return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
+            slider("slider", 0f, 100f, 50f, label = "Slider", modifier = forcedModifier)
+        }
+    }
+
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame = error("Use renderSamples")
+}
+
+@AwakeUiPreview(
+    id = "awake-textarea-matrix-light",
+    title = "Awake Textarea Matrix (light)",
+    group = "Component Matrix",
+    summary = "Shows Textarea in all interaction states.",
+    width = 320,
+    height = 240
+)
+internal object AwakeTextareaMatrixLightPreview : AwakeUiPreviewEntry {
+    override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
+        val theme = awakeShadcnTheme(dark = false)
+        return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
+            textarea("textarea", value = "Line 1\nLine 2", placeholder = "Type here...", modifier = forcedModifier.width(272f.px))
+        }
+    }
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame = error("Use renderSamples")
+}
+
+@AwakeUiPreview(
+    id = "awake-toggle-matrix-light",
+    title = "Awake Toggle Matrix (light)",
+    group = "Component Matrix",
+    summary = "Shows Toggle (button style) in all interaction states.",
+    width = 240,
+    height = 120
+)
+internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
+    override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
+        val theme = awakeShadcnTheme(dark = false)
+        return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
+            row(height = 40f.dp, gap = 10f) {
+                toggle("toggle-off", checked = false, label = "Off", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
+                toggle("toggle-on", checked = true, label = "On", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
+            }
+        }
+    }
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame = error("Use renderSamples")
+}
+
+@AwakeUiPreview(
+    id = "awake-textfield-matrix-light",
+    title = "Awake TextField Matrix (light)",
+    group = "Component Matrix",
+    summary = "Shows TextField in all interaction states.",
+    width = 320,
+    height = 160
+)
+internal object AwakeTextFieldMatrixLightPreview : AwakeUiPreviewEntry {
+    override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
+        val theme = awakeShadcnTheme(dark = false)
+        return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
+            textField("textfield", value = "", placeholder = "Default", modifier = forcedModifier)
+        }
+    }
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame = error("Use renderSamples")
+}
+
+@AwakeUiPreview(
+    id = "awake-switch-matrix-light",
+    title = "Awake Switch Matrix (light)",
+    group = "Component Matrix",
+    summary = "Shows Switch in all interaction states.",
+    width = 240,
+    height = 120
+)
+internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
+    override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
+        val theme = awakeShadcnTheme(dark = false)
+        return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
+            row(height = 40f.dp, gap = 10f) {
+                switch("switch-off", checked = false, label = "Off", modifier = forcedModifier)
+                switch("switch-on", checked = true, label = "On", modifier = forcedModifier)
+            }
+        }
+    }
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame = error("Use renderSamples")
 }

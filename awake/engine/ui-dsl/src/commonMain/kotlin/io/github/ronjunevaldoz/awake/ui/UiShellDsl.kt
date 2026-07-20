@@ -330,7 +330,7 @@ fun UiColumnDslScope.propertyToggle(
 ): Boolean {
     var resolved = checked
     propertyRow(
-        modifier = modifier.height(28f.px),
+        modifier = modifier.height(28f.dp),
         labelContent = labelContent
     ) { slot ->
         resolved = toggle(
@@ -353,7 +353,7 @@ fun UiColumnDslScope.propertyToggle(
 ): Boolean {
     var resolved = checked
     propertyRow(
-        height = height.px,
+        height = height.dp,
         labelContent = labelContent
     ) { slot ->
         resolved = toggle(
@@ -409,7 +409,7 @@ fun UiColumnDslScope.propertyDropdown(
 ): Int? {
     var resolved: Int? = null
     propertyRow(
-        modifier = modifier.height(28f.px),
+        modifier = modifier.height(28f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
@@ -435,7 +435,7 @@ fun UiColumnDslScope.propertyDropdown(
 ): Int? {
     var resolved: Int? = null
     propertyRow(
-        height = height.px,
+        height = height.dp,
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
@@ -528,7 +528,7 @@ fun UiColumnDslScope.propertySlider(
 ): Float {
     var resolved = value
     propertyRow(
-        height = height.px,
+        height = height.dp,
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->

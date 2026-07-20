@@ -8,6 +8,8 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 class UiColumnDslScope internal constructor(
     private val columnScope: ColumnScope
 ) : UiDslScope(columnScope) {
+    val gap: Float get() = columnScope.gap
+    fun fillWidthOrNull(): Float? = columnScope.fillWidth
 
     fun spacer(modifier: UiModifier) {
         columnScope.claimSlot(modifier.width ?: Dimension.FillMax, modifier.height ?: Dimension.FillMax)
@@ -44,8 +46,43 @@ class UiColumnDslScope internal constructor(
         gap: Float = UiSpacing.sm.toPx(),
         modifier: UiModifier = UiModifier(),
         content: UiRowDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = row(height.toDimension(), width, gap, modifier, content)
+
+    fun row(
+        height: Dimension,
+        width: Dimension = Dimension.FillMax,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        content: UiRowDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
-        val slot = columnScope.claimSlot(modifier.width ?: width, modifier.height ?: height.toDimension())
+        val requestedWidth = modifier.width ?: width
+        val requestedHeight = modifier.height ?: height
+        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+            val availableHeight = when (requestedHeight) {
+                is Dimension.Fixed -> requestedHeight.dp.toPx()
+                Dimension.FillMax, Dimension.WrapContent -> 4096f
+            }
+            context.measureRowContent(
+                height = availableHeight,
+                font = font,
+                theme = theme,
+                gap = gap,
+                textScale = textScale,
+            ) { measureSlot ->
+                UiRowDslScope(this).content(measureSlot)
+            }
+        } else {
+            null
+        }
+        val resolvedWidth = when (requestedWidth) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
+            else -> requestedWidth
+        }
+        val resolvedHeight = when (requestedHeight) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
+            else -> requestedHeight
+        }
+        val slot = columnScope.claimSlot(resolvedWidth, resolvedHeight)
         UiRowDslScope(childRow(slot, gap = gap)).content(slot)
         return slot
     }
@@ -58,7 +95,35 @@ class UiColumnDslScope internal constructor(
         insets: UiInsets = UiInsets.Zero,
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
-        val slot = columnScope.claimSlot(modifier.width ?: width, modifier.height ?: height)
+        val requestedWidth = modifier.width ?: width
+        val requestedHeight = modifier.height ?: height
+        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+            val availableWidth = when (requestedWidth) {
+                is Dimension.Fixed -> requestedWidth.dp.toPx()
+                Dimension.FillMax, Dimension.WrapContent -> columnScope.fillWidthOrNull() ?: 4096f
+            }
+            context.measureColumnContent(
+                width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
+                font = font,
+                theme = theme,
+                gap = gap,
+                textScale = textScale,
+                insets = insets
+            ) { measureSlot ->
+                UiColumnDslScope(this).content(measureSlot)
+            }
+        } else {
+            null
+        }
+        val resolvedWidth = when (requestedWidth) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width + insets.horizontalPx()).px)
+            else -> requestedWidth
+        }
+        val resolvedHeight = when (requestedHeight) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height + insets.verticalPx()).px)
+            else -> requestedHeight
+        }
+        val slot = columnScope.claimSlot(resolvedWidth, resolvedHeight)
         UiColumnDslScope(childColumn(slot, gap = gap, insets = insets)).content(slot)
         return slot
     }
@@ -164,6 +229,86 @@ class UiRowDslScope internal constructor(
     ) { slot ->
         UiColumnDslScope(this).content(slot)
     }
+
+    fun row(
+        width: Dimension,
+        height: Dimension = Dimension.FillMax,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        content: UiRowDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot {
+        val requestedWidth = modifier.width ?: width
+        val requestedHeight = modifier.height ?: height
+        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+            val availableHeight = when (requestedHeight) {
+                is Dimension.Fixed -> requestedHeight.dp.toPx()
+                Dimension.FillMax, Dimension.WrapContent -> rowScope.fillHeight ?: 4096f
+            }
+            context.measureRowContent(
+                height = availableHeight,
+                font = font,
+                theme = theme,
+                gap = gap,
+                textScale = textScale,
+            ) { measureSlot ->
+                UiRowDslScope(this).content(measureSlot)
+            }
+        } else {
+            null
+        }
+        val resolvedWidth = when (requestedWidth) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
+            else -> requestedWidth
+        }
+        val resolvedHeight = when (requestedHeight) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
+            else -> requestedHeight
+        }
+        val slot = rowScope.claimSlot(resolvedWidth, resolvedHeight)
+        UiRowDslScope(childRow(slot, gap = gap)).content(slot)
+        return slot
+    }
+
+    fun column(
+        width: Dimension,
+        height: Dimension = Dimension.FillMax,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        insets: UiInsets = UiInsets.Zero,
+        content: UiColumnDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot {
+        val requestedWidth = modifier.width ?: width
+        val requestedHeight = modifier.height ?: height
+        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+            val availableWidth = when (requestedWidth) {
+                is Dimension.Fixed -> requestedWidth.dp.toPx()
+                Dimension.FillMax, Dimension.WrapContent -> 4096f
+            }
+            context.measureColumnContent(
+                width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
+                font = font,
+                theme = theme,
+                gap = gap,
+                textScale = textScale,
+                insets = insets
+            ) { measureSlot ->
+                UiColumnDslScope(this).content(measureSlot)
+            }
+        } else {
+            null
+        }
+        val resolvedWidth = when (requestedWidth) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width + insets.horizontalPx()).px)
+            else -> requestedWidth
+        }
+        val resolvedHeight = when (requestedHeight) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height + insets.verticalPx()).px)
+            else -> requestedHeight
+        }
+        val slot = rowScope.claimSlot(resolvedWidth, resolvedHeight)
+        UiColumnDslScope(childColumn(slot, gap = gap, insets = insets)).content(slot)
+        return slot
+    }
 }
 
 @AwakeUiDsl
@@ -202,8 +347,43 @@ class UiAbsoluteDslScope internal constructor(
         gap: Float = UiSpacing.sm.toPx(),
         modifier: UiModifier = UiModifier(),
         content: UiRowDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = row(width, height.toDimension(), gap, modifier, content)
+
+    fun row(
+        width: Dimension,
+        height: Dimension,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        content: UiRowDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
-        val slot = absoluteScope.claimSlot(modifier.width ?: width, modifier.height ?: height.toDimension())
+        val requestedWidth = modifier.width ?: width
+        val requestedHeight = modifier.height ?: height
+        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+            val availableHeight = when (requestedHeight) {
+                is Dimension.Fixed -> requestedHeight.dp.toPx()
+                Dimension.FillMax, Dimension.WrapContent -> 4096f
+            }
+            context.measureRowContent(
+                height = availableHeight,
+                font = font,
+                theme = theme,
+                gap = gap,
+                textScale = textScale,
+            ) { measureSlot ->
+                UiRowDslScope(this).content(measureSlot)
+            }
+        } else {
+            null
+        }
+        val resolvedWidth = when (requestedWidth) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
+            else -> requestedWidth
+        }
+        val resolvedHeight = when (requestedHeight) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
+            else -> requestedHeight
+        }
+        val slot = absoluteScope.claimSlot(resolvedWidth, resolvedHeight)
         UiRowDslScope(childRow(slot, gap = gap)).content(slot)
         return slot
     }
@@ -216,7 +396,35 @@ class UiAbsoluteDslScope internal constructor(
         insets: UiInsets = UiInsets.Zero,
         content: UiColumnDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
-        val slot = absoluteScope.claimSlot(modifier.width ?: width, modifier.height ?: height)
+        val requestedWidth = modifier.width ?: width
+        val requestedHeight = modifier.height ?: height
+        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+            val availableWidth = when (requestedWidth) {
+                is Dimension.Fixed -> requestedWidth.dp.toPx()
+                Dimension.FillMax, Dimension.WrapContent -> absoluteScope.fillWidthOrNull() ?: 4096f
+            }
+            context.measureColumnContent(
+                width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
+                font = font,
+                theme = theme,
+                gap = gap,
+                textScale = textScale,
+                insets = insets
+            ) { measureSlot ->
+                UiColumnDslScope(this).content(measureSlot)
+            }
+        } else {
+            null
+        }
+        val resolvedWidth = when (requestedWidth) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width + insets.horizontalPx()).px)
+            else -> requestedWidth
+        }
+        val resolvedHeight = when (requestedHeight) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height + insets.verticalPx()).px)
+            else -> requestedHeight
+        }
+        val slot = absoluteScope.claimSlot(resolvedWidth, resolvedHeight)
         UiColumnDslScope(childColumn(slot, gap = gap, insets = insets)).content(slot)
         return slot
     }
@@ -239,6 +447,25 @@ fun UiContext.measureDslColumnContent(
     insets = insets
 ) { slot ->
     UiColumnDslScope(this).content(slot)
+}
+
+fun UiContext.measureDslRowContent(
+    height: Float,
+    font: UiFont?,
+    theme: UiTheme,
+    gap: Float = UiSpacing.sm.toPx(),
+    textScale: Float = 1f,
+    insets: UiInsets = UiInsets.Zero,
+    content: UiRowDslScope.(slot: UiSlot) -> Unit
+): UiMeasuredContent = measureRowContent(
+    height = height,
+    font = font,
+    theme = theme,
+    gap = gap,
+    textScale = textScale,
+    insets = insets
+) { slot ->
+    UiRowDslScope(this).content(slot)
 }
 
 @AwakeUiDsl
@@ -277,8 +504,43 @@ class UiBoxDslScope internal constructor(
         gap: Float = UiSpacing.sm.toPx(),
         modifier: UiModifier = UiModifier(),
         content: UiRowDslScope.(slot: UiSlot) -> Unit
+    ): UiSlot = row(width, height.toDimension(), gap, modifier, content)
+
+    fun row(
+        width: Dimension,
+        height: Dimension,
+        gap: Float = UiSpacing.sm.toPx(),
+        modifier: UiModifier = UiModifier(),
+        content: UiRowDslScope.(slot: UiSlot) -> Unit
     ): UiSlot {
-        val slot = boxScope.claimModifiedSlot(modifier.width ?: width, modifier.height ?: height.toDimension(), modifier)
+        val requestedWidth = modifier.width ?: width
+        val requestedHeight = modifier.height ?: height
+        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+            val availableHeight = when (requestedHeight) {
+                is Dimension.Fixed -> requestedHeight.dp.toPx()
+                Dimension.FillMax, Dimension.WrapContent -> boxScope.fillHeight ?: 4096f
+            }
+            context.measureRowContent(
+                height = availableHeight,
+                font = font,
+                theme = theme,
+                gap = gap,
+                textScale = textScale,
+            ) { measureSlot ->
+                UiRowDslScope(this).content(measureSlot)
+            }
+        } else {
+            null
+        }
+        val resolvedWidth = when (requestedWidth) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
+            else -> requestedWidth
+        }
+        val resolvedHeight = when (requestedHeight) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
+            else -> requestedHeight
+        }
+        val slot = boxScope.claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
         UiRowDslScope(childRow(slot, gap = gap)).content(slot)
         return slot
     }

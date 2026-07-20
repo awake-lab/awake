@@ -3,34 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
-import io.github.ronjunevaldoz.awake.core.input.TextEditAction
 
-private fun InputSnapshot.toUiInputState(): UiInputState = UiInputState(
-    pointerX = pointerX,
-    pointerY = pointerY,
-    pointerDown = pointerDown,
-    scrollDeltaY = scrollDeltaY,
-    typedText = typedText,
-    editActions = editActions.map { it.toUiAction() }
-)
-
-private fun TextEditAction.toUiAction(): UiTextEditAction = when (this) {
-    TextEditAction.Backspace -> UiTextEditAction.Backspace
-    TextEditAction.Delete -> UiTextEditAction.Delete
-    TextEditAction.Enter -> UiTextEditAction.Enter
-    TextEditAction.ArrowLeft -> UiTextEditAction.ArrowLeft
-    TextEditAction.ArrowRight -> UiTextEditAction.ArrowRight
-    TextEditAction.Home -> UiTextEditAction.Home
-    TextEditAction.End -> UiTextEditAction.End
-}
-
-/** Builds a one-off [InputSnapshot] for a test frame. */
-fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): InputSnapshot {
+/** Builds a one-off [UiInputState] for a test frame. */
+fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): UiInputState {
     val input = Input()
     input.setPointer(down, x, y)
     input.scrollDeltaY = scrollDeltaY
-    return input.updateSnapshot()
+    return input.updateSnapshot().toUiInputState()
 }
 
 /**
