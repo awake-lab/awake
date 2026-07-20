@@ -72,11 +72,18 @@ class SceneGameDsl internal constructor() {
     }
     private var assetLibraryFactory: (() -> SceneAssetLibrary)? = null
     private val systemsDsl = SceneSystemsDsl()
-    private var updateBlock: SceneUpdateBlock = { delta, _ -> runAllSystems(delta) }
+    private var updateBlock: SceneUpdateBlock = { _, _ -> }
     private var overlayBlock: SceneOverlayBlock = { _, _ -> }
     private val onReadyBlocks = mutableListOf<SceneReadyBlock>()
     private val onDisposeBlocks = mutableListOf<SceneDisposeBlock>()
     private val serviceRegistrations = mutableListOf<SceneServiceRegistration<*>>()
+
+    init {
+        // Core infrastructure: must run every frame (Infrastructure frequency).
+        // Registration via DSL makes them indistinguishable from user systems to the runtime.
+        system("transform") { io.github.ronjunevaldoz.awake.scene.systems.TransformSystem() }
+        system("render") { io.github.ronjunevaldoz.awake.scene.systems.RenderSystem(renderer) }
+    }
 
     fun scene(
         name: String? = null,

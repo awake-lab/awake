@@ -25,6 +25,8 @@ import io.github.ronjunevaldoz.awake.scene.components.Transform
  * change-notification hook for that).
  */
 class TransformSystem : System {
+    override val frequency: io.github.ronjunevaldoz.awake.ecs.SystemFrequency = io.github.ronjunevaldoz.awake.ecs.SystemFrequency.Infrastructure
+
     private var visitedStamp = IntArray(0)
     private var visitingStamp = IntArray(0)
     private var frameStamp = 0

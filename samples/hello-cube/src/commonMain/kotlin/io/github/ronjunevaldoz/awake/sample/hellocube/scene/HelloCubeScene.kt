@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.hellocube.scene
 
+import io.github.ronjunevaldoz.awake.ecs.toggle
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameSpec
 import io.github.ronjunevaldoz.awake.scene.runtime.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.freeFlyCameraSystem
@@ -45,24 +46,32 @@ internal fun helloCubeSceneSpec(state: HelloCubeRuntimeState): SceneGameSpec {
                 renderer.createMaterial()
             }
         }
-        val playerControl = playerControlSystem()
-        val orbitSystem = orbitCameraSystem(
+        playerControlSystem()
+        orbitCameraSystem(
             target = "cube",
             camera = "camera",
             initialDistance = 8f,
             initialPitch = 0.4f,
             autoRotateSpeed = 0.4f
         )
-        val freeFlySystem = freeFlyCameraSystem(camera = "camera")
-        update { delta, _ ->
-            // Note: playerControl is updated by the runtime infrastructure if passed
-            // but we can also manually update it. It now pulls the snapshot internally.
-            update(playerControl, delta)
+        freeFlyCameraSystem(camera = "camera")
 
-            when (state.mode) {
-                HelloCubeCameraMode.ORBIT -> update(orbitSystem, delta)
-                HelloCubeCameraMode.FREE_FLY -> update(freeFlySystem, delta)
+        update { delta, _ ->
+            // Switching modes is now a pure "intent" via components.
+            // Using world extensions to eliminate boilerplate.
+            val cameraEntity = requireEntity("camera")
+            val isOrbit = state.mode == HelloCubeCameraMode.ORBIT
+            val isFreeFly = state.mode == HelloCubeCameraMode.FREE_FLY
+            
+            world.toggle<io.github.ronjunevaldoz.awake.scene.components.OrbitControl>(cameraEntity, isOrbit) {
+                io.github.ronjunevaldoz.awake.scene.components.OrbitControl().apply {
+                    this.target = requireTransform("cube")
+                }
             }
+            world.toggle<io.github.ronjunevaldoz.awake.scene.components.FreeFlyControl>(cameraEntity, isFreeFly) {
+                io.github.ronjunevaldoz.awake.scene.components.FreeFlyControl()
+            }
+
             updateHelloCubeHud(state, delta)
         }
     }
