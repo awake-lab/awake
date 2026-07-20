@@ -3,12 +3,33 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
+import io.github.ronjunevaldoz.awake.core.input.TextEditAction
 import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
 import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+
+private fun InputSnapshot.toUiInputState(): UiInputState = UiInputState(
+    pointerX = pointerX,
+    pointerY = pointerY,
+    pointerDown = pointerDown,
+    scrollDeltaY = scrollDeltaY,
+    typedText = typedText,
+    editActions = editActions.map { it.toUiAction() }
+)
+
+private fun TextEditAction.toUiAction(): UiTextEditAction = when (this) {
+    TextEditAction.Backspace -> UiTextEditAction.Backspace
+    TextEditAction.Delete -> UiTextEditAction.Delete
+    TextEditAction.Enter -> UiTextEditAction.Enter
+    TextEditAction.ArrowLeft -> UiTextEditAction.ArrowLeft
+    TextEditAction.ArrowRight -> UiTextEditAction.ArrowRight
+    TextEditAction.Home -> UiTextEditAction.Home
+    TextEditAction.End -> UiTextEditAction.End
+}
 
 class GameUiSpec internal constructor(
     internal val theme: UiTheme,
@@ -33,13 +54,8 @@ class GameUiRuntime internal constructor(
     private val spec: GameUiSpec
 ) : GameServiceLookup by services {
     val uiContext = UiContext()
-    val input = Input()
 
-    /** Settable so a game can swap fonts at runtime (e.g. a bitmap/true-font toggle) --
-     * reassign to a stable, memoized [UiFont] instance rather than constructing a new one
-     * per frame, since backends key their glyph pipeline/texture cache off font identity
-     * (`currentUiFont !== font`); a fresh instance every frame forces a texture rebuild
-     * every frame. */
+    /** Settable so a game can swap fonts at runtime. */
     var font: UiFont = UiFonts.default()
     val theme: UiTheme
         get() = spec.theme
@@ -56,8 +72,15 @@ class GameUiRuntime internal constructor(
         if (spec.overlays.isEmpty()) {
             return
         }
-        val inputSnapshot = input.snapshot()
-        uiContext.beginFrame(viewportWidth, viewportHeight, inputSnapshot, deltaSeconds)
+        val input = requireService(Input::class)
+        val snapshot = input.currentSnapshot
+
+        uiContext.beginFrame(
+            screenWidth = viewportWidth,
+            screenHeight = viewportHeight,
+            inputState = snapshot.toUiInputState(),
+            deltaSeconds = deltaSeconds
+        )
         spec.overlays.forEach { overlay ->
             overlay(this, viewportWidth, viewportHeight)
         }

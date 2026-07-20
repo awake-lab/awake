@@ -66,21 +66,18 @@ class UiContextTest {
 
         // Press inside the slider's track -- latches activeId, no drag yet on this frame's
         // pointer position (matches button's own press-edge semantics).
-        Input.setPointer(down = true, x = 20f, y = 30f)
-        ui.beginFrame(200f, 100f)
+        ui.beginFrame(200f, 100f, testSnapshot(x = 20f, y = 30f, down = true))
         var value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = 0f, modifier = UiModifier().width(100f.px).height(20f.px))
         ui.endFrame()
 
         // Drag to the track's midpoint while still held.
-        Input.setPointer(down = true, x = 70f, y = 30f)
-        ui.beginFrame(200f, 100f)
+        ui.beginFrame(200f, 100f, testSnapshot(x = 70f, y = 30f, down = true))
         value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = value, modifier = UiModifier().width(100f.px).height(20f.px))
         ui.endFrame()
         assertEquals(5f, value, "dragging to the track midpoint should map to the midpoint value")
 
         // Release -- value should hold at whatever it last was.
-        Input.setPointer(down = false, x = 70f, y = 30f)
-        ui.beginFrame(200f, 100f)
+        ui.beginFrame(200f, 100f, testSnapshot(x = 70f, y = 30f, down = false))
         value = ui.absolute(20f, 20f).slider("vol", min = 0f, max = 10f, value = value, modifier = UiModifier().width(100f.px).height(20f.px))
         ui.endFrame()
         assertEquals(5f, value, "releasing should not further change the value")
@@ -89,8 +86,7 @@ class UiContextTest {
     @Test
     fun dropdownCanUseModifierSizingAsPrimaryApi() {
         val ui = UiContext()
-        Input.setPointer(down = false, x = 0f, y = 0f)
-        ui.beginFrame(220f, 160f)
+        ui.beginFrame(220f, 160f, testSnapshot(x = 0f, y = 0f, down = false))
         val column = ui.column(20f, 20f, 160f)
         val expandedState = column.widgetState("dd")
         expandedState.set("expanded", true)
@@ -119,8 +115,7 @@ class UiContextTest {
         // up later in endFrame()'s output (painted on top), since they go through
         // emitOverlay() rather than emit().
         val ui = UiContext()
-        Input.setPointer(down = false, x = 0f, y = 0f)
-        ui.beginFrame(200f, 200f)
+        ui.beginFrame(200f, 200f, testSnapshot(x = 0f, y = 0f, down = false))
         val column = ui.column(20f, 20f, 160f)
 
         // Expand the dropdown first (simulating it was already expanded from a prior frame).

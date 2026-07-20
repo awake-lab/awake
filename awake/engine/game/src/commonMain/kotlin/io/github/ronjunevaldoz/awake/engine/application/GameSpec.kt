@@ -5,6 +5,9 @@ package io.github.ronjunevaldoz.awake.engine.application
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import kotlin.reflect.KClass
 
+/**
+ * Immutable specification for an [AwakeGame].
+ */
 class GameSpec internal constructor(
     val windowConfig: GameWindowConfig,
     private val onReady: List<suspend (Renderer) -> Unit>,

@@ -14,9 +14,8 @@ class ReusableCompositionTest {
 
     @Test
     fun customWidgetCanResolveStyleFromPublicApi() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(200f, 80f)
+        ui.beginFrame(200f, 80f, testSnapshot())
 
         ui.absolute(20f, 20f, font = BitmapFont()).badge("status", "READY", emphasized = true)
 
@@ -27,9 +26,8 @@ class ReusableCompositionTest {
 
     @Test
     fun customLayoutCanDriveBuiltInWidgets() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(240f, 120f)
+        ui.beginFrame(240f, 120f, testSnapshot())
 
         val scope = DiagonalScope(ui, BitmapFont(), CoreUiTheme, startX = 10f, startY = 20f, stepX = 15f, stepY = 10f)
         val first = scope.buttonSlot("one", label = "ONE", modifier = UiModifier().width(100f.px).height(30f.px))
@@ -41,9 +39,8 @@ class ReusableCompositionTest {
 
     @Test
     fun buttonSlotCanHostCustomComposedContent() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(260f, 120f)
+        ui.beginFrame(260f, 120f, testSnapshot())
 
         val result = ui.absolute(20f, 20f, font = BitmapFont()).buttonSlot(
             id = "launch",

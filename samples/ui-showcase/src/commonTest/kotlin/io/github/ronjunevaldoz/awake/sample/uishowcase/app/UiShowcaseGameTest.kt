@@ -313,7 +313,7 @@ private fun List<UiDrawPrimitive.RoundedQuad>.deduplicatedCards(): List<UiDrawPr
 
 private fun renderSidebarSurfaceColor(theme: io.github.ronjunevaldoz.awake.ui.UiTheme): Color {
     val ui = io.github.ronjunevaldoz.awake.ui.UiContext()
-    ui.beginFrame(360f, 240f)
+    ui.beginFrame(360f, 240f, io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot())
     ui.ui(x = 24f, y = 24f, width = 264f, font = BitmapFont(), theme = theme) {
         awakeShadcnSurface(
             id = "sidebar-probe",

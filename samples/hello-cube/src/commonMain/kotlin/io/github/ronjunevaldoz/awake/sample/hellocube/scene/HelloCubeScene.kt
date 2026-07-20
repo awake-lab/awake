@@ -54,8 +54,11 @@ internal fun helloCubeSceneSpec(state: HelloCubeRuntimeState): SceneGameSpec {
             autoRotateSpeed = 0.4f
         )
         val freeFlySystem = freeFlyCameraSystem(camera = "camera")
-        update { delta ->
+        update { delta, _ ->
+            // Note: playerControl is updated by the runtime infrastructure if passed
+            // but we can also manually update it. It now pulls the snapshot internally.
             update(playerControl, delta)
+
             when (state.mode) {
                 HelloCubeCameraMode.ORBIT -> update(orbitSystem, delta)
                 HelloCubeCameraMode.FREE_FLY -> update(freeFlySystem, delta)

@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiContext
@@ -20,14 +21,22 @@ import io.github.ronjunevaldoz.awake.ui.toggle
 import io.github.ronjunevaldoz.awake.ui.ui
 import kotlin.test.Test
 
+/** Builds a one-off [InputSnapshot] for a test frame -- [Input] is a per-session instance
+ * now (no longer a global object), so tests construct their own throwaway one instead of
+ * writing into shared static state. */
+private fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false): InputSnapshot {
+    val input = Input()
+    input.setPointer(down, x, y)
+    return input.updateSnapshot()
+}
+
 class UiDslTutorialDocsTest {
 
     @Test
     fun inspectorDslTutorial() {
         val font = UiFonts.default()
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(320f, 250f)
+        ui.beginFrame(320f, 250f, testSnapshot())
 
         var orbitYaw = 0.2f
         var orbitDistance = 8f

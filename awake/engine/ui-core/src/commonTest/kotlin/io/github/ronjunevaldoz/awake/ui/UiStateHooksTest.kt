@@ -13,11 +13,11 @@ class UiStateHooksTest {
     fun rememberStateValuePersistsAcrossFramesForTheSameId() {
         val ui = UiContext()
 
-        ui.beginFrame(320f, 200f)
+        ui.beginFrame(320f, 200f, testSnapshot())
         val first = ui.rememberIntState("counter")
         first.value += 1
 
-        ui.beginFrame(320f, 200f)
+        ui.beginFrame(320f, 200f, testSnapshot())
         val second = ui.rememberIntState("counter")
 
         assertEquals(1, second.value)
@@ -51,12 +51,12 @@ class UiStateHooksTest {
     fun rememberBooleanStateCanBeUsedAsAPropertyDelegate() {
         val ui = UiContext()
 
-        ui.beginFrame(320f, 200f)
+        ui.beginFrame(320f, 200f, testSnapshot())
         val scope = ui.absolute(0f, 0f)
         var expanded by scope.rememberBooleanState("delegate-demo", initial = true)
         expanded = false
 
-        ui.beginFrame(320f, 200f)
+        ui.beginFrame(320f, 200f, testSnapshot())
         val nextScope = ui.absolute(0f, 0f)
         val persisted = nextScope.rememberBooleanState("delegate-demo", initial = true)
 
@@ -67,21 +67,21 @@ class UiStateHooksTest {
     fun rememberPopupStatePersistsAndSupportsToggleHelpers() {
         val ui = UiContext()
 
-        ui.beginFrame(320f, 200f)
+        ui.beginFrame(320f, 200f, testSnapshot())
         val scope = ui.absolute(0f, 0f)
         val popupState = scope.rememberPopupState("menu")
         popupState.open()
         popupState.toggle()
         popupState.toggle()
 
-        ui.beginFrame(320f, 200f)
+        ui.beginFrame(320f, 200f, testSnapshot())
         val nextScope = ui.absolute(0f, 0f)
         val persisted = nextScope.rememberPopupState("menu")
         assertTrue(persisted.expanded)
 
         persisted.close()
 
-        ui.beginFrame(320f, 200f)
+        ui.beginFrame(320f, 200f, testSnapshot())
         val finalScope = ui.absolute(0f, 0f)
         val closed = finalScope.rememberPopupState("menu")
         assertFalse(closed.expanded)

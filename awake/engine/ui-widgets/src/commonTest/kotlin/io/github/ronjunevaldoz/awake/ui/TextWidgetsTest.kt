@@ -111,7 +111,7 @@ class TextWidgetsTest {
     fun trueFontCentersVisibleGlyphBoundsInsideTheRequestedSlot() {
         val font = UiFonts.trueSans()
         val ui = UiContext()
-        ui.beginFrame(200f, 80f)
+        ui.beginFrame(200f, 80f, testSnapshot())
         ui.absolute(0f, 0f, font = font).text(
             label = "BUTTON",
             slot = UiSlot(20f, 20f, 160f, 40f),
@@ -133,7 +133,7 @@ class TextWidgetsTest {
     fun trueFontTopAlignmentTrimsAtlasPaddingFromVisibleGlyphs() {
         val font = UiFonts.trueSans()
         val ui = UiContext()
-        ui.beginFrame(180f, 80f)
+        ui.beginFrame(180f, 80f, testSnapshot())
         ui.absolute(0f, 0f, font = font).text(
             label = "Title",
             slot = UiSlot(16f, 24f, 120f, 20f),
@@ -152,7 +152,7 @@ class TextWidgetsTest {
     fun buttonCanLeftAlignTextInsideItsContentPadding() {
         val font = UiFonts.trueSans()
         val ui = UiContext()
-        ui.beginFrame(220f, 100f)
+        ui.beginFrame(220f, 100f, testSnapshot())
         ui.absolute(0f, 0f, font = font).button(
             id = "nav",
             modifier = UiModifier().width(180f.px).height(36f.px),

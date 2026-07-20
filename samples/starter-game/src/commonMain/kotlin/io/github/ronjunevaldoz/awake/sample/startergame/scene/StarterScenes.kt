@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.freeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.meshEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.orbitCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.playerControlSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.sceneGame
 
 internal const val STARTER_SCENE_OVERVIEW = "overview"
@@ -33,9 +34,8 @@ internal fun starterOverviewSceneSpec(): SceneGameSpec = sceneGame {
         }
     )
     sharedStarterAssets()
-    orbitCameraSystem(target = "cube", camera = "camera", initialDistance = 7f, autoRotateSpeed = 0.35f) {
-        pitch = 0.3f
-    }
+    playerControlSystem()
+    orbitCameraSystem(target = "cube", camera = "camera", initialDistance = 7f, initialPitch = 0.3f, autoRotateSpeed = 0.35f)
 }
 
 internal fun starterEditorSceneSpec(): SceneGameSpec = sceneGame {
@@ -76,6 +76,7 @@ internal fun starterEditorSceneSpec(): SceneGameSpec = sceneGame {
         }
     )
     sharedStarterAssets()
+    playerControlSystem()
     orbitCameraSystem(target = "centerpiece", camera = "camera", initialDistance = 10f, autoRotateSpeed = 0.2f)
 }
 
@@ -115,6 +116,7 @@ internal fun starterPlaygroundSceneSpec(): SceneGameSpec = sceneGame {
         }
     )
     sharedStarterAssets()
+    playerControlSystem()
     freeFlyCameraSystem(camera = "camera")
 }
 

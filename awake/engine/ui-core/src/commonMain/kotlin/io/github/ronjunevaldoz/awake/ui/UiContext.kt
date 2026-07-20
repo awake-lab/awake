@@ -2,19 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlin.math.max
 
 /**
  * Minimal immediate-mode UI context -- ImGui's own architecture (hot/active id tracking, no
- * retained widget tree, no ECS entities), deliberately not declarative/Compose-style (no
- * composer/recomposer needed for this small a widget set) and not backed by [io.github
- * .ronjunevaldoz.awake.ecs.World] (widgets have no persistent gameplay state).
- *
- * Ids are caller-supplied stable strings (e.g. `"debug-toggle"`) -- no auto-disambiguation
- * (`##` suffixes) yet, a known simplification for this widget count.
+ * retained widget tree, no ECS entities). Pure layout and spatial hit-testing engine.
  */
 class UiContext private constructor(
     private val measuring: Boolean = false
@@ -38,13 +31,16 @@ class UiContext private constructor(
     private var isOverScrollableThisFrame = false
     private var isScrollConsumedThisFrame = false
 
-    // Frame-local input state
-    private lateinit var frameInputSnapshot: InputSnapshot
+    private lateinit var frameInputState: UiInputState
 
+    /**
+     * Resets the context for a new frame. Accepts [UiInputState] to remain 
+     * decoupled from hardware input modules.
+     */
     fun beginFrame(
         screenWidth: Float,
         screenHeight: Float,
-        inputSnapshot: InputSnapshot,
+        inputState: UiInputState,
         deltaSeconds: Float = 1f / 60f
     ) {
         primitives.clear()
@@ -55,11 +51,12 @@ class UiContext private constructor(
         frameDeltaSeconds = deltaSeconds.coerceAtLeast(0f)
         measuredMaxRight = 0f
         measuredMaxBottom = 0f
-        pointerDownEdgeThisFrame = inputSnapshot.pointerDown && !pointerDownLastFrame
+        pointerDownEdgeThisFrame = inputState.pointerDown && !pointerDownLastFrame
         focusClaimedThisFrame = false
         isOverScrollableThisFrame = false
         isScrollConsumedThisFrame = false
-        frameInputSnapshot = inputSnapshot
+        
+        frameInputState = inputState
     }
 
     /** reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
@@ -176,7 +173,7 @@ class UiContext private constructor(
         if (pointerDownEdgeThisFrame && !focusClaimedThisFrame) {
             focusedId = null
         }
-        pointerDownLastFrame = frameInputSnapshot.pointerDown
+        pointerDownLastFrame = frameInputState.pointerDown
         return primitives + overlayPrimitives
     }
 
@@ -197,34 +194,25 @@ class UiContext private constructor(
 
     fun semanticNodes(): List<UiSemanticNode> = semanticNodes.toList()
 
-    // --- Shared state accessors, delegated to by AbstractUiScope in Layout.kt. Internal, not
-    // part of the widget-authoring surface -- that's UiScope itself.
+    // --- Shared state accessors, delegated to by AbstractUiScope in Layout.kt.
 
     internal fun hitTestInternal(slot: UiSlot): Boolean =
-        !measuring && frameInputSnapshot.pointerX in slot.x..(slot.x + slot.width) && frameInputSnapshot.pointerY in slot.y..(slot.y + slot.height)
+        !measuring && frameInputState.pointerX in slot.x..(slot.x + slot.width) && frameInputState.pointerY in slot.y..(slot.y + slot.height)
 
     internal fun isActiveInternal(id: String): Boolean = activeId == id
 
     internal fun tryClaimActiveInternal(id: String, hovered: Boolean) {
         if (measuring) return
-        if (hovered && frameInputSnapshot.pointerDown && activeId == null) activeId = id
+        if (hovered && frameInputState.pointerDown && activeId == null) activeId = id
     }
 
     internal fun releaseActiveIfMatchesInternal(id: String) {
         if (measuring) return
-        if (!frameInputSnapshot.pointerDown && activeId == id) activeId = null
+        if (!frameInputState.pointerDown && activeId == id) activeId = null
     }
-
-    /** Whether a fresh pointer-down happened this frame (down now, wasn't down last frame) --
-     * a text-input widget uses this to distinguish "just clicked into me" from "still holding
-     * the mouse button down from an earlier frame." */
-    internal fun pointerDownEdgeInternal(): Boolean = pointerDownEdgeThisFrame
 
     internal fun isFocusedInternal(id: String): Boolean = focusedId == id
 
-    /** Grants persistent keyboard focus to [id], surviving across frames until something else
-     * claims it, [clearFocusIfMatchesInternal] releases it, or a fresh click lands outside
-     * every focusable widget this frame (see [endFrame]'s unclaimed-click-edge check). */
     internal fun requestFocusInternal(id: String) {
         if (measuring) return
         focusedId = id
@@ -253,10 +241,6 @@ class UiContext private constructor(
         semanticNodes += node
     }
 
-    /** Intersects [rect] against whatever clip is currently active (or the full frame extent
-     * if the stack is empty) and pushes the RESOLVED rect -- nesting is resolved here, once,
-     * so [UiScope.clip]'s emitted [UiDrawPrimitive.ClipPush] always carries a rect a backend
-     * can apply naively, with no clip-stack awareness of its own. */
     internal fun pushClipInternal(rect: UiSlot): UiSlot {
         val current = clipStack.lastOrNull() ?: fullFrameRect
         val resolved = current.intersect(rect)
@@ -266,8 +250,6 @@ class UiContext private constructor(
 
     fun pushClip(rect: UiSlot): UiSlot = pushClipInternal(rect)
 
-    /** Pops the clip stack and returns the rect that should be restored -- the next entry
-     * down, or the full frame extent if the stack is now empty. */
     internal fun popClipInternal(): UiSlot {
         if (clipStack.isNotEmpty()) clipStack.removeAt(clipStack.size - 1)
         return clipStack.lastOrNull() ?: fullFrameRect
@@ -275,7 +257,7 @@ class UiContext private constructor(
 
     fun popClip(): UiSlot = popClipInternal()
 
-    fun pointerDownEdge(): Boolean = pointerDownEdgeInternal()
+    fun pointerDownEdge(): Boolean = pointerDownEdgeThisFrame
 
     fun isFocused(id: String): Boolean = isFocusedInternal(id)
 
@@ -283,7 +265,7 @@ class UiContext private constructor(
 
     fun clearFocusIfMatches(id: String) = clearFocusIfMatchesInternal(id)
 
-    fun frameDeltaSeconds(): Float = frameDeltaSecondsInternal()
+    fun frameDeltaSeconds(): Float = frameDeltaSeconds
 
     fun frameBounds(): UiSlot = fullFrameRect
 
@@ -294,8 +276,6 @@ class UiContext private constructor(
         measuredMaxRight = max(measuredMaxRight, slot.x + slot.width)
         measuredMaxBottom = max(measuredMaxBottom, slot.y + slot.height)
     }
-
-    internal fun frameDeltaSecondsInternal(): Float = frameDeltaSeconds
 
     fun measureColumnContent(
         width: Float,
@@ -311,15 +291,7 @@ class UiContext private constructor(
         measureContext.beginFrame(
             screenWidth = outerSlot.width.coerceAtLeast(1f),
             screenHeight = outerSlot.height,
-            inputSnapshot = InputSnapshot(
-                pointerX = -1f,
-                pointerY = -1f,
-                pointerDown = false,
-                scrollDeltaY = 0f,
-                keysDown = emptySet(),
-                typedText = "",
-                editActions = emptyList()
-            ),
+            inputState = UiInputState(),
             deltaSeconds = 0f
         )
         val measureScope = measureContext.column(
@@ -337,11 +309,11 @@ class UiContext private constructor(
         )
     }
 
-    val inputSnapshot: InputSnapshot get() = frameInputSnapshot
+    val inputState: UiInputState get() = frameInputState
 
-    fun pointerX(): Float = frameInputSnapshot.pointerX
-    fun pointerY(): Float = frameInputSnapshot.pointerY
-    fun pointerDown(): Boolean = frameInputSnapshot.pointerDown
+    fun pointerX(): Float = frameInputState.pointerX
+    fun pointerY(): Float = frameInputState.pointerY
+    fun pointerDown(): Boolean = frameInputState.pointerDown
 }
 
 data class UiMeasuredContent(
@@ -364,12 +336,7 @@ data class UiInputResult(
 )
 
 /** Pure value-from-pointer-position math for the built-in `slider`, pulled out to a
- * top-level function so it's unit-testable without an [Input]/GPU-backed [UiContext]
- * instance (see this project's "no app-layer test doubles, push logic into pure functions"
- * convention). Maps [pointerX]'s position within the track `[trackX, trackX + trackW]` to a
- * value in `[min, max]`, clamping (not extrapolating) for a [pointerX] outside the track's
- * bounds -- a drag that overshoots the track while still held should pin at [min]/[max], not
- * keep increasing past them. */
+ * top-level function. */
 fun sliderValueFromPointerX(pointerX: Float, trackX: Float, trackW: Float, min: Float, max: Float): Float {
     if (trackW <= 0f) return min
     val fraction = ((pointerX - trackX) / trackW).coerceIn(0f, 1f)

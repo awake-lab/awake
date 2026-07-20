@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.engine.application
 
 import io.github.ronjunevaldoz.awake.core.graphics.Application
-import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import kotlinx.coroutines.CoroutineScope
@@ -12,15 +11,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Backend-neutral render bootstrap shared by `VulkanGameApplication` (`awake-backend-vulkan`)
- * and `WebGpuGameApplication` (`awake-backend-webgpu`) -- knows nothing about ECS/scene
- * graphs or UI (see docs/MVP_PLAN.md's Decision Log, "GenericGameApplication a standalone
- * render bootstrap", for the full rationale behind this class's narrowed scope). Each backend
- * implements exactly two things: [createBackendResources] (construct its concrete
- * `GraphicsDevice`/`SwapchainManager`/`RenderPipeline`/`Renderer`, return the handful of
- * interface-typed objects this class needs) and [destroyBackend] (GPU teardown). Everything
- * else -- what to render, scene/ECS handling, UI -- is the injected [game]'s job, not this
- * class's: every [Application] lifecycle callback either builds/tears down backend resources
- * or forwards verbatim to [game], with zero game-specific logic living here.
+ * and `WebGpuGameApplication` (`awake-backend-webgpu`)
  */
 abstract class GenericGameApplication(
     protected val vertexShaderResourcePath: String,
@@ -28,8 +19,6 @@ abstract class GenericGameApplication(
     protected val vertexStride: Int,
     private val game: Game
 ) : Application {
-    val input = Input()
-
     /** Same "create() stays synchronous, launch internally" reasoning the original
      * `VulkanApplication`/`WebGpuApplication` used -- [update] is a no-op until
      * [createBackendResources] (and [Game.ready]) finish. */
@@ -57,6 +46,7 @@ abstract class GenericGameApplication(
     final override fun update(delta: Float) {
         if (!isReady) return
         val (width, height) = viewportSize()
+        (game as AwakeGame).input.updateSnapshot()
         game.render(delta, width, height)
     }
 
@@ -72,21 +62,6 @@ abstract class GenericGameApplication(
         game.resize(width.toFloat(), height.toFloat())
     }
 
-    /** [game] first, [destroyBackend] second -- reversed from an earlier version of this
-     * class. `game.dispose()` (e.g. `helloCubeGame()`'s scene runtime) tears down GAME-OWNED GPU
-     * resources (meshes/materials/render targets, all created via `Renderer.createMesh`/
-     * `createMaterial`/`createRenderTarget`) that were allocated against the *live*
-     * `GraphicsDevice` -- those teardown calls (`vkDestroyBuffer`/`vkDestroyImage`/etc.) are
-     * undefined behavior once [destroyBackend] has already destroyed the `VkDevice` they
-     * belong to. Confirmed as a **real, reproducible SIGSEGV** (not theoretical) via a
-     * Vulkan-validation-layer-instrumented run: `game.dispose() -> Mesh.destroy() ->
-     * VulkanBuffers.vkDestroyBuffer` crashed the JVM natively inside `libvulkan.dylib`, with
-     * the validation layer's own log immediately prior showing 14 objects "couldn't find"/
-     * leaked against a device that had *already* been torn down by the old
-     * `destroyBackend()`-then-`game.dispose()` order. See docs/MVP_PLAN.md's D24 minimap-
-     * crash investigation entry for the full account (this was found while chasing a
-     * different, still-unresolved bug -- the two are not confirmed to be the same root
-     * cause, but this ordering bug is independently real and now fixed regardless). */
     final override fun dispose() {
         game.dispose()
         if (isReady) destroyBackend()

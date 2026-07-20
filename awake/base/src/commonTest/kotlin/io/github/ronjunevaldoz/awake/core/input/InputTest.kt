@@ -2,56 +2,56 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.input
 
-import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+/** [Input] is a per-session instance now (no longer a global object) -- each test
+ * constructs its own, so there's no shared state to reset between tests. */
 class InputTest {
-    @AfterTest
-    fun resetSharedState() {
-        Input.clearKeys()
-        Input.setPointer(down = false, x = 0f, y = 0f)
-    }
-
     @Test
     fun keyIsNotDownByDefault() {
-        assertFalse(Input.isKeyDown(Key.Space))
+        val input = Input()
+        assertFalse(input.isKeyDown(Key.Space))
     }
 
     @Test
     fun settingAKeyDownIsObservable() {
-        Input.setKeyDown(Key.W, down = true)
-        assertTrue(Input.isKeyDown(Key.W))
+        val input = Input()
+        input.setKeyDown(Key.W, down = true)
+        assertTrue(input.isKeyDown(Key.W))
     }
 
     @Test
     fun releasingAKeyClearsIt() {
-        Input.setKeyDown(Key.W, down = true)
-        Input.setKeyDown(Key.W, down = false)
-        assertFalse(Input.isKeyDown(Key.W))
+        val input = Input()
+        input.setKeyDown(Key.W, down = true)
+        input.setKeyDown(Key.W, down = false)
+        assertFalse(input.isKeyDown(Key.W))
     }
 
     @Test
     fun clearKeysReleasesEveryHeldKey() {
-        Input.setKeyDown(Key.W, down = true)
-        Input.setKeyDown(Key.Space, down = true)
-        Input.clearKeys()
-        assertFalse(Input.isKeyDown(Key.W))
-        assertFalse(Input.isKeyDown(Key.Space))
+        val input = Input()
+        input.setKeyDown(Key.W, down = true)
+        input.setKeyDown(Key.Space, down = true)
+        input.clearKeys()
+        assertFalse(input.isKeyDown(Key.W))
+        assertFalse(input.isKeyDown(Key.Space))
     }
 
     @Test
     fun pointerStateReflectsTheLastSetCall() {
-        Input.setPointer(down = true, x = 12f, y = 34f)
-        assertTrue(Input.pointerDown)
-        assertEquals(12f, Input.pointerX)
-        assertEquals(34f, Input.pointerY)
+        val input = Input()
+        input.setPointer(down = true, x = 12f, y = 34f)
+        assertTrue(input.pointerDown)
+        assertEquals(12f, input.pointerX)
+        assertEquals(34f, input.pointerY)
 
-        Input.setPointer(down = false, x = 56f, y = 78f)
-        assertFalse(Input.pointerDown)
-        assertEquals(56f, Input.pointerX)
-        assertEquals(78f, Input.pointerY)
+        input.setPointer(down = false, x = 56f, y = 78f)
+        assertFalse(input.pointerDown)
+        assertEquals(56f, input.pointerX)
+        assertEquals(78f, input.pointerY)
     }
 }

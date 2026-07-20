@@ -25,10 +25,10 @@ class UiAnimationTest {
     fun uiContextAnimateFloatPersistsAcrossFrames() {
         val ui = UiContext()
 
-        ui.beginFrame(320f, 200f, deltaSeconds = 1f / 60f)
+        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
         val first = ui.animateFloat(id = "panel-lift", target = 12f, initial = 0f, responsiveness = 12f)
 
-        ui.beginFrame(320f, 200f, deltaSeconds = 1f / 60f)
+        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
         val second = ui.animateFloat(id = "panel-lift", target = 12f, initial = 0f, responsiveness = 12f)
 
         assertTrue(second > first, "subsequent frames should continue easing toward the same target")

@@ -17,7 +17,7 @@ class UiSemanticWidgetsTest {
     fun buttonEmitsSemanticButtonAndLabelNodes() {
         val font = UiFonts.default()
         val context = UiContext()
-        context.beginFrame(240f, 96f)
+        context.beginFrame(240f, 96f, testSnapshot())
         context.absolute(20f, 20f, font = font).button(
             id = "primary-action",
             modifier = UiModifier().width(180f.px).height(44f.px),
@@ -40,7 +40,7 @@ class UiSemanticWidgetsTest {
     fun ellipsizedTextIsMarkedAsTruncated() {
         val font = UiFonts.default()
         val context = UiContext()
-        context.beginFrame(180f, 64f)
+        context.beginFrame(180f, 64f, testSnapshot())
         context.absolute(12f, 12f, font = font).text(
             label = "This label is intentionally too wide for the slot",
             slot = UiSlot(12f, 12f, 80f, 16f),

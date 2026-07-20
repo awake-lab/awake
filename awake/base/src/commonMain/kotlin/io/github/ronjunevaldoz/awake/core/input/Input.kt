@@ -20,7 +20,6 @@ enum class TextEditAction {
 
 /**
  * Immutable capture of the hardware state for a single frame.
- * Passing this to UI and Systems ensures consistency and KMP purity.
  */
 data class InputSnapshot(
     val pointerX: Float,
@@ -35,8 +34,7 @@ data class InputSnapshot(
 /**
  * Accumulator for polled input state.
  *
- * One instance per game session. Decoupled from global state to support
- * KMP lifecycles (Android Activity restarts) and multi-window scenarios.
+ * One instance per game session. Decoupled from global state.
  */
 class Input {
     private val keysDown = mutableSetOf<Key>()
@@ -57,10 +55,22 @@ class Input {
     /** Set by the UI pass to signal focus to platform bridges (e.g. soft keyboard). */
     var textInputFocused: Boolean = false
 
+    /** The stable hardware state for the current frame. Updated via [updateSnapshot]. */
+    var currentSnapshot: InputSnapshot = InputSnapshot(
+        pointerX = -1f,
+        pointerY = -1f,
+        pointerDown = false,
+        scrollDeltaY = 0f,
+        keysDown = emptySet(),
+        typedText = "",
+        editActions = emptyList()
+    )
+        private set
+
     /** Captures the current state into an immutable snapshot and prepares the 
      * accumulator for the next frame. */
-    fun snapshot(): InputSnapshot {
-        val snapshot = InputSnapshot(
+    fun updateSnapshot(): InputSnapshot {
+        currentSnapshot = InputSnapshot(
             pointerX = pointerX,
             pointerY = pointerY,
             pointerDown = pointerDown,
@@ -73,8 +83,11 @@ class Input {
         scrollDeltaY = 0f
         typedText.clear()
         pendingEditActions.clear()
-        return snapshot
+        return currentSnapshot
     }
+
+    /** Legacy support or internal use. Prefer [updateSnapshot]. */
+    fun snapshot(): InputSnapshot = updateSnapshot()
 
     fun isKeyDown(key: Key): Boolean = keysDown.contains(key)
 

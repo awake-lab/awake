@@ -60,7 +60,7 @@ class DpTest {
         UiDensity.fontScale = 1f
         val font = BitmapFont()
         val ui = UiContext()
-        ui.beginFrame(120f, 80f)
+        ui.beginFrame(120f, 80f, testSnapshot())
 
         val glyphPx = ui.absolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(font, textSize = 10.sp)
 
@@ -73,7 +73,7 @@ class DpTest {
         UiDensity.fontScale = 1.1f
         val font = BitmapFont()
         val ui = UiContext()
-        ui.beginFrame(120f, 80f)
+        ui.beginFrame(120f, 80f, testSnapshot())
 
         val glyphPx = ui.absolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(font, textSize = 13f.sp)
 

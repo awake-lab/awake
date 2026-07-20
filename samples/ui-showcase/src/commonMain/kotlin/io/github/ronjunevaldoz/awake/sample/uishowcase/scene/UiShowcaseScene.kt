@@ -62,7 +62,7 @@ internal fun uiShowcaseSceneSpec(): SceneGameSpec = sceneGame {
         initialPitch = 0.22f,
         autoRotateSpeed = 0.15f
     )
-    update { delta ->
+    update { delta, _ ->
         update(playerControl, delta)
         update(orbitSystem, delta)
     }

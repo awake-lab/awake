@@ -81,9 +81,8 @@ class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnBadgeRendersFromPublicUiApi() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(200f, 80f)
+        ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.absolute(20f, 20f, font = BitmapFont(), theme = AwakeShadcnTheme)
             .awakeShadcnBadge(label = "BETA", variant = AwakeShadcnBadgeVariant.Primary)
@@ -95,13 +94,12 @@ class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnBadgeReadsConfiguredThemeFromScope() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
         val theme = awakeShadcnTheme(
             baseColor = AwakeShadcnBaseColor.Zinc,
             accent = AwakeShadcnAccent.Rose
         )
-        ui.beginFrame(200f, 80f)
+        ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.absolute(20f, 20f, font = BitmapFont(), theme = theme)
             .awakeShadcnBadge(label = "LIVE", variant = AwakeShadcnBadgeVariant.Primary)
@@ -115,8 +113,7 @@ class AwakeShadcnDesignSystemTest {
         val ui = UiContext()
         var clicked = false
 
-        Input.setPointer(down = true, x = 40f, y = 30f)
-        ui.beginFrame(200f, 80f)
+        ui.beginFrame(200f, 80f, testSnapshot(x = 40f, y = 30f, down = true))
         clicked = ui.absolute(20f, 20f, font = BitmapFont(), theme = AwakeShadcnTheme)
             .awakeShadcnButton(
                 id = "save",
@@ -127,8 +124,7 @@ class AwakeShadcnDesignSystemTest {
         ui.endFrame()
         assertTrue(!clicked)
 
-        Input.setPointer(down = false, x = 40f, y = 30f)
-        ui.beginFrame(200f, 80f)
+        ui.beginFrame(200f, 80f, testSnapshot(x = 40f, y = 30f, down = false))
         clicked = ui.absolute(20f, 20f, font = BitmapFont(), theme = AwakeShadcnTheme)
             .awakeShadcnButton(
                 id = "save",
@@ -143,9 +139,8 @@ class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnSurfaceHostsNestedCustomContent() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(240f, 160f)
+        ui.beginFrame(240f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.column(20f, 20f, 200f, font = BitmapFont(), theme = AwakeShadcnTheme)
             .awakeShadcnSurface("surface", Dimension.Fixed(200f.px), Dimension.Fixed(100f.px)) {
@@ -158,9 +153,8 @@ class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnDslAdaptersComposeInsideUiDsl() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(280f, 180f)
+        ui.beginFrame(280f, 180f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.ui(x = 20f, y = 20f, width = 240f, font = BitmapFont(), theme = AwakeShadcnTheme) {
             awakeShadcnSurface(
@@ -184,9 +178,8 @@ class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnFieldWrappersComposeInsideDsl() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(320f, 180f)
+        ui.beginFrame(320f, 180f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.ui(x = 20f, y = 20f, width = 280f, font = BitmapFont(), theme = AwakeShadcnTheme) {
             awakeShadcnSurface(
@@ -206,9 +199,8 @@ class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnSectionHeaderSupportsSlotContent() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(280f, 180f)
+        ui.beginFrame(280f, 180f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.ui(x = 20f, y = 20f, width = 240f, font = BitmapFont(), theme = AwakeShadcnTheme) {
             awakeShadcnSurface(
@@ -240,9 +232,8 @@ class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnPropertyControlsSupportSlotLabels() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(320f, 200f)
+        ui.beginFrame(320f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.ui(x = 20f, y = 20f, width = 280f, font = BitmapFont(), theme = AwakeShadcnTheme) {
             awakeShadcnSurface(
@@ -274,9 +265,8 @@ class AwakeShadcnDesignSystemTest {
 
     @Test
     fun awakeShadcnBadgeSupportsWrapContentMeasurement() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(240f, 120f)
+        ui.beginFrame(240f, 120f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.absolute(20f, 20f, font = BitmapFont(), theme = AwakeShadcnTheme)
             .awakeShadcnBadge(

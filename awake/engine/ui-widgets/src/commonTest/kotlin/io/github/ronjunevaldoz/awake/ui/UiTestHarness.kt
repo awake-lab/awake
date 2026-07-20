@@ -3,6 +3,17 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
+
+/** Builds a one-off [InputSnapshot] for a test frame that doesn't need [simulateFrame]'s
+ * full pointer-interaction/multi-frame plumbing -- most `beginFrame` calls in this test
+ * suite just need *some* valid snapshot (pointer off-screen, nothing pressed). */
+fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): InputSnapshot {
+    val input = Input()
+    input.setPointer(down, x, y)
+    input.scrollDeltaY = scrollDeltaY
+    return input.updateSnapshot()
+}
 
 /**
  * One simulated render frame: moves the pointer, runs [beginFrame]/[endFrame] around
@@ -10,6 +21,10 @@ import io.github.ronjunevaldoz.awake.core.input.Input
  * Every existing `UiContext` test hand-rolled this exact
  * `Input.setPointer(...); beginFrame(...); <widget calls>; endFrame()` sequence -- pulled out
  * here so a new test states *what pointer state* it wants, not the frame plumbing.
+ *
+ * [input] defaults to a fresh, single-use instance -- pass your own (and reuse it across
+ * calls) when a test needs state to persist between frames, e.g. pushing typed text between
+ * a click frame and the frame that should render it (see [TextFieldWidgetTest]).
  */
 fun UiContext.simulateFrame(
     pointerDown: Boolean,
@@ -17,10 +32,11 @@ fun UiContext.simulateFrame(
     y: Float,
     screenWidth: Float = 200f,
     screenHeight: Float = 200f,
+    input: Input = Input(),
     widgetCalls: () -> Unit
 ) {
-    Input.setPointer(down = pointerDown, x = x, y = y)
-    beginFrame(screenWidth, screenHeight)
+    input.setPointer(down = pointerDown, x = x, y = y)
+    beginFrame(screenWidth, screenHeight, input.updateSnapshot())
     widgetCalls()
     endFrame()
 }
@@ -31,15 +47,17 @@ fun UiContext.simulateScrollFrame(
     scrollDeltaY: Float,
     screenWidth: Float = 200f,
     screenHeight: Float = 200f,
+    input: Input = Input(),
     widgetCalls: () -> Unit
 ) {
-    Input.scrollDeltaY = scrollDeltaY
+    input.scrollDeltaY = scrollDeltaY
     simulateFrame(
         pointerDown = false,
         x = x,
         y = y,
         screenWidth = screenWidth,
         screenHeight = screenHeight,
+        input = input,
         widgetCalls = widgetCalls
     )
 }
@@ -55,8 +73,9 @@ fun UiContext.simulateClick(
     y: Float,
     screenWidth: Float = 200f,
     screenHeight: Float = 200f,
+    input: Input = Input(),
     widgetCalls: () -> Unit
 ) {
-    simulateFrame(pointerDown = true, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight, widgetCalls = widgetCalls)
-    simulateFrame(pointerDown = false, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight, widgetCalls = widgetCalls)
+    simulateFrame(pointerDown = true, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight, input = input, widgetCalls = widgetCalls)
+    simulateFrame(pointerDown = false, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight, input = input, widgetCalls = widgetCalls)
 }

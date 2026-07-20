@@ -19,7 +19,7 @@ fun UiContext.animateFloat(
 ): Float {
     val state = widgetStateInternal("__animation__$id")
     val current = state.get("value", initial)
-    val next = animateFloatStep(current, target, frameDeltaSecondsInternal(), responsiveness, snapDistance)
+    val next = animateFloatStep(current, target, frameDeltaSeconds(), responsiveness, snapDistance)
     state.set("value", next)
     return next
 }

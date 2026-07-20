@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
@@ -424,8 +425,9 @@ private fun renderUiShowcaseCardPreviewFrame(
     return withPreviewDensity(previewScale) {
         val insetPx = 24f * previewScale
         val contentGapPx = 10f * previewScale
-        Input.setPointer(down = false, x = -100f, y = -100f)
-        ui.beginFrame(metadata.rasterWidth.toFloat(), metadata.rasterHeight.toFloat())
+        val previewInput = Input()
+        previewInput.setPointer(down = false, x = -100f, y = -100f)
+        ui.beginFrame(metadata.rasterWidth.toFloat(), metadata.rasterHeight.toFloat(), previewInput.updateSnapshot())
         if (focusedNodeId != null) {
             ui.requestFocus(focusedNodeId)
         }

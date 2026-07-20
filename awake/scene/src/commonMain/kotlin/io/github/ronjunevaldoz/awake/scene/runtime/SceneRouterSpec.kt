@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
+import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import kotlin.coroutines.EmptyCoroutineContext
@@ -35,7 +36,7 @@ class SceneRouterSpec(
     }
 
     override fun install(into: GameSpecBuilder) {
-        val runtime = SceneRouterRuntime(routes, initialRouteId)
+        val runtime = SceneRouterRuntime(routes, initialRouteId, into.serviceLookup())
         into.service(SceneRouterRuntime::class, runtime)
         into.ready { renderer -> runtime.ready(renderer) }
         into.render { delta, viewportWidth, viewportHeight -> runtime.render(delta, viewportWidth, viewportHeight) }
@@ -48,7 +49,8 @@ class SceneRouterSpec(
 
 class SceneRouterRuntime internal constructor(
     routes: List<SceneRoute>,
-    initialRouteId: String
+    initialRouteId: String,
+    private val services: GameServiceLookup
 ) : Game {
     private val routesById = routes.associateBy(SceneRoute::id)
     val scenes: List<SceneRouteInfo> = routes.map { SceneRouteInfo(id = it.id, label = it.label) }
@@ -117,6 +119,7 @@ class SceneRouterRuntime internal constructor(
         currentRuntime?.dispose()
         currentRoute = route
         currentRuntime = SceneGameRuntime(route.spec).also { runtime ->
+            runtime.initialize(services)
             runImmediateReady {
                 runtime.ready(activeRenderer)
             }

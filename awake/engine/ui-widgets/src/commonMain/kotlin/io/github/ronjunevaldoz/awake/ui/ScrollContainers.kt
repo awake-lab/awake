@@ -99,7 +99,7 @@ fun UiScope.scrollPanel(
         context.onOverScrollable()
         
         if (state.canScroll) {
-            val scrollDelta = context.inputSnapshot.scrollDeltaY
+            val scrollDelta = context.inputState.scrollDeltaY
             if (scrollDelta != 0f) {
                 state.scrollBy(-scrollDelta * scrollSpeed)
                 // Report that this delta was used so others don't also use it.

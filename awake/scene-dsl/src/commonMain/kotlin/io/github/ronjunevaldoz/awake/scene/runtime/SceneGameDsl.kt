@@ -72,7 +72,7 @@ class SceneGameDsl internal constructor() {
     }
     private var assetLibraryFactory: (() -> SceneAssetLibrary)? = null
     private val systemsDsl = SceneSystemsDsl()
-    private var updateBlock: SceneUpdateBlock = { delta -> runAllSystems(delta) }
+    private var updateBlock: SceneUpdateBlock = { delta, _ -> runAllSystems(delta) }
     private var overlayBlock: SceneOverlayBlock = { _, _ -> }
     private val onReadyBlocks = mutableListOf<SceneReadyBlock>()
     private val onDisposeBlocks = mutableListOf<SceneDisposeBlock>()
@@ -228,6 +228,7 @@ fun SceneGameDsl.playerControlSystem(
             rotateSpeed = rotateSpeed,
             zoomSpeed = zoomSpeed,
             pinchZoomSpeed = pinchZoomSpeed,
+            inputProvider = { requireService(io.github.ronjunevaldoz.awake.core.input.Input::class).currentSnapshot },
             uiResultProvider = { uiContext.inputResult() }
         )
     }

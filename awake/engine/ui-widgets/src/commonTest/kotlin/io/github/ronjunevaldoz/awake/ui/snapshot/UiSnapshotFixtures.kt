@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.CoreUiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.Dimension
@@ -28,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.icon
 import io.github.ronjunevaldoz.awake.ui.offset
+import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.ui.panel
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.size
@@ -68,19 +68,19 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
     parkPointerOffCanvas()
 
     val uncheckedUi = UiContext()
-    uncheckedUi.beginFrame(160f, 40f)
+    uncheckedUi.beginFrame(160f, 40f, testSnapshot())
     uncheckedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme)
         .toggle("toggle-unchecked", checked = false, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
 
     val checkedUi = UiContext()
-    checkedUi.beginFrame(160f, 40f)
+    checkedUi.beginFrame(160f, 40f, testSnapshot())
     checkedUi.absolute(0f, 0f, font = font, theme = CoreUiTheme)
         .toggle("toggle-checked", checked = true, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
 
     val buttonVariants = UiButtonVariant.entries.map { variant ->
         val variantId = buttonVariantId(variant)
         val ui = UiContext()
-        ui.beginFrame(160f, 40f)
+        ui.beginFrame(160f, 40f, testSnapshot())
         ui.absolute(0f, 0f, font = font, theme = CoreUiTheme)
             .button("button-$variantId", label = "BUTTON", modifier = UiModifier().width(160f.px).height(40f.px), variant = variant, radius = UiShape.md)
         UiSnapshotScene(
@@ -94,17 +94,17 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
     }
 
     val lightThemeUi = UiContext()
-    lightThemeUi.beginFrame(160f, 40f)
+    lightThemeUi.beginFrame(160f, 40f, testSnapshot())
     lightThemeUi.absolute(0f, 0f, font = font, theme = SnapshotLightUiTheme)
         .button("theme-light", label = "BUTTON", modifier = UiModifier().width(160f.px).height(40f.px))
 
     val darkThemeUi = UiContext()
-    darkThemeUi.beginFrame(160f, 40f)
+    darkThemeUi.beginFrame(160f, 40f, testSnapshot())
     darkThemeUi.absolute(0f, 0f, font = font, theme = CoreUiTheme)
         .button("theme-dark", label = "BUTTON", modifier = UiModifier().width(160f.px).height(40f.px))
 
     val panelUi = UiContext()
-    panelUi.beginFrame(240f, 200f)
+    panelUi.beginFrame(240f, 200f, testSnapshot())
     val panelColumn = panelUi.column(x = 20f, y = 20f, width = 200f, font = font, theme = CoreUiTheme)
     panelColumn.panel(
         "inspector",
@@ -184,7 +184,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
         build: UiContext.(UiFont) -> Unit
     ): UiSnapshotScene {
         val ui = UiContext()
-        ui.beginFrame(width.toFloat(), height.toFloat())
+        ui.beginFrame(width.toFloat(), height.toFloat(), testSnapshot())
         ui.build(font)
         return UiSnapshotScene(
             name = name,
@@ -440,7 +440,6 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
 }
 
 private fun parkPointerOffCanvas() {
-    Input.setPointer(down = false, x = -100f, y = -100f)
 }
 
 private fun buttonVariantId(variant: UiButtonVariant): String = when (variant) {

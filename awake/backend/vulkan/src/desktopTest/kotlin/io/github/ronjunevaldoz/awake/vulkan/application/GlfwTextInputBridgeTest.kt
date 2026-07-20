@@ -18,13 +18,15 @@ private const val GLFW_KEY_BACKSPACE = 259
 private const val REPEAT_INITIAL_DELAY_SECONDS = 0.5
 private const val REPEAT_INTERVAL_SECONDS = 0.05
 
+/** [Input] is a per-session instance now (no longer a global object) -- each test
+ * constructs its own and reads it back via [Input.updateSnapshot], which drains the typed
+ * text/edit action buffers the same way the old static `consumeTypedText`/`consumeEditActions`
+ * did. */
 class GlfwTextInputBridgeTest {
 
     @BeforeTest
     fun reset() {
         resetGlfwTextInputRepeatStateForTest()
-        Input.consumeTypedText()
-        Input.consumeEditActions()
     }
 
     @AfterTest
@@ -34,53 +36,58 @@ class GlfwTextInputBridgeTest {
 
     @Test
     fun keyPressFiresExactlyOnceOnTheRisingEdge() {
+        val input = Input()
         val reader = FakeGlfwWindowInput().apply { keysDown += GLFW_KEY_A }
-        pollGlfwTextInput(reader, deltaSeconds = 0.0)
-        assertEquals("a", Input.consumeTypedText(), "the first frame a key is down must insert exactly one character")
+        pollGlfwTextInput(reader, input, deltaSeconds = 0.0)
+        assertEquals("a", input.updateSnapshot().typedText, "the first frame a key is down must insert exactly one character")
 
-        pollGlfwTextInput(reader, deltaSeconds = 0.05)
-        assertEquals("", Input.consumeTypedText(), "holding the key without crossing the repeat threshold must not insert again")
+        pollGlfwTextInput(reader, input, deltaSeconds = 0.05)
+        assertEquals("", input.updateSnapshot().typedText, "holding the key without crossing the repeat threshold must not insert again")
     }
 
     @Test
     fun holdingPastTheInitialDelayRepeats() {
+        val input = Input()
         val reader = FakeGlfwWindowInput().apply { keysDown += GLFW_KEY_A }
-        pollGlfwTextInput(reader, deltaSeconds = 0.0)
-        Input.consumeTypedText()
+        pollGlfwTextInput(reader, input, deltaSeconds = 0.0)
+        input.updateSnapshot()
 
-        pollGlfwTextInput(reader, deltaSeconds = REPEAT_INITIAL_DELAY_SECONDS)
-        assertEquals("a", Input.consumeTypedText(), "holding past the initial repeat delay must fire another insert")
+        pollGlfwTextInput(reader, input, deltaSeconds = REPEAT_INITIAL_DELAY_SECONDS)
+        assertEquals("a", input.updateSnapshot().typedText, "holding past the initial repeat delay must fire another insert")
     }
 
     @Test
     fun releasingResetsTheRepeatCadence() {
+        val input = Input()
         val reader = FakeGlfwWindowInput().apply { keysDown += GLFW_KEY_A }
-        pollGlfwTextInput(reader, deltaSeconds = 0.0)
-        Input.consumeTypedText()
+        pollGlfwTextInput(reader, input, deltaSeconds = 0.0)
+        input.updateSnapshot()
 
         reader.keysDown -= GLFW_KEY_A
-        pollGlfwTextInput(reader, deltaSeconds = 1.0)
-        assertEquals("", Input.consumeTypedText(), "releasing the key must stop insertion even after a long delta")
+        pollGlfwTextInput(reader, input, deltaSeconds = 1.0)
+        assertEquals("", input.updateSnapshot().typedText, "releasing the key must stop insertion even after a long delta")
 
         reader.keysDown += GLFW_KEY_A
-        pollGlfwTextInput(reader, deltaSeconds = 0.0)
-        assertEquals("a", Input.consumeTypedText(), "pressing again after a release must fire a fresh rising edge, not resume mid-repeat")
+        pollGlfwTextInput(reader, input, deltaSeconds = 0.0)
+        assertEquals("a", input.updateSnapshot().typedText, "pressing again after a release must fire a fresh rising edge, not resume mid-repeat")
     }
 
     @Test
     fun shiftUppercasesLetters() {
+        val input = Input()
         val reader = FakeGlfwWindowInput().apply {
             keysDown += GLFW_KEY_A
             keysDown += GLFW_KEY_LEFT_SHIFT
         }
-        pollGlfwTextInput(reader, deltaSeconds = 0.0)
-        assertEquals("A", Input.consumeTypedText(), "shift held must uppercase the inserted letter")
+        pollGlfwTextInput(reader, input, deltaSeconds = 0.0)
+        assertEquals("A", input.updateSnapshot().typedText, "shift held must uppercase the inserted letter")
     }
 
     @Test
     fun editKeyPushesEditAction() {
+        val input = Input()
         val reader = FakeGlfwWindowInput().apply { keysDown += GLFW_KEY_BACKSPACE }
-        pollGlfwTextInput(reader, deltaSeconds = 0.0)
-        assertEquals(listOf(TextEditAction.Backspace), Input.consumeEditActions(), "a held edit key must push its TextEditAction on the rising edge")
+        pollGlfwTextInput(reader, input, deltaSeconds = 0.0)
+        assertEquals(listOf(TextEditAction.Backspace), input.updateSnapshot().editActions, "a held edit key must push its TextEditAction on the rising edge")
     }
 }

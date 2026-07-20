@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -33,7 +33,7 @@ class ScrollContainersTest {
         }
 
         assertEquals(24f, state.offsetY)
-        assertEquals(0f, Input.scrollDeltaY)
+        assertTrue(ui.inputResult().isScrollConsumed, "a hovered scrollable scroll panel must mark the frame's delta as consumed")
         assertTrue(state.canScroll)
     }
 
@@ -59,15 +59,16 @@ class ScrollContainersTest {
         }
 
         assertEquals(0f, state.offsetY)
-        assertEquals(-1f, Input.scrollDeltaY)
+        // Not consumed by the (non-hovered) panel above -- a scene-facing consumer (camera
+        // pinch-zoom) reads UiInputResult.isScrollConsumed, not a live Input field, to decide
+        // whether it's still free to use this frame's delta.
+        assertFalse(ui.inputResult().isScrollConsumed, "a non-hovered scroll panel must not mark the frame's delta as consumed")
     }
 
     @Test
     fun scrollPanelEmitsViewportClipAndScrollbarThumb() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
-        Input.scrollDeltaY = 0f
         val ui = UiContext()
-        ui.beginFrame(220f, 200f)
+        ui.beginFrame(220f, 200f, testSnapshot())
         val scope = ui.absolute(0f, 0f, font = UiFonts.default())
 
         val result = scope.scrollPanel(

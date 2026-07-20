@@ -33,12 +33,13 @@ class UiShowcaseTextInputIntegrationTest {
         val font = UiFonts.default()
         val page = ShowcasePages.first { it.id == "text-input" }
         val ui = UiContext()
+        val input = Input()
         val width = 900f
         val height = 460f
 
         fun frame(pointerDown: Boolean, x: Float, y: Float): List<UiDrawPrimitive> {
-            Input.setPointer(down = pointerDown, x = x, y = y)
-            ui.beginFrame(width, height)
+            input.setPointer(down = pointerDown, x = x, y = y)
+            ui.beginFrame(width, height, input.updateSnapshot())
             ui.ui(x = 24f, y = 24f, width = width - 48f, font = font, theme = theme, gap = 10f) {
                 renderUiShowcasePagePreview(page, state)
             }
@@ -59,7 +60,7 @@ class UiShowcaseTextInputIntegrationTest {
         assertTrue(ui.isFocused("showcase-name"), "clicking the real page's field must grant it focus")
 
         // Frame 3: type, exactly as the desktop bridge does -- push BEFORE beginFrame.
-        Input.pushTypedText("Hi")
+        input.pushTypedText("Hi")
         val primitives = frame(pointerDown = false, x = clickX, y = clickY)
 
         val glyphCount = primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
@@ -76,17 +77,18 @@ class UiShowcaseTextInputIntegrationTest {
         val font = UiFonts.default()
         val page = ShowcasePages.first { it.id == "text-input" }
         val ui = UiContext()
+        val input = Input()
 
-        Input.setPointer(down = false, x = -100f, y = -100f)
-        ui.beginFrame(900f, 460f)
+        input.setPointer(down = false, x = -100f, y = -100f)
+        ui.beginFrame(900f, 460f, input.updateSnapshot())
         ui.ui(x = 24f, y = 24f, width = 852f, font = font, theme = theme, gap = 10f) {
             renderUiShowcasePagePreview(page, state)
         }
         ui.endFrame()
 
-        Input.pushTypedText("ignored")
-        Input.setPointer(down = false, x = -100f, y = -100f)
-        ui.beginFrame(900f, 460f)
+        input.pushTypedText("ignored")
+        input.setPointer(down = false, x = -100f, y = -100f)
+        ui.beginFrame(900f, 460f, input.updateSnapshot())
         ui.ui(x = 24f, y = 24f, width = 852f, font = font, theme = theme, gap = 10f) {
             renderUiShowcasePagePreview(page, state)
         }

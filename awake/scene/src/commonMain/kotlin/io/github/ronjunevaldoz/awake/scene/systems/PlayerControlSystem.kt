@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.systems
 
-import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.ecs.System
@@ -14,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.UiInputResult
 
 /**
  * Dedicated system for handling user input and mapping it to control intent components.
- * This is the ONLY system that should read/consume raw hardware [Input] deltas.
+ * This is the ONLY system that should read/consume hardware snapshots.
  *
  * Decoupled from UI: queries a provided [UiInputResult] each frame to decide if
  * hardware events should be ignored.
@@ -23,6 +22,8 @@ class PlayerControlSystem(
     private val rotateSpeed: Float = 0.01f,
     private val zoomSpeed: Float = 4f,
     private val pinchZoomSpeed: Float = 0.5f,
+    /** Provider for the hardware snapshot for the current frame. */
+    private val inputProvider: () -> InputSnapshot,
     /** Provider for the UI's input consumption results from the most recent UI pass. */
     private val uiResultProvider: () -> UiInputResult
 ) : System {
@@ -34,8 +35,10 @@ class PlayerControlSystem(
     private var dragOriginY = 0f
     private var wasMovementDragging = false
 
-    fun update(world: World, delta: Float, input: InputSnapshot) {
+    override fun update(world: World, delta: Float) {
+        val input = inputProvider()
         val ui = uiResultProvider()
+        
         val draggingPointer = input.pointerDown && !ui.isCaptured
         
         var yawDelta = 0f
@@ -62,7 +65,7 @@ class PlayerControlSystem(
         if (input.keysDown.contains(Key.W) || input.keysDown.contains(Key.ArrowUp)) rawMoveZ -= 1f
         if (input.keysDown.contains(Key.S) || input.keysDown.contains(Key.ArrowDown)) rawMoveZ += 1f
 
-        // Touch-drag movement (fallback if no keyboard movement)
+        // Touch-drag movement (joystick style)
         if (rawMoveX == 0f && rawMoveZ == 0f && draggingPointer) {
             if (!wasMovementDragging) {
                 dragOriginX = input.pointerX
@@ -72,13 +75,13 @@ class PlayerControlSystem(
                 val dx = (input.pointerX - dragOriginX).coerceIn(-DRAG_RADIUS, DRAG_RADIUS) / DRAG_RADIUS
                 val dy = (input.pointerY - dragOriginY).coerceIn(-DRAG_RADIUS, DRAG_RADIUS) / DRAG_RADIUS
                 rawMoveX = dx
-                rawMoveZ = dy // Screen Y grows downward
+                rawMoveZ = dy
             }
         } else {
             wasMovementDragging = false
         }
 
-        // --- Axis-specific processing ---
+        // --- Intent Mapping ---
 
         // 1. Orbit Zoom
         var distanceDelta = 0f
@@ -98,7 +101,7 @@ class PlayerControlSystem(
             control.pitchDelta = pitchDelta
             control.moveX = rawMoveX
             control.moveY = 0f
-            control.moveZ = -rawMoveZ + scrollDelta // FreeFly uses Scroll as forward dolly
+            control.moveZ = -rawMoveZ + scrollDelta 
         }
 
         // Apply intents to all entities that have MovementControl (kinematic movement)
@@ -107,10 +110,6 @@ class PlayerControlSystem(
             control.moveY = 0f
             control.moveZ = rawMoveZ
         }
-    }
-
-    override fun update(world: World, delta: Float) {
-        // No-op. Use the overload that takes a snapshot.
     }
 
     private companion object {

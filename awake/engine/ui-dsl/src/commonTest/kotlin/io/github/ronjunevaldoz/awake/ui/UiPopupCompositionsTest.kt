@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,13 +12,22 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+/** Builds a one-off [InputSnapshot] for a test frame -- [Input] is a per-session instance
+ * now (no longer a global object), so tests construct their own throwaway one instead of
+ * writing into shared static state. */
+private fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): InputSnapshot {
+    val input = Input()
+    input.setPointer(down, x, y)
+    input.scrollDeltaY = scrollDeltaY
+    return input.updateSnapshot()
+}
+
 class UiPopupCompositionsTest {
 
     @Test
     fun tooltipTextUsesPopupPanelAboveAnchor() {
         val ui = UiContext()
-        Input.setPointer(down = false, x = -100f, y = -100f)
-        ui.beginFrame(240f, 160f)
+        ui.beginFrame(240f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
 
         var result: UiPopupResult? = null
         ui.ui(x = 0f, y = 0f, width = 220f, font = BitmapFont()) {
@@ -41,8 +51,7 @@ class UiPopupCompositionsTest {
         val anchor = UiSlot(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
 
-        Input.setPointer(down = true, x = 32f, y = 58f)
-        ui.beginFrame(220f, 180f)
+        ui.beginFrame(220f, 180f, testSnapshot(x = 32f, y = 58f, down = true))
         ui.ui(x = 0f, y = 0f, width = 200f, font = BitmapFont()) {
             result = dropdownMenu(
                 id = "menu",
@@ -55,8 +64,7 @@ class UiPopupCompositionsTest {
         ui.endFrame()
         assertEquals(null, assertNotNull(result).selectedIndex)
 
-        Input.setPointer(down = false, x = 32f, y = 58f)
-        ui.beginFrame(220f, 180f)
+        ui.beginFrame(220f, 180f, testSnapshot(x = 32f, y = 58f, down = false))
         ui.ui(x = 0f, y = 0f, width = 200f, font = BitmapFont()) {
             result = dropdownMenu(
                 id = "menu",
@@ -78,8 +86,7 @@ class UiPopupCompositionsTest {
         val anchor = UiSlot(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
 
-        Input.setPointer(down = true, x = 32f, y = 92f)
-        ui.beginFrame(240f, 220f)
+        ui.beginFrame(240f, 220f, testSnapshot(x = 32f, y = 92f, down = true))
         ui.ui(x = 0f, y = 0f, width = 220f, font = BitmapFont()) {
             result = dropdownMenu(
                 id = "menu",
@@ -95,8 +102,7 @@ class UiPopupCompositionsTest {
         }
         ui.endFrame()
 
-        Input.setPointer(down = false, x = 32f, y = 92f)
-        ui.beginFrame(240f, 220f)
+        ui.beginFrame(240f, 220f, testSnapshot(x = 32f, y = 92f, down = false))
         ui.ui(x = 0f, y = 0f, width = 220f, font = BitmapFont()) {
             result = dropdownMenu(
                 id = "menu",
@@ -120,8 +126,7 @@ class UiPopupCompositionsTest {
     @Test
     fun dialogCentersContentAndDrawsScrim() {
         val ui = UiContext()
-        Input.setPointer(down = false, x = -100f, y = -100f)
-        ui.beginFrame(300f, 200f)
+        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
         var result: UiPopupResult? = null
         ui.ui(x = 0f, y = 0f, width = 280f, font = BitmapFont()) {
@@ -154,8 +159,7 @@ class UiPopupCompositionsTest {
         val ui = UiContext()
         var result: UiAlertDialogResult? = null
 
-        Input.setPointer(down = true, x = 208f, y = 117f)
-        ui.beginFrame(320f, 220f)
+        ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = true))
         ui.ui(x = 0f, y = 0f, width = 300f, font = BitmapFont()) {
             result = alertDialog(
                 id = "confirm",
@@ -166,8 +170,7 @@ class UiPopupCompositionsTest {
         }
         ui.endFrame()
 
-        Input.setPointer(down = false, x = 208f, y = 117f)
-        ui.beginFrame(320f, 220f)
+        ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = false))
         ui.ui(x = 0f, y = 0f, width = 300f, font = BitmapFont()) {
             result = alertDialog(
                 id = "confirm",

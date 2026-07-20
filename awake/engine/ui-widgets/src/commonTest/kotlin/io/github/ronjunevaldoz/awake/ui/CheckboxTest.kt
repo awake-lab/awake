@@ -26,9 +26,8 @@ class CheckboxTest {
 
     @Test
     fun checkboxEmitsASeparateBoxAndLabelNotOneBigFill() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(200f, 100f)
+        ui.beginFrame(200f, 100f, testSnapshot())
         ui.absolute(20f, 20f, font = BitmapFont()).checkbox("cb", checked = false, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
         val primitives = ui.endFrame()
 
@@ -42,9 +41,8 @@ class CheckboxTest {
 
     @Test
     fun checkboxCanUseModifierSizingAsPrimaryApi() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(220f, 100f)
+        ui.beginFrame(220f, 100f, testSnapshot())
         ui.absolute(20f, 20f, font = BitmapFont()).checkbox(
             id = "cb",
             checked = false,
@@ -59,9 +57,8 @@ class CheckboxTest {
 
     @Test
     fun checkedBoxAddsAnInsetAccentQuad() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(200f, 100f)
+        ui.beginFrame(200f, 100f, testSnapshot())
         ui.absolute(20f, 20f).checkbox("cb", checked = true, modifier = UiModifier().width(160f.px).height(40f.px))
         val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
         assertEquals(6, quads.size, "checked state adds one inset accent quad on top of the box quad plus its 4 border edge quads")
@@ -69,9 +66,8 @@ class CheckboxTest {
 
     @Test
     fun styleShapeMakesTheBoxARoundedQuad() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(200f, 100f)
+        ui.beginFrame(200f, 100f, testSnapshot())
         ui.absolute(20f, 20f).checkbox(
             "cb",
             checked = false,
@@ -84,10 +80,9 @@ class CheckboxTest {
 
     @Test
     fun trueFontCheckboxLabelStaysVerticallyCenteredInTheRow() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val font = UiFonts.trueSans()
         val ui = UiContext()
-        ui.beginFrame(220f, 100f)
+        ui.beginFrame(220f, 100f, testSnapshot())
         ui.absolute(20f, 20f, font = font).checkbox("cb", checked = false, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
 
         val glyphBounds = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>().glyphBounds()

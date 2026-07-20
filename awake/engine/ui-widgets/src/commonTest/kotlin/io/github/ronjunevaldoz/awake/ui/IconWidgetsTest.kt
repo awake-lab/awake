@@ -12,7 +12,7 @@ class IconWidgetsTest {
     @Test
     fun iconEmitsFilledPathsFromImageVector() {
         val ui = UiContext()
-        ui.beginFrame(100f, 100f)
+        ui.beginFrame(100f, 100f, testSnapshot())
 
         ui.absolute(10f, 12f).icon(
             imageVector = squareVector,
@@ -39,7 +39,7 @@ class IconWidgetsTest {
     @Test
     fun iconUsesExplicitPathFillWithoutTintOverride() {
         val ui = UiContext()
-        ui.beginFrame(100f, 100f)
+        ui.beginFrame(100f, 100f, testSnapshot())
 
         ui.absolute(0f, 0f).icon(multicolorVector, tint = Color(1f, 0f, 0f, 1f))
 

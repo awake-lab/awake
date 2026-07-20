@@ -4,12 +4,12 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.application.Game
+import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
@@ -19,175 +19,143 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.scene.systems.PlayerControlSystem
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 
+private fun io.github.ronjunevaldoz.awake.core.input.InputSnapshot.toUiInputState(): UiInputState = UiInputState(
+    pointerX = pointerX,
+    pointerY = pointerY,
+    pointerDown = pointerDown,
+    scrollDeltaY = scrollDeltaY,
+    typedText = typedText,
+    editActions = editActions.map { it.toUiAction() }
+)
+
+private fun io.github.ronjunevaldoz.awake.core.input.TextEditAction.toUiAction(): UiTextEditAction = when (this) {
+    io.github.ronjunevaldoz.awake.core.input.TextEditAction.Backspace -> UiTextEditAction.Backspace
+    io.github.ronjunevaldoz.awake.core.input.TextEditAction.Delete -> UiTextEditAction.Delete
+    io.github.ronjunevaldoz.awake.core.input.TextEditAction.Enter -> UiTextEditAction.Enter
+    io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowLeft -> UiTextEditAction.ArrowLeft
+    io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowRight -> UiTextEditAction.ArrowRight
+    io.github.ronjunevaldoz.awake.core.input.TextEditAction.Home -> UiTextEditAction.Home
+    io.github.ronjunevaldoz.awake.core.input.TextEditAction.End -> UiTextEditAction.End
+}
+
+/**
+ * Orchestrates a single 3D scene session.
+ */
 class SceneGameRuntime internal constructor(
     private val spec: SceneGameSpec
 ) : Game {
     private val fixedTimestepLoop = FixedTimestepLoop()
-    private val transformSystem = TransformSystem()
-    private var playerControlSystem: PlayerControlSystem? = null
     private val registeredSystems = linkedMapOf<SceneSystemHandle<out System>, System>()
-    private val systemNames = linkedMapOf<String, SceneSystemHandle<out System>>()
-    private val namedEntities = linkedMapOf<String, Entity>()
+    private val systemNames = mutableMapOf<String, SceneSystemHandle<*>>()
+    
+    lateinit var world: World
+        private set
+    lateinit var renderer: Renderer
+        private set
+        
+    /** Core infrastructure: propagates local transforms to world matrices. */
+    private val transformSystem = TransformSystem()
+    /** Core infrastructure: collects draw calls and submits to GPU. */
+    private lateinit var renderSystem: RenderSystem
+    private var assetLibrary: SceneAssetLibrary? = null
 
     val uiContext = UiContext()
     val font: UiFont = UiFonts.default()
-    val input = Input()
     val sceneDocument: SceneDocument
         get() = spec.sceneDocument
     val sceneName: String
         get() = sceneDocument.name ?: "scene"
 
-    lateinit var renderer: Renderer
-        private set
-    lateinit var world: World
-        private set
-    lateinit var scene: SceneInstance
-        private set
+    private lateinit var services: GameServiceLookup
 
-    private var assetLibrary: SceneAssetLibrary? = null
-    private lateinit var renderSystem: RenderSystem
+    /** Called at install time (see [SceneGameSpec.installInto]). */
+    fun initialize(services: GameServiceLookup) {
+        this.services = services
+        this.world = World()
+        this.assetLibrary = spec.assetLibraryFactory?.invoke()
 
-    override suspend fun ready(renderer: Renderer) {
-        initialize(renderer)
-        spec.onReadyBlock(this)
-    }
-
-    fun initialize(renderer: Renderer) {
-        this.renderer = renderer
-        world = World()
-        scene = spec.sceneDocument.instantiate(
-            flipYForClipSpace = renderer.flipYForClipSpace,
-            world = world
-        )
-        assetLibrary = spec.assetLibraryFactory?.invoke()
-        scene.attachRenderableComponents { request -> spec.renderableFactory(this, request) }
-        renderSystem = RenderSystem(renderer)
-        rebuildNameIndex()
         spec.systems.forEach { registration ->
             val system = registration.factory(this)
             registeredSystems[registration.handle] = system
             systemNames[registration.handle.name] = registration.handle
-            if (system is PlayerControlSystem) {
-                playerControlSystem = system
-            }
         }
+    }
+
+    override suspend fun ready(renderer: Renderer) {
+        this.renderer = renderer
+        this.renderSystem = RenderSystem(renderer)
+        
+        val scene = spec.sceneDocument.instantiate(flipYForClipSpace = renderer.flipYForClipSpace, world = world)
+        scene.attachRenderableComponents { request -> spec.renderableFactory(this, request) }
+        
         transformSystem.update(world, 0f)
+        spec.onReadyBlock(this)
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
-        // Capture a stable hardware snapshot for the entire frame
-        val inputSnapshot = input.snapshot()
+        val input = services.requireService(Input::class)
+        val snapshot = input.currentSnapshot
 
-        // UI Pass (uses snapshot)
-        uiContext.beginFrame(viewportWidth, viewportHeight, inputSnapshot, delta)
+        // 1. UI Pass: Highest priority for input interception.
+        uiContext.beginFrame(
+            screenWidth = viewportWidth,
+            screenHeight = viewportHeight,
+            inputState = snapshot.toUiInputState(),
+            deltaSeconds = delta
+        )
         spec.overlayBlock(this, viewportWidth, viewportHeight)
         val uiPrimitives = uiContext.endFrame()
         val uiResult = uiContext.inputResult()
 
-        // Update intent (this needs the snapshot)
-        playerControlSystem?.update(world, delta, inputSnapshot)
-
+        // 2. Simulation & Render Pass
         fixedTimestepLoop.advance(
             frameDelta = delta,
-            fixedUpdate = { step -> spec.updateBlock(this, step) },
+            fixedUpdate = { step -> spec.updateBlock(this, step, snapshot) },
             render = {
+                // Infrastructure runs once per render frame, after all simulation steps.
                 transformSystem.update(world, delta)
                 renderSystem.update(world, delta)
             }
         )
+        
+        // 3. Final UI Compositing
         renderer.drawUi(uiPrimitives, font)
         
-        // Sync focused state back to hardware for OS bridge
+        // Sync focused state to hardware for next frame
         input.textInputFocused = uiResult.isTextInputFocused
     }
+
+    override fun resize(width: Float, height: Float) {}
 
     override fun dispose() {
         spec.onDisposeBlock(this)
         assetLibrary?.dispose()
         assetLibrary = null
-        registeredSystems.clear()
-        systemNames.clear()
-        namedEntities.clear()
     }
 
     fun requireAssetLibrary(): SceneAssetLibrary = checkNotNull(assetLibrary) {
-        "No scene asset library is registered for '${sceneName}'."
+        "No scene asset library is registered for '$sceneName'."
     }
 
     fun requireMesh(name: String): Mesh = requireAssetLibrary().requireMesh(this, name)
 
     fun requireMaterial(name: String): Material = requireAssetLibrary().requireMaterial(this, name)
 
-    suspend fun readback(
-        camera: CoreCamera,
-        width: Int,
-        height: Int
-    ): TextureAsset {
+    suspend fun readback(camera: CoreCamera, width: Int, height: Int): TextureAsset {
         val target = renderer.createRenderTarget(width, height)
         return try {
             renderer.renderToTexture(target, camera, collectDrawCalls())
             renderer.readPixels(target)
         } finally {
             target.destroy()
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T : System> system(handle: SceneSystemHandle<T>): T {
-        return checkNotNull(registeredSystems[handle]) {
-            "No ECS system named '${handle.name}' is registered."
-        } as T
-    }
-
-    fun system(name: String): System {
-        val handle = checkNotNull(systemNames[name]) {
-            "No ECS system named '$name' is registered."
-        }
-        return system(handle)
-    }
-
-    fun <T : System> update(handle: SceneSystemHandle<T>, delta: Float) {
-        system(handle).update(world, delta)
-    }
-
-    fun runAllSystems(delta: Float) {
-        registeredSystems.values.forEach { system ->
-            system.update(world, delta)
-        }
-    }
-
-    fun findEntity(name: String): Entity? = namedEntities[name]
-
-    fun requireEntity(name: String): Entity {
-        return checkNotNull(findEntity(name)) {
-            "Scene is missing an entity named '$name'."
-        }
-    }
-
-    fun findTransform(name: String): Transform? = findEntity(name)?.let { entity ->
-        world.get(entity, Transform::class)
-    }
-
-    fun requireTransform(name: String): Transform {
-        return checkNotNull(findTransform(name)) {
-            "Entity '$name' has no Transform."
-        }
-    }
-
-    fun findCamera(name: String): Camera? = findEntity(name)?.let { entity ->
-        world.get(entity, Camera::class)
-    }
-
-    fun requireCamera(name: String): Camera {
-        return checkNotNull(findCamera(name)) {
-            "Entity '$name' has no Camera component."
         }
     }
 
@@ -210,10 +178,54 @@ class SceneGameRuntime internal constructor(
         }
     }
 
-    private fun rebuildNameIndex() {
-        namedEntities.clear()
-        world.queryEach<Name> { entity, component ->
-            namedEntities[component.value] = entity
+    fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = services.service(type)
+
+    fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = services.requireService(type)
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : System> system(handle: SceneSystemHandle<T>): T =
+        registeredSystems[handle] as? T ?: error("System ${handle.name} not found")
+
+    fun findSystemHandle(name: String): SceneSystemHandle<*>? = systemNames[name]
+
+    fun system(name: String): System {
+        val handle = checkNotNull(findSystemHandle(name)) {
+            "No ECS system named '$name' is registered."
+        }
+        return system(handle)
+    }
+
+    fun <T : System> update(handle: SceneSystemHandle<T>, delta: Float) {
+        val system = system(handle)
+        system.update(world, delta)
+    }
+
+    /**
+     * Executes all registered gameplay systems. Called by the default [SceneUpdateBlock].
+     */
+    fun runAllSystems(delta: Float) {
+        registeredSystems.values.forEach { system ->
+            system.update(world, delta)
         }
     }
+
+    fun findEntity(name: String): Entity? {
+        var result: Entity? = null
+        world.queryEach(Name::class) { entity, n ->
+            if (n.value == name) result = entity
+        }
+        return result
+    }
+
+    fun requireEntity(name: String): Entity = findEntity(name) ?: error("Entity with name '$name' not found")
+
+    fun findTransform(name: String): Transform? = findEntity(name)?.let { world.get(it, Transform::class) }
+
+    fun requireTransform(name: String): Transform = world.get(requireEntity(name), Transform::class)
+        ?: error("Entity '$name' has no Transform component")
+
+    fun findCamera(name: String): Camera? = findEntity(name)?.let { world.get(it, Camera::class) }
+
+    fun requireCamera(name: String): Camera = world.get(requireEntity(name), Camera::class)
+        ?: error("Entity '$name' has no Camera component")
 }

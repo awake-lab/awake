@@ -24,6 +24,7 @@ class SceneGameSpec(
 
     fun installInto(into: GameSpecBuilder): SceneGameRuntime {
         val runtime = SceneGameRuntime(this)
+        runtime.initialize(into.serviceLookup())
         into.service(SceneGameRuntime::class, runtime)
         serviceRegistrations.forEach { registration ->
             registration.install(into, runtime)

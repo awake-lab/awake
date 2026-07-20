@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
+import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import kotlin.reflect.KClass
 
@@ -14,6 +15,9 @@ class GameSpecBuilder {
     private val onDispose = mutableListOf<() -> Unit>()
     private val windowBuilder = GameWindowConfigBuilder()
     private val services = MutableGameServices()
+    
+    /** The single [Input] instance for this game session. Registered as a service up front. */
+    val input = Input().also { services.register(Input::class, it) }
 
     fun window(block: GameWindowConfigBuilder.() -> Unit) {
         windowBuilder.apply(block)

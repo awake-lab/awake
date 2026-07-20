@@ -2,54 +2,61 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene
 
-import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Camera
+import io.github.ronjunevaldoz.awake.scene.components.FreeFlyControl
 import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
-import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * FreeFlyCameraSystem is now decoupled from hardware input -- it only reads intent already
+ * accumulated onto [FreeFlyControl] (by PlayerControlSystem, in a real frame; see
+ * PlayerControlSystemTest for that half). These tests drive [FreeFlyControl] directly.
+ */
 class FreeFlyCameraSystemTest {
-    @AfterTest
-    fun resetInput() {
-        Input.clearKeys()
-        Input.setPointer(down = false, x = 0f, y = 0f)
-        Input.pointerCapturedByUi = false
-        Input.scrollDeltaY = 0f
-    }
-
     private fun newCamera() = Camera(
         camera = CoreCamera(eye = Vec3(0f, 0f, 0f), center = Vec3(0f, 0f, -1f), fovYRadians = 1f, near = 0.1f, far = 100f)
     )
 
+    private fun World.spawnFreeFlyCamera(control: FreeFlyControl = FreeFlyControl()): Pair<io.github.ronjunevaldoz.awake.ecs.Entity, FreeFlyControl> {
+        val entity = create()
+        add(entity, newCamera())
+        add(entity, control)
+        return entity to control
+    }
+
     @Test
-    fun noInputLeavesEyeUnchanged() {
+    fun noIntentLeavesEyeUnchanged() {
         val world = World()
-        val camera = newCamera()
-        val system = FreeFlyCameraSystem(camera)
+        val (entity, _) = world.spawnFreeFlyCamera()
+        val system = FreeFlyCameraSystem()
 
         system.update(world, 1f)
 
+        val camera = world.get(entity, Camera::class)!!
         assertEquals(0f, camera.camera.eye.x)
         assertEquals(0f, camera.camera.eye.y)
         assertEquals(0f, camera.camera.eye.z)
     }
 
     @Test
-    fun forwardKeyMovesEyeAlongLookDirection() {
+    fun forwardMoveZMovesEyeAlongLookDirection() {
         val world = World()
-        val camera = newCamera()
-        val system = FreeFlyCameraSystem(camera, moveSpeed = 2f)
-
-        Input.setKeyDown(Key.W, true)
-        system.update(world, 1f)
+        val (entity, control) = world.spawnFreeFlyCamera()
+        val system = FreeFlyCameraSystem(moveSpeed = 2f)
 
         // Default yaw/pitch (both 0) points forward along -Z (matches this codebase's
-        // existing camera convention, e.g. CameraTest's identity-view setup).
+        // existing camera convention, e.g. CameraTest's identity-view setup) -- the system's
+        // own forward vector is (0, 0, -1) at identity, so a positive control.moveZ (not
+        // negative) is what actually drives the eye toward -Z here; PlayerControlSystem is
+        // the one that flips the raw W-key's -1 into FreeFlyControl.moveZ = +1 for this.
+        control.moveZ = 1f
+        system.update(world, 1f)
+
+        val camera = world.get(entity, Camera::class)!!
         assertEquals(0f, camera.camera.eye.x, absoluteTolerance = 1e-4f)
         assertEquals(0f, camera.camera.eye.y, absoluteTolerance = 1e-4f)
         assertEquals(-2f, camera.camera.eye.z, absoluteTolerance = 1e-4f)
@@ -58,12 +65,13 @@ class FreeFlyCameraSystemTest {
     @Test
     fun centerStaysOneUnitAheadOfEyeAfterMoving() {
         val world = World()
-        val camera = newCamera()
-        val system = FreeFlyCameraSystem(camera, moveSpeed = 3f)
+        val (entity, control) = world.spawnFreeFlyCamera()
+        val system = FreeFlyCameraSystem(moveSpeed = 3f)
 
-        Input.setKeyDown(Key.D, true)
+        control.moveX = 1f
         system.update(world, 1f)
 
+        val camera = world.get(entity, Camera::class)!!
         val eye = camera.camera.eye
         val center = camera.camera.center
         val dx = center.x - eye.x
@@ -74,138 +82,38 @@ class FreeFlyCameraSystemTest {
     }
 
     @Test
-    fun pinchScrollDollysEyeAlongForwardAndIsConsumed() {
+    fun yawAndPitchDeltaApply() {
         val world = World()
-        val camera = newCamera()
-        val system = FreeFlyCameraSystem(camera, pinchZoomSpeed = 2f)
+        val (entity, control) = world.spawnFreeFlyCamera()
+        val system = FreeFlyCameraSystem()
 
-        // Default yaw/pitch (both 0) points forward along -Z (same convention as
-        // forwardKeyMovesEyeAlongLookDirection).
-        Input.scrollDeltaY = 3f
+        control.yawDelta = 0.3f
+        control.pitchDelta = 0.1f
         system.update(world, 0f)
 
-        assertEquals(0f, camera.camera.eye.x, absoluteTolerance = 1e-4f)
-        assertEquals(0f, camera.camera.eye.y, absoluteTolerance = 1e-4f)
-        assertEquals(-6f, camera.camera.eye.z, absoluteTolerance = 1e-4f)
+        assertEquals(0.3f, control.yaw)
+        assertEquals(0.1f, control.pitch)
 
-        // Consumed -- a leftover delta must not double-apply on the next frame.
-        val eyeZAfterConsuming = camera.camera.eye.z
+        // Deltas apply again next frame if not reset by the caller (matches OrbitControl's
+        // own contract: PlayerControlSystem, not this system, is responsible for resetting
+        // them every real frame).
         system.update(world, 0f)
-        assertEquals(eyeZAfterConsuming, camera.camera.eye.z, absoluteTolerance = 1e-4f)
+        assertEquals(0.6f, control.yaw, absoluteTolerance = 1e-5f)
     }
 
     @Test
-    fun dragChangesLookDirection() {
+    fun pitchClampsWithinNearlyVerticalBounds() {
         val world = World()
-        val camera = newCamera()
-        val system = FreeFlyCameraSystem(camera)
+        val (_, control) = world.spawnFreeFlyCamera()
+        val system = FreeFlyCameraSystem()
 
-        // First frame with the pointer down only records the drag origin, no rotation yet.
-        Input.setPointer(down = true, x = 100f, y = 100f)
-        system.update(world, 0f)
-        val centerBeforeDrag = Vec3(camera.camera.center.x, camera.camera.center.y, camera.camera.center.z)
-
-        Input.setPointer(down = true, x = 150f, y = 100f)
+        control.pitchDelta = 100f
         system.update(world, 0f)
 
-        assert(camera.camera.center.x != centerBeforeDrag.x || camera.camera.center.z != centerBeforeDrag.z) {
-            "expected dragging to change the look direction"
-        }
+        assert(control.pitch < (PI_F / 2f)) { "pitch must clamp below vertical: ${control.pitch}" }
     }
 
-    @Test
-    fun draggingPointerLeftTurnsLookDirectionLeft() {
-        // Regression test for a reported inverted-drag bug: dragging the pointer left was
-        // making the camera turn right. At yaw=0, forward=(0,0,-1) and right=(1,0,0), so +X is
-        // "right" from the camera's own point of view -- dragging left (pointerX decreasing)
-        // must make forward's X component decrease (swing toward -X/"left"), not increase.
-        val world = World()
-        val camera = newCamera()
-        val system = FreeFlyCameraSystem(camera, rotateSpeed = 0.01f)
-
-        Input.setPointer(down = true, x = 100f, y = 100f)
-        system.update(world, 0f)
-        val forwardXBefore = camera.camera.center.x - camera.camera.eye.x
-
-        // Pointer moves LEFT (x decreases).
-        Input.setPointer(down = true, x = 50f, y = 100f)
-        system.update(world, 0f)
-        val forwardXAfter = camera.camera.center.x - camera.camera.eye.x
-
-        assert(forwardXAfter < forwardXBefore) {
-            "expected dragging left to decrease forward's X component (turn left): " +
-                "before=$forwardXBefore after=$forwardXAfter"
-        }
-    }
-
-    @Test
-    fun pointerCapturedByUiSuppressesLookButNotWhenReleased() {
-        val world = World()
-        val camera = newCamera()
-        val system = FreeFlyCameraSystem(camera)
-
-        // A UI widget has claimed the pointer -- the same drag motion that would otherwise
-        // change look direction (see dragChangesLookDirection) must be suppressed.
-        Input.pointerCapturedByUi = true
-        Input.setPointer(down = true, x = 100f, y = 100f)
-        system.update(world, 0f)
-        val centerBeforeDrag = Vec3(camera.camera.center.x, camera.camera.center.y, camera.camera.center.z)
-
-        Input.setPointer(down = true, x = 150f, y = 140f)
-        system.update(world, 0f)
-
-        assertEquals(centerBeforeDrag.x, camera.camera.center.x, absoluteTolerance = 1e-6f)
-        assertEquals(centerBeforeDrag.z, camera.camera.center.z, absoluteTolerance = 1e-6f)
-
-        // Release the UI's claim -- the same kind of drag now DOES change look direction.
-        Input.pointerCapturedByUi = false
-        Input.setPointer(down = true, x = 150f, y = 140f)
-        system.update(world, 0f)
-        val centerAfterRelease = Vec3(camera.camera.center.x, camera.camera.center.y, camera.camera.center.z)
-
-        Input.setPointer(down = true, x = 200f, y = 180f)
-        system.update(world, 0f)
-
-        assert(camera.camera.center.x != centerAfterRelease.x || camera.camera.center.z != centerAfterRelease.z) {
-            "expected drag to change look direction once pointerCapturedByUi is released"
-        }
-    }
-
-    @Test
-    fun setOrientationMakesForwardPointOppositeOrbitEyeOffset() {
-        // Simulates CubeDemo's ORBIT -> FREE_FLY handoff: an orbit camera sitting at some
-        // yaw/pitch offset from a target has an eye-to-target direction that is the exact
-        // negation of its own target-to-eye offset. setOrientation(-orbitYaw, -orbitPitch)
-        // should make FreeFlyCameraSystem's forward vector equal that eye-to-target
-        // direction, so the handoff doesn't visibly snap the look direction.
-        val world = World()
-        val orbitYaw = 0.7f
-        val orbitPitch = 0.3f
-        val cosPitch = kotlin.math.cos(orbitPitch)
-        // Orbit's target-to-eye offset direction (see OrbitCameraSystem.update()).
-        val offsetX = cosPitch * kotlin.math.sin(orbitYaw)
-        val offsetY = kotlin.math.sin(orbitPitch)
-        val offsetZ = cosPitch * kotlin.math.cos(orbitYaw)
-
-        val camera = newCamera()
-        val system = FreeFlyCameraSystem(camera)
-        system.setOrientation(-orbitYaw, -orbitPitch)
-        system.update(world, 0f)
-
-        val eye = camera.camera.eye
-        val center = camera.camera.center
-        val forwardX = center.x - eye.x
-        val forwardY = center.y - eye.y
-        val forwardZ = center.z - eye.z
-
-        assertEquals(-offsetX, forwardX, absoluteTolerance = 1e-4f)
-        assertEquals(-offsetY, forwardY, absoluteTolerance = 1e-4f)
-        assertEquals(-offsetZ, forwardZ, absoluteTolerance = 1e-4f)
-    }
-
-    private fun assertEquals(expected: Float, actual: Float, absoluteTolerance: Float) {
-        assert(kotlin.math.abs(expected - actual) <= absoluteTolerance) {
-            "expected $expected, got $actual (tolerance $absoluteTolerance)"
-        }
+    private companion object {
+        const val PI_F = kotlin.math.PI.toFloat()
     }
 }

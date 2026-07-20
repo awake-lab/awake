@@ -130,10 +130,9 @@ class SceneGameDslTest {
                 orbitCameraSystem(
                     target = "cube",
                     camera = "camera",
-                    initialDistance = 8f
-                ) {
-                    pitch = 0.2f
-                }
+                    initialDistance = 8f,
+                    initialPitch = 0.2f
+                )
                 freeFlyCameraSystem(camera = "camera")
             }
         }

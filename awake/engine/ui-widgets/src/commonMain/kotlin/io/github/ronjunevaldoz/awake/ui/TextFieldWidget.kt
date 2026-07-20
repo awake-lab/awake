@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.core.input.TextEditAction
 
 private const val TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS = 1f
 private const val TEXT_FIELD_CARET_WIDTH_PX = 1.5f
@@ -65,7 +64,7 @@ fun UiScope.textField(
     var nextValue = value
     if (focused && resolvedFont != null) {
         val clickIndex = if (interaction.clicked || (context.pointerDownEdge() && interaction.hovered)) {
-            indexForPointerX(value, resolvedFont, glyphPx, contentSlot.x, context.inputSnapshot.pointerX)
+            indexForPointerX(value, resolvedFont, glyphPx, contentSlot.x, context.inputState.pointerX)
         } else {
             null
         }
@@ -74,23 +73,23 @@ fun UiScope.textField(
         }
 
         // Edit actions (cursor moves, deletes) before the newly typed text
-        context.inputSnapshot.editActions.forEach { action ->
+        context.inputState.editActions.forEach { action ->
             when (action) {
-                TextEditAction.Backspace -> if (cursor > 0) {
+                UiTextEditAction.Backspace -> if (cursor > 0) {
                     nextValue = nextValue.substring(0, cursor - 1) + nextValue.substring(cursor)
                     cursor -= 1
                 }
-                TextEditAction.Delete -> if (cursor < nextValue.length) {
+                UiTextEditAction.Delete -> if (cursor < nextValue.length) {
                     nextValue = nextValue.substring(0, cursor) + nextValue.substring(cursor + 1)
                 }
-                TextEditAction.ArrowLeft -> cursor = (cursor - 1).coerceAtLeast(0)
-                TextEditAction.ArrowRight -> cursor = (cursor + 1).coerceAtMost(nextValue.length)
-                TextEditAction.Home -> cursor = 0
-                TextEditAction.End -> cursor = nextValue.length
-                TextEditAction.Enter -> context.clearFocusIfMatches(id)
+                UiTextEditAction.ArrowLeft -> cursor = (cursor - 1).coerceAtLeast(0)
+                UiTextEditAction.ArrowRight -> cursor = (cursor + 1).coerceAtMost(nextValue.length)
+                UiTextEditAction.Home -> cursor = 0
+                UiTextEditAction.End -> cursor = nextValue.length
+                UiTextEditAction.Enter -> context.clearFocusIfMatches(id)
             }
         }
-        val typed = context.inputSnapshot.typedText
+        val typed = context.inputState.typedText
         if (typed.isNotEmpty()) {
             nextValue = nextValue.substring(0, cursor) + typed + nextValue.substring(cursor)
             cursor += typed.length

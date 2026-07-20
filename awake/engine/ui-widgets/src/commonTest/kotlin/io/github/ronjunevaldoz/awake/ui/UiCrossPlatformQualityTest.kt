@@ -36,7 +36,7 @@ class UiCrossPlatformQualityTest {
         val font = UiFonts.default()
         val frame = UiSlot(0f, 0f, 220f, 96f)
         val context = UiContext()
-        context.beginFrame(frame.width, frame.height)
+        context.beginFrame(frame.width, frame.height, testSnapshot())
         context.absolute(20f, 20f, font = font, theme = awakeShadcnTheme(dark = false))
             .button("fit", label = "Awake Button", modifier = UiModifier().width(180f.px).height(44f.px))
 
@@ -60,7 +60,7 @@ class UiCrossPlatformQualityTest {
         buttonHeight: Float,
         theme: UiTheme = awakeShadcnTheme(dark = true)
     ) = UiContext().let { context ->
-        context.beginFrame(frameWidth, frameHeight)
+        context.beginFrame(frameWidth, frameHeight, testSnapshot())
         context.absolute((frameWidth - buttonWidth) / 2f, (frameHeight - buttonHeight) / 2f, font = font, theme = theme)
             .button("quality", label = "Awake Button", modifier = UiModifier().width(buttonWidth.px).height(buttonHeight.px))
         measureUiFrame(context.endFrame(), UiSlot(0f, 0f, frameWidth, frameHeight))

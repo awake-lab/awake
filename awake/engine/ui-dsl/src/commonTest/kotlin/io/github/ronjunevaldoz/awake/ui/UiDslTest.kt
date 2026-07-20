@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
@@ -12,6 +13,16 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+
+/** Builds a one-off [InputSnapshot] for a test frame -- [Input] is a per-session instance
+ * now (no longer a global object), so tests construct their own throwaway one instead of
+ * writing into shared static state. */
+private fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): InputSnapshot {
+    val input = Input()
+    input.setPointer(down, x, y)
+    input.scrollDeltaY = scrollDeltaY
+    return input.updateSnapshot()
+}
 
 class UiDslTest {
 
@@ -41,9 +52,8 @@ class UiDslTest {
 
     @Test
     fun dslCanComposeInspectorPanelFromPublicFacade() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(320f, 240f)
+        ui.beginFrame(320f, 240f, testSnapshot())
 
         var panelSlot: UiSlot? = null
         var controlSlot: UiSlot? = null
@@ -83,9 +93,8 @@ class UiDslTest {
 
     @Test
     fun dslRowSpacerPreservesHorizontalLayoutProgression() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(240f, 100f)
+        ui.beginFrame(240f, 100f, testSnapshot())
 
         var first: UiButtonResult? = null
         var second: UiButtonResult? = null
@@ -106,9 +115,8 @@ class UiDslTest {
 
     @Test
     fun dslToggleUsesSharedWidgetBehavior() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(180f, 80f)
+        ui.beginFrame(180f, 80f, testSnapshot())
 
         var checked = true
         ui.ui(x = 20f, y = 20f, width = 140f, font = BitmapFont()) {
@@ -128,9 +136,8 @@ class UiDslTest {
 
     @Test
     fun dslSupportsReusableSectionHelpers() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(260f, 180f)
+        ui.beginFrame(260f, 180f, testSnapshot())
 
         ui.ui(x = 20f, y = 20f, width = 220f, font = BitmapFont()) {
             panel(id = "custom", height = 120f.toDimension()) {
@@ -147,9 +154,8 @@ class UiDslTest {
 
     @Test
     fun propertyRowSupportsSlotBasedLabels() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(320f, 160f)
+        ui.beginFrame(320f, 160f, testSnapshot())
 
         var controlSlot: UiSlot? = null
 
@@ -181,9 +187,8 @@ class UiDslTest {
 
     @Test
     fun propertyControlsCanUseModifierFirstSizingWithoutOverlap() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(320f, 180f)
+        ui.beginFrame(320f, 180f, testSnapshot())
 
         val controlSlots = mutableListOf<UiSlot>()
 
@@ -247,7 +252,7 @@ class UiDslTest {
             },
             spec = gameUi { }
         )
-        runtime.uiContext.beginFrame(320f, 240f)
+        runtime.uiContext.beginFrame(320f, 240f, testSnapshot())
 
         runtime.shellPane(
             slot = UiSlot(20f, 20f, 180f, 120f),
@@ -271,7 +276,7 @@ class UiDslTest {
             },
             spec = gameUi { }
         )
-        runtime.uiContext.beginFrame(360f, 240f)
+        runtime.uiContext.beginFrame(360f, 240f, testSnapshot())
 
         var topRightSlot: UiSlot? = null
         var bottomLeftSlot: UiSlot? = null
@@ -323,7 +328,7 @@ class UiDslTest {
             },
             spec = gameUi { }
         )
-        runtime.uiContext.beginFrame(360f, 240f)
+        runtime.uiContext.beginFrame(360f, 240f, testSnapshot())
 
         var topRightSlot: UiSlot? = null
         runtime.overlayShell(viewportWidth = 360f, viewportHeight = 240f) {
@@ -352,7 +357,7 @@ class UiDslTest {
             },
             spec = gameUi { }
         )
-        runtime.uiContext.beginFrame(360f, 240f)
+        runtime.uiContext.beginFrame(360f, 240f, testSnapshot())
 
         var bottomLeftSlot: UiSlot? = null
 
@@ -386,7 +391,7 @@ class UiDslTest {
             },
             spec = gameUi { }
         )
-        runtime.uiContext.beginFrame(360f, 240f)
+        runtime.uiContext.beginFrame(360f, 240f, testSnapshot())
 
         var widthClass: UiWidthSizeClass? = null
         var panelSlot: UiSlot? = null
@@ -421,7 +426,7 @@ class UiDslTest {
             },
             spec = gameUi { }
         )
-        runtime.uiContext.beginFrame(900f, 600f)
+        runtime.uiContext.beginFrame(900f, 600f, testSnapshot())
 
         var widthClass: UiWidthSizeClass? = null
         var columnSlot: UiSlot? = null
@@ -463,7 +468,7 @@ class UiDslTest {
                 },
                 spec = gameUi { }
             )
-            runtime.uiContext.beginFrame(900f, 600f)
+            runtime.uiContext.beginFrame(900f, 600f, testSnapshot())
 
             var widthClass: UiWidthSizeClass? = null
             var maxWidth: Float? = null
@@ -485,9 +490,8 @@ class UiDslTest {
 
     @Test
     fun supportingTextWrapsInsideWrapContentPanels() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(280f, 220f)
+        ui.beginFrame(280f, 220f, testSnapshot())
 
         var panelSlot: UiSlot? = null
 
@@ -513,10 +517,8 @@ class UiDslTest {
     fun dslScrollPanelDelegatesToSharedWidgetPrimitive() {
         val ui = UiContext()
         val scrollState = UiScrollState()
-        Input.setPointer(down = false, x = 24f, y = 24f)
-        Input.scrollDeltaY = -1f
 
-        ui.beginFrame(220f, 200f)
+        ui.beginFrame(220f, 200f, testSnapshot(x = 24f, y = 24f, scrollDeltaY = -1f))
         ui.ui(x = 12f, y = 12f, width = 160f, font = BitmapFont()) {
             scrollPanel(
                 id = "dsl-scroll",
@@ -538,9 +540,8 @@ class UiDslTest {
 
     @Test
     fun dialogUsesNeutralDarkScrimByDefault() {
-        Input.setPointer(down = false, x = -100f, y = -100f)
         val ui = UiContext()
-        ui.beginFrame(320f, 240f)
+        ui.beginFrame(320f, 240f, testSnapshot())
 
         ui.ui(x = 20f, y = 20f, width = 240f, font = BitmapFont()) {
             dialog(

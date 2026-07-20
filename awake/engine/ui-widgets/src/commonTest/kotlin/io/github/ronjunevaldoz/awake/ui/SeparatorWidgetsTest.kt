@@ -11,7 +11,7 @@ class SeparatorWidgetsTest {
     @Test
     fun separatorEmitsCenteredQuadWithinClaimedSlot() {
         val ui = UiContext()
-        ui.beginFrame(160f, 80f)
+        ui.beginFrame(160f, 80f, testSnapshot())
 
         val slot = ui.column(x = 0f, y = 0f, width = 120f).separator(
             width = Dimension.FillMax,
