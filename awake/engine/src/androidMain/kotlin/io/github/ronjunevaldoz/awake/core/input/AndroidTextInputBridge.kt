@@ -12,51 +12,44 @@ import android.view.inputmethod.InputMethodManager
 
 /** [InputConnection] fed to the IME by [io.github.ronjunevaldoz.awake.core.graphics.VulkanView]
  * .onCreateInputConnection -- a `SurfaceView` has no text field of its own for the IME to edit,
- * so this forwards committed text/deletes straight into [Input] instead of maintaining an
- * `Editable`. v1: no selection/composing-region handling, `beforeLength` chars of
- * `deleteSurroundingText` each become one [TextEditAction.Backspace] pulse rather than tracking
- * cursor position precisely -- good enough for a single-line text field. */
-class AwakeInputConnection(targetView: View) : BaseInputConnection(targetView, false) {
+ * so this forwards committed text/deletes straight into [input] instead of maintaining an
+ * `Editable`. */
+class AwakeInputConnection(targetView: View, private val input: Input) : BaseInputConnection(targetView, false) {
 
     override fun commitText(text: CharSequence, newCursorPosition: Int): Boolean {
-        Input.pushTypedText(text.toString())
+        input.pushTypedText(text.toString())
         return true
     }
 
     override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-        repeat(beforeLength) { Input.pushEditAction(TextEditAction.Backspace) }
+        repeat(beforeLength) { input.pushEditAction(TextEditAction.Backspace) }
         return true
     }
 
     override fun sendKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN) {
             when (event.keyCode) {
-                KeyEvent.KEYCODE_ENTER -> Input.pushEditAction(TextEditAction.Enter)
-                KeyEvent.KEYCODE_DEL -> Input.pushEditAction(TextEditAction.Backspace)
+                KeyEvent.KEYCODE_ENTER -> input.pushEditAction(TextEditAction.Enter)
+                KeyEvent.KEYCODE_DEL -> input.pushEditAction(TextEditAction.Backspace)
             }
         }
         return super.sendKeyEvent(event)
     }
 }
 
-fun View.createAwakeInputConnection(outAttrs: EditorInfo): InputConnection {
+fun View.createAwakeInputConnection(outAttrs: EditorInfo, input: Input): InputConnection {
     outAttrs.inputType = android.text.InputType.TYPE_CLASS_TEXT
     outAttrs.imeOptions = EditorInfo.IME_ACTION_DONE
-    return AwakeInputConnection(this)
+    return AwakeInputConnection(this, input)
 }
 
 /** Polls [Input.textInputFocused] once per frame and shows/hides the soft keyboard on its
- * rising/falling edge -- [Input] has no callback mechanism (see its own doc comment: it's a
- * polled, not callback-driven, model), so the render loop's per-frame tick is the only place
- * to notice the flip. Tracks [wasFocused] itself rather than pushing that bookkeeping onto
- * [Input] since it's purely an Android IME-visibility concern. Must run on the UI thread --
- * `showSoftInput`/`requestFocus` require it -- so callers on the render thread should post this
- * to the view instead of calling it directly. */
-class AndroidSoftKeyboardBridge(private val view: View) {
+ * rising/falling edge. */
+class AndroidSoftKeyboardBridge(private val view: View, private val input: Input) {
     private var wasFocused = false
 
     fun syncSoftKeyboardVisibility() {
-        val focused = Input.textInputFocused
+        val focused = input.textInputFocused
         if (focused == wasFocused) return
         wasFocused = focused
         val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

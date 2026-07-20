@@ -19,9 +19,10 @@ val DefaultAndroidGameplayKeys: Map<Int, Key> = linkedMapOf(
 
 fun KeyEvent.syncAwakeKeyInput(
     down: Boolean,
+    input: Input,
     keys: Map<Int, Key> = DefaultAndroidGameplayKeys
 ): Boolean {
     val key = keys[keyCode] ?: return false
-    Input.setKeyDown(key, down)
+    input.setKeyDown(key, down)
     return true
 }

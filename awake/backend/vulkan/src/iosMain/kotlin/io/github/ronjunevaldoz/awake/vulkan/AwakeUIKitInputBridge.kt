@@ -11,12 +11,13 @@ import platform.UIKit.UIView
 @OptIn(ExperimentalForeignApi::class)
 fun UIView.syncAwakePointerInput(
     touches: Set<*>,
-    down: Boolean
+    down: Boolean,
+    input: Input
 ): Boolean {
     val touch = touches.firstOrNull() as? UITouch ?: return false
     val scale = contentScaleFactor.toFloat()
     touch.locationInView(this).useContents {
-        Input.setPointer(down = down, x = x.toFloat() * scale, y = y.toFloat() * scale)
+        input.setPointer(down = down, x = x.toFloat() * scale, y = y.toFloat() * scale)
     }
     return true
 }

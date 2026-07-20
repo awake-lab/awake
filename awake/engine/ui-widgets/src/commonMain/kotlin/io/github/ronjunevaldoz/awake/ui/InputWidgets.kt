@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.core.input.Input
 
 // Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a
 // circular knob straddling it at the current value -- the claimed slot stays the full

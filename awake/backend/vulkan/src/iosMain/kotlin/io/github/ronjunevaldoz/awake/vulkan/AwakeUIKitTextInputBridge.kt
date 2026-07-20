@@ -12,16 +12,16 @@ import platform.UIKit.UIView
  * deliberately: no selection ranges/marked text/autocomplete UI needed for a v1 that only
  * needs typed text + Backspace + Enter (see the task that added this file).
  */
-fun UIView.syncAwakeTextInsert(text: String) {
+fun UIView.syncAwakeTextInsert(text: String, input: Input) {
     if (text == "\n") {
-        Input.pushEditAction(TextEditAction.Enter)
+        input.pushEditAction(TextEditAction.Enter)
     } else {
-        Input.pushTypedText(text)
+        input.pushTypedText(text)
     }
 }
 
-fun UIView.syncAwakeTextDeleteBackward() {
-    Input.pushEditAction(TextEditAction.Backspace)
+fun UIView.syncAwakeTextDeleteBackward(input: Input) {
+    input.pushEditAction(TextEditAction.Backspace)
 }
 
 /**
@@ -30,8 +30,8 @@ fun UIView.syncAwakeTextDeleteBackward() {
  * [VulkanMetalView]) so repeated calls while focus state is unchanged don't spam UIKit with
  * redundant first-responder churn every frame.
  */
-fun UIView.syncAwakeTextInputFocus(wasFocused: Boolean): Boolean {
-    val isFocused = Input.textInputFocused
+fun UIView.syncAwakeTextInputFocus(wasFocused: Boolean, input: Input): Boolean {
+    val isFocused = input.textInputFocused
     if (isFocused != wasFocused) {
         if (isFocused) becomeFirstResponder() else resignFirstResponder()
     }

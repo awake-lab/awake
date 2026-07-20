@@ -4,10 +4,28 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
+import io.github.ronjunevaldoz.awake.core.input.TextEditAction
 
-/** Builds a one-off [InputSnapshot] for a test frame that doesn't need [simulateFrame]'s
- * full pointer-interaction/multi-frame plumbing -- most `beginFrame` calls in this test
- * suite just need *some* valid snapshot (pointer off-screen, nothing pressed). */
+private fun InputSnapshot.toUiInputState(): UiInputState = UiInputState(
+    pointerX = pointerX,
+    pointerY = pointerY,
+    pointerDown = pointerDown,
+    scrollDeltaY = scrollDeltaY,
+    typedText = typedText,
+    editActions = editActions.map { it.toUiAction() }
+)
+
+private fun TextEditAction.toUiAction(): UiTextEditAction = when (this) {
+    TextEditAction.Backspace -> UiTextEditAction.Backspace
+    TextEditAction.Delete -> UiTextEditAction.Delete
+    TextEditAction.Enter -> UiTextEditAction.Enter
+    TextEditAction.ArrowLeft -> UiTextEditAction.ArrowLeft
+    TextEditAction.ArrowRight -> UiTextEditAction.ArrowRight
+    TextEditAction.Home -> UiTextEditAction.Home
+    TextEditAction.End -> UiTextEditAction.End
+}
+
+/** Builds a one-off [InputSnapshot] for a test frame. */
 fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): InputSnapshot {
     val input = Input()
     input.setPointer(down, x, y)
@@ -17,14 +35,7 @@ fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scro
 
 /**
  * One simulated render frame: moves the pointer, runs [beginFrame]/[endFrame] around
- * [widgetCalls], which does whatever widget calls the test needs at this pointer state.
- * Every existing `UiContext` test hand-rolled this exact
- * `Input.setPointer(...); beginFrame(...); <widget calls>; endFrame()` sequence -- pulled out
- * here so a new test states *what pointer state* it wants, not the frame plumbing.
- *
- * [input] defaults to a fresh, single-use instance -- pass your own (and reuse it across
- * calls) when a test needs state to persist between frames, e.g. pushing typed text between
- * a click frame and the frame that should render it (see [TextFieldWidgetTest]).
+ * [widgetCalls].
  */
 fun UiContext.simulateFrame(
     pointerDown: Boolean,
@@ -36,7 +47,7 @@ fun UiContext.simulateFrame(
     widgetCalls: () -> Unit
 ) {
     input.setPointer(down = pointerDown, x = x, y = y)
-    beginFrame(screenWidth, screenHeight, input.updateSnapshot())
+    beginFrame(screenWidth, screenHeight, input.updateSnapshot().toUiInputState())
     widgetCalls()
     endFrame()
 }
@@ -63,10 +74,7 @@ fun UiContext.simulateScrollFrame(
 }
 
 /**
- * The two-frame press-then-release-while-still-hovered sequence every widget in this
- * library (`buttonSlot`'s `tryClaimActive`/`releaseActiveIfMatches` pair) keys a "click" off
- * of -- see [simulateFrame]'s doc comment for what this replaces. [widgetCalls] runs once per
- * frame (press, then release), same as calling a widget function twice in a real click.
+ * The two-frame press-then-release-while-still-hovered sequence.
  */
 fun UiContext.simulateClick(
     x: Float,

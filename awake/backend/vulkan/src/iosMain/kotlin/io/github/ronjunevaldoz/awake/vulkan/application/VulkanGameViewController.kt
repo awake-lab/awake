@@ -10,9 +10,6 @@ import platform.UIKit.UIViewController
 
 /**
  * Wraps a [VulkanGameApplication] in a plain UIKit view controller.
- *
- * This keeps iOS samples focused on authored game composition instead of repeating the same
- * Metal layer lifecycle wiring for every Vulkan-backed app.
  */
 fun makeVulkanGameViewController(
     application: VulkanGameApplication
@@ -20,6 +17,7 @@ fun makeVulkanGameViewController(
     val controller = UIViewController()
     controller.view = VulkanMetalView(
         frame = UIScreen.mainScreen.bounds,
+        input = application.input,
         onCreate = { metalLayer -> application.create(metalLayer) },
         onUpdate = { delta -> application.update(delta) },
         onResize = { width, height -> application.resize(0, 0, width, height) },

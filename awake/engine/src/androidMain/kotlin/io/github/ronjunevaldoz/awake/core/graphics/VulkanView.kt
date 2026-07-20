@@ -18,7 +18,6 @@ import io.github.ronjunevaldoz.awake.core.input.syncAwakePointerInput
 import io.github.ronjunevaldoz.awake.core.utils.Frame
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 
-
 class VulkanView(
     context: Context,
     private val application: Application
@@ -27,7 +26,10 @@ class VulkanView(
     @Volatile
     private var running = false
     private var renderThread: Thread? = null
-    private val softKeyboardBridge = AndroidSoftKeyboardBridge(this)
+    
+    private val input: Input get() = application.input
+        
+    private val softKeyboardBridge by lazy { AndroidSoftKeyboardBridge(this, input) }
 
     init {
         holder.addCallback(this)
@@ -40,24 +42,18 @@ class VulkanView(
     override fun onCheckIsTextEditor(): Boolean = true
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection =
-        createAwakeInputConnection(outAttrs)
+        createAwakeInputConnection(outAttrs, input)
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         syncUiDensity()
         Frame.width = width
         Frame.height = height
         application.create(holder.surface)
-        // startLoop runs one tick per call; caller owns repetition (previously called once
-        // with no surrounding loop, so rendering stopped after a single frame). A dedicated
-        // thread is required since drawFrame()'s vk*/vkQueuePresentKHR block, and SurfaceView
-        // (unlike GLSurfaceView) has no built-in render thread of its own.
         running = true
         renderThread = Thread({
             while (running) {
                 AndroidGameLoop.startLoop { deltaTime ->
                     application.update(deltaTime.toFloat())
-                    // showSoftInput/requestFocus require the UI thread; update() runs on this
-                    // dedicated render thread (see the class doc comment above), so hop over.
                     post { softKeyboardBridge.syncSoftKeyboardVisibility() }
                 }
             }
@@ -73,35 +69,30 @@ class VulkanView(
         running = false
         renderThread?.join()
         renderThread = null
-        Input.clearKeys()
+        input.clearKeys()
         application.dispose()
     }
 
-    // Fires on the UI thread, not the "VulkanView-Render" thread `update()` runs on --
-    // Input's fields are @Volatile so this cross-thread write is safe without further sync.
-    // Only ACTION_DOWN/MOVE/UP are handled; multi-touch isn't modeled by Input yet.
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return event.syncAwakePointerInput() || super.onTouchEvent(event)
+        return event.syncAwakePointerInput(input) || super.onTouchEvent(event)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        return event.syncAwakeKeyInput(down = true) || super.onKeyDown(keyCode, event)
+        return event.syncAwakeKeyInput(down = true, input) || super.onKeyDown(keyCode, event)
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        return event.syncAwakeKeyInput(down = false) || super.onKeyUp(keyCode, event)
+        return event.syncAwakeKeyInput(down = false, input) || super.onKeyUp(keyCode, event)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         if (!hasWindowFocus) {
-            Input.clearKeys()
+            input.clearKeys()
         }
     }
 
-    override fun surfaceRedrawNeeded(holder: SurfaceHolder) {
-        //        TODO("Not yet implemented")
-    }
+    override fun surfaceRedrawNeeded(holder: SurfaceHolder) {}
 
     private fun syncUiDensity() {
         UiDensity.scale = resources.displayMetrics.density

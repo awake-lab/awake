@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.engine.application
 
 import io.github.ronjunevaldoz.awake.core.graphics.Application
+import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import kotlinx.coroutines.CoroutineScope
@@ -17,8 +18,12 @@ abstract class GenericGameApplication(
     protected val vertexShaderResourcePath: String,
     protected val fragmentShaderResourcePath: String,
     protected val vertexStride: Int,
-    private val game: Game
+    protected val game: Game
 ) : Application {
+
+    /** The session's input accumulator. Guaranteed to exist since [game] is an [AwakeGame]. */
+    override val input: Input get() = (game as AwakeGame).input
+
     /** Same "create() stays synchronous, launch internally" reasoning the original
      * `VulkanApplication`/`WebGpuApplication` used -- [update] is a no-op until
      * [createBackendResources] (and [Game.ready]) finish. */
@@ -46,7 +51,7 @@ abstract class GenericGameApplication(
     final override fun update(delta: Float) {
         if (!isReady) return
         val (width, height) = viewportSize()
-        (game as AwakeGame).input.updateSnapshot()
+        input.updateSnapshot()
         game.render(delta, width, height)
     }
 

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan
 
+import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -21,27 +22,10 @@ import platform.UIKit.UIScreen
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
 
-/**
- * iOS Vulkan surface host -- the `CAMetalLayer`-backed [UIView] Phase 6 needs, mirroring
- * `awake-opengl`'s `GameView` (same `CADisplayLink`-driven render loop, `willMoveToWindow`
- * start/stop, `@ObjCAction` target-selector wiring), swapped from `GLKView`/OpenGL ES to a
- * bare `CAMetalLayer` added as a sublayer (deliberately not overriding `UIView.layerClass()`
- * to make the metal layer *the* backing layer -- that requires overriding an Objective-C
- * *class* method via Kotlin/Native's `UIViewMeta` companion pattern, extra ceremony this
- * sublayer approach avoids entirely for the same visual result).
- *
- * Callbacks, not `awake-core`'s `Application` interface -- `awake-vulkan` doesn't depend on
- * `awake-core` (only `awake-base`; see docs/MVP_PLAN.md's D11), and this view has no need to
- * force that dependency just to reuse one interface shape. The demo layer's own
- * `Application` implementation can adapt to these lambdas trivially.
- *
- * Also conforms to `UIKeyInput` (not the full `UITextInput`) so it's eligible to become first
- * responder and receive on-screen-keyboard text -- see `AwakeUIKitTextInputBridge.kt` for the
- * `Input`-facing plumbing behind [insertText]/[deleteBackward]/[hasText].
- */
 @OptIn(ExperimentalForeignApi::class)
 class VulkanMetalView(
     frame: CValue<CGRect>,
+    private val input: Input,
     private val onCreate: (metalLayer: CAMetalLayer) -> Unit,
     private val onUpdate: (deltaSeconds: Float) -> Unit,
     private val onResize: (width: Int, height: Int) -> Unit,
@@ -86,7 +70,7 @@ class VulkanMetalView(
         val currentTimestamp = displayLink.timestamp
         val deltaTime = (currentTimestamp - previousTimestamp).toFloat()
         previousTimestamp = currentTimestamp
-        textInputWasFocused = syncAwakeTextInputFocus(textInputWasFocused)
+        textInputWasFocused = syncAwakeTextInputFocus(textInputWasFocused, input)
         onUpdate(deltaTime)
     }
 
@@ -94,9 +78,9 @@ class VulkanMetalView(
 
     override fun hasText(): Boolean = true
 
-    override fun insertText(text: String) = syncAwakeTextInsert(text)
+    override fun insertText(text: String) = syncAwakeTextInsert(text, input)
 
-    override fun deleteBackward() = syncAwakeTextDeleteBackward()
+    override fun deleteBackward() = syncAwakeTextDeleteBackward(input)
 
     override fun willMoveToWindow(newWindow: UIWindow?) {
         super.willMoveToWindow(newWindow)
@@ -127,21 +111,21 @@ class VulkanMetalView(
 
     override fun touchesBegan(touches: Set<*>, withEvent: UIEvent?) {
         super.touchesBegan(touches, withEvent)
-        syncAwakePointerInput(touches, down = true)
+        syncAwakePointerInput(touches, down = true, input = input)
     }
 
     override fun touchesMoved(touches: Set<*>, withEvent: UIEvent?) {
         super.touchesMoved(touches, withEvent)
-        syncAwakePointerInput(touches, down = true)
+        syncAwakePointerInput(touches, down = true, input = input)
     }
 
     override fun touchesEnded(touches: Set<*>, withEvent: UIEvent?) {
         super.touchesEnded(touches, withEvent)
-        syncAwakePointerInput(touches, down = false)
+        syncAwakePointerInput(touches, down = false, input = input)
     }
 
     override fun touchesCancelled(touches: Set<*>, withEvent: UIEvent?) {
         super.touchesCancelled(touches, withEvent)
-        syncAwakePointerInput(touches, down = false)
+        syncAwakePointerInput(touches, down = false, input = input)
     }
 }

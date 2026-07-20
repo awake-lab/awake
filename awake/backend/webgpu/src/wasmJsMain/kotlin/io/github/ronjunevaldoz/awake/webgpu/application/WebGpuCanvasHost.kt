@@ -21,10 +21,6 @@ import web.html.HTMLCanvasElement
 
 /**
  * Reusable WebGPU canvas host for authored games.
- *
- * It resolves the canvas + WebGPU context, keeps the backing buffer in sync with browser
- * size, feeds pointer input into Awake's UI runtime, and drives the requestAnimationFrame
- * loop. Consumers only provide the authored [WebGpuGameApplication] instance.
  */
 fun launchWebGpuGame(
     canvasId: String = "awake-canvas",
@@ -40,12 +36,17 @@ fun launchWebGpuGame(
     applicationFactory: () -> WebGpuGameApplication
 ) {
     syncUiDensityFromWindow()
-    bindWindowPointerInput()
-    bindWindowKeyboardInput()
+    val resolvedApplication = applicationFactory()
+    val input = resolvedApplication.input
+    
+    bindWindowPointerInput(input)
+    bindWindowKeyboardInput(input)
+    
     val initialSize = currentCanvasSize()
     syncCanvasSize(canvas, initialSize.first, initialSize.second)
     var wgpuContext: WGPUContext? = null
-    var application: WebGpuGameApplication? = null
+    var application: WebGpuGameApplication? = resolvedApplication
+    
     window.addEventListener("resize") {
         val (width, height) = currentCanvasSize()
         syncCanvasSize(canvas, width, height)
@@ -63,8 +64,6 @@ fun launchWebGpuGame(
         wgpuContext = resolvedContext
         configureSurface(resolvedContext)
 
-        val resolvedApplication = applicationFactory()
-        application = resolvedApplication
         resolvedApplication.resize(x = 0, y = 0, width = initialSize.first, height = initialSize.second)
         resolvedApplication.create(resolvedContext)
 
@@ -94,7 +93,7 @@ val DefaultDomGameplayKeys: Map<String, io.github.ronjunevaldoz.awake.core.input
     "escape" to io.github.ronjunevaldoz.awake.core.input.Key.Escape
 )
 
-fun bindWindowPointerInput() {
+fun bindWindowPointerInput(input: Input) {
     fun scaledPointer(event: MouseEvent): Pair<Float, Float> {
         val density = currentWindowDensity()
         return Pair(
@@ -105,19 +104,20 @@ fun bindWindowPointerInput() {
 
     window.addEventListener("mousemove") { event ->
         val (x, y) = scaledPointer(event as MouseEvent)
-        Input.setPointer(Input.pointerDown, x, y)
+        input.setPointer(input.pointerDown, x, y)
     }
     window.addEventListener("mousedown") { event ->
         val (x, y) = scaledPointer(event as MouseEvent)
-        Input.setPointer(true, x, y)
+        input.setPointer(true, x, y)
     }
     window.addEventListener("mouseup") { event ->
         val (x, y) = scaledPointer(event as MouseEvent)
-        Input.setPointer(false, x, y)
+        input.setPointer(false, x, y)
     }
 }
 
 fun bindWindowKeyboardInput(
+    input: Input,
     keys: Map<String, io.github.ronjunevaldoz.awake.core.input.Key> = DefaultDomGameplayKeys
 ) {
     fun resolveKey(event: KeyboardEvent): io.github.ronjunevaldoz.awake.core.input.Key? {
@@ -126,14 +126,14 @@ fun bindWindowKeyboardInput(
 
     window.addEventListener("keydown") { event ->
         val key = resolveKey(event as KeyboardEvent) ?: return@addEventListener
-        Input.setKeyDown(key, true)
+        input.setKeyDown(key, true)
     }
     window.addEventListener("keyup") { event ->
         val key = resolveKey(event as KeyboardEvent) ?: return@addEventListener
-        Input.setKeyDown(key, false)
+        input.setKeyDown(key, false)
     }
     window.addEventListener("blur") {
-        Input.clearKeys()
+        input.clearKeys()
     }
 }
 
@@ -162,9 +162,6 @@ private fun configureSurface(wgpuContext: WGPUContext) {
     wgpuContext.surface.configure(
         SurfaceConfiguration(
             device = wgpuContext.device,
-            // Browsers on this stack currently expose an RGBA current texture even when
-            // renderingContext.textureFormat reports BGRA, which invalidates every command
-            // buffer if the pipeline target format follows that stale value.
             format = GPUTextureFormat.RGBA8Unorm,
             usage = GPUTextureUsage.RenderAttachment or GPUTextureUsage.CopySrc,
             alphaMode = CompositeAlphaMode.Opaque

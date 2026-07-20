@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.graphics
 
+import io.github.ronjunevaldoz.awake.core.input.Input
+
 interface Application {
+    val input: Input
     fun create(surface: Any? = null)
     fun update(delta: Float)
     fun pause()
