@@ -3,11 +3,11 @@
 package io.github.ronjunevaldoz.awake.sample.startergame.scene
 
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameSpec
-import io.github.ronjunevaldoz.awake.scene.runtime.cameraEntity
-import io.github.ronjunevaldoz.awake.scene.runtime.freeFlyCameraSystem
-import io.github.ronjunevaldoz.awake.scene.runtime.meshEntity
-import io.github.ronjunevaldoz.awake.scene.runtime.orbitCameraSystem
-import io.github.ronjunevaldoz.awake.scene.runtime.playerControlSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.freeFlyCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.orbitCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.playerControlSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.sceneGame
 
 internal const val STARTER_SCENE_OVERVIEW = "overview"
