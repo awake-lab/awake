@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.engine.application.GameDsl
 import io.github.ronjunevaldoz.awake.engine.application.GameModuleDsl
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.installInfrastructureSystems
 import kotlin.reflect.KClass
 
 fun GameDsl.ecs(block: SceneGameDsl.() -> Unit) {
@@ -144,8 +145,7 @@ class SceneGameDsl internal constructor() {
     internal fun build(): SceneGameSpec {
         // Core infrastructure: must run every frame (Infrastructure frequency).
         // Added at the end of build so they always execute LAST in the pipeline.
-        system("transform") { io.github.ronjunevaldoz.awake.scene.systems.TransformSystem() }
-        system("render") { io.github.ronjunevaldoz.awake.scene.systems.RenderSystem(renderer) }
+        installInfrastructureSystems()
 
         return SceneGameSpec(
             sceneDocument = sceneDocumentDsl.build(),
