@@ -48,23 +48,30 @@ private fun io.github.ronjunevaldoz.awake.core.input.TextEditAction.toUiAction()
 
 /**
  * Orchestrates a single 3D scene session.
+ *
+ * A pure ECS coordinator: manages [World] and steps two sets of systems:
+ * 1. Simulation Systems: Run at a fixed timestep (gameplay/physics).
+ * 2. Infrastructure Systems: Run at frame rate (transform/rendering).
  */
 class SceneGameRuntime internal constructor(
     private val spec: SceneGameSpec
 ) : Game {
     private val fixedTimestepLoop = FixedTimestepLoop()
-    private val registeredSystems = linkedMapOf<SceneSystemHandle<out System>, System>()
-    private val systemNames = mutableMapOf<String, SceneSystemHandle<*>>()
+    
+    /** All systems indexed by their handle for direct lookup/update. */
+    private val allSystems = linkedMapOf<SceneSystemHandle<out System>, System>()
+    
+    /** Gameplay systems that should run during the fixed-timestep simulation. */
+    private val simulationSystems = mutableListOf<System>()
+    
+    /** Engine systems that must run every render frame (transforms, rendering). */
+    private val infrastructureSystems = mutableListOf<System>()
     
     lateinit var world: World
         private set
     lateinit var renderer: Renderer
         private set
         
-    /** Core infrastructure: propagates local transforms to world matrices. */
-    private val transformSystem = TransformSystem()
-    /** Core infrastructure: collects draw calls and submits to GPU. */
-    private lateinit var renderSystem: RenderSystem
     private var assetLibrary: SceneAssetLibrary? = null
 
     val uiContext = UiContext()
@@ -82,21 +89,35 @@ class SceneGameRuntime internal constructor(
         this.world = World()
         this.assetLibrary = spec.assetLibraryFactory?.invoke()
 
+        // 1. Install user-defined gameplay systems
         spec.systems.forEach { registration ->
             val system = registration.factory(this)
-            registeredSystems[registration.handle] = system
-            systemNames[registration.handle.name] = registration.handle
+            allSystems[registration.handle] = system
+            simulationSystems.add(system)
         }
     }
 
     override suspend fun ready(renderer: Renderer) {
         this.renderer = renderer
-        this.renderSystem = RenderSystem(renderer)
         
+        // 2. Install mandatory infrastructure systems (run at frame rate)
+        val transform = TransformSystem()
+        val render = RenderSystem(renderer)
+        
+        infrastructureSystems.add(transform)
+        infrastructureSystems.add(render)
+        
+        // Add to the general map for lookup support
+        allSystems[SceneSystemHandle("transform")] = transform
+        allSystems[SceneSystemHandle("render")] = render
+        
+        // 3. Instantiate document entities
         val scene = spec.sceneDocument.instantiate(flipYForClipSpace = renderer.flipYForClipSpace, world = world)
         scene.attachRenderableComponents { request -> spec.renderableFactory(this, request) }
         
-        transformSystem.update(world, 0f)
+        // 4. Initial sync pass
+        transform.update(world, 0f)
+        
         spec.onReadyBlock(this)
     }
 
@@ -115,21 +136,25 @@ class SceneGameRuntime internal constructor(
         val uiPrimitives = uiContext.endFrame()
         val uiResult = uiContext.inputResult()
 
-        // 2. Simulation & Render Pass
+        // 2. Simulation & Infrastructure Pump
         fixedTimestepLoop.advance(
             frameDelta = delta,
-            fixedUpdate = { step -> spec.updateBlock(this, step, snapshot) },
+            fixedUpdate = { step -> 
+                // Run all simulation/gameplay systems
+                simulationSystems.forEach { it.update(world, step) }
+                // User: Run high-level additive logic from the DSL
+                spec.updateBlock(this, step, snapshot) 
+            },
             render = {
-                // Infrastructure runs once per render frame, after all simulation steps.
-                transformSystem.update(world, delta)
-                renderSystem.update(world, delta)
+                // Run all engine infrastructure systems at frame rate
+                infrastructureSystems.forEach { it.update(world, delta) }
             }
         )
         
-        // 3. Final UI Compositing
+        // 3. Final Compositing
         renderer.drawUi(uiPrimitives, font)
         
-        // Sync focused state to hardware for next frame
+        // Sync focused state back to hardware for next frame's OS poll
         input.textInputFocused = uiResult.isTextInputFocused
     }
 
@@ -139,6 +164,9 @@ class SceneGameRuntime internal constructor(
         spec.onDisposeBlock(this)
         assetLibrary?.dispose()
         assetLibrary = null
+        allSystems.clear()
+        simulationSystems.clear()
+        infrastructureSystems.clear()
     }
 
     fun requireAssetLibrary(): SceneAssetLibrary = checkNotNull(assetLibrary) {
@@ -184,29 +212,14 @@ class SceneGameRuntime internal constructor(
 
     @Suppress("UNCHECKED_CAST")
     fun <T : System> system(handle: SceneSystemHandle<T>): T =
-        registeredSystems[handle] as? T ?: error("System ${handle.name} not found")
+        allSystems[handle] as? T ?: error("System ${handle.name} not found")
 
-    fun findSystemHandle(name: String): SceneSystemHandle<*>? = systemNames[name]
-
-    fun system(name: String): System {
-        val handle = checkNotNull(findSystemHandle(name)) {
-            "No ECS system named '$name' is registered."
-        }
-        return system(handle)
-    }
+    fun system(name: String): System =
+        allSystems.entries.firstOrNull { it.key.name == name }?.value
+        ?: error("System $name not found")
 
     fun <T : System> update(handle: SceneSystemHandle<T>, delta: Float) {
-        val system = system(handle)
-        system.update(world, delta)
-    }
-
-    /**
-     * Executes all registered gameplay systems. Called by the default [SceneUpdateBlock].
-     */
-    fun runAllSystems(delta: Float) {
-        registeredSystems.values.forEach { system ->
-            system.update(world, delta)
-        }
+        system(handle).update(world, delta)
     }
 
     fun findEntity(name: String): Entity? {
@@ -228,4 +241,6 @@ class SceneGameRuntime internal constructor(
 
     fun requireCamera(name: String): Camera = world.get(requireEntity(name), Camera::class)
         ?: error("Entity '$name' has no Camera component")
+
+    val inputState: UiInputState get() = uiContext.inputState
 }
