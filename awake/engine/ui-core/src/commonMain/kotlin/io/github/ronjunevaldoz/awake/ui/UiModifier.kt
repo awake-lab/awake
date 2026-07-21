@@ -47,7 +47,8 @@ data class UiModifier(
     val forceHover: Boolean? = null,
     val forceActive: Boolean? = null,
     val forceFocus: Boolean? = null,
-    val scrollState: UiScrollState? = null
+    val scrollState: UiScrollState? = null,
+    val scrollConfig: UiScrollConfig = UiScrollConfig.Default
 )
 
 fun UiModifier.forceHover(value: Boolean = true): UiModifier = copy(forceHover = value)
@@ -74,9 +75,18 @@ fun UiModifier.padding(start: Dp, top: Dp, end: Dp, bottom: Dp): UiModifier =
     copy(insets = UiInsets(start, top, end, bottom))
 
 
-fun UiModifier.verticalScroll(state: UiScrollState) : UiModifier = copy(
-    scrollState = state
+fun UiModifier.verticalScroll(
+    state: UiScrollState,
+    config: UiScrollConfig = UiScrollConfig.Default
+) : UiModifier = copy(
+    scrollState = state,
+    scrollConfig = config
 )
-fun UiModifier.horizontalScroll(state: UiScrollState) : UiModifier = copy(
-    scrollState = state
+
+fun UiModifier.horizontalScroll(
+    state: UiScrollState,
+    config: UiScrollConfig = UiScrollConfig.Default
+) : UiModifier = copy(
+    scrollState = state,
+    scrollConfig = config
 )

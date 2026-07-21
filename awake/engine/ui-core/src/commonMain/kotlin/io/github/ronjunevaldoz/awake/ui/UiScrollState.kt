@@ -2,6 +2,39 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+
+/** Slot API for custom scrollbar rendering. */
+typealias UiScrollbarSlot = AbsoluteScope.(thumb: UiScrollThumb) -> Unit
+
+/** Policy for when scrollbars should be visible. */
+enum class UiScrollbarVisibility {
+    /** Show only when content exceeds the viewport. */
+    Auto,
+    /** Always reserve space and show the thumb (even if disabled). */
+    Always,
+    /** Never show or reserve space for the scrollbar, even if content overflows. */
+    Never
+}
+
+/** Styling and behavior configuration for a scrollable container. */
+data class UiScrollConfig(
+    val width: Dp = 6f.dp,
+    val gap: Dp = 8f.dp,
+    val verticalVisibility: UiScrollbarVisibility = UiScrollbarVisibility.Auto,
+    val horizontalVisibility: UiScrollbarVisibility = UiScrollbarVisibility.Auto,
+    val verticalScrollbar: UiScrollbarSlot? = null,
+    val horizontalScrollbar: UiScrollbarSlot? = null
+) {
+    companion object {
+        val Default = UiScrollConfig()
+        val Hidden = UiScrollConfig(
+            verticalVisibility = UiScrollbarVisibility.Never,
+            horizontalVisibility = UiScrollbarVisibility.Never
+        )
+    }
+}
+
 open class UiScrollState(
     initialOffsetX: Float = 0f,
     initialOffsetY: Float = 0f

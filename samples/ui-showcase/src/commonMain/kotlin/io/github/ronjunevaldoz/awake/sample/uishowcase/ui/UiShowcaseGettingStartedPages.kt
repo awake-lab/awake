@@ -30,7 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVa
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawRow
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.offset
@@ -53,7 +53,7 @@ internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
 
 internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
     val cardWidth = 220f
-    rawRow(modifier = UiModifier().height(284f.dp), gap = 12f) {
+    row(height = Dimension.WrapContent, gap = 12f) {
         surface(
             id = "ui-showcase-reference-spec",
             width = Dimension.Fixed(cardWidth.dp),
@@ -87,7 +87,7 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
                 maxLines = 4
             )
             spacer(UiModifier().height(8f.dp))
-            rawRow(modifier = UiModifier().height(36f.dp), gap = 8f) {
+            row(height = 36f.dp, gap = 8f) {
                 awakeShadcnButton(
                     "reference-primary",
                     "Primary",
@@ -218,7 +218,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
         )
         val badgeVariant = state.showcaseBadgeVariant()
         awakeShadcnBadge(if (state.showcaseLiveBadge) "LIVE" else "PAUSED", variant = badgeVariant)
-        rawRow(modifier = UiModifier().height(28f.dp), gap = 8f) {
+        row(height = 28f.dp, gap = 8f) {
             awakeShadcnBadge(
                 label = state.showcaseStylePreset().label.uppercase(),
                 variant = AwakeShadcnBadgeVariant.Outline
@@ -239,7 +239,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
         awakeShadcnBodyText("Showcase preview card")
         awakeShadcnSupportingText("Light is the default mood now, Auto follows the platform, and the sample chrome can carry gradients and shimmer without hardcoding per-demo paint.")
         spacer(UiModifier().height(6f.dp))
-        rawRow(modifier = UiModifier().height(36f.dp), gap = 10f) {
+        row(height = 36f.dp, gap = 10f) {
             if (
                 awakeShadcnButton(
                     id = "preview-primary-action",

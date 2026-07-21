@@ -146,7 +146,10 @@ fun UiScope.rawSurface(
         else -> width
     }
     val resolvedHeight = when (height) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height + paddingHeight).px)
+        Dimension.WrapContent -> {
+            val contentHeight = (requireNotNull(measured).height - resolved.contentPadding.top.toPx()).coerceAtLeast(0f)
+            Dimension.Fixed((contentHeight + paddingHeight).px)
+        }
         else -> height
     }
     val slot = claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)

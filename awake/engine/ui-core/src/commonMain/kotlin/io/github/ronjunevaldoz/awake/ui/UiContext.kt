@@ -69,12 +69,13 @@ class UiContext private constructor(
         x: Float,
         y: Float,
         width: Float,
+        height: Float? = null,
         font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
         overlayOnly: Boolean = false
-    ): ColumnScope = ColumnScope(this, font, theme, x, y, width, gap, textScale, overlayOnly)
+    ): ColumnScope = ColumnScope(this, font, theme, x, y, width, height, gap, textScale, overlayOnly)
 
     fun createColumn(
         slot: UiSlot,
@@ -86,7 +87,7 @@ class UiContext private constructor(
         overlayOnly: Boolean = false
     ): ColumnScope {
         val content = slot.inset(insets)
-        return createColumn(content.x, content.y, content.width, font, theme, gap, textScale, overlayOnly)
+        return createColumn(content.x, content.y, content.width, content.height, font, theme, gap, textScale, overlayOnly)
     }
 
     /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minimap
@@ -118,12 +119,13 @@ class UiContext private constructor(
         x: Float,
         y: Float,
         height: Float,
+        width: Float? = null,
         font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
         textScale: Float = 1f,
         overlayOnly: Boolean = false
-    ): RowScope = RowScope(this, font, theme, x, y, height, gap, textScale, overlayOnly)
+    ): RowScope = RowScope(this, font, theme, x, y, width, height, gap, textScale, overlayOnly)
 
     fun createRow(
         slot: UiSlot,
@@ -135,7 +137,7 @@ class UiContext private constructor(
         overlayOnly: Boolean = false
     ): RowScope {
         val content = slot.inset(insets)
-        return createRow(content.x, content.y, content.height, font, theme, gap, textScale, overlayOnly)
+        return createRow(content.x, content.y, content.height, content.width, font, theme, gap, textScale, overlayOnly)
     }
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */

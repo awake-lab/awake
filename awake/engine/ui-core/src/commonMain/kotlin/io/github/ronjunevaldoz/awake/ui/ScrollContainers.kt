@@ -33,8 +33,7 @@ fun UiScope.scrollPanel(
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     scrollSpeed: Float = 32f,
-    scrollbarWidth: Dp = 6f.dp,
-    scrollbarGap: Dp = 8f.dp,
+    config: UiScrollConfig = modifier.scrollConfig,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiScrollPanelResult {
     val requestedWidth = modifier.width ?: width
@@ -48,8 +47,8 @@ fun UiScope.scrollPanel(
     )
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
-    val scrollbarWidthPx = scrollbarWidth.toPx().coerceAtLeast(0f)
-    val scrollbarGapPx = scrollbarGap.toPx().coerceAtLeast(0f)
+    val scrollbarWidthPx = config.width.toPx().coerceAtLeast(0f)
+    val scrollbarGapPx = config.gap.toPx().coerceAtLeast(0f)
     val scrollbarReservePx = if (scrollbarWidthPx > 0f) scrollbarWidthPx + scrollbarGapPx else 0f
 
     fun availableOuterWidth(): Float = when (requestedWidth) {
@@ -73,10 +72,15 @@ fun UiScope.scrollPanel(
     // Check if vertical scroll is needed
     val containerHeight = when (requestedHeight) {
         is Dimension.Fixed -> (requestedHeight.dp.toPx() - paddingHeight).coerceAtLeast(0f)
-        else -> initialMeasure.height // WrapContent or FillMax (which is unconstrained here)
+        Dimension.FillMax -> (fillHeightOrNull()?.minus(paddingHeight))?.coerceAtLeast(0f) ?: initialMeasure.height
+        else -> initialMeasure.height // WrapContent
     }
 
-    var verticalNeeded = initialMeasure.height > containerHeight
+    val verticalNeeded = when (config.verticalVisibility) {
+        UiScrollbarVisibility.Always -> true
+        UiScrollbarVisibility.Never -> false
+        UiScrollbarVisibility.Auto -> initialMeasure.height > containerHeight
+    }
     var measured = initialMeasure
 
     // Phase 2: If vertical needed, re-measure with narrowed width for the scrollbar
@@ -92,7 +96,16 @@ fun UiScope.scrollPanel(
     }
 
     // Check horizontal after potential narrowing
-    val horizontalNeeded = measured.width > maxInnerWidth
+    val containerWidth = when (requestedWidth) {
+        is Dimension.Fixed -> (requestedWidth.dp.toPx() - paddingWidth).coerceAtLeast(0f)
+        Dimension.FillMax -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: initialMeasure.width
+        else -> initialMeasure.width // WrapContent
+    }
+    val horizontalNeeded = when (config.horizontalVisibility) {
+        UiScrollbarVisibility.Always -> true
+        UiScrollbarVisibility.Never -> false
+        UiScrollbarVisibility.Auto -> measured.width > containerWidth
+    }
 
     val vScrollReservePx = if (verticalNeeded) scrollbarReservePx else 0f
     val hScrollReservePx = if (horizontalNeeded) scrollbarReservePx else 0f
@@ -173,7 +186,7 @@ fun UiScope.scrollPanel(
     }
 
     // Vertical Scrollbar
-    val vThumb = if (verticalNeeded) {
+    val vThumb = if (verticalNeeded && config.verticalVisibility != UiScrollbarVisibility.Never) {
         val vTrackSlot = UiSlot(
             x = innerSlot.x + innerSlot.width - scrollbarWidthPx,
             y = innerSlot.y,
@@ -181,25 +194,30 @@ fun UiScope.scrollPanel(
             height = viewport.height
         )
         verticalScrollThumb(vTrackSlot, state)?.also { thumb ->
-            emitFillAndBorder(
-                slot = thumb.track,
-                fillColor = theme.tokens.muted.withAlpha(0.4f),
-                radiusPx = scrollbarWidthPx / 2f,
-                borderWidth = UiShape.none,
-                borderColor = Color.Transparent
-            )
-            emitFillAndBorder(
-                slot = thumb.thumb,
-                fillColor = theme.tokens.primary,
-                radiusPx = scrollbarWidthPx / 2f,
-                borderWidth = UiShape.none,
-                borderColor = Color.Transparent
-            )
+            val custom = config.verticalScrollbar
+            if (custom != null) {
+                childAbsolute(thumb.track).custom(thumb)
+            } else {
+                emitFillAndBorder(
+                    slot = thumb.track,
+                    fillColor = theme.tokens.muted.withAlpha(0.4f),
+                    radiusPx = scrollbarWidthPx / 2f,
+                    borderWidth = UiShape.none,
+                    borderColor = Color.Transparent
+                )
+                emitFillAndBorder(
+                    slot = thumb.thumb,
+                    fillColor = theme.tokens.primary,
+                    radiusPx = scrollbarWidthPx / 2f,
+                    borderWidth = UiShape.none,
+                    borderColor = Color.Transparent
+                )
+            }
         }
     } else null
 
     // Horizontal Scrollbar
-    val hThumb = if (horizontalNeeded) {
+    val hThumb = if (horizontalNeeded && config.horizontalVisibility != UiScrollbarVisibility.Never) {
         val hTrackSlot = UiSlot(
             x = innerSlot.x,
             y = innerSlot.y + innerSlot.height - scrollbarWidthPx,
@@ -207,20 +225,25 @@ fun UiScope.scrollPanel(
             height = scrollbarWidthPx
         )
         horizontalScrollThumb(hTrackSlot, state)?.also { thumb ->
-            emitFillAndBorder(
-                slot = thumb.track,
-                fillColor = theme.tokens.muted.withAlpha(0.4f),
-                radiusPx = scrollbarWidthPx / 2f,
-                borderWidth = UiShape.none,
-                borderColor = Color.Transparent
-            )
-            emitFillAndBorder(
-                slot = thumb.thumb,
-                fillColor = theme.tokens.primary,
-                radiusPx = scrollbarWidthPx / 2f,
-                borderWidth = UiShape.none,
-                borderColor = Color.Transparent
-            )
+            val custom = config.horizontalScrollbar
+            if (custom != null) {
+                childAbsolute(thumb.track).custom(thumb)
+            } else {
+                emitFillAndBorder(
+                    slot = thumb.track,
+                    fillColor = theme.tokens.muted.withAlpha(0.4f),
+                    radiusPx = scrollbarWidthPx / 2f,
+                    borderWidth = UiShape.none,
+                    borderColor = Color.Transparent
+                )
+                emitFillAndBorder(
+                    slot = thumb.thumb,
+                    fillColor = theme.tokens.primary,
+                    radiusPx = scrollbarWidthPx / 2f,
+                    borderWidth = UiShape.none,
+                    borderColor = Color.Transparent
+                )
+            }
         }
     } else null
 

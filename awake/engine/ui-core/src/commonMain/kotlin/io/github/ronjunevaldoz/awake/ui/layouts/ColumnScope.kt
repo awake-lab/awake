@@ -18,19 +18,23 @@ class ColumnScope internal constructor(
     private val x: Float,
     private val startY: Float,
     val width: Float,
+    val height: Float? = null,
     val gap: Float,
     textScale: Float = 1f,
     emitToOverlay: Boolean = false
 ) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {
     override val fillWidth: Float? = width
-    override val fillHeight: Float? = null
+    override val fillHeight: Float? = height
 
     var cursorY: Float = startY
         private set
 
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
         val resolvedWidth = width.resolve { this.width }
-        val resolvedHeight = height.resolve { error("FillMax height has no meaning in a ColumnScope") }
+        val resolvedHeight = height.resolve {
+            val availableHeight = this.height ?: (context.frameBounds().height - cursorY)
+            (availableHeight - (cursorY - startY)).coerceAtLeast(0f)
+        }
         val slot = UiSlot(
             x,
             cursorY,

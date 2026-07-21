@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVa
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 
 /** Real shadcn's `Surface`: a contained region (Card, Popover, Dialog) that owns its
  * background, border, and content padding. Composed from the [surface] primitive. */
@@ -36,6 +37,24 @@ fun ColumnScope.awakeShadcnSurface(
     id: String,
     height: Dimension,
     width: Dimension = Dimension.FillMax,
+    modifier: UiModifier = UiModifier(),
+    variant: AwakeShadcnSurfaceVariant = AwakeShadcnSurfaceVariant.Card,
+    style: Style = Style.Empty,
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiSlot = surface(
+    id = id,
+    width = width,
+    height = height,
+    modifier = modifier,
+    style = AwakeShadcnStyles.surface(theme.asAwakeShadcnTheme(), variant) then style,
+    content = content
+)
+
+/** [awakeShadcnSurface] override for [RowScope] that defaults height to [Dimension.FillMax]. */
+fun RowScope.awakeShadcnSurface(
+    id: String,
+    width: Dimension,
+    height: Dimension = Dimension.FillMax,
     modifier: UiModifier = UiModifier(),
     variant: AwakeShadcnSurfaceVariant = AwakeShadcnSurfaceVariant.Card,
     style: Style = Style.Empty,

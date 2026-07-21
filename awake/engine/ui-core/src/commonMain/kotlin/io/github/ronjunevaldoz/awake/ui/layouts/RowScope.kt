@@ -15,21 +15,25 @@ class RowScope internal constructor(
     context: UiContext,
     font: UiFont?,
     theme: UiTheme,
-    startX: Float,
+    private val startX: Float,
     private val y: Float,
-    private val height: Float,
-    private val gap: Float,
+    val width: Float? = null,
+    val height: Float,
+    val gap: Float,
     textScale: Float = 1f,
     emitToOverlay: Boolean = false
 ) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {
     var cursorX: Float = startX
         private set
 
-    override val fillWidth: Float? = null
+    override val fillWidth: Float? = width
     override val fillHeight: Float? = height
 
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
-        val resolvedWidth = width.resolve { error("FillMax width has no meaning in a RowScope") }
+        val resolvedWidth = width.resolve {
+            val availableWidth = this.width ?: (context.frameBounds().width - cursorX)
+            (availableWidth - (cursorX - startX)).coerceAtLeast(0f)
+        }
         val resolvedHeight = height.resolve { this.height }
         val slot = UiSlot(
             cursorX,

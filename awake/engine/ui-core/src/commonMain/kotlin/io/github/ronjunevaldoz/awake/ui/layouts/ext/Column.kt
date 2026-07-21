@@ -53,6 +53,7 @@ internal fun UiScope.smartColumn(
             gap = gap,
             style = style,
             modifier = modifier,
+            config = modifier.scrollConfig,
             content = content
         ).slot
     }
@@ -98,7 +99,10 @@ internal fun UiScope.smartColumn(
         else -> requestedWidth
     }
     val resolvedHeight = when (requestedHeight) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height + insets.verticalPx()).px)
+        Dimension.WrapContent -> {
+            val contentHeight = (requireNotNull(measured).height - insets.top.toPx()).coerceAtLeast(0f)
+            Dimension.Fixed((contentHeight + insets.verticalPx()).px)
+        }
         else -> requestedHeight
     }
 
