@@ -1,7 +1,7 @@
 # Awake UI DSL
 
 `awake:engine:ui-dsl` is the authored overlay/composition layer on top of `ui-core`,
-`ui-widgets`, and the neutral UI contracts in this module.
+`ui-unstyled`, and the neutral UI contracts in this module.
 
 Use it when you want:
 
@@ -75,7 +75,7 @@ val game = game {
 ```
 
 Rule of thumb: this module owns authored UI syntax. Low-level layout/drawing primitives
-stay in `ui-core`, reusable widgets stay in `ui-widgets`, and branded recipes stay in
+stay in `ui-core`, reusable widgets stay in `ui-unstyled`, and branded recipes stay in
 `ui-designsystem`.
 
 ## Overlay guidance

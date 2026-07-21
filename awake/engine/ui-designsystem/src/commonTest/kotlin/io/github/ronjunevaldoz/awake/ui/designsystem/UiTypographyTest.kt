@@ -1,0 +1,49 @@
+package io.github.ronjunevaldoz.awake.ui.designsystem
+
+import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import kotlin.test.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+
+class UiTypographyTest {
+
+
+    @Test
+    fun supportingTextWrapsInsideWrapContentPanels() {
+        val ui = UiContext()
+        ui.beginFrame(280f, 220f, testSnapshot())
+
+        var panelSlot: UiSlot? = null
+
+        ui.column(x = 20f, y = 20f, width = 180f, font = BitmapFont()) {
+            surface(id = "copy", height = Dimension.WrapContent) { slot ->
+                panelSlot = slot
+                text("Copy")
+                supportingText(
+                    "Shared supporting copy should wrap cleanly and grow the panel instead of spilling outside its bounds.",
+                    maxLines = 4
+                )
+            }
+        }
+
+        val primitives = ui.endFrame()
+        val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
+        val resolvedPanel = assertNotNull(panelSlot)
+        assertTrue(
+            resolvedPanel.height > 32f,
+            "wrap-content panels should grow to fit multi-line supporting copy"
+        )
+        assertTrue(
+            glyphs.any { it.y > resolvedPanel.y + 16f },
+            "wrapped supporting copy should render on more than one text row"
+        )
+    }
+}

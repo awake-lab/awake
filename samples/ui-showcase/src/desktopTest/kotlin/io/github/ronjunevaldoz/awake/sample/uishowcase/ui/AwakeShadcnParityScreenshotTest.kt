@@ -2,22 +2,33 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
+/**
+ * Proof-of-concept answering "can we generate an Awake-rendered screenshot of the same
+ * component, laid out to match a real shadcn-compose reference image?" -- yes: this reuses
+ * the exact same [AwakeUiPreview]/[renderAnnotatedUiPreview]/[saveAwakeUiPreview] pipeline
+ * that already produces every other PNG in this repo's preview reports, just pointed at a
+ * layout that mirrors `docs/reference/shadcn-previews/button_variants_light.png` and
+ * `text-field_states_light.png`'s arrangement instead of a showcase page.
+ *
+ * Output lands in `build/ui-previews/` like every other preview -- copy into
+ * `docs/reference/awake-previews/` when actually publishing a side-by-side comparison,
+ * the same manual step already used for `docs/reference/shadcn-previews/`.
+ */
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewSample
+import io.github.ronjunevaldoz.awake.testing.ui.componentStateMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
-import io.github.ronjunevaldoz.awake.testing.ui.componentStateMatrix
+import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
-import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
@@ -36,40 +47,23 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextF
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnAlertVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTextFieldVariant
-import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
+import io.github.ronjunevaldoz.awake.ui.unstyled.row
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.switch
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textarea
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
 import io.github.ronjunevaldoz.awake.ui.width
-import io.github.ronjunevaldoz.awake.ui.row
-import io.github.ronjunevaldoz.awake.ui.column
-import io.github.ronjunevaldoz.awake.ui.panel
-import io.github.ronjunevaldoz.awake.ui.spacer
-import io.github.ronjunevaldoz.awake.ui.text
-import io.github.ronjunevaldoz.awake.ui.button
-import io.github.ronjunevaldoz.awake.ui.slider
-import io.github.ronjunevaldoz.awake.ui.textarea
-import io.github.ronjunevaldoz.awake.ui.toggle
-import io.github.ronjunevaldoz.awake.ui.textField
-import io.github.ronjunevaldoz.awake.ui.switch
 import kotlin.test.Test
-
-/**
- * Proof-of-concept answering "can we generate an Awake-rendered screenshot of the same
- * component, laid out to match a real shadcn-compose reference image?" -- yes: this reuses
- * the exact same [AwakeUiPreview]/[renderAnnotatedUiPreview]/[saveAwakeUiPreview] pipeline
- * that already produces every other PNG in this repo's preview reports, just pointed at a
- * layout that mirrors `docs/reference/shadcn-previews/button_variants_light.png` and
- * `text-field_states_light.png`'s arrangement instead of a showcase page.
- *
- * Output lands in `build/ui-previews/` like every other preview -- copy into
- * `docs/reference/awake-previews/` when actually publishing a side-by-side comparison,
- * the same manual step already used for `docs/reference/shadcn-previews/`.
- */
-import io.github.ronjunevaldoz.awake.ui.UiInputState
 
 /** Builds a one-off [UiInputState] for a preview frame -- [Input] is a per-session
  * instance now (no longer a global object), so tests construct their own throwaway one. */
@@ -131,16 +125,45 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 30f, y = 45f, width = 600f, font = font, theme = theme, gap = 10f) {
-            row(height = 40f.dp, gap = 10f) {
-                awakeShadcnButton("parity-default", "Default", modifier = UiModifier().width(90f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Primary)
-                awakeShadcnButton("parity-secondary", "Secondary", modifier = UiModifier().width(100f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Secondary)
-                awakeShadcnButton("parity-outline", "Outline", modifier = UiModifier().width(90f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
-                awakeShadcnButton("parity-ghost", "Ghost", modifier = UiModifier().width(80f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Ghost)
-                awakeShadcnButton("parity-destructive", "Destructive", modifier = UiModifier().width(110f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Danger)
-                awakeShadcnButton("parity-link", "Link", modifier = UiModifier().width(60f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Link)
+        ui.createColumn(x = 30f, y = 45f, width = 600f, font = font, theme = theme, gap = 10f)
+            .row(modifier = UiModifier().height(40f.dp), gap = 10f) {
+                awakeShadcnButton(
+                    "parity-default",
+                    "Default",
+                    modifier = UiModifier().width(90f.px).height(40f.px),
+                    variant = AwakeShadcnButtonVariant.Primary
+                )
+                awakeShadcnButton(
+                    "parity-secondary",
+                    "Secondary",
+                    modifier = UiModifier().width(100f.px).height(40f.px),
+                    variant = AwakeShadcnButtonVariant.Secondary
+                )
+                awakeShadcnButton(
+                    "parity-outline",
+                    "Outline",
+                    modifier = UiModifier().width(90f.px).height(40f.px),
+                    variant = AwakeShadcnButtonVariant.Outline
+                )
+                awakeShadcnButton(
+                    "parity-ghost",
+                    "Ghost",
+                    modifier = UiModifier().width(80f.px).height(40f.px),
+                    variant = AwakeShadcnButtonVariant.Ghost
+                )
+                awakeShadcnButton(
+                    "parity-destructive",
+                    "Destructive",
+                    modifier = UiModifier().width(110f.px).height(40f.px),
+                    variant = AwakeShadcnButtonVariant.Danger
+                )
+                awakeShadcnButton(
+                    "parity-link",
+                    "Link",
+                    modifier = UiModifier().width(60f.px).height(40f.px),
+                    variant = AwakeShadcnButtonVariant.Link
+                )
             }
-        }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.tokens.background,
@@ -164,15 +187,34 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 30f, y = 42f, width = 420f, font = font, theme = theme, gap = 10f) {
-            row(height = 30f.dp, gap = 10f) {
-                awakeShadcnBadge("Default", modifier = UiModifier().width(72f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Primary)
-                awakeShadcnBadge("Secondary", modifier = UiModifier().width(90f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Secondary)
-                awakeShadcnBadge("Destructive", modifier = UiModifier().width(100f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Danger)
-                awakeShadcnBadge("Outline", modifier = UiModifier().width(80f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Outline)
-                awakeShadcnBadge("Ghost", modifier = UiModifier().width(70f.px).height(30f.px), variant = AwakeShadcnBadgeVariant.Ghost)
+        ui.createColumn(x = 30f, y = 42f, width = 420f, font = font, theme = theme, gap = 10f)
+            .row(modifier = UiModifier().height(30f.dp), gap = 10f) {
+                awakeShadcnBadge(
+                    "Default",
+                    modifier = UiModifier().width(72f.px).height(30f.px),
+                    variant = AwakeShadcnBadgeVariant.Primary
+                )
+                awakeShadcnBadge(
+                    "Secondary",
+                    modifier = UiModifier().width(90f.px).height(30f.px),
+                    variant = AwakeShadcnBadgeVariant.Secondary
+                )
+                awakeShadcnBadge(
+                    "Destructive",
+                    modifier = UiModifier().width(100f.px).height(30f.px),
+                    variant = AwakeShadcnBadgeVariant.Danger
+                )
+                awakeShadcnBadge(
+                    "Outline",
+                    modifier = UiModifier().width(80f.px).height(30f.px),
+                    variant = AwakeShadcnBadgeVariant.Outline
+                )
+                awakeShadcnBadge(
+                    "Ghost",
+                    modifier = UiModifier().width(70f.px).height(30f.px),
+                    variant = AwakeShadcnBadgeVariant.Ghost
+                )
             }
-        }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.tokens.background,
@@ -196,7 +238,7 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 248f, font = font, theme = theme, gap = 16f) {
+        ui.column(x = 24f, y = 24f, width = 248f, font = font, theme = theme, gap = 16f) {
             awakeShadcnTextField("parity-field-1", value = "", placeholder = "Default", modifier = UiModifier().width(248f.px).height(40f.px))
             awakeShadcnTextField("parity-field-2", value = "", placeholder = "Filled", variant = AwakeShadcnTextFieldVariant.Filled, modifier = UiModifier().width(248f.px).height(40f.px))
             awakeShadcnTextField("parity-field-3", value = "", placeholder = "Ghost", variant = AwakeShadcnTextFieldVariant.Ghost, modifier = UiModifier().width(248f.px).height(40f.px))
@@ -226,7 +268,7 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 272f, font = font, theme = theme, gap = 16f) {
+        ui.column(x = 24f, y = 24f, width = 272f, font = font, theme = theme, gap = 16f) {
             awakeShadcnAlert(
                 id = "parity-alert-default",
                 title = "You can add components",
@@ -254,7 +296,7 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
     id = "awake-radiogroup-light",
     title = "Awake RadioGroup (light)",
     group = "Shadcn Parity",
-    summary = "New component -- circular checkbox() reused via a Circle shapeSpec, single-select logic composed on top, no new ui-widgets primitive.",
+    summary = "New component -- circular checkbox() reused via a Circle shapeSpec, single-select logic composed on top, no new ui-unstyled primitive.",
     width = 200,
     height = 108
 )
@@ -264,7 +306,7 @@ internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 160f, font = font, theme = theme, gap = 8f) {
+        ui.column(x = 24f, y = 24f, width = 160f, font = font, theme = theme, gap = 8f) {
             awakeShadcnRadioGroup(
                 id = "parity-radio",
                 options = listOf("Default", "Comfortable", "Compact"),
@@ -294,7 +336,7 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 212f, font = font, theme = theme, gap = 16f) {
+        ui.column(x = 24f, y = 24f, width = 212f, font = font, theme = theme, gap = 16f) {
             awakeShadcnProgress("parity-progress-1", value = 0.25f, modifier = UiModifier().width(212f.px))
             awakeShadcnProgress("parity-progress-2", value = 0.65f, modifier = UiModifier().width(212f.px))
         }
@@ -321,8 +363,8 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 180f, font = font, theme = theme, gap = 10f) {
-            row(height = 48f.dp, gap = 12f) {
+        ui.column(x = 24f, y = 24f, width = 180f, font = font, theme = theme, gap = 10f) {
+            row(modifier = UiModifier().height(48f.dp), gap = 12f) {
                 awakeShadcnAvatar("CN")
                 awakeShadcnAvatar("RV", diameter = 48f.dp)
             }
@@ -350,8 +392,8 @@ internal object AwakeKbdLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 28f, width = 160f, font = font, theme = theme, gap = 10f) {
-            row(height = 24f.dp, gap = 6f) {
+        ui.column(x = 24f, y = 28f, width = 160f, font = font, theme = theme, gap = 10f) {
+            row(modifier = UiModifier().height(24f.dp), gap = 6f) {
                 awakeShadcnKbd("Ctrl")
                 awakeShadcnKbd("K")
             }
@@ -379,7 +421,7 @@ internal object AwakeSkeletonLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 192f, font = font, theme = theme, gap = 10f) {
+        ui.column(x = 24f, y = 24f, width = 192f, font = font, theme = theme, gap = 10f) {
             awakeShadcnSkeleton("parity-skeleton-1", modifier = UiModifier().width(192f.px).height(16f.px))
             awakeShadcnSkeleton("parity-skeleton-2", modifier = UiModifier().width(140f.px).height(16f.px))
         }
@@ -406,7 +448,7 @@ internal object AwakeTabsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 280f, font = font, theme = theme, gap = 10f) {
+        ui.column(x = 24f, y = 24f, width = 280f, font = font, theme = theme, gap = 10f) {
             awakeShadcnTabs(
                 id = "parity-tabs",
                 tabs = listOf("Account", "Password"),
@@ -436,7 +478,7 @@ internal object AwakeBreadcrumbLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 220f, font = font, theme = theme, gap = 10f) {
+        ui.column(x = 24f, y = 24f, width = 220f, font = font, theme = theme, gap = 10f) {
             awakeShadcnBreadcrumb(listOf("Home", "Components", "Breadcrumb"))
         }
         return AwakeUiPreviewFrame(
@@ -462,7 +504,7 @@ internal object AwakeCollapsibleLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 220f, font = font, theme = theme, gap = 10f) {
+        ui.column(x = 24f, y = 24f, width = 220f, font = font, theme = theme, gap = 10f) {
             awakeShadcnCollapsible(id = "parity-collapsible", title = "Can I use this in my project?", expanded = true) {
                 awakeShadcnSupportingText("Yes. Free to use for personal and commercial projects.")
             }
@@ -490,7 +532,7 @@ internal object AwakeSpinnerLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 72f, font = font, theme = theme, gap = 10f) {
+        ui.column(x = 24f, y = 24f, width = 72f, font = font, theme = theme, gap = 10f) {
             awakeShadcnSpinner("parity-spinner")
         }
         return AwakeUiPreviewFrame(
@@ -516,7 +558,7 @@ internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 272f, font = font, theme = theme, gap = 16f) {
+        ui.column(x = 24f, y = 24f, width = 272f, font = font, theme = theme, gap = 16f) {
             awakeShadcnTextarea("parity-textarea-1", value = "", placeholder = "Default textarea", modifier = UiModifier().width(272f.px))
             awakeShadcnTextarea("parity-textarea-2", value = "Line 1\nLine 2\nLine 3", modifier = UiModifier().width(272f.px))
             awakeShadcnTextarea("parity-textarea-3", value = "", placeholder = "Disabled textarea", modifier = UiModifier().width(272f.px), enabled = false)
@@ -544,7 +586,7 @@ internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 152f, font = font, theme = theme, gap = 12f) {
+        ui.column(x = 24f, y = 24f, width = 152f, font = font, theme = theme, gap = 12f) {
             awakeShadcnSwitch("parity-switch-off", checked = false, label = "Airplane Mode")
             awakeShadcnSwitch("parity-switch-on", checked = true, label = "Airplane Mode")
         }
@@ -571,8 +613,8 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.ui(x = 24f, y = 24f, width = 192f, font = font, theme = theme, gap = 10f) {
-            row(height = 40f.dp, gap = 10f) {
+        ui.column(x = 24f, y = 24f, width = 192f, font = font, theme = theme, gap = 10f) {
+            row(modifier = UiModifier().height(40f.dp), gap = 10f) {
                 awakeShadcnToggle("parity-toggle-off", checked = false, label = "B", modifier = UiModifier().width(40f.px).height(40f.px))
                 awakeShadcnToggle("parity-toggle-on", checked = true, label = "B", modifier = UiModifier().width(40f.px).height(40f.px))
                 awakeShadcnToggle("parity-toggle-disabled", checked = false, label = "B", modifier = UiModifier().width(40f.px).height(40f.px), enabled = false)
@@ -636,7 +678,7 @@ internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = awakeShadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row(height = 40f.dp, gap = 10f) {
+            row(modifier = UiModifier().height(40f.dp), gap = 10f) {
                 toggle("toggle-off", checked = false, label = "Off", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
                 toggle("toggle-on", checked = true, label = "On", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
             }
@@ -675,7 +717,7 @@ internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = awakeShadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row(height = 40f.dp, gap = 10f) {
+            row(modifier = UiModifier().height(40f.dp), gap = 10f) {
                 switch("switch-off", checked = false, label = "Off", modifier = forcedModifier)
                 switch("switch-on", checked = true, label = "On", modifier = forcedModifier)
             }

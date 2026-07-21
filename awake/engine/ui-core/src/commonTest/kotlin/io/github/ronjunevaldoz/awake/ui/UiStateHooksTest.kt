@@ -52,12 +52,12 @@ class UiStateHooksTest {
         val ui = UiContext()
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val scope = ui.absolute(0f, 0f)
+        val scope = ui.createAbsolute(0f, 0f)
         var expanded by scope.rememberBooleanState("delegate-demo", initial = true)
         expanded = false
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val nextScope = ui.absolute(0f, 0f)
+        val nextScope = ui.createAbsolute(0f, 0f)
         val persisted = nextScope.rememberBooleanState("delegate-demo", initial = true)
 
         assertFalse(persisted.value)
@@ -68,21 +68,21 @@ class UiStateHooksTest {
         val ui = UiContext()
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val scope = ui.absolute(0f, 0f)
+        val scope = ui.createAbsolute(0f, 0f)
         val popupState = scope.rememberPopupState("menu")
         popupState.open()
         popupState.toggle()
         popupState.toggle()
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val nextScope = ui.absolute(0f, 0f)
+        val nextScope = ui.createAbsolute(0f, 0f)
         val persisted = nextScope.rememberPopupState("menu")
         assertTrue(persisted.expanded)
 
         persisted.close()
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val finalScope = ui.absolute(0f, 0f)
+        val finalScope = ui.createAbsolute(0f, 0f)
         val closed = finalScope.rememberPopupState("menu")
         assertFalse(closed.expanded)
     }

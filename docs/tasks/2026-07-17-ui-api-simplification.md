@@ -23,7 +23,7 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 
 - `ui-core` already owns the right primitives: `Dp`, `Sp`, `Dimension`, `UiModifier`,
   `Style`, `UiTheme`, drawing primitives, popup contracts, and font/runtime pieces.
-- `ui-widgets` is mostly in the right place as a generic leaf-widget layer.
+- `ui-unstyled` is mostly in the right place as a generic leaf-widget layer.
 - `ui-dsl` owns the right category of APIs, but its surface is too broad.
 - `ui-designsystem` owns the right category of APIs, but it still duplicates too many
   wrapper entry points and still tolerates raw-float authored sizing.
@@ -41,10 +41,10 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 - [ ] Keep `CoreUiTheme` only as the neutral fallback theme.
 - [ ] Do not move named authored themes into `ui-core`.
 
-### `awake:engine:ui-widgets`
+### `awake:engine:ui-unstyled`
 
 - [ ] Keep only generic leaf widgets and generic containers.
-- [x] Deprecate authored convenience overloads that take width/height as raw `Float`. Deleted outright (button/buttonSlot/toggle/checkbox/dropdown/slider/textureQuad in ui-widgets, plus the mirrored copies in ui-dsl's `UiDslControls.kt`) rather than deprecated, since this API isn't published yet -- migrated all 51 real call sites onto modifier-based sizing.
+- [x] Deprecate authored convenience overloads that take width/height as raw `Float`. Deleted outright (button/buttonSlot/toggle/checkbox/dropdown/slider/textureQuad in ui-unstyled, plus the mirrored copies in ui-dsl's `UiDslControls.kt`) rather than deprecated, since this API isn't published yet -- migrated all 51 real call sites onto modifier-based sizing.
 - [x] Prefer modifier-first sizing on public entry points. Byproduct of the Float-overload deletion above -- every remaining public widget entry point is modifier-based only.
 - [ ] Add slot-based variants only where content structure genuinely matters.
 - [ ] Keep simple `label`/`title` params on leaf widgets when that is still the cleanest API.
@@ -85,12 +85,12 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 
 ### Delete
 
-- [x] Duplicate convenience wrappers whose only work is `Float -> .px -> modifier`. Deleted across ui-widgets, ui-dsl, and ui-designsystem (badges/buttons/fields/property controls) rather than deprecated, since this API isn't published yet.
+- [x] Duplicate convenience wrappers whose only work is `Float -> .px -> modifier`. Deleted across ui-unstyled, ui-dsl, and ui-designsystem (badges/buttons/fields/property controls) rather than deprecated, since this API isn't published yet.
 - [x] Extra placement helpers that only rename corner anchoring patterns already expressible by existing primitives. `OverlayShellScope`'s `topLeftSlot`/`topRight`/`bottomLeftPane`/etc. deprecated in favor of the generic `slot`/`place`/`pane(UiAnchor, ...)`.
 
 ### Deprecate
 
-- [x] Raw `Float` authored sizing in public DSL and design-system APIs. Deleted outright rather than deprecated (unpublished API) across ui-widgets/ui-dsl/ui-designsystem; zero raw-`Float` sizing overloads remain.
+- [x] Raw `Float` authored sizing in public DSL and design-system APIs. Deleted outright rather than deprecated (unpublished API) across ui-unstyled/ui-dsl/ui-designsystem; zero raw-`Float` sizing overloads remain.
 - [ ] Composition APIs that tightly own both structure and all displayed text when slots are the better contract.
 - [x] Sample usage patterns that teach `.px` first instead of `Dp` or `UiModifier`. All 23 `.px` authored-sizing call sites in `samples:ui-showcase` converted to `.dp`.
 
@@ -98,7 +98,7 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 
 - [ ] Raw pixels for layout/runtime internals.
 - [ ] `UiModifier`, `Dimension`, `Dp`, `Sp`, popup primitives, and scroll primitives.
-- [ ] Neutral engine contracts in `ui-core`, generic widgets in `ui-widgets`, generic compositions in `ui-dsl`, branded recipes in `ui-designsystem`.
+- [ ] Neutral engine contracts in `ui-core`, generic widgets in `ui-unstyled`, generic compositions in `ui-dsl`, branded recipes in `ui-designsystem`.
 
 ## Implementation Order
 

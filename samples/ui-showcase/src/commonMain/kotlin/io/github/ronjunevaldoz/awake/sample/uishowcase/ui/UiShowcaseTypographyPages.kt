@@ -2,30 +2,29 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.sp
-import io.github.ronjunevaldoz.awake.ui.supportingLines
-import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import io.github.ronjunevaldoz.awake.ui.width
-import io.github.ronjunevaldoz.awake.ui.row
-import io.github.ronjunevaldoz.awake.ui.column
-import io.github.ronjunevaldoz.awake.ui.panel
-import io.github.ronjunevaldoz.awake.ui.spacer
 
 internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     awakeShadcnSectionHeader(
@@ -34,7 +33,7 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     )
     spacer(UiModifier().height(8f.dp))
     row(height = 292f.dp, gap = 12f) {
-        panel(
+        surface(
             id = "showcase-font-bitmap",
             width = Dimension.Fixed(264f.dp),
             height = Dimension.Fixed(292f.dp),
@@ -47,7 +46,7 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
                 previewFont = BitmapFont()
             )
         }
-        panel(
+        surface(
             id = "showcase-font-truesans",
             width = Dimension.Fixed(264f.dp),
             height = Dimension.Fixed(292f.dp),
@@ -76,7 +75,7 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
     detail: String,
     previewFont: UiFont,
 ) {
-    val specimenScope = context.column(
+    val specimenScope = context.createColumn(
         slot = slot,
         font = previewFont,
         theme = theme,
@@ -89,22 +88,22 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
         modifier = UiModifier().width(120f.dp).height(28f.dp),
         variant = AwakeShadcnBadgeVariant.Outline
     )
-    specimenScope.text(
+    specimenScope.basicText(
         label = "Awake UI",
         color = theme.tokens.foreground,
         textSize = 18f.sp
     )
-    specimenScope.text(
+    specimenScope.basicText(
         label = "Sphinx 123",
         color = theme.tokens.foreground,
         textSize = 16f.sp
     )
-    specimenScope.text(
+    specimenScope.basicText(
         label = "THE QUICK BROWN FOX",
         color = theme.tokens.foreground,
         textSize = 12f.sp
     )
-    specimenScope.text(
+    specimenScope.basicText(
         label = detail,
         slot = specimenScope.claimSlot(Dimension.FillMax, Dimension.Fixed(44f.dp)),
         color = theme.tokens.mutedForeground,

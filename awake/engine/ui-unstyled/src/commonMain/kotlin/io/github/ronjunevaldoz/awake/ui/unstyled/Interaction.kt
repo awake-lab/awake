@@ -1,0 +1,36 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.ui.unstyled
+
+import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+
+internal data class UiInteraction(
+    val slot: UiSlot,
+    val hovered: Boolean,
+    val active: Boolean,
+    val clicked: Boolean
+)
+
+internal fun UiScope.interact(
+    id: String,
+    width: Dimension,
+    height: Dimension,
+    modifier: UiModifier = UiModifier()
+): UiInteraction {
+    val slot = claimModifiedSlot(width, height, modifier)
+    val hovered = hitTest(slot)
+    tryClaimActive(id, hovered)
+    val wasActiveBeforeRelease = isActive(id)
+    releaseActiveIfMatches(id)
+    val active = isActive(id)
+    return UiInteraction(
+        slot = slot,
+        hovered = hovered,
+        active = active,
+        clicked = wasActiveBeforeRelease && !active && hovered
+    )
+}

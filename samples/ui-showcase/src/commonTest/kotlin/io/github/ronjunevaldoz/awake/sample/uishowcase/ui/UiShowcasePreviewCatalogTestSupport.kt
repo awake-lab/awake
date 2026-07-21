@@ -10,17 +10,17 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDensity
-import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
-import io.github.ronjunevaldoz.awake.ui.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.alertDialog
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnCheckbox
@@ -34,19 +34,19 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggl
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
-import io.github.ronjunevaldoz.awake.ui.dropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.tooltip
-import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.width
-import io.github.ronjunevaldoz.awake.ui.row
-import io.github.ronjunevaldoz.awake.ui.spacer
-import io.github.ronjunevaldoz.awake.ui.text
-import io.github.ronjunevaldoz.awake.ui.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
 
 internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
@@ -423,7 +423,7 @@ private fun renderUiShowcaseCardPreviewFrame(
         if (focusedNodeId != null) {
             ui.requestFocus(focusedNodeId)
         }
-        ui.ui(
+        ui.column(
             x = insetPx,
             y = insetPx,
             width = metadata.rasterWidth.toFloat() - insetPx * 2f,
@@ -636,7 +636,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
             width = Dimension.Fixed(260f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
         ) {
-            text(
+            basicText(
                 label = "Scene stats stay live here when the cursor rests on the trigger.",
                 wrap = UiTextWrap.Word,
                 overflow = UiTextOverflow.Ellipsis,

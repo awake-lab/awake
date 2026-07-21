@@ -4,13 +4,12 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -41,7 +40,7 @@ class UiShowcaseTextInputIntegrationTest {
         fun frame(pointerDown: Boolean, x: Float, y: Float): List<UiDrawPrimitive> {
             input.setPointer(down = pointerDown, x = x, y = y)
             ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
-            ui.ui(x = 24f, y = 24f, width = width - 48f, font = font, theme = theme, gap = 10f) {
+            ui.column(x = 24f, y = 24f, width = width - 48f, font = font, theme = theme, gap = 10f) {
                 renderUiShowcasePagePreview(page, state)
             }
             return ui.endFrame()
@@ -82,7 +81,7 @@ class UiShowcaseTextInputIntegrationTest {
 
         input.setPointer(down = false, x = -100f, y = -100f)
         ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
-        ui.ui(x = 24f, y = 24f, width = 852f, font = font, theme = theme, gap = 10f) {
+        ui.column(x = 24f, y = 24f, width = 852f, font = font, theme = theme, gap = 10f) {
             renderUiShowcasePagePreview(page, state)
         }
         ui.endFrame()
@@ -90,7 +89,7 @@ class UiShowcaseTextInputIntegrationTest {
         input.pushTypedText("ignored")
         input.setPointer(down = false, x = -100f, y = -100f)
         ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
-        ui.ui(x = 24f, y = 24f, width = 852f, font = font, theme = theme, gap = 10f) {
+        ui.column(x = 24f, y = 24f, width = 852f, font = font, theme = theme, gap = 10f) {
             renderUiShowcasePagePreview(page, state)
         }
         ui.endFrame()

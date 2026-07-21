@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.sp
 /**
  * A neutral-first, shadcn-inspired design-system theme that lives OUTSIDE the engine core.
  * It proves Awake's public UI API is enough to host a branded layer without modifying
- * `ui-core` or `ui-widgets`.
+ * `ui-core` or `ui-unstyled`.
  *
  * The default singleton still exists for authored samples, while [awakeShadcnTheme] lets
  * callers select a runtime style preset, base palette family, and accent override.
@@ -227,7 +227,7 @@ private class ConfiguredAwakeShadcnTheme(
             contentPadding(metrics.fieldPaddingX, metrics.fieldPaddingY)
             textSize(typography.label)
         }
-        override val panel: Style = Style {
+        override val surface: Style = Style {
             background(palette.card)
             foreground(palette.cardForeground)
             borderWidth(1f.dp)

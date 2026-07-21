@@ -13,6 +13,7 @@ data class UiInputState(
     val pointerX: Float = -1f,
     val pointerY: Float = -1f,
     val pointerDown: Boolean = false,
+    val scrollDeltaX: Float = 0f,
     val scrollDeltaY: Float = 0f,
     val typedText: String = "",
     val editActions: List<UiTextEditAction> = emptyList()
@@ -22,6 +23,7 @@ fun InputSnapshot.toUiInputState(): UiInputState = UiInputState(
     pointerX = pointerX,
     pointerY = pointerY,
     pointerDown = pointerDown,
+    scrollDeltaX = scrollDeltaX,
     scrollDeltaY = scrollDeltaY,
     typedText = typedText,
     editActions = editActions.map { it.toUiAction() }

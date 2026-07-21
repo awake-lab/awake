@@ -23,7 +23,7 @@ flowchart TD
     render["awake:engine:render-api"]
     game["awake:engine:game"]
     uiCore["awake:engine:ui-core"]
-    uiWidgets["awake:engine:ui-widgets"]
+    uiWidgets["awake:engine:ui-unstyled"]
     ui["awake:engine:ui"]
     uiDs["awake:engine:ui-designsystem"]
     vulkan["awake:backend:vulkan"]
@@ -60,7 +60,7 @@ flowchart TD
 | `:awake-engine:game` | Backend-neutral game bootstrap and runtime glue | not published |
 | `:awake-engine:render-api` | Renderer-facing abstractions and draw orchestration | not published |
 | `:awake-engine:ui-core` | Foundational UI drawing and layout primitives | not published |
-| `:awake-engine:ui-widgets` | Reusable widget-level primitives built on `ui-core` | not published |
+| `:awake-engine:ui-unstyled` | Reusable widget-level primitives built on `ui-core` | not published |
 | `:awake-engine:ui` | Style-agnostic UI composition templates and DSL surfaces | not published |
 | `:awake-engine:ui-designsystem` | Branded or strongly opinionated UI recipes | not published |
 | `:samples:*` | Sample applications and demos | sample-only |

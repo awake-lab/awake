@@ -35,7 +35,7 @@ class UiDebugOverlayTest {
     fun contextOverlaySurvivesPastEndFrameUntilNextBeginFrame() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.absolute(10f, 10f).recordSemantic(role = UiSemanticRole.Button, bounds = UiSlot(10f, 10f, 80f, 32f), id = "b")
+        ui.createAbsolute(10f, 10f).recordSemantic(role = UiSemanticRole.Button, bounds = UiSlot(10f, 10f, 80f, 32f), id = "b")
         ui.endFrame()
 
         val overlay = ui.debugOverlayPrimitives()

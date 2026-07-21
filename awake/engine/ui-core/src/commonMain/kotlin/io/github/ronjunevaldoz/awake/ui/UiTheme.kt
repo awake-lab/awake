@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 
 /**
  * Semantic color roles consumed by widgets and higher-level UI compositions.
@@ -59,7 +60,7 @@ interface UiComponentStyles {
     val checkbox: Style
     val slider: Style
     val dropdown: Style
-    val panel: Style
+    val surface: Style
     val textField: Style
 }
 
@@ -114,7 +115,7 @@ class CoreUiComponentStyles(
         shape(UiShape.sm)
         textSize(typography.label)
     }
-    override val panel: Style = Style {
+    override val surface: Style = Style {
         background(tokens.background)
         foreground(tokens.foreground)
         contentPadding(UiSpacing.sm)

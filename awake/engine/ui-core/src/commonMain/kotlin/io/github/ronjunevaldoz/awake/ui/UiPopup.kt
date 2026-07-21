@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+
 
 data class UiPopupSize(
     val width: Float,
@@ -120,7 +123,7 @@ fun UiScope.popup(
         return UiPopupResult(slot = popupSlot, dismissed = false)
     }
 
-    context.column(
+    context.createColumn(
         slot = popupSlot,
         font = font,
         theme = theme,

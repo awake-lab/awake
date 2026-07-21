@@ -75,7 +75,7 @@ Why this exists:
 | `awake-ecs-performance-engineer` | Active | ECS internals, component storage, family/query behavior, benchmarks, churn and transform propagation performance | `flagship-coding` |
 | `awake-render-backend-engineer` | Active | Vulkan/OpenGL/WebGPU backend work, renderer extraction, GPU resource lifetime, native graphics bridges, render correctness validation | `flagship-coding` |
 | `awake-game-framework-engineer` | Active | game/application runtime shell, frame lifecycle, shared engine bootstrap, sample runtime structure, non-backend engine composition | `balanced-coding` |
-| `awake-ui-systems-engineer` | Active | `ui-core`, `ui-widgets`, `ui-dsl`, low-level layout/text/input behavior, immediate-mode UI mechanics | `balanced-coding` |
+| `awake-ui-systems-engineer` | Active | `ui-core`, `ui-unstyled`, `ui-dsl`, low-level layout/text/input behavior, immediate-mode UI mechanics | `balanced-coding` |
 | `awake-design-system-engineer` | Active | `ui-designsystem`, theme tokens, component recipes, shadcn-style visual language, showcase and tutorial presentation quality | `balanced-coding` |
 | `awake-ui-quality-engineer` | Active | UI verification strategy, snapshot/pixel baselines, overlap/text-fit/layout inspections, density/theme/platform parity checks | `balanced-coding` |
 | `awake-scene-runtime-engineer` | Active | scene graph runtime, scene DSL composition, scene serialization boundaries, demo scene structure | `balanced-coding` |

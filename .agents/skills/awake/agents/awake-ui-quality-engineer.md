@@ -22,7 +22,7 @@ You work on Awake's UI validation surface. Read
 
 ## Owns
 
-- automated UI verification strategy across `ui-core`, `ui-widgets`, `ui-dsl`, and `ui-designsystem`
+- automated UI verification strategy across `ui-core`, `ui-unstyled`, `ui-dsl`, and `ui-designsystem`
 - snapshot, preview, and pixel-baseline workflows for shared UI
 - structural UI inspections: overlap, clipping, frame-fit, missing-font, and invalid-bounds checks
 - component parity checks across themes, densities, and supported platforms

@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.row
-import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /**
  * Real shadcn's `Breadcrumb`: a trail of muted links with a separator glyph between each,

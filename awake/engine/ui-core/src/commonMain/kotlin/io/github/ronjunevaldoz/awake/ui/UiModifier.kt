@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 /**
  * A widget's sizing intent -- replaces the undocumented "pass `0f` and it silently fills the
  * enclosing scope's configured width/height" convention that used to live inside
- * [ColumnScope]/[RowScope]'s own `claimSlot`. [WrapContent] is intentionally reserved for
+ * [io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope]/[io.github.ronjunevaldoz.awake.ui.layouts.RowScope]'s own `claimSlot`. [WrapContent] is intentionally reserved for
  * composite containers that can measure their own child content before they claim a real slot
  * (today that means higher-level surfaces such as `panel`). Leaf widgets still resolve to a
  * concrete size immediately.
@@ -13,7 +13,7 @@ package io.github.ronjunevaldoz.awake.ui
 sealed class Dimension {
     data class Fixed(val dp: Dp) : Dimension()
 
-    /** Fills whatever width ([ColumnScope]/[AbsoluteScope]/[BoxScope]) or height ([RowScope])
+    /** Fills whatever width ([io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope]/[io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope]/[io.github.ronjunevaldoz.awake.ui.layouts.BoxScope]) or height ([io.github.ronjunevaldoz.awake.ui.layouts.RowScope])
      * the enclosing scope is configured with -- the same behavior a `0f` hint silently
      * triggered before, now a real, named, optional choice instead of a sentinel. */
     object FillMax : Dimension()
@@ -46,7 +46,8 @@ data class UiModifier(
     val insets: UiInsets = UiInsets.Zero,
     val forceHover: Boolean? = null,
     val forceActive: Boolean? = null,
-    val forceFocus: Boolean? = null
+    val forceFocus: Boolean? = null,
+    val scrollState: UiScrollState? = null
 )
 
 fun UiModifier.forceHover(value: Boolean = true): UiModifier = copy(forceHover = value)
@@ -60,9 +61,22 @@ fun UiModifier.height(dimension: Dimension): UiModifier = copy(height = dimensio
 fun UiModifier.size(width: Dp, height: Dp): UiModifier = copy(width = Dimension.Fixed(width), height = Dimension.Fixed(height))
 fun UiModifier.fillMaxWidth(): UiModifier = copy(width = Dimension.FillMax)
 fun UiModifier.fillMaxHeight(): UiModifier = copy(height = Dimension.FillMax)
+fun UiModifier.fillMaxSize(): UiModifier = copy(width = Dimension.FillMax, height = Dimension.FillMax)
 fun UiModifier.align(alignment: UiAlignment): UiModifier = copy(alignment = alignment)
 fun UiModifier.offset(x: Dp = UiShape.none, y: Dp = UiShape.none): UiModifier = copy(offsetX = x, offsetY = y)
 fun UiModifier.padding(all: Dp): UiModifier = copy(insets = UiInsets(all))
+fun UiModifier.paddingTop(top: Dp): UiModifier = padding(0.dp, top, 0.dp, 0.dp)
+fun UiModifier.paddingBottom(bottom: Dp): UiModifier = padding(0.dp, 0.dp, 0.dp, bottom)
+fun UiModifier.paddingStart(start: Dp): UiModifier = padding(start, 0.dp, 0.dp, 0.dp)
+fun UiModifier.paddingEnd(end: Dp): UiModifier = padding(0.dp, 0.dp, end, 0.dp)
 fun UiModifier.padding(horizontal: Dp, vertical: Dp): UiModifier = copy(insets = UiInsets(horizontal, vertical))
 fun UiModifier.padding(start: Dp, top: Dp, end: Dp, bottom: Dp): UiModifier =
     copy(insets = UiInsets(start, top, end, bottom))
+
+
+fun UiModifier.verticalScroll(state: UiScrollState) : UiModifier = copy(
+    scrollState = state
+)
+fun UiModifier.horizontalScroll(state: UiScrollState) : UiModifier = copy(
+    scrollState = state
+)

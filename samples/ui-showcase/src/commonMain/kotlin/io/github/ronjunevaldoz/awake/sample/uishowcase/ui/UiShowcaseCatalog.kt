@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset

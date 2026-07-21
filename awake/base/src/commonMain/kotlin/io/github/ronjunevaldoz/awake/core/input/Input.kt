@@ -25,6 +25,7 @@ data class InputSnapshot(
     val pointerX: Float,
     val pointerY: Float,
     val pointerDown: Boolean,
+    val scrollDeltaX: Float,
     val scrollDeltaY: Float,
     val keysDown: Set<Key>,
     val typedText: String,
@@ -50,6 +51,7 @@ class Input {
     var pointerY: Float = 0f
         private set
 
+    var scrollDeltaX: Float = 0f
     var scrollDeltaY: Float = 0f
 
     /** Set by the UI pass to signal focus to platform bridges (e.g. soft keyboard). */
@@ -60,6 +62,7 @@ class Input {
         pointerX = -1f,
         pointerY = -1f,
         pointerDown = false,
+        scrollDeltaX = 0f,
         scrollDeltaY = 0f,
         keysDown = emptySet(),
         typedText = "",
@@ -74,12 +77,14 @@ class Input {
             pointerX = pointerX,
             pointerY = pointerY,
             pointerDown = pointerDown,
+            scrollDeltaX = scrollDeltaX,
             scrollDeltaY = scrollDeltaY,
             keysDown = keysDown.toSet(),
             typedText = typedText.toString(),
             editActions = pendingEditActions.toList()
         )
         // Clear transient buffers
+        scrollDeltaX = 0f
         scrollDeltaY = 0f
         typedText.clear()
         pendingEditActions.clear()

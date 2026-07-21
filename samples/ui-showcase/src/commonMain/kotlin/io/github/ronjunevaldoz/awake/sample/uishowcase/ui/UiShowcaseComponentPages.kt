@@ -3,12 +3,8 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyTextField
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnCollapsible
@@ -17,16 +13,21 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSepar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.awakeShadcnPropertyTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.awakeShadcnPropertyTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.height
-import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawRow
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.row
-import io.github.ronjunevaldoz.awake.ui.column
-import io.github.ronjunevaldoz.awake.ui.spacer
-import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.width
 
 internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
     awakeShadcnSectionTitle("Buttons")
@@ -97,13 +98,13 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRunti
     ) {
         column(width = Dimension.FillMax, height = Dimension.WrapContent, gap = 8f) {
             awakeShadcnSeparator(modifier = UiModifier().padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
-            row(height = 32f.dp) {
+            rawRow(modifier = UiModifier().fillMaxWidth().height(32f.dp)) {
                 text("@radix-ui/primitives", modifier = UiModifier().padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
             }
-            row(height = 32f.dp) {
+            rawRow(modifier = UiModifier().fillMaxWidth().height(32f.dp)) {
                 text("@radix-ui/colors", modifier = UiModifier().padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
             }
-            row(height = 32f.dp) {
+            rawRow(modifier = UiModifier().fillMaxWidth().height(32f.dp)) {
                 text("@stitches/react", modifier = UiModifier().padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
             }
         }
@@ -123,7 +124,7 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
         max = 100f,
         value = exposure.value,
         label = "Exposure ${exposure.value.toInt()}%",
-        modifier = UiModifier().width(360f.dp).height(32f.dp)
+        modifier = UiModifier().width(360f.dp)
     )
     bloom.value = awakeShadcnSlider(
         id = "showcase-slider-bloom",
@@ -131,7 +132,7 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
         max = 32f,
         value = bloom.value,
         label = "Bloom ${bloom.value.toInt()} px",
-        modifier = UiModifier().width(360f.dp).height(32f.dp)
+        modifier = UiModifier().width(360f.dp)
     )
     spacer(UiModifier().height(8f.dp))
 }

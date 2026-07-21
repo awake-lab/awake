@@ -2,37 +2,34 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.hellocube.ui
 
+import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeOverlayModel
+import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.align
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
-import io.github.ronjunevaldoz.awake.ui.metaText
-import io.github.ronjunevaldoz.awake.ui.overlayBox
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.metaText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.padding
-import io.github.ronjunevaldoz.awake.ui.sectionTitle
-import io.github.ronjunevaldoz.awake.ui.supportingLines
-import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeOverlayModel
-import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
-import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
+import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.ui.toDimension
 
 internal fun GameUiRuntime.drawHelloCubeOverlay(
     scene: SceneGameRuntime,
-    state: HelloCubeRuntimeState,
-    viewportWidth: Float,
-    viewportHeight: Float
+    state: HelloCubeRuntimeState
 ) {
     val model = scene.helloCubeOverlayModel(state)
-    overlayBox(viewportWidth, viewportHeight, textScale = HELLO_CUBE_TEXT_SCALE) { constraints ->
+    canvas(textScale = HELLO_CUBE_TEXT_SCALE) { constraints ->
         val panelWidth = if (constraints.isCompact) Dimension.FillMax else 300f.toDimension()
         val debugWidth = if (constraints.isCompact) Dimension.FillMax else 340f.toDimension()
-
-        panel(
+        surface(
             id = "hello-cube-scene",
             width = panelWidth,
             height = Dimension.WrapContent,
@@ -52,7 +49,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
             metaText("CAMERA: ${model.cameraLabel}")
         }
 
-        panel(
+        surface(
             id = "hello-cube-debug",
             width = debugWidth,
             height = Dimension.WrapContent,

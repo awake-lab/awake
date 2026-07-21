@@ -3,6 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.FillAwareScope
+import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
+import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
 import kotlin.math.roundToInt
 
 data class UiSlot(val x: Float, val y: Float, val width: Float, val height: Float)
@@ -87,7 +94,7 @@ interface UiScope {
     /**
      * Direct reference to the owning context -- mirrors kool-engine's `UiScope.surface`. Lets
      * a composite widget (e.g. [panel]) build a nested scope from the SAME public factories
-     * ([UiContext.column]/[row]/[box]/[absolute]) every top-level caller already uses,
+     * ([UiContext.createColumn]/[row]/[box]/[absolute]) every top-level caller already uses,
      * instead of a bespoke nesting primitive.
      */
     val context: UiContext
@@ -127,9 +134,10 @@ fun UiScope.fillWidthOrNull(): Float? = (this as? FillAwareScope)?.fillWidth
 
 fun UiScope.fillHeightOrNull(): Float? = (this as? FillAwareScope)?.fillHeight
 
+
 fun UiScope.claimModifiedSlot(
-    defaultWidth: Dimension,
-    defaultHeight: Dimension,
+    defaultWidth: Dimension = Dimension.WrapContent,
+    defaultHeight: Dimension = Dimension.WrapContent,
     modifier: UiModifier = UiModifier()
 ): UiSlot {
     val requestedWidth = modifier.width ?: defaultWidth
@@ -150,7 +158,7 @@ fun UiScope.claimModifiedSlot(
 /**
  * Nested-scope factories that inherit [UiScope.font]/[UiScope.theme]/[UiScope.textScale]/
  * [UiScope.emitsToOverlay] from the receiver automatically, instead of every call site
- * threading those four values (especially `overlayOnly`) through [UiContext.column]/[row]/
+ * threading those four values (especially `overlayOnly`) through [UiContext.createColumn]/[row]/
  * [absolute]/[box] by hand. A composite widget opening a nested scope to draw part of its own
  * content should always prefer these over the raw [UiContext] factories -- forgetting to pass
  * `overlayOnly = emitsToOverlay` on a raw call is exactly what caused dropdown option labels to
@@ -162,27 +170,27 @@ fun UiScope.childColumn(
     gap: Float = UiSpacing.sm.toPx(),
     insets: UiInsets = UiInsets.Zero,
     textScale: Float = this.textScale
-): ColumnScope = context.column(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)
+): ColumnScope = context.createColumn(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)
 
 fun UiScope.childRow(
     slot: UiSlot,
     gap: Float = UiSpacing.sm.toPx(),
     insets: UiInsets = UiInsets.Zero,
     textScale: Float = this.textScale
-): RowScope = context.row(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)
+): RowScope = context.createRow(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)
 
 fun UiScope.childAbsolute(
     slot: UiSlot,
     insets: UiInsets = UiInsets.Zero,
     textScale: Float = this.textScale
-): AbsoluteScope = context.absolute(slot, font, theme, textScale, insets, overlayOnly = emitsToOverlay)
+): AbsoluteScope = context.createAbsolute(slot, font, theme, textScale, insets, overlayOnly = emitsToOverlay)
 
 fun UiScope.childBox(
     slot: UiSlot,
     insets: UiInsets = UiInsets.Zero,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     textScale: Float = this.textScale
-): BoxScope = context.box(slot, font, theme, textScale, insets, contentAlignment, overlayOnly = emitsToOverlay)
+): BoxScope = context.createBox(slot, font, theme, textScale, insets, contentAlignment, overlayOnly = emitsToOverlay)
 
 fun UiScope.resolveStyle(
     style: Style = Style.Empty,

@@ -3,13 +3,14 @@
 package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.ecs.System
+import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.application.game
 import io.github.ronjunevaldoz.awake.engine.application.gameModule
 import io.github.ronjunevaldoz.awake.engine.application.module
+import io.github.ronjunevaldoz.awake.engine.application.ui
 import io.github.ronjunevaldoz.awake.engine.application.requireService
-import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -18,9 +19,14 @@ import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.freeFlyCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.orbitCameraSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -171,7 +177,7 @@ class SceneGameDslTest {
                 }
             }
             ui {
-                overlay { _, _ ->
+                overlay {
                     column(x = 16f, y = 16f, width = 180f) {
                         text(requireService<SceneGameRuntime>().sceneName)
                     }
@@ -249,7 +255,7 @@ class SceneGameDslTest {
                 }
             }
             ui {
-                overlay { _, _ ->
+                overlay {
                     column(x = 16f, y = 16f, width = 180f) {
                         text(requireService<SceneGameRuntime>().sceneName)
                     }

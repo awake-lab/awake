@@ -7,9 +7,9 @@ import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiTheme
-import io.github.ronjunevaldoz.awake.ui.avatarFallback
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.unstyled.avatarFallback
 
 private fun awakeShadcnAvatarStyle(theme: UiTheme, style: Style): Style {
     val shadcnTheme = theme.asAwakeShadcnTheme()

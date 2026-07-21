@@ -1,0 +1,24 @@
+package io.github.ronjunevaldoz.awake.ui.designsystem.components.typography
+
+import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+
+fun UiScope.metaText(
+    label: String,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Companion {
+        foreground(theme.tokens.mutedForeground)
+        textSize(theme.typography.caption)
+    },
+    maxLines: Int = 1
+): UiSlot = text(
+    label = label,
+    modifier = modifier,
+    style = style,
+    overflow = UiTextOverflow.Ellipsis,
+    maxLines = maxLines
+)

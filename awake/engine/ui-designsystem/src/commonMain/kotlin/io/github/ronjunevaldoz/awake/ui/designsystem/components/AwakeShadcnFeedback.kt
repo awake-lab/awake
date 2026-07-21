@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
-import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.panel
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 
 /**
  * Real shadcn's `Alert`: a static inline banner, not a modal like [awakeShadcnSurface]'s
@@ -27,7 +27,7 @@ fun ColumnScope.awakeShadcnAlert(
     modifier: UiModifier = UiModifier(),
     variant: AwakeShadcnAlertVariant = AwakeShadcnAlertVariant.Default,
     style: Style = Style.Empty
-): UiSlot = panel(
+): UiSlot = surface(
     id = id,
     width = width,
     height = height,

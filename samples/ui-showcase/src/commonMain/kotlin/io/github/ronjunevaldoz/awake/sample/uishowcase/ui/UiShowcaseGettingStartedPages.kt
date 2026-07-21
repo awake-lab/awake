@@ -4,18 +4,15 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.AbsoluteScope
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.animateFloat
+import io.github.ronjunevaldoz.awake.ui.core.graphics.gradientBorder
+import io.github.ronjunevaldoz.awake.ui.core.graphics.gradientRect
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyDropdown
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertySlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
@@ -23,21 +20,22 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnCheck
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.awakeShadcnPropertyDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.awakeShadcnPropertySlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.awakeShadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.gradientBorder
-import io.github.ronjunevaldoz.awake.ui.gradientRect
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawRow
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
-import io.github.ronjunevaldoz.awake.ui.supportingLines
 import io.github.ronjunevaldoz.awake.ui.width
-import io.github.ronjunevaldoz.awake.ui.spacer
-import io.github.ronjunevaldoz.awake.ui.row
-import io.github.ronjunevaldoz.awake.ui.panel
-import io.github.ronjunevaldoz.awake.ui.text
 
 internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
     awakeShadcnBadge("SHOWCASE", variant = AwakeShadcnBadgeVariant.Secondary)
@@ -55,12 +53,12 @@ internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
 
 internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
     val cardWidth = 220f
-    row(height = 284f.dp, gap = 12f) {
-        panel(
+    rawRow(modifier = UiModifier().height(284f.dp), gap = 12f) {
+        surface(
             id = "ui-showcase-reference-spec",
             width = Dimension.Fixed(cardWidth.dp),
             height = Dimension.Fixed(284f.dp),
-            style = theme.components.panel then Style { shape(14f.dp) }
+            style = theme.components.surface then Style { shape(14f.dp) }
         ) {
             awakeShadcnSectionTitle("Official cues")
             awakeShadcnSupportingText("The reference we keep checking against.")
@@ -75,11 +73,11 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
             spacer(UiModifier().height(8f.dp))
             awakeShadcnBadge("TARGET", variant = AwakeShadcnBadgeVariant.Outline)
         }
-        panel(
+        surface(
             id = "ui-showcase-reference-awake",
             width = Dimension.Fixed(cardWidth.dp),
             height = Dimension.Fixed(284f.dp),
-            style = theme.components.panel then Style { shape(14f.dp) }
+            style = theme.components.surface then Style { shape(14f.dp) }
         ) {
             awakeShadcnSectionTitle("Awake now")
             awakeShadcnSupportingText("Our current implementation after the sizing and popover pass.")
@@ -89,7 +87,7 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
                 maxLines = 4
             )
             spacer(UiModifier().height(8f.dp))
-            row(height = 36f.dp, gap = 8f) {
+            rawRow(modifier = UiModifier().height(36f.dp), gap = 8f) {
                 awakeShadcnButton(
                     "reference-primary",
                     "Primary",
@@ -220,7 +218,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
         )
         val badgeVariant = state.showcaseBadgeVariant()
         awakeShadcnBadge(if (state.showcaseLiveBadge) "LIVE" else "PAUSED", variant = badgeVariant)
-        row(height = 28f.dp, gap = 8f) {
+        rawRow(modifier = UiModifier().height(28f.dp), gap = 8f) {
             awakeShadcnBadge(
                 label = state.showcaseStylePreset().label.uppercase(),
                 variant = AwakeShadcnBadgeVariant.Outline
@@ -241,7 +239,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
         awakeShadcnBodyText("Showcase preview card")
         awakeShadcnSupportingText("Light is the default mood now, Auto follows the platform, and the sample chrome can carry gradients and shimmer without hardcoding per-demo paint.")
         spacer(UiModifier().height(6f.dp))
-        row(height = 36f.dp, gap = 10f) {
+        rawRow(modifier = UiModifier().height(36f.dp), gap = 10f) {
             if (
                 awakeShadcnButton(
                     id = "preview-primary-action",
@@ -278,7 +276,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
     )
     val shimmerWidth = (slot.width * 0.28f).coerceAtLeast(52f)
     val shimmerX = slot.x + (slot.width - shimmerWidth) * shimmerPhase.coerceIn(0f, 1f)
-    context.absolute(slot.x, slot.y, font = font, theme = theme, overlayOnly = true).apply {
+    context.createAbsolute(slot.x, slot.y, font = font, theme = theme, overlayOnly = true).apply {
         gradientBorder(slot, width = 1f.dp, gradient = borderGradient, overlay = true)
         gradientRect(
             UiSlot(slot.x, slot.y, slot.width, 44f.coerceAtMost(slot.height)),

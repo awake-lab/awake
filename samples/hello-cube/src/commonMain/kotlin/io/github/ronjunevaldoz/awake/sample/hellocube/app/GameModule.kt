@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.sample.hellocube.debug.helloCubeDebugInstal
 import io.github.ronjunevaldoz.awake.sample.hellocube.scene.helloCubeSceneSpec
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
 import io.github.ronjunevaldoz.awake.sample.hellocube.ui.helloCubeUiSpec
-import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 
 internal fun helloCubeGameModule(
     state: HelloCubeRuntimeState,
@@ -18,7 +18,7 @@ internal fun helloCubeGameModule(
 ): GameModule {
     return gameModule {
         ecs(helloCubeSceneSpec(state))
-        ui(helloCubeUiSpec(state))
+        column(helloCubeUiSpec(state))
         install(
             helloCubeDebugInstaller(
                 state = state,

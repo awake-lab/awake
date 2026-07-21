@@ -3,28 +3,26 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
-import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.layout.surface
+import io.github.ronjunevaldoz.awake.ui.propertyCheckbox
 import io.github.ronjunevaldoz.awake.ui.propertyDropdown
 import io.github.ronjunevaldoz.awake.ui.propertySlider
-import io.github.ronjunevaldoz.awake.ui.sectionTitle
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.shell.sectionTitle
+import io.github.ronjunevaldoz.awake.ui.layout.spacer
 import io.github.ronjunevaldoz.awake.ui.toDimension
-import io.github.ronjunevaldoz.awake.ui.toggle
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.tooltip
-import io.github.ronjunevaldoz.awake.ui.ui
-import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.panel
-import io.github.ronjunevaldoz.awake.ui.spacer
-import io.github.ronjunevaldoz.awake.ui.propertyCheckbox
+import io.github.ronjunevaldoz.awake.ui.layout.column
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
 import kotlin.test.Test
 
 /** Builds a one-off [UiInputState] for a test frame -- [Input] is a per-session instance
@@ -49,8 +47,8 @@ class UiDslTutorialDocsTest {
         var showGrid = true
         var showFrustum = false
 
-        ui.ui(x = 20f, y = 20f, width = 280f, font = font, theme = CoreUiTheme, textScale = 2f) {
-            panel(
+        ui.column(x = 20f, y = 20f, width = 280f, font = font, theme = CoreUiTheme, textScale = 2f) {
+            surface(
                 id = "inspector",
                 height = 190f.toDimension(),
                 radius = UiShape.md,

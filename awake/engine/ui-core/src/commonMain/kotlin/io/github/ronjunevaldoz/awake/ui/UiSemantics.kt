@@ -10,6 +10,7 @@ package io.github.ronjunevaldoz.awake.ui
  * primitive lists.
  */
 enum class UiSemanticRole {
+    None,
     Text,
     Button,
     Toggle,
@@ -23,6 +24,9 @@ enum class UiSemanticRole {
     Spinner
 }
 
+/**
+ * Capture of a single widget's identity and boundaries for tests and accessibility.
+ */
 data class UiSemanticNode(
     val role: UiSemanticRole,
     val bounds: UiSlot,

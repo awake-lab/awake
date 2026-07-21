@@ -2,50 +2,47 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.startergame.ui
 
-import io.github.ronjunevaldoz.awake.engine.application.requireService
+import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
+import io.github.ronjunevaldoz.awake.engine.application.GameUiSpec
+import io.github.ronjunevaldoz.awake.engine.application.canvas
+import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.sample.startergame.presentation.starterOverlayModel
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
-import io.github.ronjunevaldoz.awake.ui.GameUiSpec
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.align
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.awakeShadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.metaText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.gameUi
 import io.github.ronjunevaldoz.awake.ui.height
-import io.github.ronjunevaldoz.awake.ui.metaText
-import io.github.ronjunevaldoz.awake.ui.overlayBox
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.padding
-import io.github.ronjunevaldoz.awake.ui.sectionTitle
-import io.github.ronjunevaldoz.awake.ui.supportingLines
 import io.github.ronjunevaldoz.awake.ui.toDimension
-import io.github.ronjunevaldoz.awake.ui.column
-import io.github.ronjunevaldoz.awake.ui.panel
-import io.github.ronjunevaldoz.awake.ui.spacer
-import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 
 internal fun starterGameUiSpec(state: StarterGameRuntimeState): GameUiSpec {
     return gameUi {
         theme(AwakeShadcnTheme)
-        overlay { viewportWidth, viewportHeight ->
+        overlay {
             drawStarterGameOverlay(
                 router = requireService<SceneRouterRuntime>(),
-                state = state,
-                viewportWidth = viewportWidth,
-                viewportHeight = viewportHeight
+                state = state
             )
         }
     }
@@ -53,12 +50,10 @@ internal fun starterGameUiSpec(state: StarterGameRuntimeState): GameUiSpec {
 
 internal fun GameUiRuntime.drawStarterGameOverlay(
     router: SceneRouterRuntime,
-    state: StarterGameRuntimeState,
-    viewportWidth: Float,
-    viewportHeight: Float
+    state: StarterGameRuntimeState
 ) {
     val model = router.starterOverlayModel(state)
-    overlayBox(viewportWidth, viewportHeight) { constraints ->
+    canvas { constraints ->
         val compact = constraints.isCompact
         val navWidth = if (compact) Dimension.FillMax else 280f.toDimension()
         val sideWidth = if (compact) Dimension.FillMax else 320f.toDimension()
@@ -88,7 +83,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                     drawStarterInspectorPanel(model = model, state = state)
                 }
             }
-            panel(
+            surface(
                 id = "starter-footer-compact",
                 width = footerWidth,
                 height = Dimension.WrapContent,
@@ -100,7 +95,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                 drawStarterFooter()
             }
         } else {
-            panel(
+            surface(
                 id = "starter-nav",
                 width = navWidth,
                 height = Dimension.WrapContent,
@@ -112,7 +107,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                 drawStarterNavigation(model, router)
             }
 
-            panel(
+            surface(
                 id = "starter-inspector",
                 width = sideWidth,
                 height = Dimension.WrapContent,
@@ -124,7 +119,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                 drawStarterInspectorPanel(model = model, state = state)
             }
 
-            panel(
+            surface(
                 id = "starter-footer",
                 width = footerWidth,
                 height = Dimension.WrapContent,
@@ -144,7 +139,7 @@ private fun ColumnScope.drawStarterNavigation(
     router: SceneRouterRuntime
 ) {
     awakeShadcnBadge("STARTER", variant = AwakeShadcnBadgeVariant.Primary)
-    text("Starter Game")
+    basicText("Starter Game")
     metaText(
         label = "Active: ${model.activeSceneLabel}",
         maxLines = 1
@@ -179,7 +174,7 @@ private fun ColumnScope.drawStarterInspectorPanel(
         checked = model.tipsVisible,
         height = 24f.dp
     ) {
-        text("Show notes")
+        basicText("Show notes")
     }
     if (nextTipsVisible != model.tipsVisible) {
         state.tipsVisible = nextTipsVisible

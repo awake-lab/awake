@@ -1,0 +1,52 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.ui.layouts
+
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.toPx
+
+/**
+ * Everything a [io.github.ronjunevaldoz.awake.ui.UiScope] needs except `claimSlot` -- shared once here instead of repeated per
+ * layout strategy. Not part of the public widget-authoring surface (that's [io.github.ronjunevaldoz.awake.ui.UiScope]); a
+ * consumer writing a custom *layout* strategy (not just a custom widget) extends this the
+ * same way [ColumnScope]/[AbsoluteScope] do.
+ */
+abstract class AbstractUiScope(
+    final override val context: io.github.ronjunevaldoz.awake.ui.UiContext,
+    final override val font: UiFont?,
+    final override val theme: io.github.ronjunevaldoz.awake.ui.UiTheme,
+    final override val textScale: Float = 1f,
+    private val emitToOverlay: Boolean = false
+) : io.github.ronjunevaldoz.awake.ui.UiScope {
+    final override val emitsToOverlay: Boolean = emitToOverlay
+    final override fun hitTest(slot: io.github.ronjunevaldoz.awake.ui.UiSlot) = context.hitTestInternal(slot)
+    final override fun isActive(id: String) = context.isActiveInternal(id)
+    final override fun tryClaimActive(id: String, hovered: Boolean) = context.tryClaimActiveInternal(id, hovered)
+    final override fun releaseActiveIfMatches(id: String) = context.releaseActiveIfMatchesInternal(id)
+    final override fun emit(primitive: io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive) =
+        if (emitToOverlay) context.emitOverlayInternal(primitive) else context.emitInternal(primitive)
+    final override fun emitOverlay(primitive: io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive) = context.emitOverlayInternal(primitive)
+    final override fun widgetState(id: String) = context.widgetStateInternal(id)
+}
+
+/** Resolves a [io.github.ronjunevaldoz.awake.ui.Dimension] to a raw pixel value against a scope's own configured size --
+ * shared by every concrete scope's `claimSlot` below instead of repeating the `when`.
+ * [configured] is lazy: a scope with no meaningful "fill" axis (e.g. [RowScope]'s width)
+ * passes `{ error(...) }`, which must only evaluate if [FillMax][io.github.ronjunevaldoz.awake.ui.Dimension.FillMax] is
+ * actually requested on that axis, not unconditionally as an eager argument would. */
+internal inline fun io.github.ronjunevaldoz.awake.ui.Dimension.resolve(configured: () -> Float): Float = when (this) {
+    is io.github.ronjunevaldoz.awake.ui.Dimension.Fixed -> dp.toPx()
+    io.github.ronjunevaldoz.awake.ui.Dimension.FillMax -> configured()
+    io.github.ronjunevaldoz.awake.ui.Dimension.WrapContent -> error("WrapContent must be resolved by a measuring composite before claimSlot()")
+}
+
+internal fun io.github.ronjunevaldoz.awake.ui.Dimension.resolveAgainst(available: Float): Float = when (this) {
+    is io.github.ronjunevaldoz.awake.ui.Dimension.Fixed -> dp.toPx()
+    io.github.ronjunevaldoz.awake.ui.Dimension.FillMax -> available
+    io.github.ronjunevaldoz.awake.ui.Dimension.WrapContent -> error("WrapContent must be resolved before modifier placement")
+}
+
+internal interface FillAwareScope {
+    val fillWidth: Float?
+    val fillHeight: Float?
+}

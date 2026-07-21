@@ -2,45 +2,43 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.RowScope
-import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
-import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.checkbox
-import io.github.ronjunevaldoz.awake.ui.dropdown
-import io.github.ronjunevaldoz.awake.ui.dropdownMenu
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.height
-import io.github.ronjunevaldoz.awake.ui.progressBar
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.rememberPopupState
-import io.github.ronjunevaldoz.awake.ui.skeleton
-import io.github.ronjunevaldoz.awake.ui.slider
-import io.github.ronjunevaldoz.awake.ui.spinner
-import io.github.ronjunevaldoz.awake.ui.switchWidget
-import io.github.ronjunevaldoz.awake.ui.textField
-import io.github.ronjunevaldoz.awake.ui.textarea
-import io.github.ronjunevaldoz.awake.ui.toggle
-import io.github.ronjunevaldoz.awake.ui.toggleGroup
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiTheme
-import io.github.ronjunevaldoz.awake.ui.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.spacer
-import io.github.ronjunevaldoz.awake.ui.panel
-import io.github.ronjunevaldoz.awake.ui.row
+import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTextFieldVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.drawDropdownTriggerContent
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.rememberPopupState
+import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.checkbox
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.drawDropdownTriggerContent
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.progressBar
+import io.github.ronjunevaldoz.awake.ui.unstyled.skeleton
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
+import io.github.ronjunevaldoz.awake.ui.unstyled.spinner
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.switch
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textarea
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggleGroup
 
 private fun awakeShadcnFieldStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
@@ -52,7 +50,7 @@ private fun awakeShadcnCheckboxStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then style
 
 // Real shadcn's RadioGroup item is a circular checkbox.checkbox() -- same box/inset-dot
-// mechanics, just a Circle shapeSpec instead of a rounded square. No separate ui-widgets
+// mechanics, just a Circle shapeSpec instead of a rounded square. No separate ui-unstyled
 // primitive needed for that alone.
 private fun awakeShadcnRadioStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.checkbox(theme.asAwakeShadcnTheme()) then Style { shape(UiShapeSpec.Circle) } then style
@@ -66,7 +64,7 @@ fun UiScope.awakeShadcnSwitch(
     label: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
-): Boolean = switchWidget(
+): Boolean = switch(
     id = id,
     checked = checked,
     label = label,
@@ -185,7 +183,7 @@ fun ColumnScope.awakeShadcnTabs(
 ): Int {
     var resolved = selectedIndex
     val shadcnTheme = theme.asAwakeShadcnTheme()
-    panel(
+    surface(
         id = "$id.track",
         width = modifier.width ?: Dimension.WrapContent,
         height = Dimension.Fixed(height),

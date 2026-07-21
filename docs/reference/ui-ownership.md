@@ -13,7 +13,7 @@ These are placement rules, not style preferences.
 
 1. `awake:engine:ui-core` may expose only geometry, drawing, anchoring, clipping, slot,
    style primitives, theme contracts, and at most a neutral fallback theme.
-2. `awake:engine:ui-widgets` may expose only generic leaf widgets built on `ui-core`. It
+2. `awake:engine:ui-unstyled` may expose only generic leaf widgets built on `ui-core`. It
    must not own property-form, inspector, or tooling-shell composition.
 3. `awake:engine:ui-dsl` may expose generic composition templates and DSL surfaces, and it
    owns neutral property forms and reusable tooling composition, but it
@@ -29,7 +29,7 @@ These are placement rules, not style preferences.
 | Module | Responsibility | Examples |
 |---|---|---|
 | `awake:engine:ui-core` | Foundational drawing, layout, and surface primitives | low-level layout, drawing, clipping, slots, style plumbing, `UiTheme`, `CoreUiTheme` |
-| `awake:engine:ui-widgets` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
+| `awake:engine:ui-unstyled` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
 | `awake:engine:ui-dsl` | Style-agnostic composition templates and UI DSL surfaces | shells, sections, property forms, reusable inspector layouts |
 | `awake:engine:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
 | `samples:*` or game modules | Sample/game adapters and authored usage | scene inspector bindings, demo-specific overlays, debug HUD wiring |
@@ -66,7 +66,7 @@ Text ownership rule:
 | API shape | Correct home | Why |
 |---|---|---|
 | `UiSlot.anchored(anchor, width, height, margin)` | `ui-core` | pure placement math returning a slot |
-| `button`, `checkbox`, `slider` | `ui-widgets` | generic reusable leaf widgets |
+| `button`, `checkbox`, `slider` | `ui-unstyled` | generic reusable leaf widgets |
 | `CoreUiTheme`, `UiTheme`, `UiColorTokens` | `ui-core` | theme contract and neutral fallback only |
 | `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-dsl` | reusable compositions of primitives/widgets |
 | `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
@@ -78,8 +78,8 @@ These API shapes are specifically discouraged in reusable UI modules:
 - `anchoredColumn(...)`
 - `anchoredRow(...)`
 - `anchoredPanel(...)`
-- `propertyRow(...)` in `ui-widgets`
-- `propertyCheckbox(...)` in `ui-widgets`
+- `propertyRow(...)` in `ui-unstyled`
+- `propertyCheckbox(...)` in `ui-unstyled`
 - `DefaultUiTheme` in `ui-core`
 - `DarkUiTheme` in `ui-core`
 - `LightUiTheme` in `ui-core`
@@ -93,7 +93,7 @@ reuse.
 ## What Must Stay Out Of Reusable UI Modules
 
 If a UI component knows about any of these directly, it likely belongs in a sample or game
-adapter layer instead of `ui-core`, `ui-widgets`, or `ui`:
+adapter layer instead of `ui-core`, `ui-unstyled`, or `ui`:
 
 - `SceneGameRuntime`
 - ECS `World` or direct system access
@@ -134,7 +134,7 @@ Before adding a new UI type, ask:
 
 Use the answers like this:
 
-- foundational + generic -> `ui-core` or `ui-widgets`
+- foundational + generic -> `ui-core` or `ui-unstyled`
 - compositional + generic -> `ui-dsl`
 - branded/opinionated -> `ui-designsystem`
 - sample/runtime-bound -> sample or game module
@@ -144,13 +144,13 @@ Use the answers like this:
 This policy is build-enforced in Awake's reusable UI modules.
 
 - `:awake:engine:ui-core:check`
-- `:awake:engine:ui-widgets:check`
+- `:awake:engine:ui-unstyled:check`
 - `:awake:engine:ui-dsl:check`
 
 run a `verifyUiOwnership` task that rejects:
 
 - container-bound anchored helper names such as `anchoredColumn`
-- `propertyRow` and `propertyCheckbox` in `ui-core`/`ui-widgets`
+- `propertyRow` and `propertyCheckbox` in `ui-core`/`ui-unstyled`
 - `DefaultUiTheme`, `DarkUiTheme`, and `LightUiTheme` in `ui-core`
 - direct sample/runtime-bound references such as `SceneGameRuntime` or `HelloCube*`
 

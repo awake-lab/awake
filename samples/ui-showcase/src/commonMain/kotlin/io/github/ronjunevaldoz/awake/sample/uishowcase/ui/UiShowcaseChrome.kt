@@ -3,12 +3,9 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
@@ -17,17 +14,20 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSecti
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.textLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawRow
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.row
-import io.github.ronjunevaldoz.awake.ui.spacer
-import io.github.ronjunevaldoz.awake.ui.supportingLines
-import io.github.ronjunevaldoz.awake.ui.textLines
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.width
 
 internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
@@ -76,16 +76,6 @@ internal fun ColumnScope.drawUiShowcasePageContent(
     )
     spacer(UiModifier().height(8f.dp))
     drawUiShowcasePreviewCodeSection(page, state)
-    spacer(UiModifier().height(12f.dp))
-    awakeShadcnSurface(
-        id = "ui-showcase-usage-${page.id}",
-        height = Dimension.WrapContent,
-        variant = AwakeShadcnSurfaceVariant.Card,
-        style = Style { shape(14f.dp) }
-    ) {
-        awakeShadcnSectionTitle("Usage")
-        drawUiShowcaseCodeBlock(page.usageCode)
-    }
     if (page.notes.isNotEmpty()) {
         spacer(UiModifier().height(12f.dp))
         awakeShadcnSurface(
@@ -149,7 +139,7 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
     state: UiShowcaseRuntimeState,
 ) {
     val showCode = context.rememberStateValue("ui-showcase-page", "${page.id}.show-code") { false }
-    row(height = 36f.dp, gap = 8f) {
+    rawRow(modifier = UiModifier().height(36.dp), gap = 8f) {
         awakeShadcnButton(
             id = "ui-showcase-preview-tab-${page.id}",
             label = "Preview",

@@ -4,38 +4,38 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiAlertDialogAction
-import io.github.ronjunevaldoz.awake.ui.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.UiDropdownMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
-import io.github.ronjunevaldoz.awake.ui.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.alertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.destructiveStyle
-import io.github.ronjunevaldoz.awake.ui.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.tooltip
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
+import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import io.github.ronjunevaldoz.awake.ui.width
-import io.github.ronjunevaldoz.awake.ui.row
-import io.github.ronjunevaldoz.awake.ui.spacer
-import io.github.ronjunevaldoz.awake.ui.text
-import io.github.ronjunevaldoz.awake.ui.buttonSlot
 
 private val ShowcaseActionMenuItems = listOf(
     UiDropdownMenuItem(
@@ -214,7 +214,7 @@ internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
             width = Dimension.Fixed(260f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
         ) {
-            text(
+            basicText(
                 label = "Frame pacing, draw calls, and scene counters can live in a tooltip without forcing a dedicated panel.",
                 wrap = UiTextWrap.Word,
                 overflow = UiTextOverflow.Ellipsis,

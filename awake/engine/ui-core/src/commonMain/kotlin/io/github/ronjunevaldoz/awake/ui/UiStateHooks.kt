@@ -125,3 +125,15 @@ fun UiScope.rememberPopupState(
     key: String = "expanded",
     initial: Boolean = false
 ): UiPopupState = UiPopupState(rememberBooleanState(id = id, key = key, initial = initial))
+
+fun UiContext.rememberScrollState(
+    id: String,
+    initialOffsetX: Float = 0f,
+    initialOffsetY: Float = 0f
+): UiScrollState = PersistedUiScrollState(widgetStateInternal(id), initialOffsetX, initialOffsetY)
+
+fun UiScope.rememberScrollState(
+    id: String,
+    initialOffsetX: Float = 0f,
+    initialOffsetY: Float = 0f
+): UiScrollState = context.rememberScrollState(id, initialOffsetX, initialOffsetY)

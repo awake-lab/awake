@@ -43,6 +43,7 @@ fun GameModule.createGameSpec(
 class GameModuleDsl internal constructor(
     private val builder: GameSpecBuilder
 ) {
+
     fun install(installer: GameInstaller) {
         builder.install(installer)
     }

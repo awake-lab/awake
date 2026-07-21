@@ -13,14 +13,16 @@ import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
-import io.github.ronjunevaldoz.awake.ui.GameUiRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
+import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.layout.column
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.ui
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class SceneRouterDslTest {
 
@@ -75,7 +77,7 @@ class SceneRouterDslTest {
                     cameraEntity("camera", camera = { primary(true) })
                 }
             }
-            ui {
+            column {
                 overlay { _, _ ->
                     column(x = 16f, y = 16f, width = 180f) {
                         text(requireService<SceneRouterRuntime>().activeSceneLabel)

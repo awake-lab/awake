@@ -12,7 +12,7 @@ Keep the pleasant builder syntax without hiding the real reusable contracts.
 |---|---|---|
 | `awake:engine:game-dsl` | `game {}` / `gameSpec {}` / `gameModule {}` / `feature.createGame {}` / installer syntax | `awake:engine:game` |
 | `awake:scene-dsl` | `sceneGame {}`, `flow {}`, `sceneFlow {}`, and `game/module { ecs { ... } }` | `awake:scene`, `awake:engine:game-dsl`, `awake:engine:ui-dsl` |
-| `awake:engine:ui-dsl` | `gameUi {}`, `game/module { ui { ... } }`, responsive overlay authoring through `overlayBox(...)` + `UiBoxConstraints`, shell helpers like `shellPane(...)` / `overlayShell(...)`, and neutral property-form composition | `awake:engine:game-dsl`, `ui-core`, `ui-widgets` |
+| `awake:engine:ui-dsl` | `gameUi {}`, `game/module { ui { ... } }`, responsive overlay authoring through `overlayBox(...)` + `UiBoxConstraints`, shell helpers like `shellPane(...)` / `overlayShell(...)`, and neutral property-form composition | `awake:engine:game-dsl`, `ui-core`, `ui-unstyled` |
 
 ## Recommended Authoring Shape
 

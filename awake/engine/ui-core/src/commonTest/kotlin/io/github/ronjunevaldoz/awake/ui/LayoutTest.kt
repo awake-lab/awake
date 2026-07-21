@@ -10,7 +10,7 @@ class LayoutTest {
     @Test
     fun columnScopeAdvancesCursorByHeightPlusGap() {
         val ui = UiContext()
-        val column = ui.column(x = 10f, y = 20f, width = 100f, gap = 8f)
+        val column = ui.createColumn(x = 10f, y = 20f, width = 100f, gap = 8f)
 
         val first = column.claimSlot(Dimension.Fixed(100f.px), Dimension.Fixed(32f.px))
         assertEquals(10f, first.x)
@@ -28,7 +28,7 @@ class LayoutTest {
     @Test
     fun columnScopeFillMaxUsesConfiguredWidth() {
         val ui = UiContext()
-        val column = ui.column(x = 0f, y = 0f, width = 200f)
+        val column = ui.createColumn(x = 0f, y = 0f, width = 200f)
         val slot = column.claimSlot(Dimension.FillMax, Dimension.Fixed(32f.px))
         assertEquals(200f, slot.width, "FillMax must resolve to the column's own configured width")
     }
@@ -36,7 +36,7 @@ class LayoutTest {
     @Test
     fun absoluteScopeReturnsSameRectRegardlessOfRequestedSize() {
         val ui = UiContext()
-        val scope = ui.absolute(x = 15f, y = 25f)
+        val scope = ui.createAbsolute(x = 15f, y = 25f)
 
         val first = scope.claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(50f.px))
         assertEquals(15f, first.x)
@@ -56,7 +56,7 @@ class LayoutTest {
         // resolve the same way (0f), not throw, or every UiScope.text() call on an
         // AbsoluteScope -- exactly DemoCatalog's debug HUD -- crashes at runtime.
         val ui = UiContext()
-        val scope = ui.absolute(x = 15f, y = 25f)
+        val scope = ui.createAbsolute(x = 15f, y = 25f)
         val slot = scope.claimSlot(Dimension.FillMax, Dimension.FillMax)
         assertEquals(0f, slot.width)
         assertEquals(0f, slot.height)
@@ -65,7 +65,7 @@ class LayoutTest {
     @Test
     fun rowScopeAdvancesCursorByWidthPlusGap() {
         val ui = UiContext()
-        val row = ui.row(x = 10f, y = 20f, height = 32f, gap = 8f)
+        val row = ui.createRow(x = 10f, y = 20f, height = 32f, gap = 8f)
 
         val first = row.claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(32f.px))
         assertEquals(10f, first.x)
@@ -81,7 +81,7 @@ class LayoutTest {
     @Test
     fun rowScopeFillMaxUsesConfiguredHeight() {
         val ui = UiContext()
-        val row = ui.row(x = 0f, y = 0f, height = 40f)
+        val row = ui.createRow(x = 0f, y = 0f, height = 40f)
         val slot = row.claimSlot(Dimension.Fixed(50f.px), Dimension.FillMax)
         assertEquals(40f, slot.height, "FillMax must resolve to the row's own configured height")
     }
@@ -89,7 +89,7 @@ class LayoutTest {
     @Test
     fun boxScopeReturnsSameRectRegardlessOfRequestedSize() {
         val ui = UiContext()
-        val box = ui.box(x = 5f, y = 5f, width = 100f, height = 50f)
+        val box = ui.createBox(x = 5f, y = 5f, width = 100f, height = 50f)
 
         val first = box.claimSlot(Dimension.Fixed(999f.px), Dimension.Fixed(999f.px))
         assertEquals(5f, first.x)
@@ -104,7 +104,7 @@ class LayoutTest {
     @Test
     fun claimModifiedSlotCentersContentInsideBox() {
         val ui = UiContext()
-        val box = ui.box(x = 10f, y = 20f, width = 100f, height = 60f, contentAlignment = UiAlignment.Center)
+        val box = ui.createBox(x = 10f, y = 20f, width = 100f, height = 60f, contentAlignment = UiAlignment.Center)
 
         val slot = box.claimModifiedSlot(
             defaultWidth = Dimension.Fixed(40f.px),
@@ -117,7 +117,7 @@ class LayoutTest {
     @Test
     fun claimModifiedSlotAppliesPaddingAndOffsetAfterAlignment() {
         val ui = UiContext()
-        val box = ui.box(x = 0f, y = 0f, width = 120f, height = 80f, contentAlignment = UiAlignment.BottomEnd)
+        val box = ui.createBox(x = 0f, y = 0f, width = 120f, height = 80f, contentAlignment = UiAlignment.BottomEnd)
 
         val slot = box.claimModifiedSlot(
             defaultWidth = Dimension.Fixed(40f.px),
@@ -133,7 +133,7 @@ class LayoutTest {
     @Test
     fun columnFactoryFromSlotAppliesInsets() {
         val ui = UiContext()
-        val column = ui.column(UiSlot(10f, 20f, 100f, 80f), insets = UiInsets(4f.dp, 6f.dp))
+        val column = ui.createColumn(UiSlot(10f, 20f, 100f, 80f), insets = UiInsets(4f.dp, 6f.dp))
 
         val slot = column.claimSlot(Dimension.FillMax, Dimension.Fixed(20f.px))
 

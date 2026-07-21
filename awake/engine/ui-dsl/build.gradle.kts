@@ -39,7 +39,7 @@ kotlin {
         commonMain.dependencies {
             api(project(":awake:engine:game-dsl"))
             api(project(":awake:engine:ui-core"))
-            api(project(":awake:engine:ui-widgets"))
+            api(project(":awake:engine:ui-unstyled"))
         }
         commonTest.dependencies {
             implementation(project(":awake:base"))

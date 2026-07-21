@@ -42,9 +42,9 @@ plan and [docs/MVP_PLAN.md](docs/MVP_PLAN.md) for near-term status.
   ./gradlew developerDocs
   ```
 - UI tutorial output lands at
-  `awake/engine/ui-widgets/build/reports/ui-tutorials/index.html`
+  `awake/engine/ui-unstyled/build/reports/ui-tutorials/index.html`
   and the broader visual snapshot gallery lands at
-  `awake/engine/ui-widgets/build/reports/ui-snapshots/index.html`
+  `awake/engine/ui-unstyled/build/reports/ui-snapshots/index.html`
 
 ### Running the Demo
 

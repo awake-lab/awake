@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.testing.ui
 
-import io.github.ronjunevaldoz.awake.ui.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.forceActive
 import io.github.ronjunevaldoz.awake.ui.forceFocus
 import io.github.ronjunevaldoz.awake.ui.forceHover
-import io.github.ronjunevaldoz.awake.ui.ui
 
 /**
  * Automates the rendering of a component in multiple interaction states using forced modifiers.
@@ -32,14 +31,13 @@ fun AwakeUiPreviewMetadata.componentStateMatrix(
     return states.map { (idSuffix, forcedModifier) ->
         val ui = UiContext()
         ui.beginFrame(width.toFloat(), height.toFloat(), UiInputState())
-        ui.ui(
+        ui.createColumn(
             x = 0f,
             y = 0f,
             width = width.toFloat(),
             font = font,
             theme = theme ?: io.github.ronjunevaldoz.awake.ui.CoreUiTheme,
-            block = { block(forcedModifier) }
-        )
+        ).block(forcedModifier)
         sample(
             idSuffix = idSuffix,
             titleSuffix = idSuffix.replaceFirstChar { it.uppercase() },

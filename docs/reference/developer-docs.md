@@ -24,9 +24,9 @@ This currently builds:
 - the UI DSL tutorial guide at
   `awake/engine/ui-dsl/build/reports/ui-dsl-tutorials/index.html`
 - the UI snapshot gallery at
-  `awake/engine/ui-widgets/build/reports/ui-snapshots/index.html`
+  `awake/engine/ui-unstyled/build/reports/ui-snapshots/index.html`
 - the curated UI tutorial guide at
-  `awake/engine/ui-widgets/build/reports/ui-tutorials/index.html`
+  `awake/engine/ui-unstyled/build/reports/ui-tutorials/index.html`
 
 The rollout tracker for module-by-module coverage lives in
 `docs/reference/tutorial-coverage.md`.
@@ -109,7 +109,7 @@ signature?"
 
 1. Add or update a curated test in either:
   - `awake/engine/ui-dsl/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiDslTutorialDocsTest.kt`
-   - `awake/engine/ui-widgets/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiTutorialDocsTest.kt`
+   - `awake/engine/ui-unstyled/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiTutorialDocsTest.kt`
 2. Render the example with `saveUiTutorialSnapshot(...)`
 3. Keep the title and summary short and tutorial-oriented
 4. Add machine-checkable validation for semantics, text fit, clipping, and state coverage per

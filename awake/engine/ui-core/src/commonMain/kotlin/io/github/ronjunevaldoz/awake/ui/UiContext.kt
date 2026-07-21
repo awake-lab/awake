@@ -3,6 +3,11 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
+import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import kotlin.math.max
 
 /**
@@ -60,7 +65,7 @@ class UiContext private constructor(
     }
 
     /** reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
-    fun column(
+    fun createColumn(
         x: Float,
         y: Float,
         width: Float,
@@ -71,7 +76,7 @@ class UiContext private constructor(
         overlayOnly: Boolean = false
     ): ColumnScope = ColumnScope(this, font, theme, x, y, width, gap, textScale, overlayOnly)
 
-    fun column(
+    fun createColumn(
         slot: UiSlot,
         font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
@@ -81,13 +86,13 @@ class UiContext private constructor(
         overlayOnly: Boolean = false
     ): ColumnScope {
         val content = slot.inset(insets)
-        return column(content.x, content.y, content.width, font, theme, gap, textScale, overlayOnly)
+        return createColumn(content.x, content.y, content.width, font, theme, gap, textScale, overlayOnly)
     }
 
     /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minimap
      * thumbnail that isn't part of any auto-layout column. Goes through the exact same
      * [UiScope] surface as every other widget; not a special case. */
-    fun absolute(
+    fun createAbsolute(
         x: Float,
         y: Float,
         font: UiFont? = null,
@@ -96,7 +101,7 @@ class UiContext private constructor(
         overlayOnly: Boolean = false
     ): AbsoluteScope = AbsoluteScope(this, font, theme, x, y, textScale, overlayOnly)
 
-    fun absolute(
+    fun createAbsolute(
         slot: UiSlot,
         font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
@@ -105,11 +110,11 @@ class UiContext private constructor(
         overlayOnly: Boolean = false
     ): AbsoluteScope {
         val content = slot.inset(insets)
-        return absolute(content.x, content.y, font, theme, textScale, overlayOnly)
+        return createAbsolute(content.x, content.y, font, theme, textScale, overlayOnly)
     }
 
     /** Reserves a horizontal auto-stacking layout region -- see [RowScope]. */
-    fun row(
+    fun createRow(
         x: Float,
         y: Float,
         height: Float,
@@ -120,7 +125,7 @@ class UiContext private constructor(
         overlayOnly: Boolean = false
     ): RowScope = RowScope(this, font, theme, x, y, height, gap, textScale, overlayOnly)
 
-    fun row(
+    fun createRow(
         slot: UiSlot,
         font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
@@ -130,11 +135,11 @@ class UiContext private constructor(
         overlayOnly: Boolean = false
     ): RowScope {
         val content = slot.inset(insets)
-        return row(content.x, content.y, content.height, font, theme, gap, textScale, overlayOnly)
+        return createRow(content.x, content.y, content.height, font, theme, gap, textScale, overlayOnly)
     }
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */
-    fun box(
+    fun createBox(
         x: Float,
         y: Float,
         width: Float,
@@ -144,9 +149,10 @@ class UiContext private constructor(
         textScale: Float = 1f,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
         overlayOnly: Boolean = false
-    ): BoxScope = BoxScope(this, font, theme, x, y, width, height, contentAlignment, textScale, overlayOnly)
+    ): BoxScope =
+        BoxScope(this, font, theme, x, y, width, height, contentAlignment, textScale, overlayOnly)
 
-    fun box(
+    fun createBox(
         slot: UiSlot,
         font: UiFont? = null,
         theme: UiTheme = CoreUiTheme,
@@ -156,7 +162,7 @@ class UiContext private constructor(
         overlayOnly: Boolean = false
     ): BoxScope {
         val content = slot.inset(insets)
-        return box(content.x, content.y, content.width, content.height, font, theme, textScale, contentAlignment, overlayOnly)
+        return createBox(content.x, content.y, content.width, content.height, font, theme, textScale, contentAlignment, overlayOnly)
     }
 
     /** Aggregated result of this frame's input interactions. Call after all widgets have
@@ -298,7 +304,7 @@ class UiContext private constructor(
             inputState = UiInputState(),
             deltaSeconds = 0f
         )
-        val measureScope = measureContext.column(
+        val measureScope = measureContext.createColumn(
             slot = outerSlot,
             font = font,
             theme = theme,
@@ -330,7 +336,7 @@ class UiContext private constructor(
             inputState = UiInputState(),
             deltaSeconds = 0f
         )
-        val measureScope = measureContext.row(
+        val measureScope = measureContext.createRow(
             slot = outerSlot,
             font = font,
             theme = theme,
@@ -359,6 +365,7 @@ data class UiMeasuredContent(
 
 /**
  * Aggregated input ownership result for a single UI frame.
+ * TODO should use InputDispatcher?
  */
 data class UiInputResult(
     /** Whether a widget has explicitly captured the pointer (e.g. mid-drag on a slider). */

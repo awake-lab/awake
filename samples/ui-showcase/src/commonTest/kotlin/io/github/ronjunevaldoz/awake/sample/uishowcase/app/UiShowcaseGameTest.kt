@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.app
 
-import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.application.createGameSpec
 import io.github.ronjunevaldoz.awake.engine.application.select
@@ -20,8 +20,8 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterSt
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseUiState
-import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.previewMetadataFor
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.UiShowcaseThemePreview
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.previewMetadataFor
 import io.github.ronjunevaldoz.awake.testing.ui.inspectNonOverlappingBounds
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticContentFit
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
@@ -29,32 +29,29 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticOverlaps
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.text
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.ui
-import io.github.ronjunevaldoz.awake.ui.panel
-import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import kotlinx.coroutines.test.runTest
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlin.math.abs
 
 class UiShowcaseGameTest {
 
@@ -68,7 +65,7 @@ class UiShowcaseGameTest {
         assertEquals(900, game.windowConfig.height)
         assertTrue(
             game.windowConfig.backend == GameWindowBackend.VULKAN ||
-                game.windowConfig.backend == GameWindowBackend.WEBGPU
+                    game.windowConfig.backend == GameWindowBackend.WEBGPU
         )
     }
 
@@ -152,17 +149,27 @@ class UiShowcaseGameTest {
         }
         val game = spec.createGame()
 
-        val chromeColor = requireNotNull(AwakeShadcnTheme.components.panel.resolve().background)
-        val contentColor = requireNotNull(state.showcaseTheme().components.panel.resolve().background)
+        val chromeColor = requireNotNull(AwakeShadcnTheme.components.surface.resolve().background)
+        val contentColor =
+            requireNotNull(state.showcaseTheme().components.surface.resolve().background)
 
-        assertTrue(chromeColor != contentColor, "the configured showcase theme should be visually distinct from the shell theme for this regression to be meaningful")
+        assertTrue(
+            chromeColor != contentColor,
+            "the configured showcase theme should be visually distinct from the shell theme for this regression to be meaningful"
+        )
 
         game.ready(renderer)
         game.render(0.016f, 1440f, 900f)
 
         val rounded = renderer.lastUiPrimitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
         assertTrue(
-            rounded.any { it.matchesRegion(color = contentColor, xRange = 308f..1416f, yRange = 24f..876f) },
+            rounded.any {
+                it.matchesRegion(
+                    color = contentColor,
+                    xRange = 308f..1416f,
+                    yRange = 24f..876f
+                )
+            },
             "desktop content pane should use the live showcase theme"
         )
     }
@@ -205,8 +212,16 @@ class UiShowcaseGameTest {
             .filterIsInstance<UiDrawPrimitive.RoundedQuad>()
             .largestWithin(xRange = 0f..300f, minWidth = 220f, minHeight = 400f)
 
-        assertEquals(expectedSidebarColor, sidebarSurface.color, "sidebar chrome should use the dedicated light shell theme")
-        assertNotEquals(darkSidebarColor, sidebarSurface.color, "the showcase shell should stay in light mode by default")
+        assertEquals(
+            expectedSidebarColor,
+            sidebarSurface.color,
+            "sidebar chrome should use the dedicated light shell theme"
+        )
+        assertNotEquals(
+            darkSidebarColor,
+            sidebarSurface.color,
+            "the showcase shell should stay in light mode by default"
+        )
     }
 
     @Test
@@ -218,8 +233,10 @@ class UiShowcaseGameTest {
         game.render(0.016f, 1440f, 900f)
 
         val rounded = renderer.lastUiPrimitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
-        val sidebarSurface = rounded.largestWithin(xRange = 0f..300f, minWidth = 220f, minHeight = 400f)
-        val contentSurface = rounded.largestWithin(xRange = 300f..1440f, minWidth = 900f, minHeight = 400f)
+        val sidebarSurface =
+            rounded.largestWithin(xRange = 0f..300f, minWidth = 220f, minHeight = 400f)
+        val contentSurface =
+            rounded.largestWithin(xRange = 300f..1440f, minWidth = 900f, minHeight = 400f)
         inspectNonOverlappingBounds(
             label = "showcase shell surfaces",
             bounds = listOf(sidebarSurface.toSlot(), contentSurface.toSlot())
@@ -228,9 +245,9 @@ class UiShowcaseGameTest {
         val contentCards = rounded
             .filter {
                 it.x >= contentSurface.x + 12f &&
-                    it.x + it.w <= contentSurface.x + contentSurface.w - 12f &&
-                    it.w > 900f &&
-                    it.h in 60f..400f
+                        it.x + it.w <= contentSurface.x + contentSurface.w - 12f &&
+                        it.w > 900f &&
+                        it.h in 60f..400f
             }
             .sortedBy { it.y }
             .deduplicatedCards()
@@ -276,10 +293,10 @@ private fun UiDrawPrimitive.RoundedQuad.matchesRegion(
     val right = x + w
     val bottom = y + h
     return this.color == color &&
-        left >= xRange.start - tolerance &&
-        right <= xRange.endInclusive + tolerance &&
-        top >= yRange.start - tolerance &&
-        bottom <= yRange.endInclusive + tolerance
+            left >= xRange.start - tolerance &&
+            right <= xRange.endInclusive + tolerance &&
+            top >= yRange.start - tolerance &&
+            bottom <= yRange.endInclusive + tolerance
 }
 
 private fun UiDrawPrimitive.RoundedQuad.toSlot(): UiSlot = UiSlot(x, y, w, h)
@@ -291,9 +308,9 @@ private fun List<UiDrawPrimitive.RoundedQuad>.largestWithin(
 ): UiDrawPrimitive.RoundedQuad = requireNotNull(
     filter {
         it.x >= xRange.start &&
-            it.x + it.w <= xRange.endInclusive &&
-            it.w >= minWidth &&
-            it.h >= minHeight
+                it.x + it.w <= xRange.endInclusive &&
+                it.w >= minWidth &&
+                it.h >= minHeight
     }.maxByOrNull { it.w * it.h }
 ) {
     "expected a rounded quad within xRange=$xRange minWidth=$minWidth minHeight=$minHeight"
@@ -303,9 +320,9 @@ private fun List<UiDrawPrimitive.RoundedQuad>.deduplicatedCards(): List<UiDrawPr
     fold(mutableListOf()) { distinct, candidate ->
         val matchesExisting = distinct.any { existing ->
             abs(existing.x - candidate.x) <= 2f &&
-                abs(existing.y - candidate.y) <= 2f &&
-                abs(existing.w - candidate.w) <= 4f &&
-                abs(existing.h - candidate.h) <= 4f
+                    abs(existing.y - candidate.y) <= 2f &&
+                    abs(existing.w - candidate.w) <= 4f &&
+                    abs(existing.h - candidate.h) <= 4f
         }
         if (!matchesExisting) {
             distinct += candidate
@@ -315,8 +332,12 @@ private fun List<UiDrawPrimitive.RoundedQuad>.deduplicatedCards(): List<UiDrawPr
 
 private fun renderSidebarSurfaceColor(theme: io.github.ronjunevaldoz.awake.ui.UiTheme): Color {
     val ui = io.github.ronjunevaldoz.awake.ui.UiContext()
-    ui.beginFrame(360f, 240f, io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot().toUiInputState())
-    ui.ui(x = 24f, y = 24f, width = 264f, font = BitmapFont(), theme = theme) {
+    ui.beginFrame(
+        360f,
+        240f,
+        io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot().toUiInputState()
+    )
+    ui.column(x = 24f, y = 24f, width = 264f, font = BitmapFont(), theme = theme) {
         awakeShadcnSurface(
             id = "sidebar-probe",
             width = Dimension.FillMax,
@@ -324,7 +345,7 @@ private fun renderSidebarSurfaceColor(theme: io.github.ronjunevaldoz.awake.ui.Ui
             variant = AwakeShadcnSurfaceVariant.Sidebar,
             style = Style { shape(16f.dp) }
         ) {
-            text("Probe")
+            basicText("Probe")
         }
     }
     val rounded = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>()
@@ -342,11 +363,12 @@ private class RecordingRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): Material = object : Material {
-        override fun updateUniformBuffer(mvp: FloatArray) = Unit
-        override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
-        override fun destroy() = Unit
-    }
+    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): Material =
+        object : Material {
+            override fun updateUniformBuffer(mvp: FloatArray) = Unit
+            override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
+            override fun destroy() = Unit
+        }
 
     override fun createRenderTarget(width: Int, height: Int): RenderTarget = object : RenderTarget {
         override val width: Int = width
@@ -356,7 +378,8 @@ private class RecordingRenderer : Renderer {
 
     override fun draw(camera: Camera, drawCalls: List<DrawCall>) = Unit
 
-    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
+    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) =
+        Unit
 
     override suspend fun readPixels(target: RenderTarget): TextureAsset =
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)
