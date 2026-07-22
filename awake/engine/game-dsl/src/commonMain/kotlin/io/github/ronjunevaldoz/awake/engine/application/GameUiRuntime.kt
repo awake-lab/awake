@@ -3,11 +3,13 @@
 package io.github.ronjunevaldoz.awake.engine.application
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInsets
+import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -21,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.toUiInputState
  * Concrete binding between Awake's stateless [UiContext] and the stateful/suspendable
  * Game loop.
  */
+@AwakeUiDsl
 class GameUiRuntime(
     val services: GameServiceLookup,
     val spec: GameUiSpec
@@ -62,6 +65,7 @@ class GameUiRuntime(
             inputState = snapshot.toUiInputState(),
             deltaSeconds = deltaSeconds
         )
+        uiContext.bindServiceResolver { type -> services.service(type) }
 
         // Overlay calls from game setup
         spec.overlays.forEach { overlay ->
@@ -75,7 +79,14 @@ class GameUiRuntime(
     }
 
 
-    fun column(
+    /**
+     * Opens a root-level column directly from the runtime.
+     *
+     * Keep this distinct from nested [io.github.ronjunevaldoz.awake.ui.UiScope] `column(...)`
+     * helpers so Kotlin does not silently bind nested layout calls back to the runtime
+     * receiver instead of the current parent scope.
+     */
+    fun rootColumn(
         x: Float,
         y: Float,
         width: Float,
@@ -90,7 +101,10 @@ class GameUiRuntime(
         ).block()
     }
 
-    fun column(
+    /**
+     * Root-level slot-based column entrypoint.
+     */
+    fun rootColumn(
         slot: UiSlot,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
@@ -103,6 +117,29 @@ class GameUiRuntime(
         ).block()
     }
 
+    @Deprecated(
+        message = "Use rootColumn(...) for runtime-owned root layout. Unqualified column(...) inside nested UI scopes binds to the current UiScope instead.",
+        level = DeprecationLevel.HIDDEN
+    )
+    fun column(
+        x: Float,
+        y: Float,
+        width: Float,
+        gap: Float = UiSpacing.sm.toPx(),
+        block: ColumnScope.() -> Unit
+    ) = rootColumn(x, y, width, gap, block)
+
+    @Deprecated(
+        message = "Use rootColumn(...) for runtime-owned root layout. Unqualified column(slot = ...) inside nested UI scopes must bind to the current UiScope, not GameUiRuntime.",
+        level = DeprecationLevel.HIDDEN
+    )
+    fun column(
+        slot: UiSlot,
+        gap: Float = UiSpacing.sm.toPx(),
+        insets: UiInsets = UiInsets.Zero,
+        block: ColumnScope.() -> Unit
+    ) = rootColumn(slot, gap, insets, block)
+
     inline fun <reified T : Any> service(): T? = services.service(T::class)
 
     inline fun <reified T : Any> requireService(): T = services.requireService(T::class)
@@ -110,6 +147,12 @@ class GameUiRuntime(
     fun dispose() {
         spec.onDisposeBlock(this)
     }
+}
+
+inline fun <reified T : Any> UiScope.service(): T? = context.resolveService(T::class)
+
+inline fun <reified T : Any> UiScope.requireService(): T = checkNotNull(service<T>()) {
+    "No game service registered for ${T::class.simpleName} in the current UiScope."
 }
 
 data class GameUiSpec(

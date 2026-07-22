@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.layoutBitmapText
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -37,7 +36,7 @@ class TextWidgetsTest {
             advanceOf = { char -> font.advanceFor(char, 12f) }
         )
 
-        scope.basicText(
+        scope.text(
             label = "TOOLONG",
             slot = UiSlot(10f, 20f, slotWidthPx, 12f),
             font = font,
@@ -119,7 +118,7 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
-        ui.createAbsolute(0f, 0f, font = font).basicText(
+        ui.createAbsolute(0f, 0f, font = font).text(
             label = "BUTTON",
             slot = UiSlot(20f, 20f, 160f, 40f),
             font = font,
@@ -141,7 +140,7 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(180f, 80f, testSnapshot())
-        ui.createAbsolute(0f, 0f, font = font).basicText(
+        ui.createAbsolute(0f, 0f, font = font).text(
             label = "Title",
             slot = UiSlot(16f, 24f, 120f, 20f),
             font = font

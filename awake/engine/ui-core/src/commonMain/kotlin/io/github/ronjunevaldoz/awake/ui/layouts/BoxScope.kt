@@ -16,6 +16,9 @@ class BoxScope internal constructor(
     private val width: Float,
     private val height: Float,
     internal val contentAlignment: UiAlignment = UiAlignment.TopStart,
+    override val testTag: String? = null,
+    override val hasBoundedFillWidth: Boolean = true,
+    override val hasBoundedFillHeight: Boolean = true,
     emitToOverlay: Boolean = false
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     override val fillWidth: Float? = this.width

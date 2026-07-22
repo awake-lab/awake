@@ -198,6 +198,7 @@ inline fun UiScope.rawRow(
     width: Dimension = Dimension.FillMax,
     height: Dimension = Dimension.WrapContent,
     gap: Float = UiSpacing.sm.toPx(),
+    testTag: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
     content: RowScope.(slot: UiSlot) -> Unit
@@ -211,7 +212,15 @@ inline fun UiScope.rawRow(
     val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
 
     context.pushTextStyle(textStyle)
-    val scope = childRow(slot, gap = gap)
+    val requestedWidth = modifier.width ?: width
+    val requestedHeight = modifier.height ?: height
+    val scope = childRow(
+        slot,
+        gap = gap,
+        testTag = testTag ?: modifier.testTag,
+        hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
+        hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
+    )
     scope.content(slot)
     context.popTextStyle()
     return slot

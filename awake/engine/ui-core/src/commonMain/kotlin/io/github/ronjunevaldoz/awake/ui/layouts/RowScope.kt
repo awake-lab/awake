@@ -16,6 +16,9 @@ class RowScope internal constructor(
     val width: Float? = null,
     val height: Float,
     val gap: Float,
+    override val testTag: String? = null,
+    override val hasBoundedFillWidth: Boolean = width != null,
+    override val hasBoundedFillHeight: Boolean = true,
     emitToOverlay: Boolean = false
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     var cursorX: Float = startX

@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.core.graphics.Color.Transparent
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -52,14 +52,14 @@ class ReusableCompositionTest {
                 contentPadding(start = 12f.dp, top = 0f.dp, end = 12f.dp, bottom = 0f.dp)
             }
         ) { slot ->
-            basicText(
+            text(
                 label = ">",
                 slot = UiSlot(slot.x, slot.y, 12f, slot.height),
                 font = font,
                 centered = false,
                 verticallyCentered = true
             )
-            basicText(
+            text(
                 label = "Launch",
                 slot = UiSlot(slot.x + 18f, slot.y, 72f, slot.height),
                 font = font,
@@ -111,7 +111,7 @@ private fun UiScope.badge(
         borderColor = resolved.borderColor ?: theme.tokens.border
     )
     if (font != null) {
-        basicText(label, slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
+        text(label, slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
     }
 }
 

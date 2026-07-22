@@ -114,6 +114,7 @@ fun UiScope.rawSurface(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val effectiveStyle = modifier.styleable ?: Style.Empty
+    val containerTag = modifier.testTag ?: id
     val hasWrapContent = width == Dimension.WrapContent || height == Dimension.WrapContent
     
     // Only perform early slot claim and hit test if we don't have WrapContent dimensions.
@@ -177,7 +178,14 @@ fun UiScope.rawSurface(
         bounds = slot
     )
     context.pushTextStyle(resolved.textStyle)
-    val contentScope = childColumn(slot, gap = gap, insets = resolved.contentPadding)
+    val contentScope = childColumn(
+        slot,
+        gap = gap,
+        insets = resolved.contentPadding,
+        testTag = containerTag,
+        hasBoundedFillWidth = width != Dimension.WrapContent,
+        hasBoundedFillHeight = height != Dimension.WrapContent
+    )
     val effectiveShape = resolved.shapeSpec ?: if (resolved.shape.toPx() > 0f) UiShapeSpec.RoundedRectangle(resolved.shape) else null
     if (clipContent && effectiveShape != null) {
         clip(effectiveShape, slot) { contentScope.content(slot) }

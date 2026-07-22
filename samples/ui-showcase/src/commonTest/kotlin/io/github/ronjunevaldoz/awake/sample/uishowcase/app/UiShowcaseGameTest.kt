@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.app
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.application.createGameSpec
@@ -20,6 +21,8 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterSt
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseUiState
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcasePages
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.drawUiShowcasePageContent
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.UiShowcaseThemePreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.previewMetadataFor
 import io.github.ronjunevaldoz.awake.testing.ui.inspectNonOverlappingBounds
@@ -30,7 +33,9 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
@@ -44,8 +49,12 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVa
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.verticalScroll
 import kotlinx.coroutines.test.runTest
 import kotlin.math.abs
 import kotlin.test.Test
@@ -280,6 +289,54 @@ class UiShowcaseGameTest {
             tolerancePx = 1f
         ).requireClean()
     }
+
+    @Test
+    fun uiShowcaseThemingPageEnablesVerticalScrollWhenViewportIsConstrained() {
+        val state = UiShowcaseRuntimeState()
+        val ui = UiContext()
+        val input = Input()
+
+        ui.beginFrame(960f, 540f, input.updateSnapshot().toUiInputState())
+        val selectedPage = ui.rememberStateValue("ui-showcase-page", "entry") {
+            ShowcasePages.first().id
+        }
+        selectedPage.value = "theming"
+        val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
+
+        ui.column(
+            x = 24f,
+            y = 24f,
+            width = 720f,
+            font = BitmapFont(),
+            theme = state.showcaseTheme()
+        ) {
+            column(
+                id = "ui-showcase-content-viewport",
+                width = Dimension.FillMax,
+                height = Dimension.Fixed(320f.px),
+                modifier = UiModifier().verticalScroll(contentScroll)
+            ) {
+                awakeShadcnSurface(
+                    id = "ui-showcase-content",
+                    height = Dimension.WrapContent,
+                    style = Style { shape(16f.dp) }
+                ) {
+                    drawUiShowcasePageContent(state, showInlineMenu = false)
+                }
+            }
+        }
+
+        ui.endFrame()
+        val semantics = ui.semanticNodes()
+        val viewport = requireSemanticNode(semantics, "ui-showcase-content-viewport", UiSemanticRole.ScrollPanel)
+
+        assertTrue(contentScroll.canScrollY, "the theming page should overflow a constrained viewport")
+        assertTrue(
+            contentScroll.contentHeight > contentScroll.viewportHeight,
+            "expected contentHeight=${'$'}{contentScroll.contentHeight} to exceed viewportHeight=${'$'}{contentScroll.viewportHeight}"
+        )
+        assertEquals(contentScroll.viewportHeight, requireNotNull(viewport.contentBounds).height)
+    }
 }
 
 private fun UiDrawPrimitive.RoundedQuad.matchesRegion(
@@ -345,7 +402,7 @@ private fun renderSidebarSurfaceColor(theme: io.github.ronjunevaldoz.awake.ui.Ui
             variant = AwakeShadcnSurfaceVariant.Sidebar,
             style = Style { shape(16f.dp) }
         ) {
-            basicText("Probe")
+            text("Probe")
         }
     }
     val rounded = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>()

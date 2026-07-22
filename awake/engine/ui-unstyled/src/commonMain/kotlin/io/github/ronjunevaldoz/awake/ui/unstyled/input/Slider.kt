@@ -19,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.sliderValueFromPointerX
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 private const val SLIDER_TRACK_HEIGHT_PX = 10f
 private const val SLIDER_KNOB_DIAMETER_PX = 26f
@@ -100,7 +100,7 @@ fun UiScope.slider(
         shapeSpec = UiShapeSpec.Pill
     )
     if (label != null) {
-        basicText(
+        text(
             label,
             slot = slot,
             font = font,

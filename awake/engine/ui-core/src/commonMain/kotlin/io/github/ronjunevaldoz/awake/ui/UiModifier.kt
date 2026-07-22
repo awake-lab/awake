@@ -42,6 +42,7 @@ fun Dp.toDimension(): Dimension = if (value > 0f) Dimension.Fixed(this) else Dim
 data class UiModifier(
     val width: Dimension? = null,
     val height: Dimension? = null,
+    val testTag: String? = null,
     val alignment: UiAlignment? = null,
     val offsetX: Dp = UiShape.none,
     val offsetY: Dp = UiShape.none,
@@ -60,6 +61,7 @@ fun UiModifier.forceFocus(value: Boolean = true): UiModifier = copy(forceFocus =
 
 fun UiModifier.width(dp: Dp): UiModifier = copy(width = Dimension.Fixed(dp))
 fun UiModifier.height(dp: Dp): UiModifier = copy(height = Dimension.Fixed(dp))
+fun UiModifier.testTag(tag: String): UiModifier = copy(testTag = tag)
 fun UiModifier.width(dimension: Dimension): UiModifier = copy(width = dimension)
 fun UiModifier.height(dimension: Dimension): UiModifier = copy(height = dimension)
 fun UiModifier.size(width: Dp, height: Dp): UiModifier = copy(width = Dimension.Fixed(width), height = Dimension.Fixed(height))

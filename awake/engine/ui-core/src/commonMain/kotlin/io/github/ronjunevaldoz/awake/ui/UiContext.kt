@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import kotlin.math.max
+import kotlin.reflect.KClass
 
 /**
  * Minimal immediate-mode UI context -- ImGui's own architecture (hot/active id tracking, no
@@ -53,6 +54,7 @@ class UiContext private constructor(
     private var measuredMaxBottom = 0f
     private var isOverScrollableThisFrame = false
     private var isScrollConsumedThisFrame = false
+    private var serviceResolver: ((KClass<*>) -> Any?)? = null
 
     private lateinit var frameInputState: UiInputState
 
@@ -78,9 +80,17 @@ class UiContext private constructor(
         focusClaimedThisFrame = false
         isOverScrollableThisFrame = false
         isScrollConsumedThisFrame = false
+        serviceResolver = null
         
         frameInputState = inputState
     }
+
+    fun bindServiceResolver(resolver: ((KClass<*>) -> Any?)?) {
+        serviceResolver = resolver
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> resolveService(type: KClass<T>): T? = serviceResolver?.invoke(type) as? T
 
     /** reserves a vertical auto-stacking layout region -- see [ColumnScope]. */
     fun createColumn(
@@ -89,17 +99,44 @@ class UiContext private constructor(
         width: Float,
         height: Float? = null,
         gap: Float = UiSpacing.sm.toPx(),
+        testTag: String? = null,
+        hasBoundedFillWidth: Boolean = true,
+        hasBoundedFillHeight: Boolean = height != null,
         overlayOnly: Boolean = false
-    ): ColumnScope = ColumnScope(this, x, y, width, height, gap, overlayOnly)
+    ): ColumnScope = ColumnScope(
+        this,
+        x,
+        y,
+        width,
+        height,
+        gap,
+        testTag,
+        hasBoundedFillWidth,
+        hasBoundedFillHeight,
+        overlayOnly
+    )
 
     fun createColumn(
         slot: UiSlot,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
+        testTag: String? = null,
+        hasBoundedFillWidth: Boolean = true,
+        hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false
     ): ColumnScope {
         val content = slot.inset(insets)
-        return createColumn(content.x, content.y, content.width, content.height, gap, overlayOnly)
+        return createColumn(
+            content.x,
+            content.y,
+            content.width,
+            content.height,
+            gap,
+            testTag,
+            hasBoundedFillWidth,
+            hasBoundedFillHeight,
+            overlayOnly
+        )
     }
 
     /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minmap
@@ -108,16 +145,18 @@ class UiContext private constructor(
     fun createAbsolute(
         x: Float,
         y: Float,
+        testTag: String? = null,
         overlayOnly: Boolean = false
-    ): AbsoluteScope = AbsoluteScope(this, x, y, overlayOnly)
+    ): AbsoluteScope = AbsoluteScope(this, x, y, testTag, overlayOnly)
 
     fun createAbsolute(
         slot: UiSlot,
         insets: UiInsets = UiInsets.Zero,
+        testTag: String? = null,
         overlayOnly: Boolean = false
     ): AbsoluteScope {
         val content = slot.inset(insets)
-        return createAbsolute(content.x, content.y, overlayOnly)
+        return createAbsolute(content.x, content.y, testTag, overlayOnly)
     }
 
     /** Reserves a horizontal auto-stacking layout region -- see [RowScope]. */
@@ -127,17 +166,23 @@ class UiContext private constructor(
         height: Float,
         width: Float? = null,
         gap: Float = UiSpacing.sm.toPx(),
+        testTag: String? = null,
+        hasBoundedFillWidth: Boolean = width != null,
+        hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false
-    ): RowScope = RowScope(this, x, y, width, height, gap, overlayOnly)
+    ): RowScope = RowScope(this, x, y, width, height, gap, testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly)
 
     fun createRow(
         slot: UiSlot,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
+        testTag: String? = null,
+        hasBoundedFillWidth: Boolean = true,
+        hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false
     ): RowScope {
         val content = slot.inset(insets)
-        return createRow(content.x, content.y, content.height, content.width, gap, overlayOnly)
+        return createRow(content.x, content.y, content.height, content.width, gap, testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly)
     }
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */
@@ -147,18 +192,34 @@ class UiContext private constructor(
         width: Float,
         height: Float,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
+        testTag: String? = null,
+        hasBoundedFillWidth: Boolean = true,
+        hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false
     ): BoxScope =
-        BoxScope(this, x, y, width, height, contentAlignment, overlayOnly)
+        BoxScope(this, x, y, width, height, contentAlignment, testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly)
 
     fun createBox(
         slot: UiSlot,
         insets: UiInsets = UiInsets.Zero,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
+        testTag: String? = null,
+        hasBoundedFillWidth: Boolean = true,
+        hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false
     ): BoxScope {
         val content = slot.inset(insets)
-        return createBox(content.x, content.y, content.width, content.height, contentAlignment, overlayOnly)
+        return createBox(
+            content.x,
+            content.y,
+            content.width,
+            content.height,
+            contentAlignment,
+            testTag,
+            hasBoundedFillWidth,
+            hasBoundedFillHeight,
+            overlayOnly
+        )
     }
 
     /** Aggregated result of this frame's input interactions. Call after all widgets have

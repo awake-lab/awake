@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.width
 
 internal fun ColumnScope.drawUiShowcaseFontsPreview() {
@@ -89,22 +89,22 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
         modifier = UiModifier().width(120f.dp).height(28f.dp),
         variant = AwakeShadcnBadgeVariant.Outline
     )
-    specimenScope.basicText(
+    specimenScope.text(
         label = "Awake UI",
         color = theme.tokens.foreground,
         textStyle = TextStyle(size = 18f.sp)
     )
-    specimenScope.basicText(
+    specimenScope.text(
         label = "Sphinx 123",
         color = theme.tokens.foreground,
         textStyle = TextStyle(size = 16f.sp)
     )
-    specimenScope.basicText(
+    specimenScope.text(
         label = "THE QUICK BROWN FOX",
         color = theme.tokens.foreground,
         textStyle = TextStyle(size = 12.sp)
     )
-    specimenScope.basicText(
+    specimenScope.text(
         label = detail,
         slot = specimenScope.claimSlot(Dimension.FillMax, Dimension.Fixed(44f.dp)),
         color = theme.tokens.mutedForeground,

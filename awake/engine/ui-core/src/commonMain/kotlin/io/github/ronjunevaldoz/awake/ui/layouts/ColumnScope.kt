@@ -18,6 +18,9 @@ class ColumnScope internal constructor(
     val width: Float,
     val height: Float? = null,
     val gap: Float,
+    override val testTag: String? = null,
+    override val hasBoundedFillWidth: Boolean = true,
+    override val hasBoundedFillHeight: Boolean = height != null,
     emitToOverlay: Boolean = false
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     override val fillWidth: Float = width

@@ -44,6 +44,9 @@ internal fun UiScope.smartColumn(
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
     val scrollState = modifier.scrollState
+    val containerTag = modifier.testTag ?: id
+    val hasBoundedFillWidth = requestedWidth != Dimension.WrapContent
+    val hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
 
     if (scrollState != null && id != null) {
         return scrollPanel(
@@ -113,6 +116,7 @@ internal fun UiScope.smartColumn(
         width = resolvedWidth,
         height = resolvedHeight,
         gap = gap,
+        testTag = containerTag,
         modifier = modifier,
         style = effectiveStyle,
         content = content
@@ -172,6 +176,7 @@ inline fun UiScope.rawColumn(
     width: Dimension = Dimension.FillMax,
     height: Dimension = Dimension.WrapContent,
     gap: Float = UiSpacing.sm.toPx(),
+    testTag: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
@@ -185,7 +190,15 @@ inline fun UiScope.rawColumn(
     val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
 
     context.pushTextStyle(textStyle)
-    val scope = childColumn(slot, gap = gap)
+    val requestedWidth = modifier.width ?: width
+    val requestedHeight = modifier.height ?: height
+    val scope = childColumn(
+        slot,
+        gap = gap,
+        testTag = testTag ?: modifier.testTag,
+        hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
+        hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
+    )
     scope.content(slot)
     context.popTextStyle()
     return slot

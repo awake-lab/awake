@@ -49,8 +49,8 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
 import io.github.ronjunevaldoz.awake.ui.unstyled.surface
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
 import io.github.ronjunevaldoz.awake.ui.width
 
@@ -115,7 +115,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
         radius = UiShape.md,
         borderWidth = 1f.dp
     ) {
-        basicText("CAMERA", color = CoreUiTheme.tokens.mutedForeground)
+        text("CAMERA", color = CoreUiTheme.tokens.mutedForeground)
         dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = UiModifier().width(180f.px).height(24f.px))
         checkbox("debug", checked = true, label = "DEBUG", modifier = UiModifier().width(180f.px).height(24f.px))
     }
@@ -215,7 +215,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     width = Dimension.Fixed(588f.px),
                     height = Dimension.WrapContent
                 ) {
-                    basicText("Awake Shadcn Buttons")
+                    text("Awake Shadcn Buttons")
                     supportingText("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")
                     spacer(UiModifier().height(8f.dp))
                     row(height = 40f.dp, gap = 8f) {
@@ -249,7 +249,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 },
                 clipContent = true
             ) { slot ->
-                basicText("Shaped Panel", color = CoreUiTheme.tokens.mutedForeground)
+                text("Shaped Panel", color = CoreUiTheme.tokens.mutedForeground)
                 context.createAbsolute(slot.x + 12f, slot.y + 44f, snapshotFont, CoreUiTheme)
                     .button("launch", label = "Launch Scene", modifier = UiModifier().width(180f.px).height(36f.dp), radius = UiShape.md)
             }
@@ -268,7 +268,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     width = Dimension.Fixed(390f.px),
                     height = Dimension.WrapContent
                 ) {
-                    basicText("Controls")
+                    text("Controls")
                     supportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
                     spacer(UiModifier().height(4f.dp))
                     awakeShadcnPropertyDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0, labelWidth = 96f.dp)
@@ -346,8 +346,8 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 },
                 clipContent = true
             ) { slot ->
-                basicText("Rounded + Clip + Vector", color = Color(0.94f, 0.96f, 1f, 1f))
-                basicText(
+                text("Rounded + Clip + Vector", color = Color(0.94f, 0.96f, 1f, 1f))
+                text(
                     "The icon intentionally overflows and gets clipped by the cut-corner shell.",
                     color = CoreUiTheme.tokens.mutedForeground,
                     wrap = UiTextWrap.Word
@@ -373,7 +373,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         },
                         modifier = UiModifier().align(UiAlignment.Center)
                     ) {
-                        basicText("ICON CHIP", color = Color(0.95f, 0.97f, 1f, 1f))
+                        text("ICON CHIP", color = Color(0.95f, 0.97f, 1f, 1f))
                     }
                     icon(
                         imageVector = tutorialSparkleIcon,
@@ -400,7 +400,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     width = Dimension.Fixed(520f.px),
                     height = Dimension.WrapContent
                 ) {
-                    basicText("Awake Shadcn")
+                    text("Awake Shadcn")
                     supportingText("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")
                     spacer(UiModifier().height(8f.dp))
                     row(height = 40f.dp, gap = 8f) {
@@ -420,7 +420,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         height = Dimension.WrapContent,
                         variant = AwakeShadcnSurfaceVariant.Popover
                     ) {
-                        basicText("Preview Card")
+                        text("Preview Card")
                         supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
                         spacer(UiModifier().height(6f.dp))
                         row(height = 36f.dp, gap = 8f) {

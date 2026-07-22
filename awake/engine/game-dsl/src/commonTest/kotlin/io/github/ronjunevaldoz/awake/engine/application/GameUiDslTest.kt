@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
@@ -14,15 +15,18 @@ import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.toDimension
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -44,8 +48,9 @@ class GameUiDslTest {
             )
             ui {
                 overlay {
-                    column(x = 20f, y = 20f, width = 160f) {
-                        text(requireService<String>())
+                    rootColumn(x = 20f, y = 20f, width = 160f) {
+                        requireService<String>()
+                        emit(UiDrawPrimitive.Quad(x = 20f, y = 20f, w = 12f, h = 12f, color = Color(0.2f, 0.7f, 0.4f, 1f)))
                     }
                 }
             }
@@ -55,7 +60,7 @@ class GameUiDslTest {
         game.render(0.016f, 320f, 240f)
 
         assertEquals(1, renderer.uiDrawCalls)
-        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
+        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Quad })
     }
 
     @Test
@@ -71,8 +76,9 @@ class GameUiDslTest {
             )
             ui {
                 overlay {
-                    column(x = 20f, y = 20f, width = 180f) {
-                        text(requireService<String>())
+                    rootColumn(x = 20f, y = 20f, width = 180f) {
+                        requireService<String>()
+                        emit(UiDrawPrimitive.Quad(x = 20f, y = 20f, w = 12f, h = 12f, color = Color(0.3f, 0.6f, 0.9f, 1f)))
                     }
                 }
             }
@@ -86,7 +92,7 @@ class GameUiDslTest {
         game.render(0.016f, 320f, 240f)
 
         assertEquals(1, renderer.uiDrawCalls)
-        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
+        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Quad })
     }
 
     @Test
@@ -105,7 +111,7 @@ class GameUiDslTest {
                             height = 96f.toDimension(),
                             modifier = UiModifier().align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)
                         ) {
-                            text("Themed")
+                            emit(UiDrawPrimitive.Quad(x = 28f, y = 28f, w = 16f, h = 16f, color = Color(0.9f, 0.9f, 0.2f, 1f)))
                         }
                     }
                 }
@@ -118,7 +124,68 @@ class GameUiDslTest {
         assertNotNull(runtime)
         assertEquals(TestUiTheme, runtime.theme)
         assertEquals(1, renderer.uiDrawCalls)
-        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
+        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Quad })
+    }
+
+    @Test
+    fun nestedSlotColumnInsideRuntimeReceiverUsesCurrentUiScopeOverlayPass() {
+        val runtime = GameUiRuntime(
+            services = object : GameServiceLookup {
+                override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
+            },
+            spec = GameUiSpec(
+                theme = CoreUiTheme,
+                font = UiFonts.default(),
+                overlays = emptyList(),
+                onReadyBlock = {},
+                onDisposeBlock = {}
+            )
+        )
+        val panelColor = Color(0.15f, 0.32f, 0.62f, 1f)
+        val markerColor = Color(0.92f, 0.28f, 0.24f, 1f)
+
+        runtime.uiContext.beginFrame(240f, 160f, UiInputState())
+        with(runtime) {
+            uiContext.createBox(
+                slot = UiSlot(0f, 0f, 240f, 160f),
+                contentAlignment = UiAlignment.TopStart,
+                overlayOnly = true
+            ).surface(
+                id = "overlay-panel",
+                width = 160f.toDimension(),
+                height = 96f.toDimension(),
+                modifier = UiModifier().align(UiAlignment.TopStart).offset(16f.dp, 20f.dp),
+                style = io.github.ronjunevaldoz.awake.ui.Style {
+                    background(panelColor)
+                }
+            ) { panelSlot ->
+                column(
+                    slot = UiSlot(
+                        x = panelSlot.x + 12f,
+                        y = panelSlot.y + 12f,
+                        width = 32f,
+                        height = 16f
+                    )
+                ) {
+                    emit(UiDrawPrimitive.Quad(x = 0f, y = 0f, w = 6f, h = 6f, color = markerColor))
+                }
+            }
+        }
+
+        val primitives = runtime.uiContext.endFrame()
+        val panelIndex = primitives.indexOfFirst { primitive ->
+            primitive is UiDrawPrimitive.RoundedQuad && primitive.color == panelColor
+        }
+        val markerIndex = primitives.indexOfFirst { primitive ->
+            primitive is UiDrawPrimitive.Quad && primitive.color == markerColor
+        }
+
+        assertTrue(panelIndex >= 0, "expected the overlay surface background to render")
+        assertTrue(markerIndex >= 0, "expected the nested column marker to render")
+        assertTrue(
+            markerIndex > panelIndex,
+            "nested column(slot = ...) inside a GameUiRuntime receiver must inherit the current UiScope overlay pass instead of falling back to the runtime root receiver"
+        )
     }
 }
 

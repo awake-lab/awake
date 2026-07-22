@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -44,7 +44,7 @@ class UiSemanticWidgetsTest {
         val font = UiFonts.default()
         val context = UiContext()
         context.beginFrame(180f, 64f, testSnapshot())
-        context.createAbsolute(12f, 12f, font = font).basicText(
+        context.createAbsolute(12f, 12f, font = font).text(
             label = "This label is intentionally too wide for the slot",
             slot = UiSlot(12f, 12f, 80f, 16f),
             overflow = UiTextOverflow.Ellipsis,

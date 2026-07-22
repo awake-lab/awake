@@ -16,7 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
 /**
@@ -76,7 +76,7 @@ fun UiScope.toggle(
     )
 
     if (label != null) {
-        basicText(
+        text(
             label = label,
             slot = contentSlot,
             font = font,

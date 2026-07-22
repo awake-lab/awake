@@ -4,8 +4,11 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class LayoutTest {
 
@@ -145,6 +148,19 @@ class LayoutTest {
     }
 
     @Test
+    fun uiScopeColumnHelperOpensNestedColumnFromClaimedSlot() {
+        val ui = UiContext()
+        val box = ui.createBox(x = 0f, y = 0f, width = 240f, height = 120f)
+        var nestedChild: UiSlot? = null
+
+        box.column(slot = UiSlot(20f, 30f, 100f, 60f)) {
+            nestedChild = claimSlot(Dimension.FillMax, Dimension.Fixed(18f.px))
+        }
+
+        assertEquals(UiSlot(20f, 30f, 100f, 18f), nestedChild)
+    }
+
+    @Test
     fun scrollableColumnInRowPreservesRequestedFixedWidth() {
         val ui = UiContext()
         ui.beginFrame(800f, 600f, testSnapshot())
@@ -174,4 +190,154 @@ class LayoutTest {
         assertEquals(284f, contentSlot?.x)
         assertEquals(516f, contentSlot?.width)
     }
+
+    @Test
+    fun scrollableColumnInRowDetectsOverflowThroughNestedWrapContentSurface() {
+        val scrollState = UiScrollState()
+
+        renderScrollableNestedSurface(scrollState) { ui, content ->
+            ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).row(
+                width = Dimension.FillMax,
+                height = Dimension.FillMax,
+                gap = 16f
+            ) {
+                surface(
+                    id = "sidebar",
+                    width = Dimension.Fixed(220f.px),
+                    height = Dimension.FillMax
+                ) { }
+                column(
+                    id = "content-viewport",
+                    width = Dimension.FillMax,
+                    height = Dimension.FillMax,
+                    modifier = UiModifier().verticalScroll(scrollState)
+                ) {
+                    content()
+                }
+            }
+        }
+
+        assertTrue(scrollState.canScrollY, "a row-hosted scrollable column should detect overflow through a nested WrapContent surface")
+        assertTrue(scrollState.contentHeight > scrollState.viewportHeight)
+    }
+
+    @Test
+    fun scrollableColumnInColumnDetectsOverflowThroughNestedWrapContentSurface() {
+        val scrollState = UiScrollState()
+
+        renderScrollableNestedSurface(scrollState) { ui, content ->
+            ui.createColumn(x = 0f, y = 0f, width = 920f, height = 620f).column(
+                id = "content-viewport",
+                width = Dimension.FillMax,
+                height = Dimension.FillMax,
+                modifier = UiModifier().verticalScroll(scrollState)
+            ) {
+                content()
+            }
+        }
+
+        assertTrue(scrollState.canScrollY, "a column-hosted scrollable column should detect overflow through a nested WrapContent surface")
+        assertTrue(scrollState.contentHeight > scrollState.viewportHeight)
+    }
+
+    @Test
+    fun scrollableColumnInBoxDetectsOverflowThroughNestedWrapContentSurface() {
+        val scrollState = UiScrollState()
+
+        renderScrollableNestedSurface(scrollState) { ui, content ->
+            ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
+                id = "content-viewport",
+                width = Dimension.FillMax,
+                height = Dimension.FillMax,
+                modifier = UiModifier().verticalScroll(scrollState)
+            ) {
+                content()
+            }
+        }
+
+        assertTrue(scrollState.canScrollY, "a box-hosted scrollable column should detect overflow through a nested WrapContent surface")
+        assertTrue(scrollState.contentHeight > scrollState.viewportHeight)
+    }
+
+    @Test
+    fun scrollableColumnInAbsoluteDetectsOverflowThroughNestedWrapContentSurface() {
+        val scrollState = UiScrollState()
+
+        renderScrollableNestedSurface(scrollState) { ui, content ->
+            ui.createAbsolute(x = 0f, y = 0f).column(
+                id = "content-viewport",
+                width = Dimension.Fixed(920f.px),
+                height = Dimension.Fixed(620f.px),
+                modifier = UiModifier().verticalScroll(scrollState)
+            ) {
+                content()
+            }
+        }
+
+        assertTrue(scrollState.canScrollY, "an absolute-hosted scrollable column should detect overflow through a nested WrapContent surface")
+        assertTrue(scrollState.contentHeight > scrollState.viewportHeight)
+    }
+
+    @Test
+    fun scrollableColumnFillMaxInUnboundedParentFailsLoudlyWithParentName() {
+        val ui = UiContext()
+        ui.beginFrame(920f, 620f, testSnapshot())
+
+        val error = assertFailsWith<IllegalStateException> {
+            ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).surface(
+                id = "surface-semantic",
+                width = Dimension.FillMax,
+                height = Dimension.WrapContent,
+                modifier = UiModifier().testTag("preview-root")
+            ) {
+                column(
+                    id = "content-viewport",
+                    width = Dimension.FillMax,
+                    height = Dimension.FillMax,
+                    modifier = UiModifier().verticalScroll(UiScrollState())
+                ) {
+                    repeat(20) { index ->
+                        surface(
+                            id = "content-row-$index",
+                            width = Dimension.FillMax,
+                            height = Dimension.Fixed(36f.px)
+                        ) { }
+                    }
+                }
+            }
+        }
+
+        assertTrue(error.message.orEmpty().contains("content-viewport"))
+        assertTrue(error.message.orEmpty().contains("preview-root"))
+        assertTrue(!error.message.orEmpty().contains("surface-semantic"))
+    }
 }
+
+private fun renderScrollableNestedSurface(
+    scrollState: UiScrollState,
+    renderParent: (UiContext, ColumnContent) -> Unit
+) {
+    val ui = UiContext()
+    ui.beginFrame(920f, 620f, testSnapshot())
+
+    val content: ColumnContent = {
+        surface(
+            id = "content-card",
+            width = Dimension.FillMax,
+            height = Dimension.WrapContent
+        ) {
+            repeat(20) { index ->
+                surface(
+                    id = "content-row-$index",
+                    width = Dimension.FillMax,
+                    height = Dimension.Fixed(36f.px)
+                ) { }
+            }
+        }
+    }
+
+    renderParent(ui, content)
+    ui.endFrame()
+}
+
+private typealias ColumnContent = io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.() -> Unit

@@ -178,7 +178,7 @@ class SceneGameDslTest {
             }
             ui {
                 overlay {
-                    column(x = 16f, y = 16f, width = 180f) {
+                    rootColumn(x = 16f, y = 16f, width = 180f) {
                         text(requireService<SceneGameRuntime>().sceneName)
                     }
                 }
@@ -256,7 +256,7 @@ class SceneGameDslTest {
             }
             ui {
                 overlay {
-                    column(x = 16f, y = 16f, width = 180f) {
+                    rootColumn(x = 16f, y = 16f, width = 180f) {
                         text(requireService<SceneGameRuntime>().sceneName)
                     }
                 }

@@ -35,6 +35,7 @@ fun UiScope.scrollPanel(
     val config = modifier.scrollConfig
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
+    val containerLabel = modifier.testTag ?: id
 
     val resolved = resolveStyle(
         style = style then (modifier.styleable ?: Style.Empty),
@@ -47,9 +48,27 @@ fun UiScope.scrollPanel(
     val scrollbarReservePx = if (scrollbarWidthPx > 0f) scrollbarWidthPx + scrollbarGapPx else 0f
     val gap = UiSpacing.sm.toPx() // Default column gap
 
+    fun requireBoundedAxis(axis: String): Float {
+        val isBounded = when (axis) {
+            "width" -> hasBoundedFillWidth()
+            "height" -> hasBoundedFillHeight()
+            else -> false
+        }
+        val value = when (axis) {
+            "width" -> fillWidthOrNull()
+            "height" -> fillHeightOrNull()
+            else -> null
+        }
+        return if (isBounded && value != null) value else error(
+            "Scrollable container '$containerLabel' requested $axis=FillMax under unbounded parent ${debugScopeLabel()}. " +
+                "FillMax scroll viewports require a bounded parent $axis. " +
+                "A WrapContent ancestor usually means the parent chain never established one."
+        )
+    }
+
     fun availableOuterWidth(): Float = when (requestedWidth) {
         is Dimension.Fixed -> requestedWidth.dp.toPx()
-        Dimension.FillMax -> fillWidthOrNull() ?: 0f
+        Dimension.FillMax -> requireBoundedAxis(axis = "width")
         Dimension.WrapContent -> (fillWidthOrNull() ?: 4096f)
     }
 
@@ -65,7 +84,7 @@ fun UiScope.scrollPanel(
     // Check if vertical scroll is needed
     val containerHeight = when (requestedHeight) {
         is Dimension.Fixed -> (requestedHeight.dp.toPx() - paddingHeight).coerceAtLeast(0f)
-        Dimension.FillMax -> (fillHeightOrNull()?.minus(paddingHeight))?.coerceAtLeast(0f) ?: initialMeasure.height
+        Dimension.FillMax -> (requireBoundedAxis(axis = "height") - paddingHeight).coerceAtLeast(0f)
         else -> initialMeasure.height // WrapContent
     }
 
@@ -88,7 +107,7 @@ fun UiScope.scrollPanel(
     // Check horizontal after potential narrowing
     val containerWidth = when (requestedWidth) {
         is Dimension.Fixed -> (requestedWidth.dp.toPx() - paddingWidth).coerceAtLeast(0f)
-        Dimension.FillMax -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: initialMeasure.width
+        Dimension.FillMax -> (requireBoundedAxis(axis = "width") - paddingWidth).coerceAtLeast(0f)
         else -> initialMeasure.width // WrapContent
     }
     val horizontalNeeded = when (config.horizontalVisibility) {
@@ -169,6 +188,7 @@ fun UiScope.scrollPanel(
             viewport.height
         ),
         gap = gap,
+        testTag = containerLabel,
     )
     clip(viewport) {
         contentScope.content(viewport)

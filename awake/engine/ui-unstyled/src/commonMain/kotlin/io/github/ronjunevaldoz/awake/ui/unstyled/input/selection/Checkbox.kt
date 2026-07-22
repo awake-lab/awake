@@ -19,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
 private const val CHECKBOX_LABEL_GAP = 8f
@@ -81,7 +81,7 @@ fun UiScope.checkbox(
             interaction.slot.width - boxPx - CHECKBOX_LABEL_GAP,
             interaction.slot.height
         )
-        basicText(
+        text(
             label,
             slot = labelSlot,
             font = resolvedFont,

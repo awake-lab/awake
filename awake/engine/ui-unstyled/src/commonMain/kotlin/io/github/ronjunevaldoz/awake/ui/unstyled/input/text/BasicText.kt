@@ -29,49 +29,47 @@ enum class UiTextOverflow {
     Ellipsis
 }
 
-fun UiScope.basicText(
+internal fun UiScope.renderTextBlock(
     label: String,
-    slot: UiSlot? = null,
-    font: UiFont? = context.currentFont,
-    color: Color? = context.currentTextStyle.color,
+    slot: UiSlot,
+    font: UiFont,
+    color: Color?,
     centered: Boolean = false,
     verticallyCentered: Boolean = centered,
     wrap: UiTextWrap = UiTextWrap.None,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     maxLines: Int = 1,
-    textStyle: TextStyle = context.currentTextStyle,
+    textStyle: TextStyle,
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text
-) {
-    val resolvedFont = checkNotNull(font) { "text() requires a font, either from the UiScope or passed explicitly" }
-    val glyphPx = resolveGlyphPx(resolvedFont, textStyle)
-    val resolvedSlot = slot ?: claimSlot(Dimension.FillMax, Dimension.Fixed(glyphPx.px))
+) : UiSlot {
+    val glyphPx = resolveGlyphPx(font, textStyle)
     val layout = layoutBitmapText(
         label = label,
         glyphPx = glyphPx,
-        maxWidthPx = resolvedSlot.width,
+        maxWidthPx = slot.width,
         wrap = wrap,
         overflow = overflow,
         maxLines = maxLines,
-        advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
+        advanceOf = { char -> font.advanceFor(char, glyphPx) }
     )
     val lineGap = glyphPx * 0.25f
-    val blockMetrics = measureTextBlock(layout, resolvedFont, glyphPx, lineGap)
+    val blockMetrics = measureTextBlock(layout, font, glyphPx, lineGap)
     val shouldClip = wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || maxLines > 1
     val contentBounds = resolveTextContentBounds(
-        slot = resolvedSlot,
+        slot = slot,
         lineWidths = layout.lineWidths,
         blockHeight = blockMetrics.heightPx,
         verticallyCentered = verticallyCentered,
         centered = centered
     )
-    val clippedBounds = if (shouldClip) contentBounds.intersect(resolvedSlot) else contentBounds
+    val clippedBounds = if (shouldClip) contentBounds.intersect(slot) else contentBounds
 
     recordSemantic(
         role = semanticRole,
         id = semanticId,
         label = label,
-        bounds = resolvedSlot,
+        bounds = slot,
         contentBounds = contentBounds,
         clippedBounds = clippedBounds,
         truncated = layout.truncated,
@@ -81,15 +79,15 @@ fun UiScope.basicText(
     val textColor = color ?: context.currentTheme.tokens.foreground
     fun emitLines() {
         var penY = if (verticallyCentered) {
-            resolvedSlot.y + (resolvedSlot.height - blockMetrics.heightPx) / 2f - blockMetrics.topPx
+            slot.y + (slot.height - blockMetrics.heightPx) / 2f - blockMetrics.topPx
         } else {
-            resolvedSlot.y - blockMetrics.topPx
+            slot.y - blockMetrics.topPx
         }
         layout.lines.forEachIndexed { index, line ->
             val textWidth = layout.lineWidths[index]
-            var penX = if (centered) resolvedSlot.x + (resolvedSlot.width - textWidth) / 2f else resolvedSlot.x
+            var penX = if (centered) slot.x + (slot.width - textWidth) / 2f else slot.x
             for (char in line) {
-                val glyph = resolvedFont.uvFor(char)
+                val glyph = font.uvFor(char)
                 if (glyph != null) {
                     emit(
                         UiDrawPrimitive.Glyph(
@@ -105,19 +103,57 @@ fun UiScope.basicText(
                         )
                     )
                 }
-                penX += resolvedFont.advanceFor(char, glyphPx)
+                penX += font.advanceFor(char, glyphPx)
             }
             penY += glyphPx + lineGap
         }
     }
 
     if (shouldClip) {
-        clip(resolvedSlot) {
+        clip(slot) {
             emitLines()
         }
     } else {
         emitLines()
     }
+    return slot
+}
+
+@Deprecated(
+    message = "Use text(...) for component-level text and reserve basicText(...) for low-level glyph primitives only.",
+    replaceWith = ReplaceWith("text(label = label, slot = slot ?: claimSlot(Dimension.FillMax, Dimension.Fixed(resolveGlyphPx(checkNotNull(font), textStyle).px)), font = checkNotNull(font), color = color, centered = centered, verticallyCentered = verticallyCentered, wrap = wrap, overflow = overflow, maxLines = maxLines, textStyle = textStyle, semanticId = semanticId, semanticRole = semanticRole)")
+)
+fun UiScope.basicText(
+    label: String,
+    slot: UiSlot? = null,
+    font: UiFont? = context.currentFont,
+    color: Color? = context.currentTextStyle.color,
+    centered: Boolean = false,
+    verticallyCentered: Boolean = centered,
+    wrap: UiTextWrap = UiTextWrap.None,
+    overflow: UiTextOverflow = UiTextOverflow.Visible,
+    maxLines: Int = 1,
+    textStyle: TextStyle = context.currentTextStyle,
+    semanticId: String? = null,
+    semanticRole: UiSemanticRole = UiSemanticRole.Text
+): UiSlot {
+    val resolvedFont = checkNotNull(font) { "text() requires a font, either from the UiScope or passed explicitly" }
+    val glyphPx = resolveGlyphPx(resolvedFont, textStyle)
+    val resolvedSlot = slot ?: claimSlot(Dimension.FillMax, Dimension.Fixed(glyphPx.px))
+    return renderTextBlock(
+        label = label,
+        slot = resolvedSlot,
+        font = resolvedFont,
+        color = color,
+        centered = centered,
+        verticallyCentered = verticallyCentered,
+        wrap = wrap,
+        overflow = overflow,
+        maxLines = maxLines,
+        textStyle = textStyle,
+        semanticId = semanticId,
+        semanticRole = semanticRole
+    )
 }
 
 private fun resolveTextContentBounds(

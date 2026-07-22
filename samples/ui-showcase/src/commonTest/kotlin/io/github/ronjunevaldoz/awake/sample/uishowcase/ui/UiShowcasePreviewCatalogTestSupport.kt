@@ -46,7 +46,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.width
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
 
@@ -637,7 +637,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
             width = Dimension.Fixed(260f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
         ) {
-            basicText(
+            text(
                 label = "Scene stats stay live here when the cursor rests on the trigger.",
                 wrap = UiTextWrap.Word,
                 overflow = UiTextOverflow.Ellipsis,

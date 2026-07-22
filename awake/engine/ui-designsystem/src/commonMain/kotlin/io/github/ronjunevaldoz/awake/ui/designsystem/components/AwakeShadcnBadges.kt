@@ -21,7 +21,6 @@ import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.verticalPx
 
@@ -73,7 +72,7 @@ fun UiScope.awakeShadcnBadge(
         borderWidth = resolved.borderWidth,
         borderColor = resolved.borderColor ?: shadcnTheme.tokens.border
     )
-    basicText(
+    text(
         label = label,
         slot = slot,
         font = font,

@@ -181,7 +181,7 @@ fun UiScope.textarea(
         val showingPlaceholder = nextValue.isEmpty() && !focused
         val displayed = if (showingPlaceholder) placeholder else nextValue
         if (displayed.isNotEmpty()) {
-            basicText(
+            text(
                 label = displayed,
                 slot = contentSlot,
                 font = resolvedFont,

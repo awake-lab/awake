@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
 private const val TOGGLE_WIDTH_PX = 40f
@@ -76,7 +76,7 @@ fun UiScope.switch(
     if (label != null) {
         val labelWidth = (fillWidthOrNull()?.let { it - interaction.slot.width - TOGGLE_LABEL_GAP }
             ?: 160f).coerceAtLeast(0f)
-        basicText(
+        text(
             label,
             slot = UiSlot(
                 interaction.slot.x + interaction.slot.width + TOGGLE_LABEL_GAP,

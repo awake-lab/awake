@@ -24,7 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /** [button] with the resolved [io.github.ronjunevaldoz.awake.ui.UiSlot] alongside the click result. */
 data class UiButtonResult(val clicked: Boolean, val slot: UiSlot)
@@ -118,7 +118,7 @@ fun UiScope.buttonSlot(
     semanticLabel = label,
     drawContent = { contentSlot, resolved ->
         if (label != null) {
-            basicText(
+            text(
                 label = label,
                 slot = contentSlot,
                 font = font,

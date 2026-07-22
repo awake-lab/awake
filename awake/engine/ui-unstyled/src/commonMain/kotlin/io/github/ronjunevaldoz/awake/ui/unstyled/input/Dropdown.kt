@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.width
 
 
@@ -122,10 +122,11 @@ fun UiScope.drawDropdownTriggerContent(
     semanticId: String? = null
 ) {
     val resolvedFont = font
-    val resolved = resolveStyle(defaults = style, state = MutableStyleState(
-        hovered = hitTest(slot),
-        active = expanded
-    )
+    val resolved = resolveStyle(
+        defaults = style, state = MutableStyleState(
+            hovered = hitTest(slot),
+            active = expanded
+        )
     )
     val textColor = resolved.foreground ?: theme.tokens.foreground
     // Raw px, not Dp -- `slot` (like every other widget's width/height param in this file)
@@ -136,7 +137,7 @@ fun UiScope.drawDropdownTriggerContent(
     val horizontalPad = 10f
     val chevronGap = 6f
     val chevronSize = 8f
-    basicText(
+    text(
         label,
         slot = UiSlot(
             x = slot.x + horizontalPad,

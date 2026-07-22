@@ -30,20 +30,21 @@ fun AwakeUiPreviewMetadata.componentStateMatrix(
 
     return states.map { (idSuffix, forcedModifier) ->
         val ui = UiContext()
+        val resolvedTheme = theme ?: io.github.ronjunevaldoz.awake.ui.CoreUiTheme
         ui.beginFrame(width.toFloat(), height.toFloat(), UiInputState())
+        ui.pushFont(font)
+        ui.pushTheme(resolvedTheme)
         ui.createColumn(
             x = 0f,
             y = 0f,
             width = width.toFloat(),
-            font = font,
-            theme = theme ?: io.github.ronjunevaldoz.awake.ui.CoreUiTheme,
         ).block(forcedModifier)
         sample(
             idSuffix = idSuffix,
             titleSuffix = idSuffix.replaceFirstChar { it.uppercase() },
             frame = AwakeUiPreviewFrame(
                 primitives = ui.endFrame(),
-                background = (theme ?: io.github.ronjunevaldoz.awake.ui.CoreUiTheme).tokens.background,
+                background = resolvedTheme.tokens.background,
                 font = font,
                 semantics = ui.semanticNodes()
             )

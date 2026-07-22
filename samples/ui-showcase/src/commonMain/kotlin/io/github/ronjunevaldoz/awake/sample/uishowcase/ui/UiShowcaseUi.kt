@@ -51,7 +51,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
 
         if (compact) {
             column(width = Dimension.FillMax, height = Dimension.FillMax, gap = 12f, modifier =  UiModifier().fillMaxSize().padding(outerPadding)) {
-                this@column.awakeShadcnSurface(
+                awakeShadcnSurface(
                     id = "ui-showcase-mobile-sidebar",
                     height = Dimension.FillMax,
                     variant = AwakeShadcnSurfaceVariant.Sidebar,
@@ -61,19 +61,21 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                     drawUiShowcaseSidebar(compact = true)
                 }
 
-                this@drawUiShowcaseOverlay.column(
-                    slot = claimSlot(Dimension.FillMax, Dimension.FillMax)
+                column(
+                    id = "ui-showcase-mobile-content-viewport",
+                    width = Dimension.FillMax,
+                    height = Dimension.FillMax,
                 ) {
-                    column(
-                        id = "ui-showcase-mobile-content-viewport",
-                        width = Dimension.FillMax,
+                    awakeShadcnSurface(
+                        id = "ui-showcase-mobile-content",
                         height = Dimension.FillMax,
-                        modifier = UiModifier().verticalScroll(contentScroll)
+                        style = Style { shape(16f.dp) }
                     ) {
-                        awakeShadcnSurface(
-                            id = "ui-showcase-mobile-content",
-                            height = Dimension.WrapContent,
-                            style = Style { shape(16f.dp) }
+                        column(
+                            id = "ui-showcase-mobile-content-scroll",
+                            width = Dimension.FillMax,
+                            height = Dimension.FillMax,
+                            modifier = UiModifier().verticalScroll(contentScroll)
                         ) {
                             drawUiShowcasePageContent(state, showInlineMenu = true)
                         }
@@ -101,15 +103,21 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                 column(
                     id = "ui-showcase-content-viewport",
                     width = Dimension.FillMax,
-                    height = Dimension.FillMax,
-                    modifier = UiModifier().verticalScroll(contentScroll)
+                    height = Dimension.FillMax
                 ) {
                     awakeShadcnSurface(
                         id = "ui-showcase-content",
-                        height = Dimension.WrapContent,
+                        height = Dimension.FillMax,
                         style = Style { shape(16f.dp) }
                     ) {
-                        this@column.drawUiShowcasePageContent(state, showInlineMenu = false)
+                        column(
+                            id = "ui-showcase-content-scroll",
+                            width = Dimension.FillMax,
+                            height = Dimension.FillMax,
+                            modifier = UiModifier().verticalScroll(contentScroll)
+                        ) {
+                            drawUiShowcasePageContent(state, showInlineMenu = false)
+                        }
                     }
                 }
             }

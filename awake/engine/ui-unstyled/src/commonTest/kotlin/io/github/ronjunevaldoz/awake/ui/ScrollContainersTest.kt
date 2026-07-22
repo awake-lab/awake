@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -28,7 +28,7 @@ class ScrollContainersTest {
             ) {
                 repeat(8) { index ->
                     val row = claimSlot(Dimension.FillMax, 20f.toDimension())
-                    basicText("Row $index", slot = row)
+                    text("Row $index", slot = row)
                 }
             }
         }
@@ -54,7 +54,7 @@ class ScrollContainersTest {
             ) {
                 repeat(8) { index ->
                     val row = claimSlot(Dimension.FillMax, 20f.toDimension())
-                    basicText("Row $index", slot = row)
+                    text("Row $index", slot = row)
                 }
             }
         }
@@ -80,7 +80,7 @@ class ScrollContainersTest {
         ) {
             repeat(8) { index ->
                 val row = claimSlot(Dimension.FillMax, 20f.toDimension())
-                basicText("Row $index", slot = row)
+                text("Row $index", slot = row)
             }
         }
         val primitives = ui.endFrame()

@@ -14,7 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 private val AVATAR_DEFAULT_DIAMETER = 40f.dp
 
@@ -44,5 +44,5 @@ fun UiScope.avatarFallback(
         borderColor = resolved.borderColor ?: theme.tokens.border,
         shapeSpec = UiShapeSpec.Circle
     )
-    basicText(initials, slot = slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
+    text(initials, slot = slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
 }

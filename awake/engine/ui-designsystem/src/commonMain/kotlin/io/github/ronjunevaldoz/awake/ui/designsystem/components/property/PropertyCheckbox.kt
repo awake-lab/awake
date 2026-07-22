@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.resolvedThemeCaptionStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 
 private val DefaultPropertyCheckboxHeight = 28f.dp
@@ -45,7 +45,7 @@ fun UiScope.propertyCheckbox(
         interaction.slot.width,
         glyphPx
     )
-    basicText(
+    text(
         label = label,
         slot = labelSlot,
         font = resolvedFont,

@@ -35,7 +35,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.width
 
 private val ShowcaseActionMenuItems = listOf(
@@ -215,7 +215,7 @@ internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
             width = Dimension.Fixed(260f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
         ) {
-            basicText(
+            text(
                 label = "Frame pacing, draw calls, and scene counters can live in a tooltip without forcing a dedicated panel.",
                 wrap = UiTextWrap.Word,
                 overflow = UiTextOverflow.Ellipsis,

@@ -29,8 +29,8 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.layoutBitmapText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.ui.width
 
@@ -181,7 +181,7 @@ private fun ColumnScope.dropdownMenuItem(
         item.destructive -> theme.tokens.destructive
         else -> theme.tokens.foreground
     }
-    contentScope.basicText(
+    contentScope.text(
         label = item.label,
         slot = UiSlot(
             x = slot.slot.x + 12f,
@@ -195,7 +195,7 @@ private fun ColumnScope.dropdownMenuItem(
         textStyle = resolvedTextStyle
     )
     item.trailingLabel?.let { label ->
-        contentScope.basicText(
+        contentScope.text(
             label = label,
             slot = UiSlot(
                 x = slot.slot.x + slot.slot.width - trailingWidth - 12f,
@@ -211,7 +211,7 @@ private fun ColumnScope.dropdownMenuItem(
         )
     }
     supportingLayout?.let { layout ->
-        contentScope.basicText(
+        contentScope.text(
             label = item.supportingText,
             slot = UiSlot(
                 x = slot.slot.x + 12f,

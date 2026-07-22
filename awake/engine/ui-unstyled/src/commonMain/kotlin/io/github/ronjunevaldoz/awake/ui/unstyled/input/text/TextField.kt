@@ -143,7 +143,7 @@ fun UiScope.textField(
         val showingPlaceholder = nextValue.isEmpty() && !focused
         val displayed = if (showingPlaceholder) placeholder else nextValue
         if (displayed.isNotEmpty()) {
-            basicText(
+            text(
                 label = displayed,
                 slot = UiSlot(contentSlot.x, contentSlot.y, contentSlot.width, contentSlot.height),
                 font = resolvedFont,

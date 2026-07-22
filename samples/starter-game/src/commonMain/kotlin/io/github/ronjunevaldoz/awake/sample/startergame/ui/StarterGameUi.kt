@@ -34,7 +34,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.toDimension
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 internal fun starterGameUiSpec(state: StarterGameRuntimeState): GameUiSpec {
     return gameUi {
@@ -139,7 +139,7 @@ private fun ColumnScope.drawStarterNavigation(
     router: SceneRouterRuntime
 ) {
     awakeShadcnBadge("STARTER", variant = AwakeShadcnBadgeVariant.Primary)
-    basicText("Starter Game")
+    text("Starter Game")
     metaText(
         label = "Active: ${model.activeSceneLabel}",
         maxLines = 1
@@ -174,7 +174,7 @@ private fun ColumnScope.drawStarterInspectorPanel(
         checked = model.tipsVisible,
         height = 24f.dp
     ) {
-        basicText("Show notes")
+        text("Show notes")
     }
     if (nextTipsVisible != model.tipsVisible) {
         state.tipsVisible = nextTipsVisible

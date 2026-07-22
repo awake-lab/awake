@@ -13,6 +13,9 @@ class AbsoluteScope internal constructor(
     context: UiContext,
     private val x: Float,
     private val y: Float,
+    override val testTag: String? = null,
+    override val hasBoundedFillWidth: Boolean = false,
+    override val hasBoundedFillHeight: Boolean = false,
     emitToOverlay: Boolean = false
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     override val fillWidth: Float? = null

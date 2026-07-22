@@ -15,13 +15,24 @@ abstract class AbstractUiScope(
     private val emitToOverlay: Boolean = false
 ) : io.github.ronjunevaldoz.awake.ui.UiScope {
     final override val emitsToOverlay: Boolean = emitToOverlay
-    final override fun hitTest(slot: io.github.ronjunevaldoz.awake.ui.UiSlot) = context.hitTestInternal(slot)
+    final override fun hitTest(slot: io.github.ronjunevaldoz.awake.ui.UiSlot) =
+        context.hitTestInternal(slot)
+
     final override fun isActive(id: String) = context.isActiveInternal(id)
-    final override fun tryClaimActive(id: String, hovered: Boolean) = context.tryClaimActiveInternal(id, hovered)
-    final override fun releaseActiveIfMatches(id: String) = context.releaseActiveIfMatchesInternal(id)
+    final override fun tryClaimActive(id: String, hovered: Boolean) =
+        context.tryClaimActiveInternal(id, hovered)
+
+    final override fun releaseActiveIfMatches(id: String) =
+        context.releaseActiveIfMatchesInternal(id)
+
     final override fun emit(primitive: io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive) =
-        if (emitToOverlay) context.emitOverlayInternal(primitive) else context.emitInternal(primitive)
-    final override fun emitOverlay(primitive: io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive) = context.emitOverlayInternal(primitive)
+        if (emitToOverlay) context.emitOverlayInternal(primitive) else context.emitInternal(
+            primitive
+        )
+
+    final override fun emitOverlay(primitive: io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive) =
+        context.emitOverlayInternal(primitive)
+
     final override fun widgetState(id: String) = context.widgetStateInternal(id)
 }
 
@@ -30,19 +41,24 @@ abstract class AbstractUiScope(
  * [configured] is lazy: a scope with no meaningful "fill" axis (e.g. [RowScope]'s width)
  * passes `{ error(...) }`, which must only evaluate if [FillMax][io.github.ronjunevaldoz.awake.ui.Dimension.FillMax] is
  * actually requested on that axis, not unconditionally as an eager argument would. */
-internal inline fun io.github.ronjunevaldoz.awake.ui.Dimension.resolve(configured: () -> Float): Float = when (this) {
-    is io.github.ronjunevaldoz.awake.ui.Dimension.Fixed -> dp.toPx()
-    io.github.ronjunevaldoz.awake.ui.Dimension.FillMax -> configured()
-    io.github.ronjunevaldoz.awake.ui.Dimension.WrapContent -> error("WrapContent must be resolved by a measuring composite before claimSlot()")
-}
+internal inline fun io.github.ronjunevaldoz.awake.ui.Dimension.resolve(configured: () -> Float): Float =
+    when (this) {
+        is io.github.ronjunevaldoz.awake.ui.Dimension.Fixed -> dp.toPx()
+        io.github.ronjunevaldoz.awake.ui.Dimension.FillMax -> configured()
+        io.github.ronjunevaldoz.awake.ui.Dimension.WrapContent -> error("WrapContent must be resolved by a measuring composite before claimSlot()")
+    }
 
-internal fun io.github.ronjunevaldoz.awake.ui.Dimension.resolveAgainst(available: Float): Float = when (this) {
-    is io.github.ronjunevaldoz.awake.ui.Dimension.Fixed -> dp.toPx()
-    io.github.ronjunevaldoz.awake.ui.Dimension.FillMax -> available
-    io.github.ronjunevaldoz.awake.ui.Dimension.WrapContent -> error("WrapContent must be resolved before modifier placement")
-}
+internal fun io.github.ronjunevaldoz.awake.ui.Dimension.resolveAgainst(available: Float): Float =
+    when (this) {
+        is io.github.ronjunevaldoz.awake.ui.Dimension.Fixed -> dp.toPx()
+        io.github.ronjunevaldoz.awake.ui.Dimension.FillMax -> available
+        io.github.ronjunevaldoz.awake.ui.Dimension.WrapContent -> error("WrapContent must be resolved before modifier placement")
+    }
 
 internal interface FillAwareScope {
     val fillWidth: Float?
     val fillHeight: Float?
+    val hasBoundedFillWidth: Boolean
+    val hasBoundedFillHeight: Boolean
+    val testTag: String?
 }

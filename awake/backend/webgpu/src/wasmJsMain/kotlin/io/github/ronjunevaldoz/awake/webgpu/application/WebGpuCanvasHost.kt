@@ -149,6 +149,7 @@ private fun currentWindowDensity(): Double {
     return if (scale.isFinite() && scale > 0.0) scale else 1.0
 }
 
+
 private fun syncUiDensityFromWindow() {
     UiDensity.scale = currentWindowDensity().toFloat()
 }

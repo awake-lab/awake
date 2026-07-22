@@ -79,7 +79,7 @@ class SceneRouterDslTest {
             }
             column {
                 overlay { _, _ ->
-                    column(x = 16f, y = 16f, width = 180f) {
+                    rootColumn(x = 16f, y = 16f, width = 180f) {
                         text(requireService<SceneRouterRuntime>().activeSceneLabel)
                     }
                 }

@@ -62,7 +62,10 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(font, textSize = 10.sp)
+        val glyphPx = ui.createAbsolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(
+            font = font,
+            textStyle = TextStyle(size = 10.sp)
+        )
 
         assertEquals(10f, glyphPx, "styled text sizes should not be clamped back up to the bitmap cell size")
     }
@@ -75,7 +78,10 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(font, textSize = 13f.sp)
+        val glyphPx = ui.createAbsolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(
+            font = font,
+            textStyle = TextStyle(size = 13f.sp)
+        )
 
         assertEquals(14f, glyphPx, "styled text sizes should snap to whole device pixels for crisper bitmap text")
     }

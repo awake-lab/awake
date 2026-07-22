@@ -112,6 +112,16 @@ fun UiScope.fillWidthOrNull(): Float? = (this as? FillAwareScope)?.fillWidth
 
 fun UiScope.fillHeightOrNull(): Float? = (this as? FillAwareScope)?.fillHeight
 
+fun UiScope.hasBoundedFillWidth(): Boolean = (this as? FillAwareScope)?.hasBoundedFillWidth == true
+
+fun UiScope.hasBoundedFillHeight(): Boolean = (this as? FillAwareScope)?.hasBoundedFillHeight == true
+
+fun UiScope.debugScopeLabel(): String {
+    val typeName = this::class.simpleName ?: "UiScope"
+    val name = (this as? FillAwareScope)?.testTag
+    return if (name.isNullOrBlank()) typeName else "'$name' ($typeName)"
+}
+
 
 fun UiScope.claimModifiedSlot(
     defaultWidth: Dimension = Dimension.WrapContent,
@@ -164,25 +174,59 @@ fun UiScope.ProvideFont(font: UiFont, content: UiScope.() -> Unit) {
 fun UiScope.childColumn(
     slot: UiSlot,
     gap: Float = UiSpacing.sm.toPx(),
-    insets: UiInsets = UiInsets.Zero
-): ColumnScope = context.createColumn(slot, gap, insets, overlayOnly = emitsToOverlay)
+    insets: UiInsets = UiInsets.Zero,
+    testTag: String? = null,
+    hasBoundedFillWidth: Boolean = true,
+    hasBoundedFillHeight: Boolean = true
+): ColumnScope = context.createColumn(
+    slot,
+    gap,
+    insets,
+    testTag = testTag,
+    hasBoundedFillWidth = hasBoundedFillWidth,
+    hasBoundedFillHeight = hasBoundedFillHeight,
+    overlayOnly = emitsToOverlay
+)
 
 fun UiScope.childRow(
     slot: UiSlot,
     gap: Float = UiSpacing.sm.toPx(),
-    insets: UiInsets = UiInsets.Zero
-): RowScope = context.createRow(slot, gap, insets, overlayOnly = emitsToOverlay)
+    insets: UiInsets = UiInsets.Zero,
+    testTag: String? = null,
+    hasBoundedFillWidth: Boolean = true,
+    hasBoundedFillHeight: Boolean = true
+): RowScope = context.createRow(
+    slot,
+    gap,
+    insets,
+    testTag = testTag,
+    hasBoundedFillWidth = hasBoundedFillWidth,
+    hasBoundedFillHeight = hasBoundedFillHeight,
+    overlayOnly = emitsToOverlay
+)
 
 fun UiScope.childAbsolute(
     slot: UiSlot,
-    insets: UiInsets = UiInsets.Zero
-): AbsoluteScope = context.createAbsolute(slot, insets, overlayOnly = emitsToOverlay)
+    insets: UiInsets = UiInsets.Zero,
+    testTag: String? = null
+): AbsoluteScope = context.createAbsolute(slot, insets, testTag = testTag, overlayOnly = emitsToOverlay)
 
 fun UiScope.childBox(
     slot: UiSlot,
     insets: UiInsets = UiInsets.Zero,
-    contentAlignment: UiAlignment = UiAlignment.TopStart
-): BoxScope = context.createBox(slot, insets, contentAlignment, overlayOnly = emitsToOverlay)
+    contentAlignment: UiAlignment = UiAlignment.TopStart,
+    testTag: String? = null,
+    hasBoundedFillWidth: Boolean = true,
+    hasBoundedFillHeight: Boolean = true
+): BoxScope = context.createBox(
+    slot,
+    insets,
+    contentAlignment,
+    testTag = testTag,
+    hasBoundedFillWidth = hasBoundedFillWidth,
+    hasBoundedFillHeight = hasBoundedFillHeight,
+    overlayOnly = emitsToOverlay
+)
 
 fun UiScope.resolveStyle(
     style: Style = Style.Empty,
@@ -216,13 +260,23 @@ fun UiScope.recordSemantic(
     )
 }
 
-
+/**
+ * TODO revisit: Experimental only
+ */
 val UiScope.theme : UiTheme
     get() = context.currentTheme
+/**
+ * TODO revisit: Experimental only
+ */
 val UiScope.font : UiFont
     get() = context.currentFont
+/**
+ * TODO revisit: Experimental only
+ */
 val UiScope.textStyle : TextStyle
     get() = context.currentTextStyle
-
+/**
+ * TODO revisit: Experimental only
+ */
 val UiScope.resolvedThemeCaptionStyle : TextStyle
     get() = textStyle then TextStyle(size = theme.typography.caption)

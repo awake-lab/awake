@@ -3,14 +3,17 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
-import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.inset
@@ -21,6 +24,92 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.verticalPx
 
+internal fun UiScope.drawResolvedText(
+    label: String,
+    slot: UiSlot,
+    resolvedFont: UiFont,
+    resolvedStyle: ResolvedStyle,
+    color: Color? = null,
+    textStyle: TextStyle = resolvedStyle.textStyle,
+    centered: Boolean = false,
+    verticallyCentered: Boolean = centered,
+    wrap: UiTextWrap = UiTextWrap.None,
+    overflow: UiTextOverflow = UiTextOverflow.Visible,
+    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
+    semanticId: String? = null,
+    semanticRole: UiSemanticRole = UiSemanticRole.Text
+): UiSlot {
+    if (
+        resolvedStyle.background != null ||
+        resolvedStyle.borderWidth.toPx() > 0f ||
+        resolvedStyle.shapeSpec != null ||
+        resolvedStyle.shape.toPx() > 0f
+    ) {
+        emitFillAndBorder(
+            slot = slot,
+            fillColor = resolvedStyle.background ?: Color.Transparent,
+            radiusPx = resolvedStyle.shape.toPx(),
+            borderWidth = resolvedStyle.borderWidth,
+            borderColor = resolvedStyle.borderColor ?: theme.tokens.border,
+            shapeSpec = resolvedStyle.shapeSpec
+        )
+    }
+    renderTextBlock(
+        label = label,
+        slot = slot.inset(resolvedStyle.contentPadding),
+        font = resolvedFont,
+        color = color ?: resolvedStyle.foreground ?: theme.tokens.foreground,
+        centered = centered,
+        verticallyCentered = verticallyCentered,
+        wrap = wrap,
+        overflow = overflow,
+        maxLines = maxLines,
+        textStyle = textStyle,
+        semanticId = semanticId,
+        semanticRole = semanticRole
+    )
+    return slot
+}
+
+fun UiScope.text(
+    label: String,
+    slot: UiSlot,
+    style: Style = Style.Empty,
+    font: UiFont = context.currentFont,
+    color: Color? = null,
+    centered: Boolean = false,
+    verticallyCentered: Boolean = centered,
+    wrap: UiTextWrap = UiTextWrap.None,
+    overflow: UiTextOverflow = UiTextOverflow.Visible,
+    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
+    textStyle: TextStyle? = null,
+    semanticId: String? = null,
+    semanticRole: UiSemanticRole = UiSemanticRole.Text
+): UiSlot {
+    val resolved = resolveStyle(
+        style = style,
+        defaults = Style { foreground(theme.tokens.foreground) },
+        state = MutableStyleState(
+            hovered = hitTest(slot)
+        )
+    )
+    return drawResolvedText(
+        label = label,
+        slot = slot,
+        resolvedFont = font,
+        resolvedStyle = resolved,
+        color = color,
+        textStyle = textStyle ?: resolved.textStyle,
+        centered = centered,
+        verticallyCentered = verticallyCentered,
+        wrap = wrap,
+        overflow = overflow,
+        maxLines = maxLines,
+        semanticId = semanticId,
+        semanticRole = semanticRole
+    )
+}
+
 /**
  * DSL version of [text] that supports [UiModifier] and [Style] resolution.
  * It claims a slot and draws the text within it.
@@ -29,10 +118,16 @@ fun UiScope.text(
     label: String,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
+    font: UiFont = context.currentFont,
+    color: Color? = null,
     centered: Boolean = false,
+    verticallyCentered: Boolean = centered,
     wrap: UiTextWrap = UiTextWrap.None,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
-    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE
+    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
+    textStyle: TextStyle? = null,
+    semanticId: String? = null,
+    semanticRole: UiSemanticRole = UiSemanticRole.Text
 ): UiSlot {
     val resolvedFont = font
 
@@ -49,7 +144,7 @@ fun UiScope.text(
         focused = modifier.forceFocus ?: false
     )
 
-    fun resolveAndMeasure(state: MutableStyleState): Pair<io.github.ronjunevaldoz.awake.ui.ResolvedStyle, Float> {
+    fun resolveAndMeasure(state: MutableStyleState): Pair<ResolvedStyle, Float> {
         val resolved = resolveStyle(
             style = style,
             defaults = Style {
@@ -63,8 +158,9 @@ fun UiScope.text(
         return resolved to labelWidthPx
     }
 
-    var resolved = resolveAndMeasure(styleState).first
-    var labelWidthPx = resolveAndMeasure(styleState).second
+    val (initialResolved, initialLabelWidthPx) = resolveAndMeasure(styleState)
+    var resolved = initialResolved
+    var labelWidthPx = initialLabelWidthPx
     var textStyle = resolved.textStyle
     var glyphPx = resolveGlyphPx(resolvedFont, textStyle)
     val defaultWidth: Dimension = when {
@@ -92,7 +188,7 @@ fun UiScope.text(
     val blockHeight = layout.blockHeight(glyphPx, lineGap)
     var slot = claimModifiedSlot(
         defaultWidth,
-        Dimension.Fixed((blockHeight + resolveStyle(state = styleState, style = style, defaults = Style {}).contentPadding.verticalPx()).px),
+        Dimension.Fixed((blockHeight + resolved.contentPadding.verticalPx()).px),
         modifier
     )
 
@@ -130,26 +226,19 @@ fun UiScope.text(
             )
         }
     }
-    if (resolved.background != null || resolved.borderWidth.toPx() > 0f || resolved.shapeSpec != null || resolved.shape.toPx() > 0f) {
-        emitFillAndBorder(
-            slot = slot,
-            fillColor = resolved.background ?: Color.Transparent,
-            radiusPx = resolved.shape.toPx(),
-            borderWidth = resolved.borderWidth,
-            borderColor = resolved.borderColor ?: theme.tokens.border,
-            shapeSpec = resolved.shapeSpec
-        )
-    }
-    this.basicText(
+    return drawResolvedText(
         label = label,
-        slot = slot.inset(resolved.contentPadding),
-        font = resolvedFont,
-        color = resolved.foreground ?: theme.tokens.foreground,
+        slot = slot,
+        resolvedFont = resolvedFont,
+        resolvedStyle = resolved,
+        color = color,
         centered = centered,
+        verticallyCentered = verticallyCentered,
+        textStyle = textStyle,
         wrap = wrap,
         overflow = overflow,
         maxLines = maxLines,
-        textStyle = textStyle
+        semanticId = semanticId,
+        semanticRole = semanticRole
     )
-    return slot
 }
