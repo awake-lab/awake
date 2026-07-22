@@ -1,6 +1,9 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui
+package io.github.ronjunevaldoz.awake.ui.theme
+
+import io.github.ronjunevaldoz.awake.ui.Sp
+import io.github.ronjunevaldoz.awake.ui.sp
 
 data class UiTypography(
     val caption: Sp = 12.sp,

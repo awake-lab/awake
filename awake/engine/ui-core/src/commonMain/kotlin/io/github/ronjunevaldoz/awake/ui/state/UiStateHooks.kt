@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import kotlin.reflect.KProperty
 
 /**
@@ -9,7 +10,7 @@ import kotlin.reflect.KProperty
  *
  * This is the immediate-mode equivalent of a tiny `remember { mutableStateOf(...) }`, but it
  * lives inside Awake's own UI runtime and survives only for the lifetime of the owning
- * [UiContext]'s stable widget id.
+ * [io.github.ronjunevaldoz.awake.ui.context.UiContext]'s stable widget id.
  */
 class UiStateValue<T> internal constructor(
     private val state: WidgetState,

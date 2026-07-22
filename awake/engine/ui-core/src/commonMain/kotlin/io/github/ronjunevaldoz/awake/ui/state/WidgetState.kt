@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 /**
- * Per-widget-id state a [UiContext] keeps across frames. Generic on purpose -- `dropdown`'s
+ * Per-widget-id state a [io.github.ronjunevaldoz.awake.ui.context.UiContext] keeps across frames. Generic on purpose -- `dropdown`'s
  * expanded/collapsed flag is just the library's own first consumer of this, not a hardcoded
  * capability; a custom widget persists whatever typed value it needs the same way.
  */
