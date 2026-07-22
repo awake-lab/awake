@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.theme.FontWeight
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 data class UiInsets(
     val start: Dp = UiShape.none,
