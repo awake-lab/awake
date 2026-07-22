@@ -41,7 +41,6 @@ tasks.register("developerDocs") {
     dependsOn(
         ":awake:base:dokkaGeneratePublicationHtml",
         ":awake:ecs:dokkaGeneratePublicationHtml",
-        ":awake:engine:dokkaGeneratePublicationHtml",
         ":awake:engine:game:dokkaGeneratePublicationHtml",
         ":awake:engine:game-dsl:dokkaGeneratePublicationHtml",
         ":awake:engine:game-dsl:desktopTest",

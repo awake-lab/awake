@@ -1,0 +1,36 @@
+name: docs
+on:
+  push:
+    branches:
+      - vulkan # Or whichever branch you want to track
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Git Credentials
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install mkdocs-material
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Generate Dokka HTML
+        run: ./gradlew dokkaGenerate
+      - name: Copy API reference into site
+        run: |
+          mkdir -p website/docs/api
+          # Find all dokka output and copy to website/docs/api
+          # This depends on your specific dokka output structure
+          cp -R build/dokka/html/* website/docs/api/ || true
+      - name: Deploy
+        working-directory: website
+        run: mkdocs gh-deploy --force
