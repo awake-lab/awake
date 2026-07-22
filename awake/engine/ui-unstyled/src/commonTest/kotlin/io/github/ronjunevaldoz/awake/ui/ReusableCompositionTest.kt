@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.core.graphics.Color.Transparent
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -31,8 +31,10 @@ class ReusableCompositionTest {
     fun customLayoutCanDriveBuiltInWidgets() {
         val ui = UiContext()
         ui.beginFrame(240f, 120f, testSnapshot())
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(CoreUiTheme)
 
-        val scope = DiagonalScope(ui, BitmapFont(), CoreUiTheme, startX = 10f, startY = 20f, stepX = 15f, stepY = 10f)
+        val scope = DiagonalScope(ui, startX = 10f, startY = 20f, stepX = 15f, stepY = 10f)
         val first = scope.buttonSlot("one", label = "ONE", modifier = UiModifier().width(100f.px).height(30f.px))
         val second = scope.buttonSlot("two", label = "TWO", modifier = UiModifier().width(100f.px).height(30f.px))
 
@@ -117,13 +119,11 @@ private fun UiScope.badge(
 
 private class DiagonalScope(
     context: UiContext,
-    font: UiFont?,
-    theme: UiTheme,
     private val startX: Float,
     private val startY: Float,
     private val stepX: Float,
     private val stepY: Float
-) : io.github.ronjunevaldoz.awake.ui.layouts.AbstractUiScope(context, font, theme) {
+) : io.github.ronjunevaldoz.awake.ui.layouts.AbstractUiScope(context) {
     private var index = 0
 
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot {

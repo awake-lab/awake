@@ -13,7 +13,7 @@ internal class UiContextFrameState {
     private val semanticCollector = UiSemanticCollector()
     private val clipStack = ArrayList<UiSlot>()
 
-    lateinit var inputState: UiInputState
+    var inputState: UiInputState = UiInputState()
         private set
     var fullFrameRect: UiSlot = UiSlot(0f, 0f, 0f, 0f)
         private set

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
@@ -76,7 +77,7 @@ class PanelTest {
             text("Line Two")
         }
 
-        assertEquals(48f, panelSlot.height, "two 12px text rows + 8px row gap + 16px panel padding should size the panel")
+        assertEquals(56f, panelSlot.height, "two text rows + 8px row gap + 16px panel padding should size the panel")
     }
 
     @Test

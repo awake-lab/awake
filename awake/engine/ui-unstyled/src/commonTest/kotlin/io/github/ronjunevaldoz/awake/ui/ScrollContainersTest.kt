@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
@@ -23,8 +24,10 @@ class ScrollContainersTest {
                 id = "scroll",
                 width = 140f.toDimension(),
                 height = 80f.toDimension(),
-                state = state,
-                scrollSpeed = 24f
+                modifier = UiModifier()
+                    .width(140f.px)
+                    .height(80f.px)
+                    .verticalScroll(state, UiScrollConfig.Default.copy(scrollSpeed = 24f))
             ) {
                 repeat(8) { index ->
                     val row = claimSlot(Dimension.FillMax, 20f.toDimension())
@@ -49,8 +52,10 @@ class ScrollContainersTest {
                 id = "scroll",
                 width = 140f.toDimension(),
                 height = 80f.toDimension(),
-                state = state,
-                scrollSpeed = 24f
+                modifier = UiModifier()
+                    .width(140f.px)
+                    .height(80f.px)
+                    .verticalScroll(state, UiScrollConfig.Default.copy(scrollSpeed = 24f))
             ) {
                 repeat(8) { index ->
                     val row = claimSlot(Dimension.FillMax, 20f.toDimension())
@@ -76,7 +81,10 @@ class ScrollContainersTest {
             id = "scroll",
             width = 140f.toDimension(),
             height = 80f.toDimension(),
-            state = UiScrollState()
+            modifier = UiModifier()
+                .width(140f.px)
+                .height(80f.px)
+                .verticalScroll(UiScrollState())
         ) {
             repeat(8) { index ->
                 val row = claimSlot(Dimension.FillMax, 20f.toDimension())
@@ -85,14 +93,14 @@ class ScrollContainersTest {
         }
         val primitives = ui.endFrame()
 
-        assertNotNull(result.thumb)
+        assertNotNull(result.verticalThumb)
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.ClipPush>().any { it.rect == result.viewport })
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.ClipPop>().isNotEmpty())
         assertTrue(
             primitives.any { primitive ->
                 when (primitive) {
-                    is UiDrawPrimitive.Quad -> primitive.x == result.thumb.thumb.x && primitive.y == result.thumb.thumb.y
-                    is UiDrawPrimitive.RoundedQuad -> primitive.x == result.thumb.thumb.x && primitive.y == result.thumb.thumb.y
+                    is UiDrawPrimitive.Quad -> primitive.x == result.verticalThumb!!.thumb.x && primitive.y == result.verticalThumb!!.thumb.y
+                    is UiDrawPrimitive.RoundedQuad -> primitive.x == result.verticalThumb!!.thumb.x && primitive.y == result.verticalThumb!!.thumb.y
                     else -> false
                 }
             }

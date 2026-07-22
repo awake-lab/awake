@@ -40,14 +40,15 @@ fun UiScope.toggle(
         modifier = modifier
     )
 
-    if (interaction.clicked && enabled) {
-        onCheckedChange(!checked)
+    val newChecked = if (interaction.clicked && enabled) !checked else checked
+    if (newChecked != checked) {
+        onCheckedChange(newChecked)
     }
 
     val styleState = MutableStyleState(
         hovered = interaction.hovered || modifier.forceHover == true,
         active = interaction.active || modifier.forceActive == true,
-        selected = checked,
+        selected = newChecked,
         disabled = !enabled
     )
     val resolved = resolveStyle(
@@ -94,8 +95,8 @@ fun UiScope.toggle(
         label = label,
         bounds = interaction.slot,
         contentBounds = contentSlot,
-        selected = checked
+        selected = newChecked
     )
 
-    return checked
+    return newChecked
 }

@@ -94,6 +94,28 @@ fun UiContext.column(
     ).block()
 }
 
+@Deprecated("Use createBox(modifier = ...) plus explicit pushFont/pushTheme when needed.")
+fun UiContext.createBox(
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    contentAlignment: UiAlignment = UiAlignment.TopStart,
+    font: UiFont = currentFont,
+    theme: UiTheme = currentTheme,
+    textScale: Float = currentTextStyle.scale,
+    overlayOnly: Boolean = false
+): BoxScope = withLegacyRootEnvironment(font, theme, textScale) {
+    createBox(
+        x = x,
+        y = y,
+        width = width,
+        height = height,
+        contentAlignment = contentAlignment,
+        overlayOnly = overlayOnly
+    )
+}
+
 fun UiScope.clip(rect: UiSlot, content: UiScope.() -> Unit) = coreClip(rect, content)
 
 fun UiScope.clip(shape: UiShapeSpec, rect: UiSlot, content: UiScope.() -> Unit) =
@@ -108,8 +130,9 @@ fun UiScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, content)
+): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
 
 fun ColumnScope.surface(
     id: String,
@@ -120,8 +143,9 @@ fun ColumnScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, height, width, verticalArrangement, radius, borderWidth, style, modifier, content)
+): UiSlot = extSurface(id, height, width, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
 
 fun RowScope.surface(
     id: String,
@@ -132,8 +156,9 @@ fun RowScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, content)
+): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
 
 fun AbsoluteScope.surface(
     id: String,
@@ -144,8 +169,9 @@ fun AbsoluteScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, content)
+): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
 
 fun BoxScope.surface(
     id: String,
@@ -156,8 +182,9 @@ fun BoxScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, content)
+): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
 
 fun ColumnScope.row(
     height: Dp,

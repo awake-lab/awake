@@ -43,6 +43,7 @@ fun UiScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = smartColumn(
     id = id,
@@ -55,6 +56,7 @@ fun UiScope.surface(
         borderWidth(borderWidth)
     } then style,
     modifier = modifier,
+    clipContent = clipContent,
     role = UiSemanticRole.Panel,
     content = content
 )
@@ -68,6 +70,7 @@ fun ColumnScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).surface(
     id = id,
@@ -78,6 +81,7 @@ fun ColumnScope.surface(
     borderWidth = borderWidth,
     style = style,
     modifier = modifier,
+    clipContent = clipContent,
     content = content
 )
 
@@ -90,6 +94,7 @@ fun RowScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).surface(
     id = id,
@@ -100,6 +105,7 @@ fun RowScope.surface(
     borderWidth = borderWidth,
     style = style,
     modifier = modifier,
+    clipContent = clipContent,
     content = content
 )
 
@@ -112,6 +118,7 @@ fun AbsoluteScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).surface(
     id = id,
@@ -122,6 +129,7 @@ fun AbsoluteScope.surface(
     borderWidth = borderWidth,
     style = style,
     modifier = modifier,
+    clipContent = clipContent,
     content = content
 )
 
@@ -134,6 +142,7 @@ fun BoxScope.surface(
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
+    clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).surface(
     id = id,
@@ -144,6 +153,7 @@ fun BoxScope.surface(
     borderWidth = borderWidth,
     style = style,
     modifier = modifier,
+    clipContent = clipContent,
     content = content
 )
 

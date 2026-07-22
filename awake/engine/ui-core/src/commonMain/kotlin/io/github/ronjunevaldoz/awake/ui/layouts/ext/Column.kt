@@ -41,6 +41,7 @@ internal fun UiScope.smartColumn(
     verticalArrangement: Arrangement,
     style: Style,
     modifier: UiModifier,
+    clipContent: Boolean = false,
     role: UiSemanticRole = UiSemanticRole.None,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
@@ -74,7 +75,8 @@ internal fun UiScope.smartColumn(
         focused = modifier.forceFocus ?: (id?.let { context.isFocused(it) } ?: false)
     )
     val effectiveStyle = style then (modifier.styleable ?: Style.Empty)
-    val hasVisuals = effectiveStyle.resolve(styleState, context.currentTextStyle).let {
+    val visualDefaults = if (role == UiSemanticRole.Panel) context.currentTheme.components.surface else Style.Empty
+    val hasVisuals = (visualDefaults then effectiveStyle).resolve(styleState, context.currentTextStyle).let {
         it.background != null || it.borderWidth.toPx() > 0f || it.shape.toPx() > 0f
     }
 
@@ -85,6 +87,7 @@ internal fun UiScope.smartColumn(
             height = requestedHeight,
             gap = gap,
             modifier = modifier.styleable(effectiveStyle),
+            clipContent = clipContent,
             content = content
         )
     }
@@ -148,6 +151,7 @@ fun ColumnScope.column(
     verticalArrangement,
     style,
     modifier,
+    clipContent = false,
     content = content
 )
 
@@ -167,6 +171,7 @@ fun RowScope.column(
     verticalArrangement,
     style,
     modifier,
+    clipContent = false,
     content = content
 )
 
@@ -186,6 +191,7 @@ fun AbsoluteScope.column(
     verticalArrangement,
     style,
     modifier,
+    clipContent = false,
     content = content
 )
 
@@ -205,6 +211,7 @@ fun BoxScope.column(
     verticalArrangement,
     style,
     modifier,
+    clipContent = false,
     content = content
 )
 

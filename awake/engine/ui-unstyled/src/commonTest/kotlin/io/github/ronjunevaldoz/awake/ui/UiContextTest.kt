@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.dropdown
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
@@ -44,9 +46,15 @@ class UiContextTest {
     @Test
     fun sliderValueFromPointerXMapsTrackEdgesAndMidpoint() {
         // Track spans x=[20, 120] (w=100), value range [0, 10].
-        assertEquals(0f, sliderValueFromPointerX(20f, trackX = 20f, trackW = 100f, min = 0f, max = 10f))
-        assertEquals(10f, sliderValueFromPointerX(120f, trackX = 20f, trackW = 100f, min = 0f, max = 10f))
-        assertEquals(5f, sliderValueFromPointerX(70f, trackX = 20f, trackW = 100f, min = 0f, max = 10f))
+        assertEquals(0f,
+            sliderValueFromPointerX(20f, trackX = 20f, trackW = 100f, min = 0f, max = 10f)
+        )
+        assertEquals(10f,
+            sliderValueFromPointerX(120f, trackX = 20f, trackW = 100f, min = 0f, max = 10f)
+        )
+        assertEquals(5f,
+            sliderValueFromPointerX(70f, trackX = 20f, trackW = 100f, min = 0f, max = 10f)
+        )
     }
 
     @Test
@@ -128,7 +136,7 @@ class UiContextTest {
 
         // A sibling widget drawn AFTER the dropdown in this same frame, at a position that
         // would spatially overlap the dropdown's first expanded option row.
-        column.toggle("sibling", false, modifier = UiModifier().width(160f.px).height(32f.px))
+        column.button("sibling", label = "Sibling", modifier = UiModifier().width(160f.px).height(32f.px))
 
         val allPrimitives = ui.endFrame()
         val siblingIndex = allPrimitives.indexOfLast { primitive ->
