@@ -10,6 +10,9 @@ import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneDocumentDsl
  * The canonical DSL now lives under `scene.runtime.dsl`, but callers in
  * `scene.runtime` still expect the top-level `scene(...)` builder here.
  */
+@Deprecated(
+    message = "Compatibility scene entry point slated for future removal. Prefer io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneDocumentDsl or the canonical scene DSL entrypoint."
+)
 fun scene(
     name: String? = null,
     block: SceneDocumentDsl.() -> Unit
