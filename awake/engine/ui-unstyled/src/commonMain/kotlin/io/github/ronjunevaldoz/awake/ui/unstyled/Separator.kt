@@ -11,14 +11,13 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 fun UiScope.separator(
     width: Dimension = Dimension.FillMax,
     thickness: Dp = 1f.dp,
     modifier: UiModifier = UiModifier(),
-    color: Color = theme.tokens.border
+    color: Color = context.currentTheme.tokens.border
 ): UiSlot {
     val slot = claimModifiedSlot(
         defaultWidth = width,

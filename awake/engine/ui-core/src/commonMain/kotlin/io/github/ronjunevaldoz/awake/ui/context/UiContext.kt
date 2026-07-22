@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.context
 
-import io.github.ronjunevaldoz.awake.ui.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.WidgetState
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
@@ -19,8 +17,9 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import kotlin.reflect.KClass
 
 /**
  * Minimal immediate-mode UI context -- ImGui's own architecture (hot/active id tracking, no
@@ -32,9 +31,9 @@ class UiContext internal constructor(
     constructor() : this(measuring = false)
 
     private val stacks = UiContextStacks()
-    private val runtime = UiRuntimeCoordinator()
+    private val stateStore = UiStateStore()
+    private val runtime = UiRuntimeCoordinator(stateStore = stateStore)
     private val measurement = UiMeasurementRuntime()
-    private val services = UiContextServiceRegistry()
     private val layouts = UiLayoutFactory(this)
 
     val currentTheme: UiTheme get() = stacks.currentTheme
@@ -63,15 +62,7 @@ class UiContext internal constructor(
     ) {
         runtime.beginFrame(screenWidth, screenHeight, inputState, deltaSeconds)
         measurement.beginFrame()
-        services.clear()
     }
-
-    fun bindServiceResolver(resolver: ((KClass<*>) -> Any?)?) {
-        services.bind(resolver)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> resolveService(type: KClass<T>): T? = services.resolve(type) as? T
 
     fun createColumn(
         x: Float,
@@ -226,6 +217,8 @@ class UiContext internal constructor(
     fun inputResult(): UiInputResult = runtime.inputResult()
 
     fun endFrame(): List<UiDrawPrimitive> = runtime.endFrame()
+
+    fun finishFrame(): UiFrameOutput = runtime.finishFrame()
 
     fun onOverScrollable() {
         runtime.onOverScrollable(measuring)

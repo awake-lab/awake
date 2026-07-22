@@ -1,14 +1,15 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui
+package io.github.ronjunevaldoz.awake.ui.theme
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.Style
 
 /**
  * Semantic color roles consumed by widgets and higher-level UI compositions.
  *
  * These names are general-purpose enough to support both neutral built-ins and authored
- * design-system themes without growing [UiTheme] every time the widget surface expands.
+ * design-system themes without growing [io.github.ronjunevaldoz.awake.ui.theme.UiTheme] every time the widget surface expands.
  */
 interface UiColorTokens {
     val background: Color
@@ -31,19 +32,21 @@ interface UiColorTokens {
 }
 
 /** hovered -> muted, active -> accent, base -> background. */
-fun UiColorTokens.neutralStyle(): Style = Style {
-    background(background)
-    foreground(foreground)
-    hovered { background(muted) }
-    active { background(accent) }
-}
+fun UiColorTokens.neutralStyle(): Style =
+    Style {
+        background(background)
+        foreground(foreground)
+        hovered { background(muted) }
+        active { background(accent) }
+    }
 
 /** Same state-varying shape as [neutralStyle], but for the destructive role. */
-fun UiColorTokens.destructiveStyle(): Style = Style {
-    background(destructive)
-    foreground(destructiveForeground)
-    hovered { background(brighten(destructive, 1.05f)) }
-    active { background(brighten(destructive, 1.15f)) }
-}
+fun UiColorTokens.destructiveStyle(): Style =
+    Style {
+        background(destructive)
+        foreground(destructiveForeground)
+        hovered { background(brighten(destructive, 1.05f)) }
+        active { background(brighten(destructive, 1.15f)) }
+    }
 
 private fun brighten(color: Color, brightness: Float): Color = color.brighten(brightness)

@@ -16,7 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.theme
 
 private const val PROGRESS_TRACK_HEIGHT_DP = 8f
 
@@ -32,6 +31,7 @@ fun UiScope.progressBar(
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ) {
+    val theme = context.currentTheme
     val slot = claimModifiedSlot(
         defaultWidth = Dimension.FillMax,
         defaultHeight = Dimension.Fixed(PROGRESS_TRACK_HEIGHT_DP.dp),

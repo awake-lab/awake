@@ -5,7 +5,7 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.TextStyle
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -20,7 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.verticalPx
 
@@ -39,6 +38,7 @@ internal fun UiScope.drawResolvedText(
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text
 ): UiSlot {
+    val theme = context.currentTheme
     if (
         resolvedStyle.background != null ||
         resolvedStyle.borderWidth.toPx() > 0f ||
@@ -86,6 +86,7 @@ fun UiScope.text(
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text
 ): UiSlot {
+    val theme = context.currentTheme
     val resolved = resolveStyle(
         style = style,
         defaults = Style {
@@ -134,6 +135,7 @@ fun UiScope.text(
     semanticRole: UiSemanticRole = UiSemanticRole.Text
 ): UiSlot {
     val resolvedFont = font
+    val theme = context.currentTheme
 
     // We need to know whether the widget is hovered to resolve hover-dependent style state,
     // but performing a hitTest requires a measured slot. To avoid claiming a WrapContent slot

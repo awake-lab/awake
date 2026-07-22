@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.WidgetState
 
 internal class UiContextInteractionState {
     private var activeId: String? = null
@@ -14,7 +13,6 @@ internal class UiContextInteractionState {
     private var focusClaimedThisFrame = false
     private var isOverScrollableThisFrame = false
     private var isScrollConsumedThisFrame = false
-    private val widgetStates = HashMap<String, WidgetState>()
 
     fun beginFrame(inputState: UiInputState) {
         pointerDownEdgeThisFrame = inputState.pointerDown && !pointerDownLastFrame
@@ -74,8 +72,6 @@ internal class UiContextInteractionState {
         if (measuring) return
         if (focusedId == id) focusedId = null
     }
-
-    fun widgetState(id: String): WidgetState = widgetStates.getOrPut(id) { WidgetState() }
 
     fun pointerDownEdge(): Boolean = pointerDownEdgeThisFrame
 

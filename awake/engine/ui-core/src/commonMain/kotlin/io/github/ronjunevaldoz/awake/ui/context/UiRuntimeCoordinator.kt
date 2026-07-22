@@ -10,8 +10,11 @@ import io.github.ronjunevaldoz.awake.ui.WidgetState
 
 internal class UiRuntimeCoordinator(
     private val interaction: UiContextInteractionState = UiContextInteractionState(),
-    private val frameState: UiContextFrameState = UiContextFrameState()
+    private val frameState: UiContextFrameState = UiContextFrameState(),
+    private val stateStore: UiStateStore = UiStateStore()
 ) {
+    private var finalizedFrameOutput: UiFrameOutput? = null
+
     val inputState: UiInputState get() = frameState.inputState
     val frameDeltaSeconds: Float get() = frameState.frameDeltaSeconds
     val fullFrameRect: UiSlot get() = frameState.fullFrameRect
@@ -22,15 +25,28 @@ internal class UiRuntimeCoordinator(
         inputState: UiInputState,
         deltaSeconds: Float
     ) {
+        finalizedFrameOutput = null
         frameState.beginFrame(screenWidth, screenHeight, inputState, deltaSeconds)
         interaction.beginFrame(inputState)
     }
 
-    fun inputResult(): UiInputResult = interaction.inputResult()
+    fun inputResult(): UiInputResult = finalizedFrameOutput?.ownership?.toInputResult() ?: interaction.inputResult()
 
-    fun endFrame(): List<UiDrawPrimitive> {
+    fun endFrame(): List<UiDrawPrimitive> = finishFrame().primitives
+
+    fun finishFrame(): UiFrameOutput = finalizedFrameOutput ?: finalizeFrame().also {
+        finalizedFrameOutput = it
+    }
+
+    private fun finalizeFrame(): UiFrameOutput {
         interaction.endFrame(frameState.inputState)
-        return frameState.endFrame()
+        val ownership = interaction.inputResult().toOwnership()
+        return UiFrameOutput(
+            primitives = frameState.endFrame(),
+            semantics = frameState.semanticNodes(),
+            ownership = ownership,
+            effects = UiPlatformEffects(requestKeyboard = ownership.isTextInputFocused)
+        )
     }
 
     fun onOverScrollable(measuring: Boolean) {
@@ -41,7 +57,7 @@ internal class UiRuntimeCoordinator(
         if (!measuring) interaction.onScrollConsumed()
     }
 
-    fun semanticNodes(): List<UiSemanticNode> = frameState.semanticNodes()
+    fun semanticNodes(): List<UiSemanticNode> = finalizedFrameOutput?.semantics ?: frameState.semanticNodes()
 
     fun hitTest(slot: UiSlot, measuring: Boolean): Boolean =
         interaction.hitTest(slot, frameState.inputState, measuring)
@@ -74,7 +90,7 @@ internal class UiRuntimeCoordinator(
         frameState.emitOverlay(primitive, measuring)
     }
 
-    fun widgetState(id: String): WidgetState = interaction.widgetState(id)
+    fun widgetState(id: String): WidgetState = stateStore.widgetState(id)
 
     fun recordSemantic(node: UiSemanticNode, measuring: Boolean) {
         frameState.recordSemantic(node, measuring)
@@ -90,3 +106,17 @@ internal class UiRuntimeCoordinator(
         interaction.setActive(id)
     }
 }
+
+private fun UiInputResult.toOwnership(): UiInputOwnership = UiInputOwnership(
+    isCaptured = isCaptured,
+    isOverScrollable = isOverScrollable,
+    isScrollConsumed = isScrollConsumed,
+    isTextInputFocused = isTextInputFocused
+)
+
+private fun UiInputOwnership.toInputResult(): UiInputResult = UiInputResult(
+    isCaptured = isCaptured,
+    isOverScrollable = isOverScrollable,
+    isScrollConsumed = isScrollConsumed,
+    isTextInputFocused = isTextInputFocused
+)

@@ -13,10 +13,8 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
-import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
@@ -32,6 +30,7 @@ fun UiScope.switch(
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Boolean {
+    val theme = context.currentTheme
     val interaction = interact(
         id = id,
         width = Dimension.Fixed(TOGGLE_WIDTH_PX.dp),
@@ -84,7 +83,7 @@ fun UiScope.switch(
                 labelWidth,
                 interaction.slot.height
             ),
-            font = font,
+            font = context.currentFont,
             color = resolved.foreground ?: theme.tokens.foreground,
             centered = false,
             verticallyCentered = true,

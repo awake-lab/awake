@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -104,8 +104,7 @@ class SceneGameRuntime internal constructor(
             deltaSeconds = delta
         )
         spec.overlayBlock(this, viewportWidth, viewportHeight)
-        val uiPrimitives = uiContext.endFrame()
-        val uiResult = uiContext.inputResult()
+        val uiFrame = uiContext.finishFrame()
 
         // 2. Simulation & Infrastructure Pump
         fixedTimestepLoop.advance(
@@ -120,10 +119,10 @@ class SceneGameRuntime internal constructor(
         )
         
         // 3. Final Compositing
-        renderer.drawUi(uiPrimitives, font)
+        renderer.drawUi(uiFrame.primitives, font)
         
         // Sync UI focus state back to session input
-        input.textInputFocused = uiResult.isTextInputFocused
+        input.textInputFocused = uiFrame.effects.requestKeyboard
     }
 
     override fun resize(width: Float, height: Float) {}

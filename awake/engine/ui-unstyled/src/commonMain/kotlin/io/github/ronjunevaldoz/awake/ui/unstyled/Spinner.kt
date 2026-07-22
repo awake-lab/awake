@@ -16,7 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.theme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -40,6 +39,7 @@ fun UiScope.spinner(
         defaultHeight = Dimension.Fixed(24f.dp),
         modifier = modifier
     )
+    val theme = context.currentTheme
     val resolved = resolveStyle(style = style)
     val dotColor = resolved.foreground ?: theme.tokens.foreground
     val state = widgetState(id)

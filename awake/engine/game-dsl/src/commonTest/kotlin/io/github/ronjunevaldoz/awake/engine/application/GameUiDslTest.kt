@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.UiTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -49,8 +49,9 @@ class GameUiDslTest {
             )
             ui {
                 overlay {
+                    val label = requireService<String>()
                     rootColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).size(160f.dp, 120f.dp)) {
-                        requireService<String>()
+                        label
                         emit(UiDrawPrimitive.Quad(x = 20f, y = 20f, w = 12f, h = 12f, color = Color(0.2f, 0.7f, 0.4f, 1f)))
                     }
                 }
@@ -77,8 +78,9 @@ class GameUiDslTest {
             )
             ui {
                 overlay {
+                    val label = requireService<String>()
                     rootColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).size(180f.dp, 120f.dp)) {
-                        requireService<String>()
+                        label
                         emit(UiDrawPrimitive.Quad(x = 20f, y = 20f, w = 12f, h = 12f, color = Color(0.3f, 0.6f, 0.9f, 1f)))
                     }
                 }

@@ -11,14 +11,13 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.fitTo
-import io.github.ronjunevaldoz.awake.ui.theme
 
 fun UiScope.icon(
     imageVector: UiImageVector,
     modifier: UiModifier = UiModifier(),
     width: Dimension = Dimension.Fixed(imageVector.defaultWidth),
     height: Dimension = Dimension.Fixed(imageVector.defaultHeight),
-    tint: Color = theme.tokens.foreground,
+    tint: Color = context.currentTheme.tokens.foreground,
     overlay: Boolean = false
 ): UiSlot {
     val slot = claimModifiedSlot(width, height, modifier)

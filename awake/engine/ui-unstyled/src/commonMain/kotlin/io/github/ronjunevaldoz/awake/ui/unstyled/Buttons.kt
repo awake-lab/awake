@@ -16,12 +16,10 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -41,6 +39,7 @@ private inline fun UiScope.buttonSlotInternal(
     drawContent: AbsoluteScope.(contentSlot: UiSlot, resolved: ResolvedStyle) -> Unit
 ): UiButtonResult {
     val interaction = interact(id, width, height, modifier)
+    val theme = context.currentTheme
     val defaults = theme.components.button then Style.Companion {
         shape(radius)
         if (variant == UiButtonVariant.Outline) {
@@ -118,10 +117,11 @@ fun UiScope.buttonSlot(
     semanticLabel = label,
     drawContent = { contentSlot, resolved ->
         if (label != null) {
+            val theme = context.currentTheme
             text(
                 label = label,
                 slot = contentSlot,
-                font = font,
+                font = context.currentFont,
                 color = resolved.foreground ?: theme.tokens.foreground,
                 centered = centered,
                 verticallyCentered = verticallyCentered,

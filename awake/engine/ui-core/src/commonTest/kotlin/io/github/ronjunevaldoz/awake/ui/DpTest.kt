@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 class DpTest {
 
@@ -62,7 +64,7 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(
+        val glyphPx = ui.createAbsolute(font = font, theme = CoreUiTheme).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 10.sp)
         )
@@ -78,7 +80,7 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(0f, 0f, font = font, theme = CoreUiTheme).resolveGlyphPx(
+        val glyphPx = ui.createAbsolute(font = font, theme = CoreUiTheme).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 13f.sp)
         )

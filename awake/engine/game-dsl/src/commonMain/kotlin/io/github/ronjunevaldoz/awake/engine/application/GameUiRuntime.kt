@@ -8,11 +8,10 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
-import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.UiTheme
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
@@ -69,17 +68,16 @@ class GameUiRuntime(
             inputState = snapshot.toUiInputState(),
             deltaSeconds = deltaSeconds
         )
-        uiContext.bindServiceResolver { type -> services.service(type) }
 
         // Overlay calls from game setup
         spec.overlays.forEach { overlay ->
             overlay(this)
         }
 
-        val result = uiContext.inputResult()
-        input.textInputFocused = result.isTextInputFocused
+        val frame = uiContext.finishFrame()
+        input.textInputFocused = frame.effects.requestKeyboard
 
-        renderer.drawUi(uiContext.endFrame(), font)
+        renderer.drawUi(frame.primitives, font)
     }
 
 
@@ -170,12 +168,6 @@ class GameUiRuntime(
     fun dispose() {
         spec.onDisposeBlock(this)
     }
-}
-
-inline fun <reified T : Any> UiScope.service(): T? = context.resolveService(T::class)
-
-inline fun <reified T : Any> UiScope.requireService(): T = checkNotNull(service<T>()) {
-    "No game service registered for ${T::class.simpleName} in the current UiScope."
 }
 
 data class GameUiSpec(

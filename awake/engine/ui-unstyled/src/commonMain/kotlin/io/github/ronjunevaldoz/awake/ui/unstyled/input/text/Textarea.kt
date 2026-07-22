@@ -15,14 +15,12 @@ import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
@@ -44,6 +42,7 @@ fun UiScope.textarea(
     isError: Boolean = false,
     minLines: Int = 3
 ): String {
+    val theme = context.currentTheme
     // Determine height based on minLines
     val resolvedDefaults = theme.components.textField
     val resolved = resolveStyle(
@@ -51,7 +50,7 @@ fun UiScope.textarea(
         defaults = resolvedDefaults,
         state = MutableStyleState(disabled = !enabled)
     )
-    val fontHeight = resolveGlyphPx(font, resolved.textStyle)
+    val fontHeight = resolveGlyphPx(context.currentFont, resolved.textStyle)
     val padding = resolved.contentPadding
     val totalPadding = padding.top + padding.bottom
     val lineGap = fontHeight * 0.25f
@@ -95,7 +94,7 @@ fun UiScope.textarea(
         shapeSpec = resolvedWithInteraction.shapeSpec
     )
 
-    val resolvedFont = font
+    val resolvedFont = context.currentFont
     val glyphPx = fontHeight
     val contentSlot = interaction.slot.inset(padding)
 

@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fitTo
-import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.popup
@@ -21,7 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
@@ -44,6 +42,7 @@ fun UiScope.dropdown(
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Int? {
+    val theme = context.currentTheme
     val expandedState = rememberPopupState(id, key = "expanded")
     val resolvedDefaults = theme.components.dropdown
     val selectedLabel = options.getOrNull(selectedIndex) ?: ""
@@ -122,7 +121,8 @@ fun UiScope.drawDropdownTriggerContent(
     style: Style,
     semanticId: String? = null
 ) {
-    val resolvedFont = font
+    val theme = context.currentTheme
+    val resolvedFont = context.currentFont
     val resolved = resolveStyle(defaults = style, state = MutableStyleState(
             hovered = hitTest(slot),
             active = expanded

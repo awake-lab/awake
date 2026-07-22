@@ -11,9 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 private val AVATAR_DEFAULT_DIAMETER = 40f.dp
@@ -30,6 +28,7 @@ fun UiScope.avatarFallback(
     diameter: Dp = AVATAR_DEFAULT_DIAMETER,
     style: Style = Style.Empty
 ) {
+    val theme = context.currentTheme
     val resolved = resolveStyle(style = style, defaults = theme.components.checkbox)
     val slot = claimModifiedSlot(
         defaultWidth = Dimension.Fixed(diameter),
@@ -44,5 +43,11 @@ fun UiScope.avatarFallback(
         borderColor = resolved.borderColor ?: theme.tokens.border,
         shapeSpec = UiShapeSpec.Circle
     )
-    text(initials, slot = slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
+    text(
+        initials,
+        slot = slot,
+        font = context.currentFont,
+        color = resolved.foreground ?: theme.tokens.foreground,
+        centered = true
+    )
 }

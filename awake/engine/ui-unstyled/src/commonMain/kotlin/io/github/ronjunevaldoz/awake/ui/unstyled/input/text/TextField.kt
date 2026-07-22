@@ -15,13 +15,11 @@ import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
@@ -46,6 +44,7 @@ fun UiScope.textField(
     enabled: Boolean = true,
     isError: Boolean = false
 ): String {
+    val theme = context.currentTheme
     val interaction = interact(
         id = id,
         width = Dimension.FillMax,
@@ -83,7 +82,7 @@ fun UiScope.textField(
         shapeSpec = resolved.shapeSpec
     )
 
-    val resolvedFont = font
+    val resolvedFont = context.currentFont
     val glyphPx =
         resolveGlyphPx(resolvedFont, resolved.textStyle)
     val contentSlot = interaction.slot.inset(resolved.contentPadding)

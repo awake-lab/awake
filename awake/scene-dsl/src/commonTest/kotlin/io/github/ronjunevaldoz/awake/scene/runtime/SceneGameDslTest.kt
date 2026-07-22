@@ -24,8 +24,12 @@ import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.freeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.orbitCameraSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.offset
+import io.github.ronjunevaldoz.awake.ui.size
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -178,8 +182,9 @@ class SceneGameDslTest {
             }
             ui {
                 overlay {
-                    rootColumn(x = 16f, y = 16f, width = 180f) {
-                        text(requireService<SceneGameRuntime>().sceneName)
+                    val scene = requireService<SceneGameRuntime>()
+                    rootColumn(modifier = UiModifier().offset(16f.dp, 16f.dp).size(180f.dp, 120f.dp)) {
+                        text(scene.sceneName)
                     }
                 }
             }
@@ -256,8 +261,9 @@ class SceneGameDslTest {
             }
             ui {
                 overlay {
-                    rootColumn(x = 16f, y = 16f, width = 180f) {
-                        text(requireService<SceneGameRuntime>().sceneName)
+                    val scene = requireService<SceneGameRuntime>()
+                    rootColumn(modifier = UiModifier().offset(16f.dp, 16f.dp).size(180f.dp, 120f.dp)) {
+                        text(scene.sceneName)
                     }
                 }
             }

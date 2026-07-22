@@ -13,11 +13,9 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.sliderValueFromPointerX
-import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
@@ -32,6 +30,7 @@ fun UiScope.slider(
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Float {
+    val theme = context.currentTheme
     val slot = claimModifiedSlot(
         defaultWidth = Dimension.FillMax,
         defaultHeight = Dimension.Fixed(32f.dp),
@@ -103,7 +102,7 @@ fun UiScope.slider(
         text(
             label,
             slot = slot,
-            font = font,
+            font = context.currentFont,
             color = resolved.foreground ?: theme.tokens.foreground,
             centered = true,
             overflow = UiTextOverflow.Ellipsis,
