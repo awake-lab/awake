@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.core.graphics.gradientRect
+import io.github.ronjunevaldoz.awake.ui.core.graphics.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
@@ -63,6 +64,24 @@ class CanvasScope internal constructor(
         if (width <= 0f || height <= 0f) return
         scope.gradientRect(
             slot = UiSlot(bounds.x + x, bounds.y + y, width, height),
+            gradient = gradient,
+            overlay = overlay
+        )
+    }
+
+    fun drawGradientBorder(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        gradient: UiLinearGradient,
+        borderWidth: Dp = 1f.dp,
+        overlay: Boolean = false
+    ) {
+        if (width <= 0f || height <= 0f) return
+        scope.gradientBorder(
+            slot = UiSlot(bounds.x + x, bounds.y + y, width, height),
+            width = borderWidth,
             gradient = gradient,
             overlay = overlay
         )

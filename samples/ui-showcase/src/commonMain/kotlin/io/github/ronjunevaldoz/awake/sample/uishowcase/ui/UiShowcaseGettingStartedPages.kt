@@ -4,14 +4,13 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.animateFloat
-import io.github.ronjunevaldoz.awake.ui.core.graphics.gradientBorder
-import io.github.ronjunevaldoz.awake.ui.core.graphics.gradientRect
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
@@ -274,20 +273,34 @@ private fun ColumnScope.drawShowcaseGradientChrome(
         start = if (dangerMode) theme.tokens.destructive.withAlpha(0.92f) else theme.tokens.primary.withAlpha(0.64f),
         end = if (dangerMode) theme.tokens.accent.withAlpha(0.82f) else theme.tokens.accent.withAlpha(0.84f)
     )
-    val shimmerWidth = (slot.width * 0.28f).coerceAtLeast(52f)
-    val shimmerX = slot.x + (slot.width - shimmerWidth) * shimmerPhase.coerceIn(0f, 1f)
-    context.createAbsolute(slot.x, slot.y, overlayOnly = true).apply {
-        gradientBorder(slot, width = 1f.dp, gradient = borderGradient, overlay = true)
-        gradientRect(
-            UiSlot(slot.x, slot.y, slot.width, 44f.coerceAtMost(slot.height)),
+    canvas(slot) {
+        val shimmerWidth = (bounds.width * 0.28f).coerceAtLeast(52f)
+        val shimmerX = (bounds.width - shimmerWidth) * shimmerPhase.coerceIn(0f, 1f)
+        drawGradientBorder(
+            x = 0f,
+            y = 0f,
+            width = bounds.width,
+            height = bounds.height,
+            gradient = borderGradient,
+            borderWidth = 1f.dp,
+            overlay = true
+        )
+        drawGradientRect(
+            x = 0f,
+            y = 0f,
+            width = bounds.width,
+            height = 44f.coerceAtMost(bounds.height),
             gradient = themeGradient,
             overlay = true
         )
-        gradientRect(
-            UiSlot(shimmerX, slot.y + 1f, shimmerWidth, (slot.height - 2f).coerceAtLeast(0f)),
+        drawGradientRect(
+            x = shimmerX,
+            y = 1f,
+            width = shimmerWidth,
+            height = (bounds.height - 2f).coerceAtLeast(0f),
             gradient = UiLinearGradient.horizontal(
                 start = Color.Transparent,
-                end = theme.tokens.foreground.withAlpha(if (dangerMode) 0.08f else 0.12f)
+                end = context.currentTheme.tokens.foreground.withAlpha(if (dangerMode) 0.08f else 0.12f)
             ),
             overlay = true
         )
