@@ -14,7 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
@@ -219,8 +218,10 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                     if (!shimmerForward.value && shimmerPhase <= 0.01f) shimmerForward.value = true
                 }
 
+                // Draw chrome BEFORE content so it stays behind widgets
                 drawShowcaseGradientChrome(
                     slot = previewSlot,
+                    radius = state.showcaseSurfaceRadius,
                     shimmerPhase = shimmerPhase,
                     dangerMode = state.showcaseDangerMode
                 )
@@ -237,7 +238,10 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
 
                 spacer(UiModifier().height(8f.dp))
                 awakeShadcnBodyText("Showcase Preview Card")
-                awakeShadcnSupportingText("This card reacts to the settings on the left. Toggling 'Live' starts the shimmer proof.")
+                awakeShadcnSupportingText(
+                    if (state.showcaseDangerMode) "DANGER MODE: Thematic variant proof for destructive/alert states."
+                    else "LIVE PROOF: Animation state proof using conditional canvas shimmer."
+                )
 
                 spacer(UiModifier().height(12f.dp))
                 row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
@@ -283,67 +287,59 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
 
 private fun ColumnScope.drawShowcaseGradientChrome(
     slot: UiSlot,
+    radius: Float,
     shimmerPhase: Float,
     dangerMode: Boolean,
 ) {
     val tokens = theme.tokens
+    val headerHeight = 40f
+    
     val themeGradient = UiLinearGradient.horizontal(
         start = tokens.primary.withAlpha(0.08f),
         end = tokens.accent.withAlpha(0.12f)
     )
-    val borderGradient = UiLinearGradient.horizontal(
-        start = if (dangerMode) tokens.destructive.withAlpha(0.8f) else tokens.primary.withAlpha(0.4f),
-        end = if (dangerMode) tokens.accent.withAlpha(0.6f) else tokens.accent.withAlpha(0.6f)
-    )
 
     canvas(slot) {
-        // --- 1. Border Highlight ---
-        drawGradientBorder(
+        // Clip all chrome to the surface's corners
+        clipShape(
+            shape = io.github.ronjunevaldoz.awake.ui.UiShapeSpec.RoundedRectangle(radius.dp),
             x = 0f,
             y = 0f,
             width = bounds.width,
-            height = bounds.height,
-            gradient = borderGradient,
-            borderWidth = 1f.dp,
-            overlay = true
-        )
+            height = bounds.height
+        ) {
+            // --- 1. Header Surface (main pass, behind content) ---
+            drawGradientRect(
+                x = 0f,
+                y = 0f,
+                width = bounds.width,
+                height = headerHeight,
+                gradient = themeGradient
+            )
 
-        // --- 2. Header Surface ---
-        drawGradientRect(
-            x = 0f,
-            y = 0f,
-            width = bounds.width,
-            height = 40f,
-            gradient = themeGradient,
-            overlay = true
-        )
-
-        // --- 3. Refined Shimmer ---
-        // Diagonal shimmer sweep using two gradient segments for a "peak"
-        val shimmerWidth = 160f
-        val shimmerX = -shimmerWidth + (bounds.width + shimmerWidth) * shimmerPhase
-        
-        val shimmerColor = if (dangerMode) tokens.destructive else tokens.accent
-        val highlight = shimmerColor.withAlpha(0.12f)
-        
-        // Left half: Transparent -> Highlight
-        drawGradientRect(
-            x = shimmerX,
-            y = 0f,
-            width = shimmerWidth / 2f,
-            height = bounds.height,
-            gradient = UiLinearGradient.horizontal(Color.Transparent, highlight),
-            overlay = true
-        )
-        // Right half: Highlight -> Transparent
-        drawGradientRect(
-            x = shimmerX + shimmerWidth / 2f,
-            y = 0f,
-            width = shimmerWidth / 2f,
-            height = bounds.height,
-            gradient = UiLinearGradient.horizontal(highlight, Color.Transparent),
-            overlay = true
-        )
+            // --- 2. Shimmer Peak (main pass, behind content) ---
+            val shimmerWidth = 160f
+            val shimmerX = -shimmerWidth + (bounds.width + shimmerWidth) * shimmerPhase
+            
+            val shimmerColor = if (dangerMode) tokens.destructive else tokens.accent
+            val highlight = shimmerColor.withAlpha(0.12f)
+            
+            // Left half: Transparent -> Highlight
+            drawGradientRect(
+                x = shimmerX,
+                y = 0f,
+                width = shimmerWidth / 2f,
+                height = bounds.height,
+                gradient = UiLinearGradient.horizontal(Color.Transparent, highlight)
+            )
+            // Right half: Highlight -> Transparent
+            drawGradientRect(
+                x = shimmerX + shimmerWidth / 2f,
+                y = 0f,
+                width = shimmerWidth / 2f,
+                height = bounds.height,
+                gradient = UiLinearGradient.horizontal(highlight, Color.Transparent)
+            )
+        }
     }
 }
-
