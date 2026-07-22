@@ -2,7 +2,6 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.selection
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -14,10 +13,10 @@ import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
 private const val TOGGLE_WIDTH_PX = 40f
 private const val TOGGLE_HEIGHT_PX = 22f
@@ -31,41 +30,32 @@ fun UiScope.switch(
     style: Style = Style.Empty
 ): Boolean {
     val theme = context.currentTheme
-    val interaction = interact(
+    val surface = resolveInteractiveSurface(
         id = id,
         width = Dimension.Fixed(TOGGLE_WIDTH_PX.dp),
         height = Dimension.Fixed(TOGGLE_HEIGHT_PX.dp),
-        modifier = modifier
-    )
-    val styleState = MutableStyleState(
-        hovered = interaction.hovered || modifier.forceHover == true,
-        active = interaction.active || modifier.forceActive == true,
-        selected = checked
-    )
-    val resolved = resolveStyle(
         style = style,
         defaults = theme.components.toggle,
-        state = styleState
+        modifier = modifier,
+        selected = checked
     )
-    val newChecked = if (interaction.clicked) !checked else checked
+    val newChecked = if (surface.interaction.clicked) !checked else checked
     val trackFill =
-        if (newChecked) theme.tokens.primary else (resolved.background ?: theme.tokens.background)
-    emitFillAndBorder(
-        slot = interaction.slot,
+        if (newChecked) theme.tokens.primary else (surface.resolved.background ?: theme.tokens.background)
+    paintSurface(
+        slot = surface.interaction.slot,
+        resolved = surface.resolved,
         fillColor = trackFill,
-        radiusPx = 0f,
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border,
-        shapeSpec = UiShapeSpec.Pill
+        borderColor = surface.resolved.borderColor ?: theme.tokens.border
     )
-    val knobDiameter = interaction.slot.height - TOGGLE_KNOB_INSET_PX * 2f
+    val knobDiameter = surface.interaction.slot.height - TOGGLE_KNOB_INSET_PX * 2f
     val knobX = if (newChecked) {
-        interaction.slot.x + interaction.slot.width - TOGGLE_KNOB_INSET_PX - knobDiameter
+        surface.interaction.slot.x + surface.interaction.slot.width - TOGGLE_KNOB_INSET_PX - knobDiameter
     } else {
-        interaction.slot.x + TOGGLE_KNOB_INSET_PX
+        surface.interaction.slot.x + TOGGLE_KNOB_INSET_PX
     }
     emitFillAndBorder(
-        slot = UiSlot(knobX, interaction.slot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter),
+        slot = UiSlot(knobX, surface.interaction.slot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter),
         fillColor = theme.tokens.background,
         radiusPx = 0f,
         borderWidth = UiShape.none,
@@ -73,22 +63,22 @@ fun UiScope.switch(
         shapeSpec = UiShapeSpec.Pill
     )
     if (label != null) {
-        val labelWidth = (fillWidthOrNull()?.let { it - interaction.slot.width - TOGGLE_LABEL_GAP }
+        val labelWidth = (fillWidthOrNull()?.let { it - surface.interaction.slot.width - TOGGLE_LABEL_GAP }
             ?: 160f).coerceAtLeast(0f)
         text(
             label,
             slot = UiSlot(
-                interaction.slot.x + interaction.slot.width + TOGGLE_LABEL_GAP,
-                interaction.slot.y,
+                surface.interaction.slot.x + surface.interaction.slot.width + TOGGLE_LABEL_GAP,
+                surface.interaction.slot.y,
                 labelWidth,
-                interaction.slot.height
+                surface.interaction.slot.height
             ),
             font = context.currentFont,
-            color = resolved.foreground ?: theme.tokens.foreground,
+            color = surface.resolved.foreground ?: theme.tokens.foreground,
             centered = false,
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
-            textStyle = resolved.textStyle,
+            textStyle = surface.resolved.textStyle,
             semanticId = "$id.label"
         )
     }
@@ -96,7 +86,7 @@ fun UiScope.switch(
         role = UiSemanticRole.Switch,
         id = id,
         label = label,
-        bounds = interaction.slot,
+        bounds = surface.interaction.slot,
         truncated = false,
         selected = newChecked
     )

@@ -2,17 +2,14 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
@@ -45,13 +42,9 @@ fun UiScope.toggle(
         onCheckedChange(newChecked)
     }
 
-    val styleState = MutableStyleState(
-        hovered = interaction.hovered || modifier.forceHover == true,
-        active = interaction.active || modifier.forceActive == true,
-        selected = newChecked,
-        disabled = !enabled
-    )
-    val resolved = resolveStyle(
+    val surface = resolveInteractiveSurface(
+        interaction = interaction,
+        modifier = modifier,
         style = style,
         defaults = theme.components.button then Style.Companion {
             if (checked) {
@@ -62,29 +55,21 @@ fun UiScope.toggle(
                 foreground(theme.tokens.mutedForeground)
             }
         },
-        state = styleState
+        selected = newChecked,
+        disabled = !enabled
     )
-
-    val contentSlot = interaction.slot.inset(resolved.contentPadding)
-    emitFillAndBorder(
-        slot = interaction.slot,
-        fillColor = resolved.background ?: theme.tokens.background,
-        radiusPx = resolved.shape.toPx(),
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border,
-        shapeSpec = resolved.shapeSpec
-    )
+    paintSurface(slot = interaction.slot, resolved = surface.resolved)
 
     if (label != null) {
         text(
             label = label,
-            slot = contentSlot,
+            slot = surface.contentSlot,
             font = context.currentFont,
-            color = resolved.foreground ?: theme.tokens.foreground,
+            color = surface.resolved.foreground ?: theme.tokens.foreground,
             centered = true,
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
-            textStyle = resolved.textStyle,
+            textStyle = surface.resolved.textStyle,
             semanticId = "$id.label"
         )
     }
@@ -94,7 +79,7 @@ fun UiScope.toggle(
         id = id,
         label = label,
         bounds = interaction.slot,
-        contentBounds = contentSlot,
+        contentBounds = surface.contentSlot,
         selected = newChecked
     )
 

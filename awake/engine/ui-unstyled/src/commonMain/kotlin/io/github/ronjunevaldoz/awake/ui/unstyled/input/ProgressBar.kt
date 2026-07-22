@@ -11,11 +11,11 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveSurface
 
 private const val PROGRESS_TRACK_HEIGHT_DP = 8f
 
@@ -32,26 +32,20 @@ fun UiScope.progressBar(
     style: Style = Style.Empty
 ) {
     val theme = context.currentTheme
-    val slot = claimModifiedSlot(
+    val surface = resolveSurface(
         defaultWidth = Dimension.FillMax,
         defaultHeight = Dimension.Fixed(PROGRESS_TRACK_HEIGHT_DP.dp),
-        modifier = modifier
+        modifier = modifier,
+        style = style,
+        defaults = theme.components.slider
     )
-    val resolved = resolveStyle(style = style, defaults = theme.components.slider)
-    emitFillAndBorder(
-        slot = slot,
-        fillColor = resolved.background ?: theme.tokens.background,
-        radiusPx = 0f,
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border,
-        shapeSpec = UiShapeSpec.Pill
-    )
+    paintSurface(slot = surface.slot, resolved = surface.resolved)
     val fraction = value.coerceIn(0f, 1f)
-    val fillWidth = (slot.width * fraction).coerceAtLeast(0f)
+    val fillWidth = (surface.slot.width * fraction).coerceAtLeast(0f)
     if (fillWidth > 0f) {
         emitFillAndBorder(
-            slot = UiSlot(slot.x, slot.y, fillWidth, slot.height),
-            fillColor = resolved.foreground ?: theme.tokens.primary,
+            slot = UiSlot(surface.slot.x, surface.slot.y, fillWidth, surface.slot.height),
+            fillColor = surface.resolved.foreground ?: theme.tokens.primary,
             radiusPx = 0f,
             borderWidth = UiShape.none,
             borderColor = Color.Transparent,
@@ -62,6 +56,6 @@ fun UiScope.progressBar(
         role = UiSemanticRole.Text,
         id = id,
         label = "${(fraction * 100).toInt()}%",
-        bounds = slot
+        bounds = surface.slot
     )
 }

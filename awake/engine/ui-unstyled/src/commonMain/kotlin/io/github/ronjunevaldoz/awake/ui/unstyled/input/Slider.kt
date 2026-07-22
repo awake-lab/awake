@@ -2,7 +2,6 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -10,12 +9,13 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
+import io.github.ronjunevaldoz.awake.ui.unstyled.interact
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
@@ -31,14 +31,14 @@ fun UiScope.slider(
     style: Style = Style.Empty
 ): Float {
     val theme = context.currentTheme
-    val slot = claimModifiedSlot(
-        defaultWidth = Dimension.FillMax,
-        defaultHeight = Dimension.Fixed(32f.dp),
+    val interaction = interact(
+        id = id,
+        width = Dimension.FillMax,
+        height = Dimension.Fixed(32f.dp),
         modifier = modifier
     )
-    val hovered = hitTest(slot)
-    tryClaimActive(id, hovered)
-    val pointerDown = context.pointerDown() // We need this in UiScope or context
+    val slot = interaction.slot
+    val pointerDown = context.pointerDown()
     val dragging = isActive(id) && pointerDown
     val newValue = if (dragging) sliderValueFromPointerX(
         context.pointerX(),
@@ -49,14 +49,12 @@ fun UiScope.slider(
     ) else value
     releaseActiveIfMatches(id)
 
-    val styleState = MutableStyleState(
-        hovered = hovered || modifier.forceHover == true,
-        active = dragging || modifier.forceActive == true
-    )
-    val resolved = resolveStyle(
+    val surface = resolveInteractiveSurface(
+        interaction = interaction,
+        modifier = modifier,
         style = style,
         defaults = theme.components.slider,
-        state = styleState
+        focused = false
     )
     val trackSlot = UiSlot(
         slot.x,
@@ -64,13 +62,9 @@ fun UiScope.slider(
         slot.width,
         SLIDER_TRACK_HEIGHT_PX
     )
-    emitFillAndBorder(
+    paintSurface(
         slot = trackSlot,
-        fillColor = resolved.background ?: theme.tokens.background,
-        radiusPx = 0f,
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border,
-        shapeSpec = UiShapeSpec.Pill
+        resolved = surface.resolved.copy(shapeSpec = UiShapeSpec.Pill)
     )
     val fraction = ((newValue - min) / (max - min)).coerceIn(0f, 1f)
     val handleWidth = (trackSlot.width * fraction).coerceAtLeast(0f)
@@ -85,28 +79,29 @@ fun UiScope.slider(
         )
     }
     val knobCenterX = trackSlot.x + handleWidth
-    emitFillAndBorder(
+    paintSurface(
         slot = UiSlot(
             knobCenterX - SLIDER_KNOB_DIAMETER_PX / 2f,
             slot.y + (slot.height - SLIDER_KNOB_DIAMETER_PX) / 2f,
             SLIDER_KNOB_DIAMETER_PX,
             SLIDER_KNOB_DIAMETER_PX
         ),
+        resolved = surface.resolved.copy(
+            borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
+            shapeSpec = UiShapeSpec.Pill
+        ),
         fillColor = theme.tokens.background,
-        radiusPx = 0f,
-        borderWidth = resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
-        borderColor = theme.tokens.primary,
-        shapeSpec = UiShapeSpec.Pill
+        borderColor = theme.tokens.primary
     )
     if (label != null) {
         text(
             label,
             slot = slot,
             font = context.currentFont,
-            color = resolved.foreground ?: theme.tokens.foreground,
+            color = surface.resolved.foreground ?: theme.tokens.foreground,
             centered = true,
             overflow = UiTextOverflow.Ellipsis,
-            textStyle = resolved.textStyle,
+            textStyle = surface.resolved.textStyle,
             semanticId = "$id.label"
         )
     }

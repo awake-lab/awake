@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -16,11 +15,10 @@ import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
-import io.github.ronjunevaldoz.awake.ui.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
 
@@ -61,31 +59,28 @@ fun UiScope.textField(
         context.requestFocus(id)
     }
 
-    val styleState = MutableStyleState(
-        hovered = interaction.hovered || modifier.forceHover == true,
-        focused = focused,
-        disabled = !enabled
-    )
-    val resolved = resolveStyle(
+    val surface = resolveInteractiveSurface(
+        interaction = interaction,
+        modifier = modifier,
         style = style,
         defaults = theme.components.textField,
-        state = styleState
+        disabled = !enabled,
+        focused = focused
     )
     val borderColor =
-        if (isError) theme.tokens.destructive else (resolved.borderColor ?: theme.tokens.border)
-    emitFillAndBorder(
-        slot = interaction.slot,
-        fillColor = resolved.background ?: theme.tokens.background,
-        radiusPx = resolved.shape.toPx(),
-        borderWidth = if (focused || isError) 1.5f.dp else resolved.borderWidth,
-        borderColor = borderColor,
-        shapeSpec = resolved.shapeSpec
+        if (isError) theme.tokens.destructive else (surface.resolved.borderColor ?: theme.tokens.border)
+    paintSurface(
+        slot = surface.interaction.slot,
+        resolved = surface.resolved.copy(
+            borderWidth = if (focused || isError) 1.5f.dp else surface.resolved.borderWidth
+        ),
+        borderColor = borderColor
     )
 
     val resolvedFont = context.currentFont
     val glyphPx =
-        resolveGlyphPx(resolvedFont, resolved.textStyle)
-    val contentSlot = interaction.slot.inset(resolved.contentPadding)
+        resolveGlyphPx(resolvedFont, surface.resolved.textStyle)
+    val contentSlot = surface.contentSlot
 
     val cursorState = widgetState(id)
     var cursor = cursorState.get("cursor", value.length).coerceIn(0, value.length)
@@ -146,11 +141,11 @@ fun UiScope.textField(
                 label = displayed,
                 slot = UiSlot(contentSlot.x, contentSlot.y, contentSlot.width, contentSlot.height),
                 font = resolvedFont,
-                color = if (showingPlaceholder) theme.tokens.mutedForeground else (resolved.foreground
+                color = if (showingPlaceholder) theme.tokens.mutedForeground else (surface.resolved.foreground
                     ?: theme.tokens.foreground),
                 verticallyCentered = true,
                 overflow = UiTextOverflow.Clip,
-                textStyle = resolved.textStyle,
+                textStyle = surface.resolved.textStyle,
                 semanticId = "$id.value"
             )
         }
@@ -168,7 +163,7 @@ fun UiScope.textField(
                         TEXT_FIELD_CARET_WIDTH_PX,
                         contentSlot.height
                     ),
-                    fillColor = resolved.foreground ?: theme.tokens.foreground,
+                    fillColor = surface.resolved.foreground ?: theme.tokens.foreground,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent
@@ -181,7 +176,7 @@ fun UiScope.textField(
         role = UiSemanticRole.Text,
         id = id,
         label = if (nextValue.isEmpty()) placeholder else nextValue,
-        bounds = interaction.slot,
+        bounds = surface.interaction.slot,
         contentBounds = contentSlot,
         selected = focused
     )

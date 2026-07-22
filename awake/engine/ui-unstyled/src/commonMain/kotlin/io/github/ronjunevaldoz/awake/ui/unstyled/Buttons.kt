@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.unstyled
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
@@ -14,12 +13,9 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
-import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -38,7 +34,6 @@ private inline fun UiScope.buttonSlotInternal(
     semanticLabel: String? = null,
     drawContent: AbsoluteScope.(contentSlot: UiSlot, resolved: ResolvedStyle) -> Unit
 ): UiButtonResult {
-    val interaction = interact(id, width, height, modifier)
     val theme = context.currentTheme
     val defaults = theme.components.button then Style.Companion {
         shape(radius)
@@ -46,35 +41,31 @@ private inline fun UiScope.buttonSlotInternal(
             borderWidth(1f.dp)
         }
     }
-    val styleState = MutableStyleState(
-        hovered = interaction.hovered || modifier.forceHover == true,
-        active = interaction.active || modifier.forceActive == true
-    )
-    val resolved = resolveStyle(
+    val surface = resolveInteractiveSurface(
+        id = id,
+        width = width,
+        height = height,
+        modifier = modifier,
         style = style,
         defaults = defaults,
-        state = styleState
+        selected = false
     )
-    val baseFill = resolved.background ?: theme.tokens.background
-    val fillColor = variant.resolveFill(baseFill, interaction.hovered, interaction.active)
-    val contentSlot = interaction.slot.inset(resolved.contentPadding)
-    emitFillAndBorder(
-        slot = interaction.slot,
+    val baseFill = surface.resolved.background ?: theme.tokens.background
+    val fillColor = variant.resolveFill(baseFill, surface.interaction.hovered, surface.interaction.active)
+    paintSurface(
+        slot = surface.interaction.slot,
+        resolved = surface.resolved,
         fillColor = fillColor,
-        radiusPx = resolved.shape.toPx(),
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border,
-        shapeSpec = resolved.shapeSpec
     )
-    childAbsolute(slot = contentSlot).drawContent(contentSlot, resolved)
+    childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
     recordSemantic(
         role = UiSemanticRole.Button,
         id = id,
         label = semanticLabel,
-        bounds = interaction.slot,
-        contentBounds = contentSlot
+        bounds = surface.interaction.slot,
+        contentBounds = surface.contentSlot
     )
-    return UiButtonResult(interaction.clicked, interaction.slot)
+    return UiButtonResult(surface.interaction.clicked, surface.interaction.slot)
 }
 
 fun UiScope.button(
