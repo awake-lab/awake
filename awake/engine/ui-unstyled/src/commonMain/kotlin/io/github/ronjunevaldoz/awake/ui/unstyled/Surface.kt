@@ -16,19 +16,19 @@ import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 
-internal data class UiResolvedSurface(
+internal data class ResolvedSurface(
     val slot: UiSlot,
     val resolved: ResolvedStyle,
     val contentSlot: UiSlot
 )
 
-internal data class UiInteractiveSurface(
+internal data class InteractiveSurface(
     val interaction: UiInteraction,
     val resolved: ResolvedStyle,
     val contentSlot: UiSlot
 )
 
-internal data class UiSurfaceStyle(
+internal data class SurfaceStyle(
     val resolved: ResolvedStyle,
     val contentSlot: UiSlot
 )
@@ -40,7 +40,7 @@ internal fun UiScope.resolveSurface(
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
     state: MutableStyleState = MutableStyleState()
-): UiResolvedSurface {
+): ResolvedSurface {
     val slot = claimModifiedSlot(
         defaultWidth = defaultWidth,
         defaultHeight = defaultHeight,
@@ -51,7 +51,7 @@ internal fun UiScope.resolveSurface(
         defaults = defaults,
         state = state
     )
-    return UiResolvedSurface(
+    return ResolvedSurface(
         slot = slot,
         resolved = resolved,
         contentSlot = slot.inset(resolved.contentPadding)
@@ -68,7 +68,7 @@ internal fun UiScope.resolveInteractiveSurface(
     selected: Boolean = false,
     disabled: Boolean = false,
     focused: Boolean = false
-): UiInteractiveSurface {
+): InteractiveSurface {
     val interaction = interact(id, width, height, modifier)
     val surfaceStyle = resolveSurfaceStyle(
         slot = interaction.slot,
@@ -80,7 +80,7 @@ internal fun UiScope.resolveInteractiveSurface(
         hovered = interaction.hovered || modifier.forceHover == true,
         active = interaction.active || modifier.forceActive == true
     )
-    return UiInteractiveSurface(
+    return InteractiveSurface(
         interaction = interaction,
         resolved = surfaceStyle.resolved,
         contentSlot = surfaceStyle.contentSlot
@@ -95,7 +95,7 @@ internal fun UiScope.resolveInteractiveSurface(
     selected: Boolean = false,
     disabled: Boolean = false,
     focused: Boolean = false
-): UiInteractiveSurface {
+): InteractiveSurface {
     val surfaceStyle = resolveSurfaceStyle(
         slot = interaction.slot,
         style = style,
@@ -106,7 +106,7 @@ internal fun UiScope.resolveInteractiveSurface(
         hovered = interaction.hovered || modifier.forceHover == true,
         active = interaction.active || modifier.forceActive == true
     )
-    return UiInteractiveSurface(
+    return InteractiveSurface(
         interaction = interaction,
         resolved = surfaceStyle.resolved,
         contentSlot = surfaceStyle.contentSlot
@@ -122,7 +122,7 @@ private fun UiScope.resolveSurfaceStyle(
     focused: Boolean,
     hovered: Boolean,
     active: Boolean
-): UiSurfaceStyle {
+): SurfaceStyle {
     val state = MutableStyleState(
         hovered = hovered,
         active = active,
@@ -135,7 +135,7 @@ private fun UiScope.resolveSurfaceStyle(
         defaults = defaults,
         state = state
     )
-    return UiSurfaceStyle(
+    return SurfaceStyle(
         resolved = resolved,
         contentSlot = slot.inset(resolved.contentPadding)
     )
