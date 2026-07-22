@@ -32,16 +32,15 @@ class UiContext internal constructor(
     constructor() : this(measuring = false)
 
     private val stacks = UiContextStacks()
-    private val interaction = UiContextInteractionState()
-    private val frameState = UiContextFrameState()
-    private val measureState = UiContextMeasureState()
+    private val runtime = UiRuntimeCoordinator()
+    private val measurement = UiMeasurementRuntime()
     private val services = UiContextServiceRegistry()
     private val layouts = UiLayoutFactory(this)
 
     val currentTheme: UiTheme get() = stacks.currentTheme
     val currentTextStyle: TextStyle get() = stacks.currentTextStyle
     val currentFont get() = stacks.currentFont
-    val inputState: UiInputState get() = frameState.inputState
+    val inputState: UiInputState get() = runtime.inputState
 
     fun pushTheme(theme: UiTheme) = stacks.pushTheme(theme)
     fun popTheme() = stacks.popTheme()
@@ -62,9 +61,8 @@ class UiContext internal constructor(
         inputState: UiInputState,
         deltaSeconds: Float = 1f / 60f
     ) {
-        frameState.beginFrame(screenWidth, screenHeight, inputState, deltaSeconds)
-        interaction.beginFrame(inputState)
-        measureState.beginFrame()
+        runtime.beginFrame(screenWidth, screenHeight, inputState, deltaSeconds)
+        measurement.beginFrame()
         services.clear()
     }
 
@@ -225,72 +223,69 @@ class UiContext internal constructor(
         overlayOnly = overlayOnly
     )
 
-    fun inputResult(): UiInputResult = interaction.inputResult()
+    fun inputResult(): UiInputResult = runtime.inputResult()
 
-    fun endFrame(): List<UiDrawPrimitive> {
-        interaction.endFrame(frameState.inputState)
-        return frameState.endFrame()
-    }
+    fun endFrame(): List<UiDrawPrimitive> = runtime.endFrame()
 
     fun onOverScrollable() {
-        if (!measuring) interaction.onOverScrollable()
+        runtime.onOverScrollable(measuring)
     }
 
     fun onScrollConsumed() {
-        if (!measuring) interaction.onScrollConsumed()
+        runtime.onScrollConsumed(measuring)
     }
 
-    fun semanticNodes(): List<UiSemanticNode> = frameState.semanticNodes()
+    fun semanticNodes(): List<UiSemanticNode> = runtime.semanticNodes()
 
     internal fun hitTestInternal(slot: UiSlot): Boolean =
-        interaction.hitTest(slot, frameState.inputState, measuring)
+        runtime.hitTest(slot, measuring)
 
-    internal fun isActiveInternal(id: String): Boolean = interaction.isActive(id)
+    internal fun isActiveInternal(id: String): Boolean = runtime.isActive(id)
 
     internal fun tryClaimActiveInternal(id: String, hovered: Boolean) {
-        interaction.tryClaimActive(id, hovered, frameState.inputState, measuring)
+        runtime.tryClaimActive(id, hovered, measuring)
     }
 
     internal fun releaseActiveIfMatchesInternal(id: String) {
-        interaction.releaseActiveIfMatches(id, frameState.inputState, measuring)
+        runtime.releaseActiveIfMatches(id, measuring)
     }
 
-    internal fun isFocusedInternal(id: String): Boolean = interaction.isFocused(id)
+    internal fun isFocusedInternal(id: String): Boolean = runtime.isFocused(id)
 
     internal fun requestFocusInternal(id: String) {
-        interaction.requestFocus(id, measuring)
+        runtime.requestFocus(id, measuring)
     }
 
     internal fun clearFocusIfMatchesInternal(id: String) {
-        interaction.clearFocusIfMatches(id, measuring)
+        runtime.clearFocusIfMatches(id, measuring)
     }
 
     internal fun emitInternal(p: UiDrawPrimitive) {
-        frameState.emit(p, measuring)
+        runtime.emit(p, measuring)
     }
 
     internal fun emitOverlayInternal(p: UiDrawPrimitive) {
-        frameState.emitOverlay(p, measuring)
+        runtime.emitOverlay(p, measuring)
     }
 
-    internal fun widgetStateInternal(id: String): WidgetState = interaction.widgetState(id)
+    internal fun widgetStateInternal(id: String): WidgetState = runtime.widgetState(id)
 
     internal fun recordSemanticInternal(node: UiSemanticNode) {
-        frameState.recordSemantic(node, measuring)
+        runtime.recordSemantic(node, measuring)
     }
 
-    internal fun pushClipInternal(rect: UiSlot): UiSlot = frameState.pushClip(rect)
+    internal fun pushClipInternal(rect: UiSlot): UiSlot = runtime.pushClip(rect)
 
     fun pushClip(rect: UiSlot): UiSlot = pushClipInternal(rect)
 
-    internal fun popClipInternal(): UiSlot = frameState.popClip()
+    internal fun popClipInternal(): UiSlot = runtime.popClip()
 
     fun popClip(): UiSlot = popClipInternal()
 
-    fun pointerDownEdge(): Boolean = interaction.pointerDownEdge()
+    fun pointerDownEdge(): Boolean = runtime.pointerDownEdge()
 
     fun setActive(id: String?) {
-        interaction.setActive(id)
+        runtime.setActive(id)
     }
 
     fun isFocused(id: String): Boolean = isFocusedInternal(id)
@@ -299,28 +294,24 @@ class UiContext internal constructor(
 
     fun clearFocusIfMatches(id: String) = clearFocusIfMatchesInternal(id)
 
-    fun frameDeltaSeconds(): Float = frameState.frameDeltaSeconds
+    fun frameDeltaSeconds(): Float = runtime.frameDeltaSeconds
 
-    fun frameBounds(): UiSlot = frameState.fullFrameRect
+    fun frameBounds(): UiSlot = runtime.fullFrameRect
 
     fun isMeasuring(): Boolean = measuring
 
     internal fun recordMeasuredSlot(slot: UiSlot) {
-        measureState.record(slot, measuring)
+        measurement.record(slot, measuring)
     }
 
-    internal fun measuredContentSnapshot(): UiMeasuredContent = UiMeasuredContent(
-        width = measureState.measuredMaxRight,
-        height = measureState.measuredMaxBottom,
-        slots = measureState.measuredSlots.toList()
-    )
+    internal fun measuredContentSnapshot(): UiMeasuredContent = measurement.snapshot()
 
     fun measureColumnContent(
         width: Float,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         content: ColumnScope.(slot: UiSlot) -> Unit
-    ): UiMeasuredContent = measureState.measureColumnContent(
+    ): UiMeasuredContent = measurement.measureColumnContent(
         width = width,
         gap = gap,
         insets = insets,
@@ -333,7 +324,7 @@ class UiContext internal constructor(
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
         content: RowScope.(slot: UiSlot) -> Unit
-    ): UiMeasuredContent = measureState.measureRowContent(
+    ): UiMeasuredContent = measurement.measureRowContent(
         height = height,
         gap = gap,
         insets = insets,
@@ -341,7 +332,7 @@ class UiContext internal constructor(
         content = content
     )
 
-    fun pointerX(): Float = frameState.inputState.pointerX
-    fun pointerY(): Float = frameState.inputState.pointerY
-    fun pointerDown(): Boolean = frameState.inputState.pointerDown
+    fun pointerX(): Float = runtime.inputState.pointerX
+    fun pointerY(): Float = runtime.inputState.pointerY
+    fun pointerDown(): Boolean = runtime.inputState.pointerDown
 }
