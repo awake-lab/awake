@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
-import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
@@ -28,7 +27,7 @@ fun ColumnScope.awakeShadcnBreadcrumb(
     height: Dp = 20f.dp
 ): UiSlot {
     val shadcnTheme = theme.asAwakeShadcnTheme()
-    return row(height = height, horizontalArrangement = Arrangement.spacedBy(6f.px), modifier = modifier) {
+    return row(height = height, horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = modifier) {
         items.forEachIndexed { index, label ->
             val isCurrent = index == items.lastIndex
             text(

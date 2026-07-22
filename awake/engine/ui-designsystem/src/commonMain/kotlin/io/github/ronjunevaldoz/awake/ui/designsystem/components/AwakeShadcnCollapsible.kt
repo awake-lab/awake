@@ -14,7 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.paddingTop
-import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
@@ -51,7 +50,7 @@ fun ColumnScope.awakeShadcnCollapsible(
         this.row(
             width = Dimension.FillMax,
             height = Dimension.Fixed(slot.height.dp),
-            horizontalArrangement = Arrangement.spacedBy(8f.px)
+            horizontalArrangement = Arrangement.spacedBy(8f.dp)
         ) {
              text(
                  label = if (expanded) "-" else "+",

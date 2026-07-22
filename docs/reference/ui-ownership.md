@@ -90,6 +90,19 @@ Rule of thumb: if the API name bakes in both a placement concern and a concrete 
 it is usually too high-level for `ui-core`, and usually too convenience-shaped for long-term
 reuse.
 
+## Authored Units And Spacing
+
+For authored UI in shared and sample-facing layers:
+
+- use `Dp` for layout, spacing, padding, radius, and widget sizing
+- use `Sp` for text sizing
+- use `Arrangement.*` for row/column spacing instead of authored `gap = ...` call sites
+- use `UiModifier.padding(...)` instead of authored public `insets = ...` call sites
+
+Keep raw pixel literals such as `12f.px` in low-level layout/render internals only, where the
+code is already operating in measured pixel space. Shared UI modules, DSL layers, and samples
+should not author visual values in pixels.
+
 ## What Must Stay Out Of Reusable UI Modules
 
 If a UI component knows about any of these directly, it likely belongs in a sample or game
@@ -156,3 +169,14 @@ run a `verifyUiOwnership` task that rejects:
 
 The check is intentionally lightweight and curated. It is not a theorem prover. When the
 policy grows, expand the canonical doc first, then update the check.
+
+Awake also build-enforces authored-unit usage in:
+
+- `:awake:engine:ui-unstyled`
+- `:awake:engine:ui-dsl`
+- `:awake:engine:ui-designsystem`
+- `:awake:engine:game-dsl`
+- `:samples:ui-showcase`
+
+Those modules run `verifyUiAuthoredUnits`, which currently rejects numeric `.px` literals in
+`*Main` source so shared/sample UI stays authored in `Dp`/`Sp`.

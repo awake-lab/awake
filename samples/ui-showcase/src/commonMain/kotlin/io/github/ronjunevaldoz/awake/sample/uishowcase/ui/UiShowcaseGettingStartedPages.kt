@@ -29,6 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVar
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
@@ -54,7 +55,7 @@ internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
 
 internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
     val cardWidth = 220f
-    row(height = Dimension.WrapContent, gap = 12f) {
+    row(height = Dimension.WrapContent, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
         surface(
             id = "ui-showcase-reference-spec",
             width = Dimension.Fixed(cardWidth.dp),
@@ -88,7 +89,7 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
                 maxLines = 4
             )
             spacer(UiModifier().height(8f.dp))
-            row(height = 36f.dp, gap = 8f) {
+            row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
                 awakeShadcnButton(
                     "reference-primary",
                     "Primary",
@@ -109,7 +110,6 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
 }
 
 internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState) {
-    awakeShadcnSectionTitle("Theme controls")
     awakeShadcnPropertyDropdown(
         id = "showcase-style-preset",
         label = "Style",
@@ -144,7 +144,6 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
     )
 
     spacer(UiModifier().height(10f.dp))
-    awakeShadcnSectionTitle("Live preview")
     val nextLive = awakeShadcnPropertyToggle(
         id = "showcase-live",
         label = "Live badge",
@@ -219,7 +218,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
         )
         val badgeVariant = state.showcaseBadgeVariant()
         awakeShadcnBadge(if (state.showcaseLiveBadge) "LIVE" else "PAUSED", variant = badgeVariant)
-        row(height = 28f.dp, gap = 8f) {
+        row(height = 28f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
             awakeShadcnBadge(
                 label = state.showcaseStylePreset().label.uppercase(),
                 variant = AwakeShadcnBadgeVariant.Outline
@@ -240,7 +239,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
         awakeShadcnBodyText("Showcase preview card")
         awakeShadcnSupportingText("Light is the default mood now, Auto follows the platform, and the sample chrome can carry gradients and shimmer without hardcoding per-demo paint.")
         spacer(UiModifier().height(6f.dp))
-        row(height = 36f.dp, gap = 10f) {
+        row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
             if (
                 awakeShadcnButton(
                     id = "preview-primary-action",

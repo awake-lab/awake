@@ -11,9 +11,9 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.UiContext
-import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
@@ -55,7 +55,7 @@ internal object AlertDialogDiagnosticPreview : AwakeUiPreviewEntry {
                 title = "Delete showcase card?",
                 message = "This sample does not really delete anything. It exists to prove the alert dialog composition and confirm or dismiss flow.",
                 confirmLabel = "Delete",
-                confirmVariant = UiButtonVariant.Filled
+                confirmVariant = AwakeShadcnButtonVariant.Primary
             )
         }
         return AwakeUiPreviewFrame(

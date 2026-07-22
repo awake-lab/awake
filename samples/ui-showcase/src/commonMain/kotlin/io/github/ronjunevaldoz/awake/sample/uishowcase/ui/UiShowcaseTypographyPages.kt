@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.TextStyle
-import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
@@ -17,11 +16,13 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.sp
+import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
@@ -29,12 +30,14 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.width
 
 internal fun ColumnScope.drawUiShowcaseFontsPreview() {
-    awakeShadcnSectionHeader(
-        title = "Font pipeline comparison",
-        description = "The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly."
+    awakeShadcnBadge("TYPOGRAPHY", variant = AwakeShadcnBadgeVariant.Outline)
+    supportingLines(
+        listOf(
+            "The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly."
+        )
     )
     spacer(UiModifier().height(8f.dp))
-    row(height = 292f.dp, gap = 12f) {
+    row(height = 292f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
         surface(
             id = "showcase-font-bitmap",
             width = Dimension.Fixed(264f.dp),
@@ -81,7 +84,7 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
     val specimenScope = context.createColumn(
         slot = slot,
         gap = 8f,
-        insets = UiInsets(16f.dp),
+        insets = UiModifier().padding(16f.dp).insets,
         overlayOnly = emitsToOverlay
     )
     specimenScope.awakeShadcnBadge(

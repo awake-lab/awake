@@ -17,7 +17,6 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.width
 
 internal fun ColumnScope.drawUiShowcaseSlotApiPreview() {
-    awakeShadcnSectionTitle("buttonSlot(...) content lambda")
     awakeShadcnSupportingText("The label-string overload is sugar over this content-lambda form -- there is no capability gap between them.")
     spacer(UiModifier().height(8f.dp))
     buttonSlot(
@@ -30,6 +29,5 @@ internal fun ColumnScope.drawUiShowcaseSlotApiPreview() {
         text("Launch", modifier = UiModifier().offset(x = 32f.dp), style = labelSize)
     }
     spacer(UiModifier().height(16f.dp))
-    awakeShadcnSectionTitle("Custom widgets, same primitives")
     awakeShadcnSupportingText("samples:hello-cube's Gauge.kt is a fully custom widget built from the same claimSlot()/emit() primitives a built-in widget uses -- no library-only capability gap.")
 }

@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
@@ -124,11 +125,15 @@ internal val ShowcasePages = listOf(
         category = ShowcaseCategory.Layout,
         description = "row(...) and column(...) -- the modifier-first layout primitives every other page in this catalog is built from.",
         usageCode = """
-            row(height = 48f.dp, gap = 8f) {
+            row(height = 48f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
                 panel(id = "a", width = Dimension.Fixed(80f.dp), height = Dimension.FillMax) { }
                 panel(id = "b", width = Dimension.Fixed(120f.dp), height = Dimension.FillMax) { }
             }
-            column(height = Dimension.Fixed(112f.dp), width = Dimension.Fixed(200f.dp), gap = 6f) {
+            column(
+                height = Dimension.Fixed(112f.dp),
+                width = Dimension.Fixed(200f.dp),
+                verticalArrangement = Arrangement.spacedBy(6f.dp)
+            ) {
                 panel(id = "a", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp)) { }
             }
         """.trimIndent(),

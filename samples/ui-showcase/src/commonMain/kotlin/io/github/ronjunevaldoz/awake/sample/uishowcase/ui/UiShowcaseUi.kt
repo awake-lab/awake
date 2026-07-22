@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurfa
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.padding
@@ -47,10 +48,15 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
         val compact = constraints.isCompact
         val outerPadding = if (compact) 16f.dp else 24f.dp
         val sidebarWidth = 264f.dp.toDimension()
-        val railGap = 20f
+        val railGap = 20f.dp
 
         if (compact) {
-            column(width = Dimension.FillMax, height = Dimension.FillMax, gap = 12f, modifier =  UiModifier().fillMaxSize().padding(outerPadding)) {
+            column(
+                width = Dimension.FillMax,
+                height = Dimension.FillMax,
+                verticalArrangement = Arrangement.spacedBy(12f.dp),
+                modifier = UiModifier().fillMaxSize().padding(outerPadding)
+            ) {
                 awakeShadcnSurface(
                     id = "ui-showcase-mobile-sidebar",
                     height = Dimension.FillMax,
@@ -65,20 +71,14 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                     id = "ui-showcase-mobile-content-viewport",
                     width = Dimension.FillMax,
                     height = Dimension.FillMax,
+                    modifier = UiModifier().verticalScroll(contentScroll)
                 ) {
                     awakeShadcnSurface(
                         id = "ui-showcase-mobile-content",
-                        height = Dimension.FillMax,
+                        height = Dimension.WrapContent,
                         style = Style { shape(16f.dp) }
                     ) {
-                        column(
-                            id = "ui-showcase-mobile-content-scroll",
-                            width = Dimension.FillMax,
-                            height = Dimension.FillMax,
-                            modifier = UiModifier().verticalScroll(contentScroll)
-                        ) {
-                            drawUiShowcasePageContent(state, showInlineMenu = true)
-                        }
+                        drawUiShowcasePageContent(state, showInlineMenu = true)
                     }
                 }
             }
@@ -86,7 +86,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
             row(
                 width = Dimension.FillMax,
                 height = Dimension.FillMax,
-                gap = railGap,
+                horizontalArrangement = Arrangement.spacedBy(railGap),
                 modifier = UiModifier().fillMaxSize().padding(outerPadding)
             ) {
                 awakeShadcnSurface(
@@ -103,21 +103,15 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                 column(
                     id = "ui-showcase-content-viewport",
                     width = Dimension.FillMax,
-                    height = Dimension.FillMax
+                    height = Dimension.FillMax,
+                    modifier = UiModifier().verticalScroll(contentScroll)
                 ) {
                     awakeShadcnSurface(
                         id = "ui-showcase-content",
-                        height = Dimension.FillMax,
+                        height = Dimension.WrapContent,
                         style = Style { shape(16f.dp) }
                     ) {
-                        column(
-                            id = "ui-showcase-content-scroll",
-                            width = Dimension.FillMax,
-                            height = Dimension.FillMax,
-                            modifier = UiModifier().verticalScroll(contentScroll)
-                        ) {
-                            drawUiShowcasePageContent(state, showInlineMenu = false)
-                        }
+                        drawUiShowcasePageContent(state, showInlineMenu = false)
                     }
                 }
             }

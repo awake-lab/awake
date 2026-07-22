@@ -193,7 +193,7 @@ fun ColumnScope.awakeShadcnTabs(
         radius = shadcnTheme.radii.md,
         style = Style { background(shadcnTheme.palette.muted) }
     ) {
-        row(height = height, horizontalArrangement = Arrangement.spacedBy(2f.px)) {
+        row(height = height, horizontalArrangement = Arrangement.spacedBy(2f.dp)) {
             tabs.forEachIndexed { index, label ->
                 val active = index == selectedIndex
                 val tabStyle: Style = if (active) {

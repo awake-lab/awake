@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVar
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawRow
@@ -30,15 +31,14 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.width
 
 internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
-    awakeShadcnSectionTitle("Buttons")
     awakeShadcnSupportingText("Matches docs/reference/shadcn-previews/button_variants_light.png for a direct side-by-side.")
     spacer(UiModifier().height(8f.dp))
-    row(height = 40f.dp, gap = 10f) {
+    row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
         awakeShadcnButton("showcase-button-primary", label = "Primary", variant = AwakeShadcnButtonVariant.Primary, modifier = UiModifier().width(120f.dp))
         awakeShadcnButton("showcase-button-secondary", label = "Secondary", variant = AwakeShadcnButtonVariant.Secondary, modifier = UiModifier().width(120f.dp))
         awakeShadcnButton("showcase-button-outline", label = "Outline", variant = AwakeShadcnButtonVariant.Outline, modifier = UiModifier().width(112f.dp))
     }
-    row(height = 40f.dp, gap = 10f) {
+    row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
         awakeShadcnButton("showcase-button-ghost", label = "Ghost", variant = AwakeShadcnButtonVariant.Ghost, modifier = UiModifier().width(100f.dp))
         awakeShadcnButton("showcase-button-danger", label = "Danger", variant = AwakeShadcnButtonVariant.Danger, modifier = UiModifier().width(108f.dp))
     }
@@ -48,7 +48,6 @@ internal fun ColumnScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntime
     val name = context.rememberStateValue("ui-showcase-text-input", "name") { "" }
     val email = context.rememberStateValue("ui-showcase-text-input", "email") { "" }
 
-    awakeShadcnSectionTitle("Text Input")
     awakeShadcnSupportingText("Click a field, type, backspace, and use the arrow keys -- this is a real keyboard-driven widget, not a mockup.")
     spacer(UiModifier().height(8f.dp))
     awakeShadcnPropertyTextField(
@@ -86,7 +85,6 @@ internal fun ColumnScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntime
 internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRuntimeState) {
     val expanded = context.rememberStateValue("ui-showcase-collapsible", "expanded") { false }
 
-    awakeShadcnSectionTitle("Collapsible")
     awakeShadcnSupportingText("An interactive panel that expands to show more content, with a smooth height transition.")
     spacer(UiModifier().height(8f.dp))
 
@@ -96,7 +94,11 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRunti
         expanded = expanded.value,
         onExpandedChange = { expanded.value = it }
     ) {
-        column(width = Dimension.FillMax, height = Dimension.WrapContent, gap = 8f) {
+        column(
+            width = Dimension.FillMax,
+            height = Dimension.WrapContent,
+            verticalArrangement = Arrangement.spacedBy(8f.dp)
+        ) {
             awakeShadcnSeparator(modifier = UiModifier().padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
             rawRow(modifier = UiModifier().fillMaxWidth().height(32f.dp)) {
                 text("@radix-ui/primitives", modifier = UiModifier().padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
@@ -115,7 +117,6 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
     val exposure = context.rememberStateValue("ui-showcase-slider", "exposure") { 52f }
     val bloom = context.rememberStateValue("ui-showcase-slider", "bloom") { 18f }
 
-    awakeShadcnSectionTitle("Slider")
     awakeShadcnSupportingText("Use sliders when you need a continuous value with immediate visual feedback and a stable control footprint.")
     spacer(UiModifier().height(8f.dp))
     exposure.value = awakeShadcnSlider(
@@ -141,7 +142,6 @@ internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
     val wireframe = context.rememberStateValue("ui-showcase-selection", "wireframe") { true }
     val stats = context.rememberStateValue("ui-showcase-selection", "stats") { false }
 
-    awakeShadcnSectionTitle("Toggle And Checkbox")
     awakeShadcnSupportingText("These are the current Awake-owned selection controls. They already share the same shadcn token layer even though radio and tab families are still pending.")
     spacer(UiModifier().height(8f.dp))
     wireframe.value = awakeShadcnToggle(

@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVa
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
@@ -25,19 +26,21 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.verticalScroll
 
 internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
-    awakeShadcnSectionTitle("Row")
     awakeShadcnSupportingText("row(...) advances a cursor along the horizontal axis; each child claims the next slot in call order.")
     spacer(UiModifier().height(8f.dp))
-    row(height = 48f.dp, gap = 8f) {
+    row(height = 48f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
         surface(id = "layout-row-a", width = Dimension.Fixed(80f.dp), height = Dimension.FillMax, style = Style { background(theme.tokens.primary) }) { }
         surface(id = "layout-row-b", width = Dimension.Fixed(120f.dp), height = Dimension.FillMax, style = Style { background(theme.tokens.secondary) }) { }
         surface(id = "layout-row-c", width = Dimension.Fixed(160f.dp), height = Dimension.FillMax, style = Style { background(theme.tokens.muted) }) { }
     }
     spacer(UiModifier().height(16f.dp))
-    awakeShadcnSectionTitle("Column")
     awakeShadcnSupportingText("column(...) advances a cursor along the vertical axis -- the default layout for every page in this catalog.")
     spacer(UiModifier().height(8f.dp))
-    column(height = Dimension.Fixed(112f.dp), width = Dimension.Fixed(200f.dp), gap = 6f) {
+    column(
+        height = Dimension.Fixed(112f.dp),
+        width = Dimension.Fixed(200f.dp),
+        verticalArrangement = Arrangement.spacedBy(6f.dp)
+    ) {
         surface(id = "layout-col-a", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp), style = Style { background(theme.tokens.primary) }) { }
         surface(id = "layout-col-b", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp), style = Style { background(theme.tokens.secondary) }) { }
         surface(id = "layout-col-c", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp), style = Style { background(theme.tokens.muted) }) { }
@@ -46,7 +49,6 @@ internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
 
 internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
     val scrollState = context.rememberScrollState("ui-showcase-scroll-panel")
-    awakeShadcnSectionTitle("Scroll Panel")
     awakeShadcnSupportingText("Scrollable containers own clipping, content measurement, and the scrollbar lane so callers do not have to reimplement any of it.")
     spacer(UiModifier().height(8f.dp))
     awakeShadcnSurface(

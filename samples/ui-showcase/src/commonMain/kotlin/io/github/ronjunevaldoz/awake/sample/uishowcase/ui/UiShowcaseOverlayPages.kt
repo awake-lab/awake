@@ -11,8 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
@@ -25,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVar
 import io.github.ronjunevaldoz.awake.ui.destructiveStyle
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
@@ -64,15 +63,11 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
         ?.let { effect -> state.showcaseCounterEffectMessage = effect.toDebugLabel() }
 
     val counterState = state.counterStore.state.value
-    awakeShadcnSectionHeader(
-        title = "MVI Counter",
-        description = "A tiny reducer-backed example with effects kept off persistent state."
-    )
     awakeShadcnBadge("MVI", variant = AwakeShadcnBadgeVariant.Primary)
     awakeShadcnBodyText("Count: ${counterState.count}")
     awakeShadcnSupportingText("Last effect: ${state.showcaseCounterEffectMessage ?: "None"}")
     spacer(UiModifier().height(6f.dp))
-    row(height = 36f.dp, gap = 10f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
         if (
             awakeShadcnButton(
                 id = "counter-decrement",
@@ -94,7 +89,7 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
             state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Increment)
         }
     }
-    row(height = 36f.dp, gap = 10f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
         if (
             awakeShadcnButton(
                 id = "counter-reset",
@@ -119,14 +114,10 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         "Try the action menu and dialog to inspect the popup layer."
     }
 
-    awakeShadcnSectionHeader(
-        title = "Popup Components",
-        description = "Menu and dialog proofs running through the shared DSL surface."
-    )
     awakeShadcnBadge("OVERLAY", variant = AwakeShadcnBadgeVariant.Outline)
     awakeShadcnSupportingText("The action menu anchors to the trigger and opens inside a contained popover surface.")
     spacer(UiModifier().height(6f.dp))
-    row(height = 36f.dp, gap = 10f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
         val menuTrigger = buttonSlot(
             id = "ui-showcase-menu-trigger",
             label = "Actions",
@@ -178,6 +169,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         title = "Delete showcase card?",
         message = "This sample does not really delete anything. It exists to prove the alert dialog composition and confirm or dismiss flow.",
         confirmLabel = "Delete",
+        confirmVariant = AwakeShadcnButtonVariant.Danger,
         confirmStyle = theme.tokens.destructiveStyle()
     )
     when (dialogResult.action) {
@@ -199,10 +191,9 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
 }
 
 internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
-    awakeShadcnSectionTitle("Tooltip")
     awakeShadcnSupportingText("Tooltips stay small and contextual: anchored to a trigger, wrapped inside a surfaced popup, and dismissible without changing the surrounding layout.")
     spacer(UiModifier().height(8f.dp))
-    row(height = 36f.dp, gap = 12f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
         val trigger = buttonSlot(
             id = "showcase-tooltip-trigger",
             label = "Scene info",

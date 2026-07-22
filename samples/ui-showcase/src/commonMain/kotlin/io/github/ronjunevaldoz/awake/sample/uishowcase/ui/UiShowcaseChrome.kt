@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVa
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawRow
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
@@ -140,7 +141,10 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
     state: UiShowcaseRuntimeState,
 ) {
     val showCode = context.rememberStateValue("ui-showcase-page", "${page.id}.show-code") { false }
-    rawRow(modifier = UiModifier().height(36.dp), gap = 8f) {
+    rawRow(
+        modifier = UiModifier().height(36.dp),
+        horizontalArrangement = Arrangement.spacedBy(8f.dp)
+    ) {
         awakeShadcnButton(
             id = "ui-showcase-preview-tab-${page.id}",
             label = "Preview",
