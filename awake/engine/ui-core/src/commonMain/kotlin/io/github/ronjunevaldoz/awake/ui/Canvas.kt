@@ -5,10 +5,10 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.core.graphics.gradientRect
-import io.github.ronjunevaldoz.awake.ui.core.graphics.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.graphics.internal.gradientBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.internal.gradientRect
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 @AwakeUiDsl

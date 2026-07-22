@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
@@ -59,6 +59,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseThemePreview,
     UiShowcaseFontsPreview,
     UiShowcaseLayoutPreview,
+    UiShowcaseCanvasPreview,
     UiShowcaseSlotApisPreview,
     UiShowcaseButtonsPreview,
     UiShowcaseTextInputPreview,
@@ -166,6 +167,20 @@ internal object UiShowcaseFontsPreview : AwakeUiPreviewEntry {
 internal object UiShowcaseLayoutPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "layout")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-canvas",
+    title = "Canvas",
+    group = "Layout",
+    summary = "Immediate-mode drawing through Awake's public canvas DSL: gradients, paths, clipping, and nested local coordinates.",
+    width = 900,
+    height = 520,
+    reportScale = 2
+)
+internal object UiShowcaseCanvasPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "canvas")
 }
 
 @AwakeUiPreview(
