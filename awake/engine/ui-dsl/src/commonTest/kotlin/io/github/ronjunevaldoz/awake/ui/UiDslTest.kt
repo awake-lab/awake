@@ -7,9 +7,9 @@ import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
 import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
@@ -17,14 +17,11 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonResult
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.dropdown
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
-import io.github.ronjunevaldoz.awake.ui.scrollPanel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 

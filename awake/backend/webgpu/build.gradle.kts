@@ -44,7 +44,7 @@ kotlin {
             // Reusable-Application gap fix (see docs/MVP_PLAN.md's Decision Log): same
             // reasoning as awake-backend-vulkan's VulkanGameApplication -- see that
             // module's build.gradle.kts comment.
-            implementation(project(":awake:engine"))
+            implementation(project(":awake:base"))
             implementation(project(":awake:scene"))
             implementation(libs.kotlinx.coroutines.core)
             // WebGpuGameApplication now extends GenericGameApplication (see

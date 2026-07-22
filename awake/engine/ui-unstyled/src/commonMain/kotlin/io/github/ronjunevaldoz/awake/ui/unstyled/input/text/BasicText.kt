@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -16,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 /** Draws [label] as a row of glyph quads. */
 enum class UiTextWrap {

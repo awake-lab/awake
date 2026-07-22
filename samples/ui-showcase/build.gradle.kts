@@ -89,7 +89,7 @@ kotlin {
             dependsOn(commonMain.get())
         }
         appMain.dependencies {
-            implementation(project(":awake:engine"))
+            implementation(project(":awake:base"))
             implementation(project(":awake:backend:vulkan"))
         }
 
@@ -100,7 +100,7 @@ kotlin {
         named("androidMain") {
             dependsOn(appMain)
             dependencies {
-                api(project(":awake:engine"))
+                api(project(":awake:base"))
                 api(project(":awake:backend:vulkan"))
             }
         }
@@ -111,7 +111,7 @@ kotlin {
 
         named("wasmJsMain") {
             dependencies {
-                implementation(project(":awake:engine"))
+                implementation(project(":awake:base"))
                 implementation(project(":awake:backend:webgpu"))
                 implementation(libs.kotlinx.browser)
             }

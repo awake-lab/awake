@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.FreeFlyControl
 import io.github.ronjunevaldoz.awake.scene.components.MovementControl
 import io.github.ronjunevaldoz.awake.scene.components.OrbitControl
-import io.github.ronjunevaldoz.awake.ui.UiInputResult
+import io.github.ronjunevaldoz.awake.ui.context.UiInputResult
 
 /**
  * Dedicated system for handling user input and mapping it to control intent components.

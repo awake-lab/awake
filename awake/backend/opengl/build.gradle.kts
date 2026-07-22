@@ -95,7 +95,7 @@ kotlin {
             implementation(project(":awake:base"))
             // AwakeContext.init mirrors fps/ups into EngineConfigHolder so awake-engine's
             // GameLoop actuals keep working without depending on this (or any) backend.
-            implementation(project(":awake:engine"))
+            implementation(project(":awake:base"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.components.resources)

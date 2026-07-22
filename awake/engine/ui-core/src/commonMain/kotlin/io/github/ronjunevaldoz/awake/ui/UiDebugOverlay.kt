@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 
 /** Colors for [UiSemanticNode.debugOverlayPrimitives] -- one lane per rect kind so bounds,
  * content padding, and clip regions stay visually distinguishable when overlaid together. */
@@ -30,8 +31,8 @@ fun UiSemanticNode.debugOverlayPrimitives(strokeWidth: Dp = 1f.dp): List<UiDrawP
     clippedBounds?.let { add(UiDrawPrimitive.StrokedPath(rectOutline(it), UiStroke(strokeWidth), UiDebugOverlayColors.ClippedBounds)) }
 }
 
-/** Wireframe overlay for every semantic node recorded this frame -- call after [UiContext.endFrame]
- * (semantic nodes are only cleared on the next [UiContext.beginFrame]) and append the result to
+/** Wireframe overlay for every semantic node recorded this frame -- call after [io.github.ronjunevaldoz.awake.ui.context.UiContext.endFrame]
+ * (semantic nodes are only cleared on the next [io.github.ronjunevaldoz.awake.ui.context.UiContext.beginFrame]) and append the result to
  * the frame's own primitives to paint the debug wireframe on top. */
 fun UiContext.debugOverlayPrimitives(strokeWidth: Dp = 1f.dp): List<UiDrawPrimitive> =
     semanticNodes().flatMap { it.debugOverlayPrimitives(strokeWidth) }

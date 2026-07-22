@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.FillAwareScope
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.math.roundToInt
 
 fun pixelPerfectTextScale(requestedScale: Float, step: Float = 0.25f): Float {

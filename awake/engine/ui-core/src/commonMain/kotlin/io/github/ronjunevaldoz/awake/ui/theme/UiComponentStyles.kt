@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
+import io.github.ronjunevaldoz.awake.ui.theme.neutralStyle
 
 interface UiComponentStyles {
     val button: Style
@@ -15,7 +17,7 @@ interface UiComponentStyles {
 }
 
 class CoreUiComponentStyles(
-    tokens: UiColorTokens,
+    tokens: io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens,
     typography: UiTypography = UiTypography.Default
 ) : UiComponentStyles {
     override val button: Style = tokens.neutralStyle() then Style {

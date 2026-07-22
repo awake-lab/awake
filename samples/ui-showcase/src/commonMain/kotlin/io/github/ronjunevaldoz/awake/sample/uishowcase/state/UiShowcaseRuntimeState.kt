@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.state
 
-import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

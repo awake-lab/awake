@@ -3,15 +3,15 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
-import io.github.ronjunevaldoz.awake.ui.TextStyle
-import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 internal class UiContextStacks {
     private val themeStack = mutableListOf<UiTheme>(CoreUiTheme)
     private val textStyleStack = mutableListOf(TextStyle.Default)
-    private val fontStack = mutableListOf<UiFont>(UiFonts.default())
+    private val fontStack = mutableListOf(UiFonts.default())
 
     val currentTheme: UiTheme get() = themeStack.last()
     val currentTextStyle: TextStyle get() = textStyleStack.last()

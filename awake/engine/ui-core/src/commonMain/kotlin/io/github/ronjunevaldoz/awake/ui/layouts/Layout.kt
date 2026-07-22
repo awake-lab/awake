@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /**
@@ -11,7 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.toPx
  * same way [ColumnScope]/[AbsoluteScope] do.
  */
 abstract class AbstractUiScope(
-    final override val context: io.github.ronjunevaldoz.awake.ui.UiContext,
+    final override val context: UiContext,
     private val emitToOverlay: Boolean = false
 ) : io.github.ronjunevaldoz.awake.ui.UiScope {
     final override val emitsToOverlay: Boolean = emitToOverlay

@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 
 private val HelloCubeShaders = gameShaderSet("triangle")
 
-internal fun createHelloCubeVulkanApplication(
+fun createHelloCubeVulkanApplication(
     game: AwakeGame = helloCubeGame()
 ): VulkanGameApplication {
     return VulkanGameApplication(

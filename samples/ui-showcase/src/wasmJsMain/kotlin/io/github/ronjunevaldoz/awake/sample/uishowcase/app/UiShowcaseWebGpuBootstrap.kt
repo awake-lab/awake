@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 
 private val UiShowcaseShaders = gameShaderSet("triangle")
 
-internal fun createUiShowcaseWebGpuApplication(): WebGpuGameApplication {
+fun createUiShowcaseWebGpuApplication(): WebGpuGameApplication {
     return WebGpuGameApplication(
         shaderSet = UiShowcaseShaders,
         vertexStride = uiShowcaseVertexStride,

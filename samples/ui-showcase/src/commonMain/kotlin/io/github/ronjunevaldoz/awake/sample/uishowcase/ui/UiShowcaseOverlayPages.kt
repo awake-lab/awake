@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMe
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.destructiveStyle
+import io.github.ronjunevaldoz.awake.ui.theme.destructiveStyle
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement

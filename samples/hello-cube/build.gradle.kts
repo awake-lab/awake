@@ -117,7 +117,7 @@ kotlin {
             dependsOn(commonMain.get())
         }
         appMain.dependencies {
-            implementation(project(":awake:engine"))
+            implementation(project(":awake:base"))
             implementation(project(":awake:backend:vulkan"))
         }
         named("desktopMain") {
@@ -142,7 +142,7 @@ kotlin {
                 // awake-ecs's World (and its ambiguous ObjC-exported `family()` overloads)
                 // to leak into the iOS XCFramework's generated header, which doesn't happen
                 // when these stay `implementation` there, matching awake-demo/shared.
-                api(project(":awake:engine"))
+                api(project(":awake:base"))
                 api(project(":awake:backend:vulkan"))
                 implementation(project(":awake:backend:jolt"))
             }
@@ -157,7 +157,7 @@ kotlin {
 
         named("wasmJsMain") {
             dependencies {
-                implementation(project(":awake:engine"))
+                implementation(project(":awake:base"))
                 implementation(project(":awake:backend:webgpu"))
                 // Scene runtime + DSL for the shared helloCubeGame() builder.
                 implementation(project(":awake:scene-dsl"))

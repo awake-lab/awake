@@ -34,7 +34,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -58,6 +58,7 @@ import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -465,8 +466,8 @@ private fun List<UiDrawPrimitive.RoundedQuad>.deduplicatedCards(): List<UiDrawPr
         distinct
     }
 
-private fun renderSidebarSurfaceColor(theme: io.github.ronjunevaldoz.awake.ui.UiTheme): Color {
-    val ui = io.github.ronjunevaldoz.awake.ui.UiContext()
+private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
+    val ui = UiContext()
     ui.beginFrame(
         360f,
         240f,

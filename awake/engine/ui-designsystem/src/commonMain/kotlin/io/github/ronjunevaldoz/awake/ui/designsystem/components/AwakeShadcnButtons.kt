@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.UiTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonSize

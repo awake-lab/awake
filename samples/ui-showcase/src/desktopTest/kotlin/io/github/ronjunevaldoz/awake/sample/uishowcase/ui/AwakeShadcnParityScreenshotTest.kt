@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot

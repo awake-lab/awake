@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 
 private val StarterGameShaders = gameShaderSet("triangle")
 
-internal fun createStarterGameWebGpuApplication(): WebGpuGameApplication {
+fun createStarterGameWebGpuApplication(): WebGpuGameApplication {
     return WebGpuGameApplication(
         shaderSet = StarterGameShaders,
         vertexStride = starterVertexStride,

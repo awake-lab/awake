@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 
 private val HelloCubeShaders = gameShaderSet("triangle")
 
-internal fun createHelloCubeWebGpuApplication(): WebGpuGameApplication {
+fun createHelloCubeWebGpuApplication(): WebGpuGameApplication {
     return WebGpuGameApplication(
         shaderSet = HelloCubeShaders,
         vertexStride = sampleVertexStride,

@@ -6,9 +6,11 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectBoundsFit
 import io.github.ronjunevaldoz.awake.testing.ui.inspectDensityParity
 import io.github.ronjunevaldoz.awake.testing.ui.inspectThemeParity
 import io.github.ronjunevaldoz.awake.testing.ui.measureUiFrame
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import kotlin.test.Test
 

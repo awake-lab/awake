@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.hellocube.ui
 
+import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
+import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeOverlayModel
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
@@ -17,8 +19,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVari
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.padding
-import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
-import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.ui.toDimension
 
 internal fun GameUiRuntime.drawHelloCubeOverlay(
@@ -26,7 +26,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
     state: HelloCubeRuntimeState
 ) {
     val model = scene.helloCubeOverlayModel(state)
-    canvas(textScale = HELLO_CUBE_TEXT_SCALE) { constraints ->
+    canvas { constraints ->
         val panelWidth = if (constraints.isCompact) Dimension.FillMax else 300f.toDimension()
         val debugWidth = if (constraints.isCompact) Dimension.FillMax else 340f.toDimension()
         surface(
@@ -69,4 +69,3 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
     }
 }
 
-private const val HELLO_CUBE_TEXT_SCALE = 2f

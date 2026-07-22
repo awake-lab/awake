@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.width
 import kotlin.math.abs
@@ -311,7 +312,7 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(theme)
         // Ensure the context's base text style uses the theme's foreground,
         // otherwise it stays at the CoreUiTheme's default (white).
-        ui.pushTextStyle(io.github.ronjunevaldoz.awake.ui.TextStyle(color = theme.tokens.foreground))
+        ui.pushTextStyle(TextStyle(color = theme.tokens.foreground))
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
 

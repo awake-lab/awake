@@ -5,10 +5,10 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiColorTokens
+import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.UiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.UiTheme
-import io.github.ronjunevaldoz.awake.ui.UiTypography
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.AwakeShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.AwakeShadcnPalette
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.AwakeShadcnRadiusScale

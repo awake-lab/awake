@@ -2,8 +2,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.TextStyle
-import io.github.ronjunevaldoz.awake.ui.UiInsets
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider

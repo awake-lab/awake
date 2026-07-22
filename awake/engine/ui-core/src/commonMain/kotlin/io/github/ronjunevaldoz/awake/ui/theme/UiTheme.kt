@@ -1,9 +1,11 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui
+package io.github.ronjunevaldoz.awake.ui.theme
+
+import io.github.ronjunevaldoz.awake.ui.UiComponentStyles
 
 /**
- * A complete, swappable look for a [UiScope] -- assigned once at `ui.column(..., theme = ...)`.
+ * A complete, swappable look for a [io.github.ronjunevaldoz.awake.ui.UiScope] -- assigned once at `ui.column(..., theme = ...)`.
  */
 interface UiTheme {
     val tokens: UiColorTokens

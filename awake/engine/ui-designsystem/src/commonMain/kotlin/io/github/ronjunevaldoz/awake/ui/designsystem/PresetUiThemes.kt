@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.CoreUiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
-import io.github.ronjunevaldoz.awake.ui.UiColorTokens
-import io.github.ronjunevaldoz.awake.ui.UiTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 /**
  * Neutral preset themes intended for authored app and sample UI.

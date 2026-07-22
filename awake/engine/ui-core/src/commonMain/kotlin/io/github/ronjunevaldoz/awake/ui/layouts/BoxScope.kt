@@ -2,7 +2,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 
 /**

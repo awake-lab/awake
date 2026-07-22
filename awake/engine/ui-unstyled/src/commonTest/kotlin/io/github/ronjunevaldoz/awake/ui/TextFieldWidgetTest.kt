@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.TextEditAction
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
 import kotlin.test.Test

@@ -4,12 +4,11 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.TextStyle
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp

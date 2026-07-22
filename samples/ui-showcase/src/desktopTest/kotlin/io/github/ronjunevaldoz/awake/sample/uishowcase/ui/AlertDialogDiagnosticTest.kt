@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
-import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog

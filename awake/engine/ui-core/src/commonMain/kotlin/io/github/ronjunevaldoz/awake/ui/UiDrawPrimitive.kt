@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 
 /**
- * Backend-neutral output of a [UiContext] frame -- each backend's `Renderer.drawUi` converts
+ * Backend-neutral output of a [io.github.ronjunevaldoz.awake.ui.context.UiContext] frame -- each backend's `Renderer.drawUi` converts
  * these into its own dynamic vertex/index buffer. Pixel-space coordinates (screen-space,
  * Y-down), not NDC -- the NDC transform is the shader's job (see `ui_quad.vert`/`.wgsl`).
  */
@@ -198,14 +198,14 @@ sealed class UiDrawPrimitive {
     ) : UiDrawPrimitive()
 
     /** Marks the start of a clipped region -- [rect] is always already-intersected against
-     * whatever clip was active before it ([UiContext]'s clip stack resolves nesting, never
+     * whatever clip was active before it ([io.github.ronjunevaldoz.awake.ui.context.UiContext]'s clip stack resolves nesting, never
      * the backend), so every backend just naively "sets scissor to this rect," identical
      * logic on every platform. Not a real draw call -- carries no vertices, just tells the
      * backend's command-buffer recording where to issue a scissor-rect change. */
     data class ClipPush(val rect: UiSlot) : UiDrawPrimitive()
 
     /** Restores the scissor rect that was active before the matching [ClipPush] -- [restoreRect]
-     * is resolved by [UiContext] at pop time (the next rect down the clip stack, or the full
+     * is resolved by [io.github.ronjunevaldoz.awake.ui.context.UiContext] at pop time (the next rect down the clip stack, or the full
      * frame extent if the stack is now empty), so the backend needs no stack-awareness here
      * either. */
     data class ClipPop(val restoreRect: UiSlot) : UiDrawPrimitive()

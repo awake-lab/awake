@@ -129,7 +129,7 @@ kotlin {
             // owns generic scene loading/TransformSystem/RenderSystem wiring (awake-scene) so
             // a new game doesn't have to hand-roll the same ~200 lines of GraphicsDevice/
             // SwapchainManager/RenderPipeline/Mesh/Material bootstrap awake-demo used to.
-            implementation(project(":awake:engine"))
+            implementation(project(":awake:base"))
             implementation(project(":awake:scene"))
             implementation(libs.kotlinx.coroutines.core)
             // VulkanGameApplication now extends GenericGameApplication (see

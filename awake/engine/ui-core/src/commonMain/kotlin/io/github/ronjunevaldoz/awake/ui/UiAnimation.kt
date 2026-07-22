@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import kotlin.math.abs
 import kotlin.math.exp
 
 /**
  * Tiny immediate-mode animation helper. A caller feeds a stable [id] and a target each frame;
  * the helper keeps the animated value inside [WidgetState] and eases toward the target using
- * the frame delta supplied to [UiContext.beginFrame].
+ * the frame delta supplied to [io.github.ronjunevaldoz.awake.ui.context.UiContext.beginFrame].
  */
 fun UiContext.animateFloat(
     id: String,

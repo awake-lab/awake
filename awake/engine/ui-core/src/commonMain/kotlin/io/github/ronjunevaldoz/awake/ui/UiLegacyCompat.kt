@@ -18,6 +18,13 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface as extSurface
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
+/**
+ * Transitional compatibility overloads for older root-style UiContext usage.
+ *
+ * These APIs exist to keep older tests, previews, and downstream call sites compiling while the
+ * new modifier-first root API settles. New code should avoid these overloads and instead use the
+ * direct `UiContext.create*` / `UiContext.column(...)` APIs with explicit environment setup.
+ */
 private inline fun <T> UiContext.withLegacyRootEnvironment(
     font: UiFont,
     theme: UiTheme,
@@ -32,7 +39,9 @@ private inline fun <T> UiContext.withLegacyRootEnvironment(
     return content()
 }
 
-@Deprecated("Use createAbsolute(modifier = ...) with UiModifier offsets.")
+@Deprecated(
+    message = "Legacy root helper slated for future removal. Prefer createAbsolute(modifier = ...) plus explicit pushFont/pushTheme/pushTextStyle when needed."
+)
 fun UiContext.createAbsolute(
     x: Float,
     y: Float,
@@ -44,7 +53,9 @@ fun UiContext.createAbsolute(
     createAbsolute(x = x, y = y, overlayOnly = overlayOnly)
 }
 
-@Deprecated("Use createColumn(modifier = ...) with UiModifier offsets and sizing.")
+@Deprecated(
+    message = "Legacy root helper slated for future removal. Prefer createColumn(modifier = ...) plus explicit pushFont/pushTheme/pushTextStyle when needed."
+)
 fun UiContext.createColumn(
     x: Float,
     y: Float,
@@ -68,7 +79,9 @@ fun UiContext.createColumn(
     )
 }
 
-@Deprecated("Use column(modifier = ...) with UiModifier offsets and sizing.")
+@Deprecated(
+    message = "Legacy root helper slated for future removal. Prefer column(modifier = ...) plus explicit pushFont/pushTheme/pushTextStyle when needed."
+)
 fun UiContext.column(
     x: Float,
     y: Float,
@@ -94,7 +107,9 @@ fun UiContext.column(
     ).block()
 }
 
-@Deprecated("Use createBox(modifier = ...) plus explicit pushFont/pushTheme when needed.")
+@Deprecated(
+    message = "Legacy root helper slated for future removal. Prefer createBox(modifier = ...) plus explicit pushFont/pushTheme/pushTextStyle when needed."
+)
 fun UiContext.createBox(
     x: Float,
     y: Float,

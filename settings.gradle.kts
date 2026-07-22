@@ -20,7 +20,6 @@
 rootProject.name = "Awake"
 
 include(":awake:base")
-include(":awake:engine")
 include(":awake:backend:opengl")
 include(":awake:ecs")
 include(":awake:ecs:benchmark")
