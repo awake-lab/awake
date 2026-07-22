@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -146,7 +145,7 @@ fun UiScope.emitInsetAccent(
     val h = slot.height - inset * 2
     emitFillShape(
         slot = UiSlot(x, y, w, h),
-        color = theme.tokens.primary,
+        color = context.currentTheme.tokens.primary,
         radiusPx = (radiusPx - inset).coerceAtLeast(0f),
         shapeSpec = shapeSpec
     )

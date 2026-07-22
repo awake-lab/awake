@@ -40,6 +40,20 @@ internal fun UiContext.resolveRootSlot(
     )
 }
 
+private inline fun <T> UiContext.withRootEnvironment(
+    font: UiFont,
+    theme: UiTheme,
+    textScale: Float,
+    content: UiContext.() -> T
+): T {
+    pushFont(font)
+    pushTheme(theme)
+    if (textScale != currentTextStyle.scale) {
+        pushTextStyle(TextStyle(scale = textScale))
+    }
+    return content()
+}
+
 fun UiContext.createColumn(
     modifier: UiModifier = UiModifier(),
     verticalArrangement: Arrangement = defaultArrangement(),
@@ -47,14 +61,16 @@ fun UiContext.createColumn(
     theme: UiTheme = currentTheme,
     textScale: Float = currentTextStyle.scale,
     overlayOnly: Boolean = false
-): ColumnScope = createColumn(
-    slot = resolveRootSlot(modifier),
-    verticalArrangement = verticalArrangement,
-    font = font,
-    theme = theme,
-    textScale = textScale,
-    overlayOnly = overlayOnly
-)
+): ColumnScope = withRootEnvironment(font, theme, textScale) {
+    createColumn(
+        slot = resolveRootSlot(modifier),
+        gap = verticalArrangement.baseSpacingPx(),
+        insets = modifier.insets,
+        verticalArrangement = verticalArrangement,
+        testTag = modifier.testTag,
+        overlayOnly = overlayOnly
+    )
+}
 
 @Deprecated(
     message = "Use createColumn(modifier = ...) so authored root layout comes from UiModifier, not UiSlot geometry.",
@@ -69,12 +85,8 @@ fun UiContext.createColumn(
     textScale: Float = currentTextStyle.scale,
     overlayOnly: Boolean = false
 ): ColumnScope {
-    pushFont(font)
-    pushTheme(theme)
-    if (textScale != currentTextStyle.scale) {
-        pushTextStyle(TextStyle(scale = textScale))
-    }
-    return createColumn(
+    return withRootEnvironment(font, theme, textScale) {
+        createColumn(
         slot = slot,
         gap = verticalArrangement.baseSpacingPx(),
         insets = modifier.insets,
@@ -82,6 +94,7 @@ fun UiContext.createColumn(
         testTag = modifier.testTag,
         overlayOnly = overlayOnly
     )
+    }
 }
 
 fun UiContext.createAbsolute(
@@ -90,17 +103,18 @@ fun UiContext.createAbsolute(
     theme: UiTheme = currentTheme,
     textScale: Float = currentTextStyle.scale,
     overlayOnly: Boolean = false
-): AbsoluteScope = createAbsolute(
-    slot = resolveRootSlot(
-        modifier = modifier,
-        defaultWidth = Dimension.Fixed(0.dp),
-        defaultHeight = Dimension.Fixed(0.dp)
-    ),
-    font = font,
-    theme = theme,
-    textScale = textScale,
-    overlayOnly = overlayOnly
-)
+): AbsoluteScope = withRootEnvironment(font, theme, textScale) {
+    createAbsolute(
+        slot = resolveRootSlot(
+            modifier = modifier,
+            defaultWidth = Dimension.Fixed(0.dp),
+            defaultHeight = Dimension.Fixed(0.dp)
+        ),
+        insets = modifier.insets,
+        testTag = modifier.testTag,
+        overlayOnly = overlayOnly
+    )
+}
 
 @Deprecated(
     message = "Use createAbsolute(modifier = ...) so authored root layout comes from UiModifier, not UiSlot geometry.",
@@ -114,17 +128,14 @@ fun UiContext.createAbsolute(
     textScale: Float = currentTextStyle.scale,
     overlayOnly: Boolean = false
 ): AbsoluteScope {
-    pushFont(font)
-    pushTheme(theme)
-    if (textScale != currentTextStyle.scale) {
-        pushTextStyle(TextStyle(scale = textScale))
-    }
-    return createAbsolute(
+    return withRootEnvironment(font, theme, textScale) {
+        createAbsolute(
         slot = slot,
         insets = modifier.insets,
         testTag = modifier.testTag,
         overlayOnly = overlayOnly
     )
+    }
 }
 
 fun UiContext.createRow(
@@ -178,14 +189,13 @@ fun UiContext.column(
     textScale: Float = currentTextStyle.scale,
     block: ColumnScope.() -> Unit
 ) {
-    column(
-        slot = resolveRootSlot(modifier),
+    createColumn(
+        modifier = modifier,
         verticalArrangement = verticalArrangement,
         font = font,
         theme = theme,
-        textScale = textScale,
-        block = block
-    )
+        textScale = textScale
+    ).block()
 }
 
 @Deprecated(
@@ -201,14 +211,13 @@ fun UiContext.column(
     textScale: Float = currentTextStyle.scale,
     block: ColumnScope.() -> Unit
 ) {
-    pushFont(font)
-    pushTheme(theme)
-    if (textScale != currentTextStyle.scale) {
-        pushTextStyle(TextStyle(scale = textScale))
-    }
-    createColumn(
+    withRootEnvironment(font, theme, textScale) {
+        createColumn(
         slot = slot,
-        modifier = modifier,
-        verticalArrangement = verticalArrangement
-    ).block()
+            gap = verticalArrangement.baseSpacingPx(),
+            insets = modifier.insets,
+            verticalArrangement = verticalArrangement,
+            testTag = modifier.testTag
+        ).block()
+    }
 }

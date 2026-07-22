@@ -40,9 +40,10 @@ fun UiScope.scrollPanel(
     val requestedHeight = modifier.height ?: height
     val containerLabel = modifier.testTag ?: id
 
+    val currentTheme = context.currentTheme
     val resolved = resolveStyle(
         style = style then (modifier.styleable ?: Style.Empty),
-        defaults = theme.components.surface
+        defaults = currentTheme.components.surface
     )
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
@@ -141,7 +142,7 @@ fun UiScope.scrollPanel(
         fillColor = resolved.background ?: Color.Transparent,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border,
+        borderColor = resolved.borderColor ?: currentTheme.tokens.border,
         shapeSpec = resolved.shapeSpec
     )
 
@@ -212,14 +213,14 @@ fun UiScope.scrollPanel(
             } else {
                 emitFillAndBorder(
                     slot = thumb.track,
-                    fillColor = theme.tokens.muted.withAlpha(0.4f),
+                    fillColor = currentTheme.tokens.muted.withAlpha(0.4f),
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent
                 )
                 emitFillAndBorder(
                     slot = thumb.thumb,
-                    fillColor = theme.tokens.primary,
+                    fillColor = currentTheme.tokens.primary,
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent
@@ -243,14 +244,14 @@ fun UiScope.scrollPanel(
             } else {
                 emitFillAndBorder(
                     slot = thumb.track,
-                    fillColor = theme.tokens.muted.withAlpha(0.4f),
+                    fillColor = currentTheme.tokens.muted.withAlpha(0.4f),
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent
                 )
                 emitFillAndBorder(
                     slot = thumb.thumb,
-                    fillColor = theme.tokens.primary,
+                    fillColor = currentTheme.tokens.primary,
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent

@@ -11,18 +11,17 @@ import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.childRow
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 
 /**
- * Opens a nested [ColumnScope] from an already-claimed [slot] without escaping back out to an
- * outer runtime receiver. This keeps nested UI composition on the same [UiScope] receiver and
- * avoids `this@...` call-site noise.
+ * Nested layout entry points from an existing [UiScope].
+ *
+ * These keep nested authored code on the current receiver and avoid escaping back to an outer
+ * runtime or needing `this@column` noise at call sites.
  */
 fun UiScope.column(
     slot: UiSlot,
@@ -37,7 +36,6 @@ fun UiScope.column(
     ).block()
 }
 
-/** [slot]-based nested [RowScope] variant of [column]. */
 fun UiScope.row(
     slot: UiSlot,
     horizontalArrangement: Arrangement = defaultArrangement(),
@@ -51,7 +49,6 @@ fun UiScope.row(
     ).block()
 }
 
-/** [slot]-based nested [AbsoluteScope] variant of [column]. */
 fun UiScope.absolute(
     slot: UiSlot,
     modifier: UiModifier = UiModifier(),
@@ -60,7 +57,6 @@ fun UiScope.absolute(
     childAbsolute(slot, modifier).block()
 }
 
-/** [slot]-based nested [BoxScope] variant of [column]. */
 fun UiScope.box(
     slot: UiSlot,
     modifier: UiModifier = UiModifier(),
