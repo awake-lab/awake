@@ -9,6 +9,10 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 
 
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+
 data class UiScrollPanelResult(
     val slot: UiSlot,
     val viewport: UiSlot,
@@ -29,6 +33,7 @@ fun UiScope.scrollPanel(
     height: Dimension = Dimension.WrapContent,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
+    verticalArrangement: Arrangement = defaultArrangement(),
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiScrollPanelResult {
     val state = requireNotNull(modifier.scrollState) { "scrollPanel requires a scrollState on the modifier" }
@@ -46,7 +51,7 @@ fun UiScope.scrollPanel(
     val scrollbarWidthPx = config.width.toPx().coerceAtLeast(0f)
     val scrollbarGapPx = config.gap.toPx().coerceAtLeast(0f)
     val scrollbarReservePx = if (scrollbarWidthPx > 0f) scrollbarWidthPx + scrollbarGapPx else 0f
-    val gap = UiSpacing.sm.toPx() // Default column gap
+    val gap = verticalArrangement.baseSpacingPx()
 
     fun requireBoundedAxis(axis: String): Float {
         val isBounded = when (axis) {
@@ -188,6 +193,7 @@ fun UiScope.scrollPanel(
             viewport.height
         ),
         gap = gap,
+        verticalArrangement = verticalArrangement,
         testTag = containerLabel,
     )
     clip(viewport) {

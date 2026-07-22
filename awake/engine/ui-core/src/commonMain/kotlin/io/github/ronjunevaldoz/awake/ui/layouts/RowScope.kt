@@ -16,19 +16,27 @@ class RowScope internal constructor(
     val width: Float? = null,
     val height: Float,
     val gap: Float,
+    val horizontalArrangement: Arrangement = defaultArrangement(),
     override val testTag: String? = null,
     override val hasBoundedFillWidth: Boolean = width != null,
     override val hasBoundedFillHeight: Boolean = true,
-    emitToOverlay: Boolean = false
+    emitToOverlay: Boolean = false,
+    private val plannedSlots: List<UiSlot>? = null
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     var cursorX: Float = startX
         private set
+    private var plannedIndex: Int = 0
 
     override val fillWidth: Float?
         get() = width?.let { (it - (cursorX - startX)).coerceAtLeast(0f) }
     override val fillHeight: Float? = height
 
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
+        plannedSlots?.let { slots ->
+            val slot = slots[plannedIndex++]
+            context.recordMeasuredSlot(slot)
+            return slot
+        }
         val resolvedWidth = width.resolve {
             val availableWidth = this.width ?: (context.frameBounds().width - cursorX)
             (availableWidth - (cursorX - startX)).coerceAtLeast(0f)

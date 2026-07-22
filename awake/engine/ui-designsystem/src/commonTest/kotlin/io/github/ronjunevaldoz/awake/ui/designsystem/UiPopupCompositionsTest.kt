@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
@@ -11,7 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogResult
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
@@ -23,34 +21,26 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMe
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltipText
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-
-/** Builds a one-off [io.github.ronjunevaldoz.awake.ui.UiInputState] for a test frame -- [Input] is a per-session instance
- * now (no longer a global object), so tests construct their own throwaway one instead of
- * writing into shared static state. */
-//private fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): UiInputState {
-//    val input = Input()
-//    input.setPointer(down, x, y)
-//    input.scrollDeltaY = scrollDeltaY
-//    return input.updateSnapshot().toUiInputState()
-//}
 
 class UiPopupCompositionsTest {
 
     @Test
     fun tooltipTextUsesPopupPanelAboveAnchor() {
         val ui = UiContext()
+        ui.pushFont(BitmapFont())
         ui.beginFrame(240f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
 
         var result: UiPopupResult? = null
-        ui.column(x = 0f, y = 0f, width = 220f, font = BitmapFont()) {
+        ui.column(x = 0f, y = 0f, width = 220f) {
             result = tooltipText(
                 anchorSlot = UiSlot(48f, 24f, 96f, 28f),
                 visible = true,
@@ -70,9 +60,10 @@ class UiPopupCompositionsTest {
         val ui = UiContext()
         val anchor = UiSlot(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
+        ui.pushFont(BitmapFont())
 
         ui.beginFrame(220f, 180f, testSnapshot(x = 32f, y = 58f, down = true))
-        ui.column(x = 0f, y = 0f, width = 200f, font = BitmapFont()) {
+        ui.column(x = 0f, y = 0f, width = 200f) {
             result = dropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
@@ -85,7 +76,7 @@ class UiPopupCompositionsTest {
         assertEquals(null, assertNotNull(result).selectedIndex)
 
         ui.beginFrame(220f, 180f, testSnapshot(x = 32f, y = 58f, down = false))
-        ui.column(x = 0f, y = 0f, width = 200f, font = BitmapFont()) {
+        ui.column(x = 0f, y = 0f, width = 200f) {
             result = dropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
@@ -105,9 +96,10 @@ class UiPopupCompositionsTest {
         val ui = UiContext()
         val anchor = UiSlot(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
+        ui.pushFont(BitmapFont())
 
         ui.beginFrame(240f, 220f, testSnapshot(x = 32f, y = 92f, down = true))
-        ui.column(x = 0f, y = 0f, width = 220f, font = BitmapFont()) {
+        ui.column(x = 0f, y = 0f, width = 220f) {
             result = dropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
@@ -123,7 +115,7 @@ class UiPopupCompositionsTest {
         ui.endFrame()
 
         ui.beginFrame(240f, 220f, testSnapshot(x = 32f, y = 92f, down = false))
-        ui.column(x = 0f, y = 0f, width = 220f, font = BitmapFont()) {
+        ui.column(x = 0f, y = 0f, width = 220f) {
             result = dropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
@@ -146,10 +138,11 @@ class UiPopupCompositionsTest {
     @Test
     fun dialogCentersContentAndDrawsScrim() {
         val ui = UiContext()
+        ui.pushFont(BitmapFont())
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
         var result: UiPopupResult? = null
-        ui.column(x = 0f, y = 0f, width = 280f, font = BitmapFont()) {
+        ui.column(x = 0f, y = 0f, width = 280f) {
             result = dialog(
                 id = "confirm",
                 expanded = true,
@@ -177,10 +170,11 @@ class UiPopupCompositionsTest {
     @Test
     fun alertDialogReturnsConfirmAction() {
         val ui = UiContext()
+        ui.pushFont(BitmapFont())
         var result: UiAlertDialogResult? = null
 
         ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = true))
-        ui.column(x = 0f, y = 0f, width = 300f, font = BitmapFont()) {
+        ui.column(x = 0f, y = 0f, width = 300f) {
             result = alertDialog(
                 id = "confirm",
                 expanded = true,
@@ -191,7 +185,7 @@ class UiPopupCompositionsTest {
         ui.endFrame()
 
         ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = false))
-        ui.column(x = 0f, y = 0f, width = 300f, font = BitmapFont()) {
+        ui.column(x = 0f, y = 0f, width = 300f) {
             result = alertDialog(
                 id = "confirm",
                 expanded = true,
@@ -208,12 +202,9 @@ class UiPopupCompositionsTest {
     @Test
     fun popupMeasurementDoesNotInflateWrapContentLayouts() {
         val ui = UiContext()
-
-        val measured = ui.measureColumnContent(
-            width = 220f,
-            font = BitmapFont(),
-            theme = CoreUiTheme
-        ) { _ ->
+        ui.pushFont(UiFonts.bitmap())
+        ui.pushTheme(CoreUiTheme)
+        val measured = ui.measureColumnContent(width = 220f) { _ ->
             text("Popup proof")
             alertDialog(
                 id = "measure-only-dialog",
@@ -225,17 +216,16 @@ class UiPopupCompositionsTest {
         }
 
         assertTrue(measured.height < 120f, "overlay popups should not poison wrap-content measurement")
-        assertNotEquals(0f, measured.height, "normal inline content should still contribute to measurement")
+        assertTrue(measured.height > 0f, "normal inline content should still contribute to measurement")
     }
-
-
 
     @Test
     fun dialogUsesNeutralDarkScrimByDefault() {
         val ui = UiContext()
+        ui.pushFont(UiFonts.bitmap())
         ui.beginFrame(320f, 240f,  testSnapshot())
 
-        ui.column(x = 20f, y = 20f, width = 240f, font = BitmapFont()) {
+        ui.column(x = 20f, y = 20f, width = 240f) {
             dialog(
                 id = "dialog",
                 expanded = true

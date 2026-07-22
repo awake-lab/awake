@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -81,6 +82,48 @@ class LayoutTest {
 
         val third = row.claimSlot(Dimension.Fixed(40f.px), Dimension.Fixed(32f.px))
         assertEquals(second.x + 60f + 8f, third.x)
+    }
+
+    @Test
+    fun rowSpaceBetweenDistributesChildrenAcrossRemainingWidth() {
+        val ui = UiContext()
+        ui.beginFrame(240f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 240f)
+        var first: UiSlot? = null
+        var second: UiSlot? = null
+
+        root.row(
+            width = Dimension.Fixed(240f.px),
+            height = Dimension.Fixed(32f.px),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            first = claimSlot(Dimension.Fixed(40f.px), Dimension.FillMax)
+            second = claimSlot(Dimension.Fixed(60f.px), Dimension.FillMax)
+        }
+
+        assertEquals(0f, first?.x)
+        assertEquals(180f, second?.x)
+    }
+
+    @Test
+    fun columnSpaceEvenlyAddsLeadingAndBetweenSpace() {
+        val ui = UiContext()
+        ui.beginFrame(120f, 200f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 120f, height = 200f)
+        var first: UiSlot? = null
+        var second: UiSlot? = null
+
+        root.column(
+            width = Dimension.FillMax,
+            height = Dimension.Fixed(200f.px),
+            verticalArrangement = Arrangement.SpaceEvenly
+        ) {
+            first = claimSlot(Dimension.FillMax, Dimension.Fixed(20f.px))
+            second = claimSlot(Dimension.FillMax, Dimension.Fixed(20f.px))
+        }
+
+        assertEquals(160f / 3f, first?.y ?: -1f, 0.001f)
+        assertEquals((160f / 3f) * 2f + 20f, second?.y ?: -1f, 0.001f)
     }
 
     @Test
@@ -171,7 +214,7 @@ class LayoutTest {
         ui.createBox(x = 0f, y = 0f, width = 800f, height = 600f).row(
             width = Dimension.FillMax,
             height = Dimension.FillMax,
-            gap = 20f
+            horizontalArrangement = Arrangement.spacedBy(20f.px)
         ) {
             sidebarSlot = column(
                 id = "sidebar",
@@ -199,7 +242,7 @@ class LayoutTest {
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).row(
                 width = Dimension.FillMax,
                 height = Dimension.FillMax,
-                gap = 16f
+                horizontalArrangement = Arrangement.spacedBy(16f.px)
             ) {
                 surface(
                     id = "sidebar",

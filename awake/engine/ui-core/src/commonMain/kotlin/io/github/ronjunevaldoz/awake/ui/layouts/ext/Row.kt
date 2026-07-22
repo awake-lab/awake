@@ -13,23 +13,29 @@ import io.github.ronjunevaldoz.awake.ui.childRow
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.fillHeightOrNull
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.plan
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.layouts.requiresMeasuredDistribution
 
 fun ColumnScope.row(
     height: Dimension,
     width: Dimension = Dimension.FillMax,
-    gap: Float = UiSpacing.sm.toPx(),
+    horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
+    val effectiveArrangement = horizontalArrangement
     val measured =
         if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
             val availableHeight = when (requestedHeight) {
@@ -38,7 +44,7 @@ fun ColumnScope.row(
             }
             context.measureRowContent(
                 availableHeight,
-                gap,
+                effectiveArrangement.baseSpacingPx(),
                 content = content
             )
         } else null
@@ -55,7 +61,7 @@ fun ColumnScope.row(
     return rawRow(
         width = resolvedWidth,
         height = resolvedHeight,
-        gap = gap,
+        horizontalArrangement = effectiveArrangement,
         modifier = modifier,
         style = effectiveStyle,
         content = content
@@ -65,20 +71,21 @@ fun ColumnScope.row(
 fun ColumnScope.row(
     height: Dp,
     width: Dimension = Dimension.FillMax,
-    gap: Float = UiSpacing.sm.toPx(),
+    horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     content: RowScope.(slot: UiSlot) -> Unit
-): UiSlot = row(height.toDimension(), width, gap, modifier, content)
+): UiSlot = row(height.toDimension(), width, horizontalArrangement, modifier, content)
 
 fun RowScope.row(
     width: Dimension,
     height: Dimension = Dimension.FillMax,
-    gap: Float = UiSpacing.sm.toPx(),
+    horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
+    val effectiveArrangement = horizontalArrangement
     val measured =
         if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
             val availableHeight = when (requestedHeight) {
@@ -87,7 +94,7 @@ fun RowScope.row(
             }
             context.measureRowContent(
                 availableHeight,
-                gap,
+                effectiveArrangement.baseSpacingPx(),
                 content = content
             )
         } else null
@@ -104,7 +111,7 @@ fun RowScope.row(
     return rawRow(
         width = resolvedWidth,
         height = resolvedHeight,
-        gap = gap,
+        horizontalArrangement = effectiveArrangement,
         modifier = modifier,
         style = effectiveStyle,
         content = content
@@ -114,12 +121,13 @@ fun RowScope.row(
 fun AbsoluteScope.row(
     width: Dimension,
     height: Dimension,
-    gap: Float = UiSpacing.sm.toPx(),
+    horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
+    val effectiveArrangement = horizontalArrangement
     val measured =
         if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
             val availableHeight = when (requestedHeight) {
@@ -128,7 +136,7 @@ fun AbsoluteScope.row(
             }
             context.measureRowContent(
                 availableHeight,
-                gap,
+                effectiveArrangement.baseSpacingPx(),
                 content = content
             )
         } else null
@@ -145,7 +153,7 @@ fun AbsoluteScope.row(
     return rawRow(
         width = resolvedWidth,
         height = resolvedHeight,
-        gap = gap,
+        horizontalArrangement = effectiveArrangement,
         modifier = modifier,
         style = effectiveStyle,
         content = content
@@ -155,12 +163,13 @@ fun AbsoluteScope.row(
 fun BoxScope.row(
     width: Dimension,
     height: Dimension,
-    gap: Float = UiSpacing.sm.toPx(),
+    horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
+    val effectiveArrangement = horizontalArrangement
     val measured =
         if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
             val availableHeight = when (requestedHeight) {
@@ -169,7 +178,7 @@ fun BoxScope.row(
             }
             context.measureRowContent(
                 availableHeight,
-                gap,
+                effectiveArrangement.baseSpacingPx(),
                 content = content
             )
         } else null
@@ -186,7 +195,7 @@ fun BoxScope.row(
     return rawRow(
         width = resolvedWidth,
         height = resolvedHeight,
-        gap = gap,
+        horizontalArrangement = effectiveArrangement,
         modifier = modifier,
         style = effectiveStyle,
         content = content
@@ -194,10 +203,10 @@ fun BoxScope.row(
 }
 
 
-inline fun UiScope.rawRow(
+fun UiScope.rawRow(
     width: Dimension = Dimension.FillMax,
     height: Dimension = Dimension.WrapContent,
-    gap: Float = UiSpacing.sm.toPx(),
+    horizontalArrangement: Arrangement = defaultArrangement(),
     testTag: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
@@ -214,13 +223,42 @@ inline fun UiScope.rawRow(
     context.pushTextStyle(textStyle)
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
-    val scope = childRow(
-        slot,
-        gap = gap,
-        testTag = testTag ?: modifier.testTag,
-        hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
-        hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
-    )
+    val effectiveArrangement = horizontalArrangement
+    val scope = if (effectiveArrangement.requiresMeasuredDistribution()) {
+        val measured = context.measureRowContent(
+            height = slot.height,
+            gap = 0f,
+            content = content
+        )
+        val childWidths = measured.slots.map { it.width }
+        val occupiedWidth = childWidths.sum() + effectiveArrangement.baseSpacingPx() * (childWidths.size - 1).coerceAtLeast(0)
+        val plan = effectiveArrangement.plan(slot.width, childWidths.size, occupiedWidth)
+        var x = slot.x + plan.leadingSpacePx
+        val arrangedSlots = measured.slots.map { child ->
+            UiSlot(x, slot.y, child.width, child.height).also {
+                x += child.width + plan.betweenSpacePx
+            }
+        }
+        context.createRow(
+            slot = slot,
+            gap = plan.betweenSpacePx,
+            horizontalArrangement = effectiveArrangement,
+            testTag = testTag ?: modifier.testTag,
+            hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
+            hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
+            overlayOnly = emitsToOverlay,
+            plannedSlots = arrangedSlots
+        )
+    } else {
+        childRow(
+            slot,
+            gap = effectiveArrangement.baseSpacingPx(),
+            horizontalArrangement = effectiveArrangement,
+            testTag = testTag ?: modifier.testTag,
+            hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
+            hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
+        )
+    }
     scope.content(slot)
     context.popTextStyle()
     return slot

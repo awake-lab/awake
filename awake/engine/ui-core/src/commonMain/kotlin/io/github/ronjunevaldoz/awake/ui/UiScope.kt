@@ -4,11 +4,13 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.FillAwareScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
 import kotlin.math.roundToInt
 
@@ -174,14 +176,16 @@ fun UiScope.ProvideFont(font: UiFont, content: UiScope.() -> Unit) {
 fun UiScope.childColumn(
     slot: UiSlot,
     gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     insets: UiInsets = UiInsets.Zero,
     testTag: String? = null,
     hasBoundedFillWidth: Boolean = true,
     hasBoundedFillHeight: Boolean = true
 ): ColumnScope = context.createColumn(
-    slot,
-    gap,
-    insets,
+    slot = slot,
+    gap = gap,
+    insets = insets,
+    verticalArrangement = verticalArrangement,
     testTag = testTag,
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
@@ -191,14 +195,16 @@ fun UiScope.childColumn(
 fun UiScope.childRow(
     slot: UiSlot,
     gap: Float = UiSpacing.sm.toPx(),
+    horizontalArrangement: Arrangement = defaultArrangement(),
     insets: UiInsets = UiInsets.Zero,
     testTag: String? = null,
     hasBoundedFillWidth: Boolean = true,
     hasBoundedFillHeight: Boolean = true
 ): RowScope = context.createRow(
-    slot,
-    gap,
-    insets,
+    slot = slot,
+    gap = gap,
+    insets = insets,
+    horizontalArrangement = horizontalArrangement,
     testTag = testTag,
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,

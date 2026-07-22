@@ -83,12 +83,13 @@ fun UiScope.dropdownMenu(
                         spacer(UiModifier().height(4f.dp))
                     }
                     is UiDropdownMenuItem -> {
+                        val currentActionIndex = actionIndex
                         val menuItemStyle = when {
                             !entry.enabled -> Style.Companion {
                                 foreground(theme.tokens.mutedForeground)
                                 background(theme.tokens.background.withAlpha(0.86f))
                             }
-                            actionIndex == selectedIndex -> Style.Companion {
+                            currentActionIndex == selectedIndex -> Style.Companion {
                                 background(theme.tokens.accent)
                                 foreground(theme.tokens.accentForeground)
                             }
@@ -98,15 +99,15 @@ fun UiScope.dropdownMenu(
                             else -> Style.Empty
                         }
                         val clicked = dropdownMenuItem(
-                            id = "$id.item.$actionIndex",
+                            id = "$id.item.$currentActionIndex",
                             item = entry,
-                            width = popupSlot.width,
+                            width = this.width,
                             baseHeight = itemHeight,
                             style = itemStyle then menuItemStyle,
-                            selected = actionIndex == selectedIndex
+                            selected = currentActionIndex == selectedIndex
                         )
                         if (clicked && entry.enabled) {
-                            picked = actionIndex
+                            picked = currentActionIndex
                         }
                         actionIndex += 1
                     }
@@ -131,7 +132,7 @@ private fun ColumnScope.dropdownMenuItem(
     style: Style,
     selected: Boolean
 ): Boolean {
- val resolvedFont = font
+    val resolvedFont = font
     val labelSize = theme.typography.label
     val resolvedTextStyle = textStyle then TextStyle(size = labelSize)
     val glyphPx = pixelPerfectPixel(labelSize.toPx().coerceAtLeast(1f)).coerceAtLeast(1f)
@@ -158,76 +159,74 @@ private fun ColumnScope.dropdownMenuItem(
         maxOf(baseHeight, 8f + glyphPx + 4f + supportingHeight + 8f)
     }
     val height = computedHeight
-    val slot = buttonSlot(
+    val result = buttonSlot(
         id = id,
-        label = "",
         modifier = UiModifier().width(width.px).height(height.px),
         style = style,
         variant = if (selected) UiButtonVariant.Filled else UiButtonVariant.Ghost
-    )
-    val contentScope = context.createAbsolute(
-        slot = slot.slot,
-        insets = UiInsets(12f.dp, 8f.dp),
-        overlayOnly = true
-    )
-    val trailingColor = when {
-        !item.enabled -> theme.tokens.mutedForeground
-        selected -> theme.tokens.accentForeground.withAlpha(0.82f)
-        else -> theme.tokens.mutedForeground
-    }
-    val textColor = when {
-        !item.enabled -> theme.tokens.mutedForeground
-        selected -> theme.tokens.accentForeground
-        item.destructive -> theme.tokens.destructive
-        else -> theme.tokens.foreground
-    }
-    contentScope.text(
-        label = item.label,
-        slot = UiSlot(
-            x = slot.slot.x + 12f,
-            y = slot.slot.y + 8f,
+    ) { contentSlot ->
+        val trailingColor = when {
+            !item.enabled -> theme.tokens.mutedForeground
+            selected -> theme.tokens.accentForeground.withAlpha(0.82f)
+            else -> theme.tokens.mutedForeground
+        }
+        val textColor = when {
+            !item.enabled -> theme.tokens.mutedForeground
+            selected -> theme.tokens.accentForeground
+            item.destructive -> theme.tokens.destructive
+            else -> theme.tokens.foreground
+        }
+        val labelSlot = UiSlot(
+            x = contentSlot.x,
+            y = contentSlot.y,
             width = bodyWidth,
-            height = glyphPx
-        ),
-        font = resolvedFont,
-        color = textColor,
-        overflow = UiTextOverflow.Ellipsis,
-        textStyle = resolvedTextStyle
-    )
-    item.trailingLabel?.let { label ->
-        contentScope.text(
-            label = label,
-            slot = UiSlot(
-                x = slot.slot.x + slot.slot.width - trailingWidth - 12f,
-                y = slot.slot.y + 8f,
-                width = trailingWidth,
-                height = glyphPx
-            ),
+            height = contentSlot.height
+        )
+        text(
+            label = item.label,
+            slot = labelSlot,
+            color = textColor,
             font = resolvedFont,
-            color = trailingColor,
-            centered = true,
+            verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
             textStyle = resolvedTextStyle
         )
+        item.trailingLabel?.let { label ->
+            text(
+                label = label,
+                slot = UiSlot(
+                    x = contentSlot.x + contentSlot.width - trailingWidth,
+                    y = contentSlot.y,
+                    width = trailingWidth,
+                    height = glyphPx
+                ),
+                color = trailingColor,
+                font = resolvedFont,
+                centered = true,
+                verticallyCentered = true,
+                overflow = UiTextOverflow.Ellipsis,
+                textStyle = resolvedTextStyle
+            )
+        }
+        supportingLayout?.let { layout ->
+            text(
+                label = item.supportingText,
+                slot = UiSlot(
+                    x = contentSlot.x,
+                    y = contentSlot.y + glyphPx + 4f,
+                    width = contentSlot.width.coerceAtLeast(0f),
+                    height = layout.blockHeight(glyphPx, lineGap)
+                ),
+                color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
+                font = resolvedFont,
+                wrap = UiTextWrap.Word,
+                overflow = UiTextOverflow.Ellipsis,
+                maxLines = 2,
+                textStyle = resolvedTextStyle
+            )
+        }
     }
-    supportingLayout?.let { layout ->
-        contentScope.text(
-            label = item.supportingText,
-            slot = UiSlot(
-                x = slot.slot.x + 12f,
-                y = slot.slot.y + 8f + glyphPx + 4f,
-                width = (slot.slot.width - 24f).coerceAtLeast(0f),
-                height = layout.blockHeight(glyphPx, lineGap)
-            ),
-            font = resolvedFont,
-            color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
-            wrap = UiTextWrap.Word,
-            overflow = UiTextOverflow.Ellipsis,
-            maxLines = 2,
-            textStyle = resolvedTextStyle
-        )
-    }
-    return slot.clicked && item.enabled
+    return result.clicked && item.enabled
 }
 
 data class UiDropdownMenuResult(

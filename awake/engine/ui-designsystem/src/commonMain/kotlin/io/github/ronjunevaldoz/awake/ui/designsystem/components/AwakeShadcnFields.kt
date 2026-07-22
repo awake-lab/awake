@@ -20,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVa
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
@@ -192,7 +193,7 @@ fun ColumnScope.awakeShadcnTabs(
         radius = shadcnTheme.radii.md,
         style = Style { background(shadcnTheme.palette.muted) }
     ) {
-        row(height = height, gap = 2f) {
+        row(height = height, horizontalArrangement = Arrangement.spacedBy(2f.px)) {
             tabs.forEachIndexed { index, label ->
                 val active = index == selectedIndex
                 val tabStyle: Style = if (active) {

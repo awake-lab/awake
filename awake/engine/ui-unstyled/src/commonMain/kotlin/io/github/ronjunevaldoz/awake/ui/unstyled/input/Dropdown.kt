@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import io.github.ronjunevaldoz.awake.ui.width
 
 
@@ -122,8 +122,7 @@ fun UiScope.drawDropdownTriggerContent(
     semanticId: String? = null
 ) {
     val resolvedFont = font
-    val resolved = resolveStyle(
-        defaults = style, state = MutableStyleState(
+    val resolved = resolveStyle(defaults = style, state = MutableStyleState(
             hovered = hitTest(slot),
             active = expanded
         )
@@ -137,7 +136,7 @@ fun UiScope.drawDropdownTriggerContent(
     val horizontalPad = 10f
     val chevronGap = 6f
     val chevronSize = 8f
-    text(
+    basicText(
         label,
         slot = UiSlot(
             x = slot.x + horizontalPad,

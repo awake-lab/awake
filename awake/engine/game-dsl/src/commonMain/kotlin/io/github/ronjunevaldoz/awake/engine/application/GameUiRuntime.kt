@@ -8,15 +8,16 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
 import io.github.ronjunevaldoz.awake.ui.UiContext
-import io.github.ronjunevaldoz.awake.ui.UiInsets
+import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 
 /**
@@ -90,14 +91,15 @@ class GameUiRuntime(
         x: Float,
         y: Float,
         width: Float,
-        gap: Float = UiSpacing.sm.toPx(),
+        verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
     ) {
         uiContext.createColumn(
             x = x,
             y = y,
             width = width,
-            gap = gap,
+            gap = verticalArrangement.baseSpacingPx(),
+            verticalArrangement = verticalArrangement,
         ).block()
     }
 
@@ -106,14 +108,16 @@ class GameUiRuntime(
      */
     fun rootColumn(
         slot: UiSlot,
-        gap: Float = UiSpacing.sm.toPx(),
-        insets: UiInsets = UiInsets.Zero,
+        modifier: UiModifier = UiModifier(),
+        verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
     ) {
         uiContext.createColumn(
             slot = slot,
-            gap = gap,
-            insets = insets
+            gap = verticalArrangement.baseSpacingPx(),
+            insets = modifier.insets,
+            verticalArrangement = verticalArrangement,
+            testTag = modifier.testTag
         ).block()
     }
 
@@ -125,9 +129,9 @@ class GameUiRuntime(
         x: Float,
         y: Float,
         width: Float,
-        gap: Float = UiSpacing.sm.toPx(),
+        verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
-    ) = rootColumn(x, y, width, gap, block)
+    ) = rootColumn(x, y, width, verticalArrangement, block)
 
     @Deprecated(
         message = "Use rootColumn(...) for runtime-owned root layout. Unqualified column(slot = ...) inside nested UI scopes must bind to the current UiScope, not GameUiRuntime.",
@@ -135,10 +139,10 @@ class GameUiRuntime(
     )
     fun column(
         slot: UiSlot,
-        gap: Float = UiSpacing.sm.toPx(),
-        insets: UiInsets = UiInsets.Zero,
+        modifier: UiModifier = UiModifier(),
+        verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
-    ) = rootColumn(slot, gap, insets, block)
+    ) = rootColumn(slot, modifier, verticalArrangement, block)
 
     inline fun <reified T : Any> service(): T? = services.service(T::class)
 

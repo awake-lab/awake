@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
@@ -15,15 +16,15 @@ import kotlin.test.assertTrue
 
 class UiTypographyTest {
 
-
     @Test
     fun supportingTextWrapsInsideWrapContentPanels() {
         val ui = UiContext()
+        ui.pushFont(UiFonts.bitmap())
         ui.beginFrame(280f, 220f, testSnapshot())
 
         var panelSlot: UiSlot? = null
 
-        ui.column(x = 20f, y = 20f, width = 180f, font = BitmapFont()) {
+        ui.column(x = 20f, y = 20f, width = 180f) {
             surface(id = "copy", height = Dimension.WrapContent) { slot ->
                 panelSlot = slot
                 text("Copy")

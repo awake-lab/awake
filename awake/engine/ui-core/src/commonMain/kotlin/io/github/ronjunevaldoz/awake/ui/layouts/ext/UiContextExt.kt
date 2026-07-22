@@ -3,9 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 
 /**
  * Convenience extension for starting a root column directly from a [UiContext].
@@ -14,13 +15,14 @@ fun UiContext.column(
     x: Float,
     y: Float,
     width: Float,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     block: ColumnScope.() -> Unit
 ) {
     createColumn(
         x = x,
         y = y,
         width = width,
-        gap = gap
+        gap = verticalArrangement.baseSpacingPx(),
+        verticalArrangement = verticalArrangement
     ).block()
 }

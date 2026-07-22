@@ -10,9 +10,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.paddingTop
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
@@ -46,7 +48,11 @@ fun ColumnScope.awakeShadcnCollapsible(
     ) { slot ->
         // We use a simple row with fixed dimensions or predictable scaling logic.
         // To avoid WrapContent issues, we ensure children don't force unmeasured constraints.
-        this.row(width = Dimension.FillMax, height = Dimension.Fixed( slot.height.dp), gap = 8f) {
+        this.row(
+            width = Dimension.FillMax,
+            height = Dimension.Fixed(slot.height.dp),
+            horizontalArrangement = Arrangement.spacedBy(8f.px)
+        ) {
              text(
                  label = if (expanded) "-" else "+",
                  modifier = UiModifier().width(12f.dp).paddingTop( 8f.dp)

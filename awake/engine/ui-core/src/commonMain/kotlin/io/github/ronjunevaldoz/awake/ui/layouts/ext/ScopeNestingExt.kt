@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.UiInsets
+import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
@@ -11,11 +11,13 @@ import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.childRow
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 
 /**
  * Opens a nested [ColumnScope] from an already-claimed [slot] without escaping back out to an
@@ -24,38 +26,50 @@ import io.github.ronjunevaldoz.awake.ui.toPx
  */
 fun UiScope.column(
     slot: UiSlot,
-    gap: Float = UiSpacing.sm.toPx(),
-    insets: UiInsets = UiInsets.Zero,
+    verticalArrangement: Arrangement = defaultArrangement(),
+    modifier: UiModifier = UiModifier(),
     block: ColumnScope.() -> Unit
 ) {
-    childColumn(slot, gap, insets).block()
+    childColumn(
+        slot = slot,
+        gap = verticalArrangement.baseSpacingPx(),
+        verticalArrangement = verticalArrangement,
+        insets = modifier.insets,
+        testTag = modifier.testTag
+    ).block()
 }
 
 /** [slot]-based nested [RowScope] variant of [column]. */
 fun UiScope.row(
     slot: UiSlot,
-    gap: Float = UiSpacing.sm.toPx(),
-    insets: UiInsets = UiInsets.Zero,
+    horizontalArrangement: Arrangement = defaultArrangement(),
+    modifier: UiModifier = UiModifier(),
     block: RowScope.() -> Unit
 ) {
-    childRow(slot, gap, insets).block()
+    childRow(
+        slot = slot,
+        gap = horizontalArrangement.baseSpacingPx(),
+        horizontalArrangement = horizontalArrangement,
+        insets = modifier.insets,
+        testTag = modifier.testTag
+    ).block()
 }
 
 /** [slot]-based nested [AbsoluteScope] variant of [column]. */
 fun UiScope.absolute(
     slot: UiSlot,
-    insets: UiInsets = UiInsets.Zero,
+    modifier: UiModifier = UiModifier(),
     block: AbsoluteScope.() -> Unit
 ) {
-    childAbsolute(slot, insets).block()
+    childAbsolute(slot, modifier.insets, testTag = modifier.testTag).block()
 }
 
 /** [slot]-based nested [BoxScope] variant of [column]. */
 fun UiScope.box(
     slot: UiSlot,
-    insets: UiInsets = UiInsets.Zero,
+    modifier: UiModifier = UiModifier(),
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     block: BoxScope.() -> Unit
 ) {
-    childBox(slot, insets, contentAlignment).block()
+    childBox(slot, modifier.insets, contentAlignment, testTag = modifier.testTag).block()
 }

@@ -4,7 +4,9 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle
 
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawRow
+import io.github.ronjunevaldoz.awake.ui.px
 
 fun UiScope.toggleGroup(
     id: String,
@@ -13,7 +15,7 @@ fun UiScope.toggleGroup(
     modifier: UiModifier = UiModifier(),
     onIndexChange: (Int) -> Unit = {}
 ) {
-    rawRow(modifier = modifier, gap = 0f) {
+    rawRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(0f.px)) {
         options.forEachIndexed { index, option ->
             toggle(
                 id = "$id.$index",

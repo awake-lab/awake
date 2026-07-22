@@ -18,10 +18,12 @@ class ColumnScope internal constructor(
     val width: Float,
     val height: Float? = null,
     val gap: Float,
+    val verticalArrangement: Arrangement = defaultArrangement(),
     override val testTag: String? = null,
     override val hasBoundedFillWidth: Boolean = true,
     override val hasBoundedFillHeight: Boolean = height != null,
-    emitToOverlay: Boolean = false
+    emitToOverlay: Boolean = false,
+    private val plannedSlots: List<UiSlot>? = null
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     override val fillWidth: Float = width
     override val fillHeight: Float?
@@ -29,8 +31,14 @@ class ColumnScope internal constructor(
 
     var cursorY: Float = startY
         private set
+    private var plannedIndex: Int = 0
 
     override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
+        plannedSlots?.let { slots ->
+            val slot = slots[plannedIndex++]
+            context.recordMeasuredSlot(slot)
+            return slot
+        }
         val resolvedWidth = width.resolve { this.width }
         val resolvedHeight = height.resolve {
             val availableHeight = this.height ?: (context.frameBounds().height - cursorY)

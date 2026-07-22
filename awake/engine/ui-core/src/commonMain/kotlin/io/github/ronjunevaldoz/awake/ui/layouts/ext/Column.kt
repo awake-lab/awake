@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.layouts.ext
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -15,10 +14,14 @@ import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.plan
+import io.github.ronjunevaldoz.awake.ui.layouts.requiresMeasuredDistribution
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
@@ -35,12 +38,13 @@ internal fun UiScope.smartColumn(
     width: Dimension,
     height: Dimension,
     gap: Float,
+    verticalArrangement: Arrangement,
     style: Style,
     modifier: UiModifier,
-    insets: UiInsets,
     role: UiSemanticRole = UiSemanticRole.None,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
+    val insets = modifier.insets
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
     val scrollState = modifier.scrollState
@@ -55,6 +59,7 @@ internal fun UiScope.smartColumn(
             height = requestedHeight,
             modifier = modifier,
             style = style,
+            verticalArrangement = verticalArrangement,
             content = content
         ).slot
     }
@@ -92,7 +97,7 @@ internal fun UiScope.smartColumn(
         }
         context.measureColumnContent(
             width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
-            gap = gap,
+            gap = verticalArrangement.baseSpacingPx(),
             insets = insets,
             content = content
         )
@@ -115,7 +120,7 @@ internal fun UiScope.smartColumn(
     val rawSlot = rawColumn(
         width = resolvedWidth,
         height = resolvedHeight,
-        gap = gap,
+        verticalArrangement = verticalArrangement,
         testTag = containerTag,
         modifier = modifier,
         style = effectiveStyle,
@@ -131,51 +136,83 @@ fun ColumnScope.column(
     height: Dimension = Dimension.WrapContent,
     width: Dimension = Dimension.FillMax,
     id: String? = null,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
-    insets: UiInsets = UiInsets.Zero,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).smartColumn(id, width, height, gap, style, modifier, insets, content = content)
+): UiSlot = (this as UiScope).smartColumn(
+    id,
+    width,
+    height,
+    verticalArrangement.baseSpacingPx(),
+    verticalArrangement,
+    style,
+    modifier,
+    content = content
+)
 
 fun RowScope.column(
     width: Dimension,
     height: Dimension = Dimension.FillMax,
     id: String? = null,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
-    insets: UiInsets = UiInsets.Zero,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).smartColumn(id, width, height, gap, style, modifier, insets, content = content)
+): UiSlot = (this as UiScope).smartColumn(
+    id,
+    width,
+    height,
+    verticalArrangement.baseSpacingPx(),
+    verticalArrangement,
+    style,
+    modifier,
+    content = content
+)
 
 fun AbsoluteScope.column(
     width: Dimension,
     height: Dimension,
     id: String? = null,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
-    insets: UiInsets = UiInsets.Zero,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).smartColumn(id, width, height, gap, style, modifier, insets, content = content)
+): UiSlot = (this as UiScope).smartColumn(
+    id,
+    width,
+    height,
+    verticalArrangement.baseSpacingPx(),
+    verticalArrangement,
+    style,
+    modifier,
+    content = content
+)
 
 fun BoxScope.column(
     width: Dimension,
     height: Dimension,
     id: String? = null,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
-    insets: UiInsets = UiInsets.Zero,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).smartColumn(id, width, height, gap, style, modifier, insets, content = content)
+): UiSlot = (this as UiScope).smartColumn(
+    id,
+    width,
+    height,
+    verticalArrangement.baseSpacingPx(),
+    verticalArrangement,
+    style,
+    modifier,
+    content = content
+)
 
 
-inline fun UiScope.rawColumn(
+fun UiScope.rawColumn(
     width: Dimension = Dimension.FillMax,
     height: Dimension = Dimension.WrapContent,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     testTag: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
@@ -192,13 +229,42 @@ inline fun UiScope.rawColumn(
     context.pushTextStyle(textStyle)
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
-    val scope = childColumn(
-        slot,
-        gap = gap,
-        testTag = testTag ?: modifier.testTag,
-        hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
-        hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
-    )
+    val effectiveArrangement = verticalArrangement
+    val scope = if (effectiveArrangement.requiresMeasuredDistribution()) {
+        val measured = context.measureColumnContent(
+            width = slot.width,
+            gap = 0f,
+            content = content
+        )
+        val childHeights = measured.slots.map { it.height }
+        val occupiedHeight = childHeights.sum() + effectiveArrangement.baseSpacingPx() * (childHeights.size - 1).coerceAtLeast(0)
+        val plan = effectiveArrangement.plan(slot.height, childHeights.size, occupiedHeight)
+        var y = slot.y + plan.leadingSpacePx
+        val arrangedSlots = measured.slots.map { child ->
+            UiSlot(slot.x, y, child.width, child.height).also {
+                y += child.height + plan.betweenSpacePx
+            }
+        }
+        context.createColumn(
+            slot = slot,
+            gap = plan.betweenSpacePx,
+            verticalArrangement = effectiveArrangement,
+            testTag = testTag ?: modifier.testTag,
+            hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
+            hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
+            overlayOnly = emitsToOverlay,
+            plannedSlots = arrangedSlots
+        )
+    } else {
+        childColumn(
+            slot,
+            gap = effectiveArrangement.baseSpacingPx(),
+            verticalArrangement = effectiveArrangement,
+            testTag = testTag ?: modifier.testTag,
+            hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
+            hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
+        )
+    }
     scope.content(slot)
     context.popTextStyle()
     return slot

@@ -21,10 +21,13 @@ import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
@@ -35,7 +38,7 @@ fun UiScope.surface(
     id: String,
     width: Dimension,
     height: Dimension,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     radius: Dp = UiShape.md,
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
@@ -45,13 +48,13 @@ fun UiScope.surface(
     id = id,
     width = width,
     height = height,
-    gap = gap,
+    gap = verticalArrangement.baseSpacingPx(),
+    verticalArrangement = verticalArrangement,
     style = Style {
         shape(radius)
         borderWidth(borderWidth)
     } then style,
     modifier = modifier,
-    insets = UiInsets.Zero,
     role = UiSemanticRole.Panel,
     content = content
 )
@@ -60,49 +63,89 @@ fun ColumnScope.surface(
     id: String,
     height: Dimension,
     width: Dimension = Dimension.FillMax,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     radius: Dp = UiShape.md,
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).surface(id, width, height, gap, radius, borderWidth, style, modifier, content)
+): UiSlot = (this as UiScope).surface(
+    id = id,
+    width = width,
+    height = height,
+    verticalArrangement = verticalArrangement,
+    radius = radius,
+    borderWidth = borderWidth,
+    style = style,
+    modifier = modifier,
+    content = content
+)
 
 fun RowScope.surface(
     id: String,
     width: Dimension,
     height: Dimension = Dimension.FillMax,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     radius: Dp = UiShape.md,
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).surface(id, width, height, gap, radius, borderWidth, style, modifier, content)
+): UiSlot = (this as UiScope).surface(
+    id = id,
+    width = width,
+    height = height,
+    verticalArrangement = verticalArrangement,
+    radius = radius,
+    borderWidth = borderWidth,
+    style = style,
+    modifier = modifier,
+    content = content
+)
 
 fun AbsoluteScope.surface(
     id: String,
     width: Dimension,
     height: Dimension,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     radius: Dp = UiShape.md,
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).surface(id, width, height, gap, radius, borderWidth, style, modifier, content)
+): UiSlot = (this as UiScope).surface(
+    id = id,
+    width = width,
+    height = height,
+    verticalArrangement = verticalArrangement,
+    radius = radius,
+    borderWidth = borderWidth,
+    style = style,
+    modifier = modifier,
+    content = content
+)
 
 fun BoxScope.surface(
     id: String,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     radius: Dp = UiShape.md,
     borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).surface(id, width, height, gap, radius, borderWidth, style, modifier, content)
+): UiSlot = (this as UiScope).surface(
+    id = id,
+    width = width,
+    height = height,
+    verticalArrangement = verticalArrangement,
+    radius = radius,
+    borderWidth = borderWidth,
+    style = style,
+    modifier = modifier,
+    content = content
+)
 
 fun UiScope.rawSurface(
     id: String,
@@ -158,8 +201,7 @@ fun UiScope.rawSurface(
     }
     val resolvedHeight = when (height) {
         Dimension.WrapContent -> {
-            val contentHeight = (requireNotNull(measured).height - resolved.contentPadding.top.toPx()).coerceAtLeast(0f)
-            Dimension.Fixed((contentHeight + paddingHeight).px)
+            Dimension.Fixed((requireNotNull(measured).height + paddingHeight).px)
         }
         else -> height
     }

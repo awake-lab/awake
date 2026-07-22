@@ -58,7 +58,7 @@ internal fun UiScope.drawResolvedText(
         label = label,
         slot = slot.inset(resolvedStyle.contentPadding),
         font = resolvedFont,
-        color = color ?: resolvedStyle.foreground ?: theme.tokens.foreground,
+        color = color ?: resolvedStyle.foreground ?: context.currentTextStyle.color ?: theme.tokens.foreground,
         centered = centered,
         verticallyCentered = verticallyCentered,
         wrap = wrap,
@@ -88,7 +88,11 @@ fun UiScope.text(
 ): UiSlot {
     val resolved = resolveStyle(
         style = style,
-        defaults = Style { foreground(theme.tokens.foreground) },
+        defaults = Style {
+            if (context.currentTextStyle.color == null) {
+                foreground(theme.tokens.foreground)
+            }
+        },
         state = MutableStyleState(
             hovered = hitTest(slot)
         )
@@ -148,7 +152,9 @@ fun UiScope.text(
         val resolved = resolveStyle(
             style = style,
             defaults = Style {
-                foreground(theme.tokens.foreground)
+                if (context.currentTextStyle.color == null) {
+                    foreground(theme.tokens.foreground)
+                }
             },
             state = state
         )

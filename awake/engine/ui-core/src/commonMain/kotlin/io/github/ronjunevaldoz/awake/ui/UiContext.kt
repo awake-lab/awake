@@ -5,10 +5,12 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import kotlin.math.max
 import kotlin.reflect.KClass
 
@@ -52,6 +54,7 @@ class UiContext private constructor(
     private var frameDeltaSeconds: Float = 1f / 60f
     private var measuredMaxRight = 0f
     private var measuredMaxBottom = 0f
+    private val measuredSlots = ArrayList<UiSlot>()
     private var isOverScrollableThisFrame = false
     private var isScrollConsumedThisFrame = false
     private var serviceResolver: ((KClass<*>) -> Any?)? = null
@@ -76,6 +79,7 @@ class UiContext private constructor(
         frameDeltaSeconds = deltaSeconds.coerceAtLeast(0f)
         measuredMaxRight = 0f
         measuredMaxBottom = 0f
+        measuredSlots.clear()
         pointerDownEdgeThisFrame = inputState.pointerDown && !pointerDownLastFrame
         focusClaimedThisFrame = false
         isOverScrollableThisFrame = false
@@ -99,10 +103,12 @@ class UiContext private constructor(
         width: Float,
         height: Float? = null,
         gap: Float = UiSpacing.sm.toPx(),
+        verticalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = height != null,
-        overlayOnly: Boolean = false
+        overlayOnly: Boolean = false,
+        plannedSlots: List<UiSlot>? = null
     ): ColumnScope = ColumnScope(
         this,
         x,
@@ -110,20 +116,24 @@ class UiContext private constructor(
         width,
         height,
         gap,
+        verticalArrangement,
         testTag,
         hasBoundedFillWidth,
         hasBoundedFillHeight,
-        overlayOnly
+        overlayOnly,
+        plannedSlots
     )
 
     fun createColumn(
         slot: UiSlot,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
+        verticalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false
+        overlayOnly: Boolean = false,
+        plannedSlots: List<UiSlot>? = null
     ): ColumnScope {
         val content = slot.inset(insets)
         return createColumn(
@@ -132,10 +142,12 @@ class UiContext private constructor(
             content.width,
             content.height,
             gap,
+            verticalArrangement,
             testTag,
             hasBoundedFillWidth,
             hasBoundedFillHeight,
-            overlayOnly
+            overlayOnly,
+            plannedSlots
         )
     }
 
@@ -166,23 +178,52 @@ class UiContext private constructor(
         height: Float,
         width: Float? = null,
         gap: Float = UiSpacing.sm.toPx(),
+        horizontalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = width != null,
         hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false
-    ): RowScope = RowScope(this, x, y, width, height, gap, testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly)
+        overlayOnly: Boolean = false,
+        plannedSlots: List<UiSlot>? = null
+    ): RowScope = RowScope(
+        this,
+        x,
+        y,
+        width,
+        height,
+        gap,
+        horizontalArrangement,
+        testTag,
+        hasBoundedFillWidth,
+        hasBoundedFillHeight,
+        overlayOnly,
+        plannedSlots
+    )
 
     fun createRow(
         slot: UiSlot,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
+        horizontalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false
+        overlayOnly: Boolean = false,
+        plannedSlots: List<UiSlot>? = null
     ): RowScope {
         val content = slot.inset(insets)
-        return createRow(content.x, content.y, content.height, content.width, gap, testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly)
+        return createRow(
+            content.x,
+            content.y,
+            content.height,
+            content.width,
+            gap,
+            horizontalArrangement,
+            testTag,
+            hasBoundedFillWidth,
+            hasBoundedFillHeight,
+            overlayOnly,
+            plannedSlots
+        )
     }
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */
@@ -342,6 +383,7 @@ class UiContext private constructor(
         if (!measuring) return
         measuredMaxRight = max(measuredMaxRight, slot.x + slot.width)
         measuredMaxBottom = max(measuredMaxBottom, slot.y + slot.height)
+        measuredSlots += slot
     }
 
     fun measureColumnContent(
@@ -371,7 +413,8 @@ class UiContext private constructor(
         measureScope.content(outerSlot)
         return UiMeasuredContent(
             width = measureContext.measuredMaxRight,
-            height = measureContext.measuredMaxBottom
+            height = measureContext.measuredMaxBottom,
+            slots = measureContext.measuredSlots.toList()
         )
     }
 
@@ -402,7 +445,8 @@ class UiContext private constructor(
         measureScope.content(outerSlot)
         return UiMeasuredContent(
             width = measureContext.measuredMaxRight,
-            height = measureContext.measuredMaxBottom
+            height = measureContext.measuredMaxBottom,
+            slots = measureContext.measuredSlots.toList()
         )
     }
 
@@ -415,7 +459,8 @@ class UiContext private constructor(
 
 data class UiMeasuredContent(
     val width: Float,
-    val height: Float
+    val height: Float,
+    val slots: List<UiSlot> = emptyList()
 )
 
 /**
