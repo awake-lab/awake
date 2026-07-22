@@ -27,6 +27,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.uiPath
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -101,6 +103,11 @@ internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
         variant = AwakeShadcnSurfaceVariant.Card,
         style = Style { shape(16f.dp) }
     ) { slot ->
+        recordSemantic(
+            role = UiSemanticRole.Panel,
+            id = "showcase-canvas-root",
+            bounds = slot
+        )
         canvas(slot) {
             drawShowcaseCanvasScene()
         }
