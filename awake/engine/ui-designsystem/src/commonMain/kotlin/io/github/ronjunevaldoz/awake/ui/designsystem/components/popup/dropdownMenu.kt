@@ -2,6 +2,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
@@ -11,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -19,14 +21,17 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.styleable
+import io.github.ronjunevaldoz.awake.ui.textStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.layoutBitmapText
+import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.ui.width
 
 fun UiScope.dropdownMenu(
@@ -43,6 +48,7 @@ fun UiScope.dropdownMenu(
     style: Style = Style.Empty,
     itemStyle: Style = Style.Empty
 ): UiDropdownMenuResult {
+    val theme = context.currentTheme
     var picked: Int? = null
     val popupResult = popup(
         anchorSlot = anchorSlot,
@@ -58,9 +64,11 @@ fun UiScope.dropdownMenu(
             width = Dimension.Fixed(popupSlot.width.px),
             height = height,
             gap = 0f,
-            radius = UiShape.sm,
+            modifier = UiModifier()
+                .styleable(theme.components.surface then style then Style {
+                    shape(UiShape.sm)
+                }),
             clipContent = true,
-            style = theme.components.surface then style
         ) {
             var actionIndex = 0
             items.forEach { entry ->
@@ -123,11 +131,12 @@ private fun ColumnScope.dropdownMenuItem(
     style: Style,
     selected: Boolean
 ): Boolean {
-    val resolvedFont = font
+ val resolvedFont = font
     val labelSize = theme.typography.label
+    val resolvedTextStyle = textStyle then TextStyle(size = labelSize)
     val glyphPx = pixelPerfectPixel(labelSize.toPx().coerceAtLeast(1f)).coerceAtLeast(1f)
     val trailingWidth = item.trailingLabel?.let { label ->
-        (resolvedFont?.measureTextWidth(label, glyphPx) ?: (label.length * glyphPx)) + 8f
+        resolvedFont.measureTextWidth(label, glyphPx) + 8f
     } ?: 0f
     val bodyWidth = (width - 24f - trailingWidth).coerceAtLeast(glyphPx)
     val supportingLayout = item.supportingText?.takeIf { it.isNotBlank() }?.let {
@@ -138,7 +147,7 @@ private fun ColumnScope.dropdownMenuItem(
             wrap = UiTextWrap.Word,
             overflow = UiTextOverflow.Ellipsis,
             maxLines = 2,
-            advanceOf = { char -> resolvedFont?.advanceFor(char, glyphPx) ?: glyphPx }
+            advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
         )
     }
     val lineGap = glyphPx * 0.25f
@@ -158,9 +167,6 @@ private fun ColumnScope.dropdownMenuItem(
     )
     val contentScope = context.createAbsolute(
         slot = slot.slot,
-        font = resolvedFont,
-        theme = theme,
-        textScale = textScale,
         insets = UiInsets(12f.dp, 8f.dp),
         overlayOnly = true
     )
@@ -186,7 +192,7 @@ private fun ColumnScope.dropdownMenuItem(
         font = resolvedFont,
         color = textColor,
         overflow = UiTextOverflow.Ellipsis,
-        textSize = labelSize
+        textStyle = resolvedTextStyle
     )
     item.trailingLabel?.let { label ->
         contentScope.basicText(
@@ -201,12 +207,12 @@ private fun ColumnScope.dropdownMenuItem(
             color = trailingColor,
             centered = true,
             overflow = UiTextOverflow.Ellipsis,
-            textSize = labelSize
+            textStyle = resolvedTextStyle
         )
     }
     supportingLayout?.let { layout ->
         contentScope.basicText(
-            label = item.supportingText.orEmpty(),
+            label = item.supportingText,
             slot = UiSlot(
                 x = slot.slot.x + 12f,
                 y = slot.slot.y + 8f + glyphPx + 4f,
@@ -218,7 +224,7 @@ private fun ColumnScope.dropdownMenuItem(
             wrap = UiTextWrap.Word,
             overflow = UiTextOverflow.Ellipsis,
             maxLines = 2,
-            textSize = labelSize
+            textStyle = resolvedTextStyle
         )
     }
     return slot.clicked && item.enabled

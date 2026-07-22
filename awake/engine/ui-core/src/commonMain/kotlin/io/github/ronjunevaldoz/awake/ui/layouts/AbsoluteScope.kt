@@ -3,8 +3,6 @@ package io.github.ronjunevaldoz.awake.ui.layouts
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.UiTheme
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 /**
  * Manual placement at an exact x/y, ignoring whatever width/height a widget requests as a
@@ -13,13 +11,10 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
  */
 class AbsoluteScope internal constructor(
     context: UiContext,
-    font: UiFont?,
-    theme: UiTheme,
     private val x: Float,
     private val y: Float,
-    textScale: Float = 1f,
     emitToOverlay: Boolean = false
-) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {
+) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     override val fillWidth: Float? = null
     override val fillHeight: Float? = null
 

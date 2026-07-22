@@ -31,17 +31,16 @@ fun pixelPerfectTextScale(requestedScale: Float, step: Float = 0.25f): Float {
     return snapped.coerceAtLeast(1f)
 }
 
-fun UiScope.resolvedTextScale(): Float = pixelPerfectTextScale(textScale, font?.textScaleStep ?: 0.25f)
+fun UiScope.resolvedTextScale(): Float = pixelPerfectTextScale(context.currentTextStyle.scale, context.currentFont.textScaleStep)
 
 fun pixelPerfectPixel(value: Float): Float = value.roundToInt().toFloat()
 
 fun UiScope.resolveGlyphPx(
-    font: io.github.ronjunevaldoz.awake.ui.font.UiFont,
-    textScale: Float = this.textScale,
-    textSize: Sp? = null
+    font: UiFont = context.currentFont,
+    textStyle: TextStyle = context.currentTextStyle
 ): Float {
-    val baseSize = textSize ?: theme.typography.body
-    val scale = pixelPerfectTextScale(textScale, font.textScaleStep)
+    val baseSize = textStyle.size ?: context.currentTheme.typography.body
+    val scale = pixelPerfectTextScale(textStyle.scale, font.textScaleStep)
     return pixelPerfectPixel(baseSize.value * UiDensity.scale * UiDensity.fontScale * scale).coerceAtLeast(1f)
 }
 
@@ -55,27 +54,6 @@ fun UiScope.resolveGlyphPx(
  */
 @AwakeUiDsl
 interface UiScope {
-    val font: UiFont?
-
-    /**
-     * The color/appearance policy in effect for this scope -- see [UiTheme]. Widgets default
-     * to [UiTheme.components], and a consumer-defined widget can opt into the exact same
-     * style resolver via [resolveStyle].
-     */
-    val theme: UiTheme
-
-    /**
-     * Requested multiplier applied to every glyph this scope draws (quad size, pen advance,
-     * label-row height). The font still comes from a tiny hand-authored bitmap source, but its
-     * atlas is baked as a higher-resolution coverage texture, so larger `Sp` sizes can sample
-     * smoother edges without changing the logical layout metrics. Rendering snaps this to the
-     * nearest atlas-aligned step via [resolvedTextScale] and then snaps the final glyph size to
-     * a whole device pixel via [resolveGlyphPx], so the default path stays crisp without forcing
-     * every size jump to a full integer multiplier. Defaults to `1f` (today's original,
-     * un-scaled size).
-     */
-    val textScale: Float
-
     /**
      * Whether this scope's own [emit] routes to the overlay layer (painted after every
      * regular primitive this frame, regardless of call order -- see
@@ -165,38 +143,52 @@ fun UiScope.claimModifiedSlot(
  * silently paint behind their own backgrounds (see [UiScope.emitsToOverlay]); these make that
  * mistake impossible to make.
  */
+fun UiScope.ProvideTextStyle(style: TextStyle, content: UiScope.() -> Unit) {
+    context.pushTextStyle(style)
+    this.content()
+    context.popTextStyle()
+}
+
+fun UiScope.ProvideTheme(theme: UiTheme, content: UiScope.() -> Unit) {
+    context.pushTheme(theme)
+    this.content()
+    context.popTheme()
+}
+
+fun UiScope.ProvideFont(font: UiFont, content: UiScope.() -> Unit) {
+    context.pushFont(font)
+    this.content()
+    context.popFont()
+}
+
 fun UiScope.childColumn(
     slot: UiSlot,
     gap: Float = UiSpacing.sm.toPx(),
-    insets: UiInsets = UiInsets.Zero,
-    textScale: Float = this.textScale
-): ColumnScope = context.createColumn(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)
+    insets: UiInsets = UiInsets.Zero
+): ColumnScope = context.createColumn(slot, gap, insets, overlayOnly = emitsToOverlay)
 
 fun UiScope.childRow(
     slot: UiSlot,
     gap: Float = UiSpacing.sm.toPx(),
-    insets: UiInsets = UiInsets.Zero,
-    textScale: Float = this.textScale
-): RowScope = context.createRow(slot, font, theme, gap, textScale, insets, overlayOnly = emitsToOverlay)
+    insets: UiInsets = UiInsets.Zero
+): RowScope = context.createRow(slot, gap, insets, overlayOnly = emitsToOverlay)
 
 fun UiScope.childAbsolute(
     slot: UiSlot,
-    insets: UiInsets = UiInsets.Zero,
-    textScale: Float = this.textScale
-): AbsoluteScope = context.createAbsolute(slot, font, theme, textScale, insets, overlayOnly = emitsToOverlay)
+    insets: UiInsets = UiInsets.Zero
+): AbsoluteScope = context.createAbsolute(slot, insets, overlayOnly = emitsToOverlay)
 
 fun UiScope.childBox(
     slot: UiSlot,
     insets: UiInsets = UiInsets.Zero,
-    contentAlignment: UiAlignment = UiAlignment.TopStart,
-    textScale: Float = this.textScale
-): BoxScope = context.createBox(slot, font, theme, textScale, insets, contentAlignment, overlayOnly = emitsToOverlay)
+    contentAlignment: UiAlignment = UiAlignment.TopStart
+): BoxScope = context.createBox(slot, insets, contentAlignment, overlayOnly = emitsToOverlay)
 
 fun UiScope.resolveStyle(
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
     state: StyleState = MutableStyleState()
-): ResolvedStyle = (defaults then style).resolve(state, resolvedTextScale())
+): ResolvedStyle = (defaults then style).resolve(state, context.currentTextStyle)
 
 fun UiScope.recordSemantic(
     role: UiSemanticRole,
@@ -223,3 +215,14 @@ fun UiScope.recordSemantic(
         )
     )
 }
+
+
+val UiScope.theme : UiTheme
+    get() = context.currentTheme
+val UiScope.font : UiFont
+    get() = context.currentFont
+val UiScope.textStyle : TextStyle
+    get() = context.currentTextStyle
+
+val UiScope.resolvedThemeCaptionStyle : TextStyle
+    get() = textStyle then TextStyle(size = theme.typography.caption)

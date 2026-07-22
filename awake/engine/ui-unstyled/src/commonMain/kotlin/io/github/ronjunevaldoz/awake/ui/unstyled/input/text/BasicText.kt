@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Sp
+import io.github.ronjunevaldoz.awake.ui.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -32,20 +32,19 @@ enum class UiTextOverflow {
 fun UiScope.basicText(
     label: String,
     slot: UiSlot? = null,
-    font: UiFont? = this.font,
-    color: Color = theme.tokens.foreground,
+    font: UiFont? = context.currentFont,
+    color: Color? = context.currentTextStyle.color,
     centered: Boolean = false,
     verticallyCentered: Boolean = centered,
     wrap: UiTextWrap = UiTextWrap.None,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     maxLines: Int = 1,
-    textScale: Float = this.textScale,
-    textSize: Sp? = null,
+    textStyle: TextStyle = context.currentTextStyle,
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text
 ) {
     val resolvedFont = checkNotNull(font) { "text() requires a font, either from the UiScope or passed explicitly" }
-    val glyphPx = resolveGlyphPx(resolvedFont, textScale, textSize)
+    val glyphPx = resolveGlyphPx(resolvedFont, textStyle)
     val resolvedSlot = slot ?: claimSlot(Dimension.FillMax, Dimension.Fixed(glyphPx.px))
     val layout = layoutBitmapText(
         label = label,
@@ -79,6 +78,7 @@ fun UiScope.basicText(
         lineCount = layout.lines.size
     )
 
+    val textColor = color ?: context.currentTheme.tokens.foreground
     fun emitLines() {
         var penY = if (verticallyCentered) {
             resolvedSlot.y + (resolvedSlot.height - blockMetrics.heightPx) / 2f - blockMetrics.topPx
@@ -101,7 +101,7 @@ fun UiScope.basicText(
                             glyph.v0,
                             glyph.u1,
                             glyph.v1,
-                            color
+                            textColor
                         )
                     )
                 }
@@ -322,14 +322,14 @@ private fun ellipsizeLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> 
 }
 
 private fun ellipsizeTruncatedLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> Float): String {
-    if (maxWidthPx.isInfinite()) {
-        return line + "..."
-    }
     val ellipsis = "..."
+    if (maxWidthPx.isInfinite()) {
+        return "$line$ellipsis"
+    }
     val ellipsisWidth = measureLineWidth(ellipsis, advanceOf)
     val currentWidth = measureLineWidth(line, advanceOf)
     if (currentWidth + ellipsisWidth <= maxWidthPx) {
-        return line + ellipsis
+        return "$line$ellipsis"
     }
     if (ellipsisWidth >= maxWidthPx) {
         return ellipsis.take(fitPrefixByWidth(ellipsis, maxWidthPx, advanceOf))

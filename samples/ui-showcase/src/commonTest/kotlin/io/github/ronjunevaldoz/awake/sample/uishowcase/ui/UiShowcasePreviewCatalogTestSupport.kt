@@ -43,6 +43,7 @@ import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.width
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
@@ -679,9 +680,10 @@ private fun ColumnScope.drawUiShowcaseScrollPanelContent() {
     spacer(UiModifier().height(8f.dp))
     scrollPanel(
         id = "showcase-matrix-scroll-panel",
-        width = Dimension.Fixed(420f.px),
-        height = Dimension.Fixed(168f.px),
-        state = scrollState,
+        modifier = UiModifier()
+            .width(Dimension.Fixed(420f.px))
+            .height(Dimension.Fixed(168f.px))
+            .verticalScroll(scrollState),
         style = Style { shape(14f.dp) }
     ) {
         repeat(8) { index ->

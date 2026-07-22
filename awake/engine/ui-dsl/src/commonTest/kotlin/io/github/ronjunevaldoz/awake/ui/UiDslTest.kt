@@ -145,7 +145,7 @@ class UiDslTest {
 
         var controlSlot: UiSlot? = null
 
-        ui.column(x = 20f, y = 20f, width = 220f, font = BitmapFont()) {
+        ui.column(x = 20f, y = 20f, width = 220f) {
             surface(id = "slot-panel", height = 100f.toDimension()) {
                 row(
                     height = 28f.dp
@@ -285,13 +285,16 @@ class UiDslTest {
         val scrollState = UiScrollState()
 
         ui.beginFrame(220f, 200f, testSnapshot(x = 24f, y = 24f, scrollDeltaY = -1f))
-        ui.column(x = 12f, y = 12f, width = 160f, font = BitmapFont()) {
+        ui.column(x = 12f, y = 12f, width = 160f) {
             scrollPanel(
                 id = "dsl-scroll",
-                width = Dimension.FillMax,
-                height = 80f.toDimension(),
-                state = scrollState,
-                scrollSpeed = 20f
+                modifier = UiModifier()
+                    .width(Dimension.FillMax)
+                    .height(80f.toDimension())
+                    .verticalScroll(
+                        state = scrollState,
+                        config = UiScrollConfig(scrollSpeed = 20f)
+                    )
             ) {
                 repeat(8) { index ->
                     text("Row $index")

@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
+import io.github.ronjunevaldoz.awake.ui.styleable
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.verticalPx
 
@@ -49,17 +50,23 @@ internal fun UiScope.smartColumn(
             id = id,
             width = requestedWidth,
             height = requestedHeight,
-            state = scrollState,
-            gap = gap,
-            style = style,
             modifier = modifier,
-            config = modifier.scrollConfig,
+            style = style,
             content = content
         ).slot
     }
 
-    // Resolve visuals: if style has background/border, we use unstyledSurface as the implementation
-    val hasVisuals = style.resolve(MutableStyleState(), textScale).let {
+    // Resolve visuals: avoid claiming a slot (which may be WrapContent) just to check hover.
+    // Use the forced hover when provided, otherwise assume not hovered for initial style
+    // resolution; actual hover will be checked later when a slot is claimed.
+    val isHovered = modifier.forceHover ?: false
+    val styleState = MutableStyleState(
+        hovered = modifier.forceHover ?: isHovered,
+        active = modifier.forceActive ?: (id?.let { isActive(it) } ?: false),
+        focused = modifier.forceFocus ?: (id?.let { context.isFocused(it) } ?: false)
+    )
+    val effectiveStyle = style then (modifier.styleable ?: Style.Empty)
+    val hasVisuals = effectiveStyle.resolve(styleState, context.currentTextStyle).let {
         it.background != null || it.borderWidth.toPx() > 0f || it.shape.toPx() > 0f
     }
 
@@ -69,8 +76,7 @@ internal fun UiScope.smartColumn(
             width = requestedWidth,
             height = requestedHeight,
             gap = gap,
-            style = style,
-            modifier = modifier,
+            modifier = modifier.styleable(effectiveStyle),
             content = content
         )
     }
@@ -83,10 +89,7 @@ internal fun UiScope.smartColumn(
         }
         context.measureColumnContent(
             width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
-            font = font,
-            theme = theme,
             gap = gap,
-            textScale = textScale,
             insets = insets,
             content = content
         )
@@ -106,18 +109,17 @@ internal fun UiScope.smartColumn(
         else -> requestedHeight
     }
 
-//    val slot = claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
     val rawSlot = rawColumn(
         width = resolvedWidth,
         height = resolvedHeight,
         gap = gap,
         modifier = modifier,
+        style = effectiveStyle,
         content = content
     )
     if (role != UiSemanticRole.None && id != null) {
         recordSemantic(role = role, id = id, bounds = rawSlot)
     }
-//    childColumn(slot, gap = gap, insets = insets).content(slot)
     return rawSlot
 }
 
@@ -171,9 +173,20 @@ inline fun UiScope.rawColumn(
     height: Dimension = Dimension.WrapContent,
     gap: Float = UiSpacing.sm.toPx(),
     modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val slot = claimModifiedSlot(width, height, modifier)
-    childColumn(slot, gap = gap).content(slot)
+    val styleState = MutableStyleState(
+        hovered = modifier.forceHover ?: hitTest(slot),
+        active = modifier.forceActive ?: false,
+        focused = modifier.forceFocus ?: false
+    )
+    val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
+
+    context.pushTextStyle(textStyle)
+    val scope = childColumn(slot, gap = gap)
+    scope.content(slot)
+    context.popTextStyle()
     return slot
 }

@@ -13,8 +13,10 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitInsetAccent
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
@@ -72,7 +74,7 @@ fun UiScope.checkbox(
         emitInsetAccent(boxSlot, inset, resolved.shape.toPx(), resolved.shapeSpec)
     }
     val resolvedFont = font
-    if (label != null && resolvedFont != null) {
+    if (label != null) {
         val labelSlot = UiSlot(
             boxSlot.x + boxPx + CHECKBOX_LABEL_GAP,
             interaction.slot.y,
@@ -87,8 +89,7 @@ fun UiScope.checkbox(
             centered = false,
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
-            textScale = resolved.textScale,
-            textSize = resolved.textSize,
+            textStyle = resolved.textStyle,
             semanticId = "$id.label"
         )
     }

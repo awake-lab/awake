@@ -19,37 +19,33 @@ data class UiScrollPanelResult(
 )
 
 /**
- * Enhanced dual-axis scroll container that only reserves space for scrollbars when they are
- * actually needed, preventing layout squeeze for short content.
+ * Enhanced dual-axis scroll container.
+ * Sizing, scrolling state, and configuration are extracted from [modifier].
+ * Visuals are resolved from [style].
  */
 fun UiScope.scrollPanel(
     id: String,
-    width: Dimension,
-    height: Dimension,
-    state: UiScrollState,
-    gap: Float = UiSpacing.sm.toPx(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
-    style: Style = Style.Empty,
+    width: Dimension = Dimension.FillMax,
+    height: Dimension = Dimension.WrapContent,
     modifier: UiModifier = UiModifier(),
-    scrollSpeed: Float = 32f,
-    config: UiScrollConfig = modifier.scrollConfig,
+    style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiScrollPanelResult {
+    val state = requireNotNull(modifier.scrollState) { "scrollPanel requires a scrollState on the modifier" }
+    val config = modifier.scrollConfig
     val requestedWidth = modifier.width ?: width
     val requestedHeight = modifier.height ?: height
+
     val resolved = resolveStyle(
-        style = style,
-        defaults = theme.components.surface then Style.Companion {
-            shape(radius)
-            borderWidth(borderWidth)
-        }
+        style = style then (modifier.styleable ?: Style.Empty),
+        defaults = theme.components.surface
     )
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
     val scrollbarWidthPx = config.width.toPx().coerceAtLeast(0f)
     val scrollbarGapPx = config.gap.toPx().coerceAtLeast(0f)
     val scrollbarReservePx = if (scrollbarWidthPx > 0f) scrollbarWidthPx + scrollbarGapPx else 0f
+    val gap = UiSpacing.sm.toPx() // Default column gap
 
     fun availableOuterWidth(): Float = when (requestedWidth) {
         is Dimension.Fixed -> requestedWidth.dp.toPx()
@@ -62,10 +58,7 @@ fun UiScope.scrollPanel(
     // Phase 1: Measure content assuming no vertical scrollbar
     val initialMeasure = context.measureColumnContent(
         width = maxInnerWidth,
-        font = font,
-        theme = theme,
         gap = gap,
-        textScale = resolved.textScale,
         content = content
     )
 
@@ -87,10 +80,7 @@ fun UiScope.scrollPanel(
     if (verticalNeeded && scrollbarReservePx > 0f) {
         measured = context.measureColumnContent(
             width = (maxInnerWidth - scrollbarReservePx).coerceAtLeast(0f),
-            font = font,
-            theme = theme,
             gap = gap,
-            textScale = resolved.textScale,
             content = content
         )
     }
@@ -162,11 +152,11 @@ fun UiScope.scrollPanel(
         val scrollDeltaX = context.inputState.scrollDeltaX
 
         if (state.canScrollY && scrollDeltaY != 0f) {
-            state.scrollBy(deltaY = -scrollDeltaY * scrollSpeed)
+            state.scrollBy(deltaY = -scrollDeltaY * config.scrollSpeed)
             context.onScrollConsumed()
         }
         if (state.canScrollX && scrollDeltaX != 0f) {
-            state.scrollBy(deltaX = -scrollDeltaX * scrollSpeed)
+            state.scrollBy(deltaX = -scrollDeltaX * config.scrollSpeed)
             context.onScrollConsumed()
         }
     }
@@ -179,7 +169,6 @@ fun UiScope.scrollPanel(
             viewport.height
         ),
         gap = gap,
-        textScale = resolved.textScale
     )
     clip(viewport) {
         contentScope.content(viewport)

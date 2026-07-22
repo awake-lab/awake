@@ -3,16 +3,20 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.property
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.textStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
@@ -51,8 +55,8 @@ fun UiScope.propertyRow(
         modifier = modifier
     )
     val resolvedFont = font
-    val glyphPx =
-        resolvedFont?.let { resolveGlyphPx(it, textScale, theme.typography.caption) } ?: 12f
+    theme.typography.caption
+    val glyphPx = resolveGlyphPx(resolvedFont)
     val layout = layoutPropertyRow(
         rowSlot = rowSlot,
         labelWidthPx = resolvePropertyLabelWidthPx(
@@ -94,7 +98,7 @@ fun UiScope.propertyRow(
     )
     val resolvedFont = font
     val labelSize = theme.typography.caption
-    val glyphPx = resolvedFont?.let { resolveGlyphPx(it, textScale, labelSize) } ?: 12f
+    val glyphPx = resolveGlyphPx(resolvedFont, textStyle = textStyle then TextStyle(size = labelSize))
     val layout = layoutPropertyRow(
         rowSlot = rowSlot,
         labelWidthPx = resolvePropertyLabelWidthPx(
@@ -102,22 +106,18 @@ fun UiScope.propertyRow(
             label = label,
             requestedWidthPx = labelWidth.toPx(),
             glyphPx = glyphPx,
-            labelTextWidthPx = resolvedFont?.measureTextWidth(label, glyphPx)
-                ?: (label.length * glyphPx)
+            labelTextWidthPx = resolvedFont.measureTextWidth(label, glyphPx)
         )
     )
     val labelColor = theme.tokens.mutedForeground
-    if (resolvedFont != null) {
-        basicText(
-            label = label,
-            slot = layout.labelSlot,
-            font = resolvedFont,
-            color = labelColor,
-            centered = false,
-            overflow = UiTextOverflow.Ellipsis,
-            textSize = labelSize
-        )
-    }
+    basicText(
+        label = label,
+        slot = layout.labelSlot,
+        font = resolvedFont,
+        color = labelColor,
+        centered = false,
+        overflow = UiTextOverflow.Ellipsis,
+    )
     return layout.controlSlot
 }
 

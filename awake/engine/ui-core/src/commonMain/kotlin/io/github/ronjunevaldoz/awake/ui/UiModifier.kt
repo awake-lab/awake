@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+
 /**
  * A widget's sizing intent -- replaces the undocumented "pass `0f` and it silently fills the
  * enclosing scope's configured width/height" convention that used to live inside
@@ -48,7 +50,8 @@ data class UiModifier(
     val forceActive: Boolean? = null,
     val forceFocus: Boolean? = null,
     val scrollState: UiScrollState? = null,
-    val scrollConfig: UiScrollConfig = UiScrollConfig.Default
+    val scrollConfig: UiScrollConfig = UiScrollConfig.Default,
+    val styleable: Style? = null
 )
 
 fun UiModifier.forceHover(value: Boolean = true): UiModifier = copy(forceHover = value)
@@ -74,6 +77,14 @@ fun UiModifier.padding(horizontal: Dp, vertical: Dp): UiModifier = copy(insets =
 fun UiModifier.padding(start: Dp, top: Dp, end: Dp, bottom: Dp): UiModifier =
     copy(insets = UiInsets(start, top, end, bottom))
 
+fun UiModifier.styleable(style: Style): UiModifier = copy(styleable = (styleable ?: Style.Empty) then style)
+
+fun UiModifier.background(color: Color): UiModifier = styleable(Style { background(color) })
+fun UiModifier.border(width: Dp, color: Color? = null): UiModifier = styleable(Style {
+    borderWidth(width)
+    color?.let { borderColor(it) }
+})
+fun UiModifier.shape(radius: Dp): UiModifier = styleable(Style { shape(radius) })
 
 fun UiModifier.verticalScroll(
     state: UiScrollState,

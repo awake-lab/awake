@@ -24,7 +24,8 @@ data class UiScrollConfig(
     val verticalVisibility: UiScrollbarVisibility = UiScrollbarVisibility.Auto,
     val horizontalVisibility: UiScrollbarVisibility = UiScrollbarVisibility.Auto,
     val verticalScrollbar: UiScrollbarSlot? = null,
-    val horizontalScrollbar: UiScrollbarSlot? = null
+    val horizontalScrollbar: UiScrollbarSlot? = null,
+    val scrollSpeed: Float = 32f
 ) {
     companion object {
         val Default = UiScrollConfig()

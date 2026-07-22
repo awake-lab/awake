@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts.ext
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
@@ -108,23 +109,35 @@ fun UiScope.rawSurface(
     width: Dimension,
     height: Dimension,
     gap: Float = UiSpacing.sm.toPx(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
-    style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
+    val effectiveStyle = modifier.styleable ?: Style.Empty
+    val hasWrapContent = width == Dimension.WrapContent || height == Dimension.WrapContent
+    
+    // Only perform early slot claim and hit test if we don't have WrapContent dimensions.
+    // WrapContent dimensions must be measured first before claiming any slot.
+    val (initialSlot, initialHovered) = if (!hasWrapContent) {
+        val slot = claimModifiedSlot(width, height, modifier)
+        slot to hitTest(slot)
+    } else {
+        null to false
+    }
+    
+    val styleState = MutableStyleState(
+        hovered = modifier.forceHover ?: initialHovered,
+        active = modifier.forceActive ?: isActive(id),
+        focused = modifier.forceFocus ?: context.isFocused(id)
+    )
     val resolved = resolveStyle(
-        style = style,
-        defaults = theme.components.surface then Style.Companion {
-            shape(radius)
-            borderWidth(borderWidth)
-        }
+        style = effectiveStyle,
+        defaults = context.currentTheme.components.surface,
+        state = styleState
     )
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
-    val measured = if (width == Dimension.WrapContent || height == Dimension.WrapContent) {
+    val measured = if (hasWrapContent) {
         val maxContentWidth = when (width) {
             is Dimension.Fixed -> (width.dp.toPx() - paddingWidth).coerceAtLeast(0f)
             Dimension.FillMax -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: 0f
@@ -132,10 +145,7 @@ fun UiScope.rawSurface(
         }
         context.measureColumnContent(
             width = maxContentWidth,
-            font = font,
-            theme = theme,
             gap = gap,
-            textScale = resolved.textScale,
             content = content
         )
     } else {
@@ -152,13 +162,13 @@ fun UiScope.rawSurface(
         }
         else -> height
     }
-    val slot = claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
+    val slot = initialSlot ?: claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: Color.Transparent,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border,
+        borderColor = resolved.borderColor ?: context.currentTheme.tokens.border,
         shapeSpec = resolved.shapeSpec
     )
     recordSemantic(
@@ -166,12 +176,14 @@ fun UiScope.rawSurface(
         id = id,
         bounds = slot
     )
-    val contentScope = childColumn(slot, gap = gap, insets = resolved.contentPadding, textScale = resolved.textScale)
+    context.pushTextStyle(resolved.textStyle)
+    val contentScope = childColumn(slot, gap = gap, insets = resolved.contentPadding)
     val effectiveShape = resolved.shapeSpec ?: if (resolved.shape.toPx() > 0f) UiShapeSpec.RoundedRectangle(resolved.shape) else null
     if (clipContent && effectiveShape != null) {
         clip(effectiveShape, slot) { contentScope.content(slot) }
     } else {
         contentScope.content(slot)
     }
+    context.popTextStyle()
     return slot
 }

@@ -73,9 +73,14 @@ data class ResolvedStyle(
     val borderColor: Color? = null,
     val shape: Dp = UiShape.none,
     val shapeSpec: UiShapeSpec? = null,
-    val textScale: Float,
-    val textSize: Sp? = null,
-    val contentPadding: UiInsets = UiInsets.Zero
+    val textStyle: TextStyle = TextStyle.Default,
+    val contentPadding: UiInsets = UiInsets.Zero,
+    val animation: StyleAnimation? = null
+)
+
+data class StyleAnimation(
+    val target: Style,
+    val responsiveness: Float = 12f
 )
 
 interface StyleScope {
@@ -85,13 +90,16 @@ interface StyleScope {
         borderWidth(width)
         borderColor(color)
     }
-
     fun borderWidth(width: Dp)
     fun borderColor(color: Color)
     fun shape(radius: Dp)
     fun shape(shape: UiShapeSpec)
+    fun textStyle(style: TextStyle)
     fun textScale(scale: Float)
     fun textSize(size: Sp)
+    fun fontSize(size: Sp) = textSize(size)
+    fun fontWeight(weight: FontWeight)
+    fun letterSpacing(spacing: Sp)
     fun contentPadding(all: Dp)
     fun contentPadding(horizontal: Dp, vertical: Dp)
     fun contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp)
@@ -102,6 +110,7 @@ interface StyleScope {
     fun disabled(block: StyleScope.() -> Unit)
     fun selected(block: StyleScope.() -> Unit)
     fun <T> state(key: StyleStateKey<T>, value: T, block: StyleScope.() -> Unit)
+    fun animate(style: Style, responsiveness: Float = 12f)
 }
 
 class Style private constructor(
@@ -123,8 +132,8 @@ class Style private constructor(
         else -> Style(rules + other.rules)
     }
 
-    fun resolve(state: StyleState = MutableStyleState(), fallbackTextScale: Float = 1f): ResolvedStyle {
-        val builder = ResolvedStyleBuilder(textScale = fallbackTextScale)
+    fun resolve(state: StyleState = MutableStyleState(), fallbackTextStyle: TextStyle = TextStyle.Default): ResolvedStyle {
+        val builder = ResolvedStyleBuilder(textStyle = fallbackTextStyle)
         rules.forEach { it.apply(state, builder) }
         return builder.build()
     }
@@ -137,9 +146,9 @@ private class ResolvedStyleBuilder(
     var borderColor: Color? = null,
     var shape: Dp = UiShape.none,
     var shapeSpec: UiShapeSpec? = null,
-    var textScale: Float,
-    var textSize: Sp? = null,
-    var contentPadding: UiInsets = UiInsets.Zero
+    var textStyle: TextStyle = TextStyle.Default,
+    var contentPadding: UiInsets = UiInsets.Zero,
+    var animation: StyleAnimation? = null
 ) {
     fun build(): ResolvedStyle = ResolvedStyle(
         background = background,
@@ -148,9 +157,9 @@ private class ResolvedStyleBuilder(
         borderColor = borderColor,
         shape = shape,
         shapeSpec = shapeSpec,
-        textScale = textScale,
-        textSize = textSize,
-        contentPadding = contentPadding
+        textStyle = textStyle,
+        contentPadding = contentPadding,
+        animation = animation
     )
 }
 
@@ -200,12 +209,24 @@ private class StyleBuilder(
         }
     }
 
+    override fun textStyle(style: TextStyle) {
+        rules += StyleRule(predicate) { textStyle = textStyle then style }
+    }
+
     override fun textScale(scale: Float) {
-        rules += StyleRule(predicate) { textScale = scale }
+        rules += StyleRule(predicate) { textStyle = textStyle.copy(scale = scale) }
     }
 
     override fun textSize(size: Sp) {
-        rules += StyleRule(predicate) { textSize = size }
+        rules += StyleRule(predicate) { textStyle = textStyle.copy(size = size) }
+    }
+
+    override fun fontWeight(weight: FontWeight) {
+        rules += StyleRule(predicate) { textStyle = textStyle.copy(weight = weight) }
+    }
+
+    override fun letterSpacing(spacing: Sp) {
+        rules += StyleRule(predicate) { textStyle = textStyle.copy(letterSpacing = spacing) }
     }
 
     override fun contentPadding(all: Dp) {
@@ -246,6 +267,10 @@ private class StyleBuilder(
 
     override fun <T> state(key: StyleStateKey<T>, value: T, block: StyleScope.() -> Unit) {
         nested({ it[key] == value }, block)
+    }
+
+    override fun animate(style: Style, responsiveness: Float) {
+        rules += StyleRule(predicate) { animation = StyleAnimation(style, responsiveness) }
     }
 
     private fun nested(extraPredicate: (StyleState) -> Boolean, block: StyleScope.() -> Unit) {

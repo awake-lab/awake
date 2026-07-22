@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -65,7 +66,7 @@ fun UiScope.emitFillAndBorder(
     fillColor: Color,
     radiusPx: Float,
     borderWidth: Dp,
-    borderColor: Color,
+    borderColor: Color = context.currentTheme.tokens.border,
     shapeSpec: UiShapeSpec? = null,
     overlay: Boolean = false
 ) {

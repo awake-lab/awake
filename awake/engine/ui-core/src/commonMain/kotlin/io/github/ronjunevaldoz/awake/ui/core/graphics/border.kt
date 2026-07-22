@@ -13,19 +13,20 @@ import io.github.ronjunevaldoz.awake.ui.toPx
 fun UiScope.border(
     slot: UiSlot,
     width: Dp = 1f.dp,
-    color: Color = theme.tokens.border,
+    color: Color? = null,
     overlay: Boolean = false
 ) {
+    val strokeColor = color ?: context.currentTheme.tokens.border
     val w = width.toPx()
     if (w <= 0f) return
-    emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, w, color), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, w, strokeColor), overlay)
     emitPrimitive(
-        UiDrawPrimitive.Quad(slot.x, slot.y + slot.height - w, slot.width, w, color),
+        UiDrawPrimitive.Quad(slot.x, slot.y + slot.height - w, slot.width, w, strokeColor),
         overlay
     )
-    emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, w, slot.height, color), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, w, slot.height, strokeColor), overlay)
     emitPrimitive(
-        UiDrawPrimitive.Quad(slot.x + slot.width - w, slot.y, w, slot.height, color),
+        UiDrawPrimitive.Quad(slot.x + slot.width - w, slot.y, w, slot.height, strokeColor),
         overlay
     )
 }

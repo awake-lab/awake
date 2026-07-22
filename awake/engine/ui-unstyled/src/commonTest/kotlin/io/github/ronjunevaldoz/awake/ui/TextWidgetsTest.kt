@@ -4,11 +4,13 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.layoutBitmapText
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -173,6 +175,27 @@ class TextWidgetsTest {
         assertTrue(
             kotlin.math.abs(glyphBounds.x - 14f) <= 1f,
             "left-aligned button text should start from the padded content edge instead of the button center: bounds=$glyphBounds"
+        )
+    }
+
+    @Test
+    fun hoveredTextKeepsItsOriginalColumnSlot() {
+        val ui = UiContext()
+        ui.beginFrame(240f, 120f, testSnapshot(x = 20f, y = 12f))
+
+        var firstSlot: UiSlot? = null
+        var secondSlot: UiSlot? = null
+
+        ui.column(x = 0f, y = 0f, width = 200f, gap = 8f) {
+            firstSlot = text("Hover target", modifier = UiModifier().width(120f.px))
+            secondSlot = text("Sibling", modifier = UiModifier().width(120f.px))
+        }
+
+        assertEquals(0f, firstSlot?.y, "hovered text should not re-claim a later row in the same column")
+        assertEquals(
+            (firstSlot?.y ?: 0f) + (firstSlot?.height ?: 0f) + 8f,
+            secondSlot?.y,
+            "a hovered text widget must not push later siblings further down by claiming a second slot"
         )
     }
 }

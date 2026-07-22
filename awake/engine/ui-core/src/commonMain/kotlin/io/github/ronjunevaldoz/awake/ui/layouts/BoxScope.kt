@@ -4,8 +4,6 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.UiTheme
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
 
 /**
  * Every [claimSlot] call returns the same fixed rect -- for a single fixed-position widget,
@@ -13,16 +11,13 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
  */
 class BoxScope internal constructor(
     context: UiContext,
-    font: UiFont?,
-    theme: UiTheme,
     private val x: Float,
     private val y: Float,
     private val width: Float,
     private val height: Float,
     internal val contentAlignment: UiAlignment = UiAlignment.TopStart,
-    textScale: Float = 1f,
     emitToOverlay: Boolean = false
-) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {
+) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     override val fillWidth: Float? = this.width
     override val fillHeight: Float? = this.height
 

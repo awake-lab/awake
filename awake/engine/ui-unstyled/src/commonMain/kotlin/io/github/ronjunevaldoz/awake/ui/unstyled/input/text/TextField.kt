@@ -15,11 +15,13 @@ import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
@@ -83,14 +85,14 @@ fun UiScope.textField(
 
     val resolvedFont = font
     val glyphPx =
-        resolvedFont?.let { resolveGlyphPx(it, resolved.textScale, resolved.textSize) } ?: 0f
+        resolveGlyphPx(resolvedFont, resolved.textStyle)
     val contentSlot = interaction.slot.inset(resolved.contentPadding)
 
     val cursorState = widgetState(id)
     var cursor = cursorState.get("cursor", value.length).coerceIn(0, value.length)
 
     var nextValue = value
-    if (focused && resolvedFont != null) {
+    if (focused) {
         val clickIndex =
             if (interaction.clicked || (context.pointerDownEdge() && interaction.hovered)) {
                 indexForPointerX(
@@ -140,7 +142,7 @@ fun UiScope.textField(
     clip(contentSlot) {
         val showingPlaceholder = nextValue.isEmpty() && !focused
         val displayed = if (showingPlaceholder) placeholder else nextValue
-        if (resolvedFont != null && displayed.isNotEmpty()) {
+        if (displayed.isNotEmpty()) {
             basicText(
                 label = displayed,
                 slot = UiSlot(contentSlot.x, contentSlot.y, contentSlot.width, contentSlot.height),
@@ -149,12 +151,11 @@ fun UiScope.textField(
                     ?: theme.tokens.foreground),
                 verticallyCentered = true,
                 overflow = UiTextOverflow.Clip,
-                textScale = resolved.textScale,
-                textSize = resolved.textSize,
+                textStyle = resolved.textStyle,
                 semanticId = "$id.value"
             )
         }
-        if (focused && resolvedFont != null) {
+        if (focused) {
             val elapsed = caretBlinkElapsedSeconds(id)
             val caretVisible =
                 (elapsed % TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS) < TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS / 2f

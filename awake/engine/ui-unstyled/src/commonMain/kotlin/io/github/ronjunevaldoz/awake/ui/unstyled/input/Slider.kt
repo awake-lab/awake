@@ -13,9 +13,11 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.sliderValueFromPointerX
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 
@@ -97,7 +99,7 @@ fun UiScope.slider(
         borderColor = theme.tokens.primary,
         shapeSpec = UiShapeSpec.Pill
     )
-    if (label != null && font != null) {
+    if (label != null) {
         basicText(
             label,
             slot = slot,
@@ -105,8 +107,7 @@ fun UiScope.slider(
             color = resolved.foreground ?: theme.tokens.foreground,
             centered = true,
             overflow = UiTextOverflow.Ellipsis,
-            textScale = resolved.textScale,
-            textSize = resolved.textSize,
+            textStyle = resolved.textStyle,
             semanticId = "$id.label"
         )
     }

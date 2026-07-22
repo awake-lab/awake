@@ -35,6 +35,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.width
 
 internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
@@ -276,7 +277,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
     )
     val shimmerWidth = (slot.width * 0.28f).coerceAtLeast(52f)
     val shimmerX = slot.x + (slot.width - shimmerWidth) * shimmerPhase.coerceIn(0f, 1f)
-    context.createAbsolute(slot.x, slot.y, font = font, theme = theme, overlayOnly = true).apply {
+    context.createAbsolute(slot.x, slot.y, overlayOnly = true).apply {
         gradientBorder(slot, width = 1f.dp, gradient = borderGradient, overlay = true)
         gradientRect(
             UiSlot(slot.x, slot.y, slot.width, 44f.coerceAtMost(slot.height)),

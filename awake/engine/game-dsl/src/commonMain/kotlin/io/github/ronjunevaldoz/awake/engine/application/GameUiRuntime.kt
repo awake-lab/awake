@@ -79,36 +79,26 @@ class GameUiRuntime(
         x: Float,
         y: Float,
         width: Float,
-        theme: UiTheme = this.theme,
         gap: Float = UiSpacing.sm.toPx(),
-        textScale: Float = 1f,
         block: ColumnScope.() -> Unit
     ) {
         uiContext.createColumn(
             x = x,
             y = y,
             width = width,
-            font = font,
-            theme = theme,
             gap = gap,
-            textScale = textScale
         ).block()
     }
 
     fun column(
         slot: UiSlot,
-        theme: UiTheme = this.theme,
         gap: Float = UiSpacing.sm.toPx(),
-        textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
         block: ColumnScope.() -> Unit
     ) {
         uiContext.createColumn(
             slot = slot,
-            font = font,
-            theme = theme,
             gap = gap,
-            textScale = textScale,
             insets = insets
         ).block()
     }
@@ -139,17 +129,12 @@ data class GameUiSpec(
 }
 
 fun GameUiRuntime.canvas(
-    theme: UiTheme = this.theme,
-    textScale: Float = 1f,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     block: BoxScope.(constraints: UiBoxConstraints) -> Unit
 ) {
     val rootSlot = UiSlot(0f, 0f, viewportWidth, viewportHeight)
     uiContext.createBox(
         slot = rootSlot,
-        font = font,
-        theme = theme,
-        textScale = textScale,
         contentAlignment = contentAlignment
     ).block(
         UiBoxConstraints(

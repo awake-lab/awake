@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
@@ -21,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.sp
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
@@ -75,10 +77,9 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
     detail: String,
     previewFont: UiFont,
 ) {
+    context.pushFont(previewFont)
     val specimenScope = context.createColumn(
         slot = slot,
-        font = previewFont,
-        theme = theme,
         gap = 8f,
         insets = UiInsets(16f.dp),
         overlayOnly = emitsToOverlay
@@ -91,17 +92,17 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
     specimenScope.basicText(
         label = "Awake UI",
         color = theme.tokens.foreground,
-        textSize = 18f.sp
+        textStyle = TextStyle(size = 18f.sp)
     )
     specimenScope.basicText(
         label = "Sphinx 123",
         color = theme.tokens.foreground,
-        textSize = 16f.sp
+        textStyle = TextStyle(size = 16f.sp)
     )
     specimenScope.basicText(
         label = "THE QUICK BROWN FOX",
         color = theme.tokens.foreground,
-        textSize = 12f.sp
+        textStyle = TextStyle(size = 12.sp)
     )
     specimenScope.basicText(
         label = detail,
@@ -110,6 +111,7 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
         wrap = UiTextWrap.Word,
         overflow = UiTextOverflow.Ellipsis,
         maxLines = 3,
-        textSize = 11f.sp
+        textStyle = TextStyle(size = 11.sp)
     )
+    context.popFont()
 }

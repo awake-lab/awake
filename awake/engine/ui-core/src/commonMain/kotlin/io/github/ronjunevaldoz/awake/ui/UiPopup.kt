@@ -89,10 +89,7 @@ fun UiScope.popup(
     val measured = if (width == Dimension.WrapContent || height == Dimension.WrapContent) {
         context.measureColumnContent(
             width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
-            font = font,
-            theme = theme,
             gap = gap,
-            textScale = textScale,
             insets = insets,
             content = content
         )
@@ -125,10 +122,7 @@ fun UiScope.popup(
 
     context.createColumn(
         slot = popupSlot,
-        font = font,
-        theme = theme,
         gap = gap,
-        textScale = textScale,
         insets = insets,
         overlayOnly = true
     ).content(popupSlot)

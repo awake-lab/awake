@@ -16,12 +16,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTexta
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.propertyRow
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.width
@@ -249,7 +251,7 @@ fun ColumnScope.awakeShadcnPropertyTextarea(
         defaults = resolvedDefaults,
         state = MutableStyleState(disabled = !enabled)
     )
-    val fontHeight = font?.let { resolveGlyphPx(it, resolvedStyle.textScale, resolvedStyle.textSize) } ?: 0f
+    val fontHeight = resolveGlyphPx(font, resolvedStyle.textStyle) ?: 0f
     val padding = resolvedStyle.contentPadding
     val totalPadding = padding.top + padding.bottom
     val lineGap = fontHeight * 0.25f

@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -15,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
  * Fixed-rect and alignment container.
  * Sizing and content alignment are handled via [modifier].
  */
+@Deprecated("use rawBox instead", )
 fun BoxScope.box(
     modifier: UiModifier = UiModifier(),
     contentAlignment: UiAlignment = UiAlignment.TopStart,
@@ -38,6 +41,16 @@ fun UiScope.rawBox(
         defaultHeight = Dimension.FillMax,
         modifier = modifier
     )
-    childBox(slot, contentAlignment = contentAlignment).content(slot)
+    val styleState = MutableStyleState(
+        hovered = modifier.forceHover ?: hitTest(slot),
+        active = modifier.forceActive ?: false,
+        focused = modifier.forceFocus ?: false
+    )
+    val textStyle = (modifier.styleable ?: Style.Empty).resolve(styleState, context.currentTextStyle).textStyle
+
+    context.pushTextStyle(textStyle)
+    val scope = childBox(slot, contentAlignment = contentAlignment)
+    scope.content(slot)
+    context.popTextStyle()
     return slot
 }

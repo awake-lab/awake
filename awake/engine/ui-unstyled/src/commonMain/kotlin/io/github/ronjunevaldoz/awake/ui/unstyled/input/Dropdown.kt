@@ -13,12 +13,14 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fitTo
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
@@ -119,7 +121,7 @@ fun UiScope.drawDropdownTriggerContent(
     style: Style,
     semanticId: String? = null
 ) {
-    val resolvedFont = font ?: return
+    val resolvedFont = font
     val resolved = resolveStyle(defaults = style, state = MutableStyleState(
         hovered = hitTest(slot),
         active = expanded
@@ -147,8 +149,7 @@ fun UiScope.drawDropdownTriggerContent(
         centered = false,
         verticallyCentered = true,
         overflow = UiTextOverflow.Ellipsis,
-        textScale = resolved.textScale,
-        textSize = resolved.textSize,
+        textStyle = resolved.textStyle,
         semanticId = semanticId
     )
     val chevronSlot = UiSlot(

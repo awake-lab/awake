@@ -8,18 +8,20 @@ import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTransparent
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
-import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.verticalPx
 
@@ -51,11 +53,10 @@ fun UiScope.awakeShadcnBadge(
     val shadcnTheme = theme.asAwakeShadcnTheme()
     val resolved = resolveStyle(style = style, defaults = AwakeShadcnStyles.badge(shadcnTheme, variant))
     val resolvedFont = font
-    val glyphPx = resolvedFont?.let { resolveGlyphPx(it, resolved.textScale, resolved.textSize) } ?: 0f
+    val glyphPx = resolveGlyphPx(resolvedFont, resolved.textStyle)
     val resolvedWidth = when (width) {
         Dimension.WrapContent -> Dimension.Fixed(
-            ((resolvedFont?.measureTextWidth(label, glyphPx)
-                                ?: (label.length * glyphPx)) +
+            (resolvedFont.measureTextWidth(label, glyphPx) +
                                     resolved.contentPadding.horizontalPx()).px
         )
         else -> width
@@ -72,17 +73,14 @@ fun UiScope.awakeShadcnBadge(
         borderWidth = resolved.borderWidth,
         borderColor = resolved.borderColor ?: shadcnTheme.tokens.border
     )
-    if (font != null) {
-        basicText(
-            label = label,
-            slot = slot,
-            font = font,
-            color = resolved.foreground ?: shadcnTheme.tokens.foreground,
-            centered = true,
-            textScale = resolved.textScale,
-            textSize = resolved.textSize
-        )
-    }
+    basicText(
+        label = label,
+        slot = slot,
+        font = font,
+        color = resolved.foreground ?: shadcnTheme.tokens.foreground,
+        centered = true,
+        textStyle = resolved.textStyle,
+    )
     return slot
 }
 

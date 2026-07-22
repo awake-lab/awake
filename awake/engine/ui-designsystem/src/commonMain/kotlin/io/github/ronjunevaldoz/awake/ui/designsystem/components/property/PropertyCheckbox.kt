@@ -10,8 +10,11 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.resolvedThemeCaptionStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
@@ -34,25 +37,23 @@ fun UiScope.propertyCheckbox(
     )
     val labelColor = theme.tokens.mutedForeground
     val resolvedFont = font
-    if (resolvedFont != null) {
-        val labelSize = theme.typography.caption
-        val glyphPx = resolveGlyphPx(resolvedFont, textScale, labelSize)
-        val labelSlot = UiSlot(
-            interaction.slot.x,
-            interaction.slot.y + (interaction.slot.height - glyphPx) / 2f,
-            interaction.slot.width,
-            glyphPx
-        )
-        basicText(
-            label = label,
-            slot = labelSlot,
-            font = resolvedFont,
-            color = labelColor,
-            centered = false,
-            overflow = UiTextOverflow.Ellipsis,
-            textSize = labelSize
-        )
-    }
+    val resolvedTextStyle = resolvedThemeCaptionStyle
+    val glyphPx = resolveGlyphPx(resolvedFont, resolvedTextStyle)
+    val labelSlot = UiSlot(
+        interaction.slot.x,
+        interaction.slot.y + (interaction.slot.height - glyphPx) / 2f,
+        interaction.slot.width,
+        glyphPx
+    )
+    basicText(
+        label = label,
+        slot = labelSlot,
+        font = resolvedFont,
+        color = labelColor,
+        centered = false,
+        overflow = UiTextOverflow.Ellipsis,
+        textStyle = resolvedTextStyle
+    )
 
     val resolved = resolveStyle(
         style = style,

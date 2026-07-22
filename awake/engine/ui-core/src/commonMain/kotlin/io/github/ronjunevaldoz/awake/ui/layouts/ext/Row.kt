@@ -4,6 +4,8 @@ package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
@@ -36,10 +38,7 @@ fun ColumnScope.row(
             }
             context.measureRowContent(
                 availableHeight,
-                font,
-                theme,
                 gap,
-                textScale,
                 content = content
             )
         } else null
@@ -52,11 +51,13 @@ fun ColumnScope.row(
         Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
         else -> requestedHeight
     }
+    val effectiveStyle = modifier.styleable ?: Style.Empty
     return rawRow(
         width = resolvedWidth,
         height = resolvedHeight,
         gap = gap,
         modifier = modifier,
+        style = effectiveStyle,
         content = content
     )
 }
@@ -86,10 +87,7 @@ fun RowScope.row(
             }
             context.measureRowContent(
                 availableHeight,
-                font,
-                theme,
                 gap,
-                textScale,
                 content = content
             )
         } else null
@@ -102,11 +100,13 @@ fun RowScope.row(
         Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
         else -> requestedHeight
     }
+    val effectiveStyle = modifier.styleable ?: Style.Empty
     return rawRow(
         width = resolvedWidth,
         height = resolvedHeight,
         gap = gap,
         modifier = modifier,
+        style = effectiveStyle,
         content = content
     )
 }
@@ -128,10 +128,7 @@ fun AbsoluteScope.row(
             }
             context.measureRowContent(
                 availableHeight,
-                font,
-                theme,
                 gap,
-                textScale,
                 content = content
             )
         } else null
@@ -144,11 +141,13 @@ fun AbsoluteScope.row(
         Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
         else -> requestedHeight
     }
+    val effectiveStyle = modifier.styleable ?: Style.Empty
     return rawRow(
         width = resolvedWidth,
         height = resolvedHeight,
         gap = gap,
         modifier = modifier,
+        style = effectiveStyle,
         content = content
     )
 }
@@ -170,10 +169,7 @@ fun BoxScope.row(
             }
             context.measureRowContent(
                 availableHeight,
-                font,
-                theme,
                 gap,
-                textScale,
                 content = content
             )
         } else null
@@ -186,11 +182,13 @@ fun BoxScope.row(
         Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
         else -> requestedHeight
     }
+    val effectiveStyle = modifier.styleable ?: Style.Empty
     return rawRow(
         width = resolvedWidth,
         height = resolvedHeight,
         gap = gap,
         modifier = modifier,
+        style = effectiveStyle,
         content = content
     )
 }
@@ -201,9 +199,20 @@ inline fun UiScope.rawRow(
     height: Dimension = Dimension.WrapContent,
     gap: Float = UiSpacing.sm.toPx(),
     modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val slot = claimModifiedSlot(width, height, modifier)
-    childRow(slot, gap = gap).content(slot)
+    val styleState = MutableStyleState(
+        hovered = modifier.forceHover ?: hitTest(slot),
+        active = modifier.forceActive ?: false,
+        focused = modifier.forceFocus ?: false
+    )
+    val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
+
+    context.pushTextStyle(textStyle)
+    val scope = childRow(slot, gap = gap)
+    scope.content(slot)
+    context.popTextStyle()
     return slot
 }

@@ -16,10 +16,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurfa
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxSize
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.box
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.toDimension
@@ -41,84 +39,81 @@ internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec {
 internal fun GameUiRuntime.drawUiShowcaseOverlay(
     state: UiShowcaseRuntimeState
 ) {
-    val chromeTheme = ShowcaseChromeTheme
     val showcaseTheme = state.showcaseTheme()
     val sidebarScroll = uiContext.rememberScrollState("ui-showcase-scroll-side")
     val contentScroll = uiContext.rememberScrollState("ui-showcase-scroll-content")
-
-    canvas(theme = chromeTheme) { constraints ->
+    uiContext.pushTheme(showcaseTheme)
+    canvas { constraints ->
         val compact = constraints.isCompact
         val outerPadding = if (compact) 16f.dp else 24f.dp
         val sidebarWidth = 264f.dp.toDimension()
         val railGap = 20f
 
-        box(modifier = UiModifier().fillMaxSize().padding(outerPadding)) {
-            if (compact) {
-                column(width = Dimension.FillMax, height = Dimension.FillMax, gap = 12f) {
-                    awakeShadcnSurface(
-                        id = "ui-showcase-mobile-sidebar",
-                        height = Dimension.WrapContent,
-                        variant = AwakeShadcnSurfaceVariant.Sidebar,
-                        style = Style { shape(16f.dp) },
-                        modifier = UiModifier().verticalScroll(sidebarScroll, UiScrollConfig.Hidden)
-                    ) {
-                        drawUiShowcaseSidebar(compact = true)
-                    }
+        if (compact) {
+            column(width = Dimension.FillMax, height = Dimension.FillMax, gap = 12f, modifier =  UiModifier().fillMaxSize().padding(outerPadding)) {
+                this@column.awakeShadcnSurface(
+                    id = "ui-showcase-mobile-sidebar",
+                    height = Dimension.FillMax,
+                    variant = AwakeShadcnSurfaceVariant.Sidebar,
+                    style = Style { shape(16f.dp) },
+                    modifier = UiModifier().verticalScroll(sidebarScroll, UiScrollConfig.Hidden)
+                ) {
+                    drawUiShowcaseSidebar(compact = true)
+                }
 
-                    this@drawUiShowcaseOverlay.column(
-                        slot = claimSlot(Dimension.FillMax, Dimension.FillMax),
-                        theme = showcaseTheme
+                this@drawUiShowcaseOverlay.column(
+                    slot = claimSlot(Dimension.FillMax, Dimension.FillMax)
+                ) {
+                    column(
+                        id = "ui-showcase-mobile-content-viewport",
+                        width = Dimension.FillMax,
+                        height = Dimension.FillMax,
+                        modifier = UiModifier().verticalScroll(contentScroll)
                     ) {
-                        column(
-                            id = "ui-showcase-mobile-content-viewport",
-                            width = Dimension.FillMax,
-                            height = Dimension.FillMax,
-                            modifier = UiModifier().verticalScroll(contentScroll)
+                        awakeShadcnSurface(
+                            id = "ui-showcase-mobile-content",
+                            height = Dimension.WrapContent,
+                            style = Style { shape(16f.dp) }
                         ) {
-                            awakeShadcnSurface(
-                                id = "ui-showcase-mobile-content",
-                                height = Dimension.WrapContent,
-                                style = Style { shape(16f.dp) }
-                            ) {
-                                drawUiShowcasePageContent(state, showInlineMenu = true)
-                            }
+                            drawUiShowcasePageContent(state, showInlineMenu = true)
                         }
                     }
                 }
-            } else {
-                row(width = Dimension.FillMax, height = Dimension.FillMax, gap = railGap) {
-                    this@row.awakeShadcnSurface(
-                        id = "ui-showcase-sidebar",
-                        width = sidebarWidth,
-                        height = Dimension.FillMax,
-                        variant = AwakeShadcnSurfaceVariant.Sidebar,
-                        style = Style { shape(16f.dp) },
-                        modifier = UiModifier().verticalScroll(sidebarScroll, UiScrollConfig.Hidden)
-                    ) {
-                        drawUiShowcaseSidebar(compact = false)
-                    }
+            }
+        } else {
+            row(
+                width = Dimension.FillMax,
+                height = Dimension.FillMax,
+                gap = railGap,
+                modifier = UiModifier().fillMaxSize().padding(outerPadding)
+            ) {
+                awakeShadcnSurface(
+                    id = "ui-showcase-sidebar",
+                    width = sidebarWidth,
+                    height = Dimension.FillMax,
+                    variant = AwakeShadcnSurfaceVariant.Sidebar,
+                    style = Style { shape(16f.dp) },
+                    modifier = UiModifier().verticalScroll(sidebarScroll, UiScrollConfig.Hidden)
+                ) {
+                    drawUiShowcaseSidebar(compact = false)
+                }
 
-                    this@drawUiShowcaseOverlay.column(
-                        slot = claimSlot(Dimension.FillMax, Dimension.FillMax),
-                        theme = showcaseTheme
+                column(
+                    id = "ui-showcase-content-viewport",
+                    width = Dimension.FillMax,
+                    height = Dimension.FillMax,
+                    modifier = UiModifier().verticalScroll(contentScroll)
+                ) {
+                    awakeShadcnSurface(
+                        id = "ui-showcase-content",
+                        height = Dimension.WrapContent,
+                        style = Style { shape(16f.dp) }
                     ) {
-                        column(
-                            id = "ui-showcase-content-viewport",
-                            width = Dimension.FillMax,
-                            height = Dimension.FillMax,
-                            modifier = UiModifier().verticalScroll(contentScroll)
-                        ) {
-                            surface(
-                                id = "ui-showcase-content",
-                                height = Dimension.WrapContent,
-                                style = Style { shape(16f.dp) }
-                            ) {
-                                drawUiShowcasePageContent(state, showInlineMenu = false)
-                            }
-                        }
+                        this@column.drawUiShowcasePageContent(state, showInlineMenu = false)
                     }
                 }
             }
         }
     }
+    uiContext.popTheme()
 }

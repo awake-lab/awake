@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -18,6 +19,23 @@ class UiContext private constructor(
     private val measuring: Boolean = false
 ) {
     constructor() : this(measuring = false)
+
+    private val themeStack = mutableListOf<UiTheme>(CoreUiTheme)
+    private val textStyleStack = mutableListOf(TextStyle.Default)
+    private val fontStack = mutableListOf(UiFonts.default())
+
+    val currentTheme: UiTheme get() = themeStack.last()
+    val currentTextStyle: TextStyle get() = textStyleStack.last()
+    val currentFont: UiFont get() = fontStack.last()
+
+    fun pushTheme(theme: UiTheme) { themeStack.add(theme) }
+    fun popTheme() { if (themeStack.size > 1) themeStack.removeAt(themeStack.size - 1) }
+
+    fun pushTextStyle(style: TextStyle) { textStyleStack.add(textStyleStack.last() then style) }
+    fun popTextStyle() { if (textStyleStack.size > 1) textStyleStack.removeAt(textStyleStack.size - 1) }
+
+    fun pushFont(font: UiFont) { fontStack.add(font) }
+    fun popFont() { if (fontStack.size > 1) fontStack.removeAt(fontStack.size - 1) }
 
     private var activeId: String? = null
     private var focusedId: String? = null
@@ -70,48 +88,36 @@ class UiContext private constructor(
         y: Float,
         width: Float,
         height: Float? = null,
-        font: UiFont? = null,
-        theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
-        textScale: Float = 1f,
         overlayOnly: Boolean = false
-    ): ColumnScope = ColumnScope(this, font, theme, x, y, width, height, gap, textScale, overlayOnly)
+    ): ColumnScope = ColumnScope(this, x, y, width, height, gap, overlayOnly)
 
     fun createColumn(
         slot: UiSlot,
-        font: UiFont? = null,
-        theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
-        textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
         overlayOnly: Boolean = false
     ): ColumnScope {
         val content = slot.inset(insets)
-        return createColumn(content.x, content.y, content.width, content.height, font, theme, gap, textScale, overlayOnly)
+        return createColumn(content.x, content.y, content.width, content.height, gap, overlayOnly)
     }
 
-    /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minimap
+    /** One-shot manual placement at an exact x/y -- e.g. the HUD text readout or a minmap
      * thumbnail that isn't part of any auto-layout column. Goes through the exact same
      * [UiScope] surface as every other widget; not a special case. */
     fun createAbsolute(
         x: Float,
         y: Float,
-        font: UiFont? = null,
-        theme: UiTheme = CoreUiTheme,
-        textScale: Float = 1f,
         overlayOnly: Boolean = false
-    ): AbsoluteScope = AbsoluteScope(this, font, theme, x, y, textScale, overlayOnly)
+    ): AbsoluteScope = AbsoluteScope(this, x, y, overlayOnly)
 
     fun createAbsolute(
         slot: UiSlot,
-        font: UiFont? = null,
-        theme: UiTheme = CoreUiTheme,
-        textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
         overlayOnly: Boolean = false
     ): AbsoluteScope {
         val content = slot.inset(insets)
-        return createAbsolute(content.x, content.y, font, theme, textScale, overlayOnly)
+        return createAbsolute(content.x, content.y, overlayOnly)
     }
 
     /** Reserves a horizontal auto-stacking layout region -- see [RowScope]. */
@@ -120,24 +126,18 @@ class UiContext private constructor(
         y: Float,
         height: Float,
         width: Float? = null,
-        font: UiFont? = null,
-        theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
-        textScale: Float = 1f,
         overlayOnly: Boolean = false
-    ): RowScope = RowScope(this, font, theme, x, y, width, height, gap, textScale, overlayOnly)
+    ): RowScope = RowScope(this, x, y, width, height, gap, overlayOnly)
 
     fun createRow(
         slot: UiSlot,
-        font: UiFont? = null,
-        theme: UiTheme = CoreUiTheme,
         gap: Float = UiSpacing.sm.toPx(),
-        textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
         overlayOnly: Boolean = false
     ): RowScope {
         val content = slot.inset(insets)
-        return createRow(content.x, content.y, content.height, content.width, font, theme, gap, textScale, overlayOnly)
+        return createRow(content.x, content.y, content.height, content.width, gap, overlayOnly)
     }
 
     /** Reserves a fixed-rect region -- see [BoxScope]. */
@@ -146,25 +146,19 @@ class UiContext private constructor(
         y: Float,
         width: Float,
         height: Float,
-        font: UiFont? = null,
-        theme: UiTheme = CoreUiTheme,
-        textScale: Float = 1f,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
         overlayOnly: Boolean = false
     ): BoxScope =
-        BoxScope(this, font, theme, x, y, width, height, contentAlignment, textScale, overlayOnly)
+        BoxScope(this, x, y, width, height, contentAlignment, overlayOnly)
 
     fun createBox(
         slot: UiSlot,
-        font: UiFont? = null,
-        theme: UiTheme = CoreUiTheme,
-        textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
         overlayOnly: Boolean = false
     ): BoxScope {
         val content = slot.inset(insets)
-        return createBox(content.x, content.y, content.width, content.height, font, theme, textScale, contentAlignment, overlayOnly)
+        return createBox(content.x, content.y, content.width, content.height, contentAlignment, overlayOnly)
     }
 
     /** Aggregated result of this frame's input interactions. Call after all widgets have
@@ -291,10 +285,7 @@ class UiContext private constructor(
 
     fun measureColumnContent(
         width: Float,
-        font: UiFont?,
-        theme: UiTheme,
         gap: Float =  UiSpacing.sm.toPx(),
-        textScale: Float = 1f,
         insets: UiInsets = UiInsets.Zero,
         content: ColumnScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent {
@@ -306,12 +297,14 @@ class UiContext private constructor(
             inputState = UiInputState(),
             deltaSeconds = 0f
         )
+        // Sync stacks to the measure context
+        measureContext.pushTextStyle(currentTextStyle)
+        measureContext.pushFont(currentFont)
+        measureContext.pushTheme(currentTheme)
+
         val measureScope = measureContext.createColumn(
             slot = outerSlot,
-            font = font,
-            theme = theme,
             gap = gap,
-            textScale = textScale,
             insets = insets
         )
         measureScope.content(outerSlot)
@@ -323,10 +316,7 @@ class UiContext private constructor(
 
     fun measureRowContent(
         height: Float,
-        font: UiFont?,
-        theme: UiTheme,
         gap: Float,
-        textScale: Float,
         insets: UiInsets = UiInsets.Zero,
         content: RowScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent {
@@ -338,12 +328,14 @@ class UiContext private constructor(
             inputState = UiInputState(),
             deltaSeconds = 0f
         )
+        // Sync stacks to the measure context
+        measureContext.pushTextStyle(currentTextStyle)
+        measureContext.pushFont(currentFont)
+        measureContext.pushTheme(currentTheme)
+
         val measureScope = measureContext.createRow(
             slot = outerSlot,
-            font = font,
-            theme = theme,
             gap = gap,
-            textScale = textScale,
             insets = insets
         )
         measureScope.content(outerSlot)
@@ -381,7 +373,9 @@ data class UiInputResult(
 )
 
 /** Pure value-from-pointer-position math for the built-in `slider`, pulled out to a
- * top-level function. */
+ * top-level function. 
+ * TODO revisit: where should this fun live?
+ * */
 fun sliderValueFromPointerX(pointerX: Float, trackX: Float, trackW: Float, min: Float, max: Float): Float {
     if (trackW <= 0f) return min
     val fraction = ((pointerX - trackX) / trackW).coerceIn(0f, 1f)

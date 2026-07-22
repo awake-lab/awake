@@ -16,10 +16,12 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
@@ -65,7 +67,7 @@ private inline fun UiScope.buttonSlotInternal(
         borderColor = resolved.borderColor ?: theme.tokens.border,
         shapeSpec = resolved.shapeSpec
     )
-    childAbsolute(slot = contentSlot, textScale = resolved.textScale).drawContent(contentSlot, resolved)
+    childAbsolute(slot = contentSlot).drawContent(contentSlot, resolved)
     recordSemantic(
         role = UiSemanticRole.Button,
         id = id,
@@ -115,7 +117,7 @@ fun UiScope.buttonSlot(
     radius = radius,
     semanticLabel = label,
     drawContent = { contentSlot, resolved ->
-        if (label != null && font != null) {
+        if (label != null) {
             basicText(
                 label = label,
                 slot = contentSlot,
@@ -124,8 +126,7 @@ fun UiScope.buttonSlot(
                 centered = centered,
                 verticallyCentered = verticallyCentered,
                 overflow = UiTextOverflow.Ellipsis,
-                textScale = resolved.textScale,
-                textSize = resolved.textSize,
+                textStyle = resolved.textStyle,
                 semanticId = "$id.label"
             )
         }

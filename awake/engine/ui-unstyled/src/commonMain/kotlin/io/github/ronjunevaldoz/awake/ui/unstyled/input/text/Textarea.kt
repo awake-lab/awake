@@ -15,12 +15,14 @@ import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
@@ -49,11 +51,12 @@ fun UiScope.textarea(
         defaults = resolvedDefaults,
         state = MutableStyleState(disabled = !enabled)
     )
-    val fontHeight = font?.let { resolveGlyphPx(it, resolved.textScale, resolved.textSize) } ?: 0f
+    val fontHeight = resolveGlyphPx(font, resolved.textStyle)
     val padding = resolved.contentPadding
     val totalPadding = padding.top + padding.bottom
     val lineGap = fontHeight * 0.25f
-    val minHeight = (fontHeight * minLines) + (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
+    val minHeight =
+        (fontHeight * minLines) + (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
 
     val interaction = interact(
         id = id,
@@ -80,7 +83,9 @@ fun UiScope.textarea(
         state = styleState
     )
 
-    val borderColor = if (isError) theme.tokens.destructive else (resolvedWithInteraction.borderColor ?: theme.tokens.border)
+    val borderColor =
+        if (isError) theme.tokens.destructive else (resolvedWithInteraction.borderColor
+            ?: theme.tokens.border)
     emitFillAndBorder(
         slot = interaction.slot,
         fillColor = resolvedWithInteraction.background ?: theme.tokens.background,
@@ -105,16 +110,26 @@ fun UiScope.textarea(
         overflow = UiTextOverflow.Clip,
         maxLines = Int.MAX_VALUE,
         trim = false,
-        advanceOf = { char -> resolvedFont?.advanceFor(char, glyphPx) ?: glyphPx }
+        advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
     )
 
     var nextValue = value
-    if (focused && resolvedFont != null) {
-        val clickIndex = if (interaction.clicked || (context.pointerDownEdge() && interaction.hovered)) {
-            indexForPointerXY(layout, value, resolvedFont, glyphPx, lineGap, contentSlot, context.inputState.pointerX, context.inputState.pointerY)
-        } else {
-            null
-        }
+    if (focused) {
+        val clickIndex =
+            if (interaction.clicked || (context.pointerDownEdge() && interaction.hovered)) {
+                indexForPointerXY(
+                    layout,
+                    value,
+                    resolvedFont,
+                    glyphPx,
+                    lineGap,
+                    contentSlot,
+                    context.inputState.pointerX,
+                    context.inputState.pointerY
+                )
+            } else {
+                null
+            }
         if (clickIndex != null) {
             cursor = clickIndex
         }
@@ -125,13 +140,26 @@ fun UiScope.textarea(
                     nextValue = nextValue.substring(0, cursor - 1) + nextValue.substring(cursor)
                     cursor -= 1
                 }
+
                 UiTextEditAction.Delete -> if (cursor < nextValue.length) {
                     nextValue = nextValue.substring(0, cursor) + nextValue.substring(cursor + 1)
                 }
+
                 UiTextEditAction.ArrowLeft -> cursor = (cursor - 1).coerceAtLeast(0)
                 UiTextEditAction.ArrowRight -> cursor = (cursor + 1).coerceAtMost(nextValue.length)
-                UiTextEditAction.ArrowUp -> cursor = moveCursorVertical(layout, nextValue, resolvedFont, glyphPx, lineGap, cursor, -1)
-                UiTextEditAction.ArrowDown -> cursor = moveCursorVertical(layout, nextValue, resolvedFont, glyphPx, lineGap, cursor, 1)
+                UiTextEditAction.ArrowUp -> cursor = moveCursorVertical(
+                    layout,
+                    nextValue,
+                    resolvedFont,
+                    glyphPx,
+                    lineGap,
+                    cursor,
+                    -1
+                )
+
+                UiTextEditAction.ArrowDown -> cursor =
+                    moveCursorVertical(layout, nextValue, resolvedFont, glyphPx, lineGap, cursor, 1)
+
                 UiTextEditAction.Home -> cursor = cursorForLineStart(layout, nextValue, cursor)
                 UiTextEditAction.End -> cursor = cursorForLineEnd(layout, nextValue, cursor)
                 UiTextEditAction.Enter -> {
@@ -152,26 +180,35 @@ fun UiScope.textarea(
     clip(contentSlot) {
         val showingPlaceholder = nextValue.isEmpty() && !focused
         val displayed = if (showingPlaceholder) placeholder else nextValue
-        if (resolvedFont != null && displayed.isNotEmpty()) {
+        if (displayed.isNotEmpty()) {
             basicText(
                 label = displayed,
                 slot = contentSlot,
                 font = resolvedFont,
-                color = if (showingPlaceholder) theme.tokens.mutedForeground else (resolvedWithInteraction.foreground ?: theme.tokens.foreground),
+                color = if (showingPlaceholder) theme.tokens.mutedForeground else (resolvedWithInteraction.foreground
+                    ?: theme.tokens.foreground),
                 verticallyCentered = false,
                 overflow = UiTextOverflow.Clip,
                 wrap = UiTextWrap.Word,
-                textScale = resolvedWithInteraction.textScale,
-                textSize = resolvedWithInteraction.textSize,
+                textStyle = resolvedWithInteraction.textStyle,
                 semanticId = "$id.value",
                 maxLines = Int.MAX_VALUE
             )
         }
-        if (focused && resolvedFont != null) {
+        if (focused) {
             val elapsed = caretBlinkElapsedSeconds(id)
-            val caretVisible = (elapsed % TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS) < TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS / 2f
+            val caretVisible =
+                (elapsed % TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS) < TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS / 2f
             if (caretVisible) {
-                val caretPos = cursorPositionPx(layout, nextValue, resolvedFont, glyphPx, lineGap, contentSlot, cursor)
+                val caretPos = cursorPositionPx(
+                    layout,
+                    nextValue,
+                    resolvedFont,
+                    glyphPx,
+                    lineGap,
+                    contentSlot,
+                    cursor
+                )
                 emitFillAndBorder(
                     slot = UiSlot(
                         caretPos.first,
@@ -191,7 +228,7 @@ fun UiScope.textarea(
     recordSemantic(
         role = UiSemanticRole.Text,
         id = id,
-        label = if (nextValue.isEmpty()) placeholder else nextValue,
+        label = nextValue.ifEmpty { placeholder },
         bounds = interaction.slot,
         contentBounds = contentSlot,
         selected = focused,
@@ -207,12 +244,16 @@ private fun UiScope.caretBlinkElapsedSeconds(id: String): Float {
     return elapsed
 }
 
-private fun cursorToLineAndCol(layout: UiBitmapTextLayout, value: String, cursor: Int): Pair<Int, Int> {
+private fun cursorToLineAndCol(
+    layout: UiBitmapTextLayout,
+    value: String,
+    cursor: Int
+): Pair<Int, Int> {
     // layout.lines contains the visual lines. 
     // Since trim = false, layoutBitmapText splits by \n first, then by width.
     // Each \n in the original string creates a new line in layout.lines.
     // If a line was split due to wrapping, no \n was consumed.
-    
+
     var currentOriginalIdx = 0
     for (i in layout.lines.indices) {
         val line = layout.lines[i]
@@ -225,11 +266,19 @@ private fun cursorToLineAndCol(layout: UiBitmapTextLayout, value: String, cursor
             currentOriginalIdx++ // Skip the \n
         }
     }
-    
+
     return layout.lines.lastIndex.coerceAtLeast(0) to (layout.lines.lastOrNull()?.length ?: 0)
 }
 
-private fun cursorPositionPx(layout: UiBitmapTextLayout, value: String, font: UiFont, glyphPx: Float, lineGap: Float, contentSlot: UiSlot, cursor: Int): Pair<Float, Float> {
+private fun cursorPositionPx(
+    layout: UiBitmapTextLayout,
+    value: String,
+    font: UiFont,
+    glyphPx: Float,
+    lineGap: Float,
+    contentSlot: UiSlot,
+    cursor: Int
+): Pair<Float, Float> {
     val (lineIdx, colIdx) = cursorToLineAndCol(layout, value, cursor)
     val line = layout.lines.getOrNull(lineIdx) ?: ""
     var x = contentSlot.x
@@ -240,10 +289,20 @@ private fun cursorPositionPx(layout: UiBitmapTextLayout, value: String, font: Ui
     return x to y
 }
 
-private fun indexForPointerXY(layout: UiBitmapTextLayout, value: String, font: UiFont, glyphPx: Float, lineGap: Float, contentSlot: UiSlot, pointerX: Float, pointerY: Float): Int {
-    val lineIdx = ((pointerY - contentSlot.y) / (glyphPx + lineGap)).toInt().coerceIn(0, layout.lines.lastIndex.coerceAtLeast(0))
+private fun indexForPointerXY(
+    layout: UiBitmapTextLayout,
+    value: String,
+    font: UiFont,
+    glyphPx: Float,
+    lineGap: Float,
+    contentSlot: UiSlot,
+    pointerX: Float,
+    pointerY: Float
+): Int {
+    val lineIdx = ((pointerY - contentSlot.y) / (glyphPx + lineGap)).toInt()
+        .coerceIn(0, layout.lines.lastIndex.coerceAtLeast(0))
     val line = layout.lines.getOrNull(lineIdx) ?: ""
-    
+
     var advance = contentSlot.x
     var colIdx = line.length
     for (i in line.indices) {
@@ -254,7 +313,7 @@ private fun indexForPointerXY(layout: UiBitmapTextLayout, value: String, font: U
         }
         advance += charWidth
     }
-    
+
     // Map (lineIdx, colIdx) back to original string index
     var currentOriginalIdx = 0
     for (i in 0 until lineIdx) {
@@ -266,17 +325,25 @@ private fun indexForPointerXY(layout: UiBitmapTextLayout, value: String, font: U
     return (currentOriginalIdx + colIdx).coerceIn(0, value.length)
 }
 
-private fun moveCursorVertical(layout: UiBitmapTextLayout, value: String, font: UiFont, glyphPx: Float, lineGap: Float, cursor: Int, direction: Int): Int {
+private fun moveCursorVertical(
+    layout: UiBitmapTextLayout,
+    value: String,
+    font: UiFont,
+    glyphPx: Float,
+    lineGap: Float,
+    cursor: Int,
+    direction: Int
+): Int {
     val (lineIdx, colIdx) = cursorToLineAndCol(layout, value, cursor)
     val targetLineIdx = (lineIdx + direction).coerceIn(0, layout.lines.lastIndex.coerceAtLeast(0))
     if (targetLineIdx == lineIdx) return cursor
-    
+
     val currentLine = layout.lines[lineIdx]
     var currentX = 0f
     for (i in 0 until colIdx.coerceAtMost(currentLine.length)) {
         currentX += font.advanceFor(currentLine[i], glyphPx)
     }
-    
+
     val targetLine = layout.lines[targetLineIdx]
     var targetColIdx = targetLine.length
     var targetX = 0f
@@ -288,7 +355,7 @@ private fun moveCursorVertical(layout: UiBitmapTextLayout, value: String, font: 
         }
         targetX += charWidth
     }
-    
+
     // Map (targetLineIdx, targetColIdx) back
     var currentOriginalIdx = 0
     for (i in 0 until targetLineIdx) {

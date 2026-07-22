@@ -28,10 +28,7 @@ fun ColumnScope.animatedHeight(
     if (expanded) {
         val measured = context.measureColumnContent(
             width = fillWidthOrNull() ?: 4096f,
-            font = font,
-            theme = theme,
             gap = gap,
-            textScale = textScale,
             content = content
         )
         cachedHeight = measured.height
@@ -47,7 +44,7 @@ fun ColumnScope.animatedHeight(
         val requestedWidth = modifier.width ?: Dimension.FillMax
         val slot = claimSlot(requestedWidth, Dimension.Fixed(animatedHeight.px))
         clip(slot) {
-            context.createColumn(slot, font, theme, this@animatedHeight.gap, textScale)
+            context.createColumn(slot, gap = this@animatedHeight.gap)
                 .content(slot)
         }
         slot

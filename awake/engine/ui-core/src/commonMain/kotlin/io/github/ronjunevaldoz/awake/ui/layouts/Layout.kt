@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /**
@@ -13,9 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.toPx
  */
 abstract class AbstractUiScope(
     final override val context: io.github.ronjunevaldoz.awake.ui.UiContext,
-    final override val font: UiFont?,
-    final override val theme: io.github.ronjunevaldoz.awake.ui.UiTheme,
-    final override val textScale: Float = 1f,
     private val emitToOverlay: Boolean = false
 ) : io.github.ronjunevaldoz.awake.ui.UiScope {
     final override val emitsToOverlay: Boolean = emitToOverlay

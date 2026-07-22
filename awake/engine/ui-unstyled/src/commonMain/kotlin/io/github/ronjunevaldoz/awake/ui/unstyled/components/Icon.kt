@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.fitTo
+import io.github.ronjunevaldoz.awake.ui.theme
 
 fun UiScope.icon(
     imageVector: UiImageVector,

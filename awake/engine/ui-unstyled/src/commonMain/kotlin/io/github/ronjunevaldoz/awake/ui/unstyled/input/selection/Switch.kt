@@ -13,8 +13,10 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
@@ -71,7 +73,7 @@ fun UiScope.switch(
         borderColor = Color.Transparent,
         shapeSpec = UiShapeSpec.Pill
     )
-    if (label != null && font != null) {
+    if (label != null) {
         val labelWidth = (fillWidthOrNull()?.let { it - interaction.slot.width - TOGGLE_LABEL_GAP }
             ?: 160f).coerceAtLeast(0f)
         basicText(
@@ -87,8 +89,7 @@ fun UiScope.switch(
             centered = false,
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
-            textScale = resolved.textScale,
-            textSize = resolved.textSize,
+            textStyle = resolved.textStyle,
             semanticId = "$id.label"
         )
     }

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -140,5 +142,36 @@ class LayoutTest {
         assertEquals(14f, slot.x)
         assertEquals(26f, slot.y)
         assertEquals(92f, slot.width)
+    }
+
+    @Test
+    fun scrollableColumnInRowPreservesRequestedFixedWidth() {
+        val ui = UiContext()
+        ui.beginFrame(800f, 600f, testSnapshot())
+
+        var sidebarSlot: UiSlot? = null
+        var contentSlot: UiSlot? = null
+
+        ui.createBox(x = 0f, y = 0f, width = 800f, height = 600f).row(
+            width = Dimension.FillMax,
+            height = Dimension.FillMax,
+            gap = 20f
+        ) {
+            sidebarSlot = column(
+                id = "sidebar",
+                width = 264f.toDimension(),
+                height = Dimension.FillMax,
+                modifier = UiModifier().verticalScroll(UiScrollState(), UiScrollConfig.Hidden)
+            ) { }
+            contentSlot = column(
+                id = "content",
+                width = Dimension.FillMax,
+                height = Dimension.FillMax
+            ) { }
+        }
+
+        assertEquals(264f, sidebarSlot?.width)
+        assertEquals(284f, contentSlot?.x)
+        assertEquals(516f, contentSlot?.width)
     }
 }

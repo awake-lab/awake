@@ -9,9 +9,11 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
@@ -73,7 +75,7 @@ fun UiScope.toggle(
         shapeSpec = resolved.shapeSpec
     )
 
-    if (label != null && font != null) {
+    if (label != null) {
         basicText(
             label = label,
             slot = contentSlot,
@@ -82,8 +84,7 @@ fun UiScope.toggle(
             centered = true,
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
-            textScale = resolved.textScale,
-            textSize = resolved.textSize,
+            textStyle = resolved.textStyle,
             semanticId = "$id.label"
         )
     }

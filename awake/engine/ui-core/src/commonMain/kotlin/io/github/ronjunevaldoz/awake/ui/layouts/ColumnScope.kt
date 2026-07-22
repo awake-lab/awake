@@ -13,18 +13,16 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
  */
 class ColumnScope internal constructor(
     context: UiContext,
-    font: UiFont?,
-    theme: UiTheme,
     private val x: Float,
     private val startY: Float,
     val width: Float,
     val height: Float? = null,
     val gap: Float,
-    textScale: Float = 1f,
     emitToOverlay: Boolean = false
-) : AbstractUiScope(context, font, theme, textScale, emitToOverlay), FillAwareScope {
-    override val fillWidth: Float? = width
-    override val fillHeight: Float? = height
+) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
+    override val fillWidth: Float = width
+    override val fillHeight: Float?
+        get() = height?.let { (it - (cursorY - startY)).coerceAtLeast(0f) }
 
     var cursorY: Float = startY
         private set
