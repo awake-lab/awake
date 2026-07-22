@@ -144,6 +144,30 @@ internal val ShowcasePages = listOf(
         renderPreview = { drawUiShowcaseLayoutPreview() }
     ),
     ShowcasePage(
+        id = "canvas",
+        title = "Canvas",
+        category = ShowcaseCategory.Layout,
+        description = "A bounded drawing surface for custom shapes, gradients, text, clipping, and nested authored drawing.",
+        usageCode = """
+            surface(id = "canvas-card", width = Dimension.Fixed(420f.dp), height = Dimension.Fixed(220f.dp)) { slot ->
+                canvas(slot) {
+                    drawGradientRect(0f, 0f, bounds.width, 56f, headerGradient)
+                    drawRoundRect(16f, 76f, 152f, 104f, color = theme.tokens.background, radius = 16f.dp)
+                    drawLine(184f, 90f, 332f, 156f, color = theme.tokens.primary)
+                    drawText("Canvas", x = 24f, y = 22f)
+                    clipShape(UiShapeSpec.Circle, x = 292f, y = 88f, width = 80f, height = 80f) {
+                        drawGradientRect(0f, 0f, 80f, 80f, badgeGradient)
+                    }
+                }
+            }
+        """.trimIndent(),
+        notes = listOf(
+            "Canvas is for authored drawing inside a resolved slot, not a replacement for layout.",
+            "The API stays local-coordinate based so a nested canvas composes cleanly inside cards, HUDs, and docs previews."
+        ),
+        renderPreview = { drawUiShowcaseCanvasPreview() }
+    ),
+    ShowcasePage(
         id = "slot-apis",
         title = "Slot APIs",
         category = ShowcaseCategory.Patterns,

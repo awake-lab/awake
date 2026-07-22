@@ -2,9 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.CanvasScope
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.UiFillRule
+import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
@@ -21,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.uiPath
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.verticalScroll
@@ -82,4 +89,143 @@ internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
             "The widget-level preview report keeps a static clipped state around so we can catch scrollbar and clipping drift without manual scrolling."
         )
     )
+}
+
+internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
+    awakeShadcnSupportingText("Canvas keeps custom drawing local to a bounded slot, so layout still owns structure while drawing owns paint.")
+    spacer(UiModifier().height(8f.dp))
+    awakeShadcnSurface(
+        id = "showcase-canvas-page",
+        width = Dimension.Fixed(420f.dp),
+        height = Dimension.Fixed(220f.dp),
+        variant = AwakeShadcnSurfaceVariant.Card,
+        style = Style { shape(16f.dp) }
+    ) { slot ->
+        canvas(slot) {
+            drawShowcaseCanvasScene()
+        }
+    }
+    spacer(UiModifier().height(8f.dp))
+    supportingLines(
+        listOf(
+            "The header glow, clipped badge, and nested chart all come from the same CanvasScope without opening a separate renderer API.",
+            "This is the intended authoring path for custom HUDs, diagnostics, vector ornaments, and design-system art."
+        )
+    )
+}
+
+private fun CanvasScope.drawShowcaseCanvasScene() {
+    val tokens = context.currentTheme.tokens
+    val headerGradient = UiLinearGradient.horizontal(
+        start = tokens.primary.withAlpha(0.16f),
+        end = tokens.accent.withAlpha(0.22f)
+    )
+    val badgeGradient = UiLinearGradient.vertical(
+        top = tokens.accent.withAlpha(0.92f),
+        bottom = tokens.primary.withAlpha(0.78f)
+    )
+    drawGradientRect(
+        x = 0f,
+        y = 0f,
+        width = bounds.width,
+        height = 56f,
+        gradient = headerGradient
+    )
+    drawText(
+        text = "Canvas",
+        x = 20f,
+        y = 18f,
+        color = tokens.foreground
+    )
+    drawText(
+        text = "Local drawing inside a surfaced slot",
+        x = 20f,
+        y = 34f,
+        color = tokens.mutedForeground
+    )
+
+    drawRoundRect(
+        x = 18f,
+        y = 76f,
+        width = 148f,
+        height = 108f,
+        color = tokens.background.withAlpha(0.94f),
+        radius = 16f.dp,
+        borderWidth = 1f.dp,
+        borderColor = tokens.border
+    )
+    drawText("Shapes", x = 34f, y = 94f, color = tokens.foreground)
+    drawLine(
+        startX = 34f,
+        startY = 152f,
+        endX = 126f,
+        endY = 112f,
+        color = tokens.primary
+    )
+    drawCircle(
+        x = 38f,
+        y = 110f,
+        diameter = 22f,
+        color = tokens.primary.withAlpha(0.85f)
+    )
+    drawShape(
+        shape = UiShapeSpec.CutCorner(10f.dp),
+        x = 84f,
+        y = 106f,
+        width = 46f,
+        height = 30f,
+        color = tokens.secondary.withAlpha(0.88f),
+        borderWidth = 1f.dp,
+        borderColor = tokens.border
+    )
+    fillPath(
+        path = uiPath(fillRule = UiFillRule.NonZero) {
+            moveTo(42f, 166f)
+            lineTo(66f, 138f)
+            lineTo(92f, 166f)
+            close()
+        },
+        color = tokens.accent.withAlpha(0.82f)
+    )
+
+    clipShape(
+        shape = UiShapeSpec.Circle,
+        x = 300f,
+        y = 82f,
+        width = 82f,
+        height = 82f
+    ) {
+        drawGradientRect(
+            x = 0f,
+            y = 0f,
+            width = 82f,
+            height = 82f,
+            gradient = badgeGradient
+        )
+        drawText("HUD", x = 21f, y = 31f, color = Color.White)
+        drawText("ART", x = 23f, y = 49f, color = Color.White)
+    }
+
+    nested(
+        x = 188f,
+        y = 82f,
+        width = 92f,
+        height = 92f
+    ) {
+        drawRoundRect(
+            x = 0f,
+            y = 0f,
+            width = bounds.width,
+            height = bounds.height,
+            color = tokens.muted.withAlpha(0.32f),
+            radius = 14f.dp,
+            borderWidth = 1f.dp,
+            borderColor = tokens.border.withAlpha(0.8f)
+        )
+        drawText("Chart", x = 14f, y = 16f, color = tokens.foreground)
+        drawLine(14f, 68f, 32f, 54f, color = tokens.secondary)
+        drawLine(32f, 54f, 50f, 60f, color = tokens.secondary)
+        drawLine(50f, 60f, 68f, 34f, color = tokens.primary)
+        drawLine(68f, 34f, 78f, 28f, color = tokens.accent)
+    }
 }
