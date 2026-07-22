@@ -22,6 +22,9 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
  * creating scopes. A large part of the test and preview surface still uses the older
  * root-construction shape that threaded font/theme through the root call itself, so we keep that
  * convenience here instead of duplicating manual stack setup across every proof surface.
+ *
+ * These helpers are transitional and should not be used by new code. Prefer the direct
+ * `UiContext.create*` APIs plus explicit environment setup.
  */
 internal fun UiContext.resolveRootSlot(
     modifier: UiModifier,
@@ -57,6 +60,9 @@ private inline fun <T> UiContext.withRootEnvironment(
     return content()
 }
 
+@Deprecated(
+    message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createColumn(...) APIs."
+)
 fun UiContext.createColumn(
     modifier: UiModifier = UiModifier(),
     verticalArrangement: Arrangement = defaultArrangement(),
@@ -100,6 +106,9 @@ fun UiContext.createColumn(
     }
 }
 
+@Deprecated(
+    message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createAbsolute(...) APIs."
+)
 fun UiContext.createAbsolute(
     modifier: UiModifier = UiModifier(),
     font: UiFont = currentFont,
@@ -141,6 +150,9 @@ fun UiContext.createAbsolute(
     }
 }
 
+@Deprecated(
+    message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createRow(...) APIs."
+)
 fun UiContext.createRow(
     modifier: UiModifier = UiModifier(),
     horizontalArrangement: Arrangement = defaultArrangement(),
@@ -163,6 +175,9 @@ fun UiContext.createRow(
     )
 }
 
+@Deprecated(
+    message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createBox(...) APIs."
+)
 fun UiContext.createBox(
     modifier: UiModifier = UiModifier(),
     contentAlignment: UiAlignment = UiAlignment.TopStart,
@@ -184,6 +199,9 @@ fun UiContext.createBox(
     )
 }
 
+@Deprecated(
+    message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createColumn(...) APIs."
+)
 fun UiContext.column(
     modifier: UiModifier = UiModifier(),
     verticalArrangement: Arrangement = defaultArrangement(),
