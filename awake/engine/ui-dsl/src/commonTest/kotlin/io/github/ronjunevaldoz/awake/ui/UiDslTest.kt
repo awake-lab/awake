@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
 import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
@@ -19,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.dropdown
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
-import io.github.ronjunevaldoz.awake.ui.unstyled.scrollPanel
+import io.github.ronjunevaldoz.awake.ui.scrollPanel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -53,7 +54,7 @@ class UiDslTest {
         var panelSlot: UiSlot? = null
         var controlSlot: UiSlot? = null
 
-        ui.column(x = 20f, y = 20f, width = 200f, font = BitmapFont()) {
+        ui.column(slot = UiSlot(20f, 20f, 200f, 220f), font = BitmapFont()) {
             surface(id = "inspector", height = 120f.toDimension()) { slot ->
                 panelSlot = slot
                 text("Inspector")
@@ -89,8 +90,12 @@ class UiDslTest {
         var first: UiButtonResult? = null
         var second: UiButtonResult? = null
 
-        ui.column(x = 10f, y = 20f, width = 220f, font = BitmapFont(), gap = 0f) {
-            row(height = 30f.dp, gap = 4f) {
+        ui.column(
+            slot = UiSlot(10f, 20f, 220f, 80f),
+            font = BitmapFont(),
+            verticalArrangement = Arrangement.spacedBy(0f.dp)
+        ) {
+            row(height = 30f.dp, horizontalArrangement = Arrangement.spacedBy(4f.dp)) {
                 first = buttonSlot(
                     id = "one",
                     label = "One",
@@ -117,7 +122,7 @@ class UiDslTest {
         ui.beginFrame(180f, 80f, testSnapshot())
 
         var checked = true
-        ui.column(x = 20f, y = 20f, width = 140f, font = BitmapFont()) {
+        ui.column(slot = UiSlot(20f, 20f, 140f, 80f), font = BitmapFont()) {
             checked = toggle(
                 id = "grid",
                 checked = checked,
@@ -145,7 +150,7 @@ class UiDslTest {
 
         var controlSlot: UiSlot? = null
 
-        ui.column(x = 20f, y = 20f, width = 220f) {
+        ui.column(slot = UiSlot(20f, 20f, 220f, 160f)) {
             surface(id = "slot-panel", height = 100f.toDimension()) {
                 row(
                     height = 28f.dp
@@ -285,7 +290,7 @@ class UiDslTest {
         val scrollState = UiScrollState()
 
         ui.beginFrame(220f, 200f, testSnapshot(x = 24f, y = 24f, scrollDeltaY = -1f))
-        ui.column(x = 12f, y = 12f, width = 160f) {
+        ui.column(slot = UiSlot(12f, 12f, 160f, 176f)) {
             scrollPanel(
                 id = "dsl-scroll",
                 modifier = UiModifier()

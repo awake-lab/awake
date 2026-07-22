@@ -10,7 +10,9 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.popup
@@ -34,7 +36,7 @@ fun UiScope.tooltip(
     expanded = visible,
     width = width,
     height = height,
-    gap = 0f,
+    verticalArrangement = Arrangement.spacedBy(0f.dp),
     positionProvider = positionProvider,
     properties = properties
 ) { _ ->

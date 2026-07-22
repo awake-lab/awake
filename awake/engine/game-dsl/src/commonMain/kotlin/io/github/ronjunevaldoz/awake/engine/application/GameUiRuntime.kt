@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.engine.application
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
+import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
@@ -18,6 +19,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+import io.github.ronjunevaldoz.awake.ui.place
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 
 /**
@@ -88,24 +91,42 @@ class GameUiRuntime(
      * receiver instead of the current parent scope.
      */
     fun rootColumn(
-        x: Float,
-        y: Float,
-        width: Float,
+        modifier: UiModifier = UiModifier(),
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
     ) {
+        val frame = uiContext.frameBounds()
+        val requestedWidth = modifier.width ?: Dimension.FillMax
+        val requestedHeight = modifier.height ?: Dimension.FillMax
+        val width = when (requestedWidth) {
+            is Dimension.Fixed -> requestedWidth.dp.toPx()
+            Dimension.FillMax -> frame.width
+            Dimension.WrapContent -> frame.width
+        }
+        val height = when (requestedHeight) {
+            is Dimension.Fixed -> requestedHeight.dp.toPx()
+            Dimension.FillMax -> frame.height
+            Dimension.WrapContent -> frame.height
+        }
         uiContext.createColumn(
-            x = x,
-            y = y,
-            width = width,
+            slot = frame.place(
+                width = width,
+                height = height,
+                alignment = modifier.alignment ?: UiAlignment.TopStart,
+                insets = modifier.insets,
+                offsetX = modifier.offsetX.toPx(),
+                offsetY = modifier.offsetY.toPx()
+            ),
             gap = verticalArrangement.baseSpacingPx(),
             verticalArrangement = verticalArrangement,
+            testTag = modifier.testTag
         ).block()
     }
 
-    /**
-     * Root-level slot-based column entrypoint.
-     */
+    @Deprecated(
+        message = "Use rootColumn(modifier = ...) so authored runtime layout comes from UiModifier, not UiSlot geometry.",
+        replaceWith = ReplaceWith("rootColumn(modifier = modifier, verticalArrangement = verticalArrangement, block = block)")
+    )
     fun rootColumn(
         slot: UiSlot,
         modifier: UiModifier = UiModifier(),
@@ -122,19 +143,17 @@ class GameUiRuntime(
     }
 
     @Deprecated(
-        message = "Use rootColumn(...) for runtime-owned root layout. Unqualified column(...) inside nested UI scopes binds to the current UiScope instead.",
+        message = "Use rootColumn(slot = ..., modifier = ...) or canvas { column(...) } for runtime-owned root layout.",
         level = DeprecationLevel.HIDDEN
     )
     fun column(
-        x: Float,
-        y: Float,
-        width: Float,
+        modifier: UiModifier = UiModifier(),
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
-    ) = rootColumn(x, y, width, verticalArrangement, block)
+    ) = rootColumn(modifier, verticalArrangement, block)
 
     @Deprecated(
-        message = "Use rootColumn(...) for runtime-owned root layout. Unqualified column(slot = ...) inside nested UI scopes must bind to the current UiScope, not GameUiRuntime.",
+        message = "Use rootColumn(modifier = ...) or canvas { column(...) } for runtime-owned root layout.",
         level = DeprecationLevel.HIDDEN
     )
     fun column(

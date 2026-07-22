@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawSurface
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
@@ -57,7 +58,7 @@ fun UiScope.dialog(
         expanded = true,
         width = width,
         height = height,
-        gap = 0f,
+        verticalArrangement = Arrangement.spacedBy(0f.dp),
         positionProvider = UiPopupDefaults.centered(),
         properties = properties.popupProperties.copy(
             dismissOnClickOutside = properties.dismissOnClickOutside && properties.popupProperties.dismissOnClickOutside

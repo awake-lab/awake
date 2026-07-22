@@ -3,7 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
+import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 
 
 data class UiPopupSize(
@@ -70,8 +72,8 @@ fun UiScope.popup(
     expanded: Boolean,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
-    gap: Float = UiSpacing.sm.toPx(),
-    insets: UiInsets = UiInsets.Zero,
+    verticalArrangement: Arrangement = defaultArrangement(),
+    modifier: UiModifier = UiModifier(),
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
     properties: UiPopupProperties = UiPopupProperties(),
     content: ColumnScope.(slot: UiSlot) -> Unit
@@ -85,6 +87,8 @@ fun UiScope.popup(
         is Dimension.Fixed -> width.dp.toPx()
         Dimension.FillMax, Dimension.WrapContent -> windowBounds.width
     }.coerceAtLeast(0f)
+    val insets = modifier.insets
+    val gap = verticalArrangement.baseSpacingPx()
 
     val measured = if (width == Dimension.WrapContent || height == Dimension.WrapContent) {
         context.measureColumnContent(
@@ -124,6 +128,8 @@ fun UiScope.popup(
         slot = popupSlot,
         gap = gap,
         insets = insets,
+        verticalArrangement = verticalArrangement,
+        testTag = modifier.testTag,
         overlayOnly = true
     ).content(popupSlot)
 

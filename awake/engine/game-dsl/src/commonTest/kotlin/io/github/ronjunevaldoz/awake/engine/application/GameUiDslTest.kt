@@ -26,6 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.offset
+import io.github.ronjunevaldoz.awake.ui.size
 import io.github.ronjunevaldoz.awake.ui.toDimension
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -48,7 +49,7 @@ class GameUiDslTest {
             )
             ui {
                 overlay {
-                    rootColumn(x = 20f, y = 20f, width = 160f) {
+                    rootColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).size(160f.dp, 120f.dp)) {
                         requireService<String>()
                         emit(UiDrawPrimitive.Quad(x = 20f, y = 20f, w = 12f, h = 12f, color = Color(0.2f, 0.7f, 0.4f, 1f)))
                     }
@@ -76,7 +77,7 @@ class GameUiDslTest {
             )
             ui {
                 overlay {
-                    rootColumn(x = 20f, y = 20f, width = 180f) {
+                    rootColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).size(180f.dp, 120f.dp)) {
                         requireService<String>()
                         emit(UiDrawPrimitive.Quad(x = 20f, y = 20f, w = 12f, h = 12f, color = Color(0.3f, 0.6f, 0.9f, 1f)))
                     }

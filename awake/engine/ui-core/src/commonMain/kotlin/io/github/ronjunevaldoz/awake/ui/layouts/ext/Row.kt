@@ -252,9 +252,8 @@ fun UiScope.rawRow(
     } else {
         childRow(
             slot,
-            gap = effectiveArrangement.baseSpacingPx(),
             horizontalArrangement = effectiveArrangement,
-            testTag = testTag ?: modifier.testTag,
+            modifier = UiModifier(testTag = testTag ?: modifier.testTag),
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
         )

@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawSurface
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
@@ -55,7 +56,7 @@ fun UiScope.dropdownMenu(
         expanded = expanded,
         width = width,
         height = height,
-        gap = 0f,
+        verticalArrangement = Arrangement.spacedBy(0f.dp),
         positionProvider = positionProvider,
         properties = properties
     ) { popupSlot ->

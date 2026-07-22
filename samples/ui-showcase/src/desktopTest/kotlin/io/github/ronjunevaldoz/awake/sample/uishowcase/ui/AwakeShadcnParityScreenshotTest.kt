@@ -28,6 +28,9 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.column
+import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnAvatar
@@ -53,10 +56,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTextField
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
-import io.github.ronjunevaldoz.awake.ui.unstyled.row
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.switch
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
@@ -125,8 +128,12 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.createColumn(x = 30f, y = 45f, width = 600f, font = font, theme = theme, gap = 10f)
-            .row(modifier = UiModifier().height(40f.dp), gap = 10f) {
+        ui.createColumn(
+            slot = UiSlot(30f, 45f, 600f, metadata.height.toFloat() - 45f),
+            font = font,
+            theme = theme,
+            verticalArrangement = Arrangement.spacedBy(10f.dp)
+        ).row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
                 awakeShadcnButton(
                     "parity-default",
                     "Default",
@@ -187,8 +194,12 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.createColumn(x = 30f, y = 42f, width = 420f, font = font, theme = theme, gap = 10f)
-            .row(modifier = UiModifier().height(30f.dp), gap = 10f) {
+        ui.createColumn(
+            slot = UiSlot(30f, 42f, 420f, metadata.height.toFloat() - 42f),
+            font = font,
+            theme = theme,
+            verticalArrangement = Arrangement.spacedBy(10f.dp)
+        ).row(height = 30f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
                 awakeShadcnBadge(
                     "Default",
                     modifier = UiModifier().width(72f.px).height(30f.px),
@@ -238,7 +249,7 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 248f, font = font, theme = theme, gap = 16f) {
+        ui.column(slot = UiSlot(24f, 24f, 248f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(16f.dp)) {
             awakeShadcnTextField("parity-field-1", value = "", placeholder = "Default", modifier = UiModifier().width(248f.px).height(40f.px))
             awakeShadcnTextField("parity-field-2", value = "", placeholder = "Filled", variant = AwakeShadcnTextFieldVariant.Filled, modifier = UiModifier().width(248f.px).height(40f.px))
             awakeShadcnTextField("parity-field-3", value = "", placeholder = "Ghost", variant = AwakeShadcnTextFieldVariant.Ghost, modifier = UiModifier().width(248f.px).height(40f.px))
@@ -268,7 +279,7 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 272f, font = font, theme = theme, gap = 16f) {
+        ui.column(slot = UiSlot(24f, 24f, 272f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(16f.dp)) {
             awakeShadcnAlert(
                 id = "parity-alert-default",
                 title = "You can add components",
@@ -306,7 +317,7 @@ internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 160f, font = font, theme = theme, gap = 8f) {
+        ui.column(slot = UiSlot(24f, 24f, 160f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(8f.dp)) {
             awakeShadcnRadioGroup(
                 id = "parity-radio",
                 options = listOf("Default", "Comfortable", "Compact"),
@@ -336,7 +347,7 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 212f, font = font, theme = theme, gap = 16f) {
+        ui.column(slot = UiSlot(24f, 24f, 212f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(16f.dp)) {
             awakeShadcnProgress("parity-progress-1", value = 0.25f, modifier = UiModifier().width(212f.px))
             awakeShadcnProgress("parity-progress-2", value = 0.65f, modifier = UiModifier().width(212f.px))
         }
@@ -363,8 +374,8 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 180f, font = font, theme = theme, gap = 10f) {
-            row(modifier = UiModifier().height(48f.dp), gap = 12f) {
+        ui.column(slot = UiSlot(24f, 24f, 180f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(10f.dp)) {
+            row(height = 48f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
                 awakeShadcnAvatar("CN")
                 awakeShadcnAvatar("RV", diameter = 48f.dp)
             }
@@ -392,8 +403,8 @@ internal object AwakeKbdLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 28f, width = 160f, font = font, theme = theme, gap = 10f) {
-            row(modifier = UiModifier().height(24f.dp), gap = 6f) {
+        ui.column(slot = UiSlot(24f, 28f, 160f, metadata.height.toFloat() - 52f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(10f.dp)) {
+            row(height = 24f.dp, horizontalArrangement = Arrangement.spacedBy(6f.dp)) {
                 awakeShadcnKbd("Ctrl")
                 awakeShadcnKbd("K")
             }
@@ -421,7 +432,7 @@ internal object AwakeSkeletonLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 192f, font = font, theme = theme, gap = 10f) {
+        ui.column(slot = UiSlot(24f, 24f, 192f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(10f.dp)) {
             awakeShadcnSkeleton("parity-skeleton-1", modifier = UiModifier().width(192f.px).height(16f.px))
             awakeShadcnSkeleton("parity-skeleton-2", modifier = UiModifier().width(140f.px).height(16f.px))
         }
@@ -448,7 +459,7 @@ internal object AwakeTabsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 280f, font = font, theme = theme, gap = 10f) {
+        ui.column(slot = UiSlot(24f, 24f, 280f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(10f.dp)) {
             awakeShadcnTabs(
                 id = "parity-tabs",
                 tabs = listOf("Account", "Password"),
@@ -478,7 +489,7 @@ internal object AwakeBreadcrumbLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 220f, font = font, theme = theme, gap = 10f) {
+        ui.column(slot = UiSlot(24f, 24f, 220f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(10f.dp)) {
             awakeShadcnBreadcrumb(listOf("Home", "Components", "Breadcrumb"))
         }
         return AwakeUiPreviewFrame(
@@ -504,7 +515,7 @@ internal object AwakeCollapsibleLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 220f, font = font, theme = theme, gap = 10f) {
+        ui.column(slot = UiSlot(24f, 24f, 220f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(10f.dp)) {
             awakeShadcnCollapsible(id = "parity-collapsible", title = "Can I use this in my project?", expanded = true) {
                 awakeShadcnSupportingText("Yes. Free to use for personal and commercial projects.")
             }
@@ -532,7 +543,7 @@ internal object AwakeSpinnerLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 72f, font = font, theme = theme, gap = 10f) {
+        ui.column(slot = UiSlot(24f, 24f, 72f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(10f.dp)) {
             awakeShadcnSpinner("parity-spinner")
         }
         return AwakeUiPreviewFrame(
@@ -558,7 +569,7 @@ internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 272f, font = font, theme = theme, gap = 16f) {
+        ui.column(slot = UiSlot(24f, 24f, 272f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(16f.dp)) {
             awakeShadcnTextarea("parity-textarea-1", value = "", placeholder = "Default textarea", modifier = UiModifier().width(272f.px))
             awakeShadcnTextarea("parity-textarea-2", value = "Line 1\nLine 2\nLine 3", modifier = UiModifier().width(272f.px))
             awakeShadcnTextarea("parity-textarea-3", value = "", placeholder = "Disabled textarea", modifier = UiModifier().width(272f.px), enabled = false)
@@ -586,7 +597,7 @@ internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 152f, font = font, theme = theme, gap = 12f) {
+        ui.column(slot = UiSlot(24f, 24f, 152f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(12f.dp)) {
             awakeShadcnSwitch("parity-switch-off", checked = false, label = "Airplane Mode")
             awakeShadcnSwitch("parity-switch-on", checked = true, label = "Airplane Mode")
         }
@@ -613,8 +624,8 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.column(x = 24f, y = 24f, width = 192f, font = font, theme = theme, gap = 10f) {
-            row(modifier = UiModifier().height(40f.dp), gap = 10f) {
+        ui.column(slot = UiSlot(24f, 24f, 192f, metadata.height.toFloat() - 48f), font = font, theme = theme, verticalArrangement = Arrangement.spacedBy(10f.dp)) {
+            row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
                 awakeShadcnToggle("parity-toggle-off", checked = false, label = "B", modifier = UiModifier().width(40f.px).height(40f.px))
                 awakeShadcnToggle("parity-toggle-on", checked = true, label = "B", modifier = UiModifier().width(40f.px).height(40f.px))
                 awakeShadcnToggle("parity-toggle-disabled", checked = false, label = "B", modifier = UiModifier().width(40f.px).height(40f.px), enabled = false)
@@ -678,7 +689,7 @@ internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = awakeShadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row(modifier = UiModifier().height(40f.dp), gap = 10f) {
+            row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
                 toggle("toggle-off", checked = false, label = "Off", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
                 toggle("toggle-on", checked = true, label = "On", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
             }
@@ -717,7 +728,7 @@ internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = awakeShadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row(modifier = UiModifier().height(40f.dp), gap = 10f) {
+            row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
                 switch("switch-off", checked = false, label = "Off", modifier = forcedModifier)
                 switch("switch-on", checked = true, label = "On", modifier = forcedModifier)
             }

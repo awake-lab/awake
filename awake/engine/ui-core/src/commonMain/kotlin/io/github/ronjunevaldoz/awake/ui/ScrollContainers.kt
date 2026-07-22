@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
-
-
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 
@@ -192,9 +190,8 @@ fun UiScope.scrollPanel(
             viewport.width,
             viewport.height
         ),
-        gap = gap,
         verticalArrangement = verticalArrangement,
-        testTag = containerLabel,
+        modifier = UiModifier(testTag = containerLabel),
     )
     clip(viewport) {
         contentScope.content(viewport)

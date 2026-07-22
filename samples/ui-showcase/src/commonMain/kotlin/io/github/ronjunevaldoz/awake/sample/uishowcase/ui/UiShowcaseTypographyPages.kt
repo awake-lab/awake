@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
@@ -83,8 +84,8 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
     context.pushFont(previewFont)
     val specimenScope = context.createColumn(
         slot = slot,
-        gap = 8f,
-        insets = UiModifier().padding(16f.dp).insets,
+        modifier = UiModifier().padding(16f.dp),
+        verticalArrangement = Arrangement.spacedBy(8f.dp),
         overlayOnly = emitsToOverlay
     )
     specimenScope.awakeShadcnBadge(

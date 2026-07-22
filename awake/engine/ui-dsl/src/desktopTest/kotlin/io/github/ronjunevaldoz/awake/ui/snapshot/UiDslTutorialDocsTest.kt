@@ -9,20 +9,23 @@ import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
+import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
-import io.github.ronjunevaldoz.awake.ui.layout.surface
-import io.github.ronjunevaldoz.awake.ui.propertyCheckbox
-import io.github.ronjunevaldoz.awake.ui.propertyDropdown
-import io.github.ronjunevaldoz.awake.ui.propertySlider
+import io.github.ronjunevaldoz.awake.ui.column
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.shell.sectionTitle
-import io.github.ronjunevaldoz.awake.ui.layout.spacer
 import io.github.ronjunevaldoz.awake.ui.toDimension
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.layout.column
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.dropdown
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
+import io.github.ronjunevaldoz.awake.ui.width
 import kotlin.test.Test
 
 /** Builds a one-off [UiInputState] for a test frame -- [Input] is a per-session instance
@@ -47,7 +50,7 @@ class UiDslTutorialDocsTest {
         var showGrid = true
         var showFrustum = false
 
-        ui.column(x = 20f, y = 20f, width = 280f, font = font, theme = CoreUiTheme, textScale = 2f) {
+        ui.column(slot = UiSlot(20f, 20f, 280f, 210f), font = font, theme = CoreUiTheme, textScale = 2f) {
             surface(
                 id = "inspector",
                 height = 190f.toDimension(),
@@ -57,15 +60,39 @@ class UiDslTutorialDocsTest {
                     contentPadding(12f.dp)
                 }
             ) {
-                sectionTitle("Camera")
-                propertyDropdown("mode", "Mode", listOf("Orbit", "Free Fly"), 0)
-                orbitYaw = propertySlider("slider-azimuth", "Azimuth", -3.14f, 3.14f, orbitYaw)
-                orbitDistance = propertySlider("slider-distance", "Distance", 3f, 20f, orbitDistance)
-
+                text("Camera")
+                row(height = 28f.dp) { slot ->
+                    dropdown(
+                        id = "mode",
+                        options = listOf("Orbit", "Free Fly"),
+                        selectedIndex = 0,
+                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                    )
+                }
+                row(height = 28f.dp) { slot ->
+                    orbitYaw = slider(
+                        id = "slider-azimuth",
+                        min = -3.14f,
+                        max = 3.14f,
+                        value = orbitYaw,
+                        label = "Azimuth",
+                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                    )
+                }
+                row(height = 28f.dp) { slot ->
+                    orbitDistance = slider(
+                        id = "slider-distance",
+                        min = 3f,
+                        max = 20f,
+                        value = orbitDistance,
+                        label = "Distance",
+                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                    )
+                }
                 spacer(UiModifier().height(8f.dp))
-                sectionTitle("Debug")
-                showGrid = propertyCheckbox("grid", showGrid, "Show Grid", 28f.dp)
-                showFrustum = propertyCheckbox("frustum", showFrustum, "Show Frustum", 28f.dp)
+                text("Debug")
+                showGrid = toggle("grid", checked = showGrid, modifier = UiModifier().height(28f.dp), label = "Show Grid")
+                showFrustum = toggle("frustum", checked = showFrustum, modifier = UiModifier().height(28f.dp), label = "Show Frustum")
                 toggle("hud", checked = true, modifier = UiModifier().height(32f.px), label = "HUD")
             }
         }

@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.FillAwareScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
 import kotlin.math.roundToInt
@@ -175,18 +175,16 @@ fun UiScope.ProvideFont(font: UiFont, content: UiScope.() -> Unit) {
 
 fun UiScope.childColumn(
     slot: UiSlot,
-    gap: Float = UiSpacing.sm.toPx(),
     verticalArrangement: Arrangement = defaultArrangement(),
-    insets: UiInsets = UiInsets.Zero,
-    testTag: String? = null,
+    modifier: UiModifier = UiModifier(),
     hasBoundedFillWidth: Boolean = true,
     hasBoundedFillHeight: Boolean = true
 ): ColumnScope = context.createColumn(
     slot = slot,
-    gap = gap,
-    insets = insets,
+    gap = verticalArrangement.baseSpacingPx(),
+    insets = modifier.insets,
     verticalArrangement = verticalArrangement,
-    testTag = testTag,
+    testTag = modifier.testTag,
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
     overlayOnly = emitsToOverlay
@@ -194,18 +192,16 @@ fun UiScope.childColumn(
 
 fun UiScope.childRow(
     slot: UiSlot,
-    gap: Float = UiSpacing.sm.toPx(),
     horizontalArrangement: Arrangement = defaultArrangement(),
-    insets: UiInsets = UiInsets.Zero,
-    testTag: String? = null,
+    modifier: UiModifier = UiModifier(),
     hasBoundedFillWidth: Boolean = true,
     hasBoundedFillHeight: Boolean = true
 ): RowScope = context.createRow(
     slot = slot,
-    gap = gap,
-    insets = insets,
+    gap = horizontalArrangement.baseSpacingPx(),
+    insets = modifier.insets,
     horizontalArrangement = horizontalArrangement,
-    testTag = testTag,
+    testTag = modifier.testTag,
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
     overlayOnly = emitsToOverlay
@@ -213,22 +209,20 @@ fun UiScope.childRow(
 
 fun UiScope.childAbsolute(
     slot: UiSlot,
-    insets: UiInsets = UiInsets.Zero,
-    testTag: String? = null
-): AbsoluteScope = context.createAbsolute(slot, insets, testTag = testTag, overlayOnly = emitsToOverlay)
+    modifier: UiModifier = UiModifier()
+): AbsoluteScope = context.createAbsolute(slot, modifier.insets, testTag = modifier.testTag, overlayOnly = emitsToOverlay)
 
 fun UiScope.childBox(
     slot: UiSlot,
-    insets: UiInsets = UiInsets.Zero,
+    modifier: UiModifier = UiModifier(),
     contentAlignment: UiAlignment = UiAlignment.TopStart,
-    testTag: String? = null,
     hasBoundedFillWidth: Boolean = true,
     hasBoundedFillHeight: Boolean = true
 ): BoxScope = context.createBox(
     slot,
-    insets,
+    modifier.insets,
     contentAlignment,
-    testTag = testTag,
+    testTag = modifier.testTag,
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
     overlayOnly = emitsToOverlay

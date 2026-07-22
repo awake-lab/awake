@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
@@ -74,7 +75,7 @@ fun UiScope.dropdown(
         expanded = expandedState.expanded,
         width = Dimension.Fixed(slot.width.px),
         height = Dimension.WrapContent,
-        gap = 0f,
+        verticalArrangement = Arrangement.spacedBy(0f.dp),
         positionProvider = UiPopupDefaults.dropdown()
     ) {
         options.forEachIndexed { index, option ->

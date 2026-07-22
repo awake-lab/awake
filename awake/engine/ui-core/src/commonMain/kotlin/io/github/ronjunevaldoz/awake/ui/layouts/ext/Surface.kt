@@ -222,9 +222,8 @@ fun UiScope.rawSurface(
     context.pushTextStyle(resolved.textStyle)
     val contentScope = childColumn(
         slot,
-        gap = gap,
-        insets = resolved.contentPadding,
-        testTag = containerTag,
+        verticalArrangement = Arrangement.spacedBy(gap.px),
+        modifier = UiModifier(insets = resolved.contentPadding, testTag = containerTag),
         hasBoundedFillWidth = width != Dimension.WrapContent,
         hasBoundedFillHeight = height != Dimension.WrapContent
     )

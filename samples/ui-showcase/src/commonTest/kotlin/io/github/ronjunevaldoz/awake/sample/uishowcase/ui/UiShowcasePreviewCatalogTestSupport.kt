@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDensity
+import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.UiModifier
@@ -38,10 +39,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMe
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.width
@@ -49,6 +51,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
+import io.github.ronjunevaldoz.awake.ui.UiSlot
 
 internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseOverviewPreview,
@@ -425,12 +428,15 @@ private fun renderUiShowcaseCardPreviewFrame(
             ui.requestFocus(focusedNodeId)
         }
         ui.column(
-            x = insetPx,
-            y = insetPx,
-            width = metadata.rasterWidth.toFloat() - insetPx * 2f,
+            slot = UiSlot(
+                insetPx,
+                insetPx,
+                metadata.rasterWidth.toFloat() - insetPx * 2f,
+                metadata.rasterHeight.toFloat() - insetPx * 2f
+            ),
             font = font,
             theme = theme,
-            gap = contentGapPx
+            verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp)
         ) {
             awakeShadcnSurface(
                 id = "ui-showcase-preview-$surfaceId",
@@ -459,7 +465,7 @@ private fun renderUiShowcaseCardPreviewFrame(
 }
 
 private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
-    row(height = 36f.dp, gap = 10f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
         awakeShadcnButton(
             id = "showcase-matrix-button-primary",
             label = "Primary",
@@ -479,7 +485,7 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
             variant = AwakeShadcnButtonVariant.Outline
         )
     }
-    row(height = 36f.dp, gap = 10f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
         awakeShadcnButton(
             id = "showcase-matrix-button-ghost",
             label = "Ghost",
@@ -503,7 +509,7 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
 }
 
 private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
-    row(height = 36f.dp, gap = 12f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
         awakeShadcnTextField(
             id = "showcase-matrix-field-empty",
             value = "",
@@ -516,7 +522,7 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
             modifier = UiModifier().width(200f.px).height(36f.dp)
         )
     }
-    row(height = 36f.dp, gap = 12f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
         awakeShadcnDropdown(
             id = "showcase-matrix-dropdown-theme",
             options = listOf("Light", "Dark", "Auto"),
@@ -530,7 +536,7 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
             modifier = UiModifier().width(200f.px)
         )
     }
-    row(height = 24f.dp, gap = 16f) {
+    row(height = 24f.dp, horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
         awakeShadcnToggle(
             id = "showcase-matrix-toggle-off",
             checked = false,
@@ -544,7 +550,7 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
             modifier = UiModifier().width(120f.px).height(24f.px)
         )
     }
-    row(height = 24f.dp, gap = 16f) {
+    row(height = 24f.dp, horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
         awakeShadcnCheckbox(
             id = "showcase-matrix-checkbox-off",
             checked = false,
@@ -594,7 +600,7 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
         "This preview intentionally renders the menu in its expanded state so row spacing and popover chrome are reviewable in docs."
     )
     spacer(UiModifier().height(8f.dp))
-    row(height = 36f.dp, gap = 12f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
         val trigger = buttonSlot(
             id = "showcase-matrix-dropdown-trigger",
             label = "Actions",
@@ -624,7 +630,7 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
 private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
     awakeShadcnSupportingText("A tooltip is a tiny overlay, but it still needs proper container chrome, spacing, and wrap behavior.")
     spacer(UiModifier().height(8f.dp))
-    row(height = 36f.dp, gap = 12f) {
+    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
         val trigger = buttonSlot(
             id = "showcase-matrix-tooltip-trigger",
             label = "Hover target",

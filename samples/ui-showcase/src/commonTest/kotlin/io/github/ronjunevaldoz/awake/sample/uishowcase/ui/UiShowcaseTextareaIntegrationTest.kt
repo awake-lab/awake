@@ -7,9 +7,12 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeSt
 import io.github.ronjunevaldoz.awake.ui.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.column
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -30,7 +33,12 @@ class UiShowcaseTextareaIntegrationTest {
         fun frame(pointerDown: Boolean, x: Float, y: Float): List<UiDrawPrimitive> {
             input.setPointer(down = pointerDown, x = x, y = y)
             ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
-            ui.column(x = 24f, y = 24f, width = width - 48f, font = font, theme = theme, gap = 10f) {
+            ui.column(
+                slot = UiSlot(24f, 24f, width - 48f, height - 48f),
+                font = font,
+                theme = theme,
+                verticalArrangement = Arrangement.spacedBy(10f.dp)
+            ) {
                 renderUiShowcasePagePreview(page, state)
             }
             return ui.endFrame()
@@ -74,7 +82,12 @@ class UiShowcaseTextareaIntegrationTest {
         fun frame(value: String): List<UiDrawPrimitive> {
             input.pushTypedText(value)
             ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
-            ui.column(x = 24f, y = 24f, width = width - 48f, font = font, theme = theme, gap = 10f) {
+            ui.column(
+                slot = UiSlot(24f, 24f, width - 48f, height - 48f),
+                font = font,
+                theme = theme,
+                verticalArrangement = Arrangement.spacedBy(10f.dp)
+            ) {
                 renderUiShowcasePagePreview(page, state)
             }
             return ui.endFrame()

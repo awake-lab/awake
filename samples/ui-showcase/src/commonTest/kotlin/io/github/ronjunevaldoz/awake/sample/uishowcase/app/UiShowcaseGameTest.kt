@@ -39,6 +39,9 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.createColumn
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
@@ -308,9 +311,7 @@ class UiShowcaseGameTest {
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
         ui.createColumn(
-            x = 24f,
-            y = 24f,
-            width = 720f,
+            slot = UiSlot(24f, 24f, 720f, 516f),
             font = BitmapFont(),
             theme = state.showcaseTheme()
         ).run {
@@ -357,16 +358,14 @@ class UiShowcaseGameTest {
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
         ui.createColumn(
-            x = 0f,
-            y = 0f,
-            width = 1440f,
+            slot = UiSlot(0f, 0f, 1440f, 900f),
             font = BitmapFont(),
             theme = awakeShadcnTheme(dark = false)
         ).run {
             row(
                 width = Dimension.FillMax,
                 height = Dimension.Fixed(900f.px),
-                gap = 20f,
+                horizontalArrangement = Arrangement.spacedBy(20f.dp),
                 modifier = UiModifier().fillMaxSize().padding(24f.dp)
             ) {
                 awakeShadcnSurface(
@@ -473,7 +472,7 @@ private fun renderSidebarSurfaceColor(theme: io.github.ronjunevaldoz.awake.ui.Ui
         240f,
         io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot().toUiInputState()
     )
-    ui.createColumn(x = 24f, y = 24f, width = 264f, font = BitmapFont(), theme = theme).run {
+    ui.createColumn(slot = UiSlot(24f, 24f, 264f, 180f), font = BitmapFont(), theme = theme).run {
         awakeShadcnSurface(
             id = "sidebar-probe",
             width = Dimension.FillMax,

@@ -32,10 +32,8 @@ fun UiScope.column(
 ) {
     childColumn(
         slot = slot,
-        gap = verticalArrangement.baseSpacingPx(),
         verticalArrangement = verticalArrangement,
-        insets = modifier.insets,
-        testTag = modifier.testTag
+        modifier = modifier
     ).block()
 }
 
@@ -48,10 +46,8 @@ fun UiScope.row(
 ) {
     childRow(
         slot = slot,
-        gap = horizontalArrangement.baseSpacingPx(),
         horizontalArrangement = horizontalArrangement,
-        insets = modifier.insets,
-        testTag = modifier.testTag
+        modifier = modifier
     ).block()
 }
 
@@ -61,7 +57,7 @@ fun UiScope.absolute(
     modifier: UiModifier = UiModifier(),
     block: AbsoluteScope.() -> Unit
 ) {
-    childAbsolute(slot, modifier.insets, testTag = modifier.testTag).block()
+    childAbsolute(slot, modifier).block()
 }
 
 /** [slot]-based nested [BoxScope] variant of [column]. */
@@ -71,5 +67,5 @@ fun UiScope.box(
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     block: BoxScope.() -> Unit
 ) {
-    childBox(slot, modifier.insets, contentAlignment, testTag = modifier.testTag).block()
+    childBox(slot, modifier, contentAlignment).block()
 }

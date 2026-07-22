@@ -11,12 +11,13 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.UiContext
+import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import kotlin.test.Test
 
 /** Builds a one-off [InputSnapshot] for a preview frame -- [Input] is a per-session
@@ -48,7 +49,7 @@ internal object AlertDialogDiagnosticPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), diagnosticTestSnapshot().toUiInputState())
-        ui.column(x = 0f, y = 0f, width = metadata.width.toFloat(), font = font, theme = theme) {
+        ui.column(slot = UiSlot(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat()), font = font, theme = theme) {
             alertDialog(
                 id = "diagnostic-delete-dialog",
                 expanded = true,
