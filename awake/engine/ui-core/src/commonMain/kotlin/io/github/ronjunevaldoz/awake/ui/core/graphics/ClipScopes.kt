@@ -9,18 +9,18 @@ import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.toPath
 
 fun UiScope.clip(rect: UiSlot, content: UiScope.() -> Unit) {
-    val resolved = context.pushClip(rect)
+    val resolved = context.pushClipInternal(rect)
     emit(UiDrawPrimitive.ClipPush(resolved))
     content()
-    val restore = context.popClip()
+    val restore = context.popClipInternal()
     emit(UiDrawPrimitive.ClipPop(restore))
 }
 
 fun UiScope.clip(path: UiPath, content: UiScope.() -> Unit) {
-    val resolvedBounds = context.pushClip(path.bounds())
+    val resolvedBounds = context.pushClipInternal(path.bounds())
     emit(UiDrawPrimitive.ClipPathPush(path, resolvedBounds))
     content()
-    val restore = context.popClip()
+    val restore = context.popClipInternal()
     emit(UiDrawPrimitive.ClipPop(restore))
 }
 

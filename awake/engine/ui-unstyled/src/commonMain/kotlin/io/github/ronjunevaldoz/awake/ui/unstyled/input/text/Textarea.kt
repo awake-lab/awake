@@ -12,15 +12,23 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
+import io.github.ronjunevaldoz.awake.ui.clearFocusIfMatches
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.inset
+import io.github.ronjunevaldoz.awake.ui.inputState
+import io.github.ronjunevaldoz.awake.ui.isFocused
+import io.github.ronjunevaldoz.awake.ui.pointerDownEdge
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.requestFocus
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 
@@ -42,7 +50,6 @@ fun UiScope.textarea(
     isError: Boolean = false,
     minLines: Int = 3
 ): String {
-    val theme = context.currentTheme
     // Determine height based on minLines
     val resolvedDefaults = theme.components.textField
     val resolved = resolveStyle(
@@ -50,7 +57,7 @@ fun UiScope.textarea(
         defaults = resolvedDefaults,
         state = MutableStyleState(disabled = !enabled)
     )
-    val fontHeight = resolveGlyphPx(context.currentFont, resolved.textStyle)
+    val fontHeight = resolveGlyphPx(font, resolved.textStyle)
     val padding = resolved.contentPadding
     val totalPadding = padding.top + padding.bottom
     val lineGap = fontHeight * 0.25f
@@ -64,11 +71,11 @@ fun UiScope.textarea(
         modifier = modifier
     )
 
-    val focused = enabled && context.isFocused(id)
+    val focused = enabled && isFocused(id)
     if (!enabled) {
-        context.clearFocusIfMatches(id)
-    } else if (context.pointerDownEdge() && interaction.hovered) {
-        context.requestFocus(id)
+        clearFocusIfMatches(id)
+    } else if (pointerDownEdge() && interaction.hovered) {
+        requestFocus(id)
     }
 
     val styleState = MutableStyleState(
@@ -94,7 +101,7 @@ fun UiScope.textarea(
         shapeSpec = resolvedWithInteraction.shapeSpec
     )
 
-    val resolvedFont = context.currentFont
+    val resolvedFont = font
     val glyphPx = fontHeight
     val contentSlot = interaction.slot.inset(padding)
 
@@ -115,7 +122,7 @@ fun UiScope.textarea(
     var nextValue = value
     if (focused) {
         val clickIndex =
-            if (interaction.clicked || (context.pointerDownEdge() && interaction.hovered)) {
+            if (interaction.clicked || (pointerDownEdge() && interaction.hovered)) {
                 indexForPointerXY(
                     layout,
                     value,
@@ -123,8 +130,8 @@ fun UiScope.textarea(
                     glyphPx,
                     lineGap,
                     contentSlot,
-                    context.inputState.pointerX,
-                    context.inputState.pointerY
+                    inputState.pointerX,
+                    inputState.pointerY
                 )
             } else {
                 null
@@ -133,7 +140,7 @@ fun UiScope.textarea(
             cursor = clickIndex
         }
 
-        context.inputState.editActions.forEach { action ->
+        inputState.editActions.forEach { action ->
             when (action) {
                 UiTextEditAction.Backspace -> if (cursor > 0) {
                     nextValue = nextValue.substring(0, cursor - 1) + nextValue.substring(cursor)
@@ -167,7 +174,7 @@ fun UiScope.textarea(
                 }
             }
         }
-        val typed = context.inputState.typedText
+        val typed = inputState.typedText
         if (typed.isNotEmpty()) {
             nextValue = nextValue.substring(0, cursor) + typed + nextValue.substring(cursor)
             cursor += typed.length
@@ -238,7 +245,7 @@ fun UiScope.textarea(
 
 private fun UiScope.caretBlinkElapsedSeconds(id: String): Float {
     val state = widgetState(id)
-    val elapsed = state.get("caretElapsed", 0f) + context.frameDeltaSeconds()
+    val elapsed = state.get("caretElapsed", 0f) + frameDeltaSeconds()
     state.set("caretElapsed", elapsed)
     return elapsed
 }

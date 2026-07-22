@@ -11,12 +11,20 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
+import io.github.ronjunevaldoz.awake.ui.clearFocusIfMatches
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.inputState
+import io.github.ronjunevaldoz.awake.ui.isFocused
+import io.github.ronjunevaldoz.awake.ui.pointerDownEdge
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.requestFocus
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
@@ -42,7 +50,6 @@ fun UiScope.textField(
     enabled: Boolean = true,
     isError: Boolean = false
 ): String {
-    val theme = context.currentTheme
     val interaction = interact(
         id = id,
         width = Dimension.FillMax,
@@ -52,11 +59,11 @@ fun UiScope.textField(
     // Disabled fields never claim focus or consume input -- if a field was focused and then
     // became disabled mid-session, drop that focus too, the same way a real disabled input
     // stops receiving keystrokes immediately, not just stops accepting new clicks.
-    val focused = enabled && (context.isFocused(id) || modifier.forceFocus == true)
+    val focused = enabled && (isFocused(id) || modifier.forceFocus == true)
     if (!enabled) {
-        context.clearFocusIfMatches(id)
-    } else if (context.pointerDownEdge() && (interaction.hovered || modifier.forceHover == true)) {
-        context.requestFocus(id)
+        clearFocusIfMatches(id)
+    } else if (pointerDownEdge() && (interaction.hovered || modifier.forceHover == true)) {
+        requestFocus(id)
     }
 
     val surface = resolveInteractiveSurface(
@@ -77,7 +84,7 @@ fun UiScope.textField(
         borderColor = borderColor
     )
 
-    val resolvedFont = context.currentFont
+    val resolvedFont = font
     val glyphPx =
         resolveGlyphPx(resolvedFont, surface.resolved.textStyle)
     val contentSlot = surface.contentSlot
@@ -88,13 +95,13 @@ fun UiScope.textField(
     var nextValue = value
     if (focused) {
         val clickIndex =
-            if (interaction.clicked || (context.pointerDownEdge() && interaction.hovered)) {
+            if (interaction.clicked || (pointerDownEdge() && interaction.hovered)) {
                 indexForPointerX(
                     value,
                     resolvedFont,
                     glyphPx,
                     contentSlot.x,
-                    context.inputState.pointerX
+                    inputState.pointerX
                 )
             } else {
                 null
@@ -104,7 +111,7 @@ fun UiScope.textField(
         }
 
         // Edit actions (cursor moves, deletes) before the newly typed text
-        context.inputState.editActions.forEach { action ->
+        inputState.editActions.forEach { action ->
             when (action) {
                 UiTextEditAction.Backspace -> if (cursor > 0) {
                     nextValue = nextValue.substring(0, cursor - 1) + nextValue.substring(cursor)
@@ -121,10 +128,10 @@ fun UiScope.textField(
                 UiTextEditAction.ArrowDown -> {}
                 UiTextEditAction.Home -> cursor = 0
                 UiTextEditAction.End -> cursor = nextValue.length
-                UiTextEditAction.Enter -> context.clearFocusIfMatches(id)
+                UiTextEditAction.Enter -> clearFocusIfMatches(id)
             }
         }
-        val typed = context.inputState.typedText
+        val typed = inputState.typedText
         if (typed.isNotEmpty()) {
             nextValue = nextValue.substring(0, cursor) + typed + nextValue.substring(cursor)
             cursor += typed.length
@@ -185,7 +192,7 @@ fun UiScope.textField(
 
 private fun UiScope.caretBlinkElapsedSeconds(id: String): Float {
     val state = widgetState(id)
-    val elapsed = state.get("caretElapsed", 0f) + context.frameDeltaSeconds()
+    val elapsed = state.get("caretElapsed", 0f) + frameDeltaSeconds()
     state.set("caretElapsed", elapsed)
     return elapsed
 }

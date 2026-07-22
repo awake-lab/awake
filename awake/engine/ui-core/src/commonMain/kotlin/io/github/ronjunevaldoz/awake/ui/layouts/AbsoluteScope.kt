@@ -31,6 +31,7 @@ class AbsoluteScope internal constructor(
         UiSlot(
             x,
             y,
-            width.resolve { 4096f },
-            height.resolve { 4096f }).also(context::recordMeasuredSlot)
+            width.resolve { 0f },
+            height.resolve { 0f }
+        ).also(context::recordMeasuredSlot)
 }

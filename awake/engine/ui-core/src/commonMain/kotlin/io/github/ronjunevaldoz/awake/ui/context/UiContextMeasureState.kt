@@ -66,10 +66,12 @@ internal class UiContextMeasureState {
     private fun createMeasureContext(sourceContext: UiContext): UiContext {
         val measureContext = UiContext(measuring = true)
         measureContext.beginFrame(
-            screenWidth = 100_000f,
-            screenHeight = 100_000f,
-            inputState = UiInputState(),
-            deltaSeconds = 0f
+            UiFrameInput(
+                viewportWidth = 100_000f,
+                viewportHeight = 100_000f,
+                input = UiInputState(),
+                deltaSeconds = 0f
+            )
         )
         measureContext.pushTextStyle(sourceContext.currentTextStyle)
         measureContext.pushFont(sourceContext.currentFont)

@@ -14,8 +14,10 @@ import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -39,11 +41,10 @@ fun UiScope.spinner(
         defaultHeight = Dimension.Fixed(24f.dp),
         modifier = modifier
     )
-    val theme = context.currentTheme
     val resolved = resolveStyle(style = style)
     val dotColor = resolved.foreground ?: theme.tokens.foreground
     val state = widgetState(id)
-    val elapsed = state.get("spinnerElapsed", 0f) + context.frameDeltaSeconds()
+    val elapsed = state.get("spinnerElapsed", 0f) + frameDeltaSeconds()
     state.set("spinnerElapsed", elapsed)
     val baseAngle = elapsed * SPINNER_REVOLUTIONS_PER_SECOND * 2f * PI.toFloat()
 

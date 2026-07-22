@@ -35,4 +35,4 @@ fun UiSemanticNode.debugOverlayPrimitives(strokeWidth: Dp = 1f.dp): List<UiDrawP
  * (semantic nodes are only cleared on the next [io.github.ronjunevaldoz.awake.ui.context.UiContext.beginFrame]) and append the result to
  * the frame's own primitives to paint the debug wireframe on top. */
 fun UiContext.debugOverlayPrimitives(strokeWidth: Dp = 1f.dp): List<UiDrawPrimitive> =
-    semanticNodes().flatMap { it.debugOverlayPrimitives(strokeWidth) }
+    finishFrame().semantics.flatMap { it.debugOverlayPrimitives(strokeWidth) }

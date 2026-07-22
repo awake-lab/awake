@@ -39,7 +39,7 @@ class ColumnScope internal constructor(
         }
         val resolvedWidth = width.resolve { this.width }
         val resolvedHeight = height.resolve {
-            val availableHeight = this.height ?: (context.frameBounds().height - cursorY)
+            val availableHeight = this.height ?: (context.frameBoundsInternal().height - cursorY)
             (availableHeight - (cursorY - startY)).coerceAtLeast(0f)
         }
         val slot = UiSlot(

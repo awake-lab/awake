@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
@@ -54,14 +55,37 @@ class UiContext internal constructor(
      * Resets the context for a new frame. Accepts [UiInputState] to remain
      * decoupled from hardware input modules.
      */
+    fun beginFrame(frame: UiFrameInput) {
+        runtime.beginFrame(
+            screenWidth = frame.viewportWidth,
+            screenHeight = frame.viewportHeight,
+            inputState = frame.input,
+            deltaSeconds = frame.deltaSeconds
+        )
+        measurement.beginFrame()
+    }
+
+    @Deprecated(
+        message = "Use beginFrame(UiFrameInput(...)) to keep the frame lifecycle input bundled as a single value.",
+        replaceWith = ReplaceWith(
+            "beginFrame(UiFrameInput(viewportWidth = screenWidth, viewportHeight = screenHeight, input = inputState, deltaSeconds = deltaSeconds))",
+            imports = ["io.github.ronjunevaldoz.awake.ui.context.UiFrameInput"]
+        )
+    )
     fun beginFrame(
         screenWidth: Float,
         screenHeight: Float,
         inputState: UiInputState,
         deltaSeconds: Float = 1f / 60f
     ) {
-        runtime.beginFrame(screenWidth, screenHeight, inputState, deltaSeconds)
-        measurement.beginFrame()
+        beginFrame(
+            UiFrameInput(
+                viewportWidth = screenWidth,
+                viewportHeight = screenHeight,
+                input = inputState,
+                deltaSeconds = deltaSeconds
+            )
+        )
     }
 
     fun createColumn(
@@ -214,20 +238,99 @@ class UiContext internal constructor(
         overlayOnly = overlayOnly
     )
 
+    fun column(
+        slot: UiSlot,
+        insets: UiInsets = UiInsets.Zero,
+        verticalArrangement: Arrangement = defaultArrangement(),
+        testTag: String? = null,
+        content: ColumnScope.() -> Unit
+    ) {
+        createColumn(
+            slot = slot,
+            gap = verticalArrangement.baseSpacingPx(),
+            insets = insets,
+            verticalArrangement = verticalArrangement,
+            testTag = testTag
+        ).content()
+    }
+
+    fun row(
+        slot: UiSlot,
+        insets: UiInsets = UiInsets.Zero,
+        horizontalArrangement: Arrangement = defaultArrangement(),
+        testTag: String? = null,
+        content: RowScope.() -> Unit
+    ) {
+        createRow(
+            slot = slot,
+            gap = horizontalArrangement.baseSpacingPx(),
+            insets = insets,
+            horizontalArrangement = horizontalArrangement,
+            testTag = testTag
+        ).content()
+    }
+
+    fun box(
+        slot: UiSlot,
+        insets: UiInsets = UiInsets.Zero,
+        contentAlignment: UiAlignment = UiAlignment.TopStart,
+        testTag: String? = null,
+        content: BoxScope.() -> Unit
+    ) {
+        createBox(
+            slot = slot,
+            insets = insets,
+            contentAlignment = contentAlignment,
+            testTag = testTag
+        ).content()
+    }
+
+    fun absolute(
+        slot: UiSlot,
+        insets: UiInsets = UiInsets.Zero,
+        testTag: String? = null,
+        content: AbsoluteScope.() -> Unit
+    ) {
+        createAbsolute(
+            slot = slot,
+            insets = insets,
+            testTag = testTag
+        ).content()
+    }
+
+    @Deprecated(
+        message = "Use finishFrame().ownership instead of reading intermediate input ownership directly from UiContext."
+    )
     fun inputResult(): UiInputResult = runtime.inputResult()
 
+    @Deprecated(
+        message = "Use finishFrame().primitives as the single public frame result."
+    )
     fun endFrame(): List<UiDrawPrimitive> = runtime.endFrame()
 
     fun finishFrame(): UiFrameOutput = runtime.finishFrame()
 
-    fun onOverScrollable() {
+    internal fun onOverScrollableInternal() {
         runtime.onOverScrollable(measuring)
     }
 
-    fun onScrollConsumed() {
+    @Deprecated(
+        message = "Scrollable widget ownership should be coordinated from UiScope helpers, not public UiContext."
+    )
+    fun onOverScrollable() = onOverScrollableInternal()
+
+    internal fun onScrollConsumedInternal() {
         runtime.onScrollConsumed(measuring)
     }
 
+    @Deprecated(
+        message = "Scrollable widget ownership should be coordinated from UiScope helpers, not public UiContext."
+    )
+    fun onScrollConsumed() = onScrollConsumedInternal()
+
+    @Deprecated(
+        message = "Use finishFrame().semantics as the single public frame result."
+    )
     fun semanticNodes(): List<UiSemanticNode> = runtime.semanticNodes()
 
     internal fun hitTestInternal(slot: UiSlot): Boolean =
@@ -269,29 +372,71 @@ class UiContext internal constructor(
 
     internal fun pushClipInternal(rect: UiSlot): UiSlot = runtime.pushClip(rect)
 
+    @Deprecated(
+        message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly."
+    )
     fun pushClip(rect: UiSlot): UiSlot = pushClipInternal(rect)
 
     internal fun popClipInternal(): UiSlot = runtime.popClip()
 
+    @Deprecated(
+        message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly."
+    )
     fun popClip(): UiSlot = popClipInternal()
 
-    fun pointerDownEdge(): Boolean = runtime.pointerDownEdge()
+    internal fun pointerDownEdgeInternal(): Boolean = runtime.pointerDownEdge()
 
-    fun setActive(id: String?) {
+    @Deprecated(
+        message = "Pointer edge state should be read from UiScope helpers inside composition."
+    )
+    fun pointerDownEdge(): Boolean = pointerDownEdgeInternal()
+
+    internal fun setActiveInternal(id: String?) {
         runtime.setActive(id)
     }
 
+    @Deprecated(
+        message = "Active-state mutation belongs to widgets and scopes, not public UiContext callers."
+    )
+    fun setActive(id: String?) {
+        setActiveInternal(id)
+    }
+
+    @Deprecated(
+        message = "Focus queries should go through UiScope helpers inside composition."
+    )
     fun isFocused(id: String): Boolean = isFocusedInternal(id)
 
+    @Deprecated(
+        message = "Focus mutation should go through UiScope helpers inside composition."
+    )
     fun requestFocus(id: String) = requestFocusInternal(id)
 
+    @Deprecated(
+        message = "Focus mutation should go through UiScope helpers inside composition."
+    )
     fun clearFocusIfMatches(id: String) = clearFocusIfMatchesInternal(id)
 
-    fun frameDeltaSeconds(): Float = runtime.frameDeltaSeconds
+    internal fun frameDeltaSecondsInternal(): Float = runtime.frameDeltaSeconds
 
-    fun frameBounds(): UiSlot = runtime.fullFrameRect
+    @Deprecated(
+        message = "Frame metrics should be read from UiScope helpers inside composition."
+    )
+    fun frameDeltaSeconds(): Float = frameDeltaSecondsInternal()
 
-    fun isMeasuring(): Boolean = measuring
+    internal fun frameBoundsInternal(): UiSlot = runtime.fullFrameRect
+
+    @Deprecated(
+        message = "Frame metrics should be read from UiScope helpers inside composition."
+    )
+    fun frameBounds(): UiSlot = frameBoundsInternal()
+
+    internal fun isMeasuringInternal(): Boolean = measuring
+
+    @Deprecated(
+        message = "Measurement mode is engine plumbing; prefer UiScope/layout helpers instead of branching on UiContext."
+    )
+    fun isMeasuring(): Boolean = isMeasuringInternal()
 
     internal fun recordMeasuredSlot(slot: UiSlot) {
         measurement.record(slot, measuring)
@@ -299,7 +444,7 @@ class UiContext internal constructor(
 
     internal fun measuredContentSnapshot(): UiMeasuredContent = measurement.snapshot()
 
-    fun measureColumnContent(
+    internal fun measureColumnContentInternal(
         width: Float,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
@@ -312,7 +457,22 @@ class UiContext internal constructor(
         content = content
     )
 
-    fun measureRowContent(
+    @Deprecated(
+        message = "Measurement should be coordinated from UiScope/layout helpers, not from the public UiContext surface."
+    )
+    fun measureColumnContent(
+        width: Float,
+        gap: Float = UiSpacing.sm.toPx(),
+        insets: UiInsets = UiInsets.Zero,
+        content: ColumnScope.(slot: UiSlot) -> Unit
+    ): UiMeasuredContent = measureColumnContentInternal(
+        width = width,
+        gap = gap,
+        insets = insets,
+        content = content
+    )
+
+    internal fun measureRowContentInternal(
         height: Float,
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
@@ -325,7 +485,37 @@ class UiContext internal constructor(
         content = content
     )
 
-    fun pointerX(): Float = runtime.inputState.pointerX
-    fun pointerY(): Float = runtime.inputState.pointerY
-    fun pointerDown(): Boolean = runtime.inputState.pointerDown
+    @Deprecated(
+        message = "Measurement should be coordinated from UiScope/layout helpers, not from the public UiContext surface."
+    )
+    fun measureRowContent(
+        height: Float,
+        gap: Float,
+        insets: UiInsets = UiInsets.Zero,
+        content: RowScope.(slot: UiSlot) -> Unit
+    ): UiMeasuredContent = measureRowContentInternal(
+        height = height,
+        gap = gap,
+        insets = insets,
+        content = content
+    )
+
+    internal fun pointerXInternal(): Float = runtime.inputState.pointerX
+    internal fun pointerYInternal(): Float = runtime.inputState.pointerY
+    internal fun pointerDownInternal(): Boolean = runtime.inputState.pointerDown
+
+    @Deprecated(
+        message = "Pointer coordinates should be read from UiScope helpers inside composition."
+    )
+    fun pointerX(): Float = pointerXInternal()
+
+    @Deprecated(
+        message = "Pointer coordinates should be read from UiScope helpers inside composition."
+    )
+    fun pointerY(): Float = pointerYInternal()
+
+    @Deprecated(
+        message = "Pointer state should be read from UiScope helpers inside composition."
+    )
+    fun pointerDown(): Boolean = pointerDownInternal()
 }

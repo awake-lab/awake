@@ -40,7 +40,7 @@ fun UiScope.scrollPanel(
     val requestedHeight = modifier.height ?: height
     val containerLabel = modifier.testTag ?: id
 
-    val currentTheme = context.currentTheme
+    val currentTheme = theme
     val resolved = resolveStyle(
         style = style then (modifier.styleable ?: Style.Empty),
         defaults = currentTheme.components.surface
@@ -79,7 +79,7 @@ fun UiScope.scrollPanel(
     val maxInnerWidth = (availableOuterWidth() - paddingWidth).coerceAtLeast(0f)
 
     // Phase 1: Measure content assuming no vertical scrollbar
-    val initialMeasure = context.measureColumnContent(
+    val initialMeasure = measureColumnContent(
         width = maxInnerWidth,
         gap = gap,
         content = content
@@ -101,7 +101,7 @@ fun UiScope.scrollPanel(
 
     // Phase 2: If vertical needed, re-measure with narrowed width for the scrollbar
     if (verticalNeeded && scrollbarReservePx > 0f) {
-        measured = context.measureColumnContent(
+        measured = measureColumnContent(
             width = (maxInnerWidth - scrollbarReservePx).coerceAtLeast(0f),
             gap = gap,
             content = content
@@ -169,18 +169,18 @@ fun UiScope.scrollPanel(
     )
 
     if (hitTest(slot)) {
-        context.onOverScrollable()
+        onOverScrollable()
 
         val scrollDeltaY = context.inputState.scrollDeltaY
         val scrollDeltaX = context.inputState.scrollDeltaX
 
         if (state.canScrollY && scrollDeltaY != 0f) {
             state.scrollBy(deltaY = -scrollDeltaY * config.scrollSpeed)
-            context.onScrollConsumed()
+            onScrollConsumed()
         }
         if (state.canScrollX && scrollDeltaX != 0f) {
             state.scrollBy(deltaX = -scrollDeltaX * config.scrollSpeed)
-            context.onScrollConsumed()
+            onScrollConsumed()
         }
     }
 

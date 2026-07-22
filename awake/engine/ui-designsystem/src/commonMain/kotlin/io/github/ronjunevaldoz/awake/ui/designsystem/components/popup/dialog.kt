@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.frameBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
@@ -36,7 +37,7 @@ fun UiScope.dialog(
 ): UiPopupResult {
     if (!expanded) return UiPopupResult(slot = null, dismissed = false)
 
-    val frameBounds = context.frameBounds()
+    val frameBounds = frameBounds()
     if (properties.showScrim) {
         context.createAbsolute(
             x = frameBounds.x,

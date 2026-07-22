@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -63,10 +64,12 @@ class GameUiRuntime(
         val snapshot = input.currentSnapshot
 
         uiContext.beginFrame(
-            screenWidth = viewportWidth,
-            screenHeight = viewportHeight,
-            inputState = snapshot.toUiInputState(),
-            deltaSeconds = deltaSeconds
+            UiFrameInput(
+                viewportWidth = viewportWidth,
+                viewportHeight = viewportHeight,
+                input = snapshot.toUiInputState(),
+                deltaSeconds = deltaSeconds
+            )
         )
 
         // Overlay calls from game setup
@@ -93,7 +96,7 @@ class GameUiRuntime(
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
     ) {
-        val frame = uiContext.frameBounds()
+        val frame = UiSlot(0f, 0f, viewportWidth, viewportHeight)
         val requestedWidth = modifier.width ?: Dimension.FillMax
         val requestedHeight = modifier.height ?: Dimension.FillMax
         val width = when (requestedWidth) {

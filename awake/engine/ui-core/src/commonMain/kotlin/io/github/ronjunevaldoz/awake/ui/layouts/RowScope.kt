@@ -38,7 +38,7 @@ class RowScope internal constructor(
             return slot
         }
         val resolvedWidth = width.resolve {
-            val availableWidth = this.width ?: (context.frameBounds().width - cursorX)
+            val availableWidth = this.width ?: (context.frameBoundsInternal().width - cursorX)
             (availableWidth - (cursorX - startX)).coerceAtLeast(0f)
         }
         val resolvedHeight = height.resolve { this.height }

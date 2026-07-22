@@ -82,7 +82,7 @@ fun UiScope.popup(
         return UiPopupResult(slot = null, dismissed = false)
     }
 
-    val windowBounds = context.frameBounds()
+    val windowBounds = frameBounds()
     val availableWidth = when (width) {
         is Dimension.Fixed -> width.dp.toPx()
         Dimension.FillMax, Dimension.WrapContent -> windowBounds.width
@@ -91,7 +91,7 @@ fun UiScope.popup(
     val gap = verticalArrangement.baseSpacingPx()
 
     val measured = if (width == Dimension.WrapContent || height == Dimension.WrapContent) {
-        context.measureColumnContent(
+        measureColumnContent(
             width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
             gap = gap,
             insets = insets,
@@ -112,7 +112,7 @@ fun UiScope.popup(
     }
 
     val dismissed = properties.dismissOnClickOutside &&
-        context.pointerDown() &&
+        pointerDown() &&
         !hitTest(anchorSlot) &&
         !hitTest(popupSlot)
 
@@ -120,7 +120,7 @@ fun UiScope.popup(
         return UiPopupResult(slot = popupSlot, dismissed = true)
     }
 
-    if (context.isMeasuring()) {
+    if (isMeasuring()) {
         return UiPopupResult(slot = popupSlot, dismissed = false)
     }
 

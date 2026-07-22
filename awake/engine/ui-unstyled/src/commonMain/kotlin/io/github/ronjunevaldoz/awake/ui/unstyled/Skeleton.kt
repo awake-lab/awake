@@ -12,8 +12,10 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.PI
 import kotlin.math.sin
@@ -33,7 +35,6 @@ fun UiScope.skeleton(
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ) {
-    val theme = context.currentTheme
     val slot = claimModifiedSlot(
         defaultWidth = Dimension.FillMax,
         defaultHeight = Dimension.Fixed(16f.dp),
@@ -41,7 +42,7 @@ fun UiScope.skeleton(
     )
     val resolved = resolveStyle(style = style, defaults = theme.components.slider)
     val state = widgetState(id)
-    val elapsed = state.get("skeletonElapsed", 0f) + context.frameDeltaSeconds()
+    val elapsed = state.get("skeletonElapsed", 0f) + frameDeltaSeconds()
     state.set("skeletonElapsed", elapsed)
     val phase = (elapsed / SKELETON_PULSE_PERIOD_SECONDS) * (2f * PI.toFloat())
     val pulse = SKELETON_PULSE_MIN_ALPHA + (SKELETON_PULSE_MAX_ALPHA - SKELETON_PULSE_MIN_ALPHA) * ((sin(phase) + 1f) / 2f)

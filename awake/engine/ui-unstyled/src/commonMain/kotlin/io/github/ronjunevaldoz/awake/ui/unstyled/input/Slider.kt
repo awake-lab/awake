@@ -11,7 +11,11 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.pointerDown
+import io.github.ronjunevaldoz.awake.ui.pointerX
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
@@ -30,7 +34,6 @@ fun UiScope.slider(
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): Float {
-    val theme = context.currentTheme
     val interaction = interact(
         id = id,
         width = Dimension.FillMax,
@@ -38,10 +41,10 @@ fun UiScope.slider(
         modifier = modifier
     )
     val slot = interaction.slot
-    val pointerDown = context.pointerDown()
+    val pointerDown = pointerDown()
     val dragging = isActive(id) && pointerDown
     val newValue = if (dragging) sliderValueFromPointerX(
-        context.pointerX(),
+        pointerX(),
         slot.x,
         slot.width,
         min,
@@ -97,7 +100,7 @@ fun UiScope.slider(
         text(
             label,
             slot = slot,
-            font = context.currentFont,
+            font = font,
             color = surface.resolved.foreground ?: theme.tokens.foreground,
             centered = true,
             overflow = UiTextOverflow.Ellipsis,

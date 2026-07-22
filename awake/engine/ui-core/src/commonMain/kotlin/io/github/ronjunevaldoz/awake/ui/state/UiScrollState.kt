@@ -88,11 +88,11 @@ open class UiScrollState(
         offsetY = offsetY.coerceIn(0f, maxOffsetY)
     }
 
-    fun scrollBy(deltaX: Float = 0f, deltaY: Float = 0f) {
-        scrollTo(offsetX + deltaX, offsetY + deltaY)
+    fun scrollBy(deltaY: Float = 0f, deltaX: Float = 0f) {
+        scrollTo(offsetY = offsetY + deltaY, offsetX = offsetX + deltaX)
     }
 
-    open fun scrollTo(offsetX: Float = this.offsetX, offsetY: Float = this.offsetY) {
+    open fun scrollTo(offsetY: Float = this.offsetY, offsetX: Float = this.offsetX) {
         this.offsetX = offsetX.coerceIn(0f, maxOffsetX)
         this.offsetY = offsetY.coerceIn(0f, maxOffsetY)
     }
@@ -132,8 +132,8 @@ internal class PersistedUiScrollState(
             widgetState.set("offsetY", value)
         }
 
-    override fun scrollTo(offsetX: Float, offsetY: Float) {
-        super.scrollTo(offsetX, offsetY)
+    override fun scrollTo(offsetY: Float, offsetX: Float) {
+        super.scrollTo(offsetY, offsetX)
         widgetState.set("offsetX", this.offsetX)
         widgetState.set("offsetY", this.offsetY)
     }

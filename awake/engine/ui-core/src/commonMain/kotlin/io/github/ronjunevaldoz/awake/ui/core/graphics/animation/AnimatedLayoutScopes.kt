@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.measureColumnContent
 import io.github.ronjunevaldoz.awake.ui.px
 
 /**
@@ -26,7 +27,7 @@ fun ColumnScope.animatedHeight(
     var cachedHeight: Float = state.get("measuredHeight", 0f)
 
     if (expanded) {
-        val measured = context.measureColumnContent(
+        val measured = measureColumnContent(
             width = fillWidthOrNull() ?: 4096f,
             gap = gap,
             content = content
