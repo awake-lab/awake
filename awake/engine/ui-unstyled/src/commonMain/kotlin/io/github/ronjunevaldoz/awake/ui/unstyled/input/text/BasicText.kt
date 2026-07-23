@@ -5,15 +5,18 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.intersect
+import io.github.ronjunevaldoz.awake.ui.scope.intersect
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
@@ -41,7 +44,8 @@ internal fun UiScope.renderTextBlock(
     maxLines: Int = 1,
     textStyle: TextStyle,
     semanticId: String? = null,
-    semanticRole: UiSemanticRole = UiSemanticRole.Text
+    semanticRole: UiSemanticRole = UiSemanticRole.Text,
+    shimmer: Boolean = false
 ) : UiSlot {
     val glyphPx = resolveGlyphPx(font, textStyle)
     val layout = layoutBitmapText(
@@ -76,8 +80,9 @@ internal fun UiScope.renderTextBlock(
         lineCount = layout.lines.size
     )
 
-    val textColor = color ?: context.currentTheme.tokens.foreground
-    fun emitLines() {
+    val textColor = color ?: context.currentTextStyle.color ?: context.currentTheme.tokens.foreground
+
+    fun emitLinesInternal(drawColor: Color, shimmerGradient: UiLinearGradient? = null, shimmerX: Float? = null, shimmerWidth: Float? = null) {
         var penY = if (verticallyCentered) {
             slot.y + (slot.height - blockMetrics.heightPx) / 2f - blockMetrics.topPx
         } else {
@@ -88,34 +93,93 @@ internal fun UiScope.renderTextBlock(
             var penX = if (centered) slot.x + (slot.width - textWidth) / 2f else slot.x
             for (char in line) {
                 val glyph = font.uvFor(char)
+                val advance = font.advanceFor(char, glyphPx)
                 if (glyph != null) {
+                    val glyphX = penX + glyph.offsetXEm * glyphPx
+                    val glyphY = penY + glyph.offsetYEm * glyphPx
+                    val glyphW = glyph.widthEm * glyphPx
+                    val glyphH = glyph.heightEm * glyphPx
+                    
+                    var finalColor = drawColor
+                    
+                    if (shimmerGradient != null && shimmerX != null && shimmerWidth != null) {
+                        val glyphCenterX = glyphX + glyphW / 2f
+                        val relX = (glyphCenterX - shimmerX) / shimmerWidth
+                        if (relX < 0f || relX > 1f) {
+                            penX += advance
+                            continue
+                        }
+                        
+                        // 3-point horizontal sweep: Transparent -> Accent (topRight) -> Transparent
+                        val peak = 0.5f
+                        val highlight = if (relX < peak) {
+                            shimmerGradient.topLeft.lerp(shimmerGradient.topRight, relX / peak)
+                        } else {
+                            shimmerGradient.topRight.lerp(shimmerGradient.bottomRight, (relX - peak) / (1f - peak))
+                        }
+                        finalColor = highlight
+                    }
+
                     emit(
                         UiDrawPrimitive.Glyph(
-                            pixelPerfectPixel(penX + glyph.offsetXEm * glyphPx),
-                            pixelPerfectPixel(penY + glyph.offsetYEm * glyphPx),
-                            pixelPerfectPixel(glyph.widthEm * glyphPx).coerceAtLeast(1f),
-                            pixelPerfectPixel(glyph.heightEm * glyphPx).coerceAtLeast(1f),
+                            pixelPerfectPixel(glyphX),
+                            pixelPerfectPixel(glyphY),
+                            pixelPerfectPixel(glyphW).coerceAtLeast(1f),
+                            pixelPerfectPixel(glyphH).coerceAtLeast(1f),
                             glyph.u0,
                             glyph.v0,
                             glyph.u1,
                             glyph.v1,
-                            textColor
+                            finalColor
                         )
                     )
                 }
-                penX += font.advanceFor(char, glyphPx)
+                penX += advance
             }
             penY += glyphPx + lineGap
         }
     }
 
+    fun drawAllPasses() {
+        emitLinesInternal(textColor)
+
+        // --- Optional Shimmer Sweep ---
+        if (shimmer && semanticId != null) {
+            val shimmerForward = rememberBooleanState("__shimmer_dir__$semanticId", initial = true)
+            val shimmerPhase = animateFloat(
+                id = "__shimmer_phase__$semanticId",
+                target = if (shimmerForward.value) 1f else 0f,
+                initial = 0f,
+                responsiveness = 3f,
+                snapDistance = 0.01f
+            )
+            if (shimmerForward.value && shimmerPhase >= 0.99f) shimmerForward.value = false
+            if (!shimmerForward.value && shimmerPhase <= 0.01f) shimmerForward.value = true
+
+            val highlightColor = Color.White.withAlpha(0.6f)
+            val shimmerWidth = (slot.width * 1.5f).coerceAtLeast(160f)
+            val shimmerX = slot.x - shimmerWidth + (slot.width + shimmerWidth) * shimmerPhase
+
+            // High-contrast white-ish shimmer for visibility over any text color
+            val gradient = UiLinearGradient(
+                topLeft = Color.Transparent,
+                topRight = highlightColor,
+                bottomRight = Color.Transparent,
+                bottomLeft = Color.Transparent
+            )
+
+            emitLinesInternal(textColor, gradient, shimmerX, shimmerWidth)
+        }
+    }
+
     if (shouldClip) {
         clip(slot) {
-            emitLines()
+            drawAllPasses()
         }
     } else {
-        emitLines()
+        drawAllPasses()
     }
+
     return slot
 }
 

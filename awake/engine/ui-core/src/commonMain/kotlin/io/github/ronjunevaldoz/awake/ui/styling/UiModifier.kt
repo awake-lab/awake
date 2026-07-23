@@ -52,12 +52,14 @@ data class UiModifier(
     val forceFocus: Boolean? = null,
     val scrollState: UiScrollState? = null,
     val scrollConfig: UiScrollConfig = UiScrollConfig.Default,
+    val shimmer: Boolean = false,
     val styleable: Style? = null
 )
 
 fun UiModifier.forceHover(value: Boolean = true): UiModifier = copy(forceHover = value)
 fun UiModifier.forceActive(value: Boolean = true): UiModifier = copy(forceActive = value)
 fun UiModifier.forceFocus(value: Boolean = true): UiModifier = copy(forceFocus = value)
+fun UiModifier.shadcnShimmer(value: Boolean = true): UiModifier = copy(shimmer = value)
 
 fun UiModifier.width(dp: Dp): UiModifier = copy(width = Dimension.Fixed(dp))
 fun UiModifier.height(dp: Dp): UiModifier = copy(height = Dimension.Fixed(dp))

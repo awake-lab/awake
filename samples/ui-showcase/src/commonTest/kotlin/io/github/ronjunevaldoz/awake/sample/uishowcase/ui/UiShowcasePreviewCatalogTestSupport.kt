@@ -71,7 +71,8 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseDropdownOpenPreview,
     UiShowcaseTooltipOpenPreview,
     UiShowcaseAlertDialogPreview,
-    UiShowcaseScrollPanelPreview
+    UiShowcaseScrollPanelPreview,
+    UiShowcaseShimmerPreview
 )
 
 private val PreviewOverlayMenuItems = listOf(
@@ -240,6 +241,41 @@ internal object UiShowcasePopupsPreview : AwakeUiPreviewEntry {
 }
 
 @AwakeUiPreview(
+    id = "ui-showcase-scroll-panel",
+    title = "Scroll Panel State",
+    group = "Layout",
+    summary = "Clipped scroll content and scrollbar proof in one static validation surface.",
+    width = 920,
+    height = 440,
+    reportScale = 2
+)
+internal object UiShowcaseScrollPanelPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcaseCardPreviewFrame(
+            metadata = metadata,
+            badge = "LAYOUT",
+            title = "Scroll panel state",
+            summary = "Scrollable content should clip cleanly, reserve a thumb lane, and keep the card shell measured correctly."
+        ) {
+            drawUiShowcaseScrollPanelContent()
+        }
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-shimmer",
+    title = "Shimmer Effect",
+    group = "Animations",
+    summary = "A sweeping highlight animation for loading states and attention cues.",
+    width = 900,
+    height = 320,
+    reportScale = 2
+)
+internal object UiShowcaseShimmerPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "shimmer")
+}
+
+@AwakeUiPreview(
     id = "ui-showcase-state",
     title = "State Container",
     group = "Patterns",
@@ -379,28 +415,6 @@ internal object UiShowcaseAlertDialogPreview : AwakeUiPreviewEntry {
             drawUiShowcaseAlertDialogContent()
         }
 }
-
-@AwakeUiPreview(
-    id = "ui-showcase-scroll-panel",
-    title = "Scroll Panel State",
-    group = "Layout",
-    summary = "Clipped scroll content and scrollbar proof in one static validation surface.",
-    width = 920,
-    height = 440,
-    reportScale = 2
-)
-internal object UiShowcaseScrollPanelPreview : AwakeUiPreviewEntry {
-    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
-        renderUiShowcaseCardPreviewFrame(
-            metadata = metadata,
-            badge = "LAYOUT",
-            title = "Scroll panel state",
-            summary = "Scrollable content should clip cleanly, reserve a thumb lane, and keep the card shell measured correctly."
-        ) {
-            drawUiShowcaseScrollPanelContent()
-        }
-}
-
 private fun renderUiShowcasePagePreviewFrame(
     metadata: AwakeUiPreviewMetadata,
     pageId: String,

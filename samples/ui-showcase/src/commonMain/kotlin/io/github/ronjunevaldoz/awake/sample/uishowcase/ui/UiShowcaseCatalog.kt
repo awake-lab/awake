@@ -4,11 +4,10 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 
 internal typealias ShowcasePreviewRenderer = ColumnScope.(UiShowcaseRuntimeState) -> Unit
 
@@ -24,6 +23,7 @@ internal enum class ShowcaseCategory(val title: String) {
     Overlays("Overlays"),
     Layout("Layout"),
     Typography("Typography"),
+    Animations("Animations"),
     Patterns("Patterns"),
 }
 
@@ -398,6 +398,24 @@ internal val ShowcasePages = listOf(
             "Hidden content costs nothing to lay out while fully collapsed."
         ),
         renderPreview = { state -> drawUiShowcaseCollapsiblePreview(state) }
+    ),
+    ShowcasePage(
+        id = "shimmer",
+        title = "Shimmer",
+        category = ShowcaseCategory.Animations,
+        description = "A sweeping highlight animation for loading states.",
+        usageCode = """
+            awakeShadcnText(
+                label = "Generating response...",
+                muted = true,
+                modifier = UiModifier().shadcnShimmer()
+            )
+        """.trimIndent(),
+        notes = listOf(
+            "Uses a moving clip rect to draw a secondary 'highlight' pass of the same text.",
+            "Can be enabled/disabled via the modifier property."
+        ),
+        renderPreview = { _ -> drawUiShowcaseShimmerPreview() }
     )
 )
 

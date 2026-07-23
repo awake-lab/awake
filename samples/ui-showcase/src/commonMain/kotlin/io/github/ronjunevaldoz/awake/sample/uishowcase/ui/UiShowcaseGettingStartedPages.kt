@@ -4,13 +4,13 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.animateFloat
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
@@ -34,6 +34,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
+import io.github.ronjunevaldoz.awake.ui.shadcnShimmer
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.width
 
@@ -197,6 +198,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 style = Style {
                     shape(state.showcaseSurfaceRadius.dp)
                     contentPadding(16f.dp)
+                    borderWidth(0f.dp) // Proves we can override variant defaults
                 }
             ) { previewSlot ->
                 val shimmerForward = rememberBooleanState("showcase-preview-shimmer-direction", initial = true)
@@ -221,7 +223,6 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 // Draw chrome BEFORE content so it stays behind widgets
                 drawShowcaseGradientChrome(
                     slot = previewSlot,
-                    radius = state.showcaseSurfaceRadius,
                     shimmerPhase = shimmerPhase,
                     dangerMode = state.showcaseDangerMode
                 )
@@ -237,7 +238,12 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 }
 
                 spacer(UiModifier().height(8f.dp))
-                awakeShadcnBodyText("Showcase Preview Card")
+                val cardTitle = "Showcase Preview Card"
+                awakeShadcnBodyText(
+                    cardTitle,
+                    modifier = if (state.showcaseLiveBadge) UiModifier().shadcnShimmer() else UiModifier()
+                )
+
                 awakeShadcnSupportingText(
                     if (state.showcaseDangerMode) "DANGER MODE: Thematic variant proof for destructive/alert states."
                     else "LIVE PROOF: Animation state proof using conditional canvas shimmer."
@@ -287,7 +293,6 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
 
 private fun ColumnScope.drawShowcaseGradientChrome(
     slot: UiSlot,
-    radius: Float,
     shimmerPhase: Float,
     dangerMode: Boolean,
 ) {
@@ -300,9 +305,12 @@ private fun ColumnScope.drawShowcaseGradientChrome(
     )
 
     canvas(slot) {
+        // Inherit shape from surface stack if available, otherwise fallback to sharp corners
+        val clipSpec = context.currentShapeSpec ?: io.github.ronjunevaldoz.awake.ui.UiShapeSpec.RoundedRectangle(0f.dp)
+        
         // Clip all chrome to the surface's corners
         clipShape(
-            shape = io.github.ronjunevaldoz.awake.ui.UiShapeSpec.RoundedRectangle(radius.dp),
+            shape = clipSpec,
             x = 0f,
             y = 0f,
             width = bounds.width,

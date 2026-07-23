@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -230,6 +229,9 @@ fun UiScope.rawSurface(
         bounds = slot
     )
     context.pushTextStyle(resolved.textStyle)
+    val effectiveShape = resolved.shapeSpec ?: UiShapeSpec.RoundedRectangle(resolved.shape)
+    context.pushShapeSpec(effectiveShape)
+    
     val contentScope = childColumn(
         slot,
         verticalArrangement = Arrangement.spacedBy(gap.px),
@@ -237,12 +239,12 @@ fun UiScope.rawSurface(
         hasBoundedFillWidth = width != Dimension.WrapContent,
         hasBoundedFillHeight = height != Dimension.WrapContent
     )
-    val effectiveShape = resolved.shapeSpec ?: if (resolved.shape.toPx() > 0f) UiShapeSpec.RoundedRectangle(resolved.shape) else null
-    if (clipContent && effectiveShape != null) {
+    if (clipContent) {
         clip(effectiveShape, slot) { contentScope.content(slot) }
     } else {
         contentScope.content(slot)
     }
+    context.popShapeSpec()
     context.popTextStyle()
     return slot
 }

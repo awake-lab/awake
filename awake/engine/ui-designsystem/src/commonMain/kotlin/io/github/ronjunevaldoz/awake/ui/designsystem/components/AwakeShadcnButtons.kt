@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.ProvideTextStyle
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
@@ -17,7 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
@@ -76,20 +74,12 @@ fun UiScope.awakeShadcnButton(
     content: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
     val buttonStyle = awakeShadcnButtonStyle(theme, variant, style)
-    val shadcnTheme = theme.asAwakeShadcnTheme()
-    
-    // Pre-resolve the style so we can capture the correct themed foreground for children
-    val resolved = resolveStyle(
-        style = buttonStyle,
-        defaults = theme.components.button then Style { shape(shadcnTheme.radii.lg) }
-    )
-    
     val result = buttonSlot(
         id = id,
         modifier = modifier.withShadcnSize(size),
         style = buttonStyle,
         variant = variant.toUiButtonVariant(),
-        radius = shadcnTheme.radii.lg
+        radius = theme.asAwakeShadcnTheme().radii.lg
     ) { contentSlot ->
         val alignment = when {
             centered && verticallyCentered -> UiAlignment.Center
@@ -98,12 +88,7 @@ fun UiScope.awakeShadcnButton(
             else -> UiAlignment.TopStart
         }
         val box = childBox(contentSlot, contentAlignment = alignment)
-        
-        // Push the button's resolved foreground color into the text style stack
-        val themedTextStyle = resolved.textStyle.copy(color = resolved.foreground ?: theme.tokens.foreground)
-        box.ProvideTextStyle(themedTextStyle) {
-            box.content(contentSlot)
-        }
+        box.content(contentSlot)
     }
     if (result.clicked) onClick?.invoke()
     return result.clicked

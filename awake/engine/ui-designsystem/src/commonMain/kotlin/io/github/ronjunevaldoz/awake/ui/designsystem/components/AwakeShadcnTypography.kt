@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
@@ -15,9 +16,11 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 /** [sectionTitle] with Shadcn tokens. */
 fun ColumnScope.awakeShadcnSectionTitle(
     title: String,
+    modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty
 ): UiSlot = sectionTitle(
     title = title,
+    modifier = modifier,
     style = Style {
         val shadcnTheme = theme.asAwakeShadcnTheme()
         foreground(shadcnTheme.tokens.foreground)
@@ -40,7 +43,7 @@ fun ColumnScope.awakeShadcnHeadline(
     } then style
 )
 
-/** Standard body text using Shadcn tokens. */
+/**Standard body text using Shadcn tokens. */
 fun ColumnScope.awakeShadcnBodyText(
     label: String,
     modifier: UiModifier = UiModifier(),
@@ -51,7 +54,9 @@ fun ColumnScope.awakeShadcnBodyText(
     modifier = modifier,
     style = Style {
         val shadcnTheme = theme.asAwakeShadcnTheme()
-        foreground(shadcnTheme.tokens.foreground)
+        if (context.currentTextStyle.color == null) {
+            foreground(shadcnTheme.tokens.foreground)
+        }
         textSize(shadcnTheme.typography.body)
     } then style,
     maxLines = maxLines
@@ -68,8 +73,32 @@ fun ColumnScope.awakeShadcnSupportingText(
     modifier = modifier,
     style = Style {
         val shadcnTheme = theme.asAwakeShadcnTheme()
-        foreground(shadcnTheme.tokens.mutedForeground)
+        if (context.currentTextStyle.color == null) {
+            foreground(shadcnTheme.tokens.mutedForeground)
+        }
         textSize(shadcnTheme.typography.caption)
+    } then style,
+    maxLines = maxLines
+)
+
+/** Generic shadcn text component with support for muted state and shimmer modifier. */
+fun UiScope.awakeShadcnText(
+    label: String,
+    modifier: UiModifier = UiModifier(),
+    style: Style = Style.Empty,
+    muted: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE
+): UiSlot = text(
+    label = label,
+    modifier = modifier,
+    style = Style {
+        val shadcnTheme = theme.asAwakeShadcnTheme()
+        if (muted) {
+            foreground(shadcnTheme.tokens.mutedForeground)
+        } else if (context.currentTextStyle.color == null) {
+            foreground(shadcnTheme.tokens.foreground)
+        }
+        textSize(shadcnTheme.typography.body)
     } then style,
     maxLines = maxLines
 )
@@ -86,9 +115,10 @@ fun ColumnScope.awakeShadcnSectionHeader(
 /** Convenience [awakeShadcnSectionHeader] for plain string labels. */
 fun ColumnScope.awakeShadcnSectionHeader(
     title: String,
-    description: String? = null
+    description: String? = null,
+    modifier: UiModifier = UiModifier()
 ): Unit = awakeShadcnSectionHeader(
-    title = { awakeShadcnSectionTitle(title) },
+    title = { awakeShadcnSectionTitle(title, modifier = modifier) },
     description = description?.takeIf { it.isNotBlank() }?.let { text ->
         { awakeShadcnSupportingText(text) }
     }

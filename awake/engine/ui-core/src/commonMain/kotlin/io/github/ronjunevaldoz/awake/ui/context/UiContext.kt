@@ -40,6 +40,7 @@ class UiContext internal constructor(
     val currentTheme: UiTheme get() = stacks.currentTheme
     val currentTextStyle: TextStyle get() = stacks.currentTextStyle
     val currentFont get() = stacks.currentFont
+    val currentShapeSpec get() = stacks.currentShapeSpec
     val inputState: UiInputState get() = runtime.inputState
 
     fun pushTheme(theme: UiTheme) = stacks.pushTheme(theme)
@@ -50,6 +51,9 @@ class UiContext internal constructor(
 
     fun pushFont(font: UiFont) = stacks.pushFont(font)
     fun popFont() = stacks.popFont()
+
+    fun pushShapeSpec(spec: io.github.ronjunevaldoz.awake.ui.UiShapeSpec?) = stacks.pushShapeSpec(spec)
+    fun popShapeSpec() = stacks.popShapeSpec()
 
     /**
      * Resets the context for a new frame. Accepts [UiInputState] to remain
