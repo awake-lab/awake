@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
 import io.github.ronjunevaldoz.awake.ui.clearFocusIfMatches
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip

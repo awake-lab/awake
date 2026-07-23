@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 
 val UiScope.inputState: UiInputState
     get() = context.inputState

@@ -7,6 +7,8 @@ import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.core.graphics.border
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.intersect
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.clip
 import kotlin.test.Test
@@ -184,7 +186,15 @@ class ClipAndBorderTest {
     fun pathClipRasterizerMasksPixelsOutsideCutCorner() {
         val red = Color(1f, 0f, 0f, 1f)
         val primitives = buildList {
-            add(UiDrawPrimitive.ClipPathPush(UiShapeSpec.CutCorner(8f.dp).toPath(UiSlot(10f, 10f, 40f, 30f)), UiSlot(10f, 10f, 40f, 30f)))
+            add(UiDrawPrimitive.ClipPathPush(UiShapeSpec.CutCorner(8f.dp).toPath(
+                UiSlot(
+                    10f,
+                    10f,
+                    40f,
+                    30f
+                )
+            ), UiSlot(10f, 10f, 40f, 30f)
+            ))
             add(UiDrawPrimitive.Quad(10f, 10f, 40f, 30f, red))
             add(UiDrawPrimitive.ClipPop(UiSlot(0f, 0f, 64f, 64f)))
         }

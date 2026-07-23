@@ -5,8 +5,8 @@ package io.github.ronjunevaldoz.awake.ui.context
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.UiSlot
-import io.github.ronjunevaldoz.awake.ui.intersect
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.intersect
 
 internal class UiContextFrameState {
     private val renderCollector = UiRenderCollector()

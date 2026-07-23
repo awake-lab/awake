@@ -5,11 +5,10 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
@@ -20,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.inset
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.verticalPx
 
@@ -36,7 +36,8 @@ internal fun UiScope.drawResolvedText(
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
     semanticId: String? = null,
-    semanticRole: UiSemanticRole = UiSemanticRole.Text
+    semanticRole: UiSemanticRole = UiSemanticRole.Text,
+    shimmer: Boolean = false
 ): UiSlot {
     val theme = context.currentTheme
     if (
@@ -58,7 +59,7 @@ internal fun UiScope.drawResolvedText(
         label = label,
         slot = slot.inset(resolvedStyle.contentPadding),
         font = resolvedFont,
-        color = color ?: resolvedStyle.foreground ?: context.currentTextStyle.color ?: theme.tokens.foreground,
+        color = color ?: resolvedStyle.foreground ?: textStyle.color ?: context.currentTextStyle.color ?: theme.tokens.foreground,
         centered = centered,
         verticallyCentered = verticallyCentered,
         wrap = wrap,
@@ -66,7 +67,8 @@ internal fun UiScope.drawResolvedText(
         maxLines = maxLines,
         textStyle = textStyle,
         semanticId = semanticId,
-        semanticRole = semanticRole
+        semanticRole = semanticRole,
+        shimmer = shimmer
     )
     return slot
 }
@@ -84,7 +86,8 @@ fun UiScope.text(
     maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
     textStyle: TextStyle? = null,
     semanticId: String? = null,
-    semanticRole: UiSemanticRole = UiSemanticRole.Text
+    semanticRole: UiSemanticRole = UiSemanticRole.Text,
+    shimmer: Boolean = false
 ): UiSlot {
     val theme = context.currentTheme
     val resolved = resolveStyle(
@@ -111,7 +114,8 @@ fun UiScope.text(
         overflow = overflow,
         maxLines = maxLines,
         semanticId = semanticId,
-        semanticRole = semanticRole
+        semanticRole = semanticRole,
+        shimmer = shimmer
     )
 }
 
@@ -130,12 +134,13 @@ fun UiScope.text(
     wrap: UiTextWrap = UiTextWrap.None,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
-    textStyle: TextStyle? = null,
+    textStyle: TextStyle? = context.currentTextStyle,
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text
 ): UiSlot {
     val resolvedFont = font
     val theme = context.currentTheme
+    val resolvedSemanticId = semanticId ?: if (modifier.shimmer) modifier.testTag ?: "shimmer-${label.hashCode()}" else null
 
     // We need to know whether the widget is hovered to resolve hover-dependent style state,
     // but performing a hitTest requires a measured slot. To avoid claiming a WrapContent slot
@@ -246,7 +251,8 @@ fun UiScope.text(
         wrap = wrap,
         overflow = overflow,
         maxLines = maxLines,
-        semanticId = semanticId,
-        semanticRole = semanticRole
+        semanticId = resolvedSemanticId,
+        semanticRole = semanticRole,
+        shimmer = modifier.shimmer
     )
 }

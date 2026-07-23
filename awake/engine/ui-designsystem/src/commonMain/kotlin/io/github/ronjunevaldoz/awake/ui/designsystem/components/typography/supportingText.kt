@@ -3,7 +3,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.typography
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap

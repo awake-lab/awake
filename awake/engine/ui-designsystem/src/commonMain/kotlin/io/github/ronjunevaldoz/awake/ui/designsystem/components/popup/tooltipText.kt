@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap

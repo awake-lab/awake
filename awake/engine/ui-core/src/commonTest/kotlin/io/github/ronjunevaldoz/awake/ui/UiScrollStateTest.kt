@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

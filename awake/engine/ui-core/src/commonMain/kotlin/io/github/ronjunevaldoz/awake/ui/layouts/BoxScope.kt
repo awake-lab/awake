@@ -3,7 +3,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 
 /**
  * Every [claimSlot] call returns the same fixed rect -- for a single fixed-position widget,

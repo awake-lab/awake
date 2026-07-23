@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
@@ -19,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
-/** [button] with the resolved [io.github.ronjunevaldoz.awake.ui.UiSlot] alongside the click result. */
+/** [button] with the resolved [UiSlot] alongside the click result. */
 data class UiButtonResult(val clicked: Boolean, val slot: UiSlot)
 
 private inline fun UiScope.buttonSlotInternal(

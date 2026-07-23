@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 
 /** Golden-layout signature for a full screen/page composition -- a structural fingerprint of
  * every recorded [UiSemanticNode]'s role, id, and rounded bounds, independent of color/style.

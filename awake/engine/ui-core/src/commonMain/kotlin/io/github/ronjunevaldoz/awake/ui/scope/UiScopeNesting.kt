@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 
 /**
  * Nested-scope factories that inherit the receiver's overlay behavior automatically.

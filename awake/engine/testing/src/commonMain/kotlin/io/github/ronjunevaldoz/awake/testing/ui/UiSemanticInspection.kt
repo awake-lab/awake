@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 
 enum class UiSemanticIssueKind {
     InvalidSemanticBounds,

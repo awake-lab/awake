@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 

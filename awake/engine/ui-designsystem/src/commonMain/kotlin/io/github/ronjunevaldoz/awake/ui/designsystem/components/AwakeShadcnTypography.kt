@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
@@ -23,7 +23,9 @@ fun ColumnScope.awakeShadcnSectionTitle(
     modifier = modifier,
     style = Style {
         val shadcnTheme = theme.asAwakeShadcnTheme()
-        foreground(shadcnTheme.tokens.foreground)
+        if (context.currentTextStyle.color == null) {
+            foreground(shadcnTheme.tokens.foreground)
+        }
         textSize(shadcnTheme.typography.title)
     } then style
 )
@@ -38,7 +40,9 @@ fun ColumnScope.awakeShadcnHeadline(
     modifier = modifier,
     style = Style {
         val shadcnTheme = theme.asAwakeShadcnTheme()
-        foreground(shadcnTheme.tokens.foreground)
+        if (context.currentTextStyle.color == null) {
+            foreground(shadcnTheme.tokens.foreground)
+        }
         textSize(shadcnTheme.typography.headline)
     } then style
 )

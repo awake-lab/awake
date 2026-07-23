@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
+import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnText
@@ -10,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.shadcnShimmer
+import io.github.ronjunevaldoz.awake.ui.sp
 
 internal fun ColumnScope.drawUiShowcaseShimmerPreview() {
     awakeShadcnSectionHeader(
@@ -20,14 +22,14 @@ internal fun ColumnScope.drawUiShowcaseShimmerPreview() {
     
     awakeShadcnText(
         label = "Generating response...",
-        muted = true,
         modifier = UiModifier().shadcnShimmer()
     )
     
     spacer(UiModifier().height(12f.dp))
     
     awakeShadcnText(
-        label = "Loading scene assets...",
+        label = "LOADING SCENE ASSETS",
+        style = Style { textSize(14f.sp) },
         modifier = UiModifier().shadcnShimmer()
     )
 }

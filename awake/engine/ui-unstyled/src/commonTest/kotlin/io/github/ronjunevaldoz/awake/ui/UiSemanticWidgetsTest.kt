@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text

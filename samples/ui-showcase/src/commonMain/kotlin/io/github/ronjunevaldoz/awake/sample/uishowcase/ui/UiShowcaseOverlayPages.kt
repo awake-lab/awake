@@ -20,7 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMe
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.theme.destructiveStyle
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -30,6 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.theme.destructiveStyle
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
@@ -200,9 +200,10 @@ internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
             modifier = UiModifier().width(132f.dp).height(36f.dp),
             style = theme.components.button
         )
+        val visibility = rememberStateValue("showcase-tooltip-visible") { true }
         tooltip(
             anchorSlot = trigger.slot,
-            visible = true,
+            visible = visibility.value,
             width = Dimension.Fixed(260f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
         ) {

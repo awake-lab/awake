@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -159,7 +160,14 @@ class UiPathTest {
             indices = intArrayOf(0, 1, 2, 2, 3, 0)
         )
 
-        val clipped = quadMesh.clipToConvexPath(UiShapeSpec.CutCorner(6f.dp).toPath(UiSlot(0f, 0f, 40f, 20f)))
+        val clipped = quadMesh.clipToConvexPath(UiShapeSpec.CutCorner(6f.dp).toPath(
+            UiSlot(
+                0f,
+                0f,
+                40f,
+                20f
+            )
+        ))
 
         assertTrue(clipped.points.size > 4, "clipping should introduce intersection vertices")
         assertTrue(clipped.points.none { it.x == 0f && it.y == 0f }, "the fully clipped corner vertex should be removed from the output mesh")
@@ -177,7 +185,14 @@ class UiPathTest {
             indices = intArrayOf(0, 1, 2, 2, 3, 0)
         )
 
-        val clipped = quadMesh.clipToConvexPath(UiShapeSpec.CutCorner(6f.dp).toPath(UiSlot(0f, 0f, 40f, 20f)))
+        val clipped = quadMesh.clipToConvexPath(UiShapeSpec.CutCorner(6f.dp).toPath(
+            UiSlot(
+                0f,
+                0f,
+                40f,
+                20f
+            )
+        ))
 
         assertTrue(clipped.vertices.size > 4, "clipping should introduce intersection vertices")
         assertTrue(clipped.vertices.none { it.position.x == 0f && it.position.y == 0f }, "the fully clipped corner vertex should be removed from the output mesh")

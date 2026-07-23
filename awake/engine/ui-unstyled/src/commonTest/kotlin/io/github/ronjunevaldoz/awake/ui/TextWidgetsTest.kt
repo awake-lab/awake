@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
@@ -203,7 +203,14 @@ class TextWidgetsTest {
 private fun List<UiDrawPrimitive>.glyphBounds(): UiSlot {
     val glyphs = filterIsInstance<UiDrawPrimitive.Glyph>()
     require(glyphs.isNotEmpty()) { "expected at least one glyph primitive" }
-    return glyphs.drop(1).fold(UiSlot(glyphs.first().x, glyphs.first().y, glyphs.first().w, glyphs.first().h)) { acc, glyph ->
+    return glyphs.drop(1).fold(
+        UiSlot(
+            glyphs.first().x,
+            glyphs.first().y,
+            glyphs.first().w,
+            glyphs.first().h
+        )
+    ) { acc, glyph ->
         acc.union(UiSlot(glyph.x, glyph.y, glyph.w, glyph.h))
     }
 }

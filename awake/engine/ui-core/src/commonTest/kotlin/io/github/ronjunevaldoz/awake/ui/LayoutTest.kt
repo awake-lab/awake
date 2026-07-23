@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

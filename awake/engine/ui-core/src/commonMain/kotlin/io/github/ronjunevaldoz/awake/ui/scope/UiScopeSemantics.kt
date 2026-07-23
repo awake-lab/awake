@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+
 fun UiScope.resolveStyle(
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,

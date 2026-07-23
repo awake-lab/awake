@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 
 /**
  * The full set of primitives any widget -- built-in or consumer-defined -- is built from.

@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 import io.github.ronjunevaldoz.awake.core.utils.summarizePixels
 import io.github.ronjunevaldoz.awake.testing.ui.inspectUiFrame
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

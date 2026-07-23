@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /**
@@ -16,7 +17,7 @@ abstract class AbstractUiScope(
     private val emitToOverlay: Boolean = false
 ) : io.github.ronjunevaldoz.awake.ui.UiScope {
     final override val emitsToOverlay: Boolean = emitToOverlay
-    final override fun hitTest(slot: io.github.ronjunevaldoz.awake.ui.UiSlot) =
+    final override fun hitTest(slot: UiSlot) =
         context.hitTestInternal(slot)
 
     final override fun isActive(id: String) = context.isActiveInternal(id)

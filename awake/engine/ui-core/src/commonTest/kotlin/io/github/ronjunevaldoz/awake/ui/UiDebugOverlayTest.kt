@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -36,7 +37,12 @@ class UiDebugOverlayTest {
     fun contextOverlaySurvivesPastEndFrameUntilNextBeginFrame() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(10f, 10f).recordSemantic(role = UiSemanticRole.Button, bounds = UiSlot(10f, 10f, 80f, 32f), id = "b")
+        ui.createAbsolute(10f, 10f).recordSemantic(role = UiSemanticRole.Button, bounds = UiSlot(
+            10f,
+            10f,
+            80f,
+            32f
+        ), id = "b")
         ui.endFrame()
 
         val overlay = ui.debugOverlayPrimitives()

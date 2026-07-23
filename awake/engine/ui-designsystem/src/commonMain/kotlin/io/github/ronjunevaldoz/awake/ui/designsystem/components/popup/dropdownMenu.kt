@@ -2,14 +2,16 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.align
+import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
@@ -18,12 +20,14 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawSurface
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.padding
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.styleable
 import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
@@ -136,10 +140,13 @@ private fun ColumnScope.dropdownMenuItem(
     val labelSize = theme.typography.label
     val resolvedTextStyle = textStyle then TextStyle(size = labelSize)
     val glyphPx = pixelPerfectPixel(labelSize.toPx().coerceAtLeast(1f)).coerceAtLeast(1f)
+    
     val trailingWidth = item.trailingLabel?.let { label ->
         resolvedFont.measureTextWidth(label, glyphPx) + 8f
     } ?: 0f
     val bodyWidth = (width - 24f - trailingWidth).coerceAtLeast(glyphPx)
+
+    val lineGap = glyphPx * 0.25f
     val supportingLayout = item.supportingText?.takeIf { it.isNotBlank() }?.let {
         layoutBitmapText(
             label = it,
@@ -151,79 +158,70 @@ private fun ColumnScope.dropdownMenuItem(
             advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
         )
     }
-    val lineGap = glyphPx * 0.25f
+    
     val supportingHeight = supportingLayout?.blockHeight(glyphPx, lineGap) ?: 0f
     val computedHeight = if (supportingLayout == null) {
         baseHeight
     } else {
+        // Vertical stack: 8dp top + label + 4dp gap + supporting + 8dp bottom
         maxOf(baseHeight, 8f + glyphPx + 4f + supportingHeight + 8f)
     }
-    val height = computedHeight
+
     val result = buttonSlot(
         id = id,
-        modifier = UiModifier().width(width.px).height(height.px),
+        modifier = UiModifier().width(width.px).height(computedHeight.px),
         style = style,
         variant = if (selected) UiButtonVariant.Filled else UiButtonVariant.Ghost
     ) { contentSlot ->
-        val trailingColor = when {
-            !item.enabled -> theme.tokens.mutedForeground
-            selected -> theme.tokens.accentForeground.withAlpha(0.82f)
-            else -> theme.tokens.mutedForeground
-        }
         val textColor = when {
             !item.enabled -> theme.tokens.mutedForeground
             selected -> theme.tokens.accentForeground
             item.destructive -> theme.tokens.destructive
             else -> theme.tokens.foreground
         }
-        val labelSlot = UiSlot(
-            x = contentSlot.x,
-            y = contentSlot.y,
-            width = bodyWidth,
-            height = contentSlot.height
-        )
-        text(
-            label = item.label,
-            slot = labelSlot,
-            color = textColor,
-            font = resolvedFont,
-            verticallyCentered = true,
-            overflow = UiTextOverflow.Ellipsis,
-            textStyle = resolvedTextStyle
-        )
-        item.trailingLabel?.let { label ->
+
+        val verticalPadding = if (supportingLayout == null) 0f.dp else 8f.dp
+        
+        // Use a relative child box to anchor content correctly within the button
+        val box = childBox(contentSlot)
+        
+        box.apply {
+            // --- 1. Label (Primary text) ---
             text(
-                label = label,
-                slot = UiSlot(
-                    x = contentSlot.x + contentSlot.width - trailingWidth,
-                    y = contentSlot.y,
-                    width = trailingWidth,
-                    height = glyphPx
-                ),
-                color = trailingColor,
+                label = item.label,
+                modifier = UiModifier().padding(start = 12f.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(UiAlignment.CenterStart),
+                color = textColor,
                 font = resolvedFont,
-                centered = true,
-                verticallyCentered = true,
                 overflow = UiTextOverflow.Ellipsis,
                 textStyle = resolvedTextStyle
             )
-        }
-        supportingLayout?.let { layout ->
-            text(
-                label = item.supportingText,
-                slot = UiSlot(
-                    x = contentSlot.x,
-                    y = contentSlot.y + glyphPx + 4f,
-                    width = contentSlot.width.coerceAtLeast(0f),
-                    height = layout.blockHeight(glyphPx, lineGap)
-                ),
-                color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
-                font = resolvedFont,
-                wrap = UiTextWrap.Word,
-                overflow = UiTextOverflow.Ellipsis,
-                maxLines = 2,
-                textStyle = resolvedTextStyle
-            )
+
+            // --- 2. Trailing Shortcut ---
+            item.trailingLabel?.let { label ->
+                val trailingColor = if (!item.enabled) theme.tokens.mutedForeground else if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground
+                text(
+                    label = label,
+                    modifier = UiModifier().align(UiAlignment.CenterEnd).padding(start = 0f.dp, top = verticalPadding, end = 12f.dp, bottom = 0f.dp),
+                    color = trailingColor,
+                    font = resolvedFont,
+                    overflow = UiTextOverflow.Ellipsis,
+                    textStyle = resolvedTextStyle
+                )
+            }
+
+            // --- 3. Supporting Text ---
+            supportingLayout?.let {
+                text(
+                    label = item.supportingText!!,
+                    modifier = UiModifier().padding(start = 12f.dp, top = (8f + glyphPx + 4f).dp, end = 12f.dp, bottom = 0f.dp).align(UiAlignment.TopStart),
+                    color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
+                    font = resolvedFont,
+                    wrap = UiTextWrap.Word,
+                    overflow = UiTextOverflow.Ellipsis,
+                    maxLines = 2,
+                    textStyle = resolvedTextStyle
+                )
+            }
         }
     }
     return result.clicked && item.enabled

@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
@@ -24,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.plan
 import io.github.ronjunevaldoz.awake.ui.layouts.requiresMeasuredDistribution
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
 import io.github.ronjunevaldoz.awake.ui.styleable
 import io.github.ronjunevaldoz.awake.ui.toPx
@@ -124,7 +124,6 @@ internal fun UiScope.smartColumn(
         width = resolvedWidth,
         height = resolvedHeight,
         verticalArrangement = verticalArrangement,
-        testTag = containerTag,
         modifier = modifier,
         style = effectiveStyle,
         content = content
@@ -220,7 +219,6 @@ fun UiScope.rawColumn(
     width: Dimension = Dimension.FillMax,
     height: Dimension = Dimension.WrapContent,
     verticalArrangement: Arrangement = defaultArrangement(),
-    testTag: String? = null,
     modifier: UiModifier = UiModifier(),
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
@@ -256,7 +254,6 @@ fun UiScope.rawColumn(
             slot = slot,
             gap = plan.betweenSpacePx,
             verticalArrangement = effectiveArrangement,
-            testTag = testTag ?: modifier.testTag,
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
             overlayOnly = emitsToOverlay,
@@ -266,7 +263,7 @@ fun UiScope.rawColumn(
         childColumn(
             slot,
             verticalArrangement = effectiveArrangement,
-            modifier = UiModifier(testTag = testTag ?: modifier.testTag),
+            modifier = UiModifier(testTag = modifier.testTag),
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
         )

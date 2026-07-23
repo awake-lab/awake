@@ -28,7 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme

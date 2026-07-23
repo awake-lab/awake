@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.containsPoint
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
@@ -273,7 +274,7 @@ fun List<UiDrawPrimitive>.rasterize(
             is UiDrawPrimitive.GradientQuad -> fillGradientRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.gradient)
             is UiDrawPrimitive.RoundedQuad -> fillTriangleMesh(
                 UiShapeSpec.RoundedRectangle(primitive.radius.px)
-                    .toPath(io.github.ronjunevaldoz.awake.ui.UiSlot(primitive.x, primitive.y, primitive.w, primitive.h))
+                    .toPath(UiSlot(primitive.x, primitive.y, primitive.w, primitive.h))
                     .tessellateFill(),
                 primitive.color
             )

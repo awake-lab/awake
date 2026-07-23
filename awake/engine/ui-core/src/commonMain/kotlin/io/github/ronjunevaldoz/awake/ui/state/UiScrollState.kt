@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 
 /** Slot API for custom scrollbar rendering. */
 typealias UiScrollbarSlot = AbsoluteScope.(thumb: UiScrollThumb) -> Unit

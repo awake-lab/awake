@@ -22,6 +22,13 @@ data class Color(val r: Float = 0f, val g: Float = 0f, val b: Float = 0f, val a:
 
     fun isTransparent(): Boolean = a <= 0f
 
+    fun lerp(other: Color, fraction: Float): Color = Color(
+        r = r + (other.r - r) * fraction.coerceIn(0f, 1f),
+        g = g + (other.g - g) * fraction.coerceIn(0f, 1f),
+        b = b + (other.b - b) * fraction.coerceIn(0f, 1f),
+        a = a + (other.a - a) * fraction.coerceIn(0f, 1f)
+    )
+
     fun toFloatArray(): FloatArray = floatArrayOf(r, g, b, a)
 
     companion object {

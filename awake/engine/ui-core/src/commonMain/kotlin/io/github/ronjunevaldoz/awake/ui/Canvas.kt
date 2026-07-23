@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.core.graphics.emitPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.internal.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.internal.gradientRect
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 @AwakeUiDsl

@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 
 /**
  * Backend-neutral output of a [io.github.ronjunevaldoz.awake.ui.context.UiContext] frame -- each backend's `Renderer.drawUi` converts

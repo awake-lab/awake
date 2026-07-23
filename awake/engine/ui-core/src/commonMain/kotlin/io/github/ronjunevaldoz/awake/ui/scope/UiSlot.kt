@@ -1,7 +1,10 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui
+package io.github.ronjunevaldoz.awake.ui.scope
 
+/**
+ * TODO should be internal only??
+ */
 data class UiSlot(val x: Float, val y: Float, val width: Float, val height: Float)
 
 /** Clamps this rect to the region it shares with [other] -- zero-size if they don't overlap. */

@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

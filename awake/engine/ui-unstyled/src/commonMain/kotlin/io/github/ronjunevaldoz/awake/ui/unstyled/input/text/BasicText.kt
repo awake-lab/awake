@@ -8,16 +8,16 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.scope.intersect
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.intersect
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 /** Draws [label] as a row of glyph quads. */
@@ -144,6 +144,7 @@ internal fun UiScope.renderTextBlock(
         emitLinesInternal(textColor)
 
         // --- Optional Shimmer Sweep ---
+        // TODO this should be move out of core-ui and move to UiModifier graphics layer callback
         if (shimmer && semanticId != null) {
             val shimmerForward = rememberBooleanState("__shimmer_dir__$semanticId", initial = true)
             val shimmerPhase = animateFloat(

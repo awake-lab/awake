@@ -4,10 +4,10 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
-import io.github.ronjunevaldoz.awake.ui.UiSlot
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.intersect
+import io.github.ronjunevaldoz.awake.ui.scope.intersect
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 enum class UiInspectionIssueKind {
