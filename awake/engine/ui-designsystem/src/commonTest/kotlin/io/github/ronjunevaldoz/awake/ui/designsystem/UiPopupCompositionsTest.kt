@@ -14,10 +14,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDia
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuResult
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dialog
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltipText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
@@ -47,7 +47,7 @@ class UiPopupCompositionsTest {
 
         var result: UiPopupResult? = null
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(220f.dp)) {
-            result = tooltipText(
+            result = shadcnTooltipText(
                 anchorSlot = UiSlot(48f, 24f, 96f, 28f),
                 visible = true,
                 text = "Helpful hint"
@@ -70,7 +70,7 @@ class UiPopupCompositionsTest {
 
         ui.beginFrame(220f, 180f, testSnapshot(x = 32f, y = 58f, down = true))
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(200f.dp)) {
-            result = dropdownMenu(
+            result = shadcnDropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
                 expanded = true,
@@ -83,7 +83,7 @@ class UiPopupCompositionsTest {
 
         ui.beginFrame(220f, 180f, testSnapshot(x = 32f, y = 58f, down = false))
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(200f.dp)) {
-            result = dropdownMenu(
+            result = shadcnDropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
                 expanded = true,
@@ -106,7 +106,7 @@ class UiPopupCompositionsTest {
 
         ui.beginFrame(240f, 220f, testSnapshot(x = 32f, y = 92f, down = true))
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(220f.dp)) {
-            result = dropdownMenu(
+            result = shadcnDropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
                 expanded = true,
@@ -122,7 +122,7 @@ class UiPopupCompositionsTest {
 
         ui.beginFrame(240f, 220f, testSnapshot(x = 32f, y = 92f, down = false))
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(220f.dp)) {
-            result = dropdownMenu(
+            result = shadcnDropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
                 expanded = true,
@@ -149,7 +149,7 @@ class UiPopupCompositionsTest {
 
         var result: UiPopupResult? = null
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(280f.dp)) {
-            result = dialog(
+            result = shadcnDialog(
                 id = "confirm",
                 expanded = true,
                 width = Dimension.Fixed(120f.px),
@@ -181,7 +181,7 @@ class UiPopupCompositionsTest {
 
         ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = true))
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
-            result = alertDialog(
+            result = shadcnAlertDialog(
                 id = "confirm",
                 expanded = true,
                 title = "Delete",
@@ -192,7 +192,7 @@ class UiPopupCompositionsTest {
 
         ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = false))
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
-            result = alertDialog(
+            result = shadcnAlertDialog(
                 id = "confirm",
                 expanded = true,
                 title = "Delete",
@@ -212,7 +212,7 @@ class UiPopupCompositionsTest {
         ui.pushTheme(CoreUiTheme)
         val measured = ui.measureColumnContent(width = 220f) { _ ->
             text("Popup proof")
-            alertDialog(
+            shadcnAlertDialog(
                 id = "measure-only-dialog",
                 expanded = true,
                 title = "Delete this scene?",
@@ -232,7 +232,7 @@ class UiPopupCompositionsTest {
         ui.beginFrame(320f, 240f,  testSnapshot())
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
-            dialog(
+            shadcnDialog(
                 id = "dialog",
                 expanded = true
             ) {
@@ -265,7 +265,7 @@ class UiPopupCompositionsTest {
         ui.beginFrame(320f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
-            dialog(id = "confirm", expanded = true, actions = {
+            shadcnDialog(id = "confirm", expanded = true, actions = {
                 shadcnButton(
                     id = "confirm.action",
                     variant = ShadcnButtonVariant.Primary,

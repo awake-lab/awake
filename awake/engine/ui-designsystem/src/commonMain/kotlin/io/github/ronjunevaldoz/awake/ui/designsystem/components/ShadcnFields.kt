@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
@@ -313,7 +313,7 @@ fun UiScope.shadcnDropdown(
         selected = popupState.expanded
     )
 
-    val result = dropdownMenu(
+    val result = shadcnDropdownMenu(
         id = "$id.dropdown",
         anchorSlot = trigger.slot,
         expanded = popupState.expanded,

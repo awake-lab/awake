@@ -37,7 +37,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-fun UiScope.dropdownMenu(
+fun UiScope.shadcnDropdownMenu(
     id: String,
     anchorSlot: UiSlot,
     expanded: Boolean,

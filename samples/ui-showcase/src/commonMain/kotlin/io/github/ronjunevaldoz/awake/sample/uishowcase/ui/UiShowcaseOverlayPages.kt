@@ -12,9 +12,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupporting
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -129,7 +129,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         if (menuTrigger.clicked) {
             actionMenuState.toggle()
         }
-        val menuResult = dropdownMenu(
+        val menuResult = shadcnDropdownMenu(
             id = "ui-showcase-action-menu",
             anchorSlot = menuTrigger.slot,
             expanded = actionMenuState.expanded,
@@ -164,7 +164,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
     spacer(Modifier.height(4f.dp))
     shadcnSupportingText(feedbackMessage.value)
 
-    val dialogResult = alertDialog(
+    val dialogResult = shadcnAlertDialog(
         id = "ui-showcase-delete-dialog",
         expanded = deleteDialogState.expanded,
         title = "Delete showcase card?",
@@ -202,7 +202,7 @@ internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
             style = theme.components.button
         )
         val visibility = rememberStateValue("showcase-tooltip-visible") { true }
-        tooltip(
+        shadcnTooltip(
             anchorSlot = trigger.slot,
             visible = visibility.value,
             width = Dimension.Fixed(260f.dp),

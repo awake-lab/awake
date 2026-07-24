@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnProp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertySlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -301,7 +301,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             pushTheme(ShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(modifier = Modifier.width(360f.dp)) {
-                alertDialog(
+                shadcnAlertDialog(
                     id = "snapshot-alert",
                     expanded = true,
                     title = "Delete this very long showcase card title that must wrap?",

@@ -25,9 +25,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
@@ -664,7 +664,7 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
             modifier = Modifier.width(124f.px).height(36f.dp),
             style = theme.components.button
         )
-        dropdownMenu(
+        shadcnDropdownMenu(
             id = "showcase-matrix-dropdown-menu",
             anchorSlot = trigger.slot,
             expanded = true,
@@ -697,7 +697,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
             modifier = Modifier.width(132f.px).height(36f.dp),
             style = theme.components.button
         )
-        tooltip(
+        shadcnTooltip(
             anchorSlot = trigger.slot,
             visible = true,
             width = Dimension.Fixed(260f.dp),
@@ -730,7 +730,7 @@ private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
         modifier = Modifier.width(140f.px).height(36f.dp),
         variant = ShadcnButtonVariant.Outline
     )
-    alertDialog(
+    shadcnAlertDialog(
         id = "showcase-matrix-alert-dialog",
         expanded = true,
         title = "Delete this long showcase card title before publishing the updated catalog?",

@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-fun UiScope.tooltipText(
+fun UiScope.shadcnTooltipText(
     anchorSlot: UiSlot,
     visible: Boolean,
     text: String,
@@ -24,7 +24,7 @@ fun UiScope.tooltipText(
     ),
     properties: UiPopupProperties = UiPopupProperties(),
     style: Style = Style.Empty
-): UiPopupResult = tooltip(
+): UiPopupResult = shadcnTooltip(
     anchorSlot = anchorSlot,
     visible = visible,
     positionProvider = positionProvider,

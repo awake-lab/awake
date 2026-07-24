@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupporting
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.propertyRow
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnPropertyRow
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -48,7 +48,7 @@ fun ColumnScope.shadcnPropertyToggle(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
     var resolved = checked
-    propertyRow(
+    shadcnPropertyRow(
         modifier = modifier.height(40f.dp),
         labelContent = labelContent
     ) { _ ->
@@ -70,7 +70,7 @@ fun ColumnScope.shadcnPropertyToggle(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
     var resolved = checked
-    propertyRow(
+    shadcnPropertyRow(
         height = height,
         labelContent = labelContent
     ) { _ ->
@@ -109,7 +109,7 @@ fun ColumnScope.shadcnPropertyDropdown(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Int? {
     var resolved: Int? = null
-    propertyRow(
+    shadcnPropertyRow(
         modifier = modifier.height(40f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
@@ -135,7 +135,7 @@ fun ColumnScope.shadcnPropertyDropdown(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Int? {
     var resolved: Int? = null
-    propertyRow(
+    shadcnPropertyRow(
         height = height,
         labelWidth = labelWidth,
         labelContent = labelContent
@@ -187,7 +187,7 @@ fun ColumnScope.shadcnPropertyTextField(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): String {
     var resolved = value
-    propertyRow(
+    shadcnPropertyRow(
         modifier = modifier.height(40f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
@@ -259,7 +259,7 @@ fun ColumnScope.shadcnPropertyTextarea(
     val minHeight = (fontHeight * minLines) + (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
 
     var resolved = value
-    propertyRow(
+    shadcnPropertyRow(
         modifier = modifier.height(minHeight.px),
         labelWidth = labelWidth,
         labelContent = labelContent
@@ -320,7 +320,7 @@ fun ColumnScope.shadcnPropertySlider(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Float {
     var resolved = value
-    propertyRow(
+    shadcnPropertyRow(
         modifier = modifier.height(40f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
@@ -348,7 +348,7 @@ fun ColumnScope.shadcnPropertySlider(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Float {
     var resolved = value
-    propertyRow(
+    shadcnPropertyRow(
         height = height,
         labelWidth = labelWidth,
         labelContent = labelContent

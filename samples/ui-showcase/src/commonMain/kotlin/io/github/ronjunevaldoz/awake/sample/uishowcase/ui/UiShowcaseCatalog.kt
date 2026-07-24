@@ -286,13 +286,13 @@ internal val ShowcasePages = listOf(
                 label = "Actions",
                 modifier = Modifier.width(112f.dp).height(36f.dp)
             )
-            val result = dropdownMenu(
+            val result = shadcnDropdownMenu(
                 id = "actions.menu",
                 anchorSlot = trigger.slot,
                 expanded = popupState.expanded,
                 items = ShowcaseActionMenuItems
             )
-            alertDialog("delete", expanded = dialogState.expanded, title = "Delete scene?")
+            shadcnAlertDialog("delete", expanded = dialogState.expanded, title = "Delete scene?")
         """.trimIndent(),
         notes = listOf(
             "The dropdown now renders inside a popover container with padding and grouped rows.",

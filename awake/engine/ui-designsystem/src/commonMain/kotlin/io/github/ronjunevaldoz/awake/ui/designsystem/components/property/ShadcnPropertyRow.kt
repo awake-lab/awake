@@ -28,13 +28,6 @@ private const val PROPERTY_LABEL_MAX_FRACTION = 0.45f
 private const val PROPERTY_MIN_CONTROL_WIDTH_GLYPHS = 12
 private val DefaultPropertyRowHeight = 40f.dp
 
-internal data class PropertyInteraction(
-    val slot: UiSlot,
-    val hovered: Boolean,
-    val active: Boolean,
-    val clicked: Boolean
-)
-
 internal data class PropertyRowLayout(
     val labelSlot: UiSlot,
     val controlSlot: UiSlot
@@ -44,7 +37,7 @@ internal data class PropertyRowLayout(
  * Standard property row with a label and a control area.
  * Returns the slot reserved for the control.
  */
-fun UiScope.propertyRow(
+fun UiScope.shadcnPropertyRow(
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     labelContent: BoxScope.(slot: UiSlot) -> Unit,
@@ -73,21 +66,21 @@ fun UiScope.propertyRow(
     return layout.controlSlot
 }
 
-/** [propertyRow] convenience with a fixed height. */
-fun UiScope.propertyRow(
+/** [shadcnPropertyRow] convenience with a fixed height. */
+fun UiScope.shadcnPropertyRow(
     height: Dp,
     labelWidth: Dp = 64f.dp,
     labelContent: BoxScope.(slot: UiSlot) -> Unit,
     content: BoxScope.(slot: UiSlot) -> Unit
-): UiSlot = propertyRow(
+): UiSlot = shadcnPropertyRow(
     modifier = Modifier.height(height),
     labelWidth = labelWidth,
     labelContent = labelContent,
     content = content
 )
 
-/** [propertyRow] convenience with a plain string label. */
-fun UiScope.propertyRow(
+/** [shadcnPropertyRow] convenience with a plain string label. */
+fun UiScope.shadcnPropertyRow(
     label: String,
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp
@@ -122,43 +115,25 @@ fun UiScope.propertyRow(
     return layout.controlSlot
 }
 
-/** [propertyRow] convenience with a plain string label and a content lambda for the control. */
-fun UiScope.propertyRow(
+/** [shadcnPropertyRow] convenience with a plain string label and a content lambda for the control. */
+fun UiScope.shadcnPropertyRow(
     label: String,
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     content: BoxScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val slot = propertyRow(label, modifier, labelWidth)
+    val slot = shadcnPropertyRow(label, modifier, labelWidth)
     childBox(slot).content(slot)
     return slot
 }
 
-/** [propertyRow] convenience with a plain string label and fixed height. */
-fun UiScope.propertyRow(
+/** [shadcnPropertyRow] convenience with a plain string label and fixed height. */
+fun UiScope.shadcnPropertyRow(
     label: String,
     height: Dp,
     labelWidth: Dp = 64f.dp,
     content: BoxScope.(slot: UiSlot) -> Unit
-): UiSlot = propertyRow(label, Modifier.height(height), labelWidth, content)
-
-/** [propertyCheckbox] convenience with fixed height. */
-fun UiScope.propertyCheckbox(
-    id: String,
-    checked: Boolean,
-    label: String,
-    height: Dp,
-    modifier: UiModifier = Modifier,
-    style: Style = Style.Empty,
-    boxSize: Dp = 16f.dp
-): Boolean = propertyCheckbox(
-    id = id,
-    checked = checked,
-    label = label,
-    modifier = modifier.height(height),
-    style = style,
-    boxSize = boxSize
-)
+): UiSlot = shadcnPropertyRow(label, Modifier.height(height), labelWidth, content)
 
 internal fun resolvePropertyLabelWidthPx(
     rowWidthPx: Float,

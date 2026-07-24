@@ -44,9 +44,11 @@ Concrete rule for what belongs in each module, beyond "generic" vs "branded":
   logic, that logic belongs in `ui-unstyled` (generic) or `ui-dsl` (composition), not smuggled
   into the wrapper.
 - `ui-designsystem` may also own branded *compositions* that don't map to a single
-  `ui-unstyled` widget (`dialog`, `dropdownMenu`, `alertDialog`, `tabs`,
-  `shadcnPropertyDropdown`, ...) when the composition itself is brand-opinionated. The
-  same composition with no brand opinion belongs in `ui-dsl` instead (Hard Rule 3).
+  `ui-unstyled` widget (`shadcnDialog`, `shadcnDropdownMenu`, `shadcnAlertDialog`,
+  `shadcnTabs`, `shadcnPropertyDropdown`, ...) when the composition itself is
+  brand-opinionated. Every `ui-designsystem` export is `shadcn`-prefixed, including these --
+  there is no unprefixed variant. The same composition with no brand opinion belongs in
+  `ui-dsl` instead (Hard Rule 3).
 
 ## Module Responsibilities
 

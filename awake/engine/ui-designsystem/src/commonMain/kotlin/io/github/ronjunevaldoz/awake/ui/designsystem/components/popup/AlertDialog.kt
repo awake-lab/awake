@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-fun UiScope.alertDialog(
+fun UiScope.shadcnAlertDialog(
     id: String,
     expanded: Boolean,
     title: String,
@@ -34,7 +34,7 @@ fun UiScope.alertDialog(
     style: Style = Style.Empty
 ): UiAlertDialogResult {
     var action: UiAlertDialogAction? = null
-    val popup = dialog(
+    val popup = shadcnDialog(
         id = id,
         expanded = expanded,
         width = width,
