@@ -22,8 +22,14 @@ These are placement rules, not style preferences.
 5. `UiSlot` is a `ui-core`-internal measurement type. No module outside `ui-core` may
    construct, read, or `.copy()` a `UiSlot`. Anything crossing the `ui-core` boundary
    (`surface{}`/`row{}`/`claimSlot()` return values, `UiSemanticNode.contentBounds`, lambda
-   params handed to widget code) must use `UiBounds` instead. See
-   `docs/tasks/2026-07-24-uislot-narrowing.md` for the migration in progress.
+   params handed to widget code) must use `UiBounds` instead. **Confirmed concrete instances
+   of this violation (2026-07-24):** `popup(anchorSlot: UiSlot, ...)` (`ui-core/UiPopup.kt`)
+   and its downstream `anchorSlot: UiSlot` params on `shadcnTooltip`, `shadcnTooltipText`,
+   `shadcnDropdownMenu` (`ui-designsystem/components/popup/`) -- these take a caller-supplied
+   `UiSlot`, and several call sites (including test files) construct `UiSlot(...)` directly as
+   the argument, which is exactly what this rule forbids. See
+   `docs/tasks/2026-07-24-uislot-narrowing.md` for the batched migration plan -- `anchorSlot` is
+   Batch 1.
 6. **No authored param may duplicate what `UiModifier` or `Style` already expresses.** Not
    limited to params literally named `width`/`height`/`gap`/`insets` -- any `Dp`/`Float` param
    that's really a size, position, or spacing value under another name (`diameter`, `radius`
