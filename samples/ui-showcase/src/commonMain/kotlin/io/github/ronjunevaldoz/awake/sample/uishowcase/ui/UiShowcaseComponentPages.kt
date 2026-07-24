@@ -34,12 +34,12 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
     shadcnSupportingText("Matches docs/reference/shadcn-previews/button_variants_light.png for a direct side-by-side.")
     spacer(Modifier.height(8f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
+    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
         shadcnButton("showcase-button-primary", label = "Primary", variant = ShadcnButtonVariant.Primary, modifier = Modifier.width(120f.dp))
         shadcnButton("showcase-button-secondary", label = "Secondary", variant = ShadcnButtonVariant.Secondary, modifier = Modifier.width(120f.dp))
         shadcnButton("showcase-button-outline", label = "Outline", variant = ShadcnButtonVariant.Outline, modifier = Modifier.width(112f.dp))
     }
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
+    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
         shadcnButton("showcase-button-ghost", label = "Ghost", variant = ShadcnButtonVariant.Ghost, modifier = Modifier.width(100f.dp))
         shadcnButton("showcase-button-danger", label = "Danger", variant = ShadcnButtonVariant.Danger, modifier = Modifier.width(108f.dp))
     }
@@ -97,7 +97,7 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRunti
     ) {
         column(
             verticalArrangement = Arrangement.spacedBy(8f.dp)
-        , modifier = Modifier.copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.WrapContent)) {
+        , modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
             shadcnSeparator(modifier = Modifier.padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
                 text("@radix-ui/primitives", modifier = Modifier.padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))

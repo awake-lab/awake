@@ -21,6 +21,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -53,22 +55,22 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
         if (compact) {
             column(
                 verticalArrangement = Arrangement.spacedBy(12f.dp),
-                modifier = (Modifier.fillMaxSize().padding(outerPadding)).copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.FillMax)) {
+                modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax)) {
                 shadcnSurface(
                     id = "ui-showcase-mobile-sidebar",
                     variant = ShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
-                    modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).copy(heightDimension = Dimension.FillMax)) {
+                    modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).height(Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = true)
                 }
 
                 column(
                     id = "ui-showcase-mobile-content-viewport",
-                    modifier = (Modifier.verticalScroll(contentScroll)).copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.FillMax)) {
+                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax)) {
                     shadcnSurface(
                         id = "ui-showcase-mobile-content",
                         style = Style { shape(16f.dp) }
-                    , modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
+                    , modifier = Modifier.height(Dimension.WrapContent)) {
                         drawUiShowcasePageContent(state, showInlineMenu = true)
                     }
                 }
@@ -76,22 +78,22 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
         } else {
             row(
                 horizontalArrangement = Arrangement.spacedBy(railGap),
-                modifier = (Modifier.fillMaxSize().padding(outerPadding)).copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.FillMax)) {
+                modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax)) {
                 shadcnSurface(
                     id = "ui-showcase-sidebar",
                     variant = ShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
-                    modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).copy(widthDimension = sidebarWidth, heightDimension = Dimension.FillMax)) {
+                    modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).width(sidebarWidth).height(Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = false)
                 }
 
                 column(
                     id = "ui-showcase-content-viewport",
-                    modifier = (Modifier.verticalScroll(contentScroll)).copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.FillMax)) {
+                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax)) {
                     shadcnSurface(
                         id = "ui-showcase-content",
                         style = Style { shape(16f.dp) }
-                    , modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
+                    , modifier = Modifier.height(Dimension.WrapContent)) {
                         drawUiShowcasePageContent(state, showInlineMenu = false)
                     }
                 }

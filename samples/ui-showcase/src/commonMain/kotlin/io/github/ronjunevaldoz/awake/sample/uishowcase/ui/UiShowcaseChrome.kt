@@ -84,7 +84,7 @@ internal fun ColumnScope.drawUiShowcasePageContent(
             id = "ui-showcase-notes-${page.id}",
             variant = ShadcnSurfaceVariant.Card,
             style = Style { shape(14f.dp) }
-        , modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
+        , modifier = Modifier.height(Dimension.WrapContent)) {
             shadcnSectionTitle("Notes")
             supportingLines(page.notes)
         }
@@ -166,7 +166,7 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
         id = "ui-showcase-preview-code-${page.id}",
         variant = ShadcnSurfaceVariant.Card,
         style = Style { shape(14f.dp) }
-    , modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
+    , modifier = Modifier.height(Dimension.WrapContent)) {
         if (showCode) {
             drawUiShowcaseCodeBlock(page.usageCode)
         } else {

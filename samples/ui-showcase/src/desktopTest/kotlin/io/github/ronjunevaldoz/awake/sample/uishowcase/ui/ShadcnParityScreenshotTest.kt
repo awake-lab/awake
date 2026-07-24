@@ -137,7 +137,7 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
             modifier = Modifier.offset(30f.dp, 45f.dp).width(600f.dp)
                 .height((metadata.height.toFloat() - 45f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
-        ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
+        ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
                 shadcnButton(
                     "parity-default",
                     "Default",
@@ -204,7 +204,7 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
             modifier = Modifier.offset(30f.dp, 42f.dp).width(420f.dp)
                 .height((metadata.height.toFloat() - 42f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
-        ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 30f.dp.toDimension())) {
+        ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(30f.dp.toDimension())) {
                 shadcnBadge(
                     "Default",
                     modifier = Modifier.width(72f.px).height(30f.px),
@@ -410,7 +410,7 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
-            row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.copy(heightDimension = 48f.dp.toDimension())) {
+            row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(48f.dp.toDimension())) {
                 shadcnAvatar("CN")
                 shadcnAvatar("RV", modifier = Modifier.size(48f.dp, 48f.dp))
             }
@@ -445,7 +445,7 @@ internal object AwakeKbdLightPreview : AwakeUiPreviewEntry {
                 .height((metadata.height.toFloat() - 52f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
-            row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.copy(heightDimension = 24f.dp.toDimension())) {
+            row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(24f.dp.toDimension())) {
                 shadcnKbd("Ctrl")
                 shadcnKbd("K")
             }
@@ -714,7 +714,7 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
-            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
+            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
                 shadcnToggle("parity-toggle-off", checked = false, label = "B", modifier = Modifier.width(40f.px).height(40f.px))
                 shadcnToggle("parity-toggle-on", checked = true, label = "B", modifier = Modifier.width(40f.px).height(40f.px))
                 shadcnToggle("parity-toggle-disabled", checked = false, label = "B", modifier = Modifier.width(40f.px).height(40f.px), enabled = false)
@@ -778,7 +778,7 @@ internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = shadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
+            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
                 toggle("toggle-off", checked = false, label = "Off", modifier = forcedModifier.width(Dimension.Fixed(60f.px)))
                 toggle("toggle-on", checked = true, label = "On", modifier = forcedModifier.width(Dimension.Fixed(60f.px)))
             }
@@ -817,7 +817,7 @@ internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = shadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
+            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
                 switch("switch-off", checked = false, label = "Off", modifier = forcedModifier)
                 switch("switch-on", checked = true, label = "On", modifier = forcedModifier)
             }

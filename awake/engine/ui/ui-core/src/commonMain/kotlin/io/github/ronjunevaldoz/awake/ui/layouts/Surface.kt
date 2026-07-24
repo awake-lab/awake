@@ -64,7 +64,7 @@ fun ColumnScope.surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
-    modifier = modifier.copy(widthDimension = modifier.widthDimension ?: Dimension.FillMax),
+    modifier = modifier.width(modifier.widthDimension ?: Dimension.FillMax),
     clipContent = clipContent,
     content = content
 )
@@ -80,7 +80,7 @@ fun RowScope.surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
-    modifier = modifier.copy(heightDimension = modifier.heightDimension ?: Dimension.FillMax),
+    modifier = modifier.height(modifier.heightDimension ?: Dimension.FillMax),
     clipContent = clipContent,
     content = content
 )

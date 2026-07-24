@@ -68,7 +68,7 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
     shadcnBodyText("Count: ${counterState.count}")
     shadcnSupportingText("Last effect: ${state.showcaseCounterEffectMessage ?: "None"}")
     spacer(Modifier.height(6f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())) {
+    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
         if (
             shadcnButton(
                 id = "counter-decrement",
@@ -90,7 +90,7 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
             state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Increment)
         }
     }
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())) {
+    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
         if (
             shadcnButton(
                 id = "counter-reset",
@@ -118,7 +118,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
     shadcnBadge("OVERLAY", variant = ShadcnBadgeVariant.Outline)
     shadcnSupportingText("The action menu anchors to the trigger and opens inside a contained popover surface.")
     spacer(Modifier.height(6f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())) {
+    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
         val menuTrigger = buttonSlot(
             id = "ui-showcase-menu-trigger",
             label = "Actions",
@@ -194,7 +194,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
 internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
     shadcnSupportingText("Tooltips stay small and contextual: anchored to a trigger, wrapped inside a surfaced popup, and dismissible without changing the surrounding layout.")
     spacer(Modifier.height(8f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())) {
+    row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
         val trigger = buttonSlot(
             id = "showcase-tooltip-trigger",
             label = "Scene info",

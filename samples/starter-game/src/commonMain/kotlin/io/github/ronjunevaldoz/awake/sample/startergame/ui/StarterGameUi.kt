@@ -30,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -63,15 +64,15 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
             column(
                 modifier = (Modifier
                     .align(UiAlignment.TopStart)
-                    .padding(16f.dp)).copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.WrapContent)) {
+                    .padding(16f.dp)).width(Dimension.FillMax).height(Dimension.WrapContent)) {
                 shadcnSurface(
                     id = "starter-nav-compact",
                     variant = ShadcnSurfaceVariant.Sidebar
-                , modifier = Modifier.copy(widthDimension = navWidth, heightDimension = Dimension.WrapContent)) { _ ->
+                , modifier = Modifier.width(navWidth).height(Dimension.WrapContent)) { _ ->
                     drawStarterNavigation(model, router)
                 }
                 shadcnSurface(
-                    id = "starter-side-compact", modifier = Modifier.copy(widthDimension = sideWidth, heightDimension = Dimension.WrapContent)) { _ ->
+                    id = "starter-side-compact", modifier = Modifier.width(sideWidth).height(Dimension.WrapContent)) { _ ->
                     drawStarterInspectorPanel(model = model, state = state)
                 }
             }
@@ -80,7 +81,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                 style = ShadcnStyles.surface(ShadcnSurfaceVariant.Card),
                 modifier = (Modifier
                     .align(UiAlignment.BottomStart)
-                    .padding(16f.dp)).copy(widthDimension = footerWidth, heightDimension = Dimension.WrapContent)) { _ ->
+                    .padding(16f.dp)).width(footerWidth).height(Dimension.WrapContent)) { _ ->
                 drawStarterFooter()
             }
         } else {
@@ -89,7 +90,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                 style = ShadcnStyles.surface(ShadcnSurfaceVariant.Sidebar),
                 modifier = (Modifier
                     .align(UiAlignment.TopStart)
-                    .padding(start = 20f.dp, top = 20f.dp, end = 0f.dp, bottom = 0f.dp)).copy(widthDimension = navWidth, heightDimension = Dimension.WrapContent)) { _ ->
+                    .padding(start = 20f.dp, top = 20f.dp, end = 0f.dp, bottom = 0f.dp)).width(navWidth).height(Dimension.WrapContent)) { _ ->
                 drawStarterNavigation(model, router)
             }
 
@@ -98,7 +99,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                 style = ShadcnStyles.surface(ShadcnSurfaceVariant.Card),
                 modifier = (Modifier
                     .align(UiAlignment.TopEnd)
-                    .padding(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)).copy(widthDimension = sideWidth, heightDimension = Dimension.WrapContent)) { _ ->
+                    .padding(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)).width(sideWidth).height(Dimension.WrapContent)) { _ ->
                 drawStarterInspectorPanel(model = model, state = state)
             }
 
@@ -107,7 +108,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                 style = ShadcnStyles.surface(ShadcnSurfaceVariant.Card),
                 modifier = (Modifier
                     .align(UiAlignment.BottomStart)
-                    .padding(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 20f.dp)).copy(widthDimension = footerWidth, heightDimension = Dimension.WrapContent)) { _ ->
+                    .padding(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 20f.dp)).width(footerWidth).height(Dimension.WrapContent)) { _ ->
                 drawStarterFooter()
             }
         }

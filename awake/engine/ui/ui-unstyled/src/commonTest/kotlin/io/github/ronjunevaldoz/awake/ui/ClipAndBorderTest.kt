@@ -235,7 +235,7 @@ class ClipAndBorderTest {
             id = "panel",
             style = Style { shape(UiShapeSpec.CutCorner(8f.dp)) },
             clipContent = true
-        , modifier = Modifier.copy(widthDimension = Dimension.Fixed(80f.px), heightDimension = Dimension.Fixed(60f.px))) { slot ->
+        , modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(60f.px))) { slot ->
             emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, Color(1f, 0f, 0f, 1f)))
         }
 

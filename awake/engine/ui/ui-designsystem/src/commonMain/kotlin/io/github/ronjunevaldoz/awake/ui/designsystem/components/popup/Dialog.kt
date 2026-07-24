@@ -79,7 +79,7 @@ fun UiScope.shadcnDialog(
             header?.invoke(this, slot)
             content(slot)
             if (actions != null) {
-                row( modifier = Modifier.copy(widthDimension = Dimension.FillMax, heightDimension = 36f.dp.toDimension())) { actionSlot ->
+                row( modifier = Modifier.width(Dimension.FillMax).height(36f.dp.toDimension())) { actionSlot ->
                     actions(actionSlot)
                 }
             }

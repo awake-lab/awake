@@ -55,11 +55,11 @@ internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
 
 internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
     val cardWidth = 220f
-    row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
+    row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(Dimension.WrapContent)) {
         surface(
             id = "ui-showcase-reference-spec",
             style = theme.components.surface then Style { shape(14f.dp) }
-        , modifier = Modifier.copy(widthDimension = Dimension.Fixed(cardWidth.dp), heightDimension = Dimension.Fixed(284f.dp))) {
+        , modifier = Modifier.width(Dimension.Fixed(cardWidth.dp)).height(Dimension.Fixed(284f.dp))) {
             shadcnSectionTitle("Official cues")
             shadcnSupportingText("The reference we keep checking against.")
             spacer(Modifier.height(8f.dp))
@@ -76,7 +76,7 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
         surface(
             id = "ui-showcase-reference-awake",
             style = theme.components.surface then Style { shape(14f.dp) }
-        , modifier = Modifier.copy(widthDimension = Dimension.Fixed(cardWidth.dp), heightDimension = Dimension.Fixed(284f.dp))) {
+        , modifier = Modifier.width(Dimension.Fixed(cardWidth.dp)).height(Dimension.Fixed(284f.dp))) {
             shadcnSectionTitle("Awake now")
             shadcnSupportingText("Our current implementation after the sizing and popover pass.")
             spacer(Modifier.height(8f.dp))
@@ -85,7 +85,7 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
                 maxLines = 4
             )
             spacer(Modifier.height(8f.dp))
-            row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())) {
+            row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
                 shadcnButton(
                     "reference-primary",
                     "Primary",
@@ -109,12 +109,12 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
     shadcnSupportingText("This page proves that the Awake theme factory can re-skin the entire component library live, including custom canvas chrome.")
     spacer(Modifier.height(16f.dp))
 
-    row( horizontalArrangement = Arrangement.spacedBy(24f.dp), modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
+    row( horizontalArrangement = Arrangement.spacedBy(24f.dp), modifier = Modifier.height(Dimension.WrapContent)) {
         // --- Settings Column ---
         surface(
             id = "showcase-theme-settings",
             style = theme.components.surface then Style { shape(12f.dp) }
-        , modifier = Modifier.copy(widthDimension = Dimension.Fixed(320f.dp), heightDimension = Dimension.WrapContent)) {
+        , modifier = Modifier.width(Dimension.Fixed(320f.dp)).height(Dimension.WrapContent)) {
             shadcnSectionTitle("Theme Settings")
             shadcnSupportingText("Configure the look and feel.")
             spacer(Modifier.height(12f.dp))
@@ -174,7 +174,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
         // --- Preview Column ---
         column(
             verticalArrangement = Arrangement.spacedBy(16f.dp)
-        , modifier = Modifier.copy(widthDimension = Dimension.Fixed(420f.dp), heightDimension = Dimension.WrapContent)) {
+        , modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.WrapContent)) {
             shadcnBadge("LIVE PREVIEW", variant = ShadcnBadgeVariant.Secondary)
 
             val previewLift = animateFloat(
@@ -185,7 +185,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
 
             shadcnSurface(
                 id = "showcase-preview",
-                modifier = (Modifier.offset(y = (-previewLift).dp)).copy(heightDimension = Dimension.WrapContent),
+                modifier = (Modifier.offset(y = (-previewLift).dp)).height(Dimension.WrapContent),
                 variant = ShadcnSurfaceVariant.Muted,
                 style = Style {
                     shape(state.showcaseSurfaceRadius.dp)
@@ -219,7 +219,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                     dangerMode = state.showcaseDangerMode
                 )
 
-                row( horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.copy(heightDimension = 24f.dp.toDimension())) {
+                row( horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.height(24f.dp.toDimension())) {
                     shadcnBadge(
                         if (state.showcaseLiveBadge) "LIVE" else "PAUSED",
                         variant = if (state.showcaseLiveBadge) ShadcnBadgeVariant.Primary else ShadcnBadgeVariant.Outline
@@ -242,7 +242,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 )
 
                 spacer(Modifier.height(12f.dp))
-                row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())) {
+                row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
                     if (
                         shadcnButton(
                             id = "preview-primary-action",
@@ -268,7 +268,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             surface(
                 id = "showcase-theme-radius-config",
                 style = theme.components.surface then Style { shape(12f.dp) }
-            , modifier = Modifier.copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.WrapContent)) {
+            , modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
                 state.showcaseSurfaceRadius = shadcnPropertySlider(
                     id = "showcase-radius",
                     label = "Corner Radius",

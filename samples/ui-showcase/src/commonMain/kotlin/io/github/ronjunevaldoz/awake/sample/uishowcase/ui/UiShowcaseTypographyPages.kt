@@ -38,7 +38,7 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.copy(heightDimension = 292f.dp.toDimension())
+        modifier = Modifier.height(292f.dp.toDimension())
     ) {
         surface(
             id = "showcase-font-bitmap",

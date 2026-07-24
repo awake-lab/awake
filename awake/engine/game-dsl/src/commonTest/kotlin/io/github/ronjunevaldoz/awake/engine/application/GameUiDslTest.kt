@@ -26,6 +26,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -111,7 +113,7 @@ class GameUiDslTest {
                     canvas {
                         surface(
                             id = "theme-proof",
-                            modifier = (Modifier.align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)).copy(widthDimension = 180f.toDimension(), heightDimension = 96f.toDimension())) {
+                            modifier = (Modifier.align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)).width(180f.toDimension()).height(96f.toDimension())) {
                             emit(UiDrawPrimitive.Quad(x = 28f, y = 28f, w = 16f, h = 16f, color = Color(0.9f, 0.9f, 0.2f, 1f)))
                         }
                     }
@@ -153,7 +155,7 @@ class GameUiDslTest {
                 overlayOnly = true
             ).surface(
                 id = "overlay-panel",
-                modifier = (Modifier.align(UiAlignment.TopStart).offset(16f.dp, 20f.dp)).copy(widthDimension = 160f.toDimension(), heightDimension = 96f.toDimension()),
+                modifier = (Modifier.align(UiAlignment.TopStart).offset(16f.dp, 20f.dp)).width(160f.toDimension()).height(96f.toDimension()),
                 style = Style {
                     background(panelColor)
                 }

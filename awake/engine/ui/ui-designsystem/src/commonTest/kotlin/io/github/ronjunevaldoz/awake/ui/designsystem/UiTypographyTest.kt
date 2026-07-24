@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -29,7 +30,7 @@ class UiTypographyTest {
         var panelSlot: UiSlot? = null
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(180f.dp)) {
-            surface(id = "copy", modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) { slot ->
+            surface(id = "copy", modifier = Modifier.height(Dimension.WrapContent)) { slot ->
                 panelSlot = slot
                 text("Copy")
                 supportingText(

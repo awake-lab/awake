@@ -18,6 +18,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -38,7 +40,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
                     top = if (constraints.isCompact) 16f.dp else 24f.dp,
                     end = if (constraints.isCompact) 16f.dp else 40f.dp,
                     bottom = 0f.dp
-                )).copy(widthDimension = panelWidth, heightDimension = Dimension.WrapContent)) {
+                )).width(panelWidth).height(Dimension.WrapContent)) {
             shadcnBadge("HELLO CUBE", variant = ShadcnBadgeVariant.Primary)
             sectionTitle("Scene")
             metaText("SCENE: ${model.sceneName}")
@@ -55,7 +57,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
                     top = 0f.dp,
                     end = if (constraints.isCompact) 16f.dp else 0f.dp,
                     bottom = 12f.dp
-                )).copy(widthDimension = debugWidth, heightDimension = Dimension.WrapContent)) {
+                )).width(debugWidth).height(Dimension.WrapContent)) {
             shadcnBadge("DEBUG", variant = ShadcnBadgeVariant.Outline)
             sectionTitle("Runtime")
             supportingLines(model.debugLines)

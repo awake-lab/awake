@@ -321,11 +321,11 @@ class UiShowcaseGameTest {
         ).run {
             column(
                 id = "ui-showcase-content-viewport",
-                modifier = (Modifier.verticalScroll(contentScroll)).copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.Fixed(320f.px))) {
+                modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.Fixed(320f.px))) {
                 shadcnSurface(
                     id = "ui-showcase-content",
                     style = Style { shape(16f.dp) }
-                , modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
+                , modifier = Modifier.height(Dimension.WrapContent)) {
                     drawUiShowcasePageContent(state, showInlineMenu = false)
                 }
             }
@@ -364,22 +364,22 @@ class UiShowcaseGameTest {
         ).run {
             row(
                 horizontalArrangement = Arrangement.spacedBy(20f.dp),
-                modifier = (Modifier.fillMaxSize().padding(24f.dp)).copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.Fixed(900f.px))) {
+                modifier = (Modifier.fillMaxSize().padding(24f.dp)).width(Dimension.FillMax).height(Dimension.Fixed(900f.px))) {
                 shadcnSurface(
                     id = "ui-showcase-sidebar",
                     variant = ShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
-                    modifier = (Modifier.verticalScroll(sidebarScroll)).copy(widthDimension = 264f.dp.toDimension(), heightDimension = Dimension.FillMax)) {
+                    modifier = (Modifier.verticalScroll(sidebarScroll)).width(264f.dp.toDimension()).height(Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = false)
                 }
 
                 column(
                     id = "ui-showcase-content-viewport",
-                    modifier = (Modifier.verticalScroll(contentScroll)).copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.FillMax)) {
+                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax)) {
                     shadcnSurface(
                         id = "ui-showcase-content",
                         style = Style { shape(16f.dp) }
-                    , modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
+                    , modifier = Modifier.height(Dimension.WrapContent)) {
                         drawUiShowcasePageContent(state, showInlineMenu = false)
                     }
                 }
@@ -471,7 +471,7 @@ private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
             id = "sidebar-probe",
             variant = ShadcnSurfaceVariant.Sidebar,
             style = Style { shape(16f.dp) }
-        , modifier = Modifier.copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.Fixed(120f.dp))) {
+        , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(120f.dp))) {
             text("Probe")
         }
     }
