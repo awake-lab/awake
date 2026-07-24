@@ -44,8 +44,8 @@ kotlin {
         commonTest.dependencies {
             implementation(project(":awake:base"))
             implementation(project(":awake:engine:render-api"))
-            implementation(project(":awake:engine:ui-core"))
-            implementation(project(":awake:engine:ui-unstyled"))
+            implementation(project(":awake:engine:ui:ui-core"))
+            implementation(project(":awake:engine:ui:ui-unstyled"))
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }
@@ -53,9 +53,9 @@ kotlin {
             dependencies {
                 implementation(project(":awake:base"))
                 implementation(project(":awake:engine:render-api"))
-                implementation(project(":awake:engine:ui-core"))
-                implementation(project(":awake:engine:ui-unstyled"))
-                implementation(project(":awake:engine:testing"))
+                implementation(project(":awake:engine:ui:ui-core"))
+                implementation(project(":awake:engine:ui:ui-unstyled"))
+                implementation(project(":awake:engine:ui:ui-testing"))
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
             }

@@ -72,8 +72,8 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":awake:engine:game-dsl"))
             implementation(project(":awake:scene-dsl"))
-            implementation(project(":awake:engine:ui-core"))
-            implementation(project(":awake:engine:ui-designsystem"))
+            implementation(project(":awake:engine:ui:ui-core"))
+            implementation(project(":awake:engine:ui:ui-designsystem"))
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
         }

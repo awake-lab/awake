@@ -142,7 +142,7 @@ kotlin {
             implementation(kotlin("test"))
             // Headless-renderer pixel-baseline regression test (desktopTest only, see
             // RendererHeadlessPixelBaselineTest) needs comparePixels().
-            implementation(project(":awake:engine:testing"))
+            implementation(project(":awake:engine:ui:ui-testing"))
         }
         androidMain.dependencies {
             // CMake/NDK build + bundled validation layers (AGP 9 KMP plugin

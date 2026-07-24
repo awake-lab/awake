@@ -47,13 +47,13 @@ tasks.register("developerDocs") {
         ":awake:engine:game-dsl:gameDslTutorialDocsReport",
         ":awake:engine:game-dsl:uiDslTutorialDocsReport",
         ":awake:engine:render-api:dokkaGeneratePublicationHtml",
-        ":awake:engine:ui-core:dokkaGeneratePublicationHtml",
-        ":awake:engine:ui-designsystem:dokkaGeneratePublicationHtml",
-        ":awake:engine:ui-unstyled:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui:ui-core:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui:ui-designsystem:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui:ui-unstyled:dokkaGeneratePublicationHtml",
         ":awake:physics:api:dokkaGeneratePublicationHtml",
         ":awake:scene:dokkaGeneratePublicationHtml",
-        ":awake:engine:ui-unstyled:desktopTest",
-        ":awake:engine:ui-unstyled:uiSnapshotReport",
-        ":awake:engine:ui-unstyled:uiTutorialDocsReport"
+        ":awake:engine:ui:ui-unstyled:desktopTest",
+        ":awake:engine:ui:ui-unstyled:uiSnapshotReport",
+        ":awake:engine:ui:ui-unstyled:uiTutorialDocsReport"
     )
 }

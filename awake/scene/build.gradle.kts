@@ -65,7 +65,7 @@ kotlin {
             api(project(":awake:base"))
             api(project(":awake:ecs"))
             api(project(":awake:engine:game"))
-            api(project(":awake:engine:ui-core"))
+            api(project(":awake:engine:ui:ui-core"))
             // Module restructuring slice 1 (see docs/MVP_PLAN.md): RenderSystem/MeshRenderer
             // only ever touch the backend-neutral Mesh/Material/Renderer/DrawCall contract,
             // never awake-vulkan's concrete Vulkan bindings -- depending on just the

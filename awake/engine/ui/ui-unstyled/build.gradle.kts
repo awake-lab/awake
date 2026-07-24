@@ -37,17 +37,17 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":awake:engine:ui-core"))
+            api(project(":awake:engine:ui:ui-core"))
             implementation(project(":awake:base"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation(project(":awake:engine:testing"))
-            implementation(project(":awake:engine:ui-designsystem"))
+            implementation(project(":awake:engine:ui:ui-testing"))
+            implementation(project(":awake:engine:ui:ui-designsystem"))
         }
         named("desktopTest") {
             dependencies {
-                implementation(project(":awake:engine:ui-designsystem"))
+                implementation(project(":awake:engine:ui:ui-designsystem"))
             }
         }
     }
@@ -148,7 +148,7 @@ tasks.register("uiTutorialDocsReport") {
         val body = if (cards.isBlank()) {
             """
             <p>No tutorial snapshots recorded.</p>
-            <p>Run <code>./gradlew :awake:engine:ui-unstyled:desktopTest</code> to regenerate them.</p>
+            <p>Run <code>./gradlew :awake:engine:ui:ui-unstyled:desktopTest</code> to regenerate them.</p>
             """.trimIndent()
         } else {
             """
