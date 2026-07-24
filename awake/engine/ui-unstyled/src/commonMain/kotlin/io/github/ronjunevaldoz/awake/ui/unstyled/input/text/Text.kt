@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.shimmer
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
@@ -197,9 +198,10 @@ fun UiScope.text(
     val lineGap = glyphPx * 0.25f
     val blockHeight = layout.blockHeight(glyphPx, lineGap)
     var slot = claimModifiedSlot(
-        defaultWidth,
-        Dimension.Fixed((blockHeight + resolved.contentPadding.verticalPx()).px),
-        modifier
+        modifier.withSizeFallback(
+            defaultWidth,
+            Dimension.Fixed((blockHeight + resolved.contentPadding.verticalPx()).px)
+        )
     )
 
     // If hover isn't forced, check actual hover and recompute if it changed.

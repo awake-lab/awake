@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childRow
@@ -193,7 +194,7 @@ fun UiScope.rawRow(
     style: Style = Style.Empty,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val slot = claimModifiedSlot(width, height, modifier)
+    val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: hitTest(slot),
         active = modifier.forceActive ?: false,

@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTransparent
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
@@ -63,7 +64,7 @@ fun UiScope.shadcnBadge(
         Dimension.WrapContent -> Dimension.Fixed((glyphPx + resolved.contentPadding.verticalPx()).px)
         else -> height
     }
-    val slot = claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
+    val slot = claimModifiedSlot(modifier.withSizeFallback(resolvedWidth, resolvedHeight))
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: ShadcnTransparent,

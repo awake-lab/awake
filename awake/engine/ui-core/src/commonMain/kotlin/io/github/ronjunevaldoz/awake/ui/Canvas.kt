@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.graphics.internal.gradientRect
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
@@ -312,7 +313,7 @@ fun UiScope.canvas(
     modifier: UiModifier = Modifier,
     content: CanvasScope.() -> Unit
 ): UiSlot {
-    val slot = claimModifiedSlot(defaultWidth = width, defaultHeight = height, modifier = modifier)
+    val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
     CanvasScope(this, slot).content()
     return slot
 }

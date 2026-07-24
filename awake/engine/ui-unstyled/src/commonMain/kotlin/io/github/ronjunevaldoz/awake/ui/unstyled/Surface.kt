@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
@@ -39,11 +40,7 @@ internal fun UiScope.resolveSurface(
     defaults: Style = Style.Empty,
     state: MutableStyleState = MutableStyleState()
 ): ResolvedSurface {
-    val slot = claimModifiedSlot(
-        defaultWidth = defaultWidth,
-        defaultHeight = defaultHeight,
-        modifier = modifier
-    )
+    val slot = claimModifiedSlot(modifier.withSizeFallback(defaultWidth, defaultHeight))
     val resolved = resolveStyle(
         style = style,
         defaults = defaults,

@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -40,9 +41,10 @@ fun UiScope.avatarFallback(
     val theme = context.currentTheme
     val resolved = resolveStyle(style = style, defaults = theme.components.avatar)
     val slot = claimModifiedSlot(
-        defaultWidth = Dimension.Fixed(AVATAR_DEFAULT_DIAMETER),
-        defaultHeight = Dimension.Fixed(AVATAR_DEFAULT_DIAMETER),
-        modifier = modifier
+        modifier.withSizeFallback(
+            Dimension.Fixed(AVATAR_DEFAULT_DIAMETER),
+            Dimension.Fixed(AVATAR_DEFAULT_DIAMETER)
+        )
     )
     emitFillAndBorder(
         slot = slot,

@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -137,11 +138,7 @@ fun UiScope.scrollPanel(
         else -> requestedHeight
     }
 
-    val slot = claimModifiedSlot(
-        defaultWidth = resolvedWidth,
-        defaultHeight = resolvedHeight,
-        modifier = modifier
-    )
+    val slot = claimModifiedSlot(modifier.withSizeFallback(resolvedWidth, resolvedHeight))
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: Color.Transparent,

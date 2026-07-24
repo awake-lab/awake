@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
@@ -37,11 +38,7 @@ fun UiScope.spinner(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ) {
-    val slot = claimModifiedSlot(
-        defaultWidth = Dimension.Fixed(24f.dp),
-        defaultHeight = Dimension.Fixed(24f.dp),
-        modifier = modifier
-    )
+    val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.Fixed(24f.dp), Dimension.Fixed(24f.dp)))
     val resolved = resolveStyle(style = style)
     val dotColor = resolved.foreground ?: theme.tokens.foreground
     val state = widgetState(id)

@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -43,11 +44,7 @@ fun UiScope.shadcnPropertyRow(
     labelContent: BoxScope.(slot: UiSlot) -> Unit,
     content: BoxScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val rowSlot = claimModifiedSlot(
-        defaultWidth = Dimension.FillMax,
-        defaultHeight = Dimension.Fixed(DefaultPropertyRowHeight),
-        modifier = modifier
-    )
+    val rowSlot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(DefaultPropertyRowHeight)))
     val resolvedFont = font
     theme.typography.caption
     val glyphPx = resolveGlyphPx(resolvedFont)
@@ -85,11 +82,7 @@ fun UiScope.shadcnPropertyRow(
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp
 ): UiSlot {
-    val rowSlot = claimModifiedSlot(
-        defaultWidth = Dimension.FillMax,
-        defaultHeight = Dimension.Fixed(DefaultPropertyRowHeight),
-        modifier = modifier
-    )
+    val rowSlot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(DefaultPropertyRowHeight)))
     val resolvedFont = font
     val labelSize = theme.typography.caption
     val glyphPx = resolveGlyphPx(resolvedFont, textStyle = textStyle then TextStyle(size = labelSize))

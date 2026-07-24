@@ -5,6 +5,9 @@ package io.github.ronjunevaldoz.awake.ui.layouts.ext
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
@@ -133,7 +136,7 @@ fun UiScope.rawSurface(
     // Only perform early slot claim and hit test if we don't have WrapContent dimensions.
     // WrapContent dimensions must be measured first before claiming any slot.
     val (initialSlot, initialHovered) = if (!hasWrapContent) {
-        val slot = claimModifiedSlot(width, height, modifier)
+        val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
         slot to hitTest(slot)
     } else {
         null to false
@@ -175,11 +178,7 @@ fun UiScope.rawSurface(
         }
         else -> height
     }
-    val slot = initialSlot ?: claimModifiedSlot(
-        resolvedWidth,
-        resolvedHeight,
-        modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight)
-    )
+    val slot = initialSlot ?: claimModifiedSlot(modifier.width(resolvedWidth).height(resolvedHeight))
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: Color.Transparent,

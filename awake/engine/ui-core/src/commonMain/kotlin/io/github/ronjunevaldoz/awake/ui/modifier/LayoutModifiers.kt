@@ -16,6 +16,12 @@ fun UiModifier.height(dimension: Dimension): UiModifier = copy(heightDimension =
 fun UiModifier.size(width: Dp, height: Dp): UiModifier =
     copy(widthDimension = Dimension.Fixed(width), heightDimension = Dimension.Fixed(height))
 
+/** Fills in [fallbackWidth]/[fallbackHeight] only where this modifier didn't already
+ * specify a size -- used by widgets to express their own natural default size while still
+ * letting an authored modifier override it. */
+fun UiModifier.withSizeFallback(fallbackWidth: Dimension, fallbackHeight: Dimension): UiModifier =
+    width(widthDimension ?: fallbackWidth).height(heightDimension ?: fallbackHeight)
+
 fun UiModifier.fillMaxWidth(): UiModifier = copy(widthDimension = Dimension.FillMax)
 fun UiModifier.fillMaxHeight(): UiModifier = copy(heightDimension = Dimension.FillMax)
 fun UiModifier.fillMaxSize(): UiModifier =

@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -21,11 +22,7 @@ fun UiScope.separator(
     modifier: UiModifier = Modifier,
     color: Color = context.currentTheme.tokens.border
 ): UiSlot {
-    val slot = claimModifiedSlot(
-        defaultWidth = width,
-        defaultHeight = modifier.heightDimension ?: Dimension.Fixed(thickness),
-        modifier = modifier
-    )
+    val slot = claimModifiedSlot(modifier.withSizeFallback(width, Dimension.Fixed(thickness)))
     val lineHeight = thickness.toPx().coerceAtLeast(1f)
     val lineY = slot.y + (slot.height - lineHeight) / 2f
     emit(UiDrawPrimitive.Quad(slot.x, lineY, slot.width, lineHeight, color))

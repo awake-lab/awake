@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.layout.*
@@ -22,7 +23,7 @@ fun UiScope.icon(
     tint: Color = context.currentTheme.tokens.foreground,
     overlay: Boolean = false
 ): UiSlot {
-    val slot = claimModifiedSlot(width, height, modifier)
+    val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
     imageVector.fitTo(slot).forEach { vectorPath ->
         val fillColor = vectorPath.fill ?: tint
         if (fillColor.isTransparent()) return@forEach

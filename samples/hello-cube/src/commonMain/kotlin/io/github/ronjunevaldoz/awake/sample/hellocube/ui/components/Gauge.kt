@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 
 /**
@@ -27,7 +28,7 @@ fun UiScope.gauge(
     trackColor: Color = Color(0.2f, 0.2f, 0.2f, 1f),
     fillColor: Color = Color(0.3f, 0.7f, 0.3f, 1f)
 ) {
-    val slot = claimModifiedSlot(width.toDimension(), height.toDimension(), modifier)
+    val slot = claimModifiedSlot(modifier.withSizeFallback(width.toDimension(), height.toDimension()))
     emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, trackColor))
     val fillWidth = slot.width * value.coerceIn(0f, 1f)
     if (fillWidth > 0f) {

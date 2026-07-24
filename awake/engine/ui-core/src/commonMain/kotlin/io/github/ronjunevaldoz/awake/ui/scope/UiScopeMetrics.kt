@@ -3,16 +3,17 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.layout.place
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.FillAwareScope
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.math.roundToInt
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun pixelPerfectTextScale(requestedScale: Float, step: Float = 0.25f): Float {
     val safeStep = step.takeIf { it.isFinite() && it > 0f } ?: 0.25f
@@ -50,13 +51,9 @@ fun UiScope.debugScopeLabel(): String {
     return if (name.isNullOrBlank()) typeName else "'$name' ($typeName)"
 }
 
-fun UiScope.claimModifiedSlot(
-    defaultWidth: Dimension = Dimension.WrapContent,
-    defaultHeight: Dimension = Dimension.WrapContent,
-    modifier: UiModifier = Modifier
-): UiSlot {
-    val requestedWidth = modifier.widthDimension ?: defaultWidth
-    val requestedHeight = modifier.heightDimension ?: defaultHeight
+fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiSlot {
+    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
+    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
     val containerSlot = claimSlot(requestedWidth, requestedHeight)
     val width = requestedWidth.resolveAgainst(containerSlot.width)
     val height = requestedHeight.resolveAgainst(containerSlot.height)

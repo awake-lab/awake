@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
@@ -36,11 +37,7 @@ fun UiScope.skeleton(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ) {
-    val slot = claimModifiedSlot(
-        defaultWidth = Dimension.FillMax,
-        defaultHeight = Dimension.Fixed(16f.dp),
-        modifier = modifier
-    )
+    val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(16f.dp)))
     val resolved = resolveStyle(style = style, defaults = theme.components.slider)
     val state = widgetState(id)
     val elapsed = state.get("skeletonElapsed", 0f) + frameDeltaSeconds()
