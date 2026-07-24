@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogResult
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
@@ -17,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialo
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltipText
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -25,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -243,5 +246,45 @@ class UiPopupCompositionsTest {
             scrim?.color,
             "dialogs should default to a neutral dark scrim so light themes do not wash the scene out"
         )
+    }
+
+    @Test
+    fun dialogActionButtonLabelInheritsThemedForeground() {
+        // Regression test for the "button label not displayed" bug: a dialog action button's
+        // Slot-API content lambda (`awakeShadcnButton(id, ...) { text(...) }`) must inherit the
+        // button's resolved themed foreground as its ambient text color, the same way
+        // surface()/row()/column()/box() propagate their resolved text style to children.
+        // Without that propagation, `text()` inside the lambda falls back to whatever ambient
+        // color was active outside the dialog/button (e.g. the page's default foreground),
+        // which reads as "not displayed" against a differently-colored button background.
+        val ui = UiContext()
+        val theme = AwakeShadcnTheme
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(theme)
+        ui.pushTextStyle(TextStyle(color = theme.tokens.foreground))
+        ui.beginFrame(320f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
+            dialog(id = "confirm", expanded = true, actions = {
+                awakeShadcnButton(
+                    id = "confirm.action",
+                    variant = AwakeShadcnButtonVariant.Primary,
+                    modifier = Modifier.width(88f.dp)
+                ) {
+                    text("Confirm")
+                }
+            }) { /* empty body -- isolates the glyphs below to the action button's label */ }
+        }
+
+        val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
+        assertTrue(glyphs.isNotEmpty(), "dialog action button label should render glyphs")
+        val primaryForeground = theme.tokens.primaryForeground
+        glyphs.forEach { glyph ->
+            assertEquals(
+                primaryForeground,
+                glyph.color,
+                "dialog action button's slot content should inherit the button's resolved themed foreground, not the ambient page color"
+            )
+        }
     }
 }

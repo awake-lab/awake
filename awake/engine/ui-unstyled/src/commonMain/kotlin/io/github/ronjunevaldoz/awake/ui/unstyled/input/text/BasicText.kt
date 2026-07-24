@@ -145,7 +145,10 @@ internal fun UiScope.renderTextBlock(
         emitLinesInternal(textColor)
 
         // --- Optional Shimmer Sweep ---
-        // TODO this should be move out of core-ui and move to UiModifier graphics layer callback
+        // `shimmer` here is a plain Boolean draw-pass flag; the modifier-level decoupling lives
+        // in UiModifier.graphicsLayer / UiGraphicsLayer (see modifier/GraphicsLayer.kt and
+        // shadcnShimmer in modifier/StyleModifiers.kt) -- callers resolve the effect there and
+        // pass the resulting boolean down into this low-level glyph emitter.
         if (shimmer && semanticId != null) {
             val shimmerForward = rememberBooleanState("__shimmer_dir__$semanticId", initial = true)
             val shimmerPhase = animateFloat(

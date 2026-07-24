@@ -31,7 +31,7 @@ data class UiModifier(
     val forceFocus: Boolean? = null,
     val scrollState: UiScrollState? = null,
     val scrollConfig: UiScrollConfig = UiScrollConfig.Default,
-    val shimmer: Boolean = false,
+    val graphicsLayer: UiGraphicsLayer? = null,
     val styleable: Style? = null
 )
 

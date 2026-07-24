@@ -18,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 /** [button] with the resolved [UiSlot] alongside the click result. */
 data class UiButtonResult(val clicked: Boolean, val slot: UiSlot)
@@ -56,7 +57,15 @@ private inline fun UiScope.buttonSlotInternal(
         resolved = surface.resolved,
         fillColor = fillColor,
     )
+    // Slot-API content (an arbitrary caller-composed lambda) has no other way to know this
+    // button's resolved themed foreground -- push it as the ambient text style so any `text()`
+    // called inside `drawContent` picks up the right contrast automatically, the same way
+    // `surface()`/`column()`/`row()`/`box()` already propagate their resolved text style to
+    // their own children. Mirrors the explicit `color = resolved.foreground` passed to the
+    // label overload's own internal `text()` call below.
+    context.pushTextStyle(surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground))
     childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
+    context.popTextStyle()
     recordSemantic(
         role = UiSemanticRole.Button,
         id = id,
