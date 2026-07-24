@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
@@ -34,9 +35,7 @@ fun UiScope.progressBar(
 ) {
     val theme = context.currentTheme
     val surface = resolveSurface(
-        defaultWidth = Dimension.FillMax,
-        defaultHeight = Dimension.Fixed(PROGRESS_TRACK_HEIGHT_DP.dp),
-        modifier = modifier,
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(PROGRESS_TRACK_HEIGHT_DP.dp)),
         style = style,
         defaults = theme.components.slider
     )

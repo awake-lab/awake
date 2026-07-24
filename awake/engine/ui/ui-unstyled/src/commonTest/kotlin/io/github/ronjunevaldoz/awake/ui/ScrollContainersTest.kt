@@ -30,8 +30,6 @@ class ScrollContainersTest {
         ui.simulateScrollFrame(x = 20f, y = 20f, scrollDeltaY = -1f) {
             scope.scrollPanel(
                 id = "scroll",
-                width = 140f.toDimension(),
-                height = 80f.toDimension(),
                 modifier = Modifier
                     .width(140f.px)
                     .height(80f.px)
@@ -58,8 +56,6 @@ class ScrollContainersTest {
         ui.simulateScrollFrame(x = 180f, y = 180f, scrollDeltaY = -1f) {
             scope.scrollPanel(
                 id = "scroll",
-                width = 140f.toDimension(),
-                height = 80f.toDimension(),
                 modifier = Modifier
                     .width(140f.px)
                     .height(80f.px)
@@ -86,10 +82,8 @@ class ScrollContainersTest {
         val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = UiFonts.default())
 
         val result = scope.scrollPanel(
-            id = "scroll",
-            width = 140f.toDimension(),
-            height = 80f.toDimension(),
-            modifier = Modifier
+                id = "scroll",
+                modifier = Modifier
                 .width(140f.px)
                 .height(80f.px)
                 .verticalScroll(UiScrollState())

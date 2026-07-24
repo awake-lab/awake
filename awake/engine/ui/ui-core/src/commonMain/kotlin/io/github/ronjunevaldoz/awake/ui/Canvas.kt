@@ -308,12 +308,10 @@ class CanvasScope internal constructor(
 }
 
 fun UiScope.canvas(
-    width: Dimension = Dimension.FillMax,
-    height: Dimension = Dimension.FillMax,
     modifier: UiModifier = Modifier,
     content: CanvasScope.() -> Unit
 ): UiSlot {
-    val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
+    val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.FillMax))
     CanvasScope(this, slot).content()
     return slot
 }

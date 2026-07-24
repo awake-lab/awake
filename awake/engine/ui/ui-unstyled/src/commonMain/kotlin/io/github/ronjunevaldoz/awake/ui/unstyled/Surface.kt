@@ -33,14 +33,12 @@ internal data class SurfaceStyle(
 )
 
 internal fun UiScope.resolveSurface(
-    defaultWidth: Dimension,
-    defaultHeight: Dimension,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
     state: MutableStyleState = MutableStyleState()
 ): ResolvedSurface {
-    val slot = claimModifiedSlot(modifier.withSizeFallback(defaultWidth, defaultHeight))
+    val slot = claimModifiedSlot(modifier)
     val resolved = resolveStyle(
         style = style,
         defaults = defaults,
@@ -55,8 +53,6 @@ internal fun UiScope.resolveSurface(
 
 internal fun UiScope.resolveInteractiveSurface(
     id: String,
-    width: Dimension,
-    height: Dimension,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
@@ -64,7 +60,7 @@ internal fun UiScope.resolveInteractiveSurface(
     disabled: Boolean = false,
     focused: Boolean = false
 ): InteractiveSurface {
-    val interaction = interact(id, width, height, modifier)
+    val interaction = interact(id, modifier)
     val surfaceStyle = resolveSurfaceStyle(
         slot = interaction.slot,
         style = style,

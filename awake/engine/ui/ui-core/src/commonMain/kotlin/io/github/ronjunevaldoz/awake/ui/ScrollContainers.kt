@@ -33,8 +33,6 @@ data class UiScrollPanelResult(
  */
 fun UiScope.scrollPanel(
     id: String,
-    width: Dimension = Dimension.FillMax,
-    height: Dimension = Dimension.WrapContent,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     verticalArrangement: Arrangement = defaultArrangement(),
@@ -42,8 +40,8 @@ fun UiScope.scrollPanel(
 ): UiScrollPanelResult {
     val state = requireNotNull(modifier.scrollState) { "scrollPanel requires a scrollState on the modifier" }
     val config = modifier.scrollConfig
-    val requestedWidth = modifier.widthDimension ?: width
-    val requestedHeight = modifier.heightDimension ?: height
+    val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
+    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
     val containerLabel = modifier.testTag ?: id
 
     val currentTheme = theme

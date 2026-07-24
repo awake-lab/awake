@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.requestFocus
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
@@ -53,9 +54,7 @@ fun UiScope.textField(
 ): String {
     val interaction = interact(
         id = id,
-        width = Dimension.FillMax,
-        height = Dimension.Fixed(40f.dp),
-        modifier = modifier
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp))
     )
     // Disabled fields never claim focus or consume input -- if a field was focused and then
     // became disabled mid-session, drop that focus too, the same way a real disabled input

@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
@@ -37,9 +38,7 @@ fun UiScope.slider(
 ): Float {
     val interaction = interact(
         id = id,
-        width = Dimension.FillMax,
-        height = Dimension.Fixed(32f.dp),
-        modifier = modifier
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(32f.dp))
     )
     val slot = interaction.slot
     val pointerDown = pointerDown()

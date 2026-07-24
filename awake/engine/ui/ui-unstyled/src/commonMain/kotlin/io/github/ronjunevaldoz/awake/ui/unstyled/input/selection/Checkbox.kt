@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitInsetAccent
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
@@ -37,9 +38,7 @@ fun UiScope.checkbox(
     val theme = context.currentTheme
     val surface = resolveInteractiveSurface(
         id = id,
-        width = Dimension.FillMax,
-        height = Dimension.Fixed(24f.dp),
-        modifier = modifier,
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(24f.dp)),
         style = style,
         defaults = theme.components.checkbox,
         selected = checked

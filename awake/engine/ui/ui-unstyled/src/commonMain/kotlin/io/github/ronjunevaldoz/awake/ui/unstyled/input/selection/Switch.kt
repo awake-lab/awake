@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
@@ -33,11 +34,9 @@ fun UiScope.switch(
     val theme = context.currentTheme
     val surface = resolveInteractiveSurface(
         id = id,
-        width = Dimension.Fixed(TOGGLE_WIDTH_PX.dp),
-        height = Dimension.Fixed(TOGGLE_HEIGHT_PX.dp),
         style = style,
         defaults = theme.components.toggle,
-        modifier = modifier,
+        modifier = modifier.withSizeFallback(Dimension.Fixed(TOGGLE_WIDTH_PX.dp), Dimension.Fixed(TOGGLE_HEIGHT_PX.dp)),
         selected = checked
     )
     val newChecked = if (surface.interaction.clicked) !checked else checked

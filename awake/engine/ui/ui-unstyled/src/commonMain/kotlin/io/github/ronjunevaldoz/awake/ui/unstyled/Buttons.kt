@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -25,8 +26,6 @@ data class UiButtonResult(val clicked: Boolean, val slot: UiSlot)
 
 private inline fun UiScope.buttonSlotInternal(
     id: String,
-    width: Dimension,
-    height: Dimension,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
@@ -43,8 +42,6 @@ private inline fun UiScope.buttonSlotInternal(
     }
     val surface = resolveInteractiveSurface(
         id = id,
-        width = width,
-        height = height,
         modifier = modifier,
         style = style,
         defaults = defaults,
@@ -107,9 +104,7 @@ fun UiScope.buttonSlot(
     verticallyCentered: Boolean = centered
 ): UiButtonResult = buttonSlotInternal(
     id = id,
-    width = Dimension.FillMax,
-    height = Dimension.Fixed(40f.dp),
-    modifier = modifier,
+    modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
     style = style,
     variant = variant,
     radius = radius,
@@ -141,9 +136,7 @@ fun UiScope.buttonSlot(
     content: AbsoluteScope.(slot: UiSlot) -> Unit
 ): UiButtonResult = buttonSlotInternal(
     id = id,
-    width = Dimension.FillMax,
-    height = Dimension.Fixed(40f.dp),
-    modifier = modifier,
+    modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
     style = style,
     variant = variant,
     radius = radius

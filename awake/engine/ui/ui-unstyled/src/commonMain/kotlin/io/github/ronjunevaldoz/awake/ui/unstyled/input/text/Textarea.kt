@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.inputState
 import io.github.ronjunevaldoz.awake.ui.isFocused
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.pointerDownEdge
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
@@ -65,9 +66,7 @@ fun UiScope.textarea(
 
     val interaction = interact(
         id = id,
-        width = Dimension.FillMax,
-        height = Dimension.Fixed(minHeight.px),
-        modifier = modifier
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(minHeight.px))
     )
 
     val focused = enabled && isFocused(id)
