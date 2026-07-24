@@ -30,28 +30,37 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 - `engine/testing` can catch some overlap and drift, but it still cannot reason about
   semantic roles, text-fit expectations, or layout intent strongly enough.
 
-## Policy: Slot API vs Modifier-First Input (2026-07-24)
+## Policy: Slot API vs `UiSlot` vs Modifier-First Input (2026-07-24)
 
-Two different things were getting conflated as "get rid of `UiSlot`" -- they're not the same
-move and only one of them applies to base components:
+Three different things, easy to conflate under "get rid of slots":
 
-- **Slot API (keep, everywhere, including base components).** Composite widgets/containers
-  handing a *measured* `UiSlot` into their content lambda (`surface(...) { slot -> ... }`,
-  `row(...) { slot -> ... }`, `claimSlot(...): UiSlot`) is the correct, intended contract.
-  `ui-unstyled` and `ui-designsystem` base components must **not** be decoupled from this --
-  don't replace slot-lambda content composition with something else.
+- **Slot API (keep, everywhere, including base components) -- a composition pattern, not a
+  type.** Components take their content as lambda parameters -- a trailing `content: Scope.()
+  -> Unit`, or named slots like `awakeShadcnSectionHeader(title = { ... }, description = { ...
+  })`. This is unrelated to the `UiSlot` class; it's about *how content is composed into a
+  component*, the same shape as Compose's slot API. `ui-unstyled`/`ui-designsystem` base
+  components must **not** be decoupled from this -- don't replace slot-lambda composition with
+  something else (e.g. don't collapse a `title`/`description` slot pair into a single
+  `label: String` param just to shrink the signature -- see the button-label bug, which is
+  exactly this mistake in the other direction: a param that should have stayed a slot).
+- **`UiSlot` (keep as measured output/internal layout data).** The `x`/`y`/`width`/`height`
+  data class a container hands back after measuring -- via a slot-API lambda parameter
+  (`surface(...) { slot -> ... }`), a return value (`claimSlot(...): UiSlot`), or a semantic
+  field (`UiSemanticNode.contentBounds`). A slot lambda receiving a `UiSlot` is incidental --
+  it's still Slot API even when the lambda receives nothing, or receives something else.
 - **Modifier-first input (the actual cleanup target).** Raw `x`, `y`, `width`, `height`,
   `insets`, `gap` as *authored* parameters -- values a caller hand-types to place/size
   something -- must go through `UiModifier` (`.offset()`, `.width()`, `.height()`, `.padding()`,
-  arrangement instead of `gap: Float`). This applies at every layer, not just root
-  `UiContext.column/row/box/absolute` calls: any base-component widget signature in
-  `ui-unstyled`/`ui-designsystem` that still takes raw `x`/`y`/`width`/`height`/`insets`/`gap`
-  as its own authored parameters (not as something it hands back out through a slot lambda)
-  is in scope too.
+  arrangement instead of `gap: Float`) or `Style` (`shape()`, `borderWidth()` instead of a
+  parallel `radius`/`borderWidth` param). Applies at every layer: root `UiContext.column/row/
+  box/absolute` calls, base-component widget signatures in `ui-unstyled`/`ui-designsystem`, and
+  `ui-core`'s own public surface (`surface()`'s `radius`/`borderWidth` were the same mistake one
+  layer down -- see the Core-UI audit finding below).
 
-In short: authored input is modifier-first; composed/measured output stays `UiSlot` via the
-slot API. The root-level sweep below finished the *root* half of this; the base-component
-widget-signature half is the next slice (see Implementation Order).
+In short: content composition stays Slot API; measured/composed output stays `UiSlot`; authored
+input goes through `UiModifier`/`Style`. The root-level sweep below finished the *root* half of
+the modifier-first half; the base-component widget-signature half is done too (see Core-UI
+audit finding).
 
 ## UiSlot As Root Authored Input (2026-07-24)
 
