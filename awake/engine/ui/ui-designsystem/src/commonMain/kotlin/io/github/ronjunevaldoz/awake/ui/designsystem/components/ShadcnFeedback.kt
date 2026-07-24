@@ -23,15 +23,31 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  */
 fun ColumnScope.shadcnAlert(
     id: String,
+    modifier: UiModifier = Modifier,
+    variant: ShadcnAlertVariant = ShadcnAlertVariant.Default,
+    style: Style = Style.Empty,
+    content: ColumnScope.() -> Unit
+): UiSlot = surface(
+    id = id,
+    modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent),
+    style = ShadcnStyles.alert(theme.asShadcnTheme(), variant) then style
+) {
+    content()
+}
+
+/** [shadcnAlert] convenience with plain string title/description. */
+fun ColumnScope.shadcnAlert(
+    id: String,
     title: String,
     description: String? = null,
     modifier: UiModifier = Modifier,
     variant: ShadcnAlertVariant = ShadcnAlertVariant.Default,
     style: Style = Style.Empty
-): UiSlot = surface(
+): UiSlot = shadcnAlert(
     id = id,
-    modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent),
-    style = ShadcnStyles.alert(theme.asShadcnTheme(), variant) then style
+    modifier = modifier,
+    variant = variant,
+    style = style
 ) {
     val titleColor = when (variant) {
         ShadcnAlertVariant.Default -> theme.asShadcnTheme().tokens.foreground

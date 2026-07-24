@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal val ShadcnTransparent = Color.Transparent
@@ -180,6 +179,10 @@ object ShadcnStyles {
             }
             active {
                 background(theme.card)
+                borderColor(theme.ring)
+            }
+            focused {
+                borderWidth(1.5f.dp)
                 borderColor(theme.ring)
             }
         }

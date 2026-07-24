@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -22,7 +23,6 @@ fun UiScope.shadcnAlertDialog(
     id: String,
     expanded: Boolean,
     title: String,
-    message: String,
     width: Dimension = Dimension.Fixed(320f.dp),
     confirmLabel: String = "Confirm",
     dismissLabel: String? = "Cancel",
@@ -31,7 +31,8 @@ fun UiScope.shadcnAlertDialog(
     confirmStyle: Style = Style.Empty,
     dismissStyle: Style = Style.Empty,
     properties: UiDialogProperties = UiDialogProperties(),
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    body: ColumnScope.() -> Unit
 ): UiAlertDialogResult {
     var action: UiAlertDialogAction? = null
     val popup = shadcnDialog(
@@ -73,9 +74,41 @@ fun UiScope.shadcnAlertDialog(
             }
         }
     ) {
-        supportingText(message)
+        body()
     }
     return UiAlertDialogResult(popup = popup, action = action)
+}
+
+/** [shadcnAlertDialog] convenience with a plain string message. */
+fun UiScope.shadcnAlertDialog(
+    id: String,
+    expanded: Boolean,
+    title: String,
+    message: String,
+    width: Dimension = Dimension.Fixed(320f.dp),
+    confirmLabel: String = "Confirm",
+    dismissLabel: String? = "Cancel",
+    confirmVariant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
+    dismissVariant: ShadcnButtonVariant = ShadcnButtonVariant.Outline,
+    confirmStyle: Style = Style.Empty,
+    dismissStyle: Style = Style.Empty,
+    properties: UiDialogProperties = UiDialogProperties(),
+    style: Style = Style.Empty
+): UiAlertDialogResult = shadcnAlertDialog(
+    id = id,
+    expanded = expanded,
+    title = title,
+    width = width,
+    confirmLabel = confirmLabel,
+    dismissLabel = dismissLabel,
+    confirmVariant = confirmVariant,
+    dismissVariant = dismissVariant,
+    confirmStyle = confirmStyle,
+    dismissStyle = dismissStyle,
+    properties = properties,
+    style = style
+) {
+    supportingText(message)
 }
 
 data class UiAlertDialogResult(

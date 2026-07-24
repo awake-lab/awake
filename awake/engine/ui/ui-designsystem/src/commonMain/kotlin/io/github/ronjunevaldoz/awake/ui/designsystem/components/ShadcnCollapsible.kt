@@ -8,11 +8,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.paddingTop
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
@@ -29,10 +29,10 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  */
 fun ColumnScope.shadcnCollapsible(
     id: String,
-    title: String,
     expanded: Boolean,
     modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
+    header: RowScope.() -> Unit,
     content: ColumnScope.() -> Unit
 ): Boolean {
     val shadcnTheme = theme.asShadcnTheme()
@@ -53,9 +53,11 @@ fun ColumnScope.shadcnCollapsible(
         , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))) {
              text(
                  label = if (expanded) "-" else "+",
-                 modifier = Modifier.width(12f.dp).paddingTop( 8f.dp)
+                 modifier = Modifier.width(12f.dp),
+                 centered = true,
+                 verticallyCentered = true
              )
-             text(title, modifier = Modifier.paddingTop(8f.dp))
+             header()
         }
     }
 
@@ -72,3 +74,20 @@ fun ColumnScope.shadcnCollapsible(
 
     return expanded
 }
+
+/** [shadcnCollapsible] convenience with a plain string title. */
+fun ColumnScope.shadcnCollapsible(
+    id: String,
+    title: String,
+    expanded: Boolean,
+    modifier: UiModifier = Modifier,
+    onExpandedChange: (Boolean) -> Unit = {},
+    content: ColumnScope.() -> Unit
+): Boolean = shadcnCollapsible(
+    id = id,
+    expanded = expanded,
+    modifier = modifier,
+    onExpandedChange = onExpandedChange,
+    header = { text(title, verticallyCentered = true) },
+    content = content
+)
