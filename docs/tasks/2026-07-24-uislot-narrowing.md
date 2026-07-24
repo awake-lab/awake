@@ -86,6 +86,6 @@ compile-iterate-to-convergence technique used for the layout/style package move.
 
 - [x] Contract audit
 - [x] Rule recorded in `docs/reference/ui-ownership.md` (rule 5, with concrete `anchorSlot` example)
-- [ ] Batch 1 (`anchorSlot` params) -- in progress
+- [x] Batch 1 (`anchorSlot` params)
 - [ ] Batch 2 (widget return types)
 - [ ] Batch 3 (lock down + mechanical enforcement)
