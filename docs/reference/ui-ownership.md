@@ -35,6 +35,16 @@ These are placement rules, not style preferences.
    fixed 2026-07-24: `avatarFallback`'s `diameter: Dp` param (see `docs/tasks/
    2026-07-17-ui-api-simplification.md`'s modifier-first policy for the full history of this
    class of bug, starting with `surface()`'s `radius`/`borderWidth`).
+7. **Prefer `UiModifier` builder chaining (`.width().height().padding()`) over `.copy(...)`.**
+   `.copy()` used to be the workaround for a name collision between `UiModifier`'s stored
+   `width`/`height` fields and the `.width()`/`.height()` builder functions -- fixed 2026-07-24
+   by renaming the fields to `widthDimension`/`heightDimension`, so the workaround is no longer
+   needed for those two. New code should chain builder calls, not `.copy(widthDimension = ...)`.
+   Other fields (`forceHover`/`forceActive`/`forceFocus`/`testTag`/`styleable`/`graphicsLayer`)
+   share the same collision shape with their builder functions and carry the same latent risk
+   -- if you hit the ambiguity error on one of those, the fix is the same rename pattern, not
+   reaching for `.copy()`. Existing `.copy(widthDimension = ...)` call sites from before this
+   fix were not swept to chained calls in this pass (mechanical follow-up, not yet scoped).
 
 ## Unstyled/Designsystem Content Pairing
 
