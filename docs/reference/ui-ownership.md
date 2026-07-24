@@ -11,11 +11,11 @@ sample-specific adapters.
 
 These are placement rules, not style preferences.
 
-1. `awake:engine:ui-core` may expose only geometry, drawing, anchoring, clipping, slot,
+1. `awake:engine:ui:ui-core` may expose only geometry, drawing, anchoring, clipping, slot,
    style primitives, theme contracts, and at most a neutral fallback theme.
-2. `awake:engine:ui-unstyled` may expose only generic leaf widgets built on `ui-core`. It
+2. `awake:engine:ui:ui-unstyled` may expose only generic leaf widgets built on `ui-core`. It
    must not own property-form, inspector, or tooling-shell composition.
-3. `awake:engine:ui-designsystem` owns branded or strongly opinionated recipes and every
+3. `awake:engine:ui:ui-designsystem` owns branded or strongly opinionated recipes and every
    named authored theme intended for direct app/sample use.
 4. `samples:*` and future game modules own runtime-bound adapters, authored overlays,
    debug HUD wiring, and sample-specific compositions.
@@ -79,9 +79,9 @@ the time, not a foregone conclusion.
 
 | Module | Responsibility | Examples |
 |---|---|---|
-| `awake:engine:ui-core` | Foundational drawing, layout, and surface primitives | low-level layout, drawing, clipping, slots, style plumbing, `UiTheme`, `CoreUiTheme` |
-| `awake:engine:ui-unstyled` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
-| `awake:engine:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
+| `awake:engine:ui:ui-core` | Foundational drawing, layout, and surface primitives | low-level layout, drawing, clipping, slots, style plumbing, `UiTheme`, `CoreUiTheme` |
+| `awake:engine:ui:ui-unstyled` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
+| `awake:engine:ui:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
 | `samples:*` or game modules | Sample/game adapters and authored usage | scene inspector bindings, demo-specific overlays, debug HUD wiring |
 
 ## Primitive Vs Composition
@@ -292,8 +292,8 @@ natural stopping point.
 
 This policy is build-enforced in Awake's reusable UI modules.
 
-- `:awake:engine:ui-core:check`
-- `:awake:engine:ui-unstyled:check`
+- `:awake:engine:ui:ui-core:check`
+- `:awake:engine:ui:ui-unstyled:check`
 
 run a `verifyUiOwnership` task that rejects:
 
@@ -307,8 +307,8 @@ policy grows, expand the canonical doc first, then update the check.
 
 Awake also build-enforces authored-unit usage in:
 
-- `:awake:engine:ui-unstyled`
-- `:awake:engine:ui-designsystem`
+- `:awake:engine:ui:ui-unstyled`
+- `:awake:engine:ui:ui-designsystem`
 - `:awake:engine:game-dsl`
 - `:samples:ui-showcase`
 

@@ -20,7 +20,7 @@ You work on Awake's shared design-system surface. Read
 
 ## Owns
 
-- `awake:engine:ui-designsystem`
+- `awake:engine:ui:ui-designsystem`
 - theme tokens, palette tuning, radii, borders, elevation, and shared visual language
 - reusable higher-level component recipes built on top of neutral UI primitives
 - showcase and tutorial presentation quality when the question is visual consistency

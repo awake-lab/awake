@@ -19,10 +19,10 @@ Awake's reusable UI is only considered done when it has machine-checkable proof 
 
 Any change to shared UI in:
 
-- `awake:engine:ui-core`
-- `awake:engine:ui-unstyled`
+- `awake:engine:ui:ui-core`
+- `awake:engine:ui:ui-unstyled`
 - `awake:engine:ui-dsl`
-- `awake:engine:ui-designsystem`
+- `awake:engine:ui:ui-designsystem`
 - shared showcase or docs previews that demonstrate those modules
 
 must ship with automated validation.
@@ -105,8 +105,8 @@ For shared UI work, run the smallest relevant verification task before consideri
 done:
 
 ```bash
-./gradlew :awake:engine:testing:commonTest
-./gradlew :awake:engine:ui-unstyled:desktopTest
+./gradlew :awake:engine:ui:ui-testing:commonTest
+./gradlew :awake:engine:ui:ui-unstyled:desktopTest
 ./gradlew :samples:ui-showcase:desktopTest
 ```
 

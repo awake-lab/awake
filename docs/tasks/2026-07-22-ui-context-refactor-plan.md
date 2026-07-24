@@ -6,7 +6,7 @@ Continue the `UiContext` cleanup as a staged architecture refactor instead of a 
 overlapping implementation pass.
 
 This note exists because the UI runtime is already being split under
-`awake:engine:ui-core`'s `ui/context` package, and a fresh one-shot rewrite would likely
+`awake:engine:ui:ui-core`'s `ui/context` package, and a fresh one-shot rewrite would likely
 conflict with that in-flight work.
 
 ## Status Update
@@ -31,8 +31,8 @@ Still open:
 
 Validation snapshot:
 
-- `:awake:engine:ui-core:compileKotlinDesktop` passes
-- `:awake:engine:ui-unstyled:compileKotlinDesktop` passes
+- `:awake:engine:ui:ui-core:compileKotlinDesktop` passes
+- `:awake:engine:ui:ui-unstyled:compileKotlinDesktop` passes
 - `:awake:engine:game-dsl:compileKotlinDesktop` passes
 - `:awake:scene:compileKotlinDesktop` passes
 - `:awake:scene-dsl:compileTestKotlinDesktop` still fails, but the remaining failures are
@@ -58,7 +58,7 @@ That is still workable for an MVP, but it is no longer a clean long-term boundar
 
 ## Current State
 
-The split has already started in `awake/engine/ui-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/context/`.
+The split has already started in `awake/engine/ui/ui-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/context/`.
 
 Current extracted pieces already include:
 
@@ -293,10 +293,10 @@ competing split.
 
 ## Validation
 
-- `:awake:engine:ui-core:commonTest`
-- `:awake:engine:ui-unstyled:commonTest`
+- `:awake:engine:ui:ui-core:commonTest`
+- `:awake:engine:ui:ui-unstyled:commonTest`
 - `:awake:engine:ui-dsl:commonTest`
-- `:awake:engine:ui-designsystem:commonTest`
+- `:awake:engine:ui:ui-designsystem:commonTest`
 - `:awake:engine:game-dsl:commonTest`
 - `:samples:ui-showcase:commonTest`
 - targeted `desktopTest` where frame output or text-input focus behavior changes

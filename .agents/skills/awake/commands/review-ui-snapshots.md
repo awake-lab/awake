@@ -1,6 +1,6 @@
 # /awake:review-ui-snapshots $ARGUMENTS
 
-Analyze `awake:engine:ui-unstyled`' pixel-baseline UI snapshot gallery for legibility/occlusion
+Analyze `awake:engine:ui:ui-unstyled`' pixel-baseline UI snapshot gallery for legibility/occlusion
 issues, using vision on the raw PNGs. This is the visual-review tool the design-system
 work (shadcn-style variants, dark/light theme) explicitly needs — the widgets are
 rasterized without a real GPU (see `snapshot/UiRasterizer.kt`'s doc comment), so no
@@ -14,12 +14,12 @@ Search root: `$ARGUMENTS` (defaults to `.` — the current project root)
 ## Step 1 — Run the snapshot tests
 
 ```bash
-./gradlew :awake:engine:ui-unstyled:desktopTest
+./gradlew :awake:engine:ui:ui-unstyled:desktopTest
 ```
 
-This regenerates every PNG under `awake/engine/ui-unstyled/build/ui-snapshots/*.png` and,
+This regenerates every PNG under `awake/engine/ui/ui-unstyled/build/ui-snapshots/*.png` and,
 via the `uiSnapshotReport` task (`finalizedBy desktopTest`), a self-contained HTML gallery
-at `awake/engine/ui-unstyled/build/reports/ui-snapshots/index.html` -- unconditionally,
+at `awake/engine/ui/ui-unstyled/build/reports/ui-snapshots/index.html` -- unconditionally,
 pass or fail.
 
 ---
@@ -27,7 +27,7 @@ pass or fail.
 ## Step 2 — Find the snapshots
 
 ```bash
-find "${ARGUMENTS:-.}/awake/engine/ui-unstyled/build/ui-snapshots" -name "*.png" | sort
+find "${ARGUMENTS:-.}/awake/engine/ui/ui-unstyled/build/ui-snapshots" -name "*.png" | sort
 ```
 
 If none found: print `No UI snapshots found -- did desktopTest run?` and stop.
@@ -106,7 +106,7 @@ For each WARNING or FAIL, tie it to the actual widget code, not a generic sugges
 
 ## Notes
 
-- This is a supplement to, not a replacement for, `awake:engine:ui-unstyled`' own pass/fail unit
+- This is a supplement to, not a replacement for, `awake:engine:ui:ui-unstyled`' own pass/fail unit
   tests (`UiContextTest.kt`, `LayoutTest.kt`, etc, kept in a separate package on purpose —
   see the session decision to keep unit tests and snapshot/visual tests apart).
 - Use [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md)

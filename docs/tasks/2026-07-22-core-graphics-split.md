@@ -7,11 +7,11 @@ Status: Draft
 
 Decide whether Awake should introduce a non-UI graphics foundation module, and if so,
 move only truly shared graphics concepts there while keeping UI-specific authored APIs in
-`awake:engine:ui-core`.
+`awake:engine:ui:ui-core`.
 
 ### Current State
 
-Today `awake:engine:ui-core` owns both:
+Today `awake:engine:ui:ui-core` owns both:
 
 - UI-authored surfaces:
   - `UiScope`
@@ -40,7 +40,7 @@ Add a dedicated shared graphics module only when at least one non-UI consumer is
 
 Recommended future shape:
 
-- `awake:engine:ui-core`
+- `awake:engine:ui:ui-core`
   - owns UI-authored APIs
   - keeps `CanvasScope`
   - keeps `UiDrawPrimitive`

@@ -20,8 +20,8 @@ You work on Awake's shared UI mechanics. Read
 
 ## Owns
 
-- `awake:engine:ui-core`
-- `awake:engine:ui-unstyled`
+- `awake:engine:ui:ui-core`
+- `awake:engine:ui:ui-unstyled`
 - `awake:engine:ui-dsl`
 - low-level layout, text, input, clipping, and animation behavior
 

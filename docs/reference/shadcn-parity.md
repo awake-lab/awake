@@ -4,7 +4,7 @@ Real, machine-readable ground truth for how close Awake's `ui-designsystem` comp
 to actual shadcn/ui, pulled from `ronjunevaldoz/shadcn-compose`'s published
 `docs/component-metadata.json` (schema: `docs/component-metadata.md` in that repo) instead of
 memory or a hand-written "vibes" comparison. See
-[`ShadcnReferenceTokenTest`](../../awake/engine/ui-designsystem/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/ShadcnReferenceTokenTest.kt)
+[`ShadcnReferenceTokenTest`](../../awake/engine/ui/ui-designsystem/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/ShadcnReferenceTokenTest.kt)
 for the equivalent check on color *values* -- this doc is about variant/size *coverage* and
 actual rendered look, which that test doesn't cover.
 
@@ -152,7 +152,7 @@ field/overlay/selection families; this inventory is what to consult when decidin
 
 ## Visual notes (actually looked at the reference image, not just the property list)
 
-**`button_variants_light.png`** (![button](shadcn-previews/button_variants_light.png)): real shadcn's `Default` variant is solid near-black, `Secondary` is a pale gray fill, `Outline` is a bordered/transparent button, `Ghost` is no fill/no border (label only), `Destructive` is solid red, `Link` renders as plain underlined-style text with no button chrome at all. Confirms our `Primary`/`Secondary`/`Outline`/`Ghost`/`Danger` five already track this correctly by color role (checked against [`ShadcnReferenceTokenTest`](../../awake/engine/ui-designsystem/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/ShadcnReferenceTokenTest.kt)'s primary/destructive values); `Link` is the one real look we don't have a variant for.
+**`button_variants_light.png`** (![button](shadcn-previews/button_variants_light.png)): real shadcn's `Default` variant is solid near-black, `Secondary` is a pale gray fill, `Outline` is a bordered/transparent button, `Ghost` is no fill/no border (label only), `Destructive` is solid red, `Link` renders as plain underlined-style text with no button chrome at all. Confirms our `Primary`/`Secondary`/`Outline`/`Ghost`/`Danger` five already track this correctly by color role (checked against [`ShadcnReferenceTokenTest`](../../awake/engine/ui/ui-designsystem/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/ShadcnReferenceTokenTest.kt)'s primary/destructive values); `Link` is the one real look we don't have a variant for.
 
 **`text-field_states_light.png`** (![text-field](shadcn-previews/text-field_states_light.png)): five states shown -- `Default` (bordered, transparent bg), `Filled` (gray fill, no border), `Ghost` (no border/no fill, just a label), an **invalid/error state** (red border + red helper text below the field), and `Disabled` (muted gray, reduced contrast). Awake's `textField()` (built this session) only has the `Default` look -- no `Filled`/`Ghost` variant, no error/invalid state with helper text, no disabled state. This is the most substantive real gap this doc found: error-state styling on a form field is a genuinely common need, not a nice-to-have.
 

@@ -27,7 +27,7 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 - `ui-dsl` owns the right category of APIs, but its surface is too broad.
 - `ui-designsystem` owns the right category of APIs, but it still duplicates too many
   wrapper entry points and still tolerates raw-float authored sizing.
-- `engine/testing` can catch some overlap and drift, but it still cannot reason about
+- `engine/ui/ui-testing` can catch some overlap and drift, but it still cannot reason about
   semantic roles, text-fit expectations, or layout intent strongly enough.
 
 ## Policy: Slot API vs `UiSlot` vs Modifier-First Input (2026-07-24)
@@ -147,7 +147,7 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 
 ## Module Checklist
 
-### `awake:engine:ui-core`
+### `awake:engine:ui:ui-core`
 
 - [ ] Keep `Dp` / `Sp` / `Dimension` / `UiModifier` / `Style` / `UiTheme` as the stable public base.
 - [ ] Keep raw pixel math in layout and renderer internals only.
@@ -156,7 +156,7 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 - [ ] Keep `CoreUiTheme` only as the neutral fallback theme.
 - [ ] Do not move named authored themes into `ui-core`.
 
-### `awake:engine:ui-unstyled`
+### `awake:engine:ui:ui-unstyled`
 
 - [ ] Keep only generic leaf widgets and generic containers.
 - [x] Deprecate authored convenience overloads that take width/height as raw `Float`. Deleted outright (button/buttonSlot/toggle/checkbox/dropdown/slider/textureQuad in ui-unstyled, plus the mirrored copies in ui-dsl's `UiDslControls.kt`) rather than deprecated, since this API isn't published yet -- migrated all 51 real call sites onto modifier-based sizing.
@@ -173,7 +173,7 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 - [x] Keep `overlayBox(...)` as the preferred responsive overlay surface. All real production samples (hello-cube, starter-game, ui-showcase) already use `overlayBox` exclusively; `overlayShell` is now doc-commented as narrower corner-HUD sugar.
 - [ ] Avoid adding new named placement helpers when `align(...)` or an existing slot primitive can express the layout.
 
-### `awake:engine:ui-designsystem`
+### `awake:engine:ui:ui-designsystem`
 
 - [ ] Keep themes, presets, tokens, and branded recipes here.
 - [x] Deprecate float width/height convenience overloads on branded components. Deleted outright (badges/buttons/fields/property controls) rather than deprecated, since this API isn't published yet.
@@ -181,7 +181,7 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 - [x] Keep modifier-first and slot-based APIs as the canonical public surface. All branded components are modifier-based only after the Float-overload deletion pass.
 - [ ] Keep named themes here, not in `ui-core`.
 
-### `awake:engine:testing`
+### `awake:engine:ui:ui-testing`
 
 - [ ] Keep primitive-count and bounds drift checks.
 - [x] Add semantic widget-role inspection.
@@ -222,7 +222,7 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 2. Design-system overload reduction and duplicate wrapper collapse. **(done)**
 3. `UiShellDsl` and `UiDslLayout` surface reduction. **(done)**
 4. Semantic UI debug metadata in `ui-core`. **(done)**
-5. Stronger UI assertions in `engine/testing`. **(done)**
+5. Stronger UI assertions in `engine/ui/ui-testing`. **(done)**
 6. Showcase rewrite so the sample proves the intended usage path. **(done)**
 7. Root-level `UiSlot`-as-authored-input cleanup (see "UiSlot As Root Authored Input" above).
    **(done)**
@@ -249,9 +249,9 @@ right API shape:
 
 ## Validation
 
-- `:awake:engine:ui-core:commonTest`
+- `:awake:engine:ui:ui-core:commonTest`
 - `:awake:engine:ui-dsl:desktopTest`
-- `:awake:engine:ui-designsystem:commonTest`
+- `:awake:engine:ui:ui-designsystem:commonTest`
 - `:samples:ui-showcase:desktopTest`
 
 ## Done When

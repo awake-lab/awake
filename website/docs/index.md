@@ -18,7 +18,7 @@ Awake is a Kotlin Multiplatform game engine (Vulkan, WebGPU, OpenGL) with a shar
 - `awake:ecs` — Sparse-set ECS runtime.
 - `awake:scene` — Scene-graph components and systems.
 - `awake:engine:game` — Backend-neutral game bootstrap.
-- `awake:engine:ui-core` — Stateless UI primitives and theme tokens.
+- `awake:engine:ui:ui-core` — Stateless UI primitives and theme tokens.
 
 [Getting Started](getting-started.md){ .md-button .md-button--primary }
 [API Reference](api/index.html){ .md-button }

@@ -18,7 +18,7 @@ Split into two types:
 ## Contract audit (completed 2026-07-24)
 
 Audited every downstream read (not construction) of `UiSlot` outside `ui-core`, across
-ui-unstyled, ui-dsl, ui-designsystem, engine/testing, game-dsl, samples, and backends.
+ui-unstyled, ui-dsl, ui-designsystem, engine/ui/ui-testing, game-dsl, samples, and backends.
 
 - Overwhelming majority: `.x` / `.y` / `.width` / `.height` reads only.
 - `.place(...)` -- exactly 1 downstream call site (`game-dsl/GameUiRuntime.kt:113`).
@@ -44,13 +44,13 @@ separate module from ui-core, `.inset(...)` must ship on `UiBounds`, not stay ui
    `UiSemanticNode.contentBounds`/`bounds`) from `UiSlot` to `UiBounds`.
 3. Add `UiSlot.toBounds()` / `UiBounds` conversion at the ui-core measurement/output boundary.
 4. Fix downstream call sites module by module (ui-unstyled first -- heaviest consumer -- then
-   ui-dsl, ui-designsystem, engine/testing, game-dsl, samples, backends), same
+   ui-dsl, ui-designsystem, engine/ui/ui-testing, game-dsl, samples, backends), same
    compile-iterate-to-convergence technique used for the layout/style package move.
 5. Mark `UiSlot`'s constructor/class `internal` to `ui-core` once no downstream file references it.
 6. Compile whole tree (0 errors), run `desktopTest`, confirm baseline: scene-dsl=1, ui-showcase=6,
    ui-dsl=3, all other modules 0 (ui-designsystem baseline is now 0 per the button-label fix).
 7. Enforce the rule mechanically so it can't regress: add `"UiSlot"` to
-   `forbiddenUiTypeReferences` for `:awake:engine:ui-unstyled` and `:awake:engine:ui-dsl` in
+   `forbiddenUiTypeReferences` for `:awake:engine:ui:ui-unstyled` and `:awake:engine:ui-dsl` in
    `build-logic/src/main/kotlin/awake.ui-ownership-convention.gradle.kts` (the existing
    `verifyUiOwnership` check already supports this via `forbiddenTypeReferences` -- just needs
    `UiSlot` added to those two modules' lists, kept separate from `ui-core`'s list since `UiSlot`

@@ -1007,7 +1007,7 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
       data (`cubeVertices`/`cubeIndices`/`textureData`) — both genuinely belong in the demo,
       not the engine.
 - [x] **Headless `Renderer` construction + a real `desktopTest` pixel-baseline regression
-      (2026-07-13):** `awake:engine:testing`'s `comparePixels()` (commit 9e07991) previously
+      (2026-07-13):** `awake:engine:ui:ui-testing`'s `comparePixels()` (commit 9e07991) previously
       had no automated caller — `DemoCatalog.verifyOffscreenReadback()` only proves
       `createRenderTarget`/`renderToTexture`/`readPixels` work inside a real windowed app run.
       Investigated whether Vulkan actually needs a window/surface for pure offscreen
@@ -1063,7 +1063,7 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
     test's `finally` block destroys the mesh/material/`pipelineLayoutMaterial` descriptor set
     layout it created, mirroring `VulkanGameApplication.destroyBackend()`'s own order). Also
     re-ran the full `:awake:backend:vulkan:desktopTest` suite (`VulkanDesktopNativeSmokeTest`,
-    `TextureLoaderTest`) and `:awake:engine:testing:desktopTest` (`PixelBaselineTest`) with
+    `TextureLoaderTest`) and `:awake:engine:ui:ui-testing:desktopTest` (`PixelBaselineTest`) with
     `--rerun-tasks` — all pass, no regressions. Also compile-checked
     `:samples:hello-cube:compileKotlinDesktop`/`:samples:hello-cube:compileAndroidMain` (the
     windowed `GraphicsDevice.create(window)` path shares the refactored

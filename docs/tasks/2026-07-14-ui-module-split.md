@@ -37,9 +37,9 @@ should live outside the core engine layer.
 ```mermaid
 flowchart LR
     B["awake:base"]
-    UC["awake:engine:ui-core"]
-    UW["awake:engine:ui-unstyled"]
-    UD["awake:engine:ui-designsystem"]
+    UC["awake:engine:ui:ui-core"]
+    UW["awake:engine:ui:ui-unstyled"]
+    UD["awake:engine:ui:ui-designsystem"]
     RA["awake:engine:render-api"]
     S["samples / tools / editor"]
 
@@ -53,7 +53,7 @@ flowchart LR
 
 ## Proposed Modules
 
-### `:awake:engine:ui-core`
+### `:awake:engine:ui:ui-core`
 
 Owns the runtime and rendering-neutral UI foundation.
 
@@ -83,7 +83,7 @@ Rules:
 - no sample/editor-specific widgets
 - no backend implementation details
 
-### `:awake:engine:ui-unstyled`
+### `:awake:engine:ui:ui-unstyled`
 
 Owns Awake's generic widget library built on `ui-core`.
 
@@ -115,7 +115,7 @@ Rules:
 - must stay brandless
 - must not assume editor/game-specific semantics
 
-### `:awake:engine:ui-designsystem`
+### `:awake:engine:ui:ui-designsystem`
 
 Owns branded or product-opinionated composition.
 
@@ -329,16 +329,16 @@ primitives in `ui-core`.
 ## Migration Order
 
 1. Update docs and lock the ownership rules.
-2. Create `:awake:engine:ui-core`.
+2. Create `:awake:engine:ui:ui-core`.
 3. Move runtime/style/layout primitives into `ui-core`.
 4. Point `render-api` at `ui-core`.
-5. Create `:awake:engine:ui-unstyled`.
+5. Create `:awake:engine:ui:ui-unstyled`.
 6. Move built-in widgets and generic theme there.
 7. Keep `:awake:engine:ui` as a compatibility facade.
 8. Add shape/path primitives in `ui-core`.
 9. Add vector draw primitives and backend support.
 10. Add optional shape clipping.
-11. Create `:awake:engine:ui-designsystem` only when branded/editor-facing recipes are ready.
+11. Create `:awake:engine:ui:ui-designsystem` only when branded/editor-facing recipes are ready.
 
 ## Non-Goals
 

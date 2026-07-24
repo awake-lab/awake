@@ -25,9 +25,9 @@ Every public-facing module should eventually have:
 | `awake:engine:game-dsl` | Dokka + `awake/engine/game-dsl/README.md` + `docs/reference/game-dsl.md` | Partial | `game-dsl` tutorial docs + `samples:hello-cube` authored bootstrap proof | In progress | Expand `gameModule` cookbook with multi-feature samples |
 | `awake:engine:ui-dsl` | Dokka + `awake/engine/ui-dsl/README.md` | Partial | UI DSL tutorial snapshots | In progress | Expand authored UI cookbook and custom component examples |
 | `awake:engine:render-api` | Dokka | Not yet | Compileable sample | Planned | Add mesh/material/renderer usage guide |
-| `awake:engine:ui-core` | Dokka | Partial | UI tutorial snapshots | In progress | Add path/style/shape guide |
-| `awake:engine:ui-unstyled` | Dokka | Partial | UI tutorial snapshots | In progress | Expand widget cookbook |
-| `awake:engine:ui-designsystem` | Dokka | Not yet | UI tutorial snapshots | Planned | Add design-system styling guide |
+| `awake:engine:ui:ui-core` | Dokka | Partial | UI tutorial snapshots | In progress | Add path/style/shape guide |
+| `awake:engine:ui:ui-unstyled` | Dokka | Partial | UI tutorial snapshots | In progress | Expand widget cookbook |
+| `awake:engine:ui:ui-designsystem` | Dokka | Not yet | UI tutorial snapshots | Planned | Add design-system styling guide |
 | `awake:scene` | Dokka + `awake/scene/README.md` | Partial | Sample scene runtime | Partial | Add scene JSON + runtime tutorial |
 | `awake:scene-dsl` | Dokka + `awake/scene-dsl/README.md` | Partial | `gameModule { ecs(...) }` composition proof | In progress | Expand scene authoring cookbook |
 | `awake:physics:api` | Dokka | Not yet | Deterministic sample/tests | Planned | Add body/world setup tutorial |
@@ -49,8 +49,8 @@ Current implementation:
 
 - `./gradlew developerDocs`
 - `awake/engine/ui-dsl/build/reports/ui-dsl-tutorials/index.html`
-- `awake/engine/ui-unstyled/build/reports/ui-tutorials/index.html`
-- `awake/engine/ui-unstyled/build/reports/ui-snapshots/index.html`
+- `awake/engine/ui/ui-unstyled/build/reports/ui-tutorials/index.html`
+- `awake/engine/ui/ui-unstyled/build/reports/ui-snapshots/index.html`
 
 ### Non-Visual APIs
 

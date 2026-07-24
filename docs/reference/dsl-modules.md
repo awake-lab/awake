@@ -94,7 +94,7 @@ generic infrastructure rather than authored syntax.
 ## Theme Rule
 
 `ui-dsl` stays neutral. Its defaults should use `CoreUiTheme`, while authored samples and
-games should opt into a named theme from `awake:engine:ui-designsystem`.
+games should opt into a named theme from `awake:engine:ui:ui-designsystem`.
 
 ## Overlay Rule
 
