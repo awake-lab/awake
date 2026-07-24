@@ -22,7 +22,9 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.styleable
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.layout.*
@@ -34,8 +36,6 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  */
 internal fun UiScope.smartColumn(
     id: String?,
-    width: Dimension,
-    height: Dimension,
     gap: Float,
     verticalArrangement: Arrangement,
     style: Style,
@@ -45,8 +45,8 @@ internal fun UiScope.smartColumn(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val insets = modifier.insets
-    val requestedWidth = modifier.widthDimension ?: width
-    val requestedHeight = modifier.heightDimension ?: height
+    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
+    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
     val scrollState = modifier.scrollState
     val containerTag = modifier.testTag ?: id
     val hasBoundedFillWidth = requestedWidth != Dimension.WrapContent
@@ -55,8 +55,6 @@ internal fun UiScope.smartColumn(
     if (scrollState != null && id != null) {
         return scrollPanel(
             id = id,
-            width = requestedWidth,
-            height = requestedHeight,
             modifier = modifier,
             style = style,
             verticalArrangement = verticalArrangement,
@@ -82,10 +80,8 @@ internal fun UiScope.smartColumn(
     if (hasVisuals && id != null) {
         return rawSurface(
             id = id,
-            width = requestedWidth,
-            height = requestedHeight,
             verticalArrangement = verticalArrangement,
-            modifier = modifier.styleable(effectiveStyle),
+            modifier = modifier.styleable(effectiveStyle).width(requestedWidth).height(requestedHeight),
             clipContent = clipContent,
             content = content
         )
@@ -120,10 +116,8 @@ internal fun UiScope.smartColumn(
     }
 
     val rawSlot = rawColumn(
-        width = resolvedWidth,
-        height = resolvedHeight,
         verticalArrangement = verticalArrangement,
-        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
+        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -141,12 +135,10 @@ fun ColumnScope.column(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    modifier.widthDimension ?: Dimension.FillMax,
-    modifier.heightDimension ?: Dimension.WrapContent,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
-    modifier,
+    modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent),
     clipContent = false,
     content = content
 )
@@ -159,12 +151,10 @@ fun RowScope.column(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    modifier.widthDimension ?: Dimension.WrapContent,
-    modifier.heightDimension ?: Dimension.FillMax,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
-    modifier,
+    modifier.withSizeFallback(Dimension.WrapContent, Dimension.FillMax),
     clipContent = false,
     content = content
 )
@@ -177,12 +167,10 @@ fun AbsoluteScope.column(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    modifier.widthDimension ?: Dimension.WrapContent,
-    modifier.heightDimension ?: Dimension.WrapContent,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
-    modifier,
+    modifier.withSizeFallback(Dimension.WrapContent, Dimension.WrapContent),
     clipContent = false,
     content = content
 )
@@ -195,26 +183,23 @@ fun BoxScope.column(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    modifier.widthDimension ?: Dimension.WrapContent,
-    modifier.heightDimension ?: Dimension.WrapContent,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
-    modifier,
+    modifier.withSizeFallback(Dimension.WrapContent, Dimension.WrapContent),
     clipContent = false,
     content = content
 )
 
 
 fun UiScope.rawColumn(
-    width: Dimension = Dimension.FillMax,
-    height: Dimension = Dimension.WrapContent,
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
+    val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
+    val slot = claimModifiedSlot(sizedModifier)
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: hitTest(slot),
         active = modifier.forceActive ?: false,
@@ -223,8 +208,8 @@ fun UiScope.rawColumn(
     val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
 
     context.pushTextStyle(textStyle)
-    val requestedWidth = modifier.widthDimension ?: width
-    val requestedHeight = modifier.heightDimension ?: height
+    val requestedWidth = sizedModifier.widthDimension ?: Dimension.FillMax
+    val requestedHeight = sizedModifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = verticalArrangement
     val scope = if (effectiveArrangement.requiresMeasuredDistribution()) {
         val measured = context.measureColumnContent(

@@ -41,8 +41,6 @@ fun UiScope.surface(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = smartColumn(
     id = id,
-    width = modifier.widthDimension ?: Dimension.WrapContent,
-    height = modifier.heightDimension ?: Dimension.WrapContent,
     gap = verticalArrangement.baseSpacingPx(),
     verticalArrangement = verticalArrangement,
     style = Style {
@@ -121,13 +119,13 @@ fun BoxScope.surface(
 
 fun UiScope.rawSurface(
     id: String,
-    width: Dimension,
-    height: Dimension,
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
+    val width = modifier.widthDimension ?: Dimension.WrapContent
+    val height = modifier.heightDimension ?: Dimension.WrapContent
     val gap = verticalArrangement.baseSpacingPx()
     val effectiveStyle = modifier.styleable ?: Style.Empty
     val containerTag = modifier.testTag ?: id

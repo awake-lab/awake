@@ -64,10 +64,10 @@ fun UiScope.shadcnDropdownMenu(
     ) { popupSlot ->
         rawSurface(
             id = "$id.menu",
-            width = Dimension.Fixed(popupSlot.width.px),
-            height = height,
             verticalArrangement = Arrangement.spacedBy(0f.dp),
             modifier = Modifier
+                .width(Dimension.Fixed(popupSlot.width.px))
+                .height(height)
                 .styleable(theme.components.surface then style then Style {
                     shape(UiShape.sm)
                 }),

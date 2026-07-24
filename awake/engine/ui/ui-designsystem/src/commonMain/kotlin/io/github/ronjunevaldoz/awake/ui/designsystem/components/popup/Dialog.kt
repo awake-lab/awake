@@ -15,7 +15,9 @@ import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawSurface
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.styleable
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
@@ -68,9 +70,9 @@ fun UiScope.shadcnDialog(
     ) { _ ->
         rawSurface(
             id = id,
-            width = width,
-            height = height,
             modifier = Modifier
+                .width(width)
+                .height(height)
                 .styleable(theme.components.surface then Style { shape(UiShape.md) } then properties.surfaceStyle),
             clipContent = true
         ) { slot ->

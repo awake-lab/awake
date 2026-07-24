@@ -5,6 +5,8 @@ package io.github.ronjunevaldoz.awake.ui.layouts.ext
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childRow
@@ -55,10 +57,8 @@ fun ColumnScope.row(
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
     return rawRow(
-        width = resolvedWidth,
-        height = resolvedHeight,
         horizontalArrangement = effectiveArrangement,
-        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
+        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -95,10 +95,8 @@ fun RowScope.row(
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
     return rawRow(
-        width = resolvedWidth,
-        height = resolvedHeight,
         horizontalArrangement = effectiveArrangement,
-        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
+        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -135,10 +133,8 @@ fun AbsoluteScope.row(
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
     return rawRow(
-        width = resolvedWidth,
-        height = resolvedHeight,
         horizontalArrangement = effectiveArrangement,
-        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
+        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -175,10 +171,8 @@ fun BoxScope.row(
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
     return rawRow(
-        width = resolvedWidth,
-        height = resolvedHeight,
         horizontalArrangement = effectiveArrangement,
-        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
+        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -186,15 +180,14 @@ fun BoxScope.row(
 
 
 fun UiScope.rawRow(
-    width: Dimension = Dimension.FillMax,
-    height: Dimension = Dimension.WrapContent,
     horizontalArrangement: Arrangement = defaultArrangement(),
     testTag: String? = null,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
+    val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
+    val slot = claimModifiedSlot(sizedModifier)
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: hitTest(slot),
         active = modifier.forceActive ?: false,
@@ -203,8 +196,8 @@ fun UiScope.rawRow(
     val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
 
     context.pushTextStyle(textStyle)
-    val requestedWidth = modifier.widthDimension ?: width
-    val requestedHeight = modifier.heightDimension ?: height
+    val requestedWidth = sizedModifier.widthDimension ?: Dimension.FillMax
+    val requestedHeight = sizedModifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = horizontalArrangement
     val scope = if (effectiveArrangement.requiresMeasuredDistribution()) {
         val measured = context.measureRowContent(
