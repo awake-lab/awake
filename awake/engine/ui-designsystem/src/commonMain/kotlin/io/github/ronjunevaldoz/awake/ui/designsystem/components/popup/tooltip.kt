@@ -44,8 +44,7 @@ fun UiScope.tooltip(
         id = "tooltip",
         width = width,
         height = height,
-        radius = UiShape.sm,
-        style = theme.components.surface then style
+        style = Style { shape(UiShape.sm) } then theme.components.surface then style
     ) { slot ->
         content(slot)
     }

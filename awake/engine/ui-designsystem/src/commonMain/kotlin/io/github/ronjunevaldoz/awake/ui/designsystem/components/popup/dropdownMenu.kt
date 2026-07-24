@@ -67,7 +67,7 @@ fun UiScope.dropdownMenu(
             id = "$id.menu",
             width = Dimension.Fixed(popupSlot.width.px),
             height = height,
-            gap = 0f,
+            verticalArrangement = Arrangement.spacedBy(0f.dp),
             modifier = UiModifier()
                 .styleable(theme.components.surface then style then Style {
                     shape(UiShape.sm)

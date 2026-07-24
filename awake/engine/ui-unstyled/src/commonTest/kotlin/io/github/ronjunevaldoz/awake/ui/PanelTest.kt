@@ -47,7 +47,7 @@ class PanelTest {
     fun zeroRadiusEmitsPlainQuad() {
         val ui = UiContext()
         val column = ui.createColumn(modifier = UiModifier().offset((0f).dp, (0f).dp).width((200f).dp))
-        column.surface("p", Dimension.Fixed(180f.px), Dimension.Fixed(100f.px), radius = UiShape.none) { }
+        column.surface("p", Dimension.Fixed(180f.px), Dimension.Fixed(100f.px), style = Style { shape(UiShape.none) }) { }
         val primitives = ui.endFrame()
         assertTrue(primitives.isNotEmpty())
         assertIs<UiDrawPrimitive.Quad>(primitives.first(), "radius = UiShape.none must emit a plain Quad, not a RoundedQuad")
@@ -57,7 +57,7 @@ class PanelTest {
     fun nonZeroRadiusEmitsRoundedQuad() {
         val ui = UiContext()
         val column = ui.createColumn(modifier = UiModifier().offset((0f).dp, (0f).dp).width((200f).dp))
-        column.surface("p", Dimension.Fixed(180f.px), Dimension.Fixed(100f.px), radius = UiShape.md) { }
+        column.surface("p", Dimension.Fixed(180f.px), Dimension.Fixed(100f.px)) { }
         val primitives = ui.endFrame()
         assertTrue(primitives.isNotEmpty())
         assertIs<UiDrawPrimitive.RoundedQuad>(primitives.first(), "a non-zero radius must emit a RoundedQuad")

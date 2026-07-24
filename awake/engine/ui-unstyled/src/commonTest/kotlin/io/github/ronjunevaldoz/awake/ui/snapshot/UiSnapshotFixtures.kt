@@ -116,8 +116,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
         "inspector",
         Dimension.FillMax,
         Dimension.Fixed(140f.px),
-        radius = UiShape.md,
-        borderWidth = 1f.dp
+        style = Style { borderWidth(1f.dp) }
     ) {
         text("CAMERA", color = CoreUiTheme.tokens.mutedForeground)
         dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = UiModifier().width(180f.px).height(24f.px))

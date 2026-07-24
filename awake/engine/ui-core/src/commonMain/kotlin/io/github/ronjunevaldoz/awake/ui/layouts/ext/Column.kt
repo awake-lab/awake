@@ -85,7 +85,7 @@ internal fun UiScope.smartColumn(
             id = id,
             width = requestedWidth,
             height = requestedHeight,
-            gap = gap,
+            verticalArrangement = verticalArrangement,
             modifier = modifier.styleable(effectiveStyle),
             clipContent = clipContent,
             content = content

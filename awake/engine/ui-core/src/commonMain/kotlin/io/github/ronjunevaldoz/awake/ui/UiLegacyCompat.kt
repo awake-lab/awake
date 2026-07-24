@@ -22,65 +22,55 @@ fun UiScope.surface(
     width: Dimension,
     height: Dimension,
     verticalArrangement: Arrangement = io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
+): UiSlot = extSurface(id, width, height, verticalArrangement, style, modifier, clipContent, content)
 
 fun ColumnScope.surface(
     id: String,
     width: Dimension,
     height: Dimension,
     verticalArrangement: Arrangement = io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, height, width, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
+): UiSlot = extSurface(id, height, width, verticalArrangement, style, modifier, clipContent, content)
 
 fun RowScope.surface(
     id: String,
     width: Dimension,
     height: Dimension = Dimension.FillMax,
     verticalArrangement: Arrangement = io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
+): UiSlot = extSurface(id, width, height, verticalArrangement, style, modifier, clipContent, content)
 
 fun AbsoluteScope.surface(
     id: String,
     width: Dimension,
     height: Dimension,
     verticalArrangement: Arrangement = io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
+): UiSlot = extSurface(id, width, height, verticalArrangement, style, modifier, clipContent, content)
 
 fun BoxScope.surface(
     id: String,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
     verticalArrangement: Arrangement = io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, width, height, verticalArrangement, radius, borderWidth, style, modifier, clipContent, content)
+): UiSlot = extSurface(id, width, height, verticalArrangement, style, modifier, clipContent, content)
 
 fun ColumnScope.spacer(modifier: UiModifier) = extSpacer(modifier)
 

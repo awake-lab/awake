@@ -62,9 +62,8 @@ class UiDslTutorialDocsTest {
             surface(
                 id = "inspector",
                 height = 190f.toDimension(),
-                radius = UiShape.md,
-                borderWidth = 1f.dp,
                 style = Style {
+                    borderWidth(1f.dp)
                     contentPadding(12f.dp)
                 }
             ) {
@@ -130,9 +129,8 @@ class UiDslTutorialDocsTest {
             surface(
                 id = "canvas-proof",
                 height = 180f.toDimension(),
-                radius = UiShape.md,
-                borderWidth = 1f.dp,
                 style = Style {
+                    borderWidth(1f.dp)
                     contentPadding(12f.dp)
                 }
             ) { slot ->

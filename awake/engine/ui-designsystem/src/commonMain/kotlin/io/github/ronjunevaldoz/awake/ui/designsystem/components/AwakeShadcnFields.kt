@@ -190,8 +190,10 @@ fun ColumnScope.awakeShadcnTabs(
         width = modifier.width ?: Dimension.WrapContent,
         height = Dimension.Fixed(height),
         modifier = modifier,
-        radius = shadcnTheme.radii.md,
-        style = Style { background(shadcnTheme.palette.muted) }
+        style = Style {
+            shape(shadcnTheme.radii.md)
+            background(shadcnTheme.palette.muted)
+        }
     ) {
         row(height = height, horizontalArrangement = Arrangement.spacedBy(2f.dp)) {
             tabs.forEachIndexed { index, label ->

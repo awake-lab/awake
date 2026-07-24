@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.UiModifier
@@ -24,7 +23,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.px
@@ -38,8 +36,6 @@ fun UiScope.surface(
     width: Dimension,
     height: Dimension,
     verticalArrangement: Arrangement = defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
@@ -51,8 +47,8 @@ fun UiScope.surface(
     gap = verticalArrangement.baseSpacingPx(),
     verticalArrangement = verticalArrangement,
     style = Style {
-        shape(radius)
-        borderWidth(borderWidth)
+        shape(UiShape.md)
+        borderWidth(UiShape.none)
     } then style,
     modifier = modifier,
     clipContent = clipContent,
@@ -65,8 +61,6 @@ fun ColumnScope.surface(
     height: Dimension,
     width: Dimension = Dimension.FillMax,
     verticalArrangement: Arrangement = defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
@@ -76,8 +70,6 @@ fun ColumnScope.surface(
     width = width,
     height = height,
     verticalArrangement = verticalArrangement,
-    radius = radius,
-    borderWidth = borderWidth,
     style = style,
     modifier = modifier,
     clipContent = clipContent,
@@ -89,8 +81,6 @@ fun RowScope.surface(
     width: Dimension,
     height: Dimension = Dimension.FillMax,
     verticalArrangement: Arrangement = defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
@@ -100,8 +90,6 @@ fun RowScope.surface(
     width = width,
     height = height,
     verticalArrangement = verticalArrangement,
-    radius = radius,
-    borderWidth = borderWidth,
     style = style,
     modifier = modifier,
     clipContent = clipContent,
@@ -113,8 +101,6 @@ fun AbsoluteScope.surface(
     width: Dimension,
     height: Dimension,
     verticalArrangement: Arrangement = defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
@@ -124,8 +110,6 @@ fun AbsoluteScope.surface(
     width = width,
     height = height,
     verticalArrangement = verticalArrangement,
-    radius = radius,
-    borderWidth = borderWidth,
     style = style,
     modifier = modifier,
     clipContent = clipContent,
@@ -137,8 +121,6 @@ fun BoxScope.surface(
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
     verticalArrangement: Arrangement = defaultArrangement(),
-    radius: Dp = UiShape.md,
-    borderWidth: Dp = UiShape.none,
     style: Style = Style.Empty,
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
@@ -148,8 +130,6 @@ fun BoxScope.surface(
     width = width,
     height = height,
     verticalArrangement = verticalArrangement,
-    radius = radius,
-    borderWidth = borderWidth,
     style = style,
     modifier = modifier,
     clipContent = clipContent,
@@ -160,11 +140,12 @@ fun UiScope.rawSurface(
     id: String,
     width: Dimension,
     height: Dimension,
-    gap: Float = UiSpacing.sm.toPx(),
+    verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = UiModifier(),
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
+    val gap = verticalArrangement.baseSpacingPx()
     val effectiveStyle = modifier.styleable ?: Style.Empty
     val containerTag = modifier.testTag ?: id
     val hasWrapContent = width == Dimension.WrapContent || height == Dimension.WrapContent

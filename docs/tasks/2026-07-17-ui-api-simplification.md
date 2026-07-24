@@ -82,6 +82,20 @@ data, not something a caller constructs by hand at the root.
   `AnimatedLayoutScopes.kt`'s `createColumn(slot, gap = ...)`) intentionally left alone — these
   consume a slot measured by a parent, not hand-authored magic numbers, matching the
   measured-output carve-out above.
+- [x] **Core-UI audit (2026-07-24), found by manual review after the first pass** — the
+  base-component sweep above (step 8) only covered `ui-unstyled`/`ui-designsystem` call sites,
+  not `ui-core` itself, where `surface()` actually lives. `layouts/ext/Surface.kt`'s 5
+  `surface()` overloads (plus their `UiLegacyCompat.kt` mirror) took `radius: Dp` and
+  `borderWidth: Dp` as separate authored params *alongside* `style: Style`, even though `Style`
+  already has `shape()`/`borderWidth()` builders for exactly this — two ways to author the same
+  value. `rawSurface()` had `gap: Float` instead of `verticalArrangement: Arrangement`. Fixed:
+  removed `radius`/`borderWidth` from all 10 signatures, hardcoded the old
+  `UiShape.md`/`UiShape.none` defaults into the merged style so unstyled callers are unaffected;
+  migrated `rawSurface`'s `gap` to `verticalArrangement`. Migrated the 8 real external
+  overriding call sites (`PanelTest.kt`, `UiSnapshotFixtures.kt`, `UiDslTutorialDocsTest.kt`,
+  `AwakeShadcnFields.kt`, `tooltip.kt`, `dropdownMenu.kt`, `Column.kt`) onto
+  `style = Style { shape(...); borderWidth(...) }` / `Arrangement.spacedBy(...)`. Verified zero
+  regressions (identical desktopTest failure counts to baseline).
 
 ## Known Constraint: `Canvas`/`CanvasScope` Is Not For Base Components
 
