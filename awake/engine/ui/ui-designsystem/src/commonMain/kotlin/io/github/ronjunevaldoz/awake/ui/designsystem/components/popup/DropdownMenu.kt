@@ -79,7 +79,6 @@ fun UiScope.shadcnDropdownMenu(
                     UiDropdownMenuSeparator -> {
                         spacer(Modifier.height(4f.dp))
                         separator(
-                            width = Dimension.FillMax,
                             thickness = 1f.dp,
                             color = theme.tokens.border.withAlpha(0.72f)
                         )

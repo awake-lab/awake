@@ -24,8 +24,6 @@ fun UiScope.toggle(
     id: String,
     checked: Boolean,
     label: String? = null,
-    width: Dimension = Dimension.FillMax,
-    height: Dimension = Dimension.Fixed(40f.dp),
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     enabled: Boolean = true,
@@ -34,7 +32,7 @@ fun UiScope.toggle(
     val theme = context.currentTheme
     val interaction = interact(
         id = id,
-        modifier = modifier.withSizeFallback(width, height)
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp))
     )
 
     val newChecked = if (interaction.clicked && enabled) !checked else checked

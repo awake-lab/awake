@@ -39,50 +39,6 @@ fun UiScope.shadcnBadge(
     centered = true
 )
 
-/** Full-slot [shadcnBadge] override for when the caller already owns the [width] and
- * [height] intent (e.g. from an absolute-anchored HUD corner). */
-fun UiScope.shadcnBadge(
-    label: String,
-    width: Dimension,
-    height: Dimension,
-    modifier: UiModifier = Modifier,
-    variant: ShadcnBadgeVariant = ShadcnBadgeVariant.Secondary,
-    style: Style = Style.Empty
-): UiSlot {
-    val shadcnTheme = theme.asShadcnTheme()
-    val resolved = resolveStyle(style = style, defaults = ShadcnStyles.badge(shadcnTheme, variant))
-    val resolvedFont = font
-    val glyphPx = resolveGlyphPx(resolvedFont, resolved.textStyle)
-    val resolvedWidth = when (width) {
-        Dimension.WrapContent -> Dimension.Fixed(
-            (resolvedFont.measureTextWidth(label, glyphPx) +
-                                    resolved.contentPadding.horizontalPx()).px
-        )
-        else -> width
-    }
-    val resolvedHeight = when (height) {
-        Dimension.WrapContent -> Dimension.Fixed((glyphPx + resolved.contentPadding.verticalPx()).px)
-        else -> height
-    }
-    val slot = claimModifiedSlot(modifier.withSizeFallback(resolvedWidth, resolvedHeight))
-    emitFillAndBorder(
-        slot = slot,
-        fillColor = resolved.background ?: ShadcnTransparent,
-        radiusPx = resolved.shape.toPx(),
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: shadcnTheme.tokens.border
-    )
-    text(
-        label = label,
-        slot = slot,
-        font = font,
-        color = resolved.foreground ?: shadcnTheme.tokens.foreground,
-        centered = true,
-        textStyle = resolved.textStyle,
-    )
-    return slot
-}
-
 /** Real shadcn's `Kbd`: an inline key-cap label, same "measure text, draw a box, draw the
  * label" mechanics as [shadcnBadge] with a different (sm-radius, muted) style. */
 fun UiScope.shadcnKbd(

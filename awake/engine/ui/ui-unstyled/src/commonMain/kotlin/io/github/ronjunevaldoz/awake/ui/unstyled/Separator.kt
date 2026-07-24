@@ -17,12 +17,11 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun UiScope.separator(
-    width: Dimension = Dimension.FillMax,
     thickness: Dp = 1f.dp,
     modifier: UiModifier = Modifier,
     color: Color = context.currentTheme.tokens.border
 ): UiSlot {
-    val slot = claimModifiedSlot(modifier.withSizeFallback(width, Dimension.Fixed(thickness)))
+    val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(thickness)))
     val lineHeight = thickness.toPx().coerceAtLeast(1f)
     val lineY = slot.y + (slot.height - lineHeight) / 2f
     emit(UiDrawPrimitive.Quad(slot.x, lineY, slot.width, lineHeight, color))

@@ -18,12 +18,15 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 fun UiScope.icon(
     imageVector: UiImageVector,
     modifier: UiModifier = Modifier,
-    width: Dimension = Dimension.Fixed(imageVector.defaultWidth),
-    height: Dimension = Dimension.Fixed(imageVector.defaultHeight),
     tint: Color = context.currentTheme.tokens.foreground,
     overlay: Boolean = false
 ): UiSlot {
-    val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
+    val slot = claimModifiedSlot(
+        modifier.withSizeFallback(
+            Dimension.Fixed(imageVector.defaultWidth),
+            Dimension.Fixed(imageVector.defaultHeight)
+        )
+    )
     imageVector.fitTo(slot).forEach { vectorPath ->
         val fillColor = vectorPath.fill ?: tint
         if (fillColor.isTransparent()) return@forEach

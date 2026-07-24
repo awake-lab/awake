@@ -301,13 +301,13 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
                 id = "parity-alert-default",
                 title = "You can add components",
                 description = "Use the CLI to add components to your project.",
-                width = Dimension.Fixed(272f.px)
+                modifier = Modifier.width(Dimension.Fixed(272f.px))
             )
             shadcnAlert(
                 id = "parity-alert-destructive",
                 title = "Unable to process your payment.",
                 description = "Please verify your billing information and try again.",
-                width = Dimension.Fixed(272f.px),
+                modifier = Modifier.width(Dimension.Fixed(272f.px)),
                 variant = ShadcnAlertVariant.Destructive
             )
         }
@@ -779,8 +779,8 @@ internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
         val theme = shadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
             row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
-                toggle("toggle-off", checked = false, label = "Off", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
-                toggle("toggle-on", checked = true, label = "On", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
+                toggle("toggle-off", checked = false, label = "Off", modifier = forcedModifier.width(Dimension.Fixed(60f.px)))
+                toggle("toggle-on", checked = true, label = "On", modifier = forcedModifier.width(Dimension.Fixed(60f.px)))
             }
         }
     }

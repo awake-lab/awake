@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
@@ -24,14 +25,12 @@ fun ColumnScope.shadcnAlert(
     id: String,
     title: String,
     description: String? = null,
-    width: Dimension = Dimension.FillMax,
-    height: Dimension = Dimension.WrapContent,
     modifier: UiModifier = Modifier,
     variant: ShadcnAlertVariant = ShadcnAlertVariant.Default,
     style: Style = Style.Empty
 ): UiSlot = surface(
     id = id,
-    modifier = (modifier).copy(widthDimension = width, heightDimension = height),
+    modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent),
     style = ShadcnStyles.alert(theme.asShadcnTheme(), variant) then style
 ) {
     val titleColor = when (variant) {

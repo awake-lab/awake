@@ -165,7 +165,7 @@ class ShadcnDesignSystemTest {
 
         ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(200f.dp))
             .shadcnSurface("surface", modifier = Modifier.copy(widthDimension = Dimension.Fixed(200f.px), heightDimension = Dimension.Fixed(100f.px))) {
-                shadcnBadge(label = "READY", width = Dimension.Fixed(80f.px), height = Dimension.WrapContent)
+                shadcnBadge(label = "READY", modifier = Modifier.width(Dimension.Fixed(80f.px)))
             }
 
         val primitives = ui.endFrame()
@@ -293,9 +293,7 @@ class ShadcnDesignSystemTest {
 
         ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
             .shadcnBadge(
-                label = "LIVE",
-                width = Dimension.WrapContent,
-                height = Dimension.WrapContent
+                label = "LIVE"
             )
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()

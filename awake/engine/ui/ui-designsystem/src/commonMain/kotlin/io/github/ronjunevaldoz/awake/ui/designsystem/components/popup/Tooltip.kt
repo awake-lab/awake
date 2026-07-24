@@ -13,6 +13,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.layout.*
@@ -42,8 +44,9 @@ fun UiScope.shadcnTooltip(
 ) { _ ->
     surface(
         id = "tooltip",
-        style = Style { shape(UiShape.sm) } then theme.components.surface then style
-    , modifier = Modifier.copy(widthDimension = width, heightDimension = height)) { slot ->
+        style = Style { shape(UiShape.sm) } then theme.components.surface then style,
+        modifier = Modifier.width(width).height(height)
+    ) { slot ->
         content(slot)
     }
 }

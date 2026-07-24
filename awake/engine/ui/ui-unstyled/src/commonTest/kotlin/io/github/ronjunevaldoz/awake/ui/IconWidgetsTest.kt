@@ -5,7 +5,9 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,8 +24,7 @@ class IconWidgetsTest {
 
         ui.createAbsolute(modifier = Modifier.offset(10f.dp, 12f.dp)).icon(
             imageVector = squareVector,
-            width = Dimension.Fixed(16f.px),
-            height = Dimension.Fixed(16f.px),
+            modifier = Modifier.width(Dimension.Fixed(16f.px)).height(Dimension.Fixed(16f.px)),
             tint = Color(0.8f, 0.2f, 0.1f, 1f)
         )
 

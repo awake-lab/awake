@@ -16,10 +16,8 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 /** [separator] with Shadcn tokens. */
 fun UiScope.shadcnSeparator(
     modifier: UiModifier = Modifier,
-    width: Dimension = Dimension.FillMax,
     thickness: Dp = 1f.dp
 ): UiSlot = separator(
-    width = width,
     thickness = thickness,
     modifier = modifier,
     color = theme.tokens.border

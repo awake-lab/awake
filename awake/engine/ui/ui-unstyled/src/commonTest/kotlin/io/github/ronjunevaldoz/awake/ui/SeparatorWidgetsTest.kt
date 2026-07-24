@@ -18,7 +18,6 @@ class SeparatorWidgetsTest {
         ui.beginFrame(160f, 80f, testSnapshot())
 
         val slot = ui.createColumn(x = 0f, y = 0f, width = 120f).separator(
-            width = Dimension.FillMax,
             thickness = 2f.dp,
             color = Color.White
         )
