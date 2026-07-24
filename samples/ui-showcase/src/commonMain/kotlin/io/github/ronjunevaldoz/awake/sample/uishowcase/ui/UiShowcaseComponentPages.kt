@@ -25,8 +25,11 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
@@ -42,6 +45,15 @@ internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
     row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
         shadcnButton("showcase-button-ghost", label = "Ghost", variant = ShadcnButtonVariant.Ghost, modifier = Modifier.width(100f.dp))
         shadcnButton("showcase-button-danger", label = "Danger", variant = ShadcnButtonVariant.Danger, modifier = Modifier.width(108f.dp))
+    }
+    spacer(Modifier.height(8f.dp))
+    shadcnSupportingText("The Slot API overload composes an icon and label inside the same button instead of a fixed label string.")
+    spacer(Modifier.height(8f.dp))
+    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
+        shadcnButton("showcase-button-icon", modifier = Modifier.width(140f.dp)) {
+            icon(UiIcons.chevronDown, modifier = Modifier.offset(x = 12f.dp))
+            text("Expand", modifier = Modifier.offset(x = 28f.dp))
+        }
     }
 }
 
@@ -134,6 +146,38 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
         label = "Bloom ${bloom.toInt()} px",
         modifier = Modifier.width(360f.dp)
     )
+    spacer(Modifier.height(8f.dp))
+
+    var volume by context.rememberStateValue("ui-showcase-slider", "volume") { 65f }
+    shadcnSupportingText("A label-beside-track layout for a compact row (e.g. a settings list row).")
+    spacer(Modifier.height(8f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(32f.dp.toDimension())) {
+        text("Volume", modifier = Modifier.width(64f.dp))
+        volume = shadcnSlider(
+            id = "showcase-slider-volume",
+            min = 0f,
+            max = 100f,
+            value = volume,
+            modifier = Modifier.width(220f.dp)
+        )
+        text("${volume.toInt()}%", modifier = Modifier.width(40f.dp))
+    }
+    spacer(Modifier.height(8f.dp))
+
+    shadcnSupportingText("Min/max range labels flanking the track.")
+    spacer(Modifier.height(8f.dp))
+    var speed by context.rememberStateValue("ui-showcase-slider", "speed") { 1f }
+    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(32f.dp.toDimension())) {
+        text("0.5x", modifier = Modifier.width(36f.dp))
+        speed = shadcnSlider(
+            id = "showcase-slider-speed",
+            min = 0.5f,
+            max = 2f,
+            value = speed,
+            modifier = Modifier.width(220f.dp)
+        )
+        text("2x", modifier = Modifier.width(28f.dp))
+    }
     spacer(Modifier.height(8f.dp))
 }
 

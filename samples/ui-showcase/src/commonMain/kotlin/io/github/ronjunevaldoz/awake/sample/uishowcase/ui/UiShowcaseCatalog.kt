@@ -103,8 +103,26 @@ internal val ShowcasePages = listOf(
         renderPreview = { state -> drawUiShowcaseControlsPreview(state) }
     ),
     ShowcasePage(
+        id = "typography",
+        title = "Typography",
+        category = ShowcaseCategory.Typography,
+        description = "The shadcn text component family: sectionTitle, headline, bodyText, supportingText, and generic text.",
+        usageCode = """
+            shadcnSectionTitle("Section Title")
+            shadcnHeadline("Headline text sets the tone for a page or panel.")
+            shadcnBodyText("Body text is the default reading size for paragraphs.")
+            shadcnSupportingText("Supporting text is the muted caption size.")
+            shadcnText("Generic shadcn text.", muted = true)
+        """.trimIndent(),
+        notes = listOf(
+            "These are the actual owned typography components, not a font-rendering-path comparison.",
+            "See the Font Atlas page for bitmap-vs-TTF glyph quality instead."
+        ),
+        renderPreview = { drawUiShowcaseTypographySpecimenPreview() }
+    ),
+    ShowcasePage(
         id = "fonts",
-        title = "Bitmap And True Font",
+        title = "Font Atlas",
         category = ShowcaseCategory.Typography,
         description = "A direct specimen view of the current bitmap default beside a real TTF-derived atlas font.",
         usageCode = """
@@ -122,7 +140,7 @@ internal val ShowcasePages = listOf(
     ShowcasePage(
         id = "layout",
         title = "Layout Primitives",
-        category = ShowcaseCategory.Layout,
+        category = ShowcaseCategory.Patterns,
         description = "row(...) and column(...) -- the modifier-first layout primitives every other page in this catalog is built from.",
         usageCode = """
             row(height = 48f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
@@ -146,7 +164,7 @@ internal val ShowcasePages = listOf(
     ShowcasePage(
         id = "canvas",
         title = "Canvas",
-        category = ShowcaseCategory.Layout,
+        category = ShowcaseCategory.Patterns,
         description = "A bounded drawing surface for custom shapes, gradients, text, clipping, and nested authored drawing.",
         usageCode = """
             surface(id = "canvas-card", width = Dimension.Fixed(420f.dp), height = Dimension.Fixed(220f.dp)) { slot ->

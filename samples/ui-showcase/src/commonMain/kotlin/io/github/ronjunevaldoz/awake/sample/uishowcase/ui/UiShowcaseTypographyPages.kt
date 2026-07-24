@@ -3,6 +3,12 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnHeadline
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -27,6 +33,24 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+
+internal fun ColumnScope.drawUiShowcaseTypographySpecimenPreview() {
+    shadcnSectionHeader(
+        title = "Typography",
+        description = "The shadcn text component family: section title, headline, body, supporting/caption, and generic muted text."
+    )
+    spacer(Modifier.height(12f.dp))
+    shadcnSectionTitle("Section Title")
+    spacer(Modifier.height(8f.dp))
+    shadcnHeadline("Headline text sets the tone for a page or panel.")
+    spacer(Modifier.height(8f.dp))
+    shadcnBodyText("Body text is the default reading size for paragraphs and descriptions across every shadcn component.")
+    spacer(Modifier.height(8f.dp))
+    shadcnSupportingText("Supporting text is the muted caption size, used for helper copy and secondary detail.")
+    spacer(Modifier.height(8f.dp))
+    shadcnText("Generic shadcn text, unmuted.")
+    shadcnText("Generic shadcn text, muted.", muted = true)
+}
 
 internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     shadcnBadge("TYPOGRAPHY", variant = ShadcnBadgeVariant.Outline)
