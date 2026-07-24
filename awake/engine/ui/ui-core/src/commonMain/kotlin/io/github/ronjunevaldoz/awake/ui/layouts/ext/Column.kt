@@ -31,8 +31,9 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
- * Unified container logic for [column] and [surface].
- * Handles measurement, scrolling, and visible surface drawing in one place.
+ * Dispatches [column] and [surface] to one of three explicit container strategies, chosen by
+ * inspecting [modifier]. This is the one place that decides which strategy applies -- each
+ * strategy itself is a plain, linearly-readable function, not a branch buried in a larger one.
  */
 internal fun UiScope.smartColumn(
     id: String?,
@@ -44,50 +45,86 @@ internal fun UiScope.smartColumn(
     role: UiSemanticRole = UiSemanticRole.None,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val insets = modifier.insets
-    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
-    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
-    val scrollState = modifier.scrollState
-    val containerTag = modifier.testTag ?: id
-    val hasBoundedFillWidth = requestedWidth != Dimension.WrapContent
-    val hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
-
-    if (scrollState != null && id != null) {
-        return scrollPanel(
-            id = id,
-            modifier = modifier,
-            style = style,
-            verticalArrangement = verticalArrangement,
-            content = content
-        ).slot
+    if (modifier.scrollState != null && id != null) {
+        return resolveScrollableContainer(id, modifier, style, verticalArrangement, content)
     }
 
-    // Resolve visuals: avoid claiming a slot (which may be WrapContent) just to check hover.
-    // Use the forced hover when provided, otherwise assume not hovered for initial style
-    // resolution; actual hover will be checked later when a slot is claimed.
-    val isHovered = modifier.forceHover ?: false
+    val effectiveStyle = style then (modifier.styleable ?: Style.Empty)
+    if (hasResolvedVisuals(modifier, effectiveStyle, role, id) && id != null) {
+        return resolveVisualSurface(id, modifier, effectiveStyle, verticalArrangement, clipContent, content)
+    }
+
+    return resolveMeasuredColumn(id, modifier, effectiveStyle, verticalArrangement, role, content)
+}
+
+/** True if [effectiveStyle] (merged with this role's theme defaults) resolves to a real
+ * background/border/shape -- the signal that a container should paint itself as a surface
+ * rather than lay out as a plain, invisible column. */
+private fun UiScope.hasResolvedVisuals(
+    modifier: UiModifier,
+    effectiveStyle: Style,
+    role: UiSemanticRole,
+    id: String?
+): Boolean {
+    // Avoid claiming a slot (which may be WrapContent) just to check hover. Use the forced
+    // hover when provided, otherwise assume not hovered for this initial style resolution;
+    // actual hover is checked later once a slot is claimed.
     val styleState = MutableStyleState(
-        hovered = modifier.forceHover ?: isHovered,
+        hovered = modifier.forceHover ?: false,
         active = modifier.forceActive ?: (id?.let { isActive(it) } ?: false),
         focused = modifier.forceFocus ?: (id?.let { context.isFocused(it) } ?: false)
     )
-    val effectiveStyle = style then (modifier.styleable ?: Style.Empty)
     val visualDefaults = if (role == UiSemanticRole.Panel) context.currentTheme.components.surface else Style.Empty
-    val hasVisuals = (visualDefaults then effectiveStyle).resolve(styleState, context.currentTextStyle).let {
+    return (visualDefaults then effectiveStyle).resolve(styleState, context.currentTextStyle).let {
         it.background != null || it.borderWidth.toPx() > 0f || it.shape.toPx() > 0f
     }
+}
 
-    if (hasVisuals && id != null) {
-        return rawSurface(
-            id = id,
-            verticalArrangement = verticalArrangement,
-            modifier = modifier.styleable(effectiveStyle).width(requestedWidth).height(requestedHeight),
-            clipContent = clipContent,
-            content = content
-        )
-    }
+private fun UiScope.resolveScrollableContainer(
+    id: String,
+    modifier: UiModifier,
+    style: Style,
+    verticalArrangement: Arrangement,
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiSlot = scrollPanel(
+    id = id,
+    modifier = modifier,
+    style = style,
+    verticalArrangement = verticalArrangement,
+    content = content
+).slot
 
-    // Fallback to standard measured column logic
+private fun UiScope.resolveVisualSurface(
+    id: String,
+    modifier: UiModifier,
+    effectiveStyle: Style,
+    verticalArrangement: Arrangement,
+    clipContent: Boolean,
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiSlot {
+    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
+    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
+    return rawSurface(
+        id = id,
+        verticalArrangement = verticalArrangement,
+        modifier = modifier.styleable(effectiveStyle).width(requestedWidth).height(requestedHeight),
+        clipContent = clipContent,
+        content = content
+    )
+}
+
+private fun UiScope.resolveMeasuredColumn(
+    id: String?,
+    modifier: UiModifier,
+    effectiveStyle: Style,
+    verticalArrangement: Arrangement,
+    role: UiSemanticRole,
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiSlot {
+    val insets = modifier.insets
+    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
+    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
+
     val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
         val availableWidth = when (requestedWidth) {
             is Dimension.Fixed -> requestedWidth.dp.toPx()
