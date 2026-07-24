@@ -23,6 +23,11 @@ These are placement rules, not style preferences.
    named authored theme intended for direct app/sample use.
 5. `samples:*` and future game modules own runtime-bound adapters, authored overlays,
    debug HUD wiring, and sample-specific compositions.
+6. `UiSlot` is a `ui-core`-internal measurement type. No module outside `ui-core` may
+   construct, read, or `.copy()` a `UiSlot`. Anything crossing the `ui-core` boundary
+   (`surface{}`/`row{}`/`claimSlot()` return values, `UiSemanticNode.contentBounds`, lambda
+   params handed to widget code) must use `UiBounds` instead. See
+   `docs/tasks/2026-07-24-uislot-narrowing.md` for the migration in progress.
 
 ## Module Responsibilities
 

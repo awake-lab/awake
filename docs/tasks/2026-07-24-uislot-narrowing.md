@@ -49,8 +49,23 @@ separate module from ui-core, `.inset(...)` must ship on `UiBounds`, not stay ui
 5. Mark `UiSlot`'s constructor/class `internal` to `ui-core` once no downstream file references it.
 6. Compile whole tree (0 errors), run `desktopTest`, confirm baseline: scene-dsl=1, ui-showcase=6,
    ui-dsl=3, all other modules 0 (ui-designsystem baseline is now 0 per the button-label fix).
+7. Enforce the rule mechanically so it can't regress: add `"UiSlot"` to
+   `forbiddenUiTypeReferences` for `:awake:engine:ui-unstyled` and `:awake:engine:ui-dsl` in
+   `build-logic/src/main/kotlin/awake.ui-ownership-convention.gradle.kts` (the existing
+   `verifyUiOwnership` check already supports this via `forbiddenTypeReferences` -- just needs
+   `UiSlot` added to those two modules' lists, kept separate from `ui-core`'s list since `UiSlot`
+   is legitimately defined there). Do this last, only once step 4 has zero remaining downstream
+   `UiSlot` references, or `check` will fail immediately.
+
+## Hard Rule (in effect now, enforced once implementation lands)
+
+`UiSlot` is `ui-core`-internal. No module outside `ui-core` may construct, read, or `.copy()` a
+`UiSlot`. Anything crossing the `ui-core` boundary must use `UiBounds` instead. Recorded in
+`docs/reference/ui-ownership.md`'s Hard Rules list (rule 6).
 
 ## Status
 
 - [x] Contract audit
+- [x] Rule recorded in `docs/reference/ui-ownership.md`
 - [ ] Implementation (not started)
+- [ ] Mechanical enforcement (step 7, blocked on implementation)
