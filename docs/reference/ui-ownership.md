@@ -66,6 +66,24 @@ Text ownership rule:
 - if a reusable API owns both the container structure and all displayed text, it is usually too
   coupled for long-term reuse
 
+## Theme Token Rule
+
+Where a color/token comes from depends on the module:
+
+- `ui-core` owns the *contract* only -- `UiColorTokens` (the interface), `UiTheme`, and
+  `CoreUiTheme` (the one neutral fallback instance, generic gray/white values). No named or
+  branded token values live here.
+- `ui-unstyled` and `ui-dsl` must never call `Color(...)` directly or hardcode a token value.
+  Widgets read colors exclusively through the ambient theme (`theme.tokens.background`,
+  `theme.tokens.primary`, etc.) or a resolved `Style` built from those tokens. This is already
+  true in practice -- `ui-unstyled` has zero raw `Color(...)` call sites.
+- `ui-designsystem` owns every named/branded theme and is the only module allowed to hardcode
+  `Color(...)`/`Color.fromOklch(...)` literals, and only inside theme-definition files
+  (`AwakeShadcnTheme.kt`, `PresetUiThemes.kt`, `OklchColor.kt`) -- not inside individual
+  component files, which should still read `theme.tokens.*` like everything else.
+- `samples:*` may reference a named theme (`AwakeShadcnTheme`, etc.) but must not hardcode
+  `Color(...)` for anything that a token already covers.
+
 ## Concrete Placement Examples
 
 | API shape | Correct home | Why |
@@ -76,6 +94,7 @@ Text ownership rule:
 | `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-dsl` | reusable compositions of primitives/widgets |
 | `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
 | `AwakeShadcnPanelStyle`, branded variants | `ui-designsystem` | visual opinion, not engine primitive |
+| hardcoded `Color(...)` token values | `ui-designsystem` theme-definition files only | everywhere else reads `theme.tokens.*` |
 | `HelloCubeHud`, `SceneInspectorBindings`, demo overlays | sample/game module | runtime-bound authored usage |
 
 These API shapes are specifically discouraged in reusable UI modules:
@@ -90,6 +109,8 @@ These API shapes are specifically discouraged in reusable UI modules:
 - `LightUiTheme` in `ui-core`
 - `HelloCube*`
 - helpers that know `SceneGameRuntime`, ECS `World`, demo modes, or sample debug state
+- raw `Color(...)` literals in `ui-unstyled`/`ui-dsl`, or in `ui-designsystem` component files
+  outside its theme-definition files
 
 Rule of thumb: if the API name bakes in both a placement concern and a concrete container,
 it is usually too high-level for `ui-core`, and usually too convenience-shaped for long-term
