@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.rawRow
+import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 
 fun UiScope.toggleGroup(
@@ -16,7 +16,7 @@ fun UiScope.toggleGroup(
     modifier: UiModifier = Modifier,
     onIndexChange: (Int) -> Unit = {}
 ) {
-    rawRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(0f.dp)) {
+    row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(0f.dp)) {
         options.forEachIndexed { index, option ->
             toggle(
                 id = "$id.$index",

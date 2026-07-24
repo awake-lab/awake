@@ -104,7 +104,7 @@ private fun UiScope.resolveVisualSurface(
 ): UiSlot {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
-    return rawSurface(
+    return surface(
         id = id,
         verticalArrangement = verticalArrangement,
         modifier = modifier.styleable(effectiveStyle).width(requestedWidth).height(requestedHeight),
@@ -152,7 +152,7 @@ private fun UiScope.resolveMeasuredColumn(
         else -> requestedHeight
     }
 
-    val rawSlot = rawColumn(
+    val rawSlot = column(
         verticalArrangement = verticalArrangement,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
@@ -229,7 +229,7 @@ fun BoxScope.column(
 )
 
 
-fun UiScope.rawColumn(
+fun UiScope.column(
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,

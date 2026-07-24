@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.rawRow
+import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -99,13 +99,13 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRunti
             verticalArrangement = Arrangement.spacedBy(8f.dp)
         , modifier = Modifier.copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.WrapContent)) {
             shadcnSeparator(modifier = Modifier.padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
-            rawRow(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
+            row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
                 text("@radix-ui/primitives", modifier = Modifier.padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
             }
-            rawRow(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
+            row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
                 text("@radix-ui/colors", modifier = Modifier.padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
             }
-            rawRow(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
+            row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
                 text("@stitches/react", modifier = Modifier.padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
             }
         }

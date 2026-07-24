@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.rawSurface
+import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
@@ -62,7 +62,7 @@ fun UiScope.shadcnDropdownMenu(
         positionProvider = positionProvider,
         properties = properties
     ) { popupSlot ->
-        rawSurface(
+        surface(
             id = "$id.menu",
             verticalArrangement = Arrangement.spacedBy(0f.dp),
             modifier = Modifier

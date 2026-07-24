@@ -117,7 +117,7 @@ fun BoxScope.surface(
     content = content
 )
 
-fun UiScope.rawSurface(
+fun UiScope.surface(
     id: String,
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,

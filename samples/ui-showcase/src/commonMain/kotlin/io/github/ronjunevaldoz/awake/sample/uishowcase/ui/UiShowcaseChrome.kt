@@ -19,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.rawRow
+import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
@@ -140,7 +140,7 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
     state: UiShowcaseRuntimeState,
 ) {
     val showCode = context.rememberStateValue("ui-showcase-page", "${page.id}.show-code") { false }
-    rawRow(
+    row(
         modifier = Modifier.height(36.dp),
         horizontalArrangement = Arrangement.spacedBy(8f.dp)
     ) {

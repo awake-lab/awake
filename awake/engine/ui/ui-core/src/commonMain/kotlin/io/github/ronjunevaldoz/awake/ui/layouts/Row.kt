@@ -56,7 +56,7 @@ fun ColumnScope.row(
         else -> requestedHeight
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
-    return rawRow(
+    return (this as UiScope).row(
         horizontalArrangement = effectiveArrangement,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
@@ -94,7 +94,7 @@ fun RowScope.row(
         else -> requestedHeight
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
-    return rawRow(
+    return (this as UiScope).row(
         horizontalArrangement = effectiveArrangement,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
@@ -132,7 +132,7 @@ fun AbsoluteScope.row(
         else -> requestedHeight
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
-    return rawRow(
+    return (this as UiScope).row(
         horizontalArrangement = effectiveArrangement,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
@@ -170,7 +170,7 @@ fun BoxScope.row(
         else -> requestedHeight
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
-    return rawRow(
+    return (this as UiScope).row(
         horizontalArrangement = effectiveArrangement,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
@@ -179,7 +179,7 @@ fun BoxScope.row(
 }
 
 
-fun UiScope.rawRow(
+fun UiScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     testTag: String? = null,
     modifier: UiModifier = Modifier,

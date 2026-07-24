@@ -17,21 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  * Fixed-rect and alignment container.
  * Sizing and content alignment are handled via [modifier].
  */
-@Deprecated("use rawBox instead", )
-fun BoxScope.box(
-    modifier: UiModifier = Modifier,
-    contentAlignment: UiAlignment = UiAlignment.TopStart,
-    content: BoxScope.(slot: UiSlot) -> Unit
-): UiSlot {
-    return rawBox(
-        modifier = modifier,
-        contentAlignment = contentAlignment,
-        content = content
-    )
-}
-
-/** [UiScope] version of [box] for top-level usage. */
-fun UiScope.rawBox(
+fun UiScope.box(
     modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     content: BoxScope.(slot: UiSlot) -> Unit
