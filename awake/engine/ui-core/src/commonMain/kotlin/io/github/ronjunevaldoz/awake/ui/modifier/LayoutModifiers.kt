@@ -9,17 +9,17 @@ import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
 
-fun UiModifier.width(dp: Dp): UiModifier = copy(width = Dimension.Fixed(dp))
-fun UiModifier.height(dp: Dp): UiModifier = copy(height = Dimension.Fixed(dp))
-fun UiModifier.width(dimension: Dimension): UiModifier = copy(width = dimension)
-fun UiModifier.height(dimension: Dimension): UiModifier = copy(height = dimension)
+fun UiModifier.width(dp: Dp): UiModifier = copy(widthDimension = Dimension.Fixed(dp))
+fun UiModifier.height(dp: Dp): UiModifier = copy(heightDimension = Dimension.Fixed(dp))
+fun UiModifier.width(dimension: Dimension): UiModifier = copy(widthDimension = dimension)
+fun UiModifier.height(dimension: Dimension): UiModifier = copy(heightDimension = dimension)
 fun UiModifier.size(width: Dp, height: Dp): UiModifier =
-    copy(width = Dimension.Fixed(width), height = Dimension.Fixed(height))
+    copy(widthDimension = Dimension.Fixed(width), heightDimension = Dimension.Fixed(height))
 
-fun UiModifier.fillMaxWidth(): UiModifier = copy(width = Dimension.FillMax)
-fun UiModifier.fillMaxHeight(): UiModifier = copy(height = Dimension.FillMax)
+fun UiModifier.fillMaxWidth(): UiModifier = copy(widthDimension = Dimension.FillMax)
+fun UiModifier.fillMaxHeight(): UiModifier = copy(heightDimension = Dimension.FillMax)
 fun UiModifier.fillMaxSize(): UiModifier =
-    copy(width = Dimension.FillMax, height = Dimension.FillMax)
+    copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.FillMax)
 
 fun UiModifier.align(alignment: UiAlignment): UiModifier = copy(alignment = alignment)
 fun UiModifier.offset(x: Dp = UiShape.none, y: Dp = UiShape.none): UiModifier =

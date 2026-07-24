@@ -48,7 +48,7 @@ fun UiScope.dropdown(
     val selectedLabel = options.getOrNull(selectedIndex) ?: ""
     val (clicked, slot) = buttonSlot(
         id = "$id.trigger",
-        modifier = modifier.copy(height = modifier.height ?: Dimension.Fixed(36f.dp)),
+        modifier = modifier.copy(heightDimension = modifier.heightDimension ?: Dimension.Fixed(36f.dp)),
         style = resolvedDefaults then style
     )
     if (clicked) {

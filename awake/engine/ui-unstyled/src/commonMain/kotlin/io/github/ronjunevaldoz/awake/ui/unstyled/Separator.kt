@@ -23,7 +23,7 @@ fun UiScope.separator(
 ): UiSlot {
     val slot = claimModifiedSlot(
         defaultWidth = width,
-        defaultHeight = modifier.height ?: Dimension.Fixed(thickness),
+        defaultHeight = modifier.heightDimension ?: Dimension.Fixed(thickness),
         modifier = modifier
     )
     val lineHeight = thickness.toPx().coerceAtLeast(1f)

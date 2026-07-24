@@ -43,7 +43,7 @@ fun UiScope.shadcnTooltip(
     surface(
         id = "tooltip",
         style = Style { shape(UiShape.sm) } then theme.components.surface then style
-    , modifier = Modifier.copy(width = width, height = height)) { slot ->
+    , modifier = Modifier.copy(widthDimension = width, heightDimension = height)) { slot ->
         content(slot)
     }
 }

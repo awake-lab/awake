@@ -111,7 +111,7 @@ class GameUiDslTest {
                     canvas {
                         surface(
                             id = "theme-proof",
-                            modifier = (Modifier.align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)).copy(width = 180f.toDimension(), height = 96f.toDimension())) {
+                            modifier = (Modifier.align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)).copy(widthDimension = 180f.toDimension(), heightDimension = 96f.toDimension())) {
                             emit(UiDrawPrimitive.Quad(x = 28f, y = 28f, w = 16f, h = 16f, color = Color(0.9f, 0.9f, 0.2f, 1f)))
                         }
                     }
@@ -153,7 +153,7 @@ class GameUiDslTest {
                 overlayOnly = true
             ).surface(
                 id = "overlay-panel",
-                modifier = (Modifier.align(UiAlignment.TopStart).offset(16f.dp, 20f.dp)).copy(width = 160f.toDimension(), height = 96f.toDimension()),
+                modifier = (Modifier.align(UiAlignment.TopStart).offset(16f.dp, 20f.dp)).copy(widthDimension = 160f.toDimension(), heightDimension = 96f.toDimension()),
                 style = Style {
                     background(panelColor)
                 }

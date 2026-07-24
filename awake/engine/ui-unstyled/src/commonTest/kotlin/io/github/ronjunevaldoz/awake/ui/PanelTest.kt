@@ -23,7 +23,7 @@ class PanelTest {
         val ui = UiContext()
         val column = ui.createColumn(modifier = Modifier.offset((10f).dp, (20f).dp).width((200f).dp))
 
-        val panelSlot = column.surface("p", modifier = Modifier.copy(width = Dimension.Fixed(180f.px), height = Dimension.Fixed(100f.px))) { }
+        val panelSlot = column.surface("p", modifier = Modifier.copy(widthDimension = Dimension.Fixed(180f.px), heightDimension = Dimension.Fixed(100f.px))) { }
         val next = column.claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(30f.px))
 
         assertEquals(10f, panelSlot.x)
@@ -39,7 +39,7 @@ class PanelTest {
         val column = ui.createColumn(modifier = Modifier.offset((10f).dp, (20f).dp).width((200f).dp))
 
         var firstChildSlot: UiSlot? = null
-        column.surface("p", modifier = Modifier.copy(width = Dimension.Fixed(180f.px), height = Dimension.Fixed(100f.px))) { slot ->
+        column.surface("p", modifier = Modifier.copy(widthDimension = Dimension.Fixed(180f.px), heightDimension = Dimension.Fixed(100f.px))) { slot ->
             firstChildSlot = claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(20f.px))
         }
 
@@ -52,7 +52,7 @@ class PanelTest {
     fun zeroRadiusEmitsPlainQuad() {
         val ui = UiContext()
         val column = ui.createColumn(modifier = Modifier.offset((0f).dp, (0f).dp).width((200f).dp))
-        column.surface("p", modifier = Modifier.copy(width = Dimension.Fixed(180f.px), height = Dimension.Fixed(100f.px)), style = Style {
+        column.surface("p", modifier = Modifier.copy(widthDimension = Dimension.Fixed(180f.px), heightDimension = Dimension.Fixed(100f.px)), style = Style {
             shape(UiShape.none)
         }) { }
         val primitives = ui.endFrame()
@@ -64,7 +64,7 @@ class PanelTest {
     fun nonZeroRadiusEmitsRoundedQuad() {
         val ui = UiContext()
         val column = ui.createColumn(modifier = Modifier.offset((0f).dp, (0f).dp).width((200f).dp))
-        column.surface("p", modifier = Modifier.copy(width = Dimension.Fixed(180f.px), height = Dimension.Fixed(100f.px))) { }
+        column.surface("p", modifier = Modifier.copy(widthDimension = Dimension.Fixed(180f.px), heightDimension = Dimension.Fixed(100f.px))) { }
         val primitives = ui.endFrame()
         assertTrue(primitives.isNotEmpty())
         assertIs<UiDrawPrimitive.RoundedQuad>(primitives.first(), "a non-zero radius must emit a RoundedQuad")
@@ -77,7 +77,7 @@ class PanelTest {
         val column = ui.createColumn(modifier = Modifier.offset((0f).dp, (0f).dp).width((220f).dp), font = font)
 
         val panelSlot = column.surface(
-            id = "wrap-height", modifier = Modifier.copy(width = Dimension.Fixed(180f.px), height = Dimension.WrapContent)) {
+            id = "wrap-height", modifier = Modifier.copy(widthDimension = Dimension.Fixed(180f.px), heightDimension = Dimension.WrapContent)) {
             text("Line One")
             text("Line Two")
         }
@@ -92,7 +92,7 @@ class PanelTest {
         val column = ui.createColumn(modifier = Modifier.offset((0f).dp, (0f).dp).width((220f).dp), font = font)
 
         val panelSlot = column.surface(
-            id = "wrap-width", modifier = Modifier.copy(width = Dimension.WrapContent, height = Dimension.WrapContent)) {
+            id = "wrap-width", modifier = Modifier.copy(widthDimension = Dimension.WrapContent, heightDimension = Dimension.WrapContent)) {
             claimSlot(Dimension.Fixed(32f.px), Dimension.Fixed(8f.px))
         }
 

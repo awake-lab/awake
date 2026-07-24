@@ -38,8 +38,8 @@ fun UiScope.surface(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = smartColumn(
     id = id,
-    width = modifier.width ?: Dimension.WrapContent,
-    height = modifier.height ?: Dimension.WrapContent,
+    width = modifier.widthDimension ?: Dimension.WrapContent,
+    height = modifier.heightDimension ?: Dimension.WrapContent,
     gap = verticalArrangement.baseSpacingPx(),
     verticalArrangement = verticalArrangement,
     style = Style {
@@ -63,7 +63,7 @@ fun ColumnScope.surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
-    modifier = modifier.copy(width = modifier.width ?: Dimension.FillMax),
+    modifier = modifier.copy(widthDimension = modifier.widthDimension ?: Dimension.FillMax),
     clipContent = clipContent,
     content = content
 )
@@ -79,7 +79,7 @@ fun RowScope.surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
-    modifier = modifier.copy(height = modifier.height ?: Dimension.FillMax),
+    modifier = modifier.copy(heightDimension = modifier.heightDimension ?: Dimension.FillMax),
     clipContent = clipContent,
     content = content
 )
@@ -178,7 +178,7 @@ fun UiScope.rawSurface(
     val slot = initialSlot ?: claimModifiedSlot(
         resolvedWidth,
         resolvedHeight,
-        modifier.copy(width = resolvedWidth, height = resolvedHeight)
+        modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight)
     )
     emitFillAndBorder(
         slot = slot,

@@ -193,8 +193,8 @@ fun ColumnScope.shadcnTabs(
     surface(
         id = "$id.track",
         modifier = (modifier).copy(
-            width = modifier.width ?: Dimension.WrapContent,
-            height = Dimension.Fixed(height)
+            widthDimension = modifier.widthDimension ?: Dimension.WrapContent,
+            heightDimension = Dimension.Fixed(height)
         ),
         style = Style {
             shape(shadcnTheme.radii.md)
@@ -217,8 +217,8 @@ fun ColumnScope.shadcnTabs(
                 }
                 val tabHeight: Dp = (height.value - 4f).dp
                 val tabModifier = UiModifier(
-                    width = Dimension.Fixed(tabWidth),
-                    height = Dimension.Fixed(tabHeight)
+                    widthDimension = Dimension.Fixed(tabWidth),
+                    heightDimension = Dimension.Fixed(tabHeight)
                 )
                 // UiButtonVariant.Ghost's resolveFill hardcodes fill to transparent unless
                 // hovered/active, ignoring any style override -- so the active tab (which must

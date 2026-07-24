@@ -17,10 +17,19 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
  * to real Compose's "modifier is structure/behavior, style is visuals" split, which matters
  * once consumer-authored widgets and composite containers start reusing the same style stack
  * as built-ins.
+ *
+ * [widthDimension]/[heightDimension] are deliberately not named `width`/`height` -- those
+ * names collide with the `UiModifier.width()`/`.height()` builder extension functions in
+ * LayoutModifiers.kt, which used to make the Kotlin compiler misresolve chained calls like
+ * `modifier.align(...).width(...)` on non-trivial receivers (a bogus type-inference ambiguity
+ * error). See docs/reference/ui-ownership.md's modifier-first Hard Rule. Other fields below
+ * (forceHover/forceActive/forceFocus/testTag/styleable/graphicsLayer) share a same-named
+ * builder function too and carry the same latent risk, but haven't been confirmed to trigger
+ * it -- not renamed here to avoid renaming on a guess.
  */
 data class UiModifier(
-    val width: Dimension? = null,
-    val height: Dimension? = null,
+    val widthDimension: Dimension? = null,
+    val heightDimension: Dimension? = null,
     val testTag: String? = null,
     val alignment: UiAlignment? = null,
     val offsetX: Dp = UiShape.none,

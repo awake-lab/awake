@@ -97,8 +97,8 @@ class GameUiRuntime(
         block: ColumnScope.() -> Unit
     ) {
         val frame = UiSlot(0f, 0f, viewportWidth, viewportHeight)
-        val requestedWidth = modifier.width ?: Dimension.FillMax
-        val requestedHeight = modifier.height ?: Dimension.FillMax
+        val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
+        val requestedHeight = modifier.heightDimension ?: Dimension.FillMax
         val width = when (requestedWidth) {
             is Dimension.Fixed -> requestedWidth.dp.toPx()
             Dimension.FillMax -> frame.width

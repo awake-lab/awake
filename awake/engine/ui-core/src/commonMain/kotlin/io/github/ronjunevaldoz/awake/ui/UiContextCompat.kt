@@ -37,8 +37,8 @@ internal fun UiContext.resolveRootSlot(
     defaultHeight: Dimension = Dimension.FillMax
 ): UiSlot {
     val frame = frameBounds()
-    val requestedWidth = modifier.width ?: defaultWidth
-    val requestedHeight = modifier.height ?: defaultHeight
+    val requestedWidth = modifier.widthDimension ?: defaultWidth
+    val requestedHeight = modifier.heightDimension ?: defaultHeight
     val width = requestedWidth.resolveAgainst(frame.width)
     val height = requestedHeight.resolveAgainst(frame.height)
     return frame.place(

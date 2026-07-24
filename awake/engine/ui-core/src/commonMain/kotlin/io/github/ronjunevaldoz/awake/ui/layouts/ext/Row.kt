@@ -28,8 +28,8 @@ fun ColumnScope.row(
     modifier: UiModifier = Modifier,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val requestedWidth = modifier.width ?: Dimension.FillMax
-    val requestedHeight = modifier.height ?: Dimension.WrapContent
+    val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
+    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = horizontalArrangement
     val measured =
         if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
@@ -57,7 +57,7 @@ fun ColumnScope.row(
         width = resolvedWidth,
         height = resolvedHeight,
         horizontalArrangement = effectiveArrangement,
-        modifier = modifier.copy(width = resolvedWidth, height = resolvedHeight),
+        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -68,8 +68,8 @@ fun RowScope.row(
     modifier: UiModifier = Modifier,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val requestedWidth = modifier.width ?: Dimension.WrapContent
-    val requestedHeight = modifier.height ?: Dimension.FillMax
+    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
+    val requestedHeight = modifier.heightDimension ?: Dimension.FillMax
     val effectiveArrangement = horizontalArrangement
     val measured =
         if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
@@ -97,7 +97,7 @@ fun RowScope.row(
         width = resolvedWidth,
         height = resolvedHeight,
         horizontalArrangement = effectiveArrangement,
-        modifier = modifier.copy(width = resolvedWidth, height = resolvedHeight),
+        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -108,8 +108,8 @@ fun AbsoluteScope.row(
     modifier: UiModifier = Modifier,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val requestedWidth = modifier.width ?: Dimension.WrapContent
-    val requestedHeight = modifier.height ?: Dimension.WrapContent
+    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
+    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = horizontalArrangement
     val measured =
         if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
@@ -137,7 +137,7 @@ fun AbsoluteScope.row(
         width = resolvedWidth,
         height = resolvedHeight,
         horizontalArrangement = effectiveArrangement,
-        modifier = modifier.copy(width = resolvedWidth, height = resolvedHeight),
+        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -148,8 +148,8 @@ fun BoxScope.row(
     modifier: UiModifier = Modifier,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val requestedWidth = modifier.width ?: Dimension.WrapContent
-    val requestedHeight = modifier.height ?: Dimension.WrapContent
+    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
+    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = horizontalArrangement
     val measured =
         if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
@@ -177,7 +177,7 @@ fun BoxScope.row(
         width = resolvedWidth,
         height = resolvedHeight,
         horizontalArrangement = effectiveArrangement,
-        modifier = modifier.copy(width = resolvedWidth, height = resolvedHeight),
+        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -202,8 +202,8 @@ fun UiScope.rawRow(
     val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
 
     context.pushTextStyle(textStyle)
-    val requestedWidth = modifier.width ?: width
-    val requestedHeight = modifier.height ?: height
+    val requestedWidth = modifier.widthDimension ?: width
+    val requestedHeight = modifier.heightDimension ?: height
     val effectiveArrangement = horizontalArrangement
     val scope = if (effectiveArrangement.requiresMeasuredDistribution()) {
         val measured = context.measureRowContent(

@@ -55,8 +55,8 @@ fun UiScope.claimModifiedSlot(
     defaultHeight: Dimension = Dimension.WrapContent,
     modifier: UiModifier = Modifier
 ): UiSlot {
-    val requestedWidth = modifier.width ?: defaultWidth
-    val requestedHeight = modifier.height ?: defaultHeight
+    val requestedWidth = modifier.widthDimension ?: defaultWidth
+    val requestedHeight = modifier.heightDimension ?: defaultHeight
     val containerSlot = claimSlot(requestedWidth, requestedHeight)
     val width = requestedWidth.resolveAgainst(containerSlot.width)
     val height = requestedHeight.resolveAgainst(containerSlot.height)

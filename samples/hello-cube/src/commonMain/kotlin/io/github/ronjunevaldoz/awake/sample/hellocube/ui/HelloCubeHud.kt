@@ -38,7 +38,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
                     top = if (constraints.isCompact) 16f.dp else 24f.dp,
                     end = if (constraints.isCompact) 16f.dp else 40f.dp,
                     bottom = 0f.dp
-                )).copy(width = panelWidth, height = Dimension.WrapContent)) {
+                )).copy(widthDimension = panelWidth, heightDimension = Dimension.WrapContent)) {
             shadcnBadge("HELLO CUBE", variant = ShadcnBadgeVariant.Primary)
             sectionTitle("Scene")
             metaText("SCENE: ${model.sceneName}")
@@ -55,7 +55,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
                     top = 0f.dp,
                     end = if (constraints.isCompact) 16f.dp else 0f.dp,
                     bottom = 12f.dp
-                )).copy(width = debugWidth, height = Dimension.WrapContent)) {
+                )).copy(widthDimension = debugWidth, heightDimension = Dimension.WrapContent)) {
             shadcnBadge("DEBUG", variant = ShadcnBadgeVariant.Outline)
             sectionTitle("Runtime")
             supportingLines(model.debugLines)

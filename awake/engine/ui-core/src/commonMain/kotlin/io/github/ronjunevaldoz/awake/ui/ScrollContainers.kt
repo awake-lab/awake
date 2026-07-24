@@ -41,8 +41,8 @@ fun UiScope.scrollPanel(
 ): UiScrollPanelResult {
     val state = requireNotNull(modifier.scrollState) { "scrollPanel requires a scrollState on the modifier" }
     val config = modifier.scrollConfig
-    val requestedWidth = modifier.width ?: width
-    val requestedHeight = modifier.height ?: height
+    val requestedWidth = modifier.widthDimension ?: width
+    val requestedHeight = modifier.heightDimension ?: height
     val containerLabel = modifier.testTag ?: id
 
     val currentTheme = theme

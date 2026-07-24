@@ -477,8 +477,8 @@ private fun renderUiShowcaseCardPreviewFrame(
                 variant = ShadcnSurfaceVariant.Card,
                 style = Style { shape(16f.dp) },
                 modifier = Modifier.copy(
-                    width = Dimension.FillMax,
-                    height = Dimension.WrapContent
+                    widthDimension = Dimension.FillMax,
+                    heightDimension = Dimension.WrapContent
                 )
             ) {
                 shadcnBadge(badge, variant = ShadcnBadgeVariant.Outline)
@@ -526,7 +526,7 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
     }
     row(
         horizontalArrangement = Arrangement.spacedBy(10f.dp),
-        modifier = Modifier.copy(height = 36f.dp.toDimension())
+        modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())
     ) {
         shadcnButton(
             id = "showcase-matrix-button-ghost",
@@ -553,7 +553,7 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
 private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.copy(height = 36f.dp.toDimension())
+        modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())
     ) {
         shadcnTextField(
             id = "showcase-matrix-field-empty",
@@ -569,7 +569,7 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
     }
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.copy(height = 36f.dp.toDimension())
+        modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())
     ) {
         shadcnDropdown(
             id = "showcase-matrix-dropdown-theme",
@@ -586,7 +586,7 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
     }
     row(
         horizontalArrangement = Arrangement.spacedBy(16f.dp),
-        modifier = Modifier.copy(height = 24f.dp.toDimension())
+        modifier = Modifier.copy(heightDimension = 24f.dp.toDimension())
     ) {
         shadcnToggle(
             id = "showcase-matrix-toggle-off",
@@ -603,7 +603,7 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
     }
     row(
         horizontalArrangement = Arrangement.spacedBy(16f.dp),
-        modifier = Modifier.copy(height = 24f.dp.toDimension())
+        modifier = Modifier.copy(heightDimension = 24f.dp.toDimension())
     ) {
         shadcnCheckbox(
             id = "showcase-matrix-checkbox-off",
@@ -656,7 +656,7 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.copy(height = 36f.dp.toDimension())
+        modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())
     ) {
         val trigger = buttonSlot(
             id = "showcase-matrix-dropdown-trigger",
@@ -689,7 +689,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.copy(height = 36f.dp.toDimension())
+        modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())
     ) {
         val trigger = buttonSlot(
             id = "showcase-matrix-tooltip-trigger",

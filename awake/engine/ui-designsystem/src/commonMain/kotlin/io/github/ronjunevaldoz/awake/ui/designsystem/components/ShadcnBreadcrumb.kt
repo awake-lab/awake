@@ -30,7 +30,7 @@ fun ColumnScope.shadcnBreadcrumb(
     height: Dp = 20f.dp
 ): UiSlot {
     val shadcnTheme = theme.asShadcnTheme()
-    return row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = (modifier).copy(height = height.toDimension())) {
+    return row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = (modifier).copy(heightDimension = height.toDimension())) {
         items.forEachIndexed { index, label ->
             val isCurrent = index == items.lastIndex
             text(

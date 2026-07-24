@@ -114,7 +114,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
     val panelColumn = panelUi.createColumn(modifier = Modifier.offset((20f).dp, (20f).dp).width((200f).dp), font = font, theme = CoreUiTheme)
     panelColumn.surface(
         "inspector",
-        modifier = Modifier.copy(width = Dimension.FillMax, height = Dimension.Fixed(140f.px)),
+        modifier = Modifier.copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.Fixed(140f.px)),
         style = Style { borderWidth(1f.dp) }
     ) {
         text("CAMERA", color = CoreUiTheme.tokens.mutedForeground)
@@ -219,16 +219,16 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 verticalArrangement = Arrangement.spacedBy(10f.dp)
             ) {
                 shadcnSurface(
-                    id = "button-variants", modifier = Modifier.copy(width = Dimension.Fixed(588f.px), height = Dimension.WrapContent)) {
+                    id = "button-variants", modifier = Modifier.copy(widthDimension = Dimension.Fixed(588f.px), heightDimension = Dimension.WrapContent)) {
                     text("Awake Shadcn Buttons")
                     supportingText("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")
                     spacer(Modifier.height(8f.dp))
-                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
+                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
                         shadcnButton("primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Primary)
                         shadcnButton("secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = ShadcnButtonVariant.Secondary)
                         shadcnButton("outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Outline)
                     }
-                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
+                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
                         shadcnButton("ghost", "Ghost", modifier = Modifier.width(122f.px).height(40f.px), variant = ShadcnButtonVariant.Ghost)
                         shadcnButton("danger", "Danger", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Danger)
                     }
@@ -251,7 +251,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     contentPadding(12f.dp)
                 },
                 clipContent = true
-            , modifier = Modifier.copy(width = Dimension.Fixed(260f.px), height = Dimension.Fixed(120f.px))) { slot ->
+            , modifier = Modifier.copy(widthDimension = Dimension.Fixed(260f.px), heightDimension = Dimension.Fixed(120f.px))) { slot ->
                 text("Shaped Panel", color = CoreUiTheme.tokens.mutedForeground)
                 context.createAbsolute(
                     modifier = Modifier.offset((slot.x + 12f).dp, (slot.y + 44f).dp),
@@ -277,7 +277,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 verticalArrangement = Arrangement.spacedBy(10f.dp)
             ) {
                 shadcnSurface(
-                    id = "inspector", modifier = Modifier.copy(width = Dimension.Fixed(390f.px), height = Dimension.WrapContent)) {
+                    id = "inspector", modifier = Modifier.copy(widthDimension = Dimension.Fixed(390f.px), heightDimension = Dimension.WrapContent)) {
                     text("Controls")
                     supportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
                     spacer(Modifier.height(4f.dp))
@@ -325,20 +325,20 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 modifier = Modifier.offset(20f.dp, 20f.dp).width(420f.dp),
                 verticalArrangement = Arrangement.spacedBy(14f.dp)
             ) {
-                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
+                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
                     toggle("state-matrix-toggle-off", checked = false, modifier = Modifier.width(120f.px).height(24f.px))
                     toggle("state-matrix-toggle-on", checked = true, modifier = Modifier.width(120f.px).height(24f.px))
                 }
-                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(height = 32f.dp.toDimension())) {
+                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(heightDimension = 32f.dp.toDimension())) {
                     checkbox("state-matrix-checkbox-off", checked = false, modifier = Modifier.width(180f.px).height(24f.px))
                     checkbox("state-matrix-checkbox-on", checked = true, modifier = Modifier.width(180f.px).height(24f.px))
                 }
-                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
+                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())) {
                     slider("state-matrix-slider-empty", min = 0f, max = 100f, value = 0f, modifier = Modifier.width(120f.px).height(36f.dp))
                     slider("state-matrix-slider-half", min = 0f, max = 100f, value = 50f, modifier = Modifier.width(120f.px).height(36f.dp))
                     slider("state-matrix-slider-full", min = 0f, max = 100f, value = 100f, modifier = Modifier.width(120f.px).height(36f.dp))
                 }
-                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
+                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())) {
                     textField("state-matrix-empty-field", value = "", placeholder = "Placeholder", modifier = Modifier.width(190f.px).height(36f.dp))
                     textField("state-matrix-focused-field", value = "Typed", modifier = Modifier.width(190f.px).height(36f.dp))
                 }
@@ -362,7 +362,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     contentPadding(14f.dp)
                 },
                 clipContent = true
-            , modifier = Modifier.copy(width = Dimension.Fixed(292f.px), height = Dimension.Fixed(164f.px))) { slot ->
+            , modifier = Modifier.copy(widthDimension = Dimension.Fixed(292f.px), heightDimension = Dimension.Fixed(164f.px))) { slot ->
                 text("Rounded + Clip + Vector", color = Color(0.94f, 0.96f, 1f, 1f))
                 text(
                     "The icon intentionally overflows and gets clipped by the cut-corner shell.",
@@ -386,7 +386,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                             background(Color(0.2f, 0.24f, 0.36f, 1f))
                             border(1f.dp, Color(0.56f, 0.72f, 1f, 1f))
                         },
-                        modifier = (Modifier.align(UiAlignment.Center)).copy(width = Dimension.Fixed(180f.px), height = Dimension.Fixed(56f.px))) {
+                        modifier = (Modifier.align(UiAlignment.Center)).copy(widthDimension = Dimension.Fixed(180f.px), heightDimension = Dimension.Fixed(56f.px))) {
                         text("ICON CHIP", color = Color(0.95f, 0.97f, 1f, 1f))
                     }
                     icon(
@@ -416,16 +416,16 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 verticalArrangement = Arrangement.spacedBy(12f.dp)
             ) {
                 shadcnSurface(
-                    id = "shadcn-showcase", modifier = Modifier.copy(width = Dimension.Fixed(520f.px), height = Dimension.WrapContent)) {
+                    id = "shadcn-showcase", modifier = Modifier.copy(widthDimension = Dimension.Fixed(520f.px), heightDimension = Dimension.WrapContent)) {
                     text("Awake Shadcn")
                     supportingText("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")
                     spacer(Modifier.height(8f.dp))
-                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
+                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(heightDimension = 40f.dp.toDimension())) {
                         shadcnButton("showcase-doc-primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Primary)
                         shadcnButton("showcase-doc-secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = ShadcnButtonVariant.Secondary)
                         shadcnButton("showcase-doc-outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Outline)
                     }
-                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 30f.dp.toDimension())) {
+                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(heightDimension = 30f.dp.toDimension())) {
                         shadcnBadge("LIVE", variant = ShadcnBadgeVariant.Primary)
                         shadcnBadge("NEUTRAL", variant = ShadcnBadgeVariant.Secondary)
                         shadcnBadge("BETA", variant = ShadcnBadgeVariant.Outline)
@@ -435,11 +435,11 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     shadcnSurface(
                         id = "shadcn-subcard",
                         variant = ShadcnSurfaceVariant.Popover
-                    , modifier = Modifier.copy(height = Dimension.WrapContent)) {
+                    , modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
                         text("Preview Card")
                         supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
                         spacer(Modifier.height(6f.dp))
-                        row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
+                        row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(heightDimension = 36f.dp.toDimension())) {
                             shadcnButton("showcase-doc-ghost", "Ghost", modifier = Modifier.width(112f.px).height(36f.dp), variant = ShadcnButtonVariant.Ghost)
                             shadcnButton("showcase-doc-danger", "Danger", modifier = Modifier.width(112f.px).height(36f.dp), variant = ShadcnButtonVariant.Danger)
                         }

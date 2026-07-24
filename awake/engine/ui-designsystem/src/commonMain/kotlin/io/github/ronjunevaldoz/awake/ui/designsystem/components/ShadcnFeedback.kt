@@ -31,7 +31,7 @@ fun ColumnScope.shadcnAlert(
     style: Style = Style.Empty
 ): UiSlot = surface(
     id = id,
-    modifier = (modifier).copy(width = width, height = height),
+    modifier = (modifier).copy(widthDimension = width, heightDimension = height),
     style = ShadcnStyles.alert(theme.asShadcnTheme(), variant) then style
 ) {
     val titleColor = when (variant) {

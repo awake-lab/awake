@@ -164,7 +164,7 @@ class ShadcnDesignSystemTest {
         ui.beginFrame(240f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(200f.dp))
-            .shadcnSurface("surface", modifier = Modifier.copy(width = Dimension.Fixed(200f.px), height = Dimension.Fixed(100f.px))) {
+            .shadcnSurface("surface", modifier = Modifier.copy(widthDimension = Dimension.Fixed(200f.px), heightDimension = Dimension.Fixed(100f.px))) {
                 shadcnBadge(label = "READY", width = Dimension.Fixed(80f.px), height = Dimension.WrapContent)
             }
 
@@ -181,7 +181,7 @@ class ShadcnDesignSystemTest {
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             shadcnSurface(
-                id = "dsl-surface", modifier = Modifier.copy(height = Dimension.Fixed(120f.px))) {
+                id = "dsl-surface", modifier = Modifier.copy(heightDimension = Dimension.Fixed(120f.px))) {
                 shadcnBadge(label = "READY", variant = ShadcnBadgeVariant.Primary)
                 shadcnButton(
                     id = "launch",
@@ -206,7 +206,7 @@ class ShadcnDesignSystemTest {
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnSurface(
-                id = "dsl-fields", modifier = Modifier.copy(height = Dimension.WrapContent)) {
+                id = "dsl-fields", modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
                 shadcnPropertyToggle("show-grid", "Show Grid", checked = true)
                 shadcnPropertyDropdown("mode", "Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
                 shadcnPropertySlider("speed", "Speed", min = 1f, max = 10f, value = 5f)
@@ -227,13 +227,13 @@ class ShadcnDesignSystemTest {
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             shadcnSurface(
-                id = "slot-header", modifier = Modifier.copy(height = Dimension.WrapContent)) {
+                id = "slot-header", modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
                 shadcnSectionHeader(
                     title = {
-                        row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.copy(height = 20f.dp.toDimension())) {
+                        row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.copy(heightDimension = 20f.dp.toDimension())) {
                             shadcnBadge(
                                 label = "NEW",
-                                modifier = UiModifier(width = Dimension.Fixed(48f.px)),
+                                modifier = Modifier.width(Dimension.Fixed(48f.px)),
                                 variant = ShadcnBadgeVariant.Outline
                             )
                             text("Scene Settings")
@@ -260,7 +260,7 @@ class ShadcnDesignSystemTest {
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnSurface(
-                id = "slot-fields", modifier = Modifier.copy(height = Dimension.WrapContent)) {
+                id = "slot-fields", modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
                 shadcnPropertyDropdown(
                     id = "mode",
                     options = listOf("Orbit", "Fly"),

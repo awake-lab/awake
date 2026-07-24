@@ -44,8 +44,8 @@ internal fun UiScope.smartColumn(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val insets = modifier.insets
-    val requestedWidth = modifier.width ?: width
-    val requestedHeight = modifier.height ?: height
+    val requestedWidth = modifier.widthDimension ?: width
+    val requestedHeight = modifier.heightDimension ?: height
     val scrollState = modifier.scrollState
     val containerTag = modifier.testTag ?: id
     val hasBoundedFillWidth = requestedWidth != Dimension.WrapContent
@@ -122,7 +122,7 @@ internal fun UiScope.smartColumn(
         width = resolvedWidth,
         height = resolvedHeight,
         verticalArrangement = verticalArrangement,
-        modifier = modifier.copy(width = resolvedWidth, height = resolvedHeight),
+        modifier = modifier.copy(widthDimension = resolvedWidth, heightDimension = resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -140,8 +140,8 @@ fun ColumnScope.column(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    modifier.width ?: Dimension.FillMax,
-    modifier.height ?: Dimension.WrapContent,
+    modifier.widthDimension ?: Dimension.FillMax,
+    modifier.heightDimension ?: Dimension.WrapContent,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
@@ -158,8 +158,8 @@ fun RowScope.column(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    modifier.width ?: Dimension.WrapContent,
-    modifier.height ?: Dimension.FillMax,
+    modifier.widthDimension ?: Dimension.WrapContent,
+    modifier.heightDimension ?: Dimension.FillMax,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
@@ -176,8 +176,8 @@ fun AbsoluteScope.column(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    modifier.width ?: Dimension.WrapContent,
-    modifier.height ?: Dimension.WrapContent,
+    modifier.widthDimension ?: Dimension.WrapContent,
+    modifier.heightDimension ?: Dimension.WrapContent,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
@@ -194,8 +194,8 @@ fun BoxScope.column(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    modifier.width ?: Dimension.WrapContent,
-    modifier.height ?: Dimension.WrapContent,
+    modifier.widthDimension ?: Dimension.WrapContent,
+    modifier.heightDimension ?: Dimension.WrapContent,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
@@ -222,8 +222,8 @@ fun UiScope.rawColumn(
     val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
 
     context.pushTextStyle(textStyle)
-    val requestedWidth = modifier.width ?: width
-    val requestedHeight = modifier.height ?: height
+    val requestedWidth = modifier.widthDimension ?: width
+    val requestedHeight = modifier.heightDimension ?: height
     val effectiveArrangement = verticalArrangement
     val scope = if (effectiveArrangement.requiresMeasuredDistribution()) {
         val measured = context.measureColumnContent(

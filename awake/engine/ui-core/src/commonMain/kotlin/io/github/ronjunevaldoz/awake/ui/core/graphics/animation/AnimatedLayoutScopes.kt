@@ -44,7 +44,7 @@ fun ColumnScope.animatedHeight(
 
     // 3. Render a clipped container with the animated height
     return if (animatedHeight > 0.01f) {
-        val requestedWidth = modifier.width ?: Dimension.FillMax
+        val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
         val slot = claimSlot(requestedWidth, Dimension.Fixed(animatedHeight.px))
         clip(slot) {
             context.createColumn(slot, gap = this@animatedHeight.gap)

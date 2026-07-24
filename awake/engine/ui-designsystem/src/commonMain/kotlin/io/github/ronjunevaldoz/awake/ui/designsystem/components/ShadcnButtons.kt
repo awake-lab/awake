@@ -22,7 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 private fun UiModifier.withShadcnSize(size: ShadcnButtonSize): UiModifier =
-    if (height == null) height(size.heightDp.dp) else this
+    if (heightDimension == null) height(size.heightDp.dp) else this
 
 private fun shadcnButtonStyle(
     theme: UiTheme,

@@ -29,7 +29,7 @@ class UiTypographyTest {
         var panelSlot: UiSlot? = null
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(180f.dp)) {
-            surface(id = "copy", modifier = Modifier.copy(height = Dimension.WrapContent)) { slot ->
+            surface(id = "copy", modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) { slot ->
                 panelSlot = slot
                 text("Copy")
                 supportingText(

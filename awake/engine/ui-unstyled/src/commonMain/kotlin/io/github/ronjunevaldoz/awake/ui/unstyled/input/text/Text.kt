@@ -174,7 +174,7 @@ fun UiScope.text(
     var textStyle = resolved.textStyle
     var glyphPx = resolveGlyphPx(resolvedFont, textStyle)
     val defaultWidth: Dimension = when {
-        modifier.width != null -> requireNotNull(modifier.width)
+        modifier.widthDimension != null -> requireNotNull(modifier.widthDimension)
         wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || label.contains('\n') -> {
             if (fillWidthOrNull() != null) Dimension.FillMax else Dimension.Fixed((labelWidthPx + resolved.contentPadding.horizontalPx()).px)
         }

@@ -38,14 +38,14 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.copy(height = 292f.dp.toDimension())
+        modifier = Modifier.copy(heightDimension = 292f.dp.toDimension())
     ) {
         surface(
             id = "showcase-font-bitmap",
             style = Style { shape(14f.dp) },
             modifier = Modifier.copy(
-                width = Dimension.Fixed(264f.dp),
-                height = Dimension.Fixed(292f.dp)
+                widthDimension = Dimension.Fixed(264f.dp),
+                heightDimension = Dimension.Fixed(292f.dp)
             )) { slot ->
             drawUiShowcaseFontSpecimen(
                 slot = slot,
@@ -58,8 +58,8 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
             id = "showcase-font-truesans",
             style = Style { shape(14f.dp) },
             modifier = Modifier.copy(
-                width = Dimension.Fixed(264f.dp),
-                height = Dimension.Fixed(292f.dp)
+                widthDimension = Dimension.Fixed(264f.dp),
+                heightDimension = Dimension.Fixed(292f.dp)
             )) { slot ->
             drawUiShowcaseFontSpecimen(
                 slot = slot,

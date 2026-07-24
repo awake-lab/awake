@@ -14,13 +14,13 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  * By default, it has 0 size on the layout axis and fills the cross axis.
  */
 fun ColumnScope.spacer(modifier: UiModifier) {
-    val width = modifier.width ?: Dimension.FillMax
-    val height = modifier.height ?: Dimension.Fixed(0f.dp)
+    val width = modifier.widthDimension ?: Dimension.FillMax
+    val height = modifier.heightDimension ?: Dimension.Fixed(0f.dp)
     claimSlot(width, height)
 }
 
 fun RowScope.spacer(modifier: UiModifier) {
-    val width = modifier.width ?: Dimension.Fixed(0f.dp)
-    val height = modifier.height ?: Dimension.FillMax
+    val width = modifier.widthDimension ?: Dimension.Fixed(0f.dp)
+    val height = modifier.heightDimension ?: Dimension.FillMax
     claimSlot(width, height)
 }
