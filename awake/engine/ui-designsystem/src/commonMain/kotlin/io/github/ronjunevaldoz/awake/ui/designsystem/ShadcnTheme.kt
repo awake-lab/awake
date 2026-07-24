@@ -211,6 +211,11 @@ private class ConfiguredShadcnTheme(
             shape(radii.md)
             textSize(typography.label)
         }
+        override val avatar: Style = Style {
+            background(palette.muted)
+            foreground(palette.foreground)
+            textSize(typography.label)
+        }
         override val slider: Style = Style {
             background(palette.input)
             foreground(palette.foreground)

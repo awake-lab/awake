@@ -16,6 +16,7 @@ interface UiComponentStyles {
     val dropdown: Style
     val surface: Style
     val textField: Style
+    val avatar: Style
 }
 
 class CoreUiComponentStyles(
@@ -31,6 +32,11 @@ class CoreUiComponentStyles(
     override val checkbox: Style = tokens.neutralStyle() then Style {
         borderWidth(1f.dp)
         borderColor(tokens.border)
+        textSize(typography.label)
+    }
+    override val avatar: Style = Style {
+        background(tokens.muted)
+        foreground(tokens.foreground)
         textSize(typography.label)
     }
     override val slider: Style = Style {

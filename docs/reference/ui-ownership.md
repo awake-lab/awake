@@ -86,6 +86,14 @@ Text ownership rule:
   the primary API, with string overloads kept only as convenience wrappers
 - if a reusable API owns both the container structure and all displayed text, it is usually too
   coupled for long-term reuse
+- **any leaf widget that renders content by calling another widget internally (e.g. calling
+  `text(...)` to draw a label) must expose a slot/content-lambda primary form, not only the
+  string convenience.** If the only entry point takes a raw string and renders it internally
+  with a hardcoded widget call, the widget is coupled to that specific content widget and
+  cannot be reused with an icon, multiple lines, or anything else. Found and fixed 2026-07-24:
+  `avatarFallback` (`ui-unstyled/Avatar.kt`) only took `initials: String` and called `text(...)`
+  internally with no slot alternative -- added a `content: BoxScope.(slot) -> Unit` primary
+  overload (draws the circle only) with the string form as a convenience wrapper over it.
 
 ## Theme Token Rule
 
