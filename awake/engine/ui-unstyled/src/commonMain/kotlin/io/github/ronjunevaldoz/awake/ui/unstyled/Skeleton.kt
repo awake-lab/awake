@@ -3,8 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
-import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -20,6 +18,8 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.PI
 import kotlin.math.sin
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 
 private const val SKELETON_PULSE_PERIOD_SECONDS = 1.6f
 private const val SKELETON_PULSE_MIN_ALPHA = 0.5f

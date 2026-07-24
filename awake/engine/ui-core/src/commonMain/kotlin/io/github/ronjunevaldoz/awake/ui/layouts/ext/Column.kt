@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
-import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
-import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -12,7 +9,6 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
-import io.github.ronjunevaldoz.awake.ui.styling.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -28,7 +24,8 @@ import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
 import io.github.ronjunevaldoz.awake.ui.modifier.styleable
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.styling.verticalPx
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Unified container logic for [column] and [surface].

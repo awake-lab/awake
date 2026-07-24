@@ -4,10 +4,11 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 
 class SeparatorWidgetsTest {
 

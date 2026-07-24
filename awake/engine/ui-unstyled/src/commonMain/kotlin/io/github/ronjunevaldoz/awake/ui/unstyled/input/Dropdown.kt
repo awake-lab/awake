@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled.input
 
-import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
-import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
@@ -27,6 +24,8 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 
 
 // Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a

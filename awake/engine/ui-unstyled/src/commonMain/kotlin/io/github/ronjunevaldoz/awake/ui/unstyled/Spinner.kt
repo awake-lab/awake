@@ -3,8 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
-import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -22,6 +20,8 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 
 private const val SPINNER_REVOLUTIONS_PER_SECOND = 1f
 private const val SPINNER_DOT_COUNT = 8

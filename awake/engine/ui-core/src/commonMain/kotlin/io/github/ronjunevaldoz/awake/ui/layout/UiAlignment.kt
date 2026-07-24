@@ -1,15 +1,13 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui
+package io.github.ronjunevaldoz.awake.ui.layout
 
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.styling.UiInsets
-import io.github.ronjunevaldoz.awake.ui.styling.inset
 
 /**
  * Child placement inside a parent slot. This is the Box-style alignment API; unlike
- * [UiAnchor], which is a shell-placement helper for screen corners, [UiAlignment] is about
- * how content sits INSIDE an already-claimed container.
+ * [io.github.ronjunevaldoz.awake.ui.UiAnchor], which is a shell-placement helper for screen
+ * corners, [UiAlignment] is about how content sits INSIDE an already-claimed container.
  */
 enum class UiAlignment {
     TopStart,

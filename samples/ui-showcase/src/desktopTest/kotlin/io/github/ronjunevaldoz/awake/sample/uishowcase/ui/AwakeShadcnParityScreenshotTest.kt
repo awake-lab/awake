@@ -24,7 +24,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.componentStateMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
-import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.column
@@ -66,8 +65,10 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textarea
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
 import kotlin.test.Test
-import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** Builds a one-off [UiInputState] for a preview frame -- [Input] is a per-session
  * instance now (no longer a global object), so tests construct their own throwaway one. */

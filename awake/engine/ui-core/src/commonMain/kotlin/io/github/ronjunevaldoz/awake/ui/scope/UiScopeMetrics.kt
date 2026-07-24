@@ -7,11 +7,12 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.FillAwareScope
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.math.roundToInt
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun pixelPerfectTextScale(requestedScale: Float, step: Float = 0.25f): Float {
     val safeStep = step.takeIf { it.isFinite() && it > 0f } ?: 0.25f

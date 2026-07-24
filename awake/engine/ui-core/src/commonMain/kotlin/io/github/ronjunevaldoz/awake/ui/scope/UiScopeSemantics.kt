@@ -3,10 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.styling.ResolvedStyle
-import io.github.ronjunevaldoz.awake.ui.styling.Style
-import io.github.ronjunevaldoz.awake.ui.styling.StyleState
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun UiScope.resolveStyle(
     style: Style = Style.Empty,

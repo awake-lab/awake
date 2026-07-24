@@ -70,7 +70,7 @@ w, h)` as the normal way to place a page. `UiSlot` should be measured output/int
 data, not something a caller constructs by hand at the root.
 
 - [x] Migrate every root-level `column(slot = UiSlot(...))` / `createColumn(x, y, width)` /
-  `createAbsolute(x, y)` / `createBox(x, y, w, h)` call site onto `modifier = UiModifier()
+  `createAbsolute(x, y)` / `createBox(x, y, w, h)` call site onto `modifier = Modifier
   .offset(x.dp, y.dp).width(w.dp).height(h.dp)` across `ui-dsl`, `ui-designsystem`,
   `ui-unstyled`, and `samples:ui-showcase` (~80 call sites, ~20 files). Verified pixel/geometry
   parity per site (offset+TopStart reproduces the old `UiSlot` exactly) and confirmed zero

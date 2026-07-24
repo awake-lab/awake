@@ -100,7 +100,7 @@ Where a widget currently has visual knobs like color, border width, shape, text 
 ```kotlin
 fun UiScope.button(
     id: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style,
     onClick: () -> Unit
 )

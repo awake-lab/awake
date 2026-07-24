@@ -4,7 +4,8 @@ package io.github.ronjunevaldoz.awake.ui.modifier
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun UiModifier.shadcnShimmer(value: Boolean = true): UiModifier = copy(shimmer = value)
 
