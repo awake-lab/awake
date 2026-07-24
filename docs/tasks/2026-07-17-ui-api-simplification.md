@@ -119,12 +119,20 @@ Compose's `graphicsLayer` equivalent) so effects like the shimmer modifier stop 
 directly into `ui-core` and instead compose the same way `Canvas` content does today, without
 `Canvas`'s bypass of the widget pipeline.
 
-## Other Known Issues (not fixed this pass)
+## Other Known Issues
 
-- Button label not displayed on dialog and dropdown menu.
-- Shimmer modifier is directly coupled into `ui-core` instead of living as a shadcn-compose-style
-  extension on top of a real modifier/graphics-layer primitive (see the `Canvas` note above --
-  same root cause: no graphics-layer modifier to hang effects off of yet).
+- [x] Button label not displayed on dialog and dropdown menu. Root cause: `buttonSlotInternal`
+  (`ui-unstyled/Buttons.kt`) resolved a themed `Style` but never pushed its foreground into the
+  ambient text-style stack before composing Slot-API content, so labels rendered inside slot
+  buttons (dialog/dropdown-menu actions) fell back to the surrounding page's ambient color. Fixed
+  by pushing `resolved.textStyle then TextStyle(color = resolved.foreground)` before
+  `drawContent`, matching how `surface`/`column`/`row`/`box` already propagate themed text style.
+- [x] Shimmer modifier is directly coupled into `ui-core` instead of living as a shadcn-compose-style
+  extension on top of a real modifier/graphics-layer primitive. Fixed: added
+  `UiGraphicsLayer`/`UiGraphicsEffect` (`modifier/GraphicsLayer.kt`) as a real graphics-layer
+  modifier primitive; `UiModifier.shimmer: Boolean` is now a computed extension property over
+  `graphicsLayer?.has<UiShimmerEffect>()` instead of a hardcoded field, and `shadcnShimmer()`
+  attaches/removes `UiShimmerEffect` through `graphicsLayer(...)`.
 
 ## Module Checklist
 
@@ -215,9 +223,9 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
    Arrangement.spacedBy(...)` and deleted the dead overload.
 9. Graphics-layer modifier (Jetpack Compose `graphicsLayer` equivalent) so `shimmer` decouples
    from `ui-core` into a real modifier-driven effect, matching the shadcn-compose extension
-   pattern instead of being hardcoded into core.
+   pattern instead of being hardcoded into core. **(done)**
 10. Button-label bug fix on dialog and dropdown menu -- decouple label the same way (modifier/
-    slot content, not a hardcoded param), not just patch the symptom.
+    slot content, not a hardcoded param), not just patch the symptom. **(done)**
 
 ## First Slice
 
