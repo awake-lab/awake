@@ -39,7 +39,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun UiScope.shadcnDropdownMenu(
     id: String,
-    anchorSlot: UiSlot,
+    anchorSlot: UiBounds,
     expanded: Boolean,
     items: List<UiDropdownMenuEntry>,
     selectedIndex: Int? = null,

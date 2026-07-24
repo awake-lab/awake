@@ -27,7 +27,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
 
         val result = scope.popup(
-            anchorSlot = UiSlot(20f, 30f, 120f, 32f),
+            anchorSlot = UiBounds(20f, 30f, 120f, 32f),
             expanded = true,
             width = Dimension.Fixed(120f.px),
             height = Dimension.Fixed(64f.px)
@@ -46,7 +46,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
 
         val result = scope.popup(
-            anchorSlot = UiSlot(20f, 30f, 120f, 32f),
+            anchorSlot = UiBounds(20f, 30f, 120f, 32f),
             expanded = true,
             width = Dimension.Fixed(120f.px),
             height = Dimension.Fixed(64f.px)

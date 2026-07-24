@@ -5,7 +5,6 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
@@ -14,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun UiScope.shadcnTooltipText(
-    anchorSlot: UiSlot,
+    anchorSlot: UiBounds,
     visible: Boolean,
     text: String,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.aligned(

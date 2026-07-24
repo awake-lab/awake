@@ -666,7 +666,7 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
         )
         shadcnDropdownMenu(
             id = "showcase-matrix-dropdown-menu",
-            anchorSlot = trigger.slot,
+            anchorSlot = trigger.slot.toBounds(),
             expanded = true,
             items = PreviewOverlayMenuItems,
             selectedIndex = 1,
@@ -698,7 +698,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
             style = theme.components.button
         )
         shadcnTooltip(
-            anchorSlot = trigger.slot,
+            anchorSlot = trigger.slot.toBounds(),
             visible = true,
             width = Dimension.Fixed(260f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)

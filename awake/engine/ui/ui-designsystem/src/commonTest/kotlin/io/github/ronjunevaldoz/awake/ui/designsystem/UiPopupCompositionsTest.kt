@@ -48,7 +48,7 @@ class UiPopupCompositionsTest {
         var result: UiPopupResult? = null
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(220f.dp)) {
             result = shadcnTooltipText(
-                anchorSlot = UiSlot(48f, 24f, 96f, 28f),
+                anchorSlot = UiBounds(48f, 24f, 96f, 28f),
                 visible = true,
                 text = "Helpful hint"
             )
@@ -64,7 +64,7 @@ class UiPopupCompositionsTest {
     @Test
     fun dropdownMenuReturnsPickedIndex() {
         val ui = UiContext()
-        val anchor = UiSlot(20f, 16f, 120f, 28f)
+        val anchor = UiBounds(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
         ui.pushFont(BitmapFont())
 
@@ -100,7 +100,7 @@ class UiPopupCompositionsTest {
     @Test
     fun dropdownMenuSupportsSeparatorsAndDisabledItems() {
         val ui = UiContext()
-        val anchor = UiSlot(20f, 16f, 120f, 28f)
+        val anchor = UiBounds(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
         ui.pushFont(BitmapFont())
 

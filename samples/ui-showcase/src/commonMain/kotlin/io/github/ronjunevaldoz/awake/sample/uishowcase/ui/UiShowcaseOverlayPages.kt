@@ -111,7 +111,7 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
 internal fun ColumnScope.drawUiShowcasePopupPreview() {
     val actionMenuState = context.rememberPopupState("ui-showcase-action-menu")
     val deleteDialogState = context.rememberPopupState("ui-showcase-delete-dialog")
-    val feedbackMessage = context.rememberStateValue("ui-showcase-popup-feedback") {
+    var feedbackMessage by context.rememberStateValue("ui-showcase-popup-feedback") {
         "Try the action menu and dialog to inspect the popup layer."
     }
 
@@ -131,18 +131,18 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         }
         val menuResult = shadcnDropdownMenu(
             id = "ui-showcase-action-menu",
-            anchorSlot = menuTrigger.slot,
+            anchorSlot = menuTrigger.slot.toBounds(),
             expanded = actionMenuState.expanded,
             items = ShowcaseActionMenuItems,
             style = Style { contentPadding(4f.dp) }
         )
         when (menuResult.selectedIndex) {
             1 -> {
-                feedbackMessage.value = "Duplicate panel queued from the dropdown menu."
+                feedbackMessage = "Duplicate panel queued from the dropdown menu."
                 actionMenuState.close()
             }
             2 -> {
-                feedbackMessage.value = "Delete requested from the dropdown menu."
+                feedbackMessage = "Delete requested from the dropdown menu."
                 actionMenuState.close()
                 deleteDialogState.open()
             }
@@ -162,7 +162,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         }
     }
     spacer(Modifier.height(4f.dp))
-    shadcnSupportingText(feedbackMessage.value)
+    shadcnSupportingText(feedbackMessage)
 
     val dialogResult = shadcnAlertDialog(
         id = "ui-showcase-delete-dialog",
@@ -175,16 +175,16 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
     )
     when (dialogResult.action) {
         UiAlertDialogAction.Confirm -> {
-            feedbackMessage.value = "Confirmed from the alert dialog."
+            feedbackMessage = "Confirmed from the alert dialog."
             deleteDialogState.close()
         }
         UiAlertDialogAction.Dismiss -> {
-            feedbackMessage.value = "Dismissed from the alert dialog."
+            feedbackMessage = "Dismissed from the alert dialog."
             deleteDialogState.close()
         }
         null -> {
             if (dialogResult.popup.dismissed) {
-                feedbackMessage.value = "Dismissed by clicking outside the alert dialog."
+                feedbackMessage = "Dismissed by clicking outside the alert dialog."
                 deleteDialogState.close()
             }
         }
@@ -201,10 +201,10 @@ internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
             modifier = Modifier.width(132f.dp).height(36f.dp),
             style = theme.components.button
         )
-        val visibility = rememberStateValue("showcase-tooltip-visible") { true }
+        val visibility by rememberStateValue("showcase-tooltip-visible") { true }
         shadcnTooltip(
-            anchorSlot = trigger.slot,
-            visible = visibility.value,
+            anchorSlot = trigger.slot.toBounds(),
+            visible = visibility,
             width = Dimension.Fixed(260f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
         ) {

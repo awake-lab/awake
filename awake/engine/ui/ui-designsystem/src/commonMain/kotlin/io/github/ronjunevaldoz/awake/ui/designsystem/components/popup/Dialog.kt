@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 
-private val DetachedPopupAnchor = UiSlot(-1f, -1f, 0f, 0f)
+private val DetachedPopupAnchor = UiBounds(-1f, -1f, 0f, 0f)
 private val DefaultDialogScrimColor = Color.Black.withAlpha(0.48f)
 
 fun UiScope.shadcnDialog(

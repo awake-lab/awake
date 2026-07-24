@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun UiScope.shadcnTooltip(
-    anchorSlot: UiSlot,
+    anchorSlot: UiBounds,
     visible: Boolean,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,

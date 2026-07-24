@@ -315,7 +315,7 @@ fun UiScope.shadcnDropdown(
 
     val result = shadcnDropdownMenu(
         id = "$id.dropdown",
-        anchorSlot = trigger.slot,
+        anchorSlot = trigger.slot.toBounds(),
         expanded = popupState.expanded,
         items = options.map { UiDropdownMenuItem(label = it) },
         selectedIndex = selectedIndex,
