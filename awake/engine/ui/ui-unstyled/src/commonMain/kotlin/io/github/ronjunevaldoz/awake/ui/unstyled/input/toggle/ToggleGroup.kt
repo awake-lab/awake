@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawRow
+import io.github.ronjunevaldoz.awake.ui.layouts.rawRow
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 
 fun UiScope.toggleGroup(

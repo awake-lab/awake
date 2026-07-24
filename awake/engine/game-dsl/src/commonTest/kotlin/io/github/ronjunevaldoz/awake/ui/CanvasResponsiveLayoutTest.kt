@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
 import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align

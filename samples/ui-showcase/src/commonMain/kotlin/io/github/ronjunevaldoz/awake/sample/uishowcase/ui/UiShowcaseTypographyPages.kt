@@ -11,9 +11,9 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.layouts.row
+import io.github.ronjunevaldoz.awake.ui.layouts.spacer
+import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier

@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDrop
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier

@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.secti
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.padding

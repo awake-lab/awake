@@ -11,8 +11,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer as extSpacer
-import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface as extSurface
+import io.github.ronjunevaldoz.awake.ui.layouts.spacer as extSpacer
+import io.github.ronjunevaldoz.awake.ui.layouts.surface as extSurface
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
