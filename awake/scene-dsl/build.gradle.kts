@@ -36,11 +36,12 @@ kotlin {
         commonMain.dependencies {
             api(project(":awake:scene"))
             api(project(":awake:engine:game-dsl"))
-            api(project(":awake:engine:ui-dsl"))
+            api(project(":awake:engine:ui-core"))
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(project(":awake:base"))
+            implementation(project(":awake:engine:ui-unstyled"))
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }

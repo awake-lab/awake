@@ -65,7 +65,6 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":awake:base"))
             implementation(project(":awake:engine:ui-core"))
-            implementation(project(":awake:engine:ui-dsl"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
