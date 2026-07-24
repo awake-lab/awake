@@ -29,6 +29,25 @@ These are placement rules, not style preferences.
    params handed to widget code) must use `UiBounds` instead. See
    `docs/tasks/2026-07-24-uislot-narrowing.md` for the migration in progress.
 
+## Unstyled/Designsystem Content Pairing
+
+Concrete rule for what belongs in each module, beyond "generic" vs "branded":
+
+- Every reusable leaf widget in `ui-unstyled` gets a bare, unbranded name (`checkbox`, `button`,
+  `slider`, `dropdown`, ...) and carries zero style opinion -- callers must supply a `Style`/theme
+  for it to look like anything.
+- `ui-designsystem` provides exactly one themed wrapper per `ui-unstyled` widget it recipes,
+  named `awakeShadcn<Widget>` (brand prefix + the same widget name, e.g. `checkbox` ->
+  `awakeShadcnCheckbox`). That wrapper's only job is supplying the brand's `Style`/theme
+  defaults on top of the existing `ui-unstyled` widget -- it must not add new structural or
+  behavioral logic the underlying widget doesn't already have. If a wrapper needs real new
+  logic, that logic belongs in `ui-unstyled` (generic) or `ui-dsl` (composition), not smuggled
+  into the wrapper.
+- `ui-designsystem` may also own branded *compositions* that don't map to a single
+  `ui-unstyled` widget (`dialog`, `dropdownMenu`, `alertDialog`, `tabs`,
+  `awakeShadcnPropertyDropdown`, ...) when the composition itself is brand-opinionated. The
+  same composition with no brand opinion belongs in `ui-dsl` instead (Hard Rule 3).
+
 ## Module Responsibilities
 
 | Module | Responsibility | Examples |
