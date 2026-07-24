@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.core.graphics.animation.animatedHeight
-import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -24,10 +24,10 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 /**
  * Real shadcn's `Collapsible` (and `Accordion`, a group of these with only one open at a
  * time -- caller-composed by tracking which id is expanded, same as
- * [awakeShadcnRadioGroup]'s single-select): a clickable header toggles [expanded].
+ * [shadcnRadioGroup]'s single-select): a clickable header toggles [expanded].
  * Now includes animated height transition.
  */
-fun ColumnScope.awakeShadcnCollapsible(
+fun ColumnScope.shadcnCollapsible(
     id: String,
     title: String,
     expanded: Boolean,
@@ -35,7 +35,7 @@ fun ColumnScope.awakeShadcnCollapsible(
     onExpandedChange: (Boolean) -> Unit = {},
     content: ColumnScope.() -> Unit
 ): Boolean {
-    val shadcnTheme = theme.asAwakeShadcnTheme()
+    val shadcnTheme = theme.asShadcnTheme()
     val trigger = buttonSlot(
         id = "$id.header",
         modifier = modifier.fillMaxWidth()

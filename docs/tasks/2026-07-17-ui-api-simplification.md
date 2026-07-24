@@ -36,7 +36,7 @@ Three different things, easy to conflate under "get rid of slots":
 
 - **Slot API (keep, everywhere, including base components) -- a composition pattern, not a
   type.** Components take their content as lambda parameters -- a trailing `content: Scope.()
-  -> Unit`, or named slots like `awakeShadcnSectionHeader(title = { ... }, description = { ...
+  -> Unit`, or named slots like `shadcnSectionHeader(title = { ... }, description = { ...
   })`. This is unrelated to the `UiSlot` class; it's about *how content is composed into a
   component*, the same shape as Compose's slot API. `ui-unstyled`/`ui-designsystem` base
   components must **not** be decoupled from this -- don't replace slot-lambda composition with
@@ -102,7 +102,7 @@ data, not something a caller constructs by hand at the root.
   `UiShape.md`/`UiShape.none` defaults into the merged style so unstyled callers are unaffected;
   migrated `rawSurface`'s `gap` to `verticalArrangement`. Migrated the 8 real external
   overriding call sites (`PanelTest.kt`, `UiSnapshotFixtures.kt`, `UiDslTutorialDocsTest.kt`,
-  `AwakeShadcnFields.kt`, `tooltip.kt`, `dropdownMenu.kt`, `Column.kt`) onto
+  `ShadcnFields.kt`, `tooltip.kt`, `dropdownMenu.kt`, `Column.kt`) onto
   `style = Style { shape(...); borderWidth(...) }` / `Arrangement.spacedBy(...)`. Verified zero
   regressions (identical desktopTest failure counts to baseline).
 
@@ -166,7 +166,7 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 
 - [ ] Keep themes, presets, tokens, and branded recipes here.
 - [x] Deprecate float width/height convenience overloads on branded components. Deleted outright (badges/buttons/fields/property controls) rather than deprecated, since this API isn't published yet.
-- [x] Collapse duplicated `UiScope` and `UiDslScope` wrapper logic behind shared internals where possible. The real duplication was the 16+ Float/Dp width-height overload pairs, already deleted. What remains (`awakeShadcnToggle`/`Checkbox`/`Slider`, 3 pairs of identical 5-line bodies differing only by receiver type) has no shared interface between `UiScope`/`UiDslScope` to hang a collapse on; not worth inventing one for three 5-line functions. `awakeShadcnDropdown`'s two variants are genuinely different implementations, not duplication.
+- [x] Collapse duplicated `UiScope` and `UiDslScope` wrapper logic behind shared internals where possible. The real duplication was the 16+ Float/Dp width-height overload pairs, already deleted. What remains (`shadcnToggle`/`Checkbox`/`Slider`, 3 pairs of identical 5-line bodies differing only by receiver type) has no shared interface between `UiScope`/`UiDslScope` to hang a collapse on; not worth inventing one for three 5-line functions. `shadcnDropdown`'s two variants are genuinely different implementations, not duplication.
 - [x] Keep modifier-first and slot-based APIs as the canonical public surface. All branded components are modifier-based only after the Float-overload deletion pass.
 - [ ] Keep named themes here, not in `ui-core`.
 

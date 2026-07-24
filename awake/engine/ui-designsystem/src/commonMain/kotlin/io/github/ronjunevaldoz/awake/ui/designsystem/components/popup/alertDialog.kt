@@ -4,10 +4,10 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonSize
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -26,8 +26,8 @@ fun UiScope.alertDialog(
     width: Dimension = Dimension.Fixed(320f.dp),
     confirmLabel: String = "Confirm",
     dismissLabel: String? = "Cancel",
-    confirmVariant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
-    dismissVariant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Outline,
+    confirmVariant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
+    dismissVariant: ShadcnButtonVariant = ShadcnButtonVariant.Outline,
     confirmStyle: Style = Style.Empty,
     dismissStyle: Style = Style.Empty,
     properties: UiDialogProperties = UiDialogProperties(),
@@ -46,12 +46,12 @@ fun UiScope.alertDialog(
             // Standard action row
             dismissLabel?.let { label ->
                 if (
-                    awakeShadcnButton(
+                    shadcnButton(
                         id = "$id.dismiss",
                         label = label,
                         modifier = Modifier.width(88f.dp),
                         variant = dismissVariant,
-                        size = AwakeShadcnButtonSize.Sm,
+                        size = ShadcnButtonSize.Sm,
                         style = dismissStyle
                     )
                 ) {
@@ -60,12 +60,12 @@ fun UiScope.alertDialog(
             }
             spacer(Modifier.width(8f.dp))
             if (
-                awakeShadcnButton(
+                shadcnButton(
                     id = "$id.confirm",
                     label = confirmLabel,
                     modifier = Modifier.width(88f.dp),
                     variant = confirmVariant,
-                    size = AwakeShadcnButtonSize.Sm,
+                    size = ShadcnButtonSize.Sm,
                     style = confirmStyle
                 )
             ) {

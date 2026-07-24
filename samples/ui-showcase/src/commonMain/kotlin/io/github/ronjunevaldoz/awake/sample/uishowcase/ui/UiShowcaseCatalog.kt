@@ -4,16 +4,16 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnAccent
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnBaseColor
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 
 internal typealias ShowcasePreviewRenderer = ColumnScope.(UiShowcaseRuntimeState) -> Unit
 
-internal val ShowcaseStyleOptions = AwakeShadcnStylePreset.entries.map { it.label }
-internal val ShowcaseBaseColorOptions = AwakeShadcnBaseColor.entries.map { it.label }
-internal val ShowcaseAccentOptions = AwakeShadcnAccent.entries.map { it.label }
+internal val ShowcaseStyleOptions = ShadcnStylePreset.entries.map { it.label }
+internal val ShowcaseBaseColorOptions = ShadcnBaseColor.entries.map { it.label }
+internal val ShowcaseAccentOptions = ShadcnAccent.entries.map { it.label }
 internal val ShowcaseThemeModeOptions = UiShowcaseThemeMode.entries.map { it.label }
 internal val ShowcaseBadgeOptions = listOf("Primary", "Secondary", "Outline", "Danger")
 
@@ -45,7 +45,7 @@ internal val ShowcasePages = listOf(
         description = "A dedicated catalog sample for owned Awake UI components instead of a one-off demo page.",
         usageCode = """
             gameUi {
-                theme(awakeShadcnTheme())
+                theme(shadcnTheme())
                 overlay { width, height ->
                     drawUiShowcaseOverlay(state, width, height)
                 }
@@ -64,18 +64,18 @@ internal val ShowcasePages = listOf(
         category = ShowcaseCategory.GettingStarted,
         description = "A side-by-side checkpoint for the official shadcn cues we are trying to match.",
         usageCode = """
-            awakeShadcnButton(
+            shadcnButton(
                 id = "primary",
                 label = "Primary",
                 modifier = Modifier.width(120f.dp).height(36f.dp)
             )
-            awakeShadcnDropdown(
+            shadcnDropdown(
                 id = "style",
                 options = options,
                 selectedIndex = 0,
                 modifier = Modifier.width(128f.dp)
             )
-            awakeShadcnSurface("card", variant = AwakeShadcnSurfaceVariant.Card) { ... }
+            shadcnSurface("card", variant = ShadcnSurfaceVariant.Card) { ... }
         """.trimIndent(),
         notes = listOf(
             "The point is visual calibration, not pixel-perfect cloning.",
@@ -89,10 +89,10 @@ internal val ShowcasePages = listOf(
         category = ShowcaseCategory.GettingStarted,
         description = "Live preset, base color, accent, and dark mode controls feeding the same public Awake theme factory.",
         usageCode = """
-            val theme = awakeShadcnTheme(
-                preset = AwakeShadcnStylePreset.Vega,
-                baseColor = AwakeShadcnBaseColor.Neutral,
-                accent = AwakeShadcnAccent.Base,
+            val theme = shadcnTheme(
+                preset = ShadcnStylePreset.Vega,
+                baseColor = ShadcnBaseColor.Neutral,
+                accent = ShadcnAccent.Base,
                 dark = true
             )
         """.trimIndent(),
@@ -191,13 +191,13 @@ internal val ShowcasePages = listOf(
         category = ShowcaseCategory.Inputs,
         description = "Core action and status components with tighter sizing and the current shadcn-style variants.",
         usageCode = """
-            awakeShadcnButton(
+            shadcnButton(
                 id = "save",
                 label = "Save",
                 modifier = Modifier.width(120f.dp).height(36f.dp),
-                variant = AwakeShadcnButtonVariant.Primary
+                variant = ShadcnButtonVariant.Primary
             )
-            awakeShadcnBadge("LIVE", variant = AwakeShadcnBadgeVariant.Secondary)
+            shadcnBadge("LIVE", variant = ShadcnBadgeVariant.Secondary)
         """.trimIndent(),
         notes = listOf(
             "These are the first controls that reveal whether spacing and typography feel right.",
@@ -212,7 +212,7 @@ internal val ShowcasePages = listOf(
         description = "A real, typeable single-line field -- click to focus, type, backspace, and use the arrow keys to move the cursor.",
         usageCode = """
             var name by remember { "" }
-            name = awakeShadcnTextField(
+            name = shadcnTextField(
                 id = "name",
                 value = name,
                 placeholder = "Jane Doe",
@@ -232,7 +232,7 @@ internal val ShowcasePages = listOf(
         description = "A continuous-value control that keeps value labels, track fill, and thumb placement aligned under the same shadcn recipe.",
         usageCode = """
             var exposure by rememberStateValue("scene", "exposure") { 52f }
-            exposure = awakeShadcnSlider(
+            exposure = shadcnSlider(
                 id = "exposure",
                 min = 0f,
                 max = 100f,
@@ -254,7 +254,7 @@ internal val ShowcasePages = listOf(
         description = "The current Awake-owned binary selection controls, shown as reusable pieces while radio and tabs remain future work.",
         usageCode = """
             var wireframe by rememberStateValue("scene", "wireframe") { true }
-            wireframe = awakeShadcnToggle(
+            wireframe = shadcnToggle(
                 id = "wireframe",
                 checked = wireframe,
                 label = "Wireframe overlay",
@@ -262,7 +262,7 @@ internal val ShowcasePages = listOf(
             )
 
             var stats by rememberStateValue("scene", "stats") { false }
-            stats = awakeShadcnCheckbox(
+            stats = shadcnCheckbox(
                 id = "stats",
                 checked = stats,
                 label = "Scene statistics",
@@ -355,14 +355,14 @@ internal val ShowcasePages = listOf(
         description = "A reusable clipped container that owns scrolling, thumb placement, and viewport measurement instead of pushing that work to each sample.",
         usageCode = """
             val scrollState = rememberStateValue("inspector", "scroll") { UiScrollState() }
-            awakeShadcnScrollSurface(
+            shadcnScrollSurface(
                 id = "inspector",
                 width = Dimension.Fixed(420f.dp),
                 height = Dimension.Fixed(176f.dp),
                 state = scrollState.value
             ) { _ ->
                 repeat(10) { index ->
-                    awakeShadcnButton(
+                    shadcnButton(
                         id = "row-${'$'}index",
                         label = "Inspector row ${'$'}{index + 1}",
                         modifier = Modifier.width(360f.dp).height(32f.dp)
@@ -383,7 +383,7 @@ internal val ShowcasePages = listOf(
         description = "An interactive disclosure panel that toggles visibility of its content with an animated height transition.",
         usageCode = """
             var expanded by remember { false }
-            awakeShadcnCollapsible(
+            shadcnCollapsible(
                 id = "my-panel",
                 title = "Show more",
                 expanded = expanded,
@@ -405,7 +405,7 @@ internal val ShowcasePages = listOf(
         category = ShowcaseCategory.Animations,
         description = "A sweeping highlight animation for loading states.",
         usageCode = """
-            awakeShadcnText(
+            shadcnText(
                 label = "Generating response...",
                 muted = true,
                 modifier = Modifier.shadcnShimmer()

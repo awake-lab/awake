@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun ColumnScope.drawUiShowcaseSlotApiPreview() {
-    awakeShadcnSupportingText("The label-string overload is sugar over this content-lambda form -- there is no capability gap between them.")
+    shadcnSupportingText("The label-string overload is sugar over this content-lambda form -- there is no capability gap between them.")
     spacer(Modifier.height(8f.dp))
     buttonSlot(
         id = "slot-api-launch",
@@ -29,5 +29,5 @@ internal fun ColumnScope.drawUiShowcaseSlotApiPreview() {
         text("Launch", modifier = Modifier.offset(x = 32f.dp), style = labelSize)
     }
     spacer(Modifier.height(16f.dp))
-    awakeShadcnSupportingText("samples:hello-cube's Gauge.kt is a fully custom widget built from the same claimSlot()/emit() primitives a built-in widget uses -- no library-only capability gap.")
+    shadcnSupportingText("samples:hello-cube's Gauge.kt is a fully custom widget built from the same claimSlot()/emit() primitives a built-in widget uses -- no library-only capability gap.")
 }

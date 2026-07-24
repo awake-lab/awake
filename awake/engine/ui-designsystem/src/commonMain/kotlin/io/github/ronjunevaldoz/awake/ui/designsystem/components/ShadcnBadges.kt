@@ -7,10 +7,10 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTransparent
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTransparent
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -24,32 +24,32 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** Real shadcn's `Badge`: an inline status pill -- defaults to Secondary, but
- * [AwakeShadcnBadgeVariant] covers all semantic variants (Primary, Secondary, Outline,
+ * [ShadcnBadgeVariant] covers all semantic variants (Primary, Secondary, Outline,
  * Destructive). */
-fun UiScope.awakeShadcnBadge(
+fun UiScope.shadcnBadge(
     label: String,
     modifier: UiModifier = Modifier,
-    variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
+    variant: ShadcnBadgeVariant = ShadcnBadgeVariant.Secondary,
     style: Style = Style.Empty
 ): UiSlot = text(
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.badge(theme.asAwakeShadcnTheme(), variant) then AwakeShadcnStyles.badgeContent(theme.asAwakeShadcnTheme()) then style,
+    style = ShadcnStyles.badge(theme.asShadcnTheme(), variant) then ShadcnStyles.badgeContent(theme.asShadcnTheme()) then style,
     centered = true
 )
 
-/** Full-slot [awakeShadcnBadge] override for when the caller already owns the [width] and
+/** Full-slot [shadcnBadge] override for when the caller already owns the [width] and
  * [height] intent (e.g. from an absolute-anchored HUD corner). */
-fun UiScope.awakeShadcnBadge(
+fun UiScope.shadcnBadge(
     label: String,
     width: Dimension,
     height: Dimension,
     modifier: UiModifier = Modifier,
-    variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
+    variant: ShadcnBadgeVariant = ShadcnBadgeVariant.Secondary,
     style: Style = Style.Empty
 ): UiSlot {
-    val shadcnTheme = theme.asAwakeShadcnTheme()
-    val resolved = resolveStyle(style = style, defaults = AwakeShadcnStyles.badge(shadcnTheme, variant))
+    val shadcnTheme = theme.asShadcnTheme()
+    val resolved = resolveStyle(style = style, defaults = ShadcnStyles.badge(shadcnTheme, variant))
     val resolvedFont = font
     val glyphPx = resolveGlyphPx(resolvedFont, resolved.textStyle)
     val resolvedWidth = when (width) {
@@ -66,7 +66,7 @@ fun UiScope.awakeShadcnBadge(
     val slot = claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
     emitFillAndBorder(
         slot = slot,
-        fillColor = resolved.background ?: AwakeShadcnTransparent,
+        fillColor = resolved.background ?: ShadcnTransparent,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
         borderColor = resolved.borderColor ?: shadcnTheme.tokens.border
@@ -83,14 +83,14 @@ fun UiScope.awakeShadcnBadge(
 }
 
 /** Real shadcn's `Kbd`: an inline key-cap label, same "measure text, draw a box, draw the
- * label" mechanics as [awakeShadcnBadge] with a different (sm-radius, muted) style. */
-fun UiScope.awakeShadcnKbd(
+ * label" mechanics as [shadcnBadge] with a different (sm-radius, muted) style. */
+fun UiScope.shadcnKbd(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): UiSlot = text(
     label = label,
     modifier = modifier,
-    style = AwakeShadcnStyles.kbd(theme.asAwakeShadcnTheme()) then style,
+    style = ShadcnStyles.kbd(theme.asShadcnTheme()) then style,
     centered = true
 )

@@ -7,10 +7,10 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.childBox
-import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonSize
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -21,25 +21,25 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-private fun UiModifier.withShadcnSize(size: AwakeShadcnButtonSize): UiModifier =
+private fun UiModifier.withShadcnSize(size: ShadcnButtonSize): UiModifier =
     if (height == null) height(size.heightDp.dp) else this
 
-private fun awakeShadcnButtonStyle(
+private fun shadcnButtonStyle(
     theme: UiTheme,
-    variant: AwakeShadcnButtonVariant,
+    variant: ShadcnButtonVariant,
     style: Style
-): Style = AwakeShadcnStyles.button(theme.asAwakeShadcnTheme(), variant) then style
+): Style = ShadcnStyles.button(theme.asShadcnTheme(), variant) then style
 
 /** 
  * Shadcn button with a simple text label.
  * Returns true if clicked this frame (standard IMGUI pattern).
  */
-fun UiScope.awakeShadcnButton(
+fun UiScope.shadcnButton(
     id: String,
     label: String,
     modifier: UiModifier = Modifier,
-    variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
-    size: AwakeShadcnButtonSize = AwakeShadcnButtonSize.Md,
+    variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
+    size: ShadcnButtonSize = ShadcnButtonSize.Md,
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
@@ -49,9 +49,9 @@ fun UiScope.awakeShadcnButton(
         id = id,
         label = label,
         modifier = modifier.withShadcnSize(size),
-        style = awakeShadcnButtonStyle(theme, variant, style),
+        style = shadcnButtonStyle(theme, variant, style),
         variant = variant.toUiButtonVariant(),
-        radius = theme.asAwakeShadcnTheme().radii.lg,
+        radius = theme.asShadcnTheme().radii.lg,
         centered = centered,
         verticallyCentered = verticallyCentered
     ).clicked
@@ -63,24 +63,24 @@ fun UiScope.awakeShadcnButton(
  * Shadcn button with a Compose-style Slot API.
  * The [content] lambda receives a [BoxScope], allowing arbitrary layouts inside the button.
  */
-fun UiScope.awakeShadcnButton(
+fun UiScope.shadcnButton(
     id: String,
     modifier: UiModifier = Modifier,
-    variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
-    size: AwakeShadcnButtonSize = AwakeShadcnButtonSize.Md,
+    variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
+    size: ShadcnButtonSize = ShadcnButtonSize.Md,
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
     onClick: (() -> Unit)? = null,
     content: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
-    val buttonStyle = awakeShadcnButtonStyle(theme, variant, style)
+    val buttonStyle = shadcnButtonStyle(theme, variant, style)
     val result = buttonSlot(
         id = id,
         modifier = modifier.withShadcnSize(size),
         style = buttonStyle,
         variant = variant.toUiButtonVariant(),
-        radius = theme.asAwakeShadcnTheme().radii.lg
+        radius = theme.asShadcnTheme().radii.lg
     ) { contentSlot ->
         val alignment = when {
             centered && verticallyCentered -> UiAlignment.Center
@@ -95,8 +95,8 @@ fun UiScope.awakeShadcnButton(
     return result.clicked
 }
 
-private fun AwakeShadcnButtonVariant.toUiButtonVariant(): UiButtonVariant = when (this) {
-    AwakeShadcnButtonVariant.Outline -> UiButtonVariant.Outline
-    AwakeShadcnButtonVariant.Ghost -> UiButtonVariant.Ghost
+private fun ShadcnButtonVariant.toUiButtonVariant(): UiButtonVariant = when (this) {
+    ShadcnButtonVariant.Outline -> UiButtonVariant.Outline
+    ShadcnButtonVariant.Ghost -> UiButtonVariant.Ghost
     else -> UiButtonVariant.Filled
 }

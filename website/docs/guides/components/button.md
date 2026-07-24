@@ -1,13 +1,13 @@
 # Button
 
-The `awakeShadcnButton` component provides a versatile slot-based button.
+The `shadcnButton` component provides a versatile slot-based button.
 
 ## Usage
 
 ```kotlin
-awakeShadcnButton(
+shadcnButton(
     onClick = { println("Clicked!") },
-    variant = AwakeShadcnButtonVariant.Primary
+    variant = ShadcnButtonVariant.Primary
 ) {
     text("Click Me")
 }

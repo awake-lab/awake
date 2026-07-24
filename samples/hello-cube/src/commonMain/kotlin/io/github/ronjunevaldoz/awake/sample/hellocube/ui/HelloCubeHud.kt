@@ -7,11 +7,11 @@ import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeOverlayModel
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.metaText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -39,7 +39,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
                     end = if (constraints.isCompact) 16f.dp else 40f.dp,
                     bottom = 0f.dp
                 )).copy(width = panelWidth, height = Dimension.WrapContent)) {
-            awakeShadcnBadge("HELLO CUBE", variant = AwakeShadcnBadgeVariant.Primary)
+            shadcnBadge("HELLO CUBE", variant = ShadcnBadgeVariant.Primary)
             sectionTitle("Scene")
             metaText("SCENE: ${model.sceneName}")
             metaText("MODE: ${model.modeLabel}")
@@ -56,7 +56,7 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
                     end = if (constraints.isCompact) 16f.dp else 0f.dp,
                     bottom = 12f.dp
                 )).copy(width = debugWidth, height = Dimension.WrapContent)) {
-            awakeShadcnBadge("DEBUG", variant = AwakeShadcnBadgeVariant.Outline)
+            shadcnBadge("DEBUG", variant = ShadcnBadgeVariant.Outline)
             sectionTitle("Runtime")
             supportingLines(model.debugLines)
         }

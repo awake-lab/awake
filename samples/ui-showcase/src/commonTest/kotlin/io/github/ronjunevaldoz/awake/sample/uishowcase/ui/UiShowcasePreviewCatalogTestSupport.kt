@@ -13,24 +13,24 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnCheckbox
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnDropdown
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionHeader
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextField
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -472,17 +472,17 @@ private fun renderUiShowcaseCardPreviewFrame(
                 .height((metadata.rasterHeight.toFloat() - insetPx * 2f).dp),
             verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp)
         ) {
-            awakeShadcnSurface(
+            shadcnSurface(
                 id = "ui-showcase-preview-$surfaceId",
-                variant = AwakeShadcnSurfaceVariant.Card,
+                variant = ShadcnSurfaceVariant.Card,
                 style = Style { shape(16f.dp) },
                 modifier = Modifier.copy(
                     width = Dimension.FillMax,
                     height = Dimension.WrapContent
                 )
             ) {
-                awakeShadcnBadge(badge, variant = AwakeShadcnBadgeVariant.Outline)
-                awakeShadcnSectionHeader(
+                shadcnBadge(badge, variant = ShadcnBadgeVariant.Outline)
+                shadcnSectionHeader(
                     title = title,
                     description = summary
                 )
@@ -505,49 +505,49 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
         horizontalArrangement = Arrangement.spacedBy(10f.dp),
         modifier = Modifier.height(36f.dp)
     ) {
-        awakeShadcnButton(
+        shadcnButton(
             id = "showcase-matrix-button-primary",
             label = "Primary",
             modifier = Modifier.width(120f.px).height(36f.dp),
-            variant = AwakeShadcnButtonVariant.Primary
+            variant = ShadcnButtonVariant.Primary
         )
-        awakeShadcnButton(
+        shadcnButton(
             id = "showcase-matrix-button-secondary",
             label = "Secondary",
             modifier = Modifier.width(120f.px).height(36f.dp),
-            variant = AwakeShadcnButtonVariant.Secondary
+            variant = ShadcnButtonVariant.Secondary
         )
-        awakeShadcnButton(
+        shadcnButton(
             id = "showcase-matrix-button-outline",
             label = "Outline",
             modifier = Modifier.width(112f.px).height(36f.dp),
-            variant = AwakeShadcnButtonVariant.Outline
+            variant = ShadcnButtonVariant.Outline
         )
     }
     row(
         horizontalArrangement = Arrangement.spacedBy(10f.dp),
         modifier = Modifier.copy(height = 36f.dp.toDimension())
     ) {
-        awakeShadcnButton(
+        shadcnButton(
             id = "showcase-matrix-button-ghost",
             label = "Ghost",
             modifier = Modifier.width(100f.px).height(36f.dp),
-            variant = AwakeShadcnButtonVariant.Ghost
+            variant = ShadcnButtonVariant.Ghost
         )
-        awakeShadcnButton(
+        shadcnButton(
             id = "showcase-matrix-button-danger",
             label = "Danger",
             modifier = Modifier.width(108f.px).height(36f.dp),
-            variant = AwakeShadcnButtonVariant.Danger
+            variant = ShadcnButtonVariant.Danger
         )
-        awakeShadcnButton(
+        shadcnButton(
             id = "showcase-matrix-button-long",
             label = "Primary action with a long label",
             modifier = Modifier.width(248f.px).height(36f.dp),
-            variant = AwakeShadcnButtonVariant.Primary
+            variant = ShadcnButtonVariant.Primary
         )
     }
-    awakeShadcnSupportingText("This matrix is the quick read for control height, horizontal padding, and long-label fit.")
+    shadcnSupportingText("This matrix is the quick read for control height, horizontal padding, and long-label fit.")
 }
 
 private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
@@ -555,13 +555,13 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
         modifier = Modifier.copy(height = 36f.dp.toDimension())
     ) {
-        awakeShadcnTextField(
+        shadcnTextField(
             id = "showcase-matrix-field-empty",
             value = "",
             placeholder = "Placeholder",
             modifier = Modifier.width(200f.px).height(36f.dp)
         )
-        awakeShadcnTextField(
+        shadcnTextField(
             id = "showcase-matrix-field-focused",
             value = "Typed text",
             modifier = Modifier.width(200f.px).height(36f.dp)
@@ -571,13 +571,13 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
         modifier = Modifier.copy(height = 36f.dp.toDimension())
     ) {
-        awakeShadcnDropdown(
+        shadcnDropdown(
             id = "showcase-matrix-dropdown-theme",
             options = listOf("Light", "Dark", "Auto"),
             selectedIndex = 0,
             modifier = Modifier.width(200f.px)
         )
-        awakeShadcnDropdown(
+        shadcnDropdown(
             id = "showcase-matrix-dropdown-accent",
             options = listOf("Base", "Blue", "Emerald"),
             selectedIndex = 1,
@@ -588,13 +588,13 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
         horizontalArrangement = Arrangement.spacedBy(16f.dp),
         modifier = Modifier.copy(height = 24f.dp.toDimension())
     ) {
-        awakeShadcnToggle(
+        shadcnToggle(
             id = "showcase-matrix-toggle-off",
             checked = false,
             label = "Off",
             modifier = Modifier.width(120f.px).height(24f.px)
         )
-        awakeShadcnToggle(
+        shadcnToggle(
             id = "showcase-matrix-toggle-on",
             checked = true,
             label = "On",
@@ -605,13 +605,13 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
         horizontalArrangement = Arrangement.spacedBy(16f.dp),
         modifier = Modifier.copy(height = 24f.dp.toDimension())
     ) {
-        awakeShadcnCheckbox(
+        shadcnCheckbox(
             id = "showcase-matrix-checkbox-off",
             checked = false,
             label = "Unchecked",
             modifier = Modifier.width(180f.px).height(24f.px)
         )
-        awakeShadcnCheckbox(
+        shadcnCheckbox(
             id = "showcase-matrix-checkbox-on",
             checked = true,
             label = "Checked",
@@ -621,9 +621,9 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
 }
 
 private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
-    awakeShadcnSupportingText("Sliders catch subtle spacing bugs quickly because thumb, fill, and label alignment drift together.")
+    shadcnSupportingText("Sliders catch subtle spacing bugs quickly because thumb, fill, and label alignment drift together.")
     spacer(Modifier.height(8f.dp))
-    awakeShadcnSlider(
+    shadcnSlider(
         id = "showcase-matrix-slider-low",
         min = 0f,
         max = 100f,
@@ -631,7 +631,7 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
         label = "Exposure 12%",
         modifier = Modifier.width(360f.px).height(32f.px)
     )
-    awakeShadcnSlider(
+    shadcnSlider(
         id = "showcase-matrix-slider-mid",
         min = 0f,
         max = 100f,
@@ -639,7 +639,7 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
         label = "Exposure 52%",
         modifier = Modifier.width(360f.px).height(32f.px)
     )
-    awakeShadcnSlider(
+    shadcnSlider(
         id = "showcase-matrix-slider-high",
         min = 0f,
         max = 100f,
@@ -650,7 +650,7 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
 }
 
 private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
-    awakeShadcnSupportingText(
+    shadcnSupportingText(
         "This preview intentionally renders the menu in its expanded state so row spacing and popover chrome are reviewable in docs."
     )
     spacer(Modifier.height(8f.dp))
@@ -675,17 +675,17 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
             style = Style { contentPadding(4f.dp) }
         )
-        awakeShadcnButton(
+        shadcnButton(
             id = "showcase-matrix-dropdown-secondary",
             label = "Secondary",
             modifier = Modifier.width(132f.px).height(36f.dp),
-            variant = AwakeShadcnButtonVariant.Outline
+            variant = ShadcnButtonVariant.Outline
         )
     }
 }
 
 private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
-    awakeShadcnSupportingText("A tooltip is a tiny overlay, but it still needs proper container chrome, spacing, and wrap behavior.")
+    shadcnSupportingText("A tooltip is a tiny overlay, but it still needs proper container chrome, spacing, and wrap behavior.")
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
@@ -710,25 +710,25 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
                 maxLines = 3
             )
         }
-        awakeShadcnButton(
+        shadcnButton(
             id = "showcase-matrix-tooltip-secondary",
             label = "Reference",
             modifier = Modifier.width(120f.dp).height(36f.dp),
-            variant = AwakeShadcnButtonVariant.Secondary
+            variant = ShadcnButtonVariant.Secondary
         )
     }
 }
 
 private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
-    awakeShadcnSupportingText(
+    shadcnSupportingText(
         "The dialog is rendered open on purpose so title wrapping, message rhythm, scrim color, and action widths can be checked without live interaction."
     )
     spacer(Modifier.height(8f.dp))
-    awakeShadcnButton(
+    shadcnButton(
         id = "showcase-matrix-dialog-trigger",
         label = "Open Dialog",
         modifier = Modifier.width(140f.px).height(36f.dp),
-        variant = AwakeShadcnButtonVariant.Outline
+        variant = ShadcnButtonVariant.Outline
     )
     alertDialog(
         id = "showcase-matrix-alert-dialog",
@@ -742,7 +742,7 @@ private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
 
 private fun ColumnScope.drawUiShowcaseScrollPanelContent() {
     val scrollState = UiScrollState(initialOffsetY = 34f)
-    awakeShadcnSupportingText("This static proof starts partially scrolled so viewport clipping and the scrollbar thumb are visible immediately.")
+    shadcnSupportingText("This static proof starts partially scrolled so viewport clipping and the scrollbar thumb are visible immediately.")
     spacer(Modifier.height(8f.dp))
     scrollPanel(
         id = "showcase-matrix-scroll-panel",
@@ -753,11 +753,11 @@ private fun ColumnScope.drawUiShowcaseScrollPanelContent() {
         style = Style { shape(14f.dp) }
     ) {
         repeat(8) { index ->
-            awakeShadcnButton(
+            shadcnButton(
                 id = "showcase-matrix-scroll-item-$index",
                 label = "Scene action row ${index + 1}",
                 modifier = Modifier.width(360f.px).height(32f.px),
-                variant = if (index % 2 == 0) AwakeShadcnButtonVariant.Outline else AwakeShadcnButtonVariant.Ghost
+                variant = if (index % 2 == 0) ShadcnButtonVariant.Outline else ShadcnButtonVariant.Ghost
             )
         }
     }

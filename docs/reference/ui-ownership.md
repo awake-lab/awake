@@ -37,15 +37,15 @@ Concrete rule for what belongs in each module, beyond "generic" vs "branded":
   `slider`, `dropdown`, ...) and carries zero style opinion -- callers must supply a `Style`/theme
   for it to look like anything.
 - `ui-designsystem` provides exactly one themed wrapper per `ui-unstyled` widget it recipes,
-  named `awakeShadcn<Widget>` (brand prefix + the same widget name, e.g. `checkbox` ->
-  `awakeShadcnCheckbox`). That wrapper's only job is supplying the brand's `Style`/theme
+  named `shadcn<Widget>` (brand prefix + the same widget name, e.g. `checkbox` ->
+  `shadcnCheckbox`). That wrapper's only job is supplying the brand's `Style`/theme
   defaults on top of the existing `ui-unstyled` widget -- it must not add new structural or
   behavioral logic the underlying widget doesn't already have. If a wrapper needs real new
   logic, that logic belongs in `ui-unstyled` (generic) or `ui-dsl` (composition), not smuggled
   into the wrapper.
 - `ui-designsystem` may also own branded *compositions* that don't map to a single
   `ui-unstyled` widget (`dialog`, `dropdownMenu`, `alertDialog`, `tabs`,
-  `awakeShadcnPropertyDropdown`, ...) when the composition itself is brand-opinionated. The
+  `shadcnPropertyDropdown`, ...) when the composition itself is brand-opinionated. The
   same composition with no brand opinion belongs in `ui-dsl` instead (Hard Rule 3).
 
 ## Module Responsibilities
@@ -98,9 +98,9 @@ Where a color/token comes from depends on the module:
   true in practice -- `ui-unstyled` has zero raw `Color(...)` call sites.
 - `ui-designsystem` owns every named/branded theme and is the only module allowed to hardcode
   `Color(...)`/`Color.fromOklch(...)` literals, and only inside theme-definition files
-  (`AwakeShadcnTheme.kt`, `PresetUiThemes.kt`, `OklchColor.kt`) -- not inside individual
+  (`ShadcnTheme.kt`, `PresetUiThemes.kt`, `OklchColor.kt`) -- not inside individual
   component files, which should still read `theme.tokens.*` like everything else.
-- `samples:*` may reference a named theme (`AwakeShadcnTheme`, etc.) but must not hardcode
+- `samples:*` may reference a named theme (`ShadcnTheme`, etc.) but must not hardcode
   `Color(...)` for anything that a token already covers.
 
 ## Concrete Placement Examples
@@ -112,7 +112,7 @@ Where a color/token comes from depends on the module:
 | `CoreUiTheme`, `UiTheme`, `UiColorTokens` | `ui-core` | theme contract and neutral fallback only |
 | `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-dsl` | reusable compositions of primitives/widgets |
 | `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
-| `AwakeShadcnPanelStyle`, branded variants | `ui-designsystem` | visual opinion, not engine primitive |
+| `ShadcnPanelStyle`, branded variants | `ui-designsystem` | visual opinion, not engine primitive |
 | hardcoded `Color(...)` token values | `ui-designsystem` theme-definition files only | everywhere else reads `theme.tokens.*` |
 | `HelloCubeHud`, `SceneInspectorBindings`, demo overlays | sample/game module | runtime-bound authored usage |
 
@@ -191,7 +191,7 @@ this rule, only new/moved files must comply.
   `Skeleton`) stays at the top level of `unstyled/`.
 
 **`ui-designsystem`**
-- Every component file is prefixed with its brand name (`AwakeShadcn*` today). Components
+- Every component file is prefixed with its brand name (`Shadcn*` today). Components
   currently live flat under `components/` since only one brand exists -- not yet moved into a
   `components/shadcn/` subfolder, since there is nothing to disambiguate from yet. The rule for
   when a second named theme/brand is added: give it its own prefix + subfolder

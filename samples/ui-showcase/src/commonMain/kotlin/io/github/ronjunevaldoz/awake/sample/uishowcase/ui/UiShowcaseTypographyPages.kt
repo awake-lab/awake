@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -29,7 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun ColumnScope.drawUiShowcaseFontsPreview() {
-    awakeShadcnBadge("TYPOGRAPHY", variant = AwakeShadcnBadgeVariant.Outline)
+    shadcnBadge("TYPOGRAPHY", variant = ShadcnBadgeVariant.Outline)
     supportingLines(
         listOf(
             "The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly."
@@ -91,10 +91,10 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
         verticalArrangement = Arrangement.spacedBy(8f.dp),
         overlayOnly = emitsToOverlay
     )
-    specimenScope.awakeShadcnBadge(
+    specimenScope.shadcnBadge(
         label.uppercase(),
         modifier = Modifier.width(120f.dp).height(28f.dp),
-        variant = AwakeShadcnBadgeVariant.Outline
+        variant = ShadcnBadgeVariant.Outline
     )
     specimenScope.text(
         label = "Awake UI",

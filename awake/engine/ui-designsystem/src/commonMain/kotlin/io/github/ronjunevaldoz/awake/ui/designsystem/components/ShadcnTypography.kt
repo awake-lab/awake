@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -16,7 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** [sectionTitle] with Shadcn tokens. */
-fun ColumnScope.awakeShadcnSectionTitle(
+fun ColumnScope.shadcnSectionTitle(
     title: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
@@ -24,7 +24,7 @@ fun ColumnScope.awakeShadcnSectionTitle(
     title = title,
     modifier = modifier,
     style = Style {
-        val shadcnTheme = theme.asAwakeShadcnTheme()
+        val shadcnTheme = theme.asShadcnTheme()
         if (context.currentTextStyle.color == null) {
             foreground(shadcnTheme.tokens.foreground)
         }
@@ -33,7 +33,7 @@ fun ColumnScope.awakeShadcnSectionTitle(
 )
 
 /** Larger headline text using Shadcn tokens. */
-fun ColumnScope.awakeShadcnHeadline(
+fun ColumnScope.shadcnHeadline(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
@@ -41,7 +41,7 @@ fun ColumnScope.awakeShadcnHeadline(
     label = label,
     modifier = modifier,
     style = Style {
-        val shadcnTheme = theme.asAwakeShadcnTheme()
+        val shadcnTheme = theme.asShadcnTheme()
         if (context.currentTextStyle.color == null) {
             foreground(shadcnTheme.tokens.foreground)
         }
@@ -50,7 +50,7 @@ fun ColumnScope.awakeShadcnHeadline(
 )
 
 /**Standard body text using Shadcn tokens. */
-fun ColumnScope.awakeShadcnBodyText(
+fun ColumnScope.shadcnBodyText(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
@@ -59,7 +59,7 @@ fun ColumnScope.awakeShadcnBodyText(
     label = label,
     modifier = modifier,
     style = Style {
-        val shadcnTheme = theme.asAwakeShadcnTheme()
+        val shadcnTheme = theme.asShadcnTheme()
         if (context.currentTextStyle.color == null) {
             foreground(shadcnTheme.tokens.foreground)
         }
@@ -69,7 +69,7 @@ fun ColumnScope.awakeShadcnBodyText(
 )
 
 /** Muted caption/supporting text using Shadcn tokens. */
-fun ColumnScope.awakeShadcnSupportingText(
+fun ColumnScope.shadcnSupportingText(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
@@ -78,7 +78,7 @@ fun ColumnScope.awakeShadcnSupportingText(
     label = label,
     modifier = modifier,
     style = Style {
-        val shadcnTheme = theme.asAwakeShadcnTheme()
+        val shadcnTheme = theme.asShadcnTheme()
         if (context.currentTextStyle.color == null) {
             foreground(shadcnTheme.tokens.mutedForeground)
         }
@@ -88,7 +88,7 @@ fun ColumnScope.awakeShadcnSupportingText(
 )
 
 /** Generic shadcn text component with support for muted state and shimmer modifier. */
-fun UiScope.awakeShadcnText(
+fun UiScope.shadcnText(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
@@ -98,7 +98,7 @@ fun UiScope.awakeShadcnText(
     label = label,
     modifier = modifier,
     style = Style {
-        val shadcnTheme = theme.asAwakeShadcnTheme()
+        val shadcnTheme = theme.asShadcnTheme()
         if (muted) {
             foreground(shadcnTheme.tokens.mutedForeground)
         } else if (context.currentTextStyle.color == null) {
@@ -110,7 +110,7 @@ fun UiScope.awakeShadcnText(
 )
 
 /** Common section header layout (title + optional description). */
-fun ColumnScope.awakeShadcnSectionHeader(
+fun ColumnScope.shadcnSectionHeader(
     title: ColumnScope.() -> Unit,
     description: (ColumnScope.() -> Unit)? = null
 ) {
@@ -118,14 +118,14 @@ fun ColumnScope.awakeShadcnSectionHeader(
     description?.invoke(this)
 }
 
-/** Convenience [awakeShadcnSectionHeader] for plain string labels. */
-fun ColumnScope.awakeShadcnSectionHeader(
+/** Convenience [shadcnSectionHeader] for plain string labels. */
+fun ColumnScope.shadcnSectionHeader(
     title: String,
     description: String? = null,
     modifier: UiModifier = Modifier
-): Unit = awakeShadcnSectionHeader(
-    title = { awakeShadcnSectionTitle(title, modifier = modifier) },
+): Unit = shadcnSectionHeader(
+    title = { shadcnSectionTitle(title, modifier = modifier) },
     description = description?.takeIf { it.isNotBlank() }?.let { text ->
-        { awakeShadcnSupportingText(text) }
+        { shadcnSupportingText(text) }
     }
 )

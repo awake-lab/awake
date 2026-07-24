@@ -8,9 +8,9 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.UiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
-import io.github.ronjunevaldoz.awake.ui.designsystem.theme.AwakeShadcnMetrics
-import io.github.ronjunevaldoz.awake.ui.designsystem.theme.AwakeShadcnPalette
-import io.github.ronjunevaldoz.awake.ui.designsystem.theme.AwakeShadcnRadiusScale
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnPalette
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.layout.*
@@ -21,68 +21,68 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  * It proves Awake's public UI API is enough to host a branded layer without modifying
  * `ui-core` or `ui-unstyled`.
  *
- * The default singleton still exists for authored samples, while [awakeShadcnTheme] lets
+ * The default singleton still exists for authored samples, while [shadcnTheme] lets
  * callers select a runtime style preset, base palette family, and accent override.
  */
-object AwakeShadcnTheme : AwakeShadcnResolvedTheme by awakeShadcnThemeData()
+object ShadcnTheme : ShadcnResolvedTheme by shadcnThemeData()
 
-enum class AwakeShadcnStylePreset(
+enum class ShadcnStylePreset(
     val label: String,
     internal val baseRadius: Dp,
-    internal val metrics: AwakeShadcnMetrics,
+    internal val metrics: ShadcnMetrics,
     internal val ringAlphaMultiplier: Float
 ) {
     Vega(
         label = "Vega",
         baseRadius = 6f.dp,
-        metrics = AwakeShadcnMetrics(16f.dp, 20f.dp, 12f.dp, 8f.dp, 12f.dp, 5f.dp),
+        metrics = ShadcnMetrics(16f.dp, 20f.dp, 12f.dp, 8f.dp, 12f.dp, 5f.dp),
         ringAlphaMultiplier = 1f
     ),
     Nova(
         label = "Nova",
         baseRadius = 5f.dp,
-        metrics = AwakeShadcnMetrics(14f.dp, 18f.dp, 10f.dp, 7f.dp, 10f.dp, 4f.dp),
+        metrics = ShadcnMetrics(14f.dp, 18f.dp, 10f.dp, 7f.dp, 10f.dp, 4f.dp),
         ringAlphaMultiplier = 1f
     ),
     Maia(
         label = "Maia",
         baseRadius = 10f.dp,
-        metrics = AwakeShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp),
+        metrics = ShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp),
         ringAlphaMultiplier = 1f
     ),
     Lyra(
         label = "Lyra",
         baseRadius = 0f.dp,
-        metrics = AwakeShadcnMetrics(15f.dp, 18f.dp, 11f.dp, 7f.dp, 11f.dp, 4f.dp),
+        metrics = ShadcnMetrics(15f.dp, 18f.dp, 11f.dp, 7f.dp, 11f.dp, 4f.dp),
         ringAlphaMultiplier = 0.9f
     ),
     Mira(
         label = "Mira",
         baseRadius = 4f.dp,
-        metrics = AwakeShadcnMetrics(12f.dp, 15f.dp, 10f.dp, 6f.dp, 9f.dp, 4f.dp),
+        metrics = ShadcnMetrics(12f.dp, 15f.dp, 10f.dp, 6f.dp, 9f.dp, 4f.dp),
         ringAlphaMultiplier = 0.85f
     ),
     Luma(
         label = "Luma",
         baseRadius = 12f.dp,
-        metrics = AwakeShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp),
+        metrics = ShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp),
         ringAlphaMultiplier = 0.75f
     ),
     Sera(
         label = "Sera",
         baseRadius = 7f.dp,
-        metrics = AwakeShadcnMetrics(16f.dp, 20f.dp, 13f.dp, 8f.dp, 12f.dp, 5f.dp),
+        metrics = ShadcnMetrics(16f.dp, 20f.dp, 13f.dp, 8f.dp, 12f.dp, 5f.dp),
         ringAlphaMultiplier = 0.85f
     ),
     Rhea(
         label = "Rhea",
         baseRadius = 8f.dp,
-        metrics = AwakeShadcnMetrics(14f.dp, 18f.dp, 11f.dp, 7f.dp, 10f.dp, 4f.dp),
+        metrics = ShadcnMetrics(14f.dp, 18f.dp, 11f.dp, 7f.dp, 10f.dp, 4f.dp),
         ringAlphaMultiplier = 0.85f
     )
 }
 
-enum class AwakeShadcnBaseColor(
+enum class ShadcnBaseColor(
     val label: String,
     internal val hueDegrees: Float,
     internal val chroma: Float
@@ -96,7 +96,7 @@ enum class AwakeShadcnBaseColor(
     Taupe("Taupe", 28f, 0.018f)
 }
 
-enum class AwakeShadcnAccent(
+enum class ShadcnAccent(
     val label: String,
     internal val darkPrimary: Color?,
     internal val darkOnPrimary: Color?,
@@ -123,20 +123,20 @@ enum class AwakeShadcnAccent(
     Yellow("Yellow", hex(0xFACC15), hex(0x0F172A), hex(0xCA8A04), hex(0x0F172A))
 }
 
-data class AwakeShadcnThemeConfig(
-    val preset: AwakeShadcnStylePreset = AwakeShadcnStylePreset.Vega,
-    val baseColor: AwakeShadcnBaseColor = AwakeShadcnBaseColor.Neutral,
-    val accent: AwakeShadcnAccent = AwakeShadcnAccent.Base,
+data class ShadcnThemeConfig(
+    val preset: ShadcnStylePreset = ShadcnStylePreset.Vega,
+    val baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral,
+    val accent: ShadcnAccent = ShadcnAccent.Base,
     val dark: Boolean = true
 )
 
-fun awakeShadcnTheme(
-    preset: AwakeShadcnStylePreset = AwakeShadcnStylePreset.Vega,
-    baseColor: AwakeShadcnBaseColor = AwakeShadcnBaseColor.Neutral,
-    accent: AwakeShadcnAccent = AwakeShadcnAccent.Base,
+fun shadcnTheme(
+    preset: ShadcnStylePreset = ShadcnStylePreset.Vega,
+    baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral,
+    accent: ShadcnAccent = ShadcnAccent.Base,
     dark: Boolean = true
-): UiTheme = awakeShadcnThemeData(
-    AwakeShadcnThemeConfig(
+): UiTheme = shadcnThemeData(
+    ShadcnThemeConfig(
         preset = preset,
         baseColor = baseColor,
         accent = accent,
@@ -144,11 +144,11 @@ fun awakeShadcnTheme(
     )
 )
 
-internal interface AwakeShadcnResolvedTheme : UiTheme {
-    val config: AwakeShadcnThemeConfig
-    val palette: AwakeShadcnPalette
-    val radii: AwakeShadcnRadiusScale
-    val metrics: AwakeShadcnMetrics
+internal interface ShadcnResolvedTheme : UiTheme {
+    val config: ShadcnThemeConfig
+    val palette: ShadcnPalette
+    val radii: ShadcnRadiusScale
+    val metrics: ShadcnMetrics
     override val typography: UiTypography
 
     val card: Color get() = palette.card
@@ -165,18 +165,18 @@ internal interface AwakeShadcnResolvedTheme : UiTheme {
     val ring: Color get() = palette.ring
 }
 
-internal fun UiTheme.asAwakeShadcnTheme(): AwakeShadcnResolvedTheme = this as? AwakeShadcnResolvedTheme ?: AwakeShadcnTheme
+internal fun UiTheme.asShadcnTheme(): ShadcnResolvedTheme = this as? ShadcnResolvedTheme ?: ShadcnTheme
 
-private fun awakeShadcnThemeData(
-    config: AwakeShadcnThemeConfig = AwakeShadcnThemeConfig()
-): AwakeShadcnResolvedTheme = ConfiguredAwakeShadcnTheme(config)
+private fun shadcnThemeData(
+    config: ShadcnThemeConfig = ShadcnThemeConfig()
+): ShadcnResolvedTheme = ConfiguredShadcnTheme(config)
 
-private class ConfiguredAwakeShadcnTheme(
-    override val config: AwakeShadcnThemeConfig
-) : AwakeShadcnResolvedTheme {
-    override val radii: AwakeShadcnRadiusScale = AwakeShadcnRadiusScale.fromBase(config.preset.baseRadius)
-    override val metrics: AwakeShadcnMetrics = config.preset.metrics
-    override val palette: AwakeShadcnPalette = createPalette(config)
+private class ConfiguredShadcnTheme(
+    override val config: ShadcnThemeConfig
+) : ShadcnResolvedTheme {
+    override val radii: ShadcnRadiusScale = ShadcnRadiusScale.fromBase(config.preset.baseRadius)
+    override val metrics: ShadcnMetrics = config.preset.metrics
+    override val palette: ShadcnPalette = createPalette(config)
     override val typography: UiTypography = createTypography(config)
 
     override val tokens: UiColorTokens = object : UiColorTokens {
@@ -254,18 +254,18 @@ private class ConfiguredAwakeShadcnTheme(
     }
 }
 
-private fun createTypography(config: AwakeShadcnThemeConfig): UiTypography = when (config.preset) {
-    AwakeShadcnStylePreset.Vega -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 22.sp, display = 28.sp)
-    AwakeShadcnStylePreset.Nova -> UiTypography(caption = 11.sp, label = 12.sp, body = 13.sp, title = 17.sp, headline = 21.sp, display = 26.sp)
-    AwakeShadcnStylePreset.Maia -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 20.sp, headline = 24.sp, display = 30.sp)
-    AwakeShadcnStylePreset.Lyra -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 22.sp, display = 26.sp)
-    AwakeShadcnStylePreset.Mira -> UiTypography(caption = 10.sp, label = 12.sp, body = 13.sp, title = 17.sp, headline = 20.sp, display = 24.sp)
-    AwakeShadcnStylePreset.Luma -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 20.sp, headline = 24.sp, display = 30.sp)
-    AwakeShadcnStylePreset.Sera -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 21.sp, headline = 25.sp, display = 30.sp)
-    AwakeShadcnStylePreset.Rhea -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 21.sp, display = 27.sp)
+private fun createTypography(config: ShadcnThemeConfig): UiTypography = when (config.preset) {
+    ShadcnStylePreset.Vega -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 22.sp, display = 28.sp)
+    ShadcnStylePreset.Nova -> UiTypography(caption = 11.sp, label = 12.sp, body = 13.sp, title = 17.sp, headline = 21.sp, display = 26.sp)
+    ShadcnStylePreset.Maia -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 20.sp, headline = 24.sp, display = 30.sp)
+    ShadcnStylePreset.Lyra -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 22.sp, display = 26.sp)
+    ShadcnStylePreset.Mira -> UiTypography(caption = 10.sp, label = 12.sp, body = 13.sp, title = 17.sp, headline = 20.sp, display = 24.sp)
+    ShadcnStylePreset.Luma -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 20.sp, headline = 24.sp, display = 30.sp)
+    ShadcnStylePreset.Sera -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 21.sp, headline = 25.sp, display = 30.sp)
+    ShadcnStylePreset.Rhea -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 21.sp, display = 27.sp)
 }
 
-private fun createPalette(config: AwakeShadcnThemeConfig): AwakeShadcnPalette {
+private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
     val hue = config.baseColor.hueDegrees
     val chroma = config.baseColor.chroma
     val dark = config.dark
@@ -297,7 +297,7 @@ private fun createPalette(config: AwakeShadcnThemeConfig): AwakeShadcnPalette {
     val primaryForeground = accentOnPrimary ?: defaultOnPrimary
     val ring = (accentPrimary ?: ringBase).withAlpha(if (accentPrimary != null) 1f else config.preset.ringAlphaMultiplier)
 
-    return AwakeShadcnPalette(
+    return ShadcnPalette(
         background = background,
         foreground = foreground,
         primary = primary,

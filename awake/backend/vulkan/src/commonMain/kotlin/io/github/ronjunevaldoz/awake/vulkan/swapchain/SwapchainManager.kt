@@ -156,7 +156,7 @@ class SwapchainManager(
     }
 
     /** Deliberately prefers `_UNORM` formats, not `_SRGB` -- every [io.github.ronjunevaldoz
-     * .awake.core.colors.Color] this engine produces (`AwakeShadcnTheme`'s OKLCH palette,
+     * .awake.core.colors.Color] this engine produces (`ShadcnTheme`'s OKLCH palette,
      * every widget's authored color) is already gamma-encoded sRGB bytes by the time it
      * reaches a draw call (see `OklchColor.toSrgbChannel()`). An `_SRGB` swapchain format
      * makes the GPU apply ITS OWN linear->sRGB encoding on write, double-encoding colors that

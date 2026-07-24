@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.state
 
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnAccent
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnBaseColor
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -104,23 +104,23 @@ internal class UiShowcaseRuntimeState {
             _uiState.update { it.copy(showcaseNotifyChecked = value) }
         }
 
-    fun showcaseTheme(): UiTheme = awakeShadcnTheme(
+    fun showcaseTheme(): UiTheme = shadcnTheme(
         preset = showcaseStylePreset(),
         baseColor = showcaseBaseColor(),
         accent = showcaseAccent(),
         dark = showcaseResolvedDarkMode()
     )
 
-    fun showcaseStylePreset(): AwakeShadcnStylePreset = AwakeShadcnStylePreset.entries.getOrElse(showcaseStylePresetIndex) {
-        AwakeShadcnStylePreset.Vega
+    fun showcaseStylePreset(): ShadcnStylePreset = ShadcnStylePreset.entries.getOrElse(showcaseStylePresetIndex) {
+        ShadcnStylePreset.Vega
     }
 
-    fun showcaseBaseColor(): AwakeShadcnBaseColor = AwakeShadcnBaseColor.entries.getOrElse(showcaseBaseColorIndex) {
-        AwakeShadcnBaseColor.Neutral
+    fun showcaseBaseColor(): ShadcnBaseColor = ShadcnBaseColor.entries.getOrElse(showcaseBaseColorIndex) {
+        ShadcnBaseColor.Neutral
     }
 
-    fun showcaseAccent(): AwakeShadcnAccent = AwakeShadcnAccent.entries.getOrElse(showcaseAccentIndex) {
-        AwakeShadcnAccent.Base
+    fun showcaseAccent(): ShadcnAccent = ShadcnAccent.entries.getOrElse(showcaseAccentIndex) {
+        ShadcnAccent.Base
     }
 
     fun showcaseThemeMode(): UiShowcaseThemeMode = UiShowcaseThemeMode.entries.getOrElse(showcaseThemeModeIndex) {

@@ -8,12 +8,12 @@ import io.github.ronjunevaldoz.awake.ui.UiFillRule
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.canvas
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -35,7 +35,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
-    awakeShadcnSupportingText("row(...) advances a cursor along the horizontal axis; each child claims the next slot in call order.")
+    shadcnSupportingText("row(...) advances a cursor along the horizontal axis; each child claims the next slot in call order.")
     spacer(Modifier.height(8f.dp))
     row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 48f.dp.toDimension())) {
         surface(id = "layout-row-a", style = Style { background(theme.tokens.primary) }, modifier = Modifier.copy(width = Dimension.Fixed(80f.dp), height = Dimension.FillMax)) { }
@@ -43,7 +43,7 @@ internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
         surface(id = "layout-row-c", style = Style { background(theme.tokens.muted) }, modifier = Modifier.copy(width = Dimension.Fixed(160f.dp), height = Dimension.FillMax)) { }
     }
     spacer(Modifier.height(16f.dp))
-    awakeShadcnSupportingText("column(...) advances a cursor along the vertical axis -- the default layout for every page in this catalog.")
+    shadcnSupportingText("column(...) advances a cursor along the vertical axis -- the default layout for every page in this catalog.")
     spacer(Modifier.height(8f.dp))
     column(
         verticalArrangement = Arrangement.spacedBy(6f.dp)
@@ -56,11 +56,11 @@ internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
 
 internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
     val scrollState = context.rememberScrollState("ui-showcase-scroll-panel")
-    awakeShadcnSupportingText("Scrollable containers own clipping, content measurement, and the scrollbar lane so callers do not have to reimplement any of it.")
+    shadcnSupportingText("Scrollable containers own clipping, content measurement, and the scrollbar lane so callers do not have to reimplement any of it.")
     spacer(Modifier.height(8f.dp))
-    awakeShadcnSurface(
+    shadcnSurface(
         id = "showcase-scroll-panel-page",
-        variant = AwakeShadcnSurfaceVariant.Card,
+        variant = ShadcnSurfaceVariant.Card,
         style = Style { shape(14f.dp) }
     , modifier = Modifier.copy(width = Dimension.Fixed(420f.dp), height = Dimension.Fixed(176f.dp))) { _ ->
         column(
@@ -71,11 +71,11 @@ internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
                 .verticalScroll(scrollState),
         ) {
             repeat(10) { index ->
-                awakeShadcnButton(
+                shadcnButton(
                     id = "showcase-scroll-row-$index",
                     label = "Inspector row ${index + 1}",
                     modifier = Modifier.fillMaxWidth().height(32f.dp),
-                    variant = if (index % 2 == 0) AwakeShadcnButtonVariant.Outline else AwakeShadcnButtonVariant.Ghost
+                    variant = if (index % 2 == 0) ShadcnButtonVariant.Outline else ShadcnButtonVariant.Ghost
                 )
             }
         }
@@ -90,11 +90,11 @@ internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
 }
 
 internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
-    awakeShadcnSupportingText("Canvas keeps custom drawing local to a bounded slot, so layout still owns structure while drawing owns paint.")
+    shadcnSupportingText("Canvas keeps custom drawing local to a bounded slot, so layout still owns structure while drawing owns paint.")
     spacer(Modifier.height(8f.dp))
-    awakeShadcnSurface(
+    shadcnSurface(
         id = "showcase-canvas-page",
-        variant = AwakeShadcnSurfaceVariant.Card,
+        variant = ShadcnSurfaceVariant.Card,
         style = Style { shape(16f.dp) }
     , modifier = Modifier.copy(width = Dimension.Fixed(420f.dp), height = Dimension.Fixed(220f.dp))) { slot ->
         recordSemantic(

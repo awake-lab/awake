@@ -4,7 +4,7 @@ Real, machine-readable ground truth for how close Awake's `ui-designsystem` comp
 to actual shadcn/ui, pulled from `ronjunevaldoz/shadcn-compose`'s published
 `docs/component-metadata.json` (schema: `docs/component-metadata.md` in that repo) instead of
 memory or a hand-written "vibes" comparison. See
-[`AwakeShadcnReferenceTokenTest`](../../awake/engine/ui-designsystem/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/AwakeShadcnReferenceTokenTest.kt)
+[`ShadcnReferenceTokenTest`](../../awake/engine/ui-designsystem/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/ShadcnReferenceTokenTest.kt)
 for the equivalent check on color *values* -- this doc is about variant/size *coverage* and
 actual rendered look, which that test doesn't cover.
 
@@ -29,19 +29,19 @@ The variant table below only covers components Awake already has. This section i
 half: every component in shadcn-compose's own catalog
 ([`docs/components.md`](https://github.com/ronjunevaldoz/shadcn-compose/blob/main/docs/components.md)),
 64 total, checked against what actually exists in `ui-designsystem`/`ui-dsl` today. ✓ means a
-real, callable component exists (`awakeShadcn*` or a themed `ui-dsl` primitive) -- not "a
+real, callable component exists (`shadcn*` or a themed `ui-dsl` primitive) -- not "a
 widget that could be styled to look similar."
 
 ### Core primitives (7)
 
 | Component | Status |
 |---|---|
-| Button | ✓ `awakeShadcnButton` |
-| Card | ✓ `awakeShadcnSurface(variant = Card)` |
-| Badge | ✓ `awakeShadcnBadge` |
+| Button | ✓ `shadcnButton` |
+| Card | ✓ `shadcnSurface(variant = Card)` |
+| Badge | ✓ `shadcnBadge` |
 | Chip | ✗ |
-| TextField | ✓ `awakeShadcnTextField` (built this session -- see gaps above) |
-| Text | ✓ `awakeShadcnBodyText`/`Headline`/`SectionTitle`/`SupportingText` |
+| TextField | ✓ `shadcnTextField` (built this session -- see gaps above) |
+| Text | ✓ `shadcnBodyText`/`Headline`/`SectionTitle`/`SupportingText` |
 | Icon | ✓ `icon()` (ui-unstyled, theme-agnostic; no shadcn-specific auto-tint wrapper) |
 
 ### Forms & inputs (12)
@@ -49,11 +49,11 @@ widget that could be styled to look similar."
 | Component | Status |
 |---|---|
 | Label | ✗ (inline labels only, via `propertyRow`'s `labelContent`) |
-| Checkbox | ✓ `awakeShadcnCheckbox` |
-| RadioGroup | ✓ `awakeShadcnRadioGroup` (circular `checkbox()` reused via `UiShapeSpec.Circle`) |
-| Switch | ✓ `awakeShadcnToggle` (this is shadcn's `Switch`, not its `Toggle` -- see below) |
+| Checkbox | ✓ `shadcnCheckbox` |
+| RadioGroup | ✓ `shadcnRadioGroup` (circular `checkbox()` reused via `UiShapeSpec.Circle`) |
+| Switch | ✓ `shadcnToggle` (this is shadcn's `Switch`, not its `Toggle` -- see below) |
 | Toggle | ✗ (shadcn's pressable two-state button, e.g. bold/italic toolbar buttons -- a different component from Switch, we don't have it) |
-| Slider | ✓ `awakeShadcnSlider` |
+| Slider | ✓ `shadcnSlider` |
 | ToggleGroup | ✗ |
 | InputGroup | ✗ |
 | ButtonGroup | ✗ |
@@ -65,10 +65,10 @@ widget that could be styled to look similar."
 
 | Component | Status |
 |---|---|
-| Avatar | ~ partial -- `awakeShadcnAvatar` (new `avatarFallback()` primitive, `ui-unstyled`) is fallback-only (initials on a muted circle); no image-loading pipeline wired into this rasterizer yet, so the actual image slot doesn't exist |
+| Avatar | ~ partial -- `shadcnAvatar` (new `avatarFallback()` primitive, `ui-unstyled`) is fallback-only (initials on a muted circle); no image-loading pipeline wired into this rasterizer yet, so the actual image slot doesn't exist |
 | AspectRatio | ✗ |
 | Separator | ✓ `separator()` (ui-unstyled; no shadcn-specific style wrapper, but themeable via the caller) |
-| Kbd | ✓ `awakeShadcnKbd` |
+| Kbd | ✓ `shadcnKbd` |
 | Item/ItemGroup | ✗ |
 | Empty | ✗ |
 
@@ -76,27 +76,27 @@ widget that could be styled to look similar."
 
 | Component | Status |
 |---|---|
-| Alert | ✓ `awakeShadcnAlert` (Default/Destructive) |
-| Progress | ✓ `awakeShadcnProgress` (new `progressBar()` primitive in `ui-unstyled`, reuses `slider()`'s track/fill painting minus the knob/drag handling) |
-| Skeleton | ✓ `awakeShadcnSkeleton` (new `skeleton()` primitive, `ui-unstyled`, real per-widget opacity pulse -- not a static box) |
-| Spinner | ~ partial -- `awakeShadcnSpinner` (new `spinner()` primitive, `ui-unstyled`): an orbiting-dots loader, a real animation, approximating shadcn's CSS-rotated Lucide icon which this engine has no SVG-rotation pipeline to reproduce exactly |
+| Alert | ✓ `shadcnAlert` (Default/Destructive) |
+| Progress | ✓ `shadcnProgress` (new `progressBar()` primitive in `ui-unstyled`, reuses `slider()`'s track/fill painting minus the knob/drag handling) |
+| Skeleton | ✓ `shadcnSkeleton` (new `skeleton()` primitive, `ui-unstyled`, real per-widget opacity pulse -- not a static box) |
+| Spinner | ~ partial -- `shadcnSpinner` (new `spinner()` primitive, `ui-unstyled`): an orbiting-dots loader, a real animation, approximating shadcn's CSS-rotated Lucide icon which this engine has no SVG-rotation pipeline to reproduce exactly |
 | Toast/Toaster | ✗ |
 
 ### Disclosure & navigation (4)
 
 | Component | Status |
 |---|---|
-| Collapsible | ✓ `awakeShadcnCollapsible` (no expand/collapse animation -- height-transition primitive doesn't exist yet) |
-| Accordion | ~ partial -- caller composes multiple `awakeShadcnCollapsible`s and tracks which id is open, same pattern as `awakeShadcnRadioGroup`; no dedicated single-open-at-a-time helper yet |
-| Tabs | ✓ `awakeShadcnTabs` (composed from `awakeShadcnButton`, same reuse-existing-variant approach as `awakeShadcnRadioGroup`) |
-| Breadcrumb | ✓ `awakeShadcnBreadcrumb` |
+| Collapsible | ✓ `shadcnCollapsible` (no expand/collapse animation -- height-transition primitive doesn't exist yet) |
+| Accordion | ~ partial -- caller composes multiple `shadcnCollapsible`s and tracks which id is open, same pattern as `shadcnRadioGroup`; no dedicated single-open-at-a-time helper yet |
+| Tabs | ✓ `shadcnTabs` (composed from `shadcnButton`, same reuse-existing-variant approach as `shadcnRadioGroup`) |
+| Breadcrumb | ✓ `shadcnBreadcrumb` |
 
 ### Overlays & navigation (15)
 
 | Component | Status |
 |---|---|
-| Tooltip | ✓ `tooltip`/`tooltipText` (ui-dsl; caller supplies shadcn styling, no dedicated `awakeShadcnTooltip`) |
-| Popover | ~ partial (`awakeShadcnSurface(variant = Popover)` is the surface building block; no anchored-trigger recipe) |
+| Tooltip | ✓ `tooltip`/`tooltipText` (ui-dsl; caller supplies shadcn styling, no dedicated `shadcnTooltip`) |
+| Popover | ~ partial (`shadcnSurface(variant = Popover)` is the surface building block; no anchored-trigger recipe) |
 | HoverCard | ✗ |
 | DropdownMenu | ✓ `dropdownMenu` (ui-dsl) |
 | ContextMenu | ✗ |
@@ -105,7 +105,7 @@ widget that could be styled to look similar."
 | Sheet | ✗ |
 | Drawer | ✗ |
 | Combobox | ✗ |
-| Select | ✓ `awakeShadcnDropdown` (non-searchable, matches real shadcn's plain Select) |
+| Select | ✓ `shadcnDropdown` (non-searchable, matches real shadcn's plain Select) |
 | Date Picker | ✗ |
 | Command | ✗ |
 | Menubar | ✗ |
@@ -117,7 +117,7 @@ widget that could be styled to look similar."
 |---|---|
 | Table | ✗ |
 | Pagination | ✗ |
-| ScrollArea | ✓ `awakeShadcnScrollSurface` |
+| ScrollArea | ✓ `shadcnScrollSurface` |
 | Chart | ✗ |
 | Calendar | ✗ |
 | Carousel | ✗ |
@@ -143,16 +143,16 @@ field/overlay/selection families; this inventory is what to consult when decidin
 
 | Component | Real shadcn properties | Awake has | Gap |
 |---|---|---|---|
-| `button` | `ButtonVariant`: Default, Outline, Secondary, Ghost, Destructive, Link; `ButtonSize`: Xs, Sm, Md, Lg, Icon | `AwakeShadcnButtonVariant`: Primary, Secondary, Outline, Ghost, Danger, Link; `AwakeShadcnButtonSize`: Xs, Sm, Md, Lg, Icon (**added** -- height-only, width still comes from caller's modifier/content) | Closed. |
-| `badge` | `BadgeVariant`: Default, Secondary, Destructive, Outline, Ghost | `AwakeShadcnBadgeVariant`: Primary, Secondary, Outline, Danger, **Ghost** (added) | Closed. |
-| `text-field` | `TextFieldVariant`: Default, Filled, Ghost | `AwakeShadcnTextFieldVariant`: Default, **Filled**, **Ghost** (added); error/invalid and disabled states already existed | Closed. |
-| `select` | `SelectVariant`: Default | `awakeShadcnDropdown()`: no variant axis | Matches (both effectively single-variant). |
+| `button` | `ButtonVariant`: Default, Outline, Secondary, Ghost, Destructive, Link; `ButtonSize`: Xs, Sm, Md, Lg, Icon | `ShadcnButtonVariant`: Primary, Secondary, Outline, Ghost, Danger, Link; `ShadcnButtonSize`: Xs, Sm, Md, Lg, Icon (**added** -- height-only, width still comes from caller's modifier/content) | Closed. |
+| `badge` | `BadgeVariant`: Default, Secondary, Destructive, Outline, Ghost | `ShadcnBadgeVariant`: Primary, Secondary, Outline, Danger, **Ghost** (added) | Closed. |
+| `text-field` | `TextFieldVariant`: Default, Filled, Ghost | `ShadcnTextFieldVariant`: Default, **Filled**, **Ghost** (added); error/invalid and disabled states already existed | Closed. |
+| `select` | `SelectVariant`: Default | `shadcnDropdown()`: no variant axis | Matches (both effectively single-variant). |
 | `checkbox` / `switch` / `slider` / `tabs` / `tooltip` / `popover` / `dropdown-menu` / `dialog` / `alert-dialog` | No variant axis in the real component either | Matches | No gap -- these are correctly single-look on both sides. |
 | `toggle` | `ToggleVariant`: Default, Outline | We have no separate "Toggle" component from "Switch" -- Awake's `toggle()` is the switch equivalent; a bordered-button-style toggle (shadcn's actual `Toggle`, a different component from `Switch`) doesn't exist here. | Not a gap in the switch we have -- a genuinely separate missing *component* (icon/text toggle-button, not a boolean switch). |
 
 ## Visual notes (actually looked at the reference image, not just the property list)
 
-**`button_variants_light.png`** (![button](shadcn-previews/button_variants_light.png)): real shadcn's `Default` variant is solid near-black, `Secondary` is a pale gray fill, `Outline` is a bordered/transparent button, `Ghost` is no fill/no border (label only), `Destructive` is solid red, `Link` renders as plain underlined-style text with no button chrome at all. Confirms our `Primary`/`Secondary`/`Outline`/`Ghost`/`Danger` five already track this correctly by color role (checked against [`AwakeShadcnReferenceTokenTest`](../../awake/engine/ui-designsystem/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/AwakeShadcnReferenceTokenTest.kt)'s primary/destructive values); `Link` is the one real look we don't have a variant for.
+**`button_variants_light.png`** (![button](shadcn-previews/button_variants_light.png)): real shadcn's `Default` variant is solid near-black, `Secondary` is a pale gray fill, `Outline` is a bordered/transparent button, `Ghost` is no fill/no border (label only), `Destructive` is solid red, `Link` renders as plain underlined-style text with no button chrome at all. Confirms our `Primary`/`Secondary`/`Outline`/`Ghost`/`Danger` five already track this correctly by color role (checked against [`ShadcnReferenceTokenTest`](../../awake/engine/ui-designsystem/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/ShadcnReferenceTokenTest.kt)'s primary/destructive values); `Link` is the one real look we don't have a variant for.
 
 **`text-field_states_light.png`** (![text-field](shadcn-previews/text-field_states_light.png)): five states shown -- `Default` (bordered, transparent bg), `Filled` (gray fill, no border), `Ghost` (no border/no fill, just a label), an **invalid/error state** (red border + red helper text below the field), and `Disabled` (muted gray, reduced contrast). Awake's `textField()` (built this session) only has the `Default` look -- no `Filled`/`Ghost` variant, no error/invalid state with helper text, no disabled state. This is the most substantive real gap this doc found: error-state styling on a form field is a genuinely common need, not a nice-to-have.
 
@@ -165,42 +165,42 @@ components, not all at once up front.
 ## Recommended next steps, in priority order
 
 1. ~~Add `textField()`'s missing states~~ -- done: `enabled`/`isError` on `textField()` and
-   `awakeShadcnTextField()`, `errorText` on `awakeShadcnPropertyTextField()`. Verified visually
+   `shadcnTextField()`, `errorText` on `shadcnPropertyTextField()`. Verified visually
    against `docs/reference/awake-previews/awake-textfield-states-light.png`.
-2. ~~Add a `Link` button variant~~ -- done: `AwakeShadcnButtonVariant.Link`. Verified visually
+2. ~~Add a `Link` button variant~~ -- done: `ShadcnButtonVariant.Link`. Verified visually
    against `docs/reference/awake-previews/awake-button-variants-light.png`.
-3. ~~Add a `Ghost` badge variant~~ -- done: `AwakeShadcnBadgeVariant.Ghost`. Verified visually
+3. ~~Add a `Ghost` badge variant~~ -- done: `ShadcnBadgeVariant.Ghost`. Verified visually
    against `docs/reference/awake-previews/awake-badge-variants-light.png`.
-4. ~~Add a `ButtonSize` axis~~ -- done: `AwakeShadcnButtonSize` (Xs/Sm/Md/Lg/Icon), applied
+4. ~~Add a `ButtonSize` axis~~ -- done: `ShadcnButtonSize` (Xs/Sm/Md/Lg/Icon), applied
    as a default height when the caller's modifier doesn't already set one.
-5. ~~Add `textField()`'s `Filled`/`Ghost` variants~~ -- done: `AwakeShadcnTextFieldVariant`.
+5. ~~Add `textField()`'s `Filled`/`Ghost` variants~~ -- done: `ShadcnTextFieldVariant`.
    Verified visually against `docs/reference/awake-previews/awake-textfield-states-light.png`
    -- caught and fixed a real bug in the process: `resolveStyle` falls back to
    `theme.components.textField`'s 1dp default border for any property a variant style
    doesn't explicitly set, so both new variants leaked a border until `borderWidth(UiShape.none)`
    was added explicitly.
-6. ~~Build `Alert`~~ -- done: `awakeShadcnAlert` (Default/Destructive), composed entirely from
-   existing primitives (`panel`, `awakeShadcnBodyText`/`SupportingText`), no new ui-unstyled
+6. ~~Build `Alert`~~ -- done: `shadcnAlert` (Default/Destructive), composed entirely from
+   existing primitives (`panel`, `shadcnBodyText`/`SupportingText`), no new ui-unstyled
    work needed. Verified visually against
    `docs/reference/awake-previews/awake-alert-variants-light.png`.
-7. ~~Build `RadioGroup`~~ -- done: `awakeShadcnRadioGroup`, reusing `checkbox()` with a
+7. ~~Build `RadioGroup`~~ -- done: `shadcnRadioGroup`, reusing `checkbox()` with a
    `UiShapeSpec.Circle` shape instead of a new low-level widget; single-select logic
    composed on top (clicking the already-selected item is a no-op, matching real radio
    semantics). Verified visually against
    `docs/reference/awake-previews/awake-radiogroup-light.png`.
 8. ~~Build `Progress`~~ -- done: `progressBar()` (new primitive, `ui-unstyled`) +
-   `awakeShadcnProgress` -- the one component this round that needed real `ui-unstyled` work
+   `shadcnProgress` -- the one component this round that needed real `ui-unstyled` work
    rather than pure composition, since nothing existing painted a static (non-interactive,
    non-min/max) fraction bar. Verified visually against
    `docs/reference/awake-previews/awake-progress-light.png`.
 9. ~~Build `Avatar`~~ -- done, partially: `avatarFallback()` (new primitive, `ui-unstyled`) +
-   `awakeShadcnAvatar`. Fallback-only (initials on a muted circle) -- no image-loading
+   `shadcnAvatar`. Fallback-only (initials on a muted circle) -- no image-loading
    pipeline exists yet for the actual image slot, a real gap not a corner cut silently.
    Verified visually against `docs/reference/awake-previews/awake-avatar-light.png`.
-10. ~~Build `Kbd`, `Skeleton`, `Tabs`~~ -- done. `Kbd`: pure composition (`awakeShadcnKbd`),
-    same measure-and-draw recipe as `awakeShadcnBadge`. `Skeleton`: new `skeleton()` primitive
+10. ~~Build `Kbd`, `Skeleton`, `Tabs`~~ -- done. `Kbd`: pure composition (`shadcnKbd`),
+    same measure-and-draw recipe as `shadcnBadge`. `Skeleton`: new `skeleton()` primitive
     (`ui-unstyled`) with a real per-widget sine-wave opacity pulse over elapsed time, not a
-    static box. `Tabs`: `awakeShadcnTabs` composes `awakeShadcnButton` per tab -- caught and
+    static box. `Tabs`: `shadcnTabs` composes `shadcnButton` per tab -- caught and
     fixed a real bug in the process: `UiButtonVariant.Ghost`'s `resolveFill` hardcodes fill to
     transparent unless hovered/active, silently ignoring any style background override, so the
     active tab never showed its card-colored background at rest. Fixed by using the

@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectDensityParity
 import io.github.ronjunevaldoz.awake.testing.ui.inspectThemeParity
 import io.github.ronjunevaldoz.awake.testing.ui.measureUiFrame
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -24,8 +24,8 @@ class UiCrossPlatformQualityTest {
     @Test
     fun buttonStructureStaysStableAcrossShadcnThemes() {
         val font = UiFonts.default()
-        val dark = measureButtonMetrics(awakeShadcnTheme(dark = true), font)
-        val light = measureButtonMetrics(awakeShadcnTheme(dark = false), font)
+        val dark = measureButtonMetrics(shadcnTheme(dark = true), font)
+        val light = measureButtonMetrics(shadcnTheme(dark = false), font)
 
         inspectThemeParity(dark, light).requireClean()
     }
@@ -45,7 +45,7 @@ class UiCrossPlatformQualityTest {
         val frame = UiSlot(0f, 0f, 220f, 96f)
         val context = UiContext()
         context.beginFrame(frame.width, frame.height, testSnapshot())
-        context.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = font, theme = awakeShadcnTheme(dark = false))
+        context.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = font, theme = shadcnTheme(dark = false))
             .button("fit", label = "Awake Button", modifier = Modifier.width(180f.px).height(44f.px))
 
         val metrics = measureUiFrame(context.endFrame(), frame)
@@ -66,7 +66,7 @@ class UiCrossPlatformQualityTest {
         frameHeight: Float,
         buttonWidth: Float,
         buttonHeight: Float,
-        theme: UiTheme = awakeShadcnTheme(dark = true)
+        theme: UiTheme = shadcnTheme(dark = true)
     ) = UiContext().let { context ->
         context.beginFrame(frameWidth, frameHeight, testSnapshot())
         context.createAbsolute(modifier = Modifier.offset(((frameWidth - buttonWidth) / 2f).dp, ((frameHeight - buttonHeight) / 2f).dp), font = font, theme = theme)

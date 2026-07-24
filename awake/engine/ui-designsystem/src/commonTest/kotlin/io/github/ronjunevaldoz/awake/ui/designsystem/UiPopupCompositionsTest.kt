@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogResult
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialo
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltipText
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -251,14 +251,14 @@ class UiPopupCompositionsTest {
     @Test
     fun dialogActionButtonLabelInheritsThemedForeground() {
         // Regression test for the "button label not displayed" bug: a dialog action button's
-        // Slot-API content lambda (`awakeShadcnButton(id, ...) { text(...) }`) must inherit the
+        // Slot-API content lambda (`shadcnButton(id, ...) { text(...) }`) must inherit the
         // button's resolved themed foreground as its ambient text color, the same way
         // surface()/row()/column()/box() propagate their resolved text style to children.
         // Without that propagation, `text()` inside the lambda falls back to whatever ambient
         // color was active outside the dialog/button (e.g. the page's default foreground),
         // which reads as "not displayed" against a differently-colored button background.
         val ui = UiContext()
-        val theme = AwakeShadcnTheme
+        val theme = ShadcnTheme
         ui.pushFont(BitmapFont())
         ui.pushTheme(theme)
         ui.pushTextStyle(TextStyle(color = theme.tokens.foreground))
@@ -266,9 +266,9 @@ class UiPopupCompositionsTest {
 
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
             dialog(id = "confirm", expanded = true, actions = {
-                awakeShadcnButton(
+                shadcnButton(
                     id = "confirm.action",
-                    variant = AwakeShadcnButtonVariant.Primary,
+                    variant = ShadcnButtonVariant.Primary,
                     modifier = Modifier.width(88f.dp)
                 ) {
                     text("Confirm")

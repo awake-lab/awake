@@ -8,9 +8,9 @@ import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
@@ -24,7 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-private val ShowcaseChromeTheme = awakeShadcnTheme(dark = false)
+private val ShowcaseChromeTheme = shadcnTheme(dark = false)
 
 internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec {
     return gameUi {
@@ -54,9 +54,9 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
             column(
                 verticalArrangement = Arrangement.spacedBy(12f.dp),
                 modifier = (Modifier.fillMaxSize().padding(outerPadding)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
-                awakeShadcnSurface(
+                shadcnSurface(
                     id = "ui-showcase-mobile-sidebar",
-                    variant = AwakeShadcnSurfaceVariant.Sidebar,
+                    variant = ShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
                     modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).copy(height = Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = true)
@@ -65,7 +65,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                 column(
                     id = "ui-showcase-mobile-content-viewport",
                     modifier = (Modifier.verticalScroll(contentScroll)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
-                    awakeShadcnSurface(
+                    shadcnSurface(
                         id = "ui-showcase-mobile-content",
                         style = Style { shape(16f.dp) }
                     , modifier = Modifier.copy(height = Dimension.WrapContent)) {
@@ -77,9 +77,9 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
             row(
                 horizontalArrangement = Arrangement.spacedBy(railGap),
                 modifier = (Modifier.fillMaxSize().padding(outerPadding)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
-                awakeShadcnSurface(
+                shadcnSurface(
                     id = "ui-showcase-sidebar",
-                    variant = AwakeShadcnSurfaceVariant.Sidebar,
+                    variant = ShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
                     modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).copy(width = sidebarWidth, height = Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = false)
@@ -88,7 +88,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                 column(
                     id = "ui-showcase-content-viewport",
                     modifier = (Modifier.verticalScroll(contentScroll)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
-                    awakeShadcnSurface(
+                    shadcnSurface(
                         id = "ui-showcase-content",
                         style = Style { shape(16f.dp) }
                     , modifier = Modifier.copy(height = Dimension.WrapContent)) {

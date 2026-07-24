@@ -5,13 +5,13 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.input
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnDropdown
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextField
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnTextarea
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.propertyRow
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
@@ -29,18 +29,18 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-private fun BoxScope.awakeShadcnPropertyLabel(label: String) {
+private fun BoxScope.shadcnPropertyLabel(label: String) {
     text(
         label = label,
         style = Style {
-            val shadcnTheme = theme.asAwakeShadcnTheme()
+            val shadcnTheme = theme.asShadcnTheme()
             foreground(shadcnTheme.tokens.foreground)
             textSize(shadcnTheme.typography.caption)
         }
     )
 }
 
-fun ColumnScope.awakeShadcnPropertyToggle(
+fun ColumnScope.shadcnPropertyToggle(
     id: String,
     checked: Boolean,
     modifier: UiModifier = Modifier,
@@ -52,7 +52,7 @@ fun ColumnScope.awakeShadcnPropertyToggle(
         modifier = modifier.height(40f.dp),
         labelContent = labelContent
     ) { _ ->
-        resolved = awakeShadcnToggle(
+        resolved = shadcnToggle(
             id = id,
             checked = checked,
             style = style
@@ -61,7 +61,7 @@ fun ColumnScope.awakeShadcnPropertyToggle(
     return resolved
 }
 
-fun ColumnScope.awakeShadcnPropertyToggle(
+fun ColumnScope.shadcnPropertyToggle(
     id: String,
     checked: Boolean,
     height: Dp,
@@ -74,7 +74,7 @@ fun ColumnScope.awakeShadcnPropertyToggle(
         height = height,
         labelContent = labelContent
     ) { _ ->
-        resolved = awakeShadcnToggle(
+        resolved = shadcnToggle(
             id = id,
             checked = checked,
             modifier = modifier,
@@ -84,22 +84,22 @@ fun ColumnScope.awakeShadcnPropertyToggle(
     return resolved
 }
 
-fun ColumnScope.awakeShadcnPropertyToggle(
+fun ColumnScope.shadcnPropertyToggle(
     id: String,
     label: String,
     checked: Boolean,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
-): Boolean = awakeShadcnPropertyToggle(
+): Boolean = shadcnPropertyToggle(
     id = id,
     checked = checked,
     modifier = modifier,
     style = style
 ) {
-    awakeShadcnPropertyLabel(label)
+    shadcnPropertyLabel(label)
 }
 
-fun ColumnScope.awakeShadcnPropertyDropdown(
+fun ColumnScope.shadcnPropertyDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
@@ -114,7 +114,7 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        resolved = awakeShadcnDropdown(
+        resolved = shadcnDropdown(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
@@ -125,7 +125,7 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
     return resolved
 }
 
-fun ColumnScope.awakeShadcnPropertyDropdown(
+fun ColumnScope.shadcnPropertyDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
@@ -140,7 +140,7 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        resolved = awakeShadcnDropdown(
+        resolved = shadcnDropdown(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
@@ -151,7 +151,7 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
     return resolved
 }
 
-fun ColumnScope.awakeShadcnPropertyDropdown(
+fun ColumnScope.shadcnPropertyDropdown(
     id: String,
     label: String,
     options: List<String>,
@@ -159,7 +159,7 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
-): Int? = awakeShadcnPropertyDropdown(
+): Int? = shadcnPropertyDropdown(
     id = id,
     options = options,
     selectedIndex = selectedIndex,
@@ -167,10 +167,10 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
     labelWidth = labelWidth,
     style = style
 ) {
-    awakeShadcnPropertyLabel(label)
+    shadcnPropertyLabel(label)
 }
 
-fun ColumnScope.awakeShadcnPropertyTextField(
+fun ColumnScope.shadcnPropertyTextField(
     id: String,
     value: String,
     placeholder: String = "",
@@ -192,7 +192,7 @@ fun ColumnScope.awakeShadcnPropertyTextField(
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        resolved = awakeShadcnTextField(
+        resolved = shadcnTextField(
             id = id,
             value = value,
             placeholder = placeholder,
@@ -203,15 +203,15 @@ fun ColumnScope.awakeShadcnPropertyTextField(
         )
     }
     if (errorText != null) {
-        awakeShadcnSupportingText(
+        shadcnSupportingText(
             errorText,
-            style = Style { foreground(theme.asAwakeShadcnTheme().tokens.destructive) }
+            style = Style { foreground(theme.asShadcnTheme().tokens.destructive) }
         )
     }
     return resolved
 }
 
-fun ColumnScope.awakeShadcnPropertyTextField(
+fun ColumnScope.shadcnPropertyTextField(
     id: String,
     label: String,
     value: String,
@@ -221,7 +221,7 @@ fun ColumnScope.awakeShadcnPropertyTextField(
     style: Style = Style.Empty,
     enabled: Boolean = true,
     errorText: String? = null
-): String = awakeShadcnPropertyTextField(
+): String = shadcnPropertyTextField(
     id = id,
     value = value,
     placeholder = placeholder,
@@ -231,10 +231,10 @@ fun ColumnScope.awakeShadcnPropertyTextField(
     enabled = enabled,
     errorText = errorText
 ) {
-    awakeShadcnPropertyLabel(label)
+    shadcnPropertyLabel(label)
 }
 
-fun ColumnScope.awakeShadcnPropertyTextarea(
+fun ColumnScope.shadcnPropertyTextarea(
     id: String,
     value: String,
     placeholder: String = "",
@@ -264,7 +264,7 @@ fun ColumnScope.awakeShadcnPropertyTextarea(
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        resolved = awakeShadcnTextarea(
+        resolved = shadcnTextarea(
             id = id,
             value = value,
             placeholder = placeholder,
@@ -276,15 +276,15 @@ fun ColumnScope.awakeShadcnPropertyTextarea(
         )
     }
     if (errorText != null) {
-        awakeShadcnSupportingText(
+        shadcnSupportingText(
             errorText,
-            style = Style { foreground(theme.asAwakeShadcnTheme().tokens.destructive) }
+            style = Style { foreground(theme.asShadcnTheme().tokens.destructive) }
         )
     }
     return resolved
 }
 
-fun ColumnScope.awakeShadcnPropertyTextarea(
+fun ColumnScope.shadcnPropertyTextarea(
     id: String,
     label: String,
     value: String,
@@ -295,7 +295,7 @@ fun ColumnScope.awakeShadcnPropertyTextarea(
     enabled: Boolean = true,
     errorText: String? = null,
     minLines: Int = 3
-): String = awakeShadcnPropertyTextarea(
+): String = shadcnPropertyTextarea(
     id = id,
     value = value,
     placeholder = placeholder,
@@ -306,10 +306,10 @@ fun ColumnScope.awakeShadcnPropertyTextarea(
     errorText = errorText,
     minLines = minLines
 ) {
-    awakeShadcnPropertyLabel(label)
+    shadcnPropertyLabel(label)
 }
 
-fun ColumnScope.awakeShadcnPropertySlider(
+fun ColumnScope.shadcnPropertySlider(
     id: String,
     min: Float,
     max: Float,
@@ -325,7 +325,7 @@ fun ColumnScope.awakeShadcnPropertySlider(
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        resolved = awakeShadcnSlider(
+        resolved = shadcnSlider(
             id = id,
             min = min,
             max = max,
@@ -337,7 +337,7 @@ fun ColumnScope.awakeShadcnPropertySlider(
     return resolved
 }
 
-fun ColumnScope.awakeShadcnPropertySlider(
+fun ColumnScope.shadcnPropertySlider(
     id: String,
     min: Float,
     max: Float,
@@ -353,7 +353,7 @@ fun ColumnScope.awakeShadcnPropertySlider(
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        resolved = awakeShadcnSlider(
+        resolved = shadcnSlider(
             id = id,
             min = min,
             max = max,
@@ -365,7 +365,7 @@ fun ColumnScope.awakeShadcnPropertySlider(
     return resolved
 }
 
-fun ColumnScope.awakeShadcnPropertySlider(
+fun ColumnScope.shadcnPropertySlider(
     id: String,
     label: String,
     min: Float,
@@ -374,7 +374,7 @@ fun ColumnScope.awakeShadcnPropertySlider(
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
-): Float = awakeShadcnPropertySlider(
+): Float = shadcnPropertySlider(
     id = id,
     min = min,
     max = max,
@@ -383,5 +383,5 @@ fun ColumnScope.awakeShadcnPropertySlider(
     labelWidth = labelWidth,
     style = style
 ) {
-    awakeShadcnPropertyLabel(label)
+    shadcnPropertyLabel(label)
 }

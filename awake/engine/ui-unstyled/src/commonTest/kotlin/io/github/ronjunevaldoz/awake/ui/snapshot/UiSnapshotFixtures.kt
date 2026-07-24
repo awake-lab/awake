@@ -14,19 +14,19 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.createBox
 import io.github.ronjunevaldoz.awake.ui.createColumn
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.awakeShadcnPropertyDropdown
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.awakeShadcnPropertySlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.awakeShadcnPropertyToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertySlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.alertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
@@ -207,30 +207,30 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-button-variants",
             width = 620,
             height = 200,
-            background = AwakeShadcnTheme.tokens.background,
+            background = ShadcnTheme.tokens.background,
             title = "Button Variants",
             summary = "The Awake shadcn layer keeps the same shared widget runtime while giving buttons a sharper, darker design language."
         ) { snapshotFont ->
             pushFont(snapshotFont)
-            pushTheme(AwakeShadcnTheme)
+            pushTheme(ShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(
                 modifier = Modifier.offset(16f.dp, 18f.dp).width(588f.dp),
                 verticalArrangement = Arrangement.spacedBy(10f.dp)
             ) {
-                awakeShadcnSurface(
+                shadcnSurface(
                     id = "button-variants", modifier = Modifier.copy(width = Dimension.Fixed(588f.px), height = Dimension.WrapContent)) {
                     text("Awake Shadcn Buttons")
                     supportingText("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")
                     spacer(Modifier.height(8f.dp))
                     row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
-                        awakeShadcnButton("primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Primary)
-                        awakeShadcnButton("secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Secondary)
-                        awakeShadcnButton("outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
+                        shadcnButton("primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Primary)
+                        shadcnButton("secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = ShadcnButtonVariant.Secondary)
+                        shadcnButton("outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Outline)
                     }
                     row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
-                        awakeShadcnButton("ghost", "Ghost", modifier = Modifier.width(122f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Ghost)
-                        awakeShadcnButton("danger", "Danger", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Danger)
+                        shadcnButton("ghost", "Ghost", modifier = Modifier.width(122f.px).height(40f.px), variant = ShadcnButtonVariant.Ghost)
+                        shadcnButton("danger", "Danger", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Danger)
                     }
                 }
             }
@@ -265,26 +265,26 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-panel-controls",
             width = 430,
             height = 360,
-            background = AwakeShadcnTheme.tokens.background,
+            background = ShadcnTheme.tokens.background,
             title = "Panel Controls",
             summary = "The same property-form scaffolds can be skinned by the shared shadcn layer, so tool surfaces look authored without moving logic into the sample."
         ) { snapshotFont ->
             pushFont(snapshotFont)
-            pushTheme(AwakeShadcnTheme)
+            pushTheme(ShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(
                 modifier = Modifier.offset(20f.dp, 20f.dp).width(390f.dp),
                 verticalArrangement = Arrangement.spacedBy(10f.dp)
             ) {
-                awakeShadcnSurface(
+                shadcnSurface(
                     id = "inspector", modifier = Modifier.copy(width = Dimension.Fixed(390f.px), height = Dimension.WrapContent)) {
                     text("Controls")
                     supportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
                     spacer(Modifier.height(4f.dp))
-                    awakeShadcnPropertyDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0, labelWidth = 96f.dp)
-                    awakeShadcnPropertyToggle("debug", "Debug Frustum Overlay", checked = true)
-                    awakeShadcnPropertyToggle("grid", "Show Reference Grid", checked = false)
-                    awakeShadcnPropertySlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f, labelWidth = 96f.dp)
+                    shadcnPropertyDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0, labelWidth = 96f.dp)
+                    shadcnPropertyToggle("debug", "Debug Frustum Overlay", checked = true)
+                    shadcnPropertyToggle("grid", "Show Reference Grid", checked = false)
+                    shadcnPropertySlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f, labelWidth = 96f.dp)
                     checkbox("wireframe", checked = true, label = "Wireframe Overlay")
                 }
             }
@@ -293,12 +293,12 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-alert-dialog",
             width = 360,
             height = 260,
-            background = AwakeShadcnTheme.tokens.background,
+            background = ShadcnTheme.tokens.background,
             title = "Alert Dialog",
             summary = "A long title must wrap and stay clipped inside the dialog panel instead of overflowing past its bounds."
         ) { snapshotFont ->
             pushFont(snapshotFont)
-            pushTheme(AwakeShadcnTheme)
+            pushTheme(ShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(modifier = Modifier.width(360f.dp)) {
                 alertDialog(
@@ -313,13 +313,13 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-component-state-matrix",
             width = 460,
             height = 360,
-            background = AwakeShadcnTheme.tokens.background,
+            background = ShadcnTheme.tokens.background,
             title = "Component State Matrix",
             summary = "Every state a component can be in, side by side under the shadcn theme -- not just its default rest look. This is the gallery page that would have shown the toggle/slider/checkbox color-inversion bug and the dropdown-row styling bug at a glance instead of requiring a live click-through."
         ) { snapshotFont ->
             requestFocus("state-matrix-focused-field")
             pushFont(snapshotFont)
-            pushTheme(AwakeShadcnTheme)
+            pushTheme(ShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(
                 modifier = Modifier.offset(20f.dp, 20f.dp).width(420f.dp),
@@ -404,44 +404,44 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-awake-shadcn-showcase",
             width = 560,
             height = 360,
-            background = AwakeShadcnTheme.tokens.background,
+            background = ShadcnTheme.tokens.background,
             title = "Awake Shadcn Showcase",
             summary = "The starter design-system layer can already express a recognizable shadcn-style component set while staying fully inside Awake's owned widget stack."
         ) { snapshotFont ->
             pushFont(snapshotFont)
-            pushTheme(AwakeShadcnTheme)
+            pushTheme(ShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(
                 modifier = Modifier.offset(20f.dp, 20f.dp).width(520f.dp),
                 verticalArrangement = Arrangement.spacedBy(12f.dp)
             ) {
-                awakeShadcnSurface(
+                shadcnSurface(
                     id = "shadcn-showcase", modifier = Modifier.copy(width = Dimension.Fixed(520f.px), height = Dimension.WrapContent)) {
                     text("Awake Shadcn")
                     supportingText("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")
                     spacer(Modifier.height(8f.dp))
                     row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
-                        awakeShadcnButton("showcase-doc-primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Primary)
-                        awakeShadcnButton("showcase-doc-secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Secondary)
-                        awakeShadcnButton("showcase-doc-outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
+                        shadcnButton("showcase-doc-primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Primary)
+                        shadcnButton("showcase-doc-secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = ShadcnButtonVariant.Secondary)
+                        shadcnButton("showcase-doc-outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Outline)
                     }
                     row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 30f.dp.toDimension())) {
-                        awakeShadcnBadge("LIVE", variant = AwakeShadcnBadgeVariant.Primary)
-                        awakeShadcnBadge("NEUTRAL", variant = AwakeShadcnBadgeVariant.Secondary)
-                        awakeShadcnBadge("BETA", variant = AwakeShadcnBadgeVariant.Outline)
-                        awakeShadcnBadge("RISK", variant = AwakeShadcnBadgeVariant.Danger)
+                        shadcnBadge("LIVE", variant = ShadcnBadgeVariant.Primary)
+                        shadcnBadge("NEUTRAL", variant = ShadcnBadgeVariant.Secondary)
+                        shadcnBadge("BETA", variant = ShadcnBadgeVariant.Outline)
+                        shadcnBadge("RISK", variant = ShadcnBadgeVariant.Danger)
                     }
                     spacer(Modifier.height(8f.dp))
-                    awakeShadcnSurface(
+                    shadcnSurface(
                         id = "shadcn-subcard",
-                        variant = AwakeShadcnSurfaceVariant.Popover
+                        variant = ShadcnSurfaceVariant.Popover
                     , modifier = Modifier.copy(height = Dimension.WrapContent)) {
                         text("Preview Card")
                         supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
                         spacer(Modifier.height(6f.dp))
                         row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
-                            awakeShadcnButton("showcase-doc-ghost", "Ghost", modifier = Modifier.width(112f.px).height(36f.dp), variant = AwakeShadcnButtonVariant.Ghost)
-                            awakeShadcnButton("showcase-doc-danger", "Danger", modifier = Modifier.width(112f.px).height(36f.dp), variant = AwakeShadcnButtonVariant.Danger)
+                            shadcnButton("showcase-doc-ghost", "Ghost", modifier = Modifier.width(112f.px).height(36f.dp), variant = ShadcnButtonVariant.Ghost)
+                            shadcnButton("showcase-doc-danger", "Danger", modifier = Modifier.width(112f.px).height(36f.dp), variant = ShadcnButtonVariant.Danger)
                         }
                     }
                     spacer(Modifier.height(8f.dp))

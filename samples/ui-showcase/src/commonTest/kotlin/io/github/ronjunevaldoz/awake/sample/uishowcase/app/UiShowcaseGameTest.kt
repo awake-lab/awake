@@ -40,13 +40,13 @@ import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnAccent
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnBaseColor
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnStylePreset
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnAccent
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnBaseColor
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -105,9 +105,9 @@ class UiShowcaseGameTest {
     fun uiShowcaseStateContainerPublishesUiStateFlow() {
         val state = UiShowcaseRuntimeState()
 
-        state.showcaseStylePresetIndex = AwakeShadcnStylePreset.Lyra.ordinal
-        state.showcaseBaseColorIndex = AwakeShadcnBaseColor.Mist.ordinal
-        state.showcaseAccentIndex = AwakeShadcnAccent.Blue.ordinal
+        state.showcaseStylePresetIndex = ShadcnStylePreset.Lyra.ordinal
+        state.showcaseBaseColorIndex = ShadcnBaseColor.Mist.ordinal
+        state.showcaseAccentIndex = ShadcnAccent.Blue.ordinal
         state.showcaseThemeModeIndex = UiShowcaseThemeMode.Light.ordinal
         state.tipsVisible = false
         state.showcaseDangerMode = true
@@ -115,9 +115,9 @@ class UiShowcaseGameTest {
 
         assertEquals(
             UiShowcaseUiState(
-                showcaseStylePresetIndex = AwakeShadcnStylePreset.Lyra.ordinal,
-                showcaseBaseColorIndex = AwakeShadcnBaseColor.Mist.ordinal,
-                showcaseAccentIndex = AwakeShadcnAccent.Blue.ordinal,
+                showcaseStylePresetIndex = ShadcnStylePreset.Lyra.ordinal,
+                showcaseBaseColorIndex = ShadcnBaseColor.Mist.ordinal,
+                showcaseAccentIndex = ShadcnAccent.Blue.ordinal,
                 showcaseThemeModeIndex = UiShowcaseThemeMode.Light.ordinal,
                 tipsVisible = false,
                 showcaseBadgeVariantIndex = 0,
@@ -142,9 +142,9 @@ class UiShowcaseGameTest {
     @Test
     fun uiShowcaseStateBuildsConfiguredTheme() {
         val state = UiShowcaseRuntimeState()
-        state.showcaseStylePresetIndex = AwakeShadcnStylePreset.Maia.ordinal
-        state.showcaseBaseColorIndex = AwakeShadcnBaseColor.Taupe.ordinal
-        state.showcaseAccentIndex = AwakeShadcnAccent.Emerald.ordinal
+        state.showcaseStylePresetIndex = ShadcnStylePreset.Maia.ordinal
+        state.showcaseBaseColorIndex = ShadcnBaseColor.Taupe.ordinal
+        state.showcaseAccentIndex = ShadcnAccent.Emerald.ordinal
         state.showcaseThemeModeIndex = UiShowcaseThemeMode.Light.ordinal
 
         val theme = state.showcaseTheme()
@@ -158,9 +158,9 @@ class UiShowcaseGameTest {
     fun uiShowcaseContentPaneUsesConfiguredShowcaseTheme() = runTest {
         val renderer = RecordingRenderer()
         val state = UiShowcaseRuntimeState()
-        state.showcaseStylePresetIndex = AwakeShadcnStylePreset.Maia.ordinal
-        state.showcaseBaseColorIndex = AwakeShadcnBaseColor.Stone.ordinal
-        state.showcaseAccentIndex = AwakeShadcnAccent.Red.ordinal
+        state.showcaseStylePresetIndex = ShadcnStylePreset.Maia.ordinal
+        state.showcaseBaseColorIndex = ShadcnBaseColor.Stone.ordinal
+        state.showcaseAccentIndex = ShadcnAccent.Red.ordinal
         state.showcaseThemeModeIndex = UiShowcaseThemeMode.Dark.ordinal
         val spec = uiShowcaseModule(state).createGameSpec {
             title = uiShowcaseSpec().windowConfig.title
@@ -169,7 +169,7 @@ class UiShowcaseGameTest {
         }
         val game = spec.createGame()
 
-        val chromeColor = requireNotNull(AwakeShadcnTheme.components.surface.resolve().background)
+        val chromeColor = requireNotNull(ShadcnTheme.components.surface.resolve().background)
         val contentColor =
             requireNotNull(state.showcaseTheme().components.surface.resolve().background)
 
@@ -219,7 +219,7 @@ class UiShowcaseGameTest {
 
     @Test
     fun uiShowcaseChromeUsesLightShellTheme() = runTest {
-        val shellTheme = awakeShadcnTheme(dark = false)
+        val shellTheme = shadcnTheme(dark = false)
         val renderer = RecordingRenderer()
         val game = uiShowcase()
 
@@ -227,7 +227,7 @@ class UiShowcaseGameTest {
         game.render(0.016f, 1440f, 900f)
 
         val expectedSidebarColor = renderSidebarSurfaceColor(shellTheme)
-        val darkSidebarColor = renderSidebarSurfaceColor(AwakeShadcnTheme)
+        val darkSidebarColor = renderSidebarSurfaceColor(ShadcnTheme)
         val sidebarSurface = renderer.lastUiPrimitives
             .filterIsInstance<UiDrawPrimitive.RoundedQuad>()
             .largestWithin(xRange = 0f..300f, minWidth = 220f, minHeight = 400f)
@@ -322,7 +322,7 @@ class UiShowcaseGameTest {
             column(
                 id = "ui-showcase-content-viewport",
                 modifier = (Modifier.verticalScroll(contentScroll)).copy(width = Dimension.FillMax, height = Dimension.Fixed(320f.px))) {
-                awakeShadcnSurface(
+                shadcnSurface(
                     id = "ui-showcase-content",
                     style = Style { shape(16f.dp) }
                 , modifier = Modifier.copy(height = Dimension.WrapContent)) {
@@ -360,14 +360,14 @@ class UiShowcaseGameTest {
         ui.createColumn(
             modifier = Modifier.width(1440f.dp).height(900f.dp),
             font = BitmapFont(),
-            theme = awakeShadcnTheme(dark = false)
+            theme = shadcnTheme(dark = false)
         ).run {
             row(
                 horizontalArrangement = Arrangement.spacedBy(20f.dp),
                 modifier = (Modifier.fillMaxSize().padding(24f.dp)).copy(width = Dimension.FillMax, height = Dimension.Fixed(900f.px))) {
-                awakeShadcnSurface(
+                shadcnSurface(
                     id = "ui-showcase-sidebar",
-                    variant = AwakeShadcnSurfaceVariant.Sidebar,
+                    variant = ShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
                     modifier = (Modifier.verticalScroll(sidebarScroll)).copy(width = 264f.dp.toDimension(), height = Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = false)
@@ -376,7 +376,7 @@ class UiShowcaseGameTest {
                 column(
                     id = "ui-showcase-content-viewport",
                     modifier = (Modifier.verticalScroll(contentScroll)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
-                    awakeShadcnSurface(
+                    shadcnSurface(
                         id = "ui-showcase-content",
                         style = Style { shape(16f.dp) }
                     , modifier = Modifier.copy(height = Dimension.WrapContent)) {
@@ -467,9 +467,9 @@ private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
         font = BitmapFont(),
         theme = theme
     ).run {
-        awakeShadcnSurface(
+        shadcnSurface(
             id = "sidebar-probe",
-            variant = AwakeShadcnSurfaceVariant.Sidebar,
+            variant = ShadcnSurfaceVariant.Sidebar,
             style = Style { shape(16f.dp) }
         , modifier = Modifier.copy(width = Dimension.FillMax, height = Dimension.Fixed(120f.dp))) {
             text("Probe")

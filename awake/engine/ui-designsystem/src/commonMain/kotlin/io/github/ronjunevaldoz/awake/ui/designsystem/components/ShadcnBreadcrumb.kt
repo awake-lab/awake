@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -23,13 +23,13 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  * that's caller-owned routing, same as every other Awake nav element; this only lays out the
  * trail and its visual states.
  */
-fun ColumnScope.awakeShadcnBreadcrumb(
+fun ColumnScope.shadcnBreadcrumb(
     items: List<String>,
     modifier: UiModifier = Modifier,
     separator: String = "/",
     height: Dp = 20f.dp
 ): UiSlot {
-    val shadcnTheme = theme.asAwakeShadcnTheme()
+    val shadcnTheme = theme.asShadcnTheme()
     return row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = (modifier).copy(height = height.toDimension())) {
         items.forEachIndexed { index, label ->
             val isCurrent = index == items.lastIndex

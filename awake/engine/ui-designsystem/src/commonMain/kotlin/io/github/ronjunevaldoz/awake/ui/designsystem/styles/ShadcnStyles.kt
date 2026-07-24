@@ -4,22 +4,22 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnResolvedTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-internal val AwakeShadcnTransparent = Color.Transparent
+internal val ShadcnTransparent = Color.Transparent
 
-object AwakeShadcnStyles {
-    fun button(variant: AwakeShadcnButtonVariant): Style = button(AwakeShadcnTheme, variant)
+object ShadcnStyles {
+    fun button(variant: ShadcnButtonVariant): Style = button(ShadcnTheme, variant)
 
     internal fun button(
-        theme: AwakeShadcnResolvedTheme,
-        variant: AwakeShadcnButtonVariant
+        theme: ShadcnResolvedTheme,
+        variant: ShadcnButtonVariant
     ): Style = when (variant) {
-        AwakeShadcnButtonVariant.Primary -> Style {
+        ShadcnButtonVariant.Primary -> Style {
             background(theme.palette.primary)
             foreground(theme.palette.primaryForeground)
             shape(theme.radii.lg)
@@ -27,11 +27,11 @@ object AwakeShadcnStyles {
             hovered { background(theme.palette.primaryHover) }
             active { background(theme.palette.primaryPressed) }
         }
-        AwakeShadcnButtonVariant.Secondary -> theme.components.button then Style {
+        ShadcnButtonVariant.Secondary -> theme.components.button then Style {
             hovered { background(theme.palette.secondaryHover) }
             active { background(theme.palette.secondaryPressed) }
         }
-        AwakeShadcnButtonVariant.Outline -> Style {
+        ShadcnButtonVariant.Outline -> Style {
             background(theme.tokens.background)
             foreground(theme.tokens.foreground)
             borderWidth(1f.dp)
@@ -47,8 +47,8 @@ object AwakeShadcnStyles {
                 foreground(theme.palette.secondaryForeground)
             }
         }
-        AwakeShadcnButtonVariant.Ghost -> Style {
-            background(AwakeShadcnTransparent)
+        ShadcnButtonVariant.Ghost -> Style {
+            background(ShadcnTransparent)
             foreground(theme.tokens.foreground)
             shape(theme.radii.lg)
             textSize(theme.typography.label)
@@ -61,7 +61,7 @@ object AwakeShadcnStyles {
                 foreground(theme.palette.accentForeground)
             }
         }
-        AwakeShadcnButtonVariant.Danger -> Style {
+        ShadcnButtonVariant.Danger -> Style {
             background(theme.palette.destructive)
             foreground(theme.palette.destructiveForeground)
             shape(theme.radii.lg)
@@ -73,12 +73,12 @@ object AwakeShadcnStyles {
         // no border, no padding box). No hovered/active background rule here on purpose --
         // Ghost's resolveFill only shows a background when hovered/active AND the resolved
         // background differs from the base rule; since this style never overrides
-        // background() in either state, it stays AwakeShadcnTransparent throughout, so hover
+        // background() in either state, it stays ShadcnTransparent throughout, so hover
         // only shifts foreground color, never paints a fill. No underline: this engine's
         // Style system has no text-decoration property yet -- a real, documented gap, not a
         // silently-dropped corner.
-        AwakeShadcnButtonVariant.Link -> Style {
-            background(AwakeShadcnTransparent)
+        ShadcnButtonVariant.Link -> Style {
+            background(ShadcnTransparent)
             foreground(theme.palette.primary)
             shape(0f.dp)
             textSize(theme.typography.label)
@@ -86,54 +86,54 @@ object AwakeShadcnStyles {
         }
     }
 
-    fun badge(variant: AwakeShadcnBadgeVariant): Style = badge(AwakeShadcnTheme, variant)
+    fun badge(variant: ShadcnBadgeVariant): Style = badge(ShadcnTheme, variant)
 
     internal fun badge(
-        theme: AwakeShadcnResolvedTheme,
-        variant: AwakeShadcnBadgeVariant
+        theme: ShadcnResolvedTheme,
+        variant: ShadcnBadgeVariant
     ): Style = when (variant) {
-        AwakeShadcnBadgeVariant.Primary -> Style {
+        ShadcnBadgeVariant.Primary -> Style {
             background(theme.palette.primary)
             foreground(theme.palette.primaryForeground)
             shape(theme.radii.full)
             textSize(theme.typography.caption)
         }
-        AwakeShadcnBadgeVariant.Secondary -> Style {
+        ShadcnBadgeVariant.Secondary -> Style {
             background(theme.palette.secondary)
             foreground(theme.palette.secondaryForeground)
             shape(theme.radii.full)
             textSize(theme.typography.caption)
         }
-        AwakeShadcnBadgeVariant.Outline -> Style {
-            background(AwakeShadcnTransparent)
+        ShadcnBadgeVariant.Outline -> Style {
+            background(ShadcnTransparent)
             foreground(theme.tokens.foreground)
             shape(theme.radii.full)
             borderWidth(1f.dp)
             borderColor(theme.input)
             textSize(theme.typography.caption)
         }
-        AwakeShadcnBadgeVariant.Danger -> Style {
+        ShadcnBadgeVariant.Danger -> Style {
             background(theme.palette.destructive)
             foreground(theme.palette.destructiveForeground)
             shape(theme.radii.full)
             textSize(theme.typography.caption)
         }
-        AwakeShadcnBadgeVariant.Ghost -> Style {
-            background(AwakeShadcnTransparent)
+        ShadcnBadgeVariant.Ghost -> Style {
+            background(ShadcnTransparent)
             foreground(theme.tokens.foreground)
             shape(theme.radii.full)
             textSize(theme.typography.caption)
         }
     }
 
-    fun surface(variant: AwakeShadcnSurfaceVariant): Style = surface(AwakeShadcnTheme, variant)
+    fun surface(variant: ShadcnSurfaceVariant): Style = surface(ShadcnTheme, variant)
 
     internal fun surface(
-        theme: AwakeShadcnResolvedTheme,
-        variant: AwakeShadcnSurfaceVariant
+        theme: ShadcnResolvedTheme,
+        variant: ShadcnSurfaceVariant
     ): Style = when (variant) {
-        AwakeShadcnSurfaceVariant.Card -> theme.components.surface
-        AwakeShadcnSurfaceVariant.Sidebar -> Style {
+        ShadcnSurfaceVariant.Card -> theme.components.surface
+        ShadcnSurfaceVariant.Sidebar -> Style {
             background(theme.sidebar)
             foreground(theme.onSidebar)
             borderWidth(1f.dp)
@@ -141,7 +141,7 @@ object AwakeShadcnStyles {
             shape(theme.radii.xl)
             contentPadding(theme.metrics.surfacePadding)
         }
-        AwakeShadcnSurfaceVariant.Popover -> Style {
+        ShadcnSurfaceVariant.Popover -> Style {
             background(theme.popover)
             foreground(theme.onPopover)
             borderWidth(1f.dp)
@@ -149,7 +149,7 @@ object AwakeShadcnStyles {
             shape(theme.radii.xl)
             contentPadding(theme.metrics.panelPadding)
         }
-        AwakeShadcnSurfaceVariant.Muted -> Style {
+        ShadcnSurfaceVariant.Muted -> Style {
             background(theme.palette.muted)
             foreground(theme.tokens.foreground)
             borderWidth(1f.dp)
@@ -159,14 +159,14 @@ object AwakeShadcnStyles {
         }
     }
 
-    val field: Style get() = field(AwakeShadcnTheme)
+    val field: Style get() = field(ShadcnTheme)
 
-    internal fun field(theme: AwakeShadcnResolvedTheme): Style = field(theme, AwakeShadcnTextFieldVariant.Default)
+    internal fun field(theme: ShadcnResolvedTheme): Style = field(theme, ShadcnTextFieldVariant.Default)
 
-    fun field(variant: AwakeShadcnTextFieldVariant): Style = field(AwakeShadcnTheme, variant)
+    fun field(variant: ShadcnTextFieldVariant): Style = field(ShadcnTheme, variant)
 
-    internal fun field(theme: AwakeShadcnResolvedTheme, variant: AwakeShadcnTextFieldVariant): Style = when (variant) {
-        AwakeShadcnTextFieldVariant.Default -> Style {
+    internal fun field(theme: ShadcnResolvedTheme, variant: ShadcnTextFieldVariant): Style = when (variant) {
+        ShadcnTextFieldVariant.Default -> Style {
             background(theme.tokens.background)
             foreground(theme.tokens.foreground)
             borderWidth(1f.dp)
@@ -186,7 +186,7 @@ object AwakeShadcnStyles {
         // Real shadcn's Filled text field: solid muted-gray fill, no border at all. Explicit
         // borderWidth(0) is required -- resolveStyle falls back to theme.components.textField's
         // 1dp default border for any property this style doesn't set, it doesn't start blank.
-        AwakeShadcnTextFieldVariant.Filled -> Style {
+        ShadcnTextFieldVariant.Filled -> Style {
             background(theme.palette.muted)
             foreground(theme.tokens.foreground)
             borderWidth(UiShape.none)
@@ -197,8 +197,8 @@ object AwakeShadcnStyles {
         }
         // Real shadcn's Ghost text field: no fill, no border -- label only, chrome appears
         // only once focused so the user still gets an affordance while typing.
-        AwakeShadcnTextFieldVariant.Ghost -> Style {
-            background(AwakeShadcnTransparent)
+        ShadcnTextFieldVariant.Ghost -> Style {
+            background(ShadcnTransparent)
             foreground(theme.tokens.foreground)
             borderWidth(UiShape.none)
             shape(theme.radii.lg)
@@ -211,9 +211,9 @@ object AwakeShadcnStyles {
         }
     }
 
-    val checkbox: Style get() = checkbox(AwakeShadcnTheme)
+    val checkbox: Style get() = checkbox(ShadcnTheme)
 
-    internal fun checkbox(theme: AwakeShadcnResolvedTheme): Style = Style {
+    internal fun checkbox(theme: ShadcnResolvedTheme): Style = Style {
         background(theme.tokens.background)
         foreground(theme.tokens.foreground)
         borderWidth(1f.dp)
@@ -230,9 +230,9 @@ object AwakeShadcnStyles {
         }
     }
 
-    val slider: Style get() = slider(AwakeShadcnTheme)
+    val slider: Style get() = slider(ShadcnTheme)
 
-    internal fun slider(theme: AwakeShadcnResolvedTheme): Style = Style {
+    internal fun slider(theme: ShadcnResolvedTheme): Style = Style {
         background(theme.input)
         foreground(theme.tokens.foreground)
         borderWidth(1f.dp)
@@ -241,15 +241,15 @@ object AwakeShadcnStyles {
         textSize(theme.typography.label)
     }
 
-    internal fun badgeContent(theme: AwakeShadcnResolvedTheme): Style = Style {
+    internal fun badgeContent(theme: ShadcnResolvedTheme): Style = Style {
         contentPadding(theme.metrics.badgePaddingX, theme.metrics.badgePaddingY)
     }
 
-    val kbd: Style get() = kbd(AwakeShadcnTheme)
+    val kbd: Style get() = kbd(ShadcnTheme)
 
     // Real shadcn's Kbd: small monospace-ish key cap -- muted fill, thin border, tight
     // padding, sm radius (not badge's full pill).
-    internal fun kbd(theme: AwakeShadcnResolvedTheme): Style = Style {
+    internal fun kbd(theme: ShadcnResolvedTheme): Style = Style {
         background(theme.palette.muted)
         foreground(theme.tokens.mutedForeground)
         borderWidth(1f.dp)
@@ -259,12 +259,12 @@ object AwakeShadcnStyles {
         textSize(theme.typography.caption)
     }
 
-    fun alert(variant: AwakeShadcnAlertVariant): Style = alert(AwakeShadcnTheme, variant)
+    fun alert(variant: ShadcnAlertVariant): Style = alert(ShadcnTheme, variant)
 
     // Real shadcn's Alert has no hover/press states -- it's a static banner, not an
     // interactive control, so this is the only style call in this file with no state rules.
-    internal fun alert(theme: AwakeShadcnResolvedTheme, variant: AwakeShadcnAlertVariant): Style = when (variant) {
-        AwakeShadcnAlertVariant.Default -> Style {
+    internal fun alert(theme: ShadcnResolvedTheme, variant: ShadcnAlertVariant): Style = when (variant) {
+        ShadcnAlertVariant.Default -> Style {
             background(theme.tokens.background)
             foreground(theme.tokens.foreground)
             borderWidth(1f.dp)
@@ -272,7 +272,7 @@ object AwakeShadcnStyles {
             shape(theme.radii.lg)
             contentPadding(theme.metrics.panelPadding)
         }
-        AwakeShadcnAlertVariant.Destructive -> Style {
+        ShadcnAlertVariant.Destructive -> Style {
             background(theme.tokens.background)
             foreground(theme.palette.destructive)
             borderWidth(1f.dp)

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 
-enum class AwakeShadcnButtonVariant {
+enum class ShadcnButtonVariant {
     Primary,
     Secondary,
     Outline,
@@ -13,7 +13,7 @@ enum class AwakeShadcnButtonVariant {
 
 // Mirrors real shadcn's ButtonSize axis (Xs/Sm/Md/Lg/Icon). Height only -- width still
 // comes from the caller's modifier or content, same as every other Awake button call site.
-enum class AwakeShadcnButtonSize(val heightDp: Float) {
+enum class ShadcnButtonSize(val heightDp: Float) {
     Xs(28f),
     Sm(32f),
     Md(40f),
@@ -21,7 +21,7 @@ enum class AwakeShadcnButtonSize(val heightDp: Float) {
     Icon(40f)
 }
 
-enum class AwakeShadcnBadgeVariant {
+enum class ShadcnBadgeVariant {
     Primary,
     Secondary,
     Outline,
@@ -29,20 +29,20 @@ enum class AwakeShadcnBadgeVariant {
     Ghost
 }
 
-enum class AwakeShadcnSurfaceVariant {
+enum class ShadcnSurfaceVariant {
     Card,
     Sidebar,
     Popover,
     Muted
 }
 
-enum class AwakeShadcnTextFieldVariant {
+enum class ShadcnTextFieldVariant {
     Default,
     Filled,
     Ghost
 }
 
-enum class AwakeShadcnAlertVariant {
+enum class ShadcnAlertVariant {
     Default,
     Destructive
 }

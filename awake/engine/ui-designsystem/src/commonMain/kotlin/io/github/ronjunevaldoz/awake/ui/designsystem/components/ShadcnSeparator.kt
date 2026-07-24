@@ -14,7 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** [separator] with Shadcn tokens. */
-fun UiScope.awakeShadcnSeparator(
+fun UiScope.shadcnSeparator(
     modifier: UiModifier = Modifier,
     width: Dimension = Dimension.FillMax,
     thickness: Dp = 1f.dp

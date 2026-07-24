@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.dp
 
-internal data class AwakeShadcnRadiusScale(
+internal data class ShadcnRadiusScale(
     val xs: Dp,
     val sm: Dp,
     val md: Dp,
@@ -15,7 +15,7 @@ internal data class AwakeShadcnRadiusScale(
     val full: Dp
 ) {
     companion object {
-        fun fromBase(base: Dp): AwakeShadcnRadiusScale = AwakeShadcnRadiusScale(
+        fun fromBase(base: Dp): ShadcnRadiusScale = ShadcnRadiusScale(
             xs = Dp(base.value * 0.4f),
             sm = Dp(base.value * 0.6f),
             md = Dp(base.value * 0.8f),
@@ -26,7 +26,7 @@ internal data class AwakeShadcnRadiusScale(
     }
 }
 
-internal data class AwakeShadcnMetrics(
+internal data class ShadcnMetrics(
     val panelPadding: Dp,
     val surfacePadding: Dp,
     val fieldPaddingX: Dp,
@@ -35,7 +35,7 @@ internal data class AwakeShadcnMetrics(
     val badgePaddingY: Dp
 )
 
-internal data class AwakeShadcnPalette(
+internal data class ShadcnPalette(
     val background: Color,
     val foreground: Color,
     val primary: Color,
