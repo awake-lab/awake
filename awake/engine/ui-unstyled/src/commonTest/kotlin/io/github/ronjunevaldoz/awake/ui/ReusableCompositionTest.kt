@@ -21,7 +21,7 @@ class ReusableCompositionTest {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
 
-        ui.createAbsolute(20f, 20f, font = BitmapFont()).badge("status", "READY", emphasized = true)
+        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = BitmapFont()).badge("status", "READY", emphasized = true)
 
         val primitives = ui.endFrame()
         assertIs<UiDrawPrimitive.RoundedQuad>(primitives.first(), "custom widget should be able to emit a styled rounded border")
@@ -48,7 +48,7 @@ class ReusableCompositionTest {
         val ui = UiContext()
         ui.beginFrame(260f, 120f, testSnapshot())
 
-        val result = ui.createAbsolute(20f, 20f, font = BitmapFont()).buttonSlot(
+        val result = ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = BitmapFont()).buttonSlot(
             id = "launch",
             modifier = UiModifier().width(180f.px).height(40f.px),
             style = Style {

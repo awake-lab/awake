@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
@@ -21,7 +22,7 @@ class TextWidgetsTest {
     fun ellipsisClampsGlyphsInsideTheSlotWidth() {
         val font = BitmapFont()
         val ui = UiContext()
-        val scope = ui.createAbsolute(x = 10f, y = 20f, font = font)
+        val scope = ui.createAbsolute(modifier = UiModifier().offset((10f).dp, (20f).dp), font = font)
         // BitmapFont is true monospace (every glyph advances a full glyphPx, see
         // GlyphAtlasSource.advanceFor) -- the slot must be wide enough to fit the 3-dot
         // ellipsis itself (3 * glyphPx) plus at least one real character, or there's no
@@ -119,7 +120,7 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
-        ui.createAbsolute(0f, 0f, font = font).text(
+        ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font).text(
             label = "BUTTON",
             slot = UiSlot(20f, 20f, 160f, 40f),
             font = font,
@@ -141,7 +142,7 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(180f, 80f, testSnapshot())
-        ui.createAbsolute(0f, 0f, font = font).text(
+        ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font).text(
             label = "Title",
             slot = UiSlot(16f, 24f, 120f, 20f),
             font = font
@@ -160,7 +161,7 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(220f, 100f, testSnapshot())
-        ui.createAbsolute(0f, 0f, font = font).button(
+        ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font).button(
             id = "nav",
             modifier = UiModifier().width(180f.px).height(36f.px),
             label = "Overview",
@@ -186,7 +187,10 @@ class TextWidgetsTest {
         var firstSlot: UiSlot? = null
         var secondSlot: UiSlot? = null
 
-        ui.column(x = 0f, y = 0f, width = 200f, gap = 8f) {
+        ui.column(
+            modifier = UiModifier().width(200f.dp),
+            verticalArrangement = Arrangement.spacedBy(8f.dp)
+        ) {
             firstSlot = text("Hover target", modifier = UiModifier().width(120f.px))
             secondSlot = text("Sibling", modifier = UiModifier().width(120f.px))
         }

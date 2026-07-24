@@ -52,6 +52,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurfa
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.offset
+import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.padding
@@ -312,7 +315,7 @@ class UiShowcaseGameTest {
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
         ui.createColumn(
-            slot = UiSlot(24f, 24f, 720f, 516f),
+            modifier = UiModifier().offset(24f.dp, 24f.dp).width(720f.dp).height(516f.dp),
             font = BitmapFont(),
             theme = state.showcaseTheme()
         ).run {
@@ -359,7 +362,7 @@ class UiShowcaseGameTest {
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
         ui.createColumn(
-            slot = UiSlot(0f, 0f, 1440f, 900f),
+            modifier = UiModifier().width(1440f.dp).height(900f.dp),
             font = BitmapFont(),
             theme = awakeShadcnTheme(dark = false)
         ).run {
@@ -473,7 +476,11 @@ private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
         240f,
         io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot().toUiInputState()
     )
-    ui.createColumn(slot = UiSlot(24f, 24f, 264f, 180f), font = BitmapFont(), theme = theme).run {
+    ui.createColumn(
+        modifier = UiModifier().offset(24f.dp, 24f.dp).width(264f.dp).height(180f.dp),
+        font = BitmapFont(),
+        theme = theme
+    ).run {
         awakeShadcnSurface(
             id = "sidebar-probe",
             width = Dimension.FillMax,

@@ -6,6 +6,10 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.offset
+import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.column
@@ -43,10 +47,10 @@ class UiShowcaseTextInputIntegrationTest {
         fun frame(pointerDown: Boolean, x: Float, y: Float): List<UiDrawPrimitive> {
             input.setPointer(down = pointerDown, x = x, y = y)
             ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
+            ui.pushFont(font)
+            ui.pushTheme(theme)
             ui.column(
-                slot = UiSlot(24f, 24f, width - 48f, height - 48f),
-                font = font,
-                theme = theme,
+                modifier = UiModifier().offset(24f.dp, 24f.dp).width((width - 48f).dp).height((height - 48f).dp),
                 verticalArrangement = Arrangement.spacedBy(10f.dp)
             ) {
                 renderUiShowcasePagePreview(page, state)
@@ -89,10 +93,10 @@ class UiShowcaseTextInputIntegrationTest {
 
         input.setPointer(down = false, x = -100f, y = -100f)
         ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
         ui.column(
-            slot = UiSlot(24f, 24f, 852f, 412f),
-            font = font,
-            theme = theme,
+            modifier = UiModifier().offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
             renderUiShowcasePagePreview(page, state)
@@ -102,10 +106,10 @@ class UiShowcaseTextInputIntegrationTest {
         input.pushTypedText("ignored")
         input.setPointer(down = false, x = -100f, y = -100f)
         ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
         ui.column(
-            slot = UiSlot(24f, 24f, 852f, 412f),
-            font = font,
-            theme = theme,
+            modifier = UiModifier().offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
             renderUiShowcasePagePreview(page, state)

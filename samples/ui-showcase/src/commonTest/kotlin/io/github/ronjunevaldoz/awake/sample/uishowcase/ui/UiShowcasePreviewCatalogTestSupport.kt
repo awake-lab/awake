@@ -39,6 +39,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMe
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -456,15 +457,13 @@ private fun renderUiShowcaseCardPreviewFrame(
         if (focusedNodeId != null) {
             ui.requestFocus(focusedNodeId)
         }
+        ui.pushFont(font)
+        ui.pushTheme(theme)
         ui.column(
-            slot = UiSlot(
-                insetPx,
-                insetPx,
-                metadata.rasterWidth.toFloat() - insetPx * 2f,
-                metadata.rasterHeight.toFloat() - insetPx * 2f
-            ),
-            font = font,
-            theme = theme,
+            modifier = UiModifier()
+                .offset(insetPx.dp, insetPx.dp)
+                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).dp)
+                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).dp),
             verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp)
         ) {
             awakeShadcnSurface(

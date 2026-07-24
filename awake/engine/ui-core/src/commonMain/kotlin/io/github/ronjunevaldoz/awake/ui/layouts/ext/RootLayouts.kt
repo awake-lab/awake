@@ -37,25 +37,6 @@ fun UiContext.column(
     ).block()
 }
 
-@Deprecated(
-    message = "Use column(modifier = ...) so authored root layout comes from UiModifier, not UiSlot geometry.",
-    replaceWith = ReplaceWith("column(modifier = modifier, verticalArrangement = verticalArrangement, block = block)")
-)
-fun UiContext.column(
-    slot: UiSlot,
-    modifier: UiModifier = UiModifier(),
-    verticalArrangement: Arrangement = defaultArrangement(),
-    block: ColumnScope.() -> Unit
-) {
-    createColumn(
-        slot = slot,
-        gap = verticalArrangement.baseSpacingPx(),
-        insets = modifier.insets,
-        verticalArrangement = verticalArrangement,
-        testTag = modifier.testTag
-    ).block()
-}
-
 fun UiContext.row(
     modifier: UiModifier = UiModifier(),
     horizontalArrangement: Arrangement = defaultArrangement(),
@@ -69,25 +50,6 @@ fun UiContext.row(
     ).block()
 }
 
-@Deprecated(
-    message = "Use row(modifier = ...) so authored root layout comes from UiModifier, not UiSlot geometry.",
-    replaceWith = ReplaceWith("row(modifier = modifier, horizontalArrangement = horizontalArrangement, block = block)")
-)
-fun UiContext.row(
-    slot: UiSlot,
-    modifier: UiModifier = UiModifier(),
-    horizontalArrangement: Arrangement = defaultArrangement(),
-    block: RowScope.() -> Unit
-) {
-    createRow(
-        slot = slot,
-        gap = horizontalArrangement.baseSpacingPx(),
-        insets = modifier.insets,
-        horizontalArrangement = horizontalArrangement,
-        testTag = modifier.testTag
-    ).block()
-}
-
 fun UiContext.box(
     modifier: UiModifier = UiModifier(),
     contentAlignment: UiAlignment = UiAlignment.TopStart,
@@ -95,24 +57,6 @@ fun UiContext.box(
 ) {
     createBox(
         slot = resolveRootSlot(modifier),
-        contentAlignment = contentAlignment,
-        testTag = modifier.testTag
-    ).block()
-}
-
-@Deprecated(
-    message = "Use box(modifier = ...) so authored root layout comes from UiModifier, not UiSlot geometry.",
-    replaceWith = ReplaceWith("box(modifier = modifier, contentAlignment = contentAlignment, block = block)")
-)
-fun UiContext.box(
-    slot: UiSlot,
-    modifier: UiModifier = UiModifier(),
-    contentAlignment: UiAlignment = UiAlignment.TopStart,
-    block: BoxScope.() -> Unit
-) {
-    createBox(
-        slot = slot,
-        insets = modifier.insets,
         contentAlignment = contentAlignment,
         testTag = modifier.testTag
     ).block()
@@ -132,18 +76,3 @@ fun UiContext.absolute(
     ).block()
 }
 
-@Deprecated(
-    message = "Use absolute(modifier = ...) so authored root layout comes from UiModifier, not UiSlot geometry.",
-    replaceWith = ReplaceWith("absolute(modifier = modifier, block = block)")
-)
-fun UiContext.absolute(
-    slot: UiSlot,
-    modifier: UiModifier = UiModifier(),
-    block: AbsoluteScope.() -> Unit
-) {
-    createAbsolute(
-        slot = slot,
-        insets = modifier.insets,
-        testTag = modifier.testTag
-    ).block()
-}

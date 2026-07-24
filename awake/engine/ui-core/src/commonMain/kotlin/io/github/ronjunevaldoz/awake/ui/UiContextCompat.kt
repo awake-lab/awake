@@ -83,31 +83,6 @@ fun UiContext.createColumn(
 }
 
 @Deprecated(
-    message = "Use createColumn(modifier = ...) so authored root layout comes from UiModifier, not UiSlot geometry.",
-    replaceWith = ReplaceWith("createColumn(modifier = modifier, verticalArrangement = verticalArrangement, font = font, theme = theme, textScale = textScale, overlayOnly = overlayOnly)")
-)
-fun UiContext.createColumn(
-    slot: UiSlot,
-    modifier: UiModifier = UiModifier(),
-    verticalArrangement: Arrangement = defaultArrangement(),
-    font: UiFont = currentFont,
-    theme: UiTheme = currentTheme,
-    textScale: Float = currentTextStyle.scale,
-    overlayOnly: Boolean = false
-): ColumnScope {
-    return withRootEnvironment(font, theme, textScale) {
-        createColumn(
-        slot = slot,
-        gap = verticalArrangement.baseSpacingPx(),
-        insets = modifier.insets,
-        verticalArrangement = verticalArrangement,
-        testTag = modifier.testTag,
-        overlayOnly = overlayOnly
-    )
-    }
-}
-
-@Deprecated(
     message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createAbsolute(...) APIs."
 )
 fun UiContext.createAbsolute(
@@ -127,28 +102,6 @@ fun UiContext.createAbsolute(
         testTag = modifier.testTag,
         overlayOnly = overlayOnly
     )
-}
-
-@Deprecated(
-    message = "Use createAbsolute(modifier = ...) so authored root layout comes from UiModifier, not UiSlot geometry.",
-    replaceWith = ReplaceWith("createAbsolute(modifier = modifier, font = font, theme = theme, textScale = textScale, overlayOnly = overlayOnly)")
-)
-fun UiContext.createAbsolute(
-    slot: UiSlot,
-    modifier: UiModifier = UiModifier(),
-    font: UiFont = currentFont,
-    theme: UiTheme = currentTheme,
-    textScale: Float = currentTextStyle.scale,
-    overlayOnly: Boolean = false
-): AbsoluteScope {
-    return withRootEnvironment(font, theme, textScale) {
-        createAbsolute(
-        slot = slot,
-        insets = modifier.insets,
-        testTag = modifier.testTag,
-        overlayOnly = overlayOnly
-    )
-    }
 }
 
 @Deprecated(
@@ -220,26 +173,3 @@ fun UiContext.column(
     ).block()
 }
 
-@Deprecated(
-    message = "Use column(modifier = ...) so authored root layout comes from UiModifier, not UiSlot geometry.",
-    replaceWith = ReplaceWith("column(modifier = modifier, verticalArrangement = verticalArrangement, font = font, theme = theme, textScale = textScale, block = block)")
-)
-fun UiContext.column(
-    slot: UiSlot,
-    modifier: UiModifier = UiModifier(),
-    verticalArrangement: Arrangement = defaultArrangement(),
-    font: UiFont = currentFont,
-    theme: UiTheme = currentTheme,
-    textScale: Float = currentTextStyle.scale,
-    block: ColumnScope.() -> Unit
-) {
-    withRootEnvironment(font, theme, textScale) {
-        createColumn(
-        slot = slot,
-            gap = verticalArrangement.baseSpacingPx(),
-            insets = modifier.insets,
-            verticalArrangement = verticalArrangement,
-            testTag = modifier.testTag
-        ).block()
-    }
-}

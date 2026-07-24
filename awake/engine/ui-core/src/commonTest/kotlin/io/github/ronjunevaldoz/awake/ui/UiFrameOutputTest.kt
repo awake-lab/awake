@@ -16,7 +16,7 @@ class UiFrameOutputTest {
 
         ui.beginFrame(200f, 100f, testSnapshot())
         ui.requestFocus("field")
-        ui.createAbsolute(10f, 10f).recordSemantic(
+        ui.createAbsolute(modifier = UiModifier().offset(10f.dp, 10f.dp)).recordSemantic(
             role = UiSemanticRole.Text,
             bounds = UiSlot(10f, 10f, 80f, 20f),
             id = "field.label",

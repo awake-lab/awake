@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.height
+import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
@@ -54,7 +55,10 @@ class UiDslTutorialDocsTest {
         var showGrid = true
         var showFrustum = false
 
-        ui.column(slot = UiSlot(20f, 20f, 280f, 210f), font = font, theme = CoreUiTheme, textScale = 2f) {
+        ui.pushFont(font)
+        ui.pushTheme(CoreUiTheme)
+        ui.pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
+        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(280f.dp).height(210f.dp)) {
             surface(
                 id = "inspector",
                 height = 190f.toDimension(),
@@ -119,7 +123,10 @@ class UiDslTutorialDocsTest {
         val ui = UiContext()
         ui.beginFrame(360f, 240f, testSnapshot())
 
-        ui.column(slot = UiSlot(20f, 20f, 320f, 200f), font = font, theme = CoreUiTheme, textScale = 2f) {
+        ui.pushFont(font)
+        ui.pushTheme(CoreUiTheme)
+        ui.pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
+        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(320f.dp).height(200f.dp)) {
             surface(
                 id = "canvas-proof",
                 height = 180f.toDimension(),

@@ -23,7 +23,7 @@ class UiSemanticWidgetsTest {
         val font = UiFonts.default()
         val context = UiContext()
         context.beginFrame(240f, 96f, testSnapshot())
-        context.createAbsolute(20f, 20f, font = font).button(
+        context.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = font).button(
             id = "primary-action",
             modifier = UiModifier().width(180f.px).height(44f.px),
             label = "Awake Button"
@@ -46,7 +46,7 @@ class UiSemanticWidgetsTest {
         val font = UiFonts.default()
         val context = UiContext()
         context.beginFrame(180f, 64f, testSnapshot())
-        context.createAbsolute(12f, 12f, font = font).text(
+        context.createAbsolute(modifier = UiModifier().offset(12f.dp, 12f.dp), font = font).text(
             label = "This label is intentionally too wide for the slot",
             slot = UiSlot(12f, 12f, 80f, 16f),
             overflow = UiTextOverflow.Ellipsis,

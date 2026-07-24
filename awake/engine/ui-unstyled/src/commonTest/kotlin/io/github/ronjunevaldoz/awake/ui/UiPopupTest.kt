@@ -17,7 +17,7 @@ class UiPopupTest {
     fun popupPositionsBelowAnchorByDefault() {
         val ui = UiContext()
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        val scope = ui.createAbsolute(0f, 0f)
+        val scope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp))
 
         val result = scope.popup(
             anchorSlot = UiSlot(20f, 30f, 120f, 32f),
@@ -36,7 +36,7 @@ class UiPopupTest {
     fun popupDismissesOnOutsidePointerPress() {
         val ui = UiContext()
         ui.beginFrame(300f, 200f, testSnapshot(x = 280f, y = 180f, down = true))
-        val scope = ui.createAbsolute(0f, 0f)
+        val scope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp))
 
         val result = scope.popup(
             anchorSlot = UiSlot(20f, 30f, 120f, 32f),
@@ -53,18 +53,18 @@ class UiPopupTest {
     @Test
     fun dropdownUsesSharedPopupAndClosesAfterPickingOption() {
         val ui = UiContext()
-        ui.createColumn(20f, 20f, 160f).widgetState("dd").set("expanded", true)
+        ui.createColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").set("expanded", true)
 
         ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = true))
-        var picked = ui.createColumn(20f, 20f, 160f).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
+        var picked = ui.createColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
         ui.endFrame()
         assertEquals(null, picked)
 
         ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = false))
-        picked = ui.createColumn(20f, 20f, 160f).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
+        picked = ui.createColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
         ui.endFrame()
 
         assertEquals(0, picked)
-        assertFalse(ui.createColumn(20f, 20f, 160f).widgetState("dd").get("expanded", true))
+        assertFalse(ui.createColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").get("expanded", true))
     }
 }

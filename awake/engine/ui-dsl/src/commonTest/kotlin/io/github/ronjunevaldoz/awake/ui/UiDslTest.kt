@@ -52,7 +52,8 @@ class UiDslTest {
         var panelSlot: UiSlot? = null
         var controlSlot: UiSlot? = null
 
-        ui.column(slot = UiSlot(20f, 20f, 200f, 220f), font = BitmapFont()) {
+        ui.pushFont(BitmapFont())
+        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(200f.dp).height(220f.dp)) {
             surface(id = "inspector", height = 120f.toDimension()) { slot ->
                 panelSlot = slot
                 text("Inspector")
@@ -88,9 +89,9 @@ class UiDslTest {
         var first: UiButtonResult? = null
         var second: UiButtonResult? = null
 
+        ui.pushFont(BitmapFont())
         ui.column(
-            slot = UiSlot(10f, 20f, 220f, 80f),
-            font = BitmapFont(),
+            modifier = UiModifier().offset(10f.dp, 20f.dp).width(220f.dp).height(80f.dp),
             verticalArrangement = Arrangement.spacedBy(0f.dp)
         ) {
             row(height = 30f.dp, horizontalArrangement = Arrangement.spacedBy(4f.dp)) {
@@ -120,7 +121,8 @@ class UiDslTest {
         ui.beginFrame(180f, 80f, testSnapshot())
 
         var checked = true
-        ui.column(slot = UiSlot(20f, 20f, 140f, 80f), font = BitmapFont()) {
+        ui.pushFont(BitmapFont())
+        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(140f.dp).height(80f.dp)) {
             checked = toggle(
                 id = "grid",
                 checked = checked,
@@ -148,7 +150,7 @@ class UiDslTest {
 
         var controlSlot: UiSlot? = null
 
-        ui.column(slot = UiSlot(20f, 20f, 220f, 160f)) {
+        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(220f.dp).height(160f.dp)) {
             surface(id = "slot-panel", height = 100f.toDimension()) {
                 row(
                     height = 28f.dp
@@ -288,7 +290,7 @@ class UiDslTest {
         val scrollState = UiScrollState()
 
         ui.beginFrame(220f, 200f, testSnapshot(x = 24f, y = 24f, scrollDeltaY = -1f))
-        ui.column(slot = UiSlot(12f, 12f, 160f, 176f)) {
+        ui.column(modifier = UiModifier().offset(12f.dp, 12f.dp).width(160f.dp).height(176f.dp)) {
             scrollPanel(
                 id = "dsl-scroll",
                 modifier = UiModifier()

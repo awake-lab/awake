@@ -16,7 +16,7 @@ class PanelTest {
     @Test
     fun panelDoesNotDisturbParentLayoutCursor() {
         val ui = UiContext()
-        val column = ui.createColumn(x = 10f, y = 20f, width = 200f)
+        val column = ui.createColumn(modifier = UiModifier().offset((10f).dp, (20f).dp).width((200f).dp))
 
         val panelSlot = column.surface("p", Dimension.Fixed(180f.px), Dimension.Fixed(100f.px)) { }
         val next = column.claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(30f.px))
@@ -31,7 +31,7 @@ class PanelTest {
     @Test
     fun contentLambdaScopeStartsAtPanelContentInset() {
         val ui = UiContext()
-        val column = ui.createColumn(x = 10f, y = 20f, width = 200f)
+        val column = ui.createColumn(modifier = UiModifier().offset((10f).dp, (20f).dp).width((200f).dp))
 
         var firstChildSlot: UiSlot? = null
         column.surface("p", Dimension.Fixed(180f.px), Dimension.Fixed(100f.px)) { slot ->
@@ -46,7 +46,7 @@ class PanelTest {
     @Test
     fun zeroRadiusEmitsPlainQuad() {
         val ui = UiContext()
-        val column = ui.createColumn(x = 0f, y = 0f, width = 200f)
+        val column = ui.createColumn(modifier = UiModifier().offset((0f).dp, (0f).dp).width((200f).dp))
         column.surface("p", Dimension.Fixed(180f.px), Dimension.Fixed(100f.px), radius = UiShape.none) { }
         val primitives = ui.endFrame()
         assertTrue(primitives.isNotEmpty())
@@ -56,7 +56,7 @@ class PanelTest {
     @Test
     fun nonZeroRadiusEmitsRoundedQuad() {
         val ui = UiContext()
-        val column = ui.createColumn(x = 0f, y = 0f, width = 200f)
+        val column = ui.createColumn(modifier = UiModifier().offset((0f).dp, (0f).dp).width((200f).dp))
         column.surface("p", Dimension.Fixed(180f.px), Dimension.Fixed(100f.px), radius = UiShape.md) { }
         val primitives = ui.endFrame()
         assertTrue(primitives.isNotEmpty())
@@ -67,7 +67,7 @@ class PanelTest {
     fun wrapContentHeightTracksChildContent() {
         val ui = UiContext()
         val font = io.github.ronjunevaldoz.awake.ui.font.BitmapFont()
-        val column = ui.createColumn(x = 0f, y = 0f, width = 220f, font = font)
+        val column = ui.createColumn(modifier = UiModifier().offset((0f).dp, (0f).dp).width((220f).dp), font = font)
 
         val panelSlot = column.surface(
             id = "wrap-height",
@@ -85,7 +85,7 @@ class PanelTest {
     fun wrapContentWidthTracksChildContent() {
         val ui = UiContext()
         val font = io.github.ronjunevaldoz.awake.ui.font.BitmapFont()
-        val column = ui.createColumn(x = 0f, y = 0f, width = 220f, font = font)
+        val column = ui.createColumn(modifier = UiModifier().offset((0f).dp, (0f).dp).width((220f).dp), font = font)
 
         val panelSlot = column.surface(
             id = "wrap-width",

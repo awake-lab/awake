@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 import io.github.ronjunevaldoz.awake.ui.Dimension
 import io.github.ronjunevaldoz.awake.ui.Style
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.UiInsets
 import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.createColumn
@@ -83,7 +84,7 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
     context.pushFont(previewFont)
     val specimenScope = context.createColumn(
         slot = slot,
-        modifier = UiModifier().padding(16f.dp),
+        insets = UiInsets(16f.dp),
         verticalArrangement = Arrangement.spacedBy(8f.dp),
         overlayOnly = emitsToOverlay
     )
