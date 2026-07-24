@@ -4,10 +4,11 @@ package io.github.ronjunevaldoz.awake.sample.hellocube.ui.components
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
 
 /**
  * Reference example, not wired to any real demo -- proves Awake's UI DSL is genuinely
@@ -22,7 +23,7 @@ fun UiScope.gauge(
     value: Float,
     width: Float = 120f,
     height: Float = 12f,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     trackColor: Color = Color(0.2f, 0.2f, 0.2f, 1f),
     fillColor: Color = Color(0.3f, 0.7f, 0.3f, 1f)
 ) {

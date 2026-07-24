@@ -10,6 +10,9 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.internal.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.internal.gradientRect
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 @AwakeUiDsl
@@ -305,7 +308,7 @@ class CanvasScope internal constructor(
 fun UiScope.canvas(
     width: Dimension = Dimension.FillMax,
     height: Dimension = Dimension.FillMax,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     content: CanvasScope.() -> Unit
 ): UiSlot {
     val slot = claimModifiedSlot(defaultWidth = width, defaultHeight = height, modifier = modifier)

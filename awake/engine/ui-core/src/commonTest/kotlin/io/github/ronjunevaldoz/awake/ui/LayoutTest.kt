@@ -8,6 +8,16 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.testTag
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.styling.UiInsets
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -95,10 +105,8 @@ class LayoutTest {
         var second: UiSlot? = null
 
         root.row(
-            width = Dimension.Fixed(240f.px),
-            height = Dimension.Fixed(32f.px),
             horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        , modifier = Modifier.width(Dimension.Fixed(240f.px)).height(Dimension.Fixed(32f.px))) {
             first = claimSlot(Dimension.Fixed(40f.px), Dimension.FillMax)
             second = claimSlot(Dimension.Fixed(60f.px), Dimension.FillMax)
         }
@@ -116,10 +124,8 @@ class LayoutTest {
         var second: UiSlot? = null
 
         root.column(
-            width = Dimension.FillMax,
-            height = Dimension.Fixed(200f.px),
             verticalArrangement = Arrangement.SpaceEvenly
-        ) {
+        , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(200f.px))) {
             first = claimSlot(Dimension.FillMax, Dimension.Fixed(20f.px))
             second = claimSlot(Dimension.FillMax, Dimension.Fixed(20f.px))
         }
@@ -172,7 +178,7 @@ class LayoutTest {
         val slot = box.claimModifiedSlot(
             defaultWidth = Dimension.Fixed(40f.px),
             defaultHeight = Dimension.Fixed(20f.px),
-            modifier = UiModifier()
+            modifier = Modifier
                 .padding(start = 8f.dp, top = 6f.dp, end = 10f.dp, bottom = 4f.dp)
                 .offset(x = (-2f).dp, y = (-3f).dp)
         )
@@ -214,21 +220,14 @@ class LayoutTest {
         var contentSlot: UiSlot? = null
 
         ui.createBox(x = 0f, y = 0f, width = 800f, height = 600f).row(
-            width = Dimension.FillMax,
-            height = Dimension.FillMax,
             horizontalArrangement = Arrangement.spacedBy(20f.px)
-        ) {
+        , modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) {
             sidebarSlot = column(
                 id = "sidebar",
-                width = 264f.toDimension(),
-                height = Dimension.FillMax,
-                modifier = UiModifier().verticalScroll(UiScrollState(), UiScrollConfig.Hidden)
-            ) { }
+                modifier = (Modifier.verticalScroll(UiScrollState(), UiScrollConfig.Hidden)).width(264f.toDimension()).height(
+                    Dimension.FillMax)) { }
             contentSlot = column(
-                id = "content",
-                width = Dimension.FillMax,
-                height = Dimension.FillMax
-            ) { }
+                id = "content", modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) { }
         }
 
         assertEquals(264f, sidebarSlot?.width)
@@ -242,21 +241,15 @@ class LayoutTest {
 
         renderScrollableNestedSurface(scrollState) { ui, content ->
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).row(
-                width = Dimension.FillMax,
-                height = Dimension.FillMax,
                 horizontalArrangement = Arrangement.spacedBy(16f.px)
-            ) {
+            , modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) {
                 surface(
-                    id = "sidebar",
-                    width = Dimension.Fixed(220f.px),
-                    height = Dimension.FillMax
-                ) { }
+                    id = "sidebar", modifier = Modifier.width(Dimension.Fixed(220f.px)).height(
+                        Dimension.FillMax)) { }
                 column(
                     id = "content-viewport",
-                    width = Dimension.FillMax,
-                    height = Dimension.FillMax,
-                    modifier = UiModifier().verticalScroll(scrollState)
-                ) {
+                    modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.FillMax).height(
+                        Dimension.FillMax)) {
                     content()
                 }
             }
@@ -273,10 +266,8 @@ class LayoutTest {
         renderScrollableNestedSurface(scrollState) { ui, content ->
             ui.createColumn(x = 0f, y = 0f, width = 920f, height = 620f).column(
                 id = "content-viewport",
-                width = Dimension.FillMax,
-                height = Dimension.FillMax,
-                modifier = UiModifier().verticalScroll(scrollState)
-            ) {
+                modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.FillMax).height(
+                    Dimension.FillMax)) {
                 content()
             }
         }
@@ -292,10 +283,8 @@ class LayoutTest {
         renderScrollableNestedSurface(scrollState) { ui, content ->
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
                 id = "content-viewport",
-                width = Dimension.FillMax,
-                height = Dimension.FillMax,
-                modifier = UiModifier().verticalScroll(scrollState)
-            ) {
+                modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.FillMax).height(
+                    Dimension.FillMax)) {
                 content()
             }
         }
@@ -311,10 +300,8 @@ class LayoutTest {
         renderScrollableNestedSurface(scrollState) { ui, content ->
             ui.createAbsolute(x = 0f, y = 0f).column(
                 id = "content-viewport",
-                width = Dimension.Fixed(920f.px),
-                height = Dimension.Fixed(620f.px),
-                modifier = UiModifier().verticalScroll(scrollState)
-            ) {
+                modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.Fixed(920f.px)).height(
+                    Dimension.Fixed(620f.px))) {
                 content()
             }
         }
@@ -331,22 +318,16 @@ class LayoutTest {
         val error = assertFailsWith<IllegalStateException> {
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).surface(
                 id = "surface-semantic",
-                width = Dimension.FillMax,
-                height = Dimension.WrapContent,
-                modifier = UiModifier().testTag("preview-root")
-            ) {
+                modifier = (Modifier.testTag("preview-root")).width(Dimension.FillMax).height(
+                    Dimension.WrapContent)) {
                 column(
                     id = "content-viewport",
-                    width = Dimension.FillMax,
-                    height = Dimension.FillMax,
-                    modifier = UiModifier().verticalScroll(UiScrollState())
-                ) {
+                    modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(
+                        Dimension.FillMax)) {
                     repeat(20) { index ->
                         surface(
-                            id = "content-row-$index",
-                            width = Dimension.FillMax,
-                            height = Dimension.Fixed(36f.px)
-                        ) { }
+                            id = "content-row-$index", modifier = Modifier.width(Dimension.FillMax).height(
+                                Dimension.Fixed(36f.px))) { }
                     }
                 }
             }
@@ -367,16 +348,11 @@ private fun renderScrollableNestedSurface(
 
     val content: ColumnContent = {
         surface(
-            id = "content-card",
-            width = Dimension.FillMax,
-            height = Dimension.WrapContent
-        ) {
+            id = "content-card", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
             repeat(20) { index ->
                 surface(
-                    id = "content-row-$index",
-                    width = Dimension.FillMax,
-                    height = Dimension.Fixed(36f.px)
-                ) { }
+                    id = "content-row-$index", modifier = Modifier.width(Dimension.FillMax).height(
+                        Dimension.Fixed(36f.px))) { }
             }
         }
     }

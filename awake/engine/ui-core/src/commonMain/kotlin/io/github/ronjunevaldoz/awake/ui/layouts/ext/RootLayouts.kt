@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.resolveRootSlot
@@ -25,7 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
  * tests, previews, and helpers are migrated.
  */
 fun UiContext.column(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     verticalArrangement: Arrangement = defaultArrangement(),
     block: ColumnScope.() -> Unit
 ) {
@@ -38,7 +39,7 @@ fun UiContext.column(
 }
 
 fun UiContext.row(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     horizontalArrangement: Arrangement = defaultArrangement(),
     block: RowScope.() -> Unit
 ) {
@@ -51,7 +52,7 @@ fun UiContext.row(
 }
 
 fun UiContext.box(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     block: BoxScope.() -> Unit
 ) {
@@ -63,7 +64,7 @@ fun UiContext.box(
 }
 
 fun UiContext.absolute(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     block: AbsoluteScope.() -> Unit
 ) {
     createAbsolute(

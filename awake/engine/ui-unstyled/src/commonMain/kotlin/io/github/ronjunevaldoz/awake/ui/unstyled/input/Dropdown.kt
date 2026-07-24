@@ -2,19 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled.input
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fitTo
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
@@ -25,7 +27,6 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
-import io.github.ronjunevaldoz.awake.ui.width
 
 
 // Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a
@@ -39,7 +40,7 @@ fun UiScope.dropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Int? {
     val theme = context.currentTheme
@@ -90,7 +91,7 @@ fun UiScope.dropdown(
                 button(
                     id = "$id.option$index",
                     label = option,
-                    modifier = UiModifier()
+                    modifier = Modifier
                         .width(slot.width.px)
                         .height(slot.height.px),
                     style = resolvedDefaults then style then optionStyle

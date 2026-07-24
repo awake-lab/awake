@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childBox
@@ -19,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
  */
 @Deprecated("use rawBox instead", )
 fun BoxScope.box(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     content: BoxScope.(slot: UiSlot) -> Unit
 ): UiSlot {
@@ -32,7 +33,7 @@ fun BoxScope.box(
 
 /** [UiScope] version of [box] for top-level usage. */
 fun UiScope.rawBox(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     content: BoxScope.(slot: UiSlot) -> Unit
 ): UiSlot {

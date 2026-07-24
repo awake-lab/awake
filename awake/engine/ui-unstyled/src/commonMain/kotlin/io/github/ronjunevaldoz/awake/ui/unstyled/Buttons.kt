@@ -3,11 +3,11 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.ResolvedStyle
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.styling.ResolvedStyle
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -26,7 +27,7 @@ private inline fun UiScope.buttonSlotInternal(
     id: String,
     width: Dimension,
     height: Dimension,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
@@ -70,7 +71,7 @@ private inline fun UiScope.buttonSlotInternal(
 fun UiScope.button(
     id: String,
     label: String? = null,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
@@ -90,7 +91,7 @@ fun UiScope.button(
 fun UiScope.buttonSlot(
     id: String,
     label: String? = null,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
@@ -125,7 +126,7 @@ fun UiScope.buttonSlot(
 
 fun UiScope.buttonSlot(
     id: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
@@ -144,7 +145,7 @@ fun UiScope.buttonSlot(
 
 fun UiScope.button(
     id: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,

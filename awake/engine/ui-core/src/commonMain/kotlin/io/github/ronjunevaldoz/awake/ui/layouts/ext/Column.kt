@@ -2,16 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
-import io.github.ronjunevaldoz.awake.ui.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.styling.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -25,9 +26,9 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
-import io.github.ronjunevaldoz.awake.ui.styleable
+import io.github.ronjunevaldoz.awake.ui.modifier.styleable
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.verticalPx
+import io.github.ronjunevaldoz.awake.ui.styling.verticalPx
 
 /**
  * Unified container logic for [column] and [surface].
@@ -124,7 +125,7 @@ internal fun UiScope.smartColumn(
         width = resolvedWidth,
         height = resolvedHeight,
         verticalArrangement = verticalArrangement,
-        modifier = modifier,
+        modifier = modifier.copy(width = resolvedWidth, height = resolvedHeight),
         style = effectiveStyle,
         content = content
     )
@@ -135,17 +136,15 @@ internal fun UiScope.smartColumn(
 }
 
 fun ColumnScope.column(
-    height: Dimension = Dimension.WrapContent,
-    width: Dimension = Dimension.FillMax,
     id: String? = null,
     verticalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    width,
-    height,
+    modifier.width ?: Dimension.FillMax,
+    modifier.height ?: Dimension.WrapContent,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
@@ -155,17 +154,15 @@ fun ColumnScope.column(
 )
 
 fun RowScope.column(
-    width: Dimension,
-    height: Dimension = Dimension.FillMax,
     id: String? = null,
     verticalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    width,
-    height,
+    modifier.width ?: Dimension.WrapContent,
+    modifier.height ?: Dimension.FillMax,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
@@ -175,17 +172,15 @@ fun RowScope.column(
 )
 
 fun AbsoluteScope.column(
-    width: Dimension,
-    height: Dimension,
     id: String? = null,
     verticalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    width,
-    height,
+    modifier.width ?: Dimension.WrapContent,
+    modifier.height ?: Dimension.WrapContent,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
@@ -195,17 +190,15 @@ fun AbsoluteScope.column(
 )
 
 fun BoxScope.column(
-    width: Dimension,
-    height: Dimension,
     id: String? = null,
     verticalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).smartColumn(
     id,
-    width,
-    height,
+    modifier.width ?: Dimension.WrapContent,
+    modifier.height ?: Dimension.WrapContent,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
@@ -219,7 +212,7 @@ fun UiScope.rawColumn(
     width: Dimension = Dimension.FillMax,
     height: Dimension = Dimension.WrapContent,
     verticalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {

@@ -4,11 +4,11 @@ package io.github.ronjunevaldoz.awake.engine.application
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
-import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.place
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
@@ -92,7 +93,7 @@ class GameUiRuntime(
      * receiver instead of the current parent scope.
      */
     fun rootColumn(
-        modifier: UiModifier = UiModifier(),
+        modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
     ) {
@@ -130,7 +131,7 @@ class GameUiRuntime(
     )
     fun rootColumn(
         slot: UiSlot,
-        modifier: UiModifier = UiModifier(),
+        modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
     ) {
@@ -148,7 +149,7 @@ class GameUiRuntime(
         level = DeprecationLevel.HIDDEN
     )
     fun column(
-        modifier: UiModifier = UiModifier(),
+        modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
     ) = rootColumn(modifier, verticalArrangement, block)
@@ -159,7 +160,7 @@ class GameUiRuntime(
     )
     fun column(
         slot: UiSlot,
-        modifier: UiModifier = UiModifier(),
+        modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
     ) = rootColumn(slot, modifier, verticalArrangement, block)

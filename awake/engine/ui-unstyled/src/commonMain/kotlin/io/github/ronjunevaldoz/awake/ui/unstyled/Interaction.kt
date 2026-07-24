@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 
 internal data class UiInteraction(
     val slot: UiSlot,
@@ -19,7 +20,7 @@ internal fun UiScope.interact(
     id: String,
     width: Dimension,
     height: Dimension,
-    modifier: UiModifier = UiModifier()
+    modifier: UiModifier = Modifier
 ): UiInteraction {
     val slot = claimModifiedSlot(width, height, modifier)
     val hovered = hitTest(slot)

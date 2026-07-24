@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.styling.UiInsets
+import io.github.ronjunevaldoz.awake.ui.styling.inset
 
 /**
  * Child placement inside a parent slot. This is the Box-style alignment API; unlike

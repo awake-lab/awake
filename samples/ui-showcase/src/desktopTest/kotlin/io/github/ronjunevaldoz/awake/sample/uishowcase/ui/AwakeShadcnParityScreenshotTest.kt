@@ -24,11 +24,9 @@ import io.github.ronjunevaldoz.awake.testing.ui.componentStateMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
-import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
@@ -55,10 +53,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVar
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.height
-import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
@@ -66,8 +65,9 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.switch
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textarea
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
-import io.github.ronjunevaldoz.awake.ui.width
 import kotlin.test.Test
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 
 /** Builds a one-off [UiInputState] for a preview frame -- [Input] is a per-session
  * instance now (no longer a global object), so tests construct their own throwaway one. */
@@ -132,44 +132,44 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            modifier = UiModifier().offset(30f.dp, 45f.dp).width(600f.dp)
+            modifier = Modifier.offset(30f.dp, 45f.dp).width(600f.dp)
                 .height((metadata.height.toFloat() - 45f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
-        ).row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
+        ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
                 awakeShadcnButton(
                     "parity-default",
                     "Default",
-                    modifier = UiModifier().width(90f.px).height(40f.px),
+                    modifier = Modifier.width(90f.px).height(40f.px),
                     variant = AwakeShadcnButtonVariant.Primary
                 )
                 awakeShadcnButton(
                     "parity-secondary",
                     "Secondary",
-                    modifier = UiModifier().width(100f.px).height(40f.px),
+                    modifier = Modifier.width(100f.px).height(40f.px),
                     variant = AwakeShadcnButtonVariant.Secondary
                 )
                 awakeShadcnButton(
                     "parity-outline",
                     "Outline",
-                    modifier = UiModifier().width(90f.px).height(40f.px),
+                    modifier = Modifier.width(90f.px).height(40f.px),
                     variant = AwakeShadcnButtonVariant.Outline
                 )
                 awakeShadcnButton(
                     "parity-ghost",
                     "Ghost",
-                    modifier = UiModifier().width(80f.px).height(40f.px),
+                    modifier = Modifier.width(80f.px).height(40f.px),
                     variant = AwakeShadcnButtonVariant.Ghost
                 )
                 awakeShadcnButton(
                     "parity-destructive",
                     "Destructive",
-                    modifier = UiModifier().width(110f.px).height(40f.px),
+                    modifier = Modifier.width(110f.px).height(40f.px),
                     variant = AwakeShadcnButtonVariant.Danger
                 )
                 awakeShadcnButton(
                     "parity-link",
                     "Link",
-                    modifier = UiModifier().width(60f.px).height(40f.px),
+                    modifier = Modifier.width(60f.px).height(40f.px),
                     variant = AwakeShadcnButtonVariant.Link
                 )
             }
@@ -199,33 +199,33 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            modifier = UiModifier().offset(30f.dp, 42f.dp).width(420f.dp)
+            modifier = Modifier.offset(30f.dp, 42f.dp).width(420f.dp)
                 .height((metadata.height.toFloat() - 42f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
-        ).row(height = 30f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
+        ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(height = 30f.dp.toDimension())) {
                 awakeShadcnBadge(
                     "Default",
-                    modifier = UiModifier().width(72f.px).height(30f.px),
+                    modifier = Modifier.width(72f.px).height(30f.px),
                     variant = AwakeShadcnBadgeVariant.Primary
                 )
                 awakeShadcnBadge(
                     "Secondary",
-                    modifier = UiModifier().width(90f.px).height(30f.px),
+                    modifier = Modifier.width(90f.px).height(30f.px),
                     variant = AwakeShadcnBadgeVariant.Secondary
                 )
                 awakeShadcnBadge(
                     "Destructive",
-                    modifier = UiModifier().width(100f.px).height(30f.px),
+                    modifier = Modifier.width(100f.px).height(30f.px),
                     variant = AwakeShadcnBadgeVariant.Danger
                 )
                 awakeShadcnBadge(
                     "Outline",
-                    modifier = UiModifier().width(80f.px).height(30f.px),
+                    modifier = Modifier.width(80f.px).height(30f.px),
                     variant = AwakeShadcnBadgeVariant.Outline
                 )
                 awakeShadcnBadge(
                     "Ghost",
-                    modifier = UiModifier().width(70f.px).height(30f.px),
+                    modifier = Modifier.width(70f.px).height(30f.px),
                     variant = AwakeShadcnBadgeVariant.Ghost
                 )
             }
@@ -255,15 +255,15 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(248f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(248f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(16f.dp)
         ) {
-            awakeShadcnTextField("parity-field-1", value = "", placeholder = "Default", modifier = UiModifier().width(248f.px).height(40f.px))
-            awakeShadcnTextField("parity-field-2", value = "", placeholder = "Filled", variant = AwakeShadcnTextFieldVariant.Filled, modifier = UiModifier().width(248f.px).height(40f.px))
-            awakeShadcnTextField("parity-field-3", value = "", placeholder = "Ghost", variant = AwakeShadcnTextFieldVariant.Ghost, modifier = UiModifier().width(248f.px).height(40f.px))
-            awakeShadcnTextField("parity-field-4", value = "Invalid value", modifier = UiModifier().width(248f.px).height(40f.px), isError = true)
-            awakeShadcnTextField("parity-field-5", value = "", placeholder = "Disabled", modifier = UiModifier().width(248f.px).height(40f.px), enabled = false)
+            awakeShadcnTextField("parity-field-1", value = "", placeholder = "Default", modifier = Modifier.width(248f.px).height(40f.px))
+            awakeShadcnTextField("parity-field-2", value = "", placeholder = "Filled", variant = AwakeShadcnTextFieldVariant.Filled, modifier = Modifier.width(248f.px).height(40f.px))
+            awakeShadcnTextField("parity-field-3", value = "", placeholder = "Ghost", variant = AwakeShadcnTextFieldVariant.Ghost, modifier = Modifier.width(248f.px).height(40f.px))
+            awakeShadcnTextField("parity-field-4", value = "Invalid value", modifier = Modifier.width(248f.px).height(40f.px), isError = true)
+            awakeShadcnTextField("parity-field-5", value = "", placeholder = "Disabled", modifier = Modifier.width(248f.px).height(40f.px), enabled = false)
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
@@ -291,7 +291,7 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(272f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(272f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(16f.dp)
         ) {
@@ -335,7 +335,7 @@ internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(160f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(160f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(8f.dp)
         ) {
@@ -371,12 +371,12 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(212f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(212f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(16f.dp)
         ) {
-            awakeShadcnProgress("parity-progress-1", value = 0.25f, modifier = UiModifier().width(212f.px))
-            awakeShadcnProgress("parity-progress-2", value = 0.65f, modifier = UiModifier().width(212f.px))
+            awakeShadcnProgress("parity-progress-1", value = 0.25f, modifier = Modifier.width(212f.px))
+            awakeShadcnProgress("parity-progress-2", value = 0.65f, modifier = Modifier.width(212f.px))
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
@@ -404,11 +404,11 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(180f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(180f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
-            row(height = 48f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
+            row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.copy(height = 48f.dp.toDimension())) {
                 awakeShadcnAvatar("CN")
                 awakeShadcnAvatar("RV", diameter = 48f.dp)
             }
@@ -439,11 +439,11 @@ internal object AwakeKbdLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 28f.dp).width(160f.dp)
+            modifier = Modifier.offset(24f.dp, 28f.dp).width(160f.dp)
                 .height((metadata.height.toFloat() - 52f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
-            row(height = 24f.dp, horizontalArrangement = Arrangement.spacedBy(6f.dp)) {
+            row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.copy(height = 24f.dp.toDimension())) {
                 awakeShadcnKbd("Ctrl")
                 awakeShadcnKbd("K")
             }
@@ -474,12 +474,12 @@ internal object AwakeSkeletonLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(192f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(192f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
-            awakeShadcnSkeleton("parity-skeleton-1", modifier = UiModifier().width(192f.px).height(16f.px))
-            awakeShadcnSkeleton("parity-skeleton-2", modifier = UiModifier().width(140f.px).height(16f.px))
+            awakeShadcnSkeleton("parity-skeleton-1", modifier = Modifier.width(192f.px).height(16f.px))
+            awakeShadcnSkeleton("parity-skeleton-2", modifier = Modifier.width(140f.px).height(16f.px))
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
@@ -507,7 +507,7 @@ internal object AwakeTabsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(280f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(280f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
@@ -543,7 +543,7 @@ internal object AwakeBreadcrumbLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(220f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(220f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
@@ -575,7 +575,7 @@ internal object AwakeCollapsibleLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(220f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(220f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
@@ -609,7 +609,7 @@ internal object AwakeSpinnerLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(72f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(72f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
@@ -641,13 +641,13 @@ internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(272f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(272f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(16f.dp)
         ) {
-            awakeShadcnTextarea("parity-textarea-1", value = "", placeholder = "Default textarea", modifier = UiModifier().width(272f.px))
-            awakeShadcnTextarea("parity-textarea-2", value = "Line 1\nLine 2\nLine 3", modifier = UiModifier().width(272f.px))
-            awakeShadcnTextarea("parity-textarea-3", value = "", placeholder = "Disabled textarea", modifier = UiModifier().width(272f.px), enabled = false)
+            awakeShadcnTextarea("parity-textarea-1", value = "", placeholder = "Default textarea", modifier = Modifier.width(272f.px))
+            awakeShadcnTextarea("parity-textarea-2", value = "Line 1\nLine 2\nLine 3", modifier = Modifier.width(272f.px))
+            awakeShadcnTextarea("parity-textarea-3", value = "", placeholder = "Disabled textarea", modifier = Modifier.width(272f.px), enabled = false)
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
@@ -675,7 +675,7 @@ internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(152f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(152f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(12f.dp)
         ) {
@@ -708,14 +708,14 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(192f.dp)
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(192f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
-            row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
-                awakeShadcnToggle("parity-toggle-off", checked = false, label = "B", modifier = UiModifier().width(40f.px).height(40f.px))
-                awakeShadcnToggle("parity-toggle-on", checked = true, label = "B", modifier = UiModifier().width(40f.px).height(40f.px))
-                awakeShadcnToggle("parity-toggle-disabled", checked = false, label = "B", modifier = UiModifier().width(40f.px).height(40f.px), enabled = false)
+            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
+                awakeShadcnToggle("parity-toggle-off", checked = false, label = "B", modifier = Modifier.width(40f.px).height(40f.px))
+                awakeShadcnToggle("parity-toggle-on", checked = true, label = "B", modifier = Modifier.width(40f.px).height(40f.px))
+                awakeShadcnToggle("parity-toggle-disabled", checked = false, label = "B", modifier = Modifier.width(40f.px).height(40f.px), enabled = false)
             }
         }
         return AwakeUiPreviewFrame(
@@ -776,7 +776,7 @@ internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = awakeShadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
+            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
                 toggle("toggle-off", checked = false, label = "Off", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
                 toggle("toggle-on", checked = true, label = "On", width = Dimension.Fixed(60f.px), modifier = forcedModifier)
             }
@@ -815,7 +815,7 @@ internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = awakeShadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
+            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
                 switch("switch-off", checked = false, label = "Off", modifier = forcedModifier)
                 switch("switch-on", checked = true, label = "On", modifier = forcedModifier)
             }

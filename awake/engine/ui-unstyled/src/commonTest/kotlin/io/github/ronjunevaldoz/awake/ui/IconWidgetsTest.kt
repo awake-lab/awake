@@ -4,6 +4,9 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,7 +19,7 @@ class IconWidgetsTest {
         val ui = UiContext()
         ui.beginFrame(100f, 100f, testSnapshot())
 
-        ui.createAbsolute(modifier = UiModifier().offset(10f.dp, 12f.dp)).icon(
+        ui.createAbsolute(modifier = Modifier.offset(10f.dp, 12f.dp)).icon(
             imageVector = squareVector,
             width = Dimension.Fixed(16f.px),
             height = Dimension.Fixed(16f.px),
@@ -43,7 +46,7 @@ class IconWidgetsTest {
         val ui = UiContext()
         ui.beginFrame(100f, 100f, testSnapshot())
 
-        ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp)).icon(multicolorVector, tint = Color(1f, 0f, 0f, 1f))
+        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp)).icon(multicolorVector, tint = Color(1f, 0f, 0f, 1f))
 
         val fill = assertIs<UiDrawPrimitive.FilledPath>(ui.endFrame().single())
         assertEquals(Color(0.2f, 0.7f, 0.3f, 1f), fill.color)

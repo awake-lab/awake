@@ -3,10 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
@@ -21,20 +21,22 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVari
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.height
-import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.width
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 
 class AwakeShadcnDesignSystemTest {
 
@@ -96,7 +98,7 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(AwakeShadcnTheme)
         ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp))
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
             .awakeShadcnBadge(label = "BETA", variant = AwakeShadcnBadgeVariant.Primary)
 
         val primitives = ui.endFrame()
@@ -115,7 +117,7 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(theme)
         ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp))
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
             .awakeShadcnBadge(label = "LIVE", variant = AwakeShadcnBadgeVariant.Primary)
 
         val firstQuad = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>().first()
@@ -130,22 +132,22 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(AwakeShadcnTheme)
 
         ui.beginFrame(200f, 80f, testSnapshot(x = 40f, y = 30f, down = true))
-        clicked = ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp))
+        clicked = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
             .awakeShadcnButton(
                 id = "save",
                 label = "SAVE",
-                modifier = UiModifier().width(120f.px).height(32f.px),
+                modifier = Modifier.width(120f.px).height(32f.px),
                 variant = AwakeShadcnButtonVariant.Primary
             )
         ui.endFrame()
         assertTrue(!clicked)
 
         ui.beginFrame(200f, 80f, testSnapshot(x = 40f, y = 30f, down = false))
-        clicked = ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp))
+        clicked = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
             .awakeShadcnButton(
                 id = "save",
                 label = "SAVE",
-                modifier = UiModifier().width(120f.px).height(32f.px),
+                modifier = Modifier.width(120f.px).height(32f.px),
                 variant = AwakeShadcnButtonVariant.Primary
             )
         ui.endFrame()
@@ -160,8 +162,8 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(AwakeShadcnTheme)
         ui.beginFrame(240f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).width(200f.dp))
-            .awakeShadcnSurface("surface", Dimension.Fixed(200f.px), Dimension.Fixed(100f.px)) {
+        ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(200f.dp))
+            .awakeShadcnSurface("surface", modifier = Modifier.copy(width = Dimension.Fixed(200f.px), height = Dimension.Fixed(100f.px))) {
                 awakeShadcnBadge(label = "READY", width = Dimension.Fixed(80f.px), height = Dimension.WrapContent)
             }
 
@@ -176,16 +178,14 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(AwakeShadcnTheme)
         ui.beginFrame(280f, 180f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(240f.dp)) {
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             awakeShadcnSurface(
-                id = "dsl-surface",
-                height = Dimension.Fixed(120f.px)
-            ) {
+                id = "dsl-surface", modifier = Modifier.copy(height = Dimension.Fixed(120f.px))) {
                 awakeShadcnBadge(label = "READY", variant = AwakeShadcnBadgeVariant.Primary)
                 awakeShadcnButton(
                     id = "launch",
                     label = "Launch",
-                    modifier = UiModifier().width(120f.px).height(32f.px),
+                    modifier = Modifier.width(120f.px).height(32f.px),
                     variant = AwakeShadcnButtonVariant.Secondary
                 )
             }
@@ -203,11 +203,9 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(AwakeShadcnTheme)
         ui.beginFrame(320f, 180f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(280f.dp)) {
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             awakeShadcnSurface(
-                id = "dsl-fields",
-                height = Dimension.WrapContent
-            ) {
+                id = "dsl-fields", modifier = Modifier.copy(height = Dimension.WrapContent)) {
                 awakeShadcnPropertyToggle("show-grid", "Show Grid", checked = true)
                 awakeShadcnPropertyDropdown("mode", "Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
                 awakeShadcnPropertySlider("speed", "Speed", min = 1f, max = 10f, value = 5f)
@@ -226,14 +224,12 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(AwakeShadcnTheme)
         ui.beginFrame(280f, 180f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(240f.dp)) {
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             awakeShadcnSurface(
-                id = "slot-header",
-                height = Dimension.WrapContent
-            ) {
+                id = "slot-header", modifier = Modifier.copy(height = Dimension.WrapContent)) {
                 awakeShadcnSectionHeader(
                     title = {
-                        row(height = 20f.dp, horizontalArrangement = Arrangement.spacedBy(6f.dp)) {
+                        row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.copy(height = 20f.dp.toDimension())) {
                             awakeShadcnBadge(
                                 label = "NEW",
                                 modifier = UiModifier(width = Dimension.Fixed(48f.px)),
@@ -261,11 +257,9 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(AwakeShadcnTheme)
         ui.beginFrame(320f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(280f.dp)) {
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             awakeShadcnSurface(
-                id = "slot-fields",
-                height = Dimension.WrapContent
-            ) {
+                id = "slot-fields", modifier = Modifier.copy(height = Dimension.WrapContent)) {
                 awakeShadcnPropertyDropdown(
                     id = "mode",
                     options = listOf("Orbit", "Fly"),
@@ -296,7 +290,7 @@ class AwakeShadcnDesignSystemTest {
         ui.pushTheme(AwakeShadcnTheme)
         ui.beginFrame(240f, 120f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp))
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
             .awakeShadcnBadge(
                 label = "LIVE",
                 width = Dimension.WrapContent,
@@ -320,11 +314,11 @@ class AwakeShadcnDesignSystemTest {
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp))
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
             .awakeShadcnButton(
                 id = "test-btn",
                 variant = AwakeShadcnButtonVariant.Primary,
-                modifier = UiModifier().width(100f.px).height(40f.px)
+                modifier = Modifier.width(100f.px).height(40f.px)
             ) {
                 text("test")
             }

@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.core.graphics.animation
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
@@ -18,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.px
 fun ColumnScope.animatedHeight(
     id: String,
     expanded: Boolean,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     responsiveness: Float = 12f,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot? {

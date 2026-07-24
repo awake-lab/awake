@@ -2,13 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.UiInsets
-import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.createColumn
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.styling.UiInsets
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
@@ -16,19 +11,23 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.sp
-import io.github.ronjunevaldoz.awake.ui.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.width
 
 internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     awakeShadcnBadge("TYPOGRAPHY", variant = AwakeShadcnBadgeVariant.Outline)
@@ -37,14 +36,18 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
             "The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly."
         )
     )
-    spacer(UiModifier().height(8f.dp))
-    row(height = 292f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
+    spacer(Modifier.height(8f.dp))
+    row(
+        horizontalArrangement = Arrangement.spacedBy(12f.dp),
+        modifier = Modifier.copy(height = 292f.dp.toDimension())
+    ) {
         surface(
             id = "showcase-font-bitmap",
-            width = Dimension.Fixed(264f.dp),
-            height = Dimension.Fixed(292f.dp),
-            style = Style { shape(14f.dp) }
-        ) { slot ->
+            style = Style { shape(14f.dp) },
+            modifier = Modifier.copy(
+                width = Dimension.Fixed(264f.dp),
+                height = Dimension.Fixed(292f.dp)
+            )) { slot ->
             drawUiShowcaseFontSpecimen(
                 slot = slot,
                 label = "Bitmap",
@@ -54,10 +57,11 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
         }
         surface(
             id = "showcase-font-truesans",
-            width = Dimension.Fixed(264f.dp),
-            height = Dimension.Fixed(292f.dp),
-            style = Style { shape(14f.dp) }
-        ) { slot ->
+            style = Style { shape(14f.dp) },
+            modifier = Modifier.copy(
+                width = Dimension.Fixed(264f.dp),
+                height = Dimension.Fixed(292f.dp)
+            )) { slot ->
             drawUiShowcaseFontSpecimen(
                 slot = slot,
                 label = "True Font",
@@ -66,7 +70,7 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
             )
         }
     }
-    spacer(UiModifier().height(8f.dp))
+    spacer(Modifier.height(8f.dp))
     supportingLines(
         listOf(
             "Bitmap stays closer to the authored pixel grid and remains useful for low-fi or debug surfaces.",
@@ -90,7 +94,7 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
     )
     specimenScope.awakeShadcnBadge(
         label.uppercase(),
-        modifier = UiModifier().width(120f.dp).height(28f.dp),
+        modifier = Modifier.width(120f.dp).height(28f.dp),
         variant = AwakeShadcnBadgeVariant.Outline
     )
     specimenScope.text(

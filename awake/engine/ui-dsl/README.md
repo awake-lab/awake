@@ -52,7 +52,7 @@ val spec = gameUi {
                 id = "hud",
                 width = if (compact) Dimension.FillMax else 280f.toDimension(),
                 height = Dimension.WrapContent,
-                modifier = UiModifier()
+                modifier = Modifier
                     .align(if (compact) UiAlignment.TopStart else UiAlignment.TopEnd)
                     .padding(16f.dp)
             ) {

@@ -2,8 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongParameterList:AwakeShadcnComponents.kt$( id: String, width: Float, height: Float, label: String, modifier: UiModifier = UiModifier(), variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary, style: Style = Style.Empty )</ID>
-    <ID>LongParameterList:AwakeShadcnComponents.kt$( label: String, width: Float = 96f, height: Float = 28f, modifier: UiModifier = UiModifier(), variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:AwakeShadcnComponents.kt$( id: String, width: Float, height: Float, label: String, modifier: UiModifier = Modifier, variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:AwakeShadcnComponents.kt$( label: String, width: Float = 96f, height: Float = 28f, modifier: UiModifier = Modifier, variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary, style: Style = Style.Empty )</ID>
     <ID>MagicNumber:AwakeShadcnComponents.kt$3</ID>
     <ID>MagicNumber:AwakeShadcnComponents.kt$AwakeShadcnStyles$1.05f</ID>
     <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.06f</ID>

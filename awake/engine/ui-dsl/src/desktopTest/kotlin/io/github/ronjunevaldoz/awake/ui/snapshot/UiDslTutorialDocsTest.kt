@@ -5,32 +5,30 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
-import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.height
-import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.uiPath
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.dropdown
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
-import io.github.ronjunevaldoz.awake.ui.width
 import kotlin.test.Test
 
 /** Builds a one-off [UiInputState] for a test frame -- [Input] is a per-session instance
@@ -58,49 +56,48 @@ class UiDslTutorialDocsTest {
         ui.pushFont(font)
         ui.pushTheme(CoreUiTheme)
         ui.pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(280f.dp).height(210f.dp)) {
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp).height(210f.dp)) {
             surface(
                 id = "inspector",
-                height = 190f.toDimension(),
                 style = Style {
                     borderWidth(1f.dp)
                     contentPadding(12f.dp)
                 }
-            ) {
+            , modifier = Modifier.height(190f.toDimension())) {
                 text("Camera")
-                row(height = 28f.dp) { slot ->
+                row( modifier = Modifier.height(28f.dp)) { slot ->
                     dropdown(
                         id = "mode",
                         options = listOf("Orbit", "Free Fly"),
                         selectedIndex = 0,
-                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                        modifier = Modifier.width(slot.width.px).height(slot.height.px)
                     )
                 }
-                row(height = 28f.dp) { slot ->
+                row( modifier = Modifier.height(28f.dp)) { slot ->
                     orbitYaw = slider(
                         id = "slider-azimuth",
                         min = -3.14f,
                         max = 3.14f,
                         value = orbitYaw,
                         label = "Azimuth",
-                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                        modifier = Modifier.width(slot.width.px).height(slot.height.px)
                     )
                 }
-                row(height = 28f.dp) { slot ->
+                row( modifier = Modifier.height(28f.dp)) { slot ->
                     orbitDistance = slider(
                         id = "slider-distance",
                         min = 3f,
                         max = 20f,
                         value = orbitDistance,
                         label = "Distance",
-                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                        modifier = Modifier.width(slot.width.px).height(slot.height.px)
                     )
                 }
-                spacer(UiModifier().height(8f.dp))
+                spacer(Modifier.height(8f.dp))
                 text("Debug")
-                showGrid = toggle("grid", checked = showGrid, modifier = UiModifier().height(28f.dp), label = "Show Grid")
-                showFrustum = toggle("frustum", checked = showFrustum, modifier = UiModifier().height(28f.dp), label = "Show Frustum")
-                toggle("hud", checked = true, modifier = UiModifier().height(32f.px), label = "HUD")
+                showGrid = toggle("grid", checked = showGrid, modifier = Modifier.height(28f.dp), label = "Show Grid")
+                showFrustum = toggle("frustum", checked = showFrustum, modifier = Modifier.height(28f.dp), label = "Show Frustum")
+                toggle("hud", checked = true, modifier = Modifier.height(32f.px), label = "HUD")
             }
         }
 
@@ -125,15 +122,14 @@ class UiDslTutorialDocsTest {
         ui.pushFont(font)
         ui.pushTheme(CoreUiTheme)
         ui.pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(320f.dp).height(200f.dp)) {
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(320f.dp).height(200f.dp)) {
             surface(
                 id = "canvas-proof",
-                height = 180f.toDimension(),
                 style = Style {
                     borderWidth(1f.dp)
                     contentPadding(12f.dp)
                 }
-            ) { slot ->
+            , modifier = Modifier.height(180f.toDimension())) { slot ->
                 canvas(slot) {
                     val headerGradient = UiLinearGradient.horizontal(
                         start = Color(0.12f, 0.38f, 0.95f, 1f),

@@ -32,11 +32,10 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticOverlaps
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.createColumn
@@ -51,21 +50,22 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.fillMaxSize
-import io.github.ronjunevaldoz.awake.ui.offset
-import io.github.ronjunevaldoz.awake.ui.width
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.verticalScroll
 import kotlinx.coroutines.test.runTest
 import kotlin.math.abs
 import kotlin.test.Test
@@ -315,21 +315,17 @@ class UiShowcaseGameTest {
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
         ui.createColumn(
-            modifier = UiModifier().offset(24f.dp, 24f.dp).width(720f.dp).height(516f.dp),
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(720f.dp).height(516f.dp),
             font = BitmapFont(),
             theme = state.showcaseTheme()
         ).run {
             column(
                 id = "ui-showcase-content-viewport",
-                width = Dimension.FillMax,
-                height = Dimension.Fixed(320f.px),
-                modifier = UiModifier().verticalScroll(contentScroll)
-            ) {
+                modifier = (Modifier.verticalScroll(contentScroll)).copy(width = Dimension.FillMax, height = Dimension.Fixed(320f.px))) {
                 awakeShadcnSurface(
                     id = "ui-showcase-content",
-                    height = Dimension.WrapContent,
                     style = Style { shape(16f.dp) }
-                ) {
+                , modifier = Modifier.copy(height = Dimension.WrapContent)) {
                     drawUiShowcasePageContent(state, showInlineMenu = false)
                 }
             }
@@ -362,38 +358,28 @@ class UiShowcaseGameTest {
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
         ui.createColumn(
-            modifier = UiModifier().width(1440f.dp).height(900f.dp),
+            modifier = Modifier.width(1440f.dp).height(900f.dp),
             font = BitmapFont(),
             theme = awakeShadcnTheme(dark = false)
         ).run {
             row(
-                width = Dimension.FillMax,
-                height = Dimension.Fixed(900f.px),
                 horizontalArrangement = Arrangement.spacedBy(20f.dp),
-                modifier = UiModifier().fillMaxSize().padding(24f.dp)
-            ) {
+                modifier = (Modifier.fillMaxSize().padding(24f.dp)).copy(width = Dimension.FillMax, height = Dimension.Fixed(900f.px))) {
                 awakeShadcnSurface(
                     id = "ui-showcase-sidebar",
-                    width = 264f.dp.toDimension(),
-                    height = Dimension.FillMax,
                     variant = AwakeShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
-                    modifier = UiModifier().verticalScroll(sidebarScroll)
-                ) {
+                    modifier = (Modifier.verticalScroll(sidebarScroll)).copy(width = 264f.dp.toDimension(), height = Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = false)
                 }
 
                 column(
                     id = "ui-showcase-content-viewport",
-                    width = Dimension.FillMax,
-                    height = Dimension.FillMax,
-                    modifier = UiModifier().verticalScroll(contentScroll)
-                ) {
+                    modifier = (Modifier.verticalScroll(contentScroll)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
                     awakeShadcnSurface(
                         id = "ui-showcase-content",
-                        height = Dimension.WrapContent,
                         style = Style { shape(16f.dp) }
-                    ) {
+                    , modifier = Modifier.copy(height = Dimension.WrapContent)) {
                         drawUiShowcasePageContent(state, showInlineMenu = false)
                     }
                 }
@@ -477,17 +463,15 @@ private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
         io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot().toUiInputState()
     )
     ui.createColumn(
-        modifier = UiModifier().offset(24f.dp, 24f.dp).width(264f.dp).height(180f.dp),
+        modifier = Modifier.offset(24f.dp, 24f.dp).width(264f.dp).height(180f.dp),
         font = BitmapFont(),
         theme = theme
     ).run {
         awakeShadcnSurface(
             id = "sidebar-probe",
-            width = Dimension.FillMax,
-            height = Dimension.Fixed(120f.dp),
             variant = AwakeShadcnSurfaceVariant.Sidebar,
             style = Style { shape(16f.dp) }
-        ) {
+        , modifier = Modifier.copy(width = Dimension.FillMax, height = Dimension.Fixed(120f.dp))) {
             text("Probe")
         }
     }

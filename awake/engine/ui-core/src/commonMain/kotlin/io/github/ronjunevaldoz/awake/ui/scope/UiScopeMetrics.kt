@@ -7,6 +7,9 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.FillAwareScope
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.math.roundToInt
 
@@ -49,7 +52,7 @@ fun UiScope.debugScopeLabel(): String {
 fun UiScope.claimModifiedSlot(
     defaultWidth: Dimension = Dimension.WrapContent,
     defaultHeight: Dimension = Dimension.WrapContent,
-    modifier: UiModifier = UiModifier()
+    modifier: UiModifier = Modifier
 ): UiSlot {
     val requestedWidth = modifier.width ?: defaultWidth
     val requestedHeight = modifier.height ?: defaultHeight

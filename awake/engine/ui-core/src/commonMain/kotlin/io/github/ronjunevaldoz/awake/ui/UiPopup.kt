@@ -7,6 +7,11 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.styling.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.styling.verticalPx
 
 
 data class UiPopupSize(
@@ -74,7 +79,7 @@ fun UiScope.popup(
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
     verticalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
     properties: UiPopupProperties = UiPopupProperties(),
     content: ColumnScope.(slot: UiSlot) -> Unit

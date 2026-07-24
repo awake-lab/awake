@@ -67,13 +67,13 @@ internal val ShowcasePages = listOf(
             awakeShadcnButton(
                 id = "primary",
                 label = "Primary",
-                modifier = UiModifier().width(120f.dp).height(36f.dp)
+                modifier = Modifier.width(120f.dp).height(36f.dp)
             )
             awakeShadcnDropdown(
                 id = "style",
                 options = options,
                 selectedIndex = 0,
-                modifier = UiModifier().width(128f.dp)
+                modifier = Modifier.width(128f.dp)
             )
             awakeShadcnSurface("card", variant = AwakeShadcnSurfaceVariant.Card) { ... }
         """.trimIndent(),
@@ -173,10 +173,10 @@ internal val ShowcasePages = listOf(
         category = ShowcaseCategory.Patterns,
         description = "buttonSlot(...)'s content-lambda form composes arbitrary content inside a widget's own claimed slot instead of a fixed label string.",
         usageCode = """
-            buttonSlot(id = "launch", modifier = UiModifier().width(180f.dp).height(40f.dp)) {
+            buttonSlot(id = "launch", modifier = Modifier.width(180f.dp).height(40f.dp)) {
                 val labelSize = Style { textSize(theme.typography.label) }
-                text(">", modifier = UiModifier().offset(x = 12f.dp).width(16f.dp), style = labelSize)
-                text("Launch", modifier = UiModifier().offset(x = 32f.dp), style = labelSize)
+                text(">", modifier = Modifier.offset(x = 12f.dp).width(16f.dp), style = labelSize)
+                text("Launch", modifier = Modifier.offset(x = 32f.dp), style = labelSize)
             }
         """.trimIndent(),
         notes = listOf(
@@ -194,7 +194,7 @@ internal val ShowcasePages = listOf(
             awakeShadcnButton(
                 id = "save",
                 label = "Save",
-                modifier = UiModifier().width(120f.dp).height(36f.dp),
+                modifier = Modifier.width(120f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Primary
             )
             awakeShadcnBadge("LIVE", variant = AwakeShadcnBadgeVariant.Secondary)
@@ -216,7 +216,7 @@ internal val ShowcasePages = listOf(
                 id = "name",
                 value = name,
                 placeholder = "Jane Doe",
-                modifier = UiModifier().width(240f.dp).height(36f.dp)
+                modifier = Modifier.width(240f.dp).height(36f.dp)
             )
         """.trimIndent(),
         notes = listOf(
@@ -238,7 +238,7 @@ internal val ShowcasePages = listOf(
                 max = 100f,
                 value = exposure,
                 label = "Exposure ${'$'}{exposure.toInt()}%",
-                modifier = UiModifier().width(360f.dp).height(32f.dp)
+                modifier = Modifier.width(360f.dp).height(32f.dp)
             )
         """.trimIndent(),
         notes = listOf(
@@ -258,7 +258,7 @@ internal val ShowcasePages = listOf(
                 id = "wireframe",
                 checked = wireframe,
                 label = "Wireframe overlay",
-                modifier = UiModifier().width(220f.dp).height(24f.dp)
+                modifier = Modifier.width(220f.dp).height(24f.dp)
             )
 
             var stats by rememberStateValue("scene", "stats") { false }
@@ -266,7 +266,7 @@ internal val ShowcasePages = listOf(
                 id = "stats",
                 checked = stats,
                 label = "Scene statistics",
-                modifier = UiModifier().width(220f.dp).height(24f.dp)
+                modifier = Modifier.width(220f.dp).height(24f.dp)
             )
         """.trimIndent(),
         notes = listOf(
@@ -284,7 +284,7 @@ internal val ShowcasePages = listOf(
             val trigger = buttonSlot(
                 id = "actions",
                 label = "Actions",
-                modifier = UiModifier().width(112f.dp).height(36f.dp)
+                modifier = Modifier.width(112f.dp).height(36f.dp)
             )
             val result = dropdownMenu(
                 id = "actions.menu",
@@ -309,7 +309,7 @@ internal val ShowcasePages = listOf(
             val trigger = buttonSlot(
                 id = "scene-info",
                 label = "Scene info",
-                modifier = UiModifier().width(132f.dp).height(36f.dp),
+                modifier = Modifier.width(132f.dp).height(36f.dp),
                 style = theme.components.button
             )
             tooltip(
@@ -365,7 +365,7 @@ internal val ShowcasePages = listOf(
                     awakeShadcnButton(
                         id = "row-${'$'}index",
                         label = "Inspector row ${'$'}{index + 1}",
-                        modifier = UiModifier().width(360f.dp).height(32f.dp)
+                        modifier = Modifier.width(360f.dp).height(32f.dp)
                     )
                 }
             }
@@ -408,7 +408,7 @@ internal val ShowcasePages = listOf(
             awakeShadcnText(
                 label = "Generating response...",
                 muted = true,
-                modifier = UiModifier().shadcnShimmer()
+                modifier = Modifier.shadcnShimmer()
             )
         """.trimIndent(),
         notes = listOf(

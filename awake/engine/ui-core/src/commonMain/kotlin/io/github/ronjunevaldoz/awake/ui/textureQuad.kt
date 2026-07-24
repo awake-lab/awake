@@ -1,5 +1,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+
 /**
  * TODO revisit what is the usecase??
  */

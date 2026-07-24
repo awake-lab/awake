@@ -9,10 +9,8 @@ import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.sample.startergame.presentation.starterOverlayModel
 import io.github.ronjunevaldoz.awake.sample.startergame.state.StarterGameRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
-import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.designsystem.AwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
@@ -26,14 +24,16 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVar
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
-import io.github.ronjunevaldoz.awake.ui.padding
-import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.align
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 internal fun starterGameUiSpec(state: StarterGameRuntimeState): GameUiSpec {
@@ -61,73 +61,53 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
 
         if (compact) {
             column(
-                width = Dimension.FillMax,
-                height = Dimension.WrapContent,
-                modifier = UiModifier()
+                modifier = (Modifier
                     .align(UiAlignment.TopStart)
-                    .padding(16f.dp)
-            ) {
+                    .padding(16f.dp)).copy(width = Dimension.FillMax, height = Dimension.WrapContent)) {
                 awakeShadcnSurface(
                     id = "starter-nav-compact",
-                    width = navWidth,
-                    height = Dimension.WrapContent,
                     variant = AwakeShadcnSurfaceVariant.Sidebar
-                ) { _ ->
+                , modifier = Modifier.copy(width = navWidth, height = Dimension.WrapContent)) { _ ->
                     drawStarterNavigation(model, router)
                 }
                 awakeShadcnSurface(
-                    id = "starter-side-compact",
-                    width = sideWidth,
-                    height = Dimension.WrapContent
-                ) { _ ->
+                    id = "starter-side-compact", modifier = Modifier.copy(width = sideWidth, height = Dimension.WrapContent)) { _ ->
                     drawStarterInspectorPanel(model = model, state = state)
                 }
             }
             surface(
                 id = "starter-footer-compact",
-                width = footerWidth,
-                height = Dimension.WrapContent,
                 style = AwakeShadcnStyles.surface(AwakeShadcnSurfaceVariant.Card),
-                modifier = UiModifier()
+                modifier = (Modifier
                     .align(UiAlignment.BottomStart)
-                    .padding(16f.dp)
-            ) { _ ->
+                    .padding(16f.dp)).copy(width = footerWidth, height = Dimension.WrapContent)) { _ ->
                 drawStarterFooter()
             }
         } else {
             surface(
                 id = "starter-nav",
-                width = navWidth,
-                height = Dimension.WrapContent,
                 style = AwakeShadcnStyles.surface(AwakeShadcnSurfaceVariant.Sidebar),
-                modifier = UiModifier()
+                modifier = (Modifier
                     .align(UiAlignment.TopStart)
-                    .padding(start = 20f.dp, top = 20f.dp, end = 0f.dp, bottom = 0f.dp)
-            ) { _ ->
+                    .padding(start = 20f.dp, top = 20f.dp, end = 0f.dp, bottom = 0f.dp)).copy(width = navWidth, height = Dimension.WrapContent)) { _ ->
                 drawStarterNavigation(model, router)
             }
 
             surface(
                 id = "starter-inspector",
-                width = sideWidth,
-                height = Dimension.WrapContent,
                 style = AwakeShadcnStyles.surface(AwakeShadcnSurfaceVariant.Card),
-                modifier = UiModifier()
+                modifier = (Modifier
                     .align(UiAlignment.TopEnd)
-                    .padding(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)
-            ) { _ ->
+                    .padding(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)).copy(width = sideWidth, height = Dimension.WrapContent)) { _ ->
                 drawStarterInspectorPanel(model = model, state = state)
             }
 
             surface(
                 id = "starter-footer",
-                width = footerWidth,
-                height = Dimension.WrapContent,
                 style = AwakeShadcnStyles.surface(AwakeShadcnSurfaceVariant.Card),
-                modifier = UiModifier()
+                modifier = (Modifier
                     .align(UiAlignment.BottomStart)
-                    .padding(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 20f.dp)
-            ) { _ ->
+                    .padding(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 20f.dp)).copy(width = footerWidth, height = Dimension.WrapContent)) { _ ->
                 drawStarterFooter()
             }
         }
@@ -144,13 +124,13 @@ private fun ColumnScope.drawStarterNavigation(
         label = "Active: ${model.activeSceneLabel}",
         maxLines = 1
     )
-    spacer(UiModifier().height(8f.dp))
+    spacer(Modifier.height(8f.dp))
     model.sceneButtons.forEach { scene ->
         if (
             awakeShadcnButton(
                 id = "scene-${scene.id}",
                 label = scene.label,
-                modifier = UiModifier().fillMaxWidth().height(32f.dp),
+                modifier = Modifier.fillMaxWidth().height(32f.dp),
                 variant = if (scene.selected) AwakeShadcnButtonVariant.Primary else AwakeShadcnButtonVariant.Secondary
             )
         ) {
@@ -168,7 +148,7 @@ private fun ColumnScope.drawStarterInspectorPanel(
     metaText("scene flow")
     metaText("shared UI shell")
     metaText("thin platform entrypoints")
-    spacer(UiModifier().height(10f.dp))
+    spacer(Modifier.height(10f.dp))
     val nextTipsVisible = awakeShadcnPropertyToggle(
         id = "starter-tips",
         checked = model.tipsVisible,
@@ -180,7 +160,7 @@ private fun ColumnScope.drawStarterInspectorPanel(
         state.tipsVisible = nextTipsVisible
     }
     if (state.tipsVisible) {
-        spacer(UiModifier().height(8f.dp))
+        spacer(Modifier.height(8f.dp))
         supportingLines(model.notes)
     }
 }

@@ -1,10 +1,10 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.property
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childBox
@@ -12,8 +12,9 @@ import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -44,7 +45,7 @@ internal data class PropertyRowLayout(
  * Returns the slot reserved for the control.
  */
 fun UiScope.propertyRow(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     labelContent: BoxScope.(slot: UiSlot) -> Unit,
     content: BoxScope.(slot: UiSlot) -> Unit
@@ -79,7 +80,7 @@ fun UiScope.propertyRow(
     labelContent: BoxScope.(slot: UiSlot) -> Unit,
     content: BoxScope.(slot: UiSlot) -> Unit
 ): UiSlot = propertyRow(
-    modifier = UiModifier().height(height),
+    modifier = Modifier.height(height),
     labelWidth = labelWidth,
     labelContent = labelContent,
     content = content
@@ -88,7 +89,7 @@ fun UiScope.propertyRow(
 /** [propertyRow] convenience with a plain string label. */
 fun UiScope.propertyRow(
     label: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp
 ): UiSlot {
     val rowSlot = claimModifiedSlot(
@@ -124,7 +125,7 @@ fun UiScope.propertyRow(
 /** [propertyRow] convenience with a plain string label and a content lambda for the control. */
 fun UiScope.propertyRow(
     label: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     content: BoxScope.(slot: UiSlot) -> Unit
 ): UiSlot {
@@ -139,7 +140,7 @@ fun UiScope.propertyRow(
     height: Dp,
     labelWidth: Dp = 64f.dp,
     content: BoxScope.(slot: UiSlot) -> Unit
-): UiSlot = propertyRow(label, UiModifier().height(height), labelWidth, content)
+): UiSlot = propertyRow(label, Modifier.height(height), labelWidth, content)
 
 /** [propertyCheckbox] convenience with fixed height. */
 fun UiScope.propertyCheckbox(
@@ -147,7 +148,7 @@ fun UiScope.propertyCheckbox(
     checked: Boolean,
     label: String,
     height: Dp,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     boxSize: Dp = 16f.dp
 ): Boolean = propertyCheckbox(

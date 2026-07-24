@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /**
@@ -38,23 +39,23 @@ abstract class AbstractUiScope(
     final override fun widgetState(id: String) = context.widgetStateInternal(id)
 }
 
-/** Resolves a [io.github.ronjunevaldoz.awake.ui.Dimension] to a raw pixel value against a scope's own configured size --
+/** Resolves a [Dimension] to a raw pixel value against a scope's own configured size --
  * shared by every concrete scope's `claimSlot` below instead of repeating the `when`.
  * [configured] is lazy: a scope with no meaningful "fill" axis (e.g. [RowScope]'s width)
- * passes `{ error(...) }`, which must only evaluate if [FillMax][io.github.ronjunevaldoz.awake.ui.Dimension.FillMax] is
+ * passes `{ error(...) }`, which must only evaluate if [FillMax][Dimension.FillMax] is
  * actually requested on that axis, not unconditionally as an eager argument would. */
-internal inline fun io.github.ronjunevaldoz.awake.ui.Dimension.resolve(configured: () -> Float): Float =
+internal inline fun Dimension.resolve(configured: () -> Float): Float =
     when (this) {
-        is io.github.ronjunevaldoz.awake.ui.Dimension.Fixed -> dp.toPx()
-        io.github.ronjunevaldoz.awake.ui.Dimension.FillMax -> configured()
-        io.github.ronjunevaldoz.awake.ui.Dimension.WrapContent -> error("WrapContent must be resolved by a measuring composite before claimSlot()")
+        is Dimension.Fixed -> dp.toPx()
+        Dimension.FillMax -> configured()
+        Dimension.WrapContent -> error("WrapContent must be resolved by a measuring composite before claimSlot()")
     }
 
-internal fun io.github.ronjunevaldoz.awake.ui.Dimension.resolveAgainst(available: Float): Float =
+internal fun Dimension.resolveAgainst(available: Float): Float =
     when (this) {
-        is io.github.ronjunevaldoz.awake.ui.Dimension.Fixed -> dp.toPx()
-        io.github.ronjunevaldoz.awake.ui.Dimension.FillMax -> available
-        io.github.ronjunevaldoz.awake.ui.Dimension.WrapContent -> error("WrapContent must be resolved before modifier placement")
+        is Dimension.Fixed -> dp.toPx()
+        Dimension.FillMax -> available
+        Dimension.WrapContent -> error("WrapContent must be resolved before modifier placement")
     }
 
 internal interface FillAwareScope {

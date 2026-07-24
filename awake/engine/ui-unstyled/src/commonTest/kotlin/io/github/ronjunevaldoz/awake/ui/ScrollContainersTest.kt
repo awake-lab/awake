@@ -4,6 +4,13 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,14 +24,14 @@ class ScrollContainersTest {
     fun hoveredScrollConsumesDeltaAndMovesState() {
         val ui = UiContext()
         val state = UiScrollState()
-        val scope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = UiFonts.default())
+        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = UiFonts.default())
 
         ui.simulateScrollFrame(x = 20f, y = 20f, scrollDeltaY = -1f) {
             scope.scrollPanel(
                 id = "scroll",
                 width = 140f.toDimension(),
                 height = 80f.toDimension(),
-                modifier = UiModifier()
+                modifier = Modifier
                     .width(140f.px)
                     .height(80f.px)
                     .verticalScroll(state, UiScrollConfig.Default.copy(scrollSpeed = 24f))
@@ -45,14 +52,14 @@ class ScrollContainersTest {
     fun nonHoveredScrollLeavesDeltaForOtherConsumers() {
         val ui = UiContext()
         val state = UiScrollState()
-        val scope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = UiFonts.default())
+        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = UiFonts.default())
 
         ui.simulateScrollFrame(x = 180f, y = 180f, scrollDeltaY = -1f) {
             scope.scrollPanel(
                 id = "scroll",
                 width = 140f.toDimension(),
                 height = 80f.toDimension(),
-                modifier = UiModifier()
+                modifier = Modifier
                     .width(140f.px)
                     .height(80f.px)
                     .verticalScroll(state, UiScrollConfig.Default.copy(scrollSpeed = 24f))
@@ -75,13 +82,13 @@ class ScrollContainersTest {
     fun scrollPanelEmitsViewportClipAndScrollbarThumb() {
         val ui = UiContext()
         ui.beginFrame(220f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = UiFonts.default())
+        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = UiFonts.default())
 
         val result = scope.scrollPanel(
             id = "scroll",
             width = 140f.toDimension(),
             height = 80f.toDimension(),
-            modifier = UiModifier()
+            modifier = Modifier
                 .width(140f.px)
                 .height(80f.px)
                 .verticalScroll(UiScrollState())

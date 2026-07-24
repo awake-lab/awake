@@ -1,10 +1,9 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -17,9 +16,11 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawSurface
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.styleable
 import io.github.ronjunevaldoz.awake.ui.popup
-import io.github.ronjunevaldoz.awake.ui.styleable
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
 
 
 private val DetachedPopupAnchor = UiSlot(-1f, -1f, 0f, 0f)
@@ -69,14 +70,14 @@ fun UiScope.dialog(
             id = id,
             width = width,
             height = height,
-            modifier = UiModifier()
+            modifier = Modifier
                 .styleable(theme.components.surface then Style { shape(UiShape.md) } then properties.surfaceStyle),
             clipContent = true
         ) { slot ->
             header?.invoke(this, slot)
             content(slot)
             if (actions != null) {
-                row(height = 36f.dp, width = Dimension.FillMax) { actionSlot ->
+                row( modifier = Modifier.copy(width = Dimension.FillMax, height = 36f.dp.toDimension())) { actionSlot ->
                     actions(actionSlot)
                 }
             }

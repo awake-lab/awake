@@ -3,6 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.dropdown
 import kotlin.test.Test
@@ -17,7 +23,7 @@ class UiPopupTest {
     fun popupPositionsBelowAnchorByDefault() {
         val ui = UiContext()
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        val scope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
 
         val result = scope.popup(
             anchorSlot = UiSlot(20f, 30f, 120f, 32f),
@@ -36,7 +42,7 @@ class UiPopupTest {
     fun popupDismissesOnOutsidePointerPress() {
         val ui = UiContext()
         ui.beginFrame(300f, 200f, testSnapshot(x = 280f, y = 180f, down = true))
-        val scope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
 
         val result = scope.popup(
             anchorSlot = UiSlot(20f, 30f, 120f, 32f),
@@ -53,18 +59,18 @@ class UiPopupTest {
     @Test
     fun dropdownUsesSharedPopupAndClosesAfterPickingOption() {
         val ui = UiContext()
-        ui.createColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").set("expanded", true)
+        ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").set("expanded", true)
 
         ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = true))
-        var picked = ui.createColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
+        var picked = ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))
         ui.endFrame()
         assertEquals(null, picked)
 
         ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = false))
-        picked = ui.createColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = UiModifier().width(160f.px).height(32f.px))
+        picked = ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))
         ui.endFrame()
 
         assertEquals(0, picked)
-        assertFalse(ui.createColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").get("expanded", true))
+        assertFalse(ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").get("expanded", true))
     }
 }

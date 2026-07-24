@@ -28,7 +28,7 @@ val Int.sp: Sp get() = Sp(this.toFloat())
 /** Wraps an already-resolved pixel value as a [Dp] that round-trips back to the exact same
  * pixel count via [toPx], regardless of [UiDensity.scale] -- used at the boundary where an
  * existing widget's own literal-pixel parameter (e.g. `button(id, width: Float, ...)`) enters
- * the [Dimension]-based `claimSlot` pipeline without being retroactively density-scaled. Not
+ * the [io.github.ronjunevaldoz.awake.ui.modifier.Dimension]-based `claimSlot` pipeline without being retroactively density-scaled. Not
  * the same as [dp]: `.dp` means "this many density-independent units, scale up by density";
  * `.px` means "this many pixels already, cancel density out so it's unchanged." */
 val Float.px: Dp get() = Dp(this / UiDensity.scale)

@@ -7,22 +7,22 @@ import io.github.ronjunevaldoz.awake.engine.application.GameUiSpec
 import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
 import io.github.ronjunevaldoz.awake.ui.designsystem.awakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
-import io.github.ronjunevaldoz.awake.ui.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
-import io.github.ronjunevaldoz.awake.ui.toDimension
-import io.github.ronjunevaldoz.awake.ui.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 
 private val ShowcaseChromeTheme = awakeShadcnTheme(dark = false)
 
@@ -52,65 +52,46 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
 
         if (compact) {
             column(
-                width = Dimension.FillMax,
-                height = Dimension.FillMax,
                 verticalArrangement = Arrangement.spacedBy(12f.dp),
-                modifier = UiModifier().fillMaxSize().padding(outerPadding)
-            ) {
+                modifier = (Modifier.fillMaxSize().padding(outerPadding)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
                 awakeShadcnSurface(
                     id = "ui-showcase-mobile-sidebar",
-                    height = Dimension.FillMax,
                     variant = AwakeShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
-                    modifier = UiModifier().verticalScroll(sidebarScroll, UiScrollConfig.Hidden)
-                ) {
+                    modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).copy(height = Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = true)
                 }
 
                 column(
                     id = "ui-showcase-mobile-content-viewport",
-                    width = Dimension.FillMax,
-                    height = Dimension.FillMax,
-                    modifier = UiModifier().verticalScroll(contentScroll)
-                ) {
+                    modifier = (Modifier.verticalScroll(contentScroll)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
                     awakeShadcnSurface(
                         id = "ui-showcase-mobile-content",
-                        height = Dimension.WrapContent,
                         style = Style { shape(16f.dp) }
-                    ) {
+                    , modifier = Modifier.copy(height = Dimension.WrapContent)) {
                         drawUiShowcasePageContent(state, showInlineMenu = true)
                     }
                 }
             }
         } else {
             row(
-                width = Dimension.FillMax,
-                height = Dimension.FillMax,
                 horizontalArrangement = Arrangement.spacedBy(railGap),
-                modifier = UiModifier().fillMaxSize().padding(outerPadding)
-            ) {
+                modifier = (Modifier.fillMaxSize().padding(outerPadding)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
                 awakeShadcnSurface(
                     id = "ui-showcase-sidebar",
-                    width = sidebarWidth,
-                    height = Dimension.FillMax,
                     variant = AwakeShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
-                    modifier = UiModifier().verticalScroll(sidebarScroll, UiScrollConfig.Hidden)
-                ) {
+                    modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).copy(width = sidebarWidth, height = Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = false)
                 }
 
                 column(
                     id = "ui-showcase-content-viewport",
-                    width = Dimension.FillMax,
-                    height = Dimension.FillMax,
-                    modifier = UiModifier().verticalScroll(contentScroll)
-                ) {
+                    modifier = (Modifier.verticalScroll(contentScroll)).copy(width = Dimension.FillMax, height = Dimension.FillMax)) {
                     awakeShadcnSurface(
                         id = "ui-showcase-content",
-                        height = Dimension.WrapContent,
                         style = Style { shape(16f.dp) }
-                    ) {
+                    , modifier = Modifier.copy(height = Dimension.WrapContent)) {
                         drawUiShowcasePageContent(state, showInlineMenu = false)
                     }
                 }

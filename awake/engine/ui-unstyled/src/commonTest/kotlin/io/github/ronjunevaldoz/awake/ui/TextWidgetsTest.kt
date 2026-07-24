@@ -6,7 +6,12 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
@@ -22,7 +27,7 @@ class TextWidgetsTest {
     fun ellipsisClampsGlyphsInsideTheSlotWidth() {
         val font = BitmapFont()
         val ui = UiContext()
-        val scope = ui.createAbsolute(modifier = UiModifier().offset((10f).dp, (20f).dp), font = font)
+        val scope = ui.createAbsolute(modifier = Modifier.offset((10f).dp, (20f).dp), font = font)
         // BitmapFont is true monospace (every glyph advances a full glyphPx, see
         // GlyphAtlasSource.advanceFor) -- the slot must be wide enough to fit the 3-dot
         // ellipsis itself (3 * glyphPx) plus at least one real character, or there's no
@@ -120,7 +125,7 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
-        ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font).text(
+        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).text(
             label = "BUTTON",
             slot = UiSlot(20f, 20f, 160f, 40f),
             font = font,
@@ -142,7 +147,7 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(180f, 80f, testSnapshot())
-        ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font).text(
+        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).text(
             label = "Title",
             slot = UiSlot(16f, 24f, 120f, 20f),
             font = font
@@ -161,9 +166,9 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(220f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font).button(
+        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).button(
             id = "nav",
-            modifier = UiModifier().width(180f.px).height(36f.px),
+            modifier = Modifier.width(180f.px).height(36f.px),
             label = "Overview",
             style = Style {
                 contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
@@ -188,11 +193,11 @@ class TextWidgetsTest {
         var secondSlot: UiSlot? = null
 
         ui.column(
-            modifier = UiModifier().width(200f.dp),
+            modifier = Modifier.width(200f.dp),
             verticalArrangement = Arrangement.spacedBy(8f.dp)
         ) {
-            firstSlot = text("Hover target", modifier = UiModifier().width(120f.px))
-            secondSlot = text("Sibling", modifier = UiModifier().width(120f.px))
+            firstSlot = text("Hover target", modifier = Modifier.width(120f.px))
+            secondSlot = text("Sibling", modifier = Modifier.width(120f.px))
         }
 
         assertEquals(0f, firstSlot?.y, "hovered text should not re-claim a later row in the same column")

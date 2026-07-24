@@ -7,10 +7,8 @@ import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.sample.hellocube.presentation.helloCubeOverlayModel
 import io.github.ronjunevaldoz.awake.sample.hellocube.state.HelloCubeRuntimeState
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.UiModifier
-import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.metaText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
@@ -18,8 +16,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.suppo
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
-import io.github.ronjunevaldoz.awake.ui.padding
-import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.align
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
 
 internal fun GameUiRuntime.drawHelloCubeOverlay(
     scene: SceneGameRuntime,
@@ -31,17 +31,14 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
         val debugWidth = if (constraints.isCompact) Dimension.FillMax else 340f.toDimension()
         surface(
             id = "hello-cube-scene",
-            width = panelWidth,
-            height = Dimension.WrapContent,
-            modifier = UiModifier()
+            modifier = (Modifier
                 .align(if (constraints.isCompact) UiAlignment.TopStart else UiAlignment.TopEnd)
                 .padding(
                     start = if (constraints.isCompact) 16f.dp else 0f.dp,
                     top = if (constraints.isCompact) 16f.dp else 24f.dp,
                     end = if (constraints.isCompact) 16f.dp else 40f.dp,
                     bottom = 0f.dp
-                )
-        ) {
+                )).copy(width = panelWidth, height = Dimension.WrapContent)) {
             awakeShadcnBadge("HELLO CUBE", variant = AwakeShadcnBadgeVariant.Primary)
             sectionTitle("Scene")
             metaText("SCENE: ${model.sceneName}")
@@ -51,17 +48,14 @@ internal fun GameUiRuntime.drawHelloCubeOverlay(
 
         surface(
             id = "hello-cube-debug",
-            width = debugWidth,
-            height = Dimension.WrapContent,
-            modifier = UiModifier()
+            modifier = (Modifier
                 .align(UiAlignment.BottomStart)
                 .padding(
                     start = if (constraints.isCompact) 16f.dp else 20f.dp,
                     top = 0f.dp,
                     end = if (constraints.isCompact) 16f.dp else 0f.dp,
                     bottom = 12f.dp
-                )
-        ) {
+                )).copy(width = debugWidth, height = Dimension.WrapContent)) {
             awakeShadcnBadge("DEBUG", variant = AwakeShadcnBadgeVariant.Outline)
             sectionTitle("Runtime")
             supportingLines(model.debugLines)

@@ -11,6 +11,13 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.styling.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.styling.inset
+import io.github.ronjunevaldoz.awake.ui.styling.verticalPx
 
 data class UiScrollPanelResult(
     val slot: UiSlot,
@@ -30,7 +37,7 @@ fun UiScope.scrollPanel(
     id: String,
     width: Dimension = Dimension.FillMax,
     height: Dimension = Dimension.WrapContent,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     verticalArrangement: Arrangement = defaultArrangement(),
     content: ColumnScope.(slot: UiSlot) -> Unit

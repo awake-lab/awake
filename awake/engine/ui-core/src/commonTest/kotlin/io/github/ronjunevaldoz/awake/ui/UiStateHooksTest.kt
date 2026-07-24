@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -53,12 +55,12 @@ class UiStateHooksTest {
         val ui = UiContext()
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
         var expanded by scope.rememberBooleanState("delegate-demo", initial = true)
         expanded = false
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val nextScope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp))
+        val nextScope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
         val persisted = nextScope.rememberBooleanState("delegate-demo", initial = true)
 
         assertFalse(persisted.value)
@@ -69,21 +71,21 @@ class UiStateHooksTest {
         val ui = UiContext()
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
         val popupState = scope.rememberPopupState("menu")
         popupState.open()
         popupState.toggle()
         popupState.toggle()
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val nextScope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp))
+        val nextScope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
         val persisted = nextScope.rememberPopupState("menu")
         assertTrue(persisted.expanded)
 
         persisted.close()
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val finalScope = ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp))
+        val finalScope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
         val closed = finalScope.rememberPopupState("menu")
         assertFalse(closed.expanded)
     }

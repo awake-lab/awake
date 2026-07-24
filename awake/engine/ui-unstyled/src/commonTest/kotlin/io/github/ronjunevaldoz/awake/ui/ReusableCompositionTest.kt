@@ -7,7 +7,16 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.styling.StyleStateKey
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,7 +30,7 @@ class ReusableCompositionTest {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
 
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = BitmapFont()).badge("status", "READY", emphasized = true)
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).badge("status", "READY", emphasized = true)
 
         val primitives = ui.endFrame()
         assertIs<UiDrawPrimitive.RoundedQuad>(primitives.first(), "custom widget should be able to emit a styled rounded border")
@@ -36,8 +45,8 @@ class ReusableCompositionTest {
         ui.pushTheme(CoreUiTheme)
 
         val scope = DiagonalScope(ui, startX = 10f, startY = 20f, stepX = 15f, stepY = 10f)
-        val first = scope.buttonSlot("one", label = "ONE", modifier = UiModifier().width(100f.px).height(30f.px))
-        val second = scope.buttonSlot("two", label = "TWO", modifier = UiModifier().width(100f.px).height(30f.px))
+        val first = scope.buttonSlot("one", label = "ONE", modifier = Modifier.width(100f.px).height(30f.px))
+        val second = scope.buttonSlot("two", label = "TWO", modifier = Modifier.width(100f.px).height(30f.px))
 
         assertEquals(UiSlot(10f, 20f, 100f, 30f), first.slot)
         assertEquals(UiSlot(25f, 30f, 100f, 30f), second.slot)
@@ -48,9 +57,9 @@ class ReusableCompositionTest {
         val ui = UiContext()
         ui.beginFrame(260f, 120f, testSnapshot())
 
-        val result = ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = BitmapFont()).buttonSlot(
+        val result = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).buttonSlot(
             id = "launch",
-            modifier = UiModifier().width(180f.px).height(40f.px),
+            modifier = Modifier.width(180f.px).height(40f.px),
             style = Style {
                 contentPadding(start = 12f.dp, top = 0f.dp, end = 12f.dp, bottom = 0f.dp)
             }

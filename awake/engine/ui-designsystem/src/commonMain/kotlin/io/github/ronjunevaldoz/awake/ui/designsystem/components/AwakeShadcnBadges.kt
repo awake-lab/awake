@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
@@ -15,21 +15,22 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTransparent
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
-import io.github.ronjunevaldoz.awake.ui.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.styling.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.verticalPx
+import io.github.ronjunevaldoz.awake.ui.styling.verticalPx
 
 /** Real shadcn's `Badge`: an inline status pill -- defaults to Secondary, but
  * [AwakeShadcnBadgeVariant] covers all semantic variants (Primary, Secondary, Outline,
  * Destructive). */
 fun UiScope.awakeShadcnBadge(
     label: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
     style: Style = Style.Empty
 ): UiSlot = text(
@@ -45,7 +46,7 @@ fun UiScope.awakeShadcnBadge(
     label: String,
     width: Dimension,
     height: Dimension,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary,
     style: Style = Style.Empty
 ): UiSlot {
@@ -87,7 +88,7 @@ fun UiScope.awakeShadcnBadge(
  * label" mechanics as [awakeShadcnBadge] with a different (sm-radius, muted) style. */
 fun UiScope.awakeShadcnKbd(
     label: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): UiSlot = text(
     label = label,

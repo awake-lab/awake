@@ -4,9 +4,8 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnBodyText
@@ -21,11 +20,12 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.tooltip
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -35,7 +35,8 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 
 private val ShowcaseActionMenuItems = listOf(
     UiDropdownMenuItem(
@@ -66,13 +67,13 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
     awakeShadcnBadge("MVI", variant = AwakeShadcnBadgeVariant.Primary)
     awakeShadcnBodyText("Count: ${counterState.count}")
     awakeShadcnSupportingText("Last effect: ${state.showcaseCounterEffectMessage ?: "None"}")
-    spacer(UiModifier().height(6f.dp))
-    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
+    spacer(Modifier.height(6f.dp))
+    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
         if (
             awakeShadcnButton(
                 id = "counter-decrement",
                 label = "Decrement",
-                modifier = UiModifier().width(112f.dp).height(36f.dp),
+                modifier = Modifier.width(112f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Outline
             )
         ) {
@@ -82,19 +83,19 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
             awakeShadcnButton(
                 id = "counter-increment",
                 label = "Increment",
-                modifier = UiModifier().width(112f.dp).height(36f.dp),
+                modifier = Modifier.width(112f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Primary
             )
         ) {
             state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Increment)
         }
     }
-    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
+    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
         if (
             awakeShadcnButton(
                 id = "counter-reset",
                 label = "Reset",
-                modifier = UiModifier().width(112f.dp).height(36f.dp),
+                modifier = Modifier.width(112f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Ghost
             )
         ) {
@@ -116,12 +117,12 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
 
     awakeShadcnBadge("OVERLAY", variant = AwakeShadcnBadgeVariant.Outline)
     awakeShadcnSupportingText("The action menu anchors to the trigger and opens inside a contained popover surface.")
-    spacer(UiModifier().height(6f.dp))
-    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
+    spacer(Modifier.height(6f.dp))
+    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
         val menuTrigger = buttonSlot(
             id = "ui-showcase-menu-trigger",
             label = "Actions",
-            modifier = UiModifier().width(112f.dp).height(36f.dp),
+            modifier = Modifier.width(112f.dp).height(36f.dp),
             style = theme.components.button,
             variant = UiButtonVariant.Filled
         )
@@ -153,14 +154,14 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
             awakeShadcnButton(
                 id = "ui-showcase-delete-trigger",
                 label = "Open Dialog",
-                modifier = UiModifier().width(128f.dp).height(36f.dp),
+                modifier = Modifier.width(128f.dp).height(36f.dp),
                 variant = AwakeShadcnButtonVariant.Outline
             )
         ) {
             deleteDialogState.open()
         }
     }
-    spacer(UiModifier().height(4f.dp))
+    spacer(Modifier.height(4f.dp))
     awakeShadcnSupportingText(feedbackMessage.value)
 
     val dialogResult = alertDialog(
@@ -192,12 +193,12 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
 
 internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
     awakeShadcnSupportingText("Tooltips stay small and contextual: anchored to a trigger, wrapped inside a surfaced popup, and dismissible without changing the surrounding layout.")
-    spacer(UiModifier().height(8f.dp))
-    row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
+    spacer(Modifier.height(8f.dp))
+    row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
         val trigger = buttonSlot(
             id = "showcase-tooltip-trigger",
             label = "Scene info",
-            modifier = UiModifier().width(132f.dp).height(36f.dp),
+            modifier = Modifier.width(132f.dp).height(36f.dp),
             style = theme.components.button
         )
         val visibility = rememberStateValue("showcase-tooltip-visible") { true }
@@ -217,11 +218,11 @@ internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
         awakeShadcnButton(
             id = "showcase-tooltip-reference",
             label = "Reference",
-            modifier = UiModifier().width(120f.dp).height(36f.dp),
+            modifier = Modifier.width(120f.dp).height(36f.dp),
             variant = AwakeShadcnButtonVariant.Secondary
         )
     }
-    spacer(UiModifier().height(8f.dp))
+    spacer(Modifier.height(8f.dp))
     awakeShadcnSupportingText("The preview suite keeps an open-state proof so tooltip width, wrap, and anchoring stay reviewable without hover automation.")
 }
 

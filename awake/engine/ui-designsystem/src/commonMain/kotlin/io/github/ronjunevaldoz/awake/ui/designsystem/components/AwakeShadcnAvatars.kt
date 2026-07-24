@@ -3,12 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.avatarFallback
 
@@ -22,7 +23,7 @@ private fun awakeShadcnAvatarStyle(theme: UiTheme, style: Style): Style {
 
 fun UiScope.awakeShadcnAvatar(
     initials: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     diameter: Dp = 40f.dp,
     style: Style = Style.Empty
 ): Unit = avatarFallback(

@@ -5,13 +5,14 @@ package io.github.ronjunevaldoz.awake.testing.ui
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.forceActive
-import io.github.ronjunevaldoz.awake.ui.forceFocus
-import io.github.ronjunevaldoz.awake.ui.forceHover
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.forceActive
+import io.github.ronjunevaldoz.awake.ui.modifier.forceFocus
+import io.github.ronjunevaldoz.awake.ui.modifier.forceHover
 
 /**
  * Automates the rendering of a component in multiple interaction states using forced modifiers.
@@ -22,10 +23,10 @@ fun AwakeUiPreviewMetadata.componentStateMatrix(
     block: ColumnScope.(UiModifier) -> Unit
 ): List<AwakeUiPreviewSample> {
     val states = listOf(
-        "default" to UiModifier(),
-        "hover" to UiModifier().forceHover(),
-        "active" to UiModifier().forceActive(),
-        "focus" to UiModifier().forceFocus()
+        "default" to Modifier,
+        "hover" to Modifier.forceHover(),
+        "active" to Modifier.forceActive(),
+        "focus" to Modifier.forceFocus()
     )
 
     return states.map { (idSuffix, forcedModifier) ->

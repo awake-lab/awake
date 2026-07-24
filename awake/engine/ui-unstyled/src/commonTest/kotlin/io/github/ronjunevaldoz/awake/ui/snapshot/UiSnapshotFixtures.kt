@@ -5,15 +5,13 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.CoreUiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
-import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
@@ -35,12 +33,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVa
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.offset
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
-import io.github.ronjunevaldoz.awake.ui.size
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.align
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.size
 import io.github.ronjunevaldoz.awake.ui.spacer
 import io.github.ronjunevaldoz.awake.ui.surface
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
@@ -56,7 +56,8 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
-import io.github.ronjunevaldoz.awake.ui.width
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 
 data class UiSnapshotScene(
     val name: String,
@@ -75,20 +76,20 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
 
     val uncheckedUi = UiContext()
     uncheckedUi.beginFrame(160f, 40f, testSnapshot())
-    uncheckedUi.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
-        .toggle("toggle-unchecked", checked = false, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
+    uncheckedUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
+        .toggle("toggle-unchecked", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
 
     val checkedUi = UiContext()
     checkedUi.beginFrame(160f, 40f, testSnapshot())
-    checkedUi.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
-        .toggle("toggle-checked", checked = true, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
+    checkedUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
+        .toggle("toggle-checked", checked = true, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
 
     val buttonVariants = UiButtonVariant.entries.map { variant ->
         val variantId = buttonVariantId(variant)
         val ui = UiContext()
         ui.beginFrame(160f, 40f, testSnapshot())
-        ui.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
-            .button("button-$variantId", label = "BUTTON", modifier = UiModifier().width(160f.px).height(40f.px), variant = variant, radius = UiShape.md)
+        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
+            .button("button-$variantId", label = "BUTTON", modifier = Modifier.width(160f.px).height(40f.px), variant = variant, radius = UiShape.md)
         UiSnapshotScene(
             name = "button-$variantId",
             width = 160,
@@ -101,26 +102,25 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
 
     val lightThemeUi = UiContext()
     lightThemeUi.beginFrame(160f, 40f, testSnapshot())
-    lightThemeUi.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font, theme = SnapshotLightUiTheme)
-        .button("theme-light", label = "BUTTON", modifier = UiModifier().width(160f.px).height(40f.px))
+    lightThemeUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = SnapshotLightUiTheme)
+        .button("theme-light", label = "BUTTON", modifier = Modifier.width(160f.px).height(40f.px))
 
     val darkThemeUi = UiContext()
     darkThemeUi.beginFrame(160f, 40f, testSnapshot())
-    darkThemeUi.createAbsolute(modifier = UiModifier().offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
-        .button("theme-dark", label = "BUTTON", modifier = UiModifier().width(160f.px).height(40f.px))
+    darkThemeUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
+        .button("theme-dark", label = "BUTTON", modifier = Modifier.width(160f.px).height(40f.px))
 
     val panelUi = UiContext()
     panelUi.beginFrame(240f, 200f, testSnapshot())
-    val panelColumn = panelUi.createColumn(modifier = UiModifier().offset((20f).dp, (20f).dp).width((200f).dp), font = font, theme = CoreUiTheme)
+    val panelColumn = panelUi.createColumn(modifier = Modifier.offset((20f).dp, (20f).dp).width((200f).dp), font = font, theme = CoreUiTheme)
     panelColumn.surface(
         "inspector",
-        Dimension.FillMax,
-        Dimension.Fixed(140f.px),
+        modifier = Modifier.copy(width = Dimension.FillMax, height = Dimension.Fixed(140f.px)),
         style = Style { borderWidth(1f.dp) }
     ) {
         text("CAMERA", color = CoreUiTheme.tokens.mutedForeground)
-        dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = UiModifier().width(180f.px).height(24f.px))
-        checkbox("debug", checked = true, label = "DEBUG", modifier = UiModifier().width(180f.px).height(24f.px))
+        dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = Modifier.width(180f.px).height(24f.px))
+        checkbox("debug", checked = true, label = "DEBUG", modifier = Modifier.width(180f.px).height(24f.px))
     }
 
     return buildList {
@@ -216,25 +216,22 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             pushTheme(AwakeShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(
-                modifier = UiModifier().offset(16f.dp, 18f.dp).width(588f.dp),
+                modifier = Modifier.offset(16f.dp, 18f.dp).width(588f.dp),
                 verticalArrangement = Arrangement.spacedBy(10f.dp)
             ) {
                 awakeShadcnSurface(
-                    id = "button-variants",
-                    width = Dimension.Fixed(588f.px),
-                    height = Dimension.WrapContent
-                ) {
+                    id = "button-variants", modifier = Modifier.copy(width = Dimension.Fixed(588f.px), height = Dimension.WrapContent)) {
                     text("Awake Shadcn Buttons")
                     supportingText("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")
-                    spacer(UiModifier().height(8f.dp))
-                    row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
-                        awakeShadcnButton("primary", "Primary", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Primary)
-                        awakeShadcnButton("secondary", "Secondary", modifier = UiModifier().width(172f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Secondary)
-                        awakeShadcnButton("outline", "Outline", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
+                    spacer(Modifier.height(8f.dp))
+                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
+                        awakeShadcnButton("primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Primary)
+                        awakeShadcnButton("secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Secondary)
+                        awakeShadcnButton("outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
                     }
-                    row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
-                        awakeShadcnButton("ghost", "Ghost", modifier = UiModifier().width(122f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Ghost)
-                        awakeShadcnButton("danger", "Danger", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Danger)
+                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
+                        awakeShadcnButton("ghost", "Ghost", modifier = Modifier.width(122f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Ghost)
+                        awakeShadcnButton("danger", "Danger", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Danger)
                     }
                 }
             }
@@ -247,24 +244,22 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             title = "Shaped Panel Composition",
             summary = "Panels can opt into a custom shape and content clipping, which gives the DSL a reusable way to compose containers and controls."
         ) { snapshotFont ->
-            createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = snapshotFont, theme = CoreUiTheme).surface(
+            createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = snapshotFont, theme = CoreUiTheme).surface(
                 id = "shape-panel",
-                width = Dimension.Fixed(260f.px),
-                height = Dimension.Fixed(120f.px),
                 style = Style {
                     shape(UiShapeSpec.CutCorner(12f.dp))
                     border(1f.dp, CoreUiTheme.tokens.border)
                     contentPadding(12f.dp)
                 },
                 clipContent = true
-            ) { slot ->
+            , modifier = Modifier.copy(width = Dimension.Fixed(260f.px), height = Dimension.Fixed(120f.px))) { slot ->
                 text("Shaped Panel", color = CoreUiTheme.tokens.mutedForeground)
                 context.createAbsolute(
-                    modifier = UiModifier().offset((slot.x + 12f).dp, (slot.y + 44f).dp),
+                    modifier = Modifier.offset((slot.x + 12f).dp, (slot.y + 44f).dp),
                     font = snapshotFont,
                     theme = CoreUiTheme
                 )
-                    .button("launch", label = "Launch Scene", modifier = UiModifier().width(180f.px).height(36f.dp), radius = UiShape.md)
+                    .button("launch", label = "Launch Scene", modifier = Modifier.width(180f.px).height(36f.dp), radius = UiShape.md)
             }
         },
         scene(
@@ -279,17 +274,14 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             pushTheme(AwakeShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(
-                modifier = UiModifier().offset(20f.dp, 20f.dp).width(390f.dp),
+                modifier = Modifier.offset(20f.dp, 20f.dp).width(390f.dp),
                 verticalArrangement = Arrangement.spacedBy(10f.dp)
             ) {
                 awakeShadcnSurface(
-                    id = "inspector",
-                    width = Dimension.Fixed(390f.px),
-                    height = Dimension.WrapContent
-                ) {
+                    id = "inspector", modifier = Modifier.copy(width = Dimension.Fixed(390f.px), height = Dimension.WrapContent)) {
                     text("Controls")
                     supportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
-                    spacer(UiModifier().height(4f.dp))
+                    spacer(Modifier.height(4f.dp))
                     awakeShadcnPropertyDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0, labelWidth = 96f.dp)
                     awakeShadcnPropertyToggle("debug", "Debug Frustum Overlay", checked = true)
                     awakeShadcnPropertyToggle("grid", "Show Reference Grid", checked = false)
@@ -309,7 +301,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             pushFont(snapshotFont)
             pushTheme(AwakeShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
-            column(modifier = UiModifier().width(360f.dp)) {
+            column(modifier = Modifier.width(360f.dp)) {
                 alertDialog(
                     id = "snapshot-alert",
                     expanded = true,
@@ -331,25 +323,25 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             pushTheme(AwakeShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(
-                modifier = UiModifier().offset(20f.dp, 20f.dp).width(420f.dp),
+                modifier = Modifier.offset(20f.dp, 20f.dp).width(420f.dp),
                 verticalArrangement = Arrangement.spacedBy(14f.dp)
             ) {
-                row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
-                    toggle("state-matrix-toggle-off", checked = false, modifier = UiModifier().width(120f.px).height(24f.px))
-                    toggle("state-matrix-toggle-on", checked = true, modifier = UiModifier().width(120f.px).height(24f.px))
+                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
+                    toggle("state-matrix-toggle-off", checked = false, modifier = Modifier.width(120f.px).height(24f.px))
+                    toggle("state-matrix-toggle-on", checked = true, modifier = Modifier.width(120f.px).height(24f.px))
                 }
-                row(height = 32f.dp, horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
-                    checkbox("state-matrix-checkbox-off", checked = false, modifier = UiModifier().width(180f.px).height(24f.px))
-                    checkbox("state-matrix-checkbox-on", checked = true, modifier = UiModifier().width(180f.px).height(24f.px))
+                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(height = 32f.dp.toDimension())) {
+                    checkbox("state-matrix-checkbox-off", checked = false, modifier = Modifier.width(180f.px).height(24f.px))
+                    checkbox("state-matrix-checkbox-on", checked = true, modifier = Modifier.width(180f.px).height(24f.px))
                 }
-                row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
-                    slider("state-matrix-slider-empty", min = 0f, max = 100f, value = 0f, modifier = UiModifier().width(120f.px).height(36f.dp))
-                    slider("state-matrix-slider-half", min = 0f, max = 100f, value = 50f, modifier = UiModifier().width(120f.px).height(36f.dp))
-                    slider("state-matrix-slider-full", min = 0f, max = 100f, value = 100f, modifier = UiModifier().width(120f.px).height(36f.dp))
+                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
+                    slider("state-matrix-slider-empty", min = 0f, max = 100f, value = 0f, modifier = Modifier.width(120f.px).height(36f.dp))
+                    slider("state-matrix-slider-half", min = 0f, max = 100f, value = 50f, modifier = Modifier.width(120f.px).height(36f.dp))
+                    slider("state-matrix-slider-full", min = 0f, max = 100f, value = 100f, modifier = Modifier.width(120f.px).height(36f.dp))
                 }
-                row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
-                    textField("state-matrix-empty-field", value = "", placeholder = "Placeholder", modifier = UiModifier().width(190f.px).height(36f.dp))
-                    textField("state-matrix-focused-field", value = "Typed", modifier = UiModifier().width(190f.px).height(36f.dp))
+                row( horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
+                    textField("state-matrix-empty-field", value = "", placeholder = "Placeholder", modifier = Modifier.width(190f.px).height(36f.dp))
+                    textField("state-matrix-focused-field", value = "Typed", modifier = Modifier.width(190f.px).height(36f.dp))
                 }
             }
         },
@@ -361,11 +353,9 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             title = "Rounded Clip And Vector",
             summary = "Rounded surfaces, colored borders, Box-style alignment, and vector-path icons all compose through the same widget surface, with shape clipping trimming intentional overflow."
         ) { snapshotFont ->
-            val panelScope = createAbsolute(modifier = UiModifier().offset(24f.dp, 24f.dp), font = snapshotFont, theme = CoreUiTheme)
+            val panelScope = createAbsolute(modifier = Modifier.offset(24f.dp, 24f.dp), font = snapshotFont, theme = CoreUiTheme)
             panelScope.surface(
                 id = "vector-showcase",
-                width = Dimension.Fixed(292f.px),
-                height = Dimension.Fixed(164f.px),
                 style = Style {
                     shape(UiShapeSpec.CutCorner(18f.dp))
                     background(Color(0.13f, 0.16f, 0.24f, 1f))
@@ -373,7 +363,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     contentPadding(14f.dp)
                 },
                 clipContent = true
-            ) { slot ->
+            , modifier = Modifier.copy(width = Dimension.Fixed(292f.px), height = Dimension.Fixed(164f.px))) { slot ->
                 text("Rounded + Clip + Vector", color = Color(0.94f, 0.96f, 1f, 1f))
                 text(
                     "The icon intentionally overflows and gets clipped by the cut-corner shell.",
@@ -382,7 +372,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 )
 
                 context.createBox(
-                    modifier = UiModifier()
+                    modifier = Modifier
                         .offset((slot.x + 16f).dp, (slot.y + 56f).dp)
                         .width((slot.width - 32f).dp)
                         .height(78f.dp),
@@ -392,20 +382,17 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 ).apply {
                     surface(
                         id = "chip",
-                        width = Dimension.Fixed(180f.px),
-                        height = Dimension.Fixed(56f.px),
                         style = Style {
                             shape(28f.dp)
                             background(Color(0.2f, 0.24f, 0.36f, 1f))
                             border(1f.dp, Color(0.56f, 0.72f, 1f, 1f))
                         },
-                        modifier = UiModifier().align(UiAlignment.Center)
-                    ) {
+                        modifier = (Modifier.align(UiAlignment.Center)).copy(width = Dimension.Fixed(180f.px), height = Dimension.Fixed(56f.px))) {
                         text("ICON CHIP", color = Color(0.95f, 0.97f, 1f, 1f))
                     }
                     icon(
                         imageVector = tutorialSparkleIcon,
-                        modifier = UiModifier()
+                        modifier = Modifier
                             .align(UiAlignment.CenterEnd)
                             .offset(x = 18f.dp)
                             .size(88f.dp, 88f.dp),
@@ -426,43 +413,39 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             pushTheme(AwakeShadcnTheme)
             pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
             column(
-                modifier = UiModifier().offset(20f.dp, 20f.dp).width(520f.dp),
+                modifier = Modifier.offset(20f.dp, 20f.dp).width(520f.dp),
                 verticalArrangement = Arrangement.spacedBy(12f.dp)
             ) {
                 awakeShadcnSurface(
-                    id = "shadcn-showcase",
-                    width = Dimension.Fixed(520f.px),
-                    height = Dimension.WrapContent
-                ) {
+                    id = "shadcn-showcase", modifier = Modifier.copy(width = Dimension.Fixed(520f.px), height = Dimension.WrapContent)) {
                     text("Awake Shadcn")
                     supportingText("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")
-                    spacer(UiModifier().height(8f.dp))
-                    row(height = 40f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
-                        awakeShadcnButton("showcase-doc-primary", "Primary", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Primary)
-                        awakeShadcnButton("showcase-doc-secondary", "Secondary", modifier = UiModifier().width(172f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Secondary)
-                        awakeShadcnButton("showcase-doc-outline", "Outline", modifier = UiModifier().width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
+                    spacer(Modifier.height(8f.dp))
+                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 40f.dp.toDimension())) {
+                        awakeShadcnButton("showcase-doc-primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Primary)
+                        awakeShadcnButton("showcase-doc-secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Secondary)
+                        awakeShadcnButton("showcase-doc-outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = AwakeShadcnButtonVariant.Outline)
                     }
-                    row(height = 30f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
+                    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 30f.dp.toDimension())) {
                         awakeShadcnBadge("LIVE", variant = AwakeShadcnBadgeVariant.Primary)
                         awakeShadcnBadge("NEUTRAL", variant = AwakeShadcnBadgeVariant.Secondary)
                         awakeShadcnBadge("BETA", variant = AwakeShadcnBadgeVariant.Outline)
                         awakeShadcnBadge("RISK", variant = AwakeShadcnBadgeVariant.Danger)
                     }
-                    spacer(UiModifier().height(8f.dp))
+                    spacer(Modifier.height(8f.dp))
                     awakeShadcnSurface(
                         id = "shadcn-subcard",
-                        height = Dimension.WrapContent,
                         variant = AwakeShadcnSurfaceVariant.Popover
-                    ) {
+                    , modifier = Modifier.copy(height = Dimension.WrapContent)) {
                         text("Preview Card")
                         supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
-                        spacer(UiModifier().height(6f.dp))
-                        row(height = 36f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
-                            awakeShadcnButton("showcase-doc-ghost", "Ghost", modifier = UiModifier().width(112f.px).height(36f.dp), variant = AwakeShadcnButtonVariant.Ghost)
-                            awakeShadcnButton("showcase-doc-danger", "Danger", modifier = UiModifier().width(112f.px).height(36f.dp), variant = AwakeShadcnButtonVariant.Danger)
+                        spacer(Modifier.height(6f.dp))
+                        row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 36f.dp.toDimension())) {
+                            awakeShadcnButton("showcase-doc-ghost", "Ghost", modifier = Modifier.width(112f.px).height(36f.dp), variant = AwakeShadcnButtonVariant.Ghost)
+                            awakeShadcnButton("showcase-doc-danger", "Danger", modifier = Modifier.width(112f.px).height(36f.dp), variant = AwakeShadcnButtonVariant.Danger)
                         }
                     }
-                    spacer(UiModifier().height(8f.dp))
+                    spacer(Modifier.height(8f.dp))
                     supportingLines(
                         listOf(
                             "Sample overlays now rely on shared supporting/meta text helpers.",

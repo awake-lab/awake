@@ -4,14 +4,11 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
-import io.github.ronjunevaldoz.awake.ui.offset
-import io.github.ronjunevaldoz.awake.ui.width
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogResult
@@ -26,6 +23,9 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
@@ -43,7 +43,7 @@ class UiPopupCompositionsTest {
         ui.beginFrame(240f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
 
         var result: UiPopupResult? = null
-        ui.column(modifier = UiModifier().offset(0f.dp, 0f.dp).width(220f.dp)) {
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(220f.dp)) {
             result = tooltipText(
                 anchorSlot = UiSlot(48f, 24f, 96f, 28f),
                 visible = true,
@@ -66,7 +66,7 @@ class UiPopupCompositionsTest {
         ui.pushFont(BitmapFont())
 
         ui.beginFrame(220f, 180f, testSnapshot(x = 32f, y = 58f, down = true))
-        ui.column(modifier = UiModifier().offset(0f.dp, 0f.dp).width(200f.dp)) {
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(200f.dp)) {
             result = dropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
@@ -79,7 +79,7 @@ class UiPopupCompositionsTest {
         assertEquals(null, assertNotNull(result).selectedIndex)
 
         ui.beginFrame(220f, 180f, testSnapshot(x = 32f, y = 58f, down = false))
-        ui.column(modifier = UiModifier().offset(0f.dp, 0f.dp).width(200f.dp)) {
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(200f.dp)) {
             result = dropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
@@ -102,7 +102,7 @@ class UiPopupCompositionsTest {
         ui.pushFont(BitmapFont())
 
         ui.beginFrame(240f, 220f, testSnapshot(x = 32f, y = 92f, down = true))
-        ui.column(modifier = UiModifier().offset(0f.dp, 0f.dp).width(220f.dp)) {
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(220f.dp)) {
             result = dropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
@@ -118,7 +118,7 @@ class UiPopupCompositionsTest {
         ui.endFrame()
 
         ui.beginFrame(240f, 220f, testSnapshot(x = 32f, y = 92f, down = false))
-        ui.column(modifier = UiModifier().offset(0f.dp, 0f.dp).width(220f.dp)) {
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(220f.dp)) {
             result = dropdownMenu(
                 id = "menu",
                 anchorSlot = anchor,
@@ -145,7 +145,7 @@ class UiPopupCompositionsTest {
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
         var result: UiPopupResult? = null
-        ui.column(modifier = UiModifier().offset(0f.dp, 0f.dp).width(280f.dp)) {
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(280f.dp)) {
             result = dialog(
                 id = "confirm",
                 expanded = true,
@@ -177,7 +177,7 @@ class UiPopupCompositionsTest {
         var result: UiAlertDialogResult? = null
 
         ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = true))
-        ui.column(modifier = UiModifier().offset(0f.dp, 0f.dp).width(300f.dp)) {
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
             result = alertDialog(
                 id = "confirm",
                 expanded = true,
@@ -188,7 +188,7 @@ class UiPopupCompositionsTest {
         ui.endFrame()
 
         ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = false))
-        ui.column(modifier = UiModifier().offset(0f.dp, 0f.dp).width(300f.dp)) {
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
             result = alertDialog(
                 id = "confirm",
                 expanded = true,
@@ -228,7 +228,7 @@ class UiPopupCompositionsTest {
         ui.pushFont(UiFonts.bitmap())
         ui.beginFrame(320f, 240f,  testSnapshot())
 
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(240f.dp)) {
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             dialog(
                 id = "dialog",
                 expanded = true

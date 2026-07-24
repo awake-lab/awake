@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.childColumn
@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 
 /**
  * Nested layout entry points from an existing [UiScope].
@@ -26,7 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 fun UiScope.column(
     slot: UiSlot,
     verticalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     block: ColumnScope.() -> Unit
 ) {
     childColumn(
@@ -39,7 +40,7 @@ fun UiScope.column(
 fun UiScope.row(
     slot: UiSlot,
     horizontalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     block: RowScope.() -> Unit
 ) {
     childRow(
@@ -51,7 +52,7 @@ fun UiScope.row(
 
 fun UiScope.absolute(
     slot: UiSlot,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     block: AbsoluteScope.() -> Unit
 ) {
     childAbsolute(slot, modifier).block()
@@ -59,7 +60,7 @@ fun UiScope.absolute(
 
 fun UiScope.box(
     slot: UiSlot,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     block: BoxScope.() -> Unit
 ) {

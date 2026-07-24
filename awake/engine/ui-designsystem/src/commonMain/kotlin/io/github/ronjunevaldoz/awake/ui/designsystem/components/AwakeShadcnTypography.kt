@@ -2,21 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /** [sectionTitle] with Shadcn tokens. */
 fun ColumnScope.awakeShadcnSectionTitle(
     title: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): UiSlot = sectionTitle(
     title = title,
@@ -33,7 +34,7 @@ fun ColumnScope.awakeShadcnSectionTitle(
 /** Larger headline text using Shadcn tokens. */
 fun ColumnScope.awakeShadcnHeadline(
     label: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): UiSlot = text(
     label = label,
@@ -50,7 +51,7 @@ fun ColumnScope.awakeShadcnHeadline(
 /**Standard body text using Shadcn tokens. */
 fun ColumnScope.awakeShadcnBodyText(
     label: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     maxLines: Int = Int.MAX_VALUE
 ): UiSlot = text(
@@ -69,7 +70,7 @@ fun ColumnScope.awakeShadcnBodyText(
 /** Muted caption/supporting text using Shadcn tokens. */
 fun ColumnScope.awakeShadcnSupportingText(
     label: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     maxLines: Int = Int.MAX_VALUE
 ): UiSlot = supportingText(
@@ -88,7 +89,7 @@ fun ColumnScope.awakeShadcnSupportingText(
 /** Generic shadcn text component with support for muted state and shimmer modifier. */
 fun UiScope.awakeShadcnText(
     label: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     muted: Boolean = false,
     maxLines: Int = Int.MAX_VALUE
@@ -120,7 +121,7 @@ fun ColumnScope.awakeShadcnSectionHeader(
 fun ColumnScope.awakeShadcnSectionHeader(
     title: String,
     description: String? = null,
-    modifier: UiModifier = UiModifier()
+    modifier: UiModifier = Modifier
 ): Unit = awakeShadcnSectionHeader(
     title = { awakeShadcnSectionTitle(title, modifier = modifier) },
     description = description?.takeIf { it.isNotBlank() }?.let { text ->

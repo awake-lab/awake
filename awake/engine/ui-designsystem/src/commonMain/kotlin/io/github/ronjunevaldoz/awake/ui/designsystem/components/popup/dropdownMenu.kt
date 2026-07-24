@@ -1,30 +1,31 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.rawSurface
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
-import io.github.ronjunevaldoz.awake.ui.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.align
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.styleable
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.styleable
 import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
@@ -36,7 +37,6 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.layoutBitmapText
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
-import io.github.ronjunevaldoz.awake.ui.width
 
 fun UiScope.dropdownMenu(
     id: String,
@@ -68,7 +68,7 @@ fun UiScope.dropdownMenu(
             width = Dimension.Fixed(popupSlot.width.px),
             height = height,
             verticalArrangement = Arrangement.spacedBy(0f.dp),
-            modifier = UiModifier()
+            modifier = Modifier
                 .styleable(theme.components.surface then style then Style {
                     shape(UiShape.sm)
                 }),
@@ -78,13 +78,13 @@ fun UiScope.dropdownMenu(
             items.forEach { entry ->
                 when (entry) {
                     UiDropdownMenuSeparator -> {
-                        spacer(UiModifier().height(4f.dp))
+                        spacer(Modifier.height(4f.dp))
                         separator(
                             width = Dimension.FillMax,
                             thickness = 1f.dp,
                             color = theme.tokens.border.withAlpha(0.72f)
                         )
-                        spacer(UiModifier().height(4f.dp))
+                        spacer(Modifier.height(4f.dp))
                     }
                     is UiDropdownMenuItem -> {
                         val currentActionIndex = actionIndex
@@ -169,7 +169,7 @@ private fun ColumnScope.dropdownMenuItem(
 
     val result = buttonSlot(
         id = id,
-        modifier = UiModifier().width(width.px).height(computedHeight.px),
+        modifier = Modifier.width(width.px).height(computedHeight.px),
         style = style,
         variant = if (selected) UiButtonVariant.Filled else UiButtonVariant.Ghost
     ) { contentSlot ->
@@ -189,7 +189,7 @@ private fun ColumnScope.dropdownMenuItem(
             // --- 1. Label (Primary text) ---
             text(
                 label = item.label,
-                modifier = UiModifier().padding(start = 12f.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(UiAlignment.CenterStart),
+                modifier = Modifier.padding(start = 12f.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(UiAlignment.CenterStart),
                 color = textColor,
                 font = resolvedFont,
                 overflow = UiTextOverflow.Ellipsis,
@@ -201,7 +201,7 @@ private fun ColumnScope.dropdownMenuItem(
                 val trailingColor = if (!item.enabled) theme.tokens.mutedForeground else if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground
                 text(
                     label = label,
-                    modifier = UiModifier().align(UiAlignment.CenterEnd).padding(start = 0f.dp, top = verticalPadding, end = 12f.dp, bottom = 0f.dp),
+                    modifier = Modifier.align(UiAlignment.CenterEnd).padding(start = 0f.dp, top = verticalPadding, end = 12f.dp, bottom = 0f.dp),
                     color = trailingColor,
                     font = resolvedFont,
                     overflow = UiTextOverflow.Ellipsis,
@@ -213,7 +213,7 @@ private fun ColumnScope.dropdownMenuItem(
             supportingLayout?.let {
                 text(
                     label = item.supportingText!!,
-                    modifier = UiModifier().padding(start = 12f.dp, top = (8f + glyphPx + 4f).dp, end = 12f.dp, bottom = 0f.dp).align(UiAlignment.TopStart),
+                    modifier = Modifier.padding(start = 12f.dp, top = (8f + glyphPx + 4f).dp, end = 12f.dp, bottom = 0f.dp).align(UiAlignment.TopStart),
                     color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
                     font = resolvedFont,
                     wrap = UiTextWrap.Word,

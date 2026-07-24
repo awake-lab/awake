@@ -16,18 +16,19 @@ import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.align
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
-import io.github.ronjunevaldoz.awake.ui.offset
-import io.github.ronjunevaldoz.awake.ui.size
-import io.github.ronjunevaldoz.awake.ui.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.align
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.size
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,7 +51,7 @@ class GameUiDslTest {
             ui {
                 overlay {
                     val label = requireService<String>()
-                    rootColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).size(160f.dp, 120f.dp)) {
+                    rootColumn(modifier = Modifier.offset(20f.dp, 20f.dp).size(160f.dp, 120f.dp)) {
                         label
                         emit(UiDrawPrimitive.Quad(x = 20f, y = 20f, w = 12f, h = 12f, color = Color(0.2f, 0.7f, 0.4f, 1f)))
                     }
@@ -79,7 +80,7 @@ class GameUiDslTest {
             ui {
                 overlay {
                     val label = requireService<String>()
-                    rootColumn(modifier = UiModifier().offset(20f.dp, 20f.dp).size(180f.dp, 120f.dp)) {
+                    rootColumn(modifier = Modifier.offset(20f.dp, 20f.dp).size(180f.dp, 120f.dp)) {
                         label
                         emit(UiDrawPrimitive.Quad(x = 20f, y = 20f, w = 12f, h = 12f, color = Color(0.3f, 0.6f, 0.9f, 1f)))
                     }
@@ -110,10 +111,7 @@ class GameUiDslTest {
                     canvas {
                         surface(
                             id = "theme-proof",
-                            width = 180f.toDimension(),
-                            height = 96f.toDimension(),
-                            modifier = UiModifier().align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)
-                        ) {
+                            modifier = (Modifier.align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)).copy(width = 180f.toDimension(), height = 96f.toDimension())) {
                             emit(UiDrawPrimitive.Quad(x = 28f, y = 28f, w = 16f, h = 16f, color = Color(0.9f, 0.9f, 0.2f, 1f)))
                         }
                     }
@@ -155,10 +153,8 @@ class GameUiDslTest {
                 overlayOnly = true
             ).surface(
                 id = "overlay-panel",
-                width = 160f.toDimension(),
-                height = 96f.toDimension(),
-                modifier = UiModifier().align(UiAlignment.TopStart).offset(16f.dp, 20f.dp),
-                style = io.github.ronjunevaldoz.awake.ui.Style {
+                modifier = (Modifier.align(UiAlignment.TopStart).offset(16f.dp, 20f.dp)).copy(width = 160f.toDimension(), height = 96f.toDimension()),
+                style = Style {
                     background(panelColor)
                 }
             ) { panelSlot ->

@@ -6,6 +6,11 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.checkbox
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,7 +26,7 @@ class CheckboxTest {
         // Whole row is the hit target, not just the small box -- click somewhere in the
         // middle of the row (x=100), not at the box's own tiny x=0..16 range.
         ui.simulateClick(x = 100f, y = 20f, screenHeight = 100f) {
-            checked = ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp)).checkbox("cb", checked, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
+            checked = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp)).checkbox("cb", checked, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
         }
         assertTrue(checked, "clicking anywhere in the row must flip the checkbox, same as a real checkbox's clickable row")
     }
@@ -30,7 +35,7 @@ class CheckboxTest {
     fun checkboxEmitsASeparateBoxAndLabelNotOneBigFill() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = BitmapFont()).checkbox("cb", checked = false, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).checkbox("cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
         val primitives = ui.endFrame()
 
         val quads = primitives.filterIsInstance<UiDrawPrimitive.Quad>()
@@ -45,11 +50,11 @@ class CheckboxTest {
     fun checkboxCanUseModifierSizingAsPrimaryApi() {
         val ui = UiContext()
         ui.beginFrame(220f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = BitmapFont()).checkbox(
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).checkbox(
             id = "cb",
             checked = false,
             label = "ENABLED",
-            modifier = UiModifier().width(160f.px).height(40f.px)
+            modifier = Modifier.width(160f.px).height(40f.px)
         )
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
@@ -61,7 +66,7 @@ class CheckboxTest {
     fun checkedBoxAddsAnInsetAccentQuad() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp)).checkbox("cb", checked = true, modifier = UiModifier().width(160f.px).height(40f.px))
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp)).checkbox("cb", checked = true, modifier = Modifier.width(160f.px).height(40f.px))
         val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
         assertEquals(6, quads.size, "checked state adds one inset accent quad on top of the box quad plus its 4 border edge quads")
     }
@@ -70,10 +75,10 @@ class CheckboxTest {
     fun styleShapeMakesTheBoxARoundedQuad() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp)).checkbox(
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp)).checkbox(
             "cb",
             checked = false,
-            modifier = UiModifier().width(160f.px).height(40f.px),
+            modifier = Modifier.width(160f.px).height(40f.px),
             style = Style { shape(UiShape.sm) }
         )
         val primitive = ui.endFrame().first()
@@ -85,7 +90,7 @@ class CheckboxTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(220f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = font).checkbox("cb", checked = false, label = "ENABLED", modifier = UiModifier().width(160f.px).height(40f.px))
+        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = font).checkbox("cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
 
         val glyphBounds = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>().glyphBounds()
         val rowCenterY = 40f

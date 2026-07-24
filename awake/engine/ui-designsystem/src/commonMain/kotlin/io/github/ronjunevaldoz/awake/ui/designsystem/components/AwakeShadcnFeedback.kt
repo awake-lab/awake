@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 
 /**
@@ -25,14 +26,12 @@ fun ColumnScope.awakeShadcnAlert(
     description: String? = null,
     width: Dimension = Dimension.FillMax,
     height: Dimension = Dimension.WrapContent,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     variant: AwakeShadcnAlertVariant = AwakeShadcnAlertVariant.Default,
     style: Style = Style.Empty
 ): UiSlot = surface(
     id = id,
-    width = width,
-    height = height,
-    modifier = modifier,
+    modifier = (modifier).copy(width = width, height = height),
     style = AwakeShadcnStyles.alert(theme.asAwakeShadcnTheme(), variant) then style
 ) {
     val titleColor = when (variant) {

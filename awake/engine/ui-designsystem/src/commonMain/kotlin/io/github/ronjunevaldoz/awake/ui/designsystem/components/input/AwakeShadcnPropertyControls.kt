@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.input
 
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnDropdown
@@ -17,16 +17,17 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnToggl
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.propertyRow
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.width
 
 private fun BoxScope.awakeShadcnPropertyLabel(label: String) {
     text(
@@ -42,7 +43,7 @@ private fun BoxScope.awakeShadcnPropertyLabel(label: String) {
 fun ColumnScope.awakeShadcnPropertyToggle(
     id: String,
     checked: Boolean,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
@@ -64,7 +65,7 @@ fun ColumnScope.awakeShadcnPropertyToggle(
     id: String,
     checked: Boolean,
     height: Dp,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
@@ -87,7 +88,7 @@ fun ColumnScope.awakeShadcnPropertyToggle(
     id: String,
     label: String,
     checked: Boolean,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Boolean = awakeShadcnPropertyToggle(
     id = id,
@@ -102,7 +103,7 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
     labelContent: BoxScope.(slot: UiSlot) -> Unit
@@ -117,7 +118,7 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
-            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            modifier = Modifier.width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -143,7 +144,7 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
-            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            modifier = Modifier.width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -155,7 +156,7 @@ fun ColumnScope.awakeShadcnPropertyDropdown(
     label: String,
     options: List<String>,
     selectedIndex: Int,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
 ): Int? = awakeShadcnPropertyDropdown(
@@ -173,7 +174,7 @@ fun ColumnScope.awakeShadcnPropertyTextField(
     id: String,
     value: String,
     placeholder: String = "",
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
     enabled: Boolean = true,
@@ -195,7 +196,7 @@ fun ColumnScope.awakeShadcnPropertyTextField(
             id = id,
             value = value,
             placeholder = placeholder,
-            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            modifier = Modifier.width(slot.width.px).height(slot.height.px),
             style = style,
             enabled = enabled,
             isError = errorText != null
@@ -215,7 +216,7 @@ fun ColumnScope.awakeShadcnPropertyTextField(
     label: String,
     value: String,
     placeholder: String = "",
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
     enabled: Boolean = true,
@@ -237,7 +238,7 @@ fun ColumnScope.awakeShadcnPropertyTextarea(
     id: String,
     value: String,
     placeholder: String = "",
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
     enabled: Boolean = true,
@@ -267,7 +268,7 @@ fun ColumnScope.awakeShadcnPropertyTextarea(
             id = id,
             value = value,
             placeholder = placeholder,
-            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            modifier = Modifier.width(slot.width.px).height(slot.height.px),
             style = style,
             enabled = enabled,
             isError = errorText != null,
@@ -288,7 +289,7 @@ fun ColumnScope.awakeShadcnPropertyTextarea(
     label: String,
     value: String,
     placeholder: String = "",
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
     enabled: Boolean = true,
@@ -313,7 +314,7 @@ fun ColumnScope.awakeShadcnPropertySlider(
     min: Float,
     max: Float,
     value: Float,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty,
     labelContent: BoxScope.(slot: UiSlot) -> Unit
@@ -329,7 +330,7 @@ fun ColumnScope.awakeShadcnPropertySlider(
             min = min,
             max = max,
             value = value,
-            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            modifier = Modifier.width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -357,7 +358,7 @@ fun ColumnScope.awakeShadcnPropertySlider(
             min = min,
             max = max,
             value = value,
-            modifier = UiModifier().width(slot.width.px).height(slot.height.px),
+            modifier = Modifier.width(slot.width.px).height(slot.height.px),
             style = style
         )
     }
@@ -370,7 +371,7 @@ fun ColumnScope.awakeShadcnPropertySlider(
     min: Float,
     max: Float,
     value: Float,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
 ): Float = awakeShadcnPropertySlider(

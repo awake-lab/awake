@@ -15,6 +15,16 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.align
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonResult
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.dropdown
@@ -53,17 +63,17 @@ class UiDslTest {
         var controlSlot: UiSlot? = null
 
         ui.pushFont(BitmapFont())
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(200f.dp).height(220f.dp)) {
-            surface(id = "inspector", height = 120f.toDimension()) { slot ->
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(200f.dp).height(220f.dp)) {
+            surface(id = "inspector", modifier = Modifier.height(120f.toDimension())) { slot ->
                 panelSlot = slot
                 text("Inspector")
-                row(height = 28f.dp) { propertySlot ->
+                row( modifier = Modifier.height(28f.dp)) { propertySlot ->
                     controlSlot = propertySlot
                     dropdown(
                         id = "mode",
                         options = listOf("Mesh", "Light"),
                         selectedIndex = 0,
-                        modifier = UiModifier().width(propertySlot.width.px)
+                        modifier = Modifier.width(propertySlot.width.px)
                             .height(propertySlot.height.px)
                     )
                 }
@@ -91,20 +101,20 @@ class UiDslTest {
 
         ui.pushFont(BitmapFont())
         ui.column(
-            modifier = UiModifier().offset(10f.dp, 20f.dp).width(220f.dp).height(80f.dp),
+            modifier = Modifier.offset(10f.dp, 20f.dp).width(220f.dp).height(80f.dp),
             verticalArrangement = Arrangement.spacedBy(0f.dp)
         ) {
-            row(height = 30f.dp, horizontalArrangement = Arrangement.spacedBy(4f.dp)) {
+            row( horizontalArrangement = Arrangement.spacedBy(4f.dp), modifier = Modifier.height(30f.dp)) {
                 first = buttonSlot(
                     id = "one",
                     label = "One",
-                    modifier = UiModifier().width(60f.px).height(30f.px)
+                    modifier = Modifier.width(60f.px).height(30f.px)
                 )
-                spacer(UiModifier().width(12f.dp))
+                spacer(Modifier.width(12f.dp))
                 second = buttonSlot(
                     id = "two",
                     label = "Two",
-                    modifier = UiModifier().width(60f.px).height(30f.px)
+                    modifier = Modifier.width(60f.px).height(30f.px)
                 )
             }
         }
@@ -122,12 +132,12 @@ class UiDslTest {
 
         var checked = true
         ui.pushFont(BitmapFont())
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(140f.dp).height(80f.dp)) {
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(140f.dp).height(80f.dp)) {
             checked = toggle(
                 id = "grid",
                 checked = checked,
                 label = "GRID",
-                modifier = UiModifier().fillMaxWidth().height(32f.px)
+                modifier = Modifier.fillMaxWidth().height(32f.px)
             )
         }
 
@@ -150,17 +160,15 @@ class UiDslTest {
 
         var controlSlot: UiSlot? = null
 
-        ui.column(modifier = UiModifier().offset(20f.dp, 20f.dp).width(220f.dp).height(160f.dp)) {
-            surface(id = "slot-panel", height = 100f.toDimension()) {
-                row(
-                    height = 28f.dp
-                ) { slot ->
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(220f.dp).height(160f.dp)) {
+            surface(id = "slot-panel", modifier = Modifier.height(100f.toDimension())) {
+                row( modifier = Modifier.height(28f.dp)) { slot ->
                     controlSlot = slot
                     dropdown(
                         id = "camera-mode",
                         options = listOf("Orbit", "Fly"),
                         selectedIndex = 0,
-                        modifier = UiModifier().width(slot.width.px).height(slot.height.px)
+                        modifier = Modifier.width(slot.width.px).height(slot.height.px)
                     )
                 }
             }
@@ -194,12 +202,10 @@ class UiDslTest {
             widthClass = constraints.widthSizeClass
             panelSlot = surface(
                 id = "overlay-panel",
-                width = 120f.toDimension(),
-                height = Dimension.WrapContent,
-                modifier = UiModifier()
+                modifier = (Modifier
                     .align(UiAlignment.BottomEnd)
-                    .padding(start = 0f.dp, top = 0f.dp, end = 16f.dp, bottom = 12f.dp)
-            ) {
+                    .padding(start = 0f.dp, top = 0f.dp, end = 16f.dp, bottom = 12f.dp)).width(120f.toDimension()).height(
+                        Dimension.WrapContent)) {
                 text("Status")
             }
         }
@@ -229,16 +235,13 @@ class UiDslTest {
         runtime.canvas { constraints ->
             widthClass = constraints.widthSizeClass
             columnSlot = column(
-                width = 320f.toDimension(),
-                height = Dimension.WrapContent,
-                modifier = UiModifier()
+                modifier = (Modifier
                     .align(UiAlignment.TopStart)
-                    .padding(20f.dp)
-            ) {
-                surface(id = "one", width = Dimension.FillMax, height = Dimension.WrapContent) {
+                    .padding(20f.dp)).width(320f.toDimension()).height(Dimension.WrapContent)) {
+                surface(id = "one", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
                     text("One")
                 }
-                surface(id = "two", width = Dimension.FillMax, height = Dimension.WrapContent) {
+                surface(id = "two", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
                     text("Two")
                 }
             }
@@ -290,10 +293,10 @@ class UiDslTest {
         val scrollState = UiScrollState()
 
         ui.beginFrame(220f, 200f, testSnapshot(x = 24f, y = 24f, scrollDeltaY = -1f))
-        ui.column(modifier = UiModifier().offset(12f.dp, 12f.dp).width(160f.dp).height(176f.dp)) {
+        ui.column(modifier = Modifier.offset(12f.dp, 12f.dp).width(160f.dp).height(176f.dp)) {
             scrollPanel(
                 id = "dsl-scroll",
-                modifier = UiModifier()
+                modifier = Modifier
                     .width(Dimension.FillMax)
                     .height(80f.toDimension())
                     .verticalScroll(

@@ -4,23 +4,19 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.CanvasScope
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiFillRule
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
-import io.github.ronjunevaldoz.awake.ui.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.column
@@ -28,48 +24,48 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.uiPath
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 
 internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
     awakeShadcnSupportingText("row(...) advances a cursor along the horizontal axis; each child claims the next slot in call order.")
-    spacer(UiModifier().height(8f.dp))
-    row(height = 48f.dp, horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
-        surface(id = "layout-row-a", width = Dimension.Fixed(80f.dp), height = Dimension.FillMax, style = Style { background(theme.tokens.primary) }) { }
-        surface(id = "layout-row-b", width = Dimension.Fixed(120f.dp), height = Dimension.FillMax, style = Style { background(theme.tokens.secondary) }) { }
-        surface(id = "layout-row-c", width = Dimension.Fixed(160f.dp), height = Dimension.FillMax, style = Style { background(theme.tokens.muted) }) { }
+    spacer(Modifier.height(8f.dp))
+    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.copy(height = 48f.dp.toDimension())) {
+        surface(id = "layout-row-a", style = Style { background(theme.tokens.primary) }, modifier = Modifier.copy(width = Dimension.Fixed(80f.dp), height = Dimension.FillMax)) { }
+        surface(id = "layout-row-b", style = Style { background(theme.tokens.secondary) }, modifier = Modifier.copy(width = Dimension.Fixed(120f.dp), height = Dimension.FillMax)) { }
+        surface(id = "layout-row-c", style = Style { background(theme.tokens.muted) }, modifier = Modifier.copy(width = Dimension.Fixed(160f.dp), height = Dimension.FillMax)) { }
     }
-    spacer(UiModifier().height(16f.dp))
+    spacer(Modifier.height(16f.dp))
     awakeShadcnSupportingText("column(...) advances a cursor along the vertical axis -- the default layout for every page in this catalog.")
-    spacer(UiModifier().height(8f.dp))
+    spacer(Modifier.height(8f.dp))
     column(
-        height = Dimension.Fixed(112f.dp),
-        width = Dimension.Fixed(200f.dp),
         verticalArrangement = Arrangement.spacedBy(6f.dp)
-    ) {
-        surface(id = "layout-col-a", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp), style = Style { background(theme.tokens.primary) }) { }
-        surface(id = "layout-col-b", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp), style = Style { background(theme.tokens.secondary) }) { }
-        surface(id = "layout-col-c", width = Dimension.FillMax, height = Dimension.Fixed(28f.dp), style = Style { background(theme.tokens.muted) }) { }
+    , modifier = Modifier.copy(width = Dimension.Fixed(200f.dp), height = Dimension.Fixed(112f.dp))) {
+        surface(id = "layout-col-a", style = Style { background(theme.tokens.primary) }, modifier = Modifier.copy(width = Dimension.FillMax, height = Dimension.Fixed(28f.dp))) { }
+        surface(id = "layout-col-b", style = Style { background(theme.tokens.secondary) }, modifier = Modifier.copy(width = Dimension.FillMax, height = Dimension.Fixed(28f.dp))) { }
+        surface(id = "layout-col-c", style = Style { background(theme.tokens.muted) }, modifier = Modifier.copy(width = Dimension.FillMax, height = Dimension.Fixed(28f.dp))) { }
     }
 }
 
 internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
     val scrollState = context.rememberScrollState("ui-showcase-scroll-panel")
     awakeShadcnSupportingText("Scrollable containers own clipping, content measurement, and the scrollbar lane so callers do not have to reimplement any of it.")
-    spacer(UiModifier().height(8f.dp))
+    spacer(Modifier.height(8f.dp))
     awakeShadcnSurface(
         id = "showcase-scroll-panel-page",
-        width = Dimension.Fixed(420f.dp),
-        height = Dimension.Fixed(176f.dp),
         variant = AwakeShadcnSurfaceVariant.Card,
         style = Style { shape(14f.dp) }
-    ) { _ ->
+    , modifier = Modifier.copy(width = Dimension.Fixed(420f.dp), height = Dimension.Fixed(176f.dp))) { _ ->
         column(
             id = "scroll-container",
-            modifier = UiModifier()
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(176f.dp) // TODO missing fillParentHeight
                 .verticalScroll(scrollState),
@@ -78,13 +74,13 @@ internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
                 awakeShadcnButton(
                     id = "showcase-scroll-row-$index",
                     label = "Inspector row ${index + 1}",
-                    modifier = UiModifier().fillMaxWidth().height(32f.dp),
+                    modifier = Modifier.fillMaxWidth().height(32f.dp),
                     variant = if (index % 2 == 0) AwakeShadcnButtonVariant.Outline else AwakeShadcnButtonVariant.Ghost
                 )
             }
         }
     }
-    spacer(UiModifier().height(8f.dp))
+    spacer(Modifier.height(8f.dp))
     supportingLines(
         listOf(
             "The scroll thumb only appears when content actually exceeds the viewport.",
@@ -95,14 +91,12 @@ internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
 
 internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
     awakeShadcnSupportingText("Canvas keeps custom drawing local to a bounded slot, so layout still owns structure while drawing owns paint.")
-    spacer(UiModifier().height(8f.dp))
+    spacer(Modifier.height(8f.dp))
     awakeShadcnSurface(
         id = "showcase-canvas-page",
-        width = Dimension.Fixed(420f.dp),
-        height = Dimension.Fixed(220f.dp),
         variant = AwakeShadcnSurfaceVariant.Card,
         style = Style { shape(16f.dp) }
-    ) { slot ->
+    , modifier = Modifier.copy(width = Dimension.Fixed(420f.dp), height = Dimension.Fixed(220f.dp))) { slot ->
         recordSemantic(
             role = UiSemanticRole.Panel,
             id = "showcase-canvas-root",
@@ -112,7 +106,7 @@ internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
             drawShowcaseCanvasScene()
         }
     }
-    spacer(UiModifier().height(8f.dp))
+    spacer(Modifier.height(8f.dp))
     supportingLines(
         listOf(
             "The header glow, clipped badge, and nested chart all come from the same CanvasScope without opening a separate renderer API.",

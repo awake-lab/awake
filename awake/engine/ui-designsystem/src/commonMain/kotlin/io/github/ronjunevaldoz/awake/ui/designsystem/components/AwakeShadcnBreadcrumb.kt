@@ -3,14 +3,16 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.modifier.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
@@ -22,12 +24,12 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
  */
 fun ColumnScope.awakeShadcnBreadcrumb(
     items: List<String>,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     separator: String = "/",
     height: Dp = 20f.dp
 ): UiSlot {
     val shadcnTheme = theme.asAwakeShadcnTheme()
-    return row(height = height, horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = modifier) {
+    return row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = (modifier).copy(height = height.toDimension())) {
         items.forEachIndexed { index, label ->
             val isCurrent = index == items.lastIndex
             text(

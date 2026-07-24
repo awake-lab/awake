@@ -3,10 +3,11 @@
 package io.github.ronjunevaldoz.awake.ui.layouts.ext
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
@@ -17,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
-import io.github.ronjunevaldoz.awake.ui.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.styling.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -29,21 +30,19 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.verticalPx
+import io.github.ronjunevaldoz.awake.ui.styling.verticalPx
 
 fun UiScope.surface(
     id: String,
-    width: Dimension,
-    height: Dimension,
     verticalArrangement: Arrangement = defaultArrangement(),
     style: Style = Style.Empty,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = smartColumn(
     id = id,
-    width = width,
-    height = height,
+    width = modifier.width ?: Dimension.WrapContent,
+    height = modifier.height ?: Dimension.WrapContent,
     gap = verticalArrangement.baseSpacingPx(),
     verticalArrangement = verticalArrangement,
     style = Style {
@@ -58,57 +57,45 @@ fun UiScope.surface(
 
 fun ColumnScope.surface(
     id: String,
-    height: Dimension,
-    width: Dimension = Dimension.FillMax,
     verticalArrangement: Arrangement = defaultArrangement(),
     style: Style = Style.Empty,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).surface(
     id = id,
-    width = width,
-    height = height,
     verticalArrangement = verticalArrangement,
     style = style,
-    modifier = modifier,
+    modifier = modifier.copy(width = modifier.width ?: Dimension.FillMax),
     clipContent = clipContent,
     content = content
 )
 
 fun RowScope.surface(
     id: String,
-    width: Dimension,
-    height: Dimension = Dimension.FillMax,
     verticalArrangement: Arrangement = defaultArrangement(),
     style: Style = Style.Empty,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).surface(
     id = id,
-    width = width,
-    height = height,
     verticalArrangement = verticalArrangement,
     style = style,
-    modifier = modifier,
+    modifier = modifier.copy(height = modifier.height ?: Dimension.FillMax),
     clipContent = clipContent,
     content = content
 )
 
 fun AbsoluteScope.surface(
     id: String,
-    width: Dimension,
-    height: Dimension,
     verticalArrangement: Arrangement = defaultArrangement(),
     style: Style = Style.Empty,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).surface(
     id = id,
-    width = width,
-    height = height,
     verticalArrangement = verticalArrangement,
     style = style,
     modifier = modifier,
@@ -118,17 +105,13 @@ fun AbsoluteScope.surface(
 
 fun BoxScope.surface(
     id: String,
-    width: Dimension = Dimension.WrapContent,
-    height: Dimension = Dimension.WrapContent,
     verticalArrangement: Arrangement = defaultArrangement(),
     style: Style = Style.Empty,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = (this as UiScope).surface(
     id = id,
-    width = width,
-    height = height,
     verticalArrangement = verticalArrangement,
     style = style,
     modifier = modifier,
@@ -141,7 +124,7 @@ fun UiScope.rawSurface(
     width: Dimension,
     height: Dimension,
     verticalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
@@ -195,7 +178,11 @@ fun UiScope.rawSurface(
         }
         else -> height
     }
-    val slot = initialSlot ?: claimModifiedSlot(resolvedWidth, resolvedHeight, modifier)
+    val slot = initialSlot ?: claimModifiedSlot(
+        resolvedWidth,
+        resolvedHeight,
+        modifier.copy(width = resolvedWidth, height = resolvedHeight)
+    )
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: Color.Transparent,

@@ -3,16 +3,17 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.ResolvedStyle
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.styling.ResolvedStyle
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.inset
+import io.github.ronjunevaldoz.awake.ui.styling.inset
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -36,7 +37,7 @@ internal data class SurfaceStyle(
 internal fun UiScope.resolveSurface(
     defaultWidth: Dimension,
     defaultHeight: Dimension,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
     state: MutableStyleState = MutableStyleState()
@@ -62,7 +63,7 @@ internal fun UiScope.resolveInteractiveSurface(
     id: String,
     width: Dimension,
     height: Dimension,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
     selected: Boolean = false,
@@ -89,7 +90,7 @@ internal fun UiScope.resolveInteractiveSurface(
 
 internal fun UiScope.resolveInteractiveSurface(
     interaction: UiInteraction,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
     selected: Boolean = false,

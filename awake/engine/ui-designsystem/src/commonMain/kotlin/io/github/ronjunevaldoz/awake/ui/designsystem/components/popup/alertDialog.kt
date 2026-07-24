@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.awakeShadcnButton
@@ -13,10 +12,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonSiz
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.width
 
 fun UiScope.alertDialog(
     id: String,
@@ -49,7 +49,7 @@ fun UiScope.alertDialog(
                     awakeShadcnButton(
                         id = "$id.dismiss",
                         label = label,
-                        modifier = UiModifier().width(88f.dp),
+                        modifier = Modifier.width(88f.dp),
                         variant = dismissVariant,
                         size = AwakeShadcnButtonSize.Sm,
                         style = dismissStyle
@@ -58,12 +58,12 @@ fun UiScope.alertDialog(
                     action = UiAlertDialogAction.Dismiss
                 }
             }
-            spacer(UiModifier().width(8f.dp))
+            spacer(Modifier.width(8f.dp))
             if (
                 awakeShadcnButton(
                     id = "$id.confirm",
                     label = confirmLabel,
-                    modifier = UiModifier().width(88f.dp),
+                    modifier = Modifier.width(88f.dp),
                     variant = confirmVariant,
                     size = AwakeShadcnButtonSize.Sm,
                     style = confirmStyle

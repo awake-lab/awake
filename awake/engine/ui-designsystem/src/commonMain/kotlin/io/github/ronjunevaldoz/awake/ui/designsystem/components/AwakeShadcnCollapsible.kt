@@ -2,23 +2,24 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.core.graphics.animation.animatedHeight
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
-import io.github.ronjunevaldoz.awake.ui.paddingTop
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.paddingTop
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.width
 
 /**
  * Real shadcn's `Collapsible` (and `Accordion`, a group of these with only one open at a
@@ -30,7 +31,7 @@ fun ColumnScope.awakeShadcnCollapsible(
     id: String,
     title: String,
     expanded: Boolean,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
     content: ColumnScope.() -> Unit
 ): Boolean {
@@ -48,15 +49,13 @@ fun ColumnScope.awakeShadcnCollapsible(
         // We use a simple row with fixed dimensions or predictable scaling logic.
         // To avoid WrapContent issues, we ensure children don't force unmeasured constraints.
         this.row(
-            width = Dimension.FillMax,
-            height = Dimension.Fixed(slot.height.dp),
             horizontalArrangement = Arrangement.spacedBy(8f.dp)
-        ) {
+        , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))) {
              text(
                  label = if (expanded) "-" else "+",
-                 modifier = UiModifier().width(12f.dp).paddingTop( 8f.dp)
+                 modifier = Modifier.width(12f.dp).paddingTop( 8f.dp)
              )
-             text(title, modifier = UiModifier().paddingTop(8f.dp))
+             text(title, modifier = Modifier.paddingTop(8f.dp))
         }
     }
 

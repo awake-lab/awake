@@ -8,6 +8,10 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
@@ -23,9 +27,9 @@ class UiSemanticWidgetsTest {
         val font = UiFonts.default()
         val context = UiContext()
         context.beginFrame(240f, 96f, testSnapshot())
-        context.createAbsolute(modifier = UiModifier().offset(20f.dp, 20f.dp), font = font).button(
+        context.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = font).button(
             id = "primary-action",
-            modifier = UiModifier().width(180f.px).height(44f.px),
+            modifier = Modifier.width(180f.px).height(44f.px),
             label = "Awake Button"
         )
 
@@ -46,7 +50,7 @@ class UiSemanticWidgetsTest {
         val font = UiFonts.default()
         val context = UiContext()
         context.beginFrame(180f, 64f, testSnapshot())
-        context.createAbsolute(modifier = UiModifier().offset(12f.dp, 12f.dp), font = font).text(
+        context.createAbsolute(modifier = Modifier.offset(12f.dp, 12f.dp), font = font).text(
             label = "This label is intentionally too wide for the slot",
             slot = UiSlot(12f, 12f, 80f, 16f),
             overflow = UiTextOverflow.Ellipsis,

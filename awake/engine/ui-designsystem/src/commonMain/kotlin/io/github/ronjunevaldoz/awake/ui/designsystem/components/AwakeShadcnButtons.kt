@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.Style
+import io.github.ronjunevaldoz.awake.ui.styling.Style
 import io.github.ronjunevaldoz.awake.ui.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
@@ -14,8 +14,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonSiz
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
@@ -36,7 +37,7 @@ private fun awakeShadcnButtonStyle(
 fun UiScope.awakeShadcnButton(
     id: String,
     label: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
     size: AwakeShadcnButtonSize = AwakeShadcnButtonSize.Md,
     style: Style = Style.Empty,
@@ -64,7 +65,7 @@ fun UiScope.awakeShadcnButton(
  */
 fun UiScope.awakeShadcnButton(
     id: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary,
     size: AwakeShadcnButtonSize = AwakeShadcnButtonSize.Md,
     style: Style = Style.Empty,

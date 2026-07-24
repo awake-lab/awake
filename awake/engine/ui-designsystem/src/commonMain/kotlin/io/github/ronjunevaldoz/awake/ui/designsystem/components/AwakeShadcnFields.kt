@@ -2,15 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.Style
-import io.github.ronjunevaldoz.awake.ui.UiModifier
+import io.github.ronjunevaldoz.awake.ui.styling.Style
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.asAwakeShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.dropdownMenu
@@ -19,16 +18,18 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.AwakeShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.height
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.ext.surface
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.drawDropdownTriggerContent
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.progressBar
@@ -45,7 +46,11 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.spinner
 private fun awakeShadcnFieldStyle(theme: UiTheme, style: Style): Style =
     AwakeShadcnStyles.field(theme.asAwakeShadcnTheme()) then style
 
-private fun awakeShadcnFieldStyle(theme: UiTheme, variant: AwakeShadcnTextFieldVariant, style: Style): Style =
+private fun awakeShadcnFieldStyle(
+    theme: UiTheme,
+    variant: AwakeShadcnTextFieldVariant,
+    style: Style
+): Style =
     AwakeShadcnStyles.field(theme.asAwakeShadcnTheme(), variant) then style
 
 private fun awakeShadcnCheckboxStyle(theme: UiTheme, style: Style): Style =
@@ -64,7 +69,7 @@ fun UiScope.awakeShadcnSwitch(
     id: String,
     checked: Boolean,
     label: String? = null,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Boolean = switch(
     id = id,
@@ -78,7 +83,7 @@ fun UiScope.awakeShadcnToggle(
     id: String,
     checked: Boolean,
     label: String? = null,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit = {}
@@ -96,7 +101,7 @@ fun UiScope.awakeShadcnCheckbox(
     id: String,
     checked: Boolean,
     label: String? = null,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Boolean = checkbox(
     id = id,
@@ -113,7 +118,7 @@ fun ColumnScope.awakeShadcnRadioGroup(
     id: String,
     options: List<String>,
     selectedIndex: Int,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     gap: Dp = 8f.dp,
     style: Style = Style.Empty
 ): Int {
@@ -129,7 +134,7 @@ fun ColumnScope.awakeShadcnRadioGroup(
             boxSize = 16f.dp
         )
         if (clicked) resolved = index
-        if (index != options.lastIndex) spacer(UiModifier().height(gap))
+        if (index != options.lastIndex) spacer(Modifier.height(gap))
     }
     return resolved
 }
@@ -137,7 +142,7 @@ fun ColumnScope.awakeShadcnRadioGroup(
 fun UiScope.awakeShadcnProgress(
     id: String,
     value: Float,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Unit = progressBar(
     id = id,
@@ -156,7 +161,7 @@ private fun awakeShadcnSkeletonStyle(theme: UiTheme, style: Style): Style {
 
 fun UiScope.awakeShadcnSkeleton(
     id: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Unit = skeleton(id = id, modifier = modifier, style = awakeShadcnSkeletonStyle(theme, style))
 
@@ -167,7 +172,7 @@ private fun awakeShadcnSpinnerStyle(theme: UiTheme, style: Style): Style {
 
 fun UiScope.awakeShadcnSpinner(
     id: String,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Unit = spinner(id = id, modifier = modifier, style = awakeShadcnSpinnerStyle(theme, style))
 
@@ -179,7 +184,7 @@ fun ColumnScope.awakeShadcnTabs(
     id: String,
     tabs: List<String>,
     selectedIndex: Int,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     tabWidth: Dp = 96f.dp,
     height: Dp = 32f.dp
 ): Int {
@@ -187,15 +192,19 @@ fun ColumnScope.awakeShadcnTabs(
     val shadcnTheme = theme.asAwakeShadcnTheme()
     surface(
         id = "$id.track",
-        width = modifier.width ?: Dimension.WrapContent,
-        height = Dimension.Fixed(height),
-        modifier = modifier,
+        modifier = (modifier).copy(
+            width = modifier.width ?: Dimension.WrapContent,
+            height = Dimension.Fixed(height)
+        ),
         style = Style {
             shape(shadcnTheme.radii.md)
             background(shadcnTheme.palette.muted)
         }
     ) {
-        row(height = height, horizontalArrangement = Arrangement.spacedBy(2f.dp)) {
+        row(
+            horizontalArrangement = Arrangement.spacedBy(2f.dp),
+            modifier = Modifier.height(height)
+        ) {
             tabs.forEachIndexed { index, label ->
                 val active = index == selectedIndex
                 val tabStyle: Style = if (active) {
@@ -207,7 +216,10 @@ fun ColumnScope.awakeShadcnTabs(
                     Style { foreground(shadcnTheme.tokens.mutedForeground) }
                 }
                 val tabHeight: Dp = (height.value - 4f).dp
-                val tabModifier = UiModifier(width = Dimension.Fixed(tabWidth), height = Dimension.Fixed(tabHeight))
+                val tabModifier = UiModifier(
+                    width = Dimension.Fixed(tabWidth),
+                    height = Dimension.Fixed(tabHeight)
+                )
                 // UiButtonVariant.Ghost's resolveFill hardcodes fill to transparent unless
                 // hovered/active, ignoring any style override -- so the active tab (which must
                 // show its card-colored background at rest, not just on hover) uses Primary
@@ -232,7 +244,7 @@ fun UiScope.awakeShadcnTextField(
     id: String,
     value: String,
     placeholder: String = "",
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     variant: AwakeShadcnTextFieldVariant = AwakeShadcnTextFieldVariant.Default,
     style: Style = Style.Empty,
     enabled: Boolean = true,
@@ -251,7 +263,7 @@ fun UiScope.awakeShadcnTextarea(
     id: String,
     value: String,
     placeholder: String = "",
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     variant: AwakeShadcnTextFieldVariant = AwakeShadcnTextFieldVariant.Default,
     style: Style = Style.Empty,
     enabled: Boolean = true,
@@ -272,7 +284,7 @@ fun UiScope.awakeShadcnDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Int? {
     val popupState = rememberPopupState(id, key = "expanded")
@@ -310,7 +322,10 @@ fun UiScope.awakeShadcnDropdown(
         width = Dimension.Fixed(trigger.slot.width.px),
         itemHeight = 32f,
         positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
-        style = AwakeShadcnStyles.surface(theme.asAwakeShadcnTheme(), AwakeShadcnSurfaceVariant.Popover) then Style {
+        style = AwakeShadcnStyles.surface(
+            theme.asAwakeShadcnTheme(),
+            AwakeShadcnSurfaceVariant.Popover
+        ) then Style {
             contentPadding(4f.dp)
         }
     )
@@ -326,7 +341,7 @@ fun UiScope.awakeShadcnSlider(
     max: Float,
     value: Float,
     label: String? = null,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Float = slider(
     id = id,
@@ -342,6 +357,6 @@ fun UiScope.awakeShadcnToggleGroup(
     id: String,
     options: List<String>,
     selectedIndex: Int,
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     onIndexChange: (Int) -> Unit = {}
 ) = toggleGroup(id, options, selectedIndex, modifier, onIndexChange)

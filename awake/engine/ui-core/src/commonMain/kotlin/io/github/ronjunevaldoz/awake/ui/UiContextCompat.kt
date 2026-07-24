@@ -13,6 +13,9 @@ import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.Dimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
@@ -65,7 +68,7 @@ private inline fun <T> UiContext.withRootEnvironment(
     message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createColumn(...) APIs."
 )
 fun UiContext.createColumn(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     verticalArrangement: Arrangement = defaultArrangement(),
     font: UiFont = currentFont,
     theme: UiTheme = currentTheme,
@@ -86,7 +89,7 @@ fun UiContext.createColumn(
     message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createAbsolute(...) APIs."
 )
 fun UiContext.createAbsolute(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     font: UiFont = currentFont,
     theme: UiTheme = currentTheme,
     textScale: Float = currentTextStyle.scale,
@@ -108,7 +111,7 @@ fun UiContext.createAbsolute(
     message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createRow(...) APIs."
 )
 fun UiContext.createRow(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     horizontalArrangement: Arrangement = defaultArrangement(),
     font: UiFont = currentFont,
     theme: UiTheme = currentTheme,
@@ -133,7 +136,7 @@ fun UiContext.createRow(
     message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createBox(...) APIs."
 )
 fun UiContext.createBox(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     font: UiFont = currentFont,
     theme: UiTheme = currentTheme,
@@ -157,7 +160,7 @@ fun UiContext.createBox(
     message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createColumn(...) APIs."
 )
 fun UiContext.column(
-    modifier: UiModifier = UiModifier(),
+    modifier: UiModifier = Modifier,
     verticalArrangement: Arrangement = defaultArrangement(),
     font: UiFont = currentFont,
     theme: UiTheme = currentTheme,
