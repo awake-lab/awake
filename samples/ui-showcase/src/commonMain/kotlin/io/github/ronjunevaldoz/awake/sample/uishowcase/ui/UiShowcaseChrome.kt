@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -26,14 +27,13 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
-    val selectedPage = context.rememberStateValue("ui-showcase-page", "entry") {
+    var selectedPage by rememberStateValue("ui-showcase-page", "entry") {
         ShowcasePages.first().id
     }
     shadcnBadge("SHADCN", variant = ShadcnBadgeVariant.Primary)
@@ -48,8 +48,8 @@ internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
     spacer(Modifier.height(12f.dp))
     drawUiShowcaseSidebarMenu(
         compact = compact,
-        selectedPageId = selectedPage.value,
-        onSelect = { selectedPage.value = it.id }
+        selectedPageId = selectedPage,
+        onSelect = { selectedPage = it.id }
     )
 }
 
@@ -57,16 +57,16 @@ internal fun ColumnScope.drawUiShowcasePageContent(
     state: UiShowcaseRuntimeState,
     showInlineMenu: Boolean,
 ) {
-    val selectedPage = context.rememberStateValue("ui-showcase-page", "entry") {
+    var selectedPage by rememberStateValue("ui-showcase-page", "entry") {
         ShowcasePages.first().id
     }
-    val page = showcasePageById(selectedPage.value)
+    val page = showcasePageById(selectedPage)
 
     if (showInlineMenu) {
         drawUiShowcaseSidebarMenu(
             compact = true,
             selectedPageId = page.id,
-            onSelect = { selectedPage.value = it.id }
+            onSelect = { selectedPage = it.id }
         )
         spacer(Modifier.height(12f.dp))
     }
@@ -139,7 +139,7 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
     page: ShowcasePage,
     state: UiShowcaseRuntimeState,
 ) {
-    val showCode = context.rememberStateValue("ui-showcase-page", "${page.id}.show-code") { false }
+    var showCode by context.rememberStateValue("ui-showcase-page", "${page.id}.show-code") { false }
     row(
         modifier = Modifier.height(36.dp),
         horizontalArrangement = Arrangement.spacedBy(8f.dp)
@@ -148,17 +148,17 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
             id = "ui-showcase-preview-tab-${page.id}",
             label = "Preview",
             modifier = Modifier.width(96f.dp).height(36f.dp),
-            variant = if (!showCode.value) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost
+            variant = if (!showCode) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost
         ).also { clicked ->
-            if (clicked) showCode.value = false
+            if (clicked) showCode = false
         }
         shadcnButton(
             id = "ui-showcase-code-tab-${page.id}",
             label = "Code",
             modifier = Modifier.width(88f.dp).height(36f.dp),
-            variant = if (showCode.value) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost
+            variant = if (showCode) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost
         ).also { clicked ->
-            if (clicked) showCode.value = true
+            if (clicked) showCode = true
         }
     }
     spacer(Modifier.height(8f.dp))
@@ -167,7 +167,7 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
         variant = ShadcnSurfaceVariant.Card,
         style = Style { shape(14f.dp) }
     , modifier = Modifier.copy(heightDimension = Dimension.WrapContent)) {
-        if (showCode.value) {
+        if (showCode) {
             drawUiShowcaseCodeBlock(page.usageCode)
         } else {
             renderUiShowcasePagePreview(page, state)

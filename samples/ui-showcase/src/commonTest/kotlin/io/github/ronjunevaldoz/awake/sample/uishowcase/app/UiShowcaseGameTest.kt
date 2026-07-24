@@ -308,10 +308,10 @@ class UiShowcaseGameTest {
         val input = Input()
 
         ui.beginFrame(960f, 540f, input.updateSnapshot().toUiInputState())
-        val selectedPage = ui.rememberStateValue("ui-showcase-page", "entry") {
+        var selectedPage by ui.rememberStateValue("ui-showcase-page", "entry") {
             ShowcasePages.first().id
         }
-        selectedPage.value = "theming"
+        selectedPage = "theming"
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
         ui.createColumn(
@@ -350,10 +350,10 @@ class UiShowcaseGameTest {
         val input = Input()
 
         ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
-        val selectedPage = ui.rememberStateValue("ui-showcase-page", "entry") {
+        var selectedPage by ui.rememberStateValue("ui-showcase-page", "entry") {
             ShowcasePages.first().id
         }
-        selectedPage.value = "introduction"
+        selectedPage = "introduction"
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side")
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 

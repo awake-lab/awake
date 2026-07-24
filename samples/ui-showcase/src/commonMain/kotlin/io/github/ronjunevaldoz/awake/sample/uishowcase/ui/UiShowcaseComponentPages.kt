@@ -46,45 +46,45 @@ internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
 }
 
 internal fun ColumnScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntimeState) {
-    val name = context.rememberStateValue("ui-showcase-text-input", "name") { "" }
-    val email = context.rememberStateValue("ui-showcase-text-input", "email") { "" }
+    var name by context.rememberStateValue("ui-showcase-text-input", "name") { "" }
+    var email by context.rememberStateValue("ui-showcase-text-input", "email") { "" }
 
     shadcnSupportingText("Click a field, type, backspace, and use the arrow keys -- this is a real keyboard-driven widget, not a mockup.")
     spacer(Modifier.height(8f.dp))
     shadcnPropertyTextField(
         id = "showcase-name",
         label = "Name",
-        value = name.value,
+        value = name,
         placeholder = "Jane Doe"
-    ).also { name.value = it }
+    ).also { name = it }
     shadcnPropertyTextField(
         id = "showcase-email",
         label = "Email",
-        value = email.value,
+        value = email,
         placeholder = "jane@example.com"
-    ).also { email.value = it }
+    ).also { email = it }
 
-    val bio = context.rememberStateValue("ui-showcase-text-input", "bio") { "" }
+    var bio by context.rememberStateValue("ui-showcase-text-input", "bio") { "" }
     shadcnPropertyTextarea(
         id = "showcase-bio",
         label = "Bio",
-        value = bio.value,
+        value = bio,
         placeholder = "Tell us about yourself...",
         minLines = 4
-    ).also { bio.value = it }
+    ).also { bio = it }
 
     spacer(Modifier.height(8f.dp))
     shadcnSupportingText(
-        if (name.value.isEmpty() && email.value.isEmpty()) {
+        if (name.isEmpty() && email.isEmpty()) {
             "Nothing typed yet."
         } else {
-            "You typed: ${name.value.ifEmpty { "(name)" }} / ${email.value.ifEmpty { "(email)" }}"
+            "You typed: ${name.ifEmpty { "(name)" }} / ${email.ifEmpty { "(email)" }}"
         }
     )
 }
 
 internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRuntimeState) {
-    val expanded = context.rememberStateValue("ui-showcase-collapsible", "expanded") { false }
+    var expanded by context.rememberStateValue("ui-showcase-collapsible", "expanded") { false }
 
     shadcnSupportingText("An interactive panel that expands to show more content, with a smooth height transition.")
     spacer(Modifier.height(8f.dp))
@@ -92,8 +92,8 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRunti
     shadcnCollapsible(
         id = "showcase-collapsible",
         title = "...",
-        expanded = expanded.value,
-        onExpandedChange = { expanded.value = it }
+        expanded = expanded,
+        onExpandedChange = { expanded = it }
     ) {
         column(
             verticalArrangement = Arrangement.spacedBy(8f.dp)
@@ -113,45 +113,45 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRunti
 }
 
 internal fun ColumnScope.drawUiShowcaseSliderPreview() {
-    val exposure = context.rememberStateValue("ui-showcase-slider", "exposure") { 52f }
-    val bloom = context.rememberStateValue("ui-showcase-slider", "bloom") { 18f }
+    var exposure by context.rememberStateValue("ui-showcase-slider", "exposure") { 52f }
+    var bloom by context.rememberStateValue("ui-showcase-slider", "bloom") { 18f }
 
     shadcnSupportingText("Use sliders when you need a continuous value with immediate visual feedback and a stable control footprint.")
     spacer(Modifier.height(8f.dp))
-    exposure.value = shadcnSlider(
+    exposure = shadcnSlider(
         id = "showcase-slider-exposure",
         min = 0f,
         max = 100f,
-        value = exposure.value,
-        label = "Exposure ${exposure.value.toInt()}%",
+        value = exposure,
+        label = "Exposure ${exposure.toInt()}%",
         modifier = Modifier.width(360f.dp)
     )
-    bloom.value = shadcnSlider(
+    bloom = shadcnSlider(
         id = "showcase-slider-bloom",
         min = 0f,
         max = 32f,
-        value = bloom.value,
-        label = "Bloom ${bloom.value.toInt()} px",
+        value = bloom,
+        label = "Bloom ${bloom.toInt()} px",
         modifier = Modifier.width(360f.dp)
     )
     spacer(Modifier.height(8f.dp))
 }
 
 internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
-    val wireframe = context.rememberStateValue("ui-showcase-selection", "wireframe") { true }
-    val stats = context.rememberStateValue("ui-showcase-selection", "stats") { false }
+    var wireframe by context.rememberStateValue("ui-showcase-selection", "wireframe") { true }
+    var stats by context.rememberStateValue("ui-showcase-selection", "stats") { false }
 
     shadcnSupportingText("These are the current Awake-owned selection controls. They already share the same shadcn token layer even though radio and tab families are still pending.")
     spacer(Modifier.height(8f.dp))
-    wireframe.value = shadcnToggle(
+    wireframe = shadcnToggle(
         id = "showcase-selection-wireframe",
-        checked = wireframe.value,
+        checked = wireframe,
         label = "Wireframe overlay",
         modifier = Modifier.width(220f.dp).height(24f.dp)
     )
-    stats.value = shadcnCheckbox(
+    stats = shadcnCheckbox(
         id = "showcase-selection-stats",
-        checked = stats.value,
+        checked = stats,
         label = "Scene statistics",
         modifier = Modifier.width(220f.dp).height(24f.dp)
     )

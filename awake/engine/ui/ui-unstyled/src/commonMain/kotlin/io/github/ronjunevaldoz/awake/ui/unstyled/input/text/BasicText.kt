@@ -150,16 +150,16 @@ internal fun UiScope.renderTextBlock(
         // shadcnShimmer in modifier/StyleModifiers.kt) -- callers resolve the effect there and
         // pass the resulting boolean down into this low-level glyph emitter.
         if (shimmer && semanticId != null) {
-            val shimmerForward = rememberBooleanState("__shimmer_dir__$semanticId", initial = true)
+            var shimmerForward by rememberBooleanState("__shimmer_dir__$semanticId", initial = true)
             val shimmerPhase = animateFloat(
                 id = "__shimmer_phase__$semanticId",
-                target = if (shimmerForward.value) 1f else 0f,
+                target = if (shimmerForward) 1f else 0f,
                 initial = 0f,
                 responsiveness = 3f,
                 snapDistance = 0.01f
             )
-            if (shimmerForward.value && shimmerPhase >= 0.99f) shimmerForward.value = false
-            if (!shimmerForward.value && shimmerPhase <= 0.01f) shimmerForward.value = true
+            if (shimmerForward && shimmerPhase >= 0.99f) shimmerForward = false
+            if (!shimmerForward && shimmerPhase <= 0.01f) shimmerForward = true
 
             val highlightColor = Color.White.withAlpha(0.6f)
             val shimmerWidth = (slot.width * 1.5f).coerceAtLeast(160f)

@@ -17,26 +17,26 @@ class UiStateHooksTest {
         val ui = UiContext()
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val first = ui.rememberIntState("counter")
-        first.value += 1
+        var first by ui.rememberIntState("counter")
+        first += 1
 
         ui.beginFrame(320f, 200f, testSnapshot())
-        val second = ui.rememberIntState("counter")
+        val second by ui.rememberIntState("counter")
 
-        assertEquals(1, second.value)
+        assertEquals(1, second)
     }
 
     @Test
     fun rememberStateValueKeepsKeysIndependentWithinOneWidget() {
         val widgetState = WidgetState()
-        val expanded = widgetState.rememberStateValue("expanded") { false }
-        val clicks = widgetState.rememberStateValue("clicks") { 0 }
+        var expanded by widgetState.rememberStateValue("expanded") { false }
+        var clicks by widgetState.rememberStateValue("clicks") { 0 }
 
-        expanded.value = true
-        clicks.value = 3
+        expanded = true
+        clicks = 3
 
-        assertTrue(expanded.value)
-        assertEquals(3, clicks.value)
+        assertTrue(expanded)
+        assertEquals(3, clicks)
     }
 
     @Test
@@ -61,9 +61,9 @@ class UiStateHooksTest {
 
         ui.beginFrame(320f, 200f, testSnapshot())
         val nextScope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
-        val persisted = nextScope.rememberBooleanState("delegate-demo", initial = true)
+        val persisted by nextScope.rememberBooleanState("delegate-demo", initial = true)
 
-        assertFalse(persisted.value)
+        assertFalse(persisted)
     }
 
     @Test

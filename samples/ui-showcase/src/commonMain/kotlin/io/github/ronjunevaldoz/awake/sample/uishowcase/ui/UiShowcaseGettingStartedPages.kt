@@ -193,10 +193,10 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                     borderWidth(0f.dp) // Proves we can override variant defaults
                 }
             ) { previewSlot ->
-                val shimmerForward = rememberBooleanState("showcase-preview-shimmer-direction", initial = true)
+                var shimmerForward by rememberBooleanState("showcase-preview-shimmer-direction", initial = true)
                 val shimmerTarget = when {
                     !state.showcaseLiveBadge -> 0.15f // Static position when paused
-                    shimmerForward.value -> 1f
+                    shimmerForward -> 1f
                     else -> 0f
                 }
                 val shimmerPhase = animateFloat(
@@ -208,8 +208,8 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 )
 
                 if (state.showcaseLiveBadge) {
-                    if (shimmerForward.value && shimmerPhase >= 0.99f) shimmerForward.value = false
-                    if (!shimmerForward.value && shimmerPhase <= 0.01f) shimmerForward.value = true
+                    if (shimmerForward && shimmerPhase >= 0.99f) shimmerForward = false
+                    if (!shimmerForward && shimmerPhase <= 0.01f) shimmerForward = true
                 }
 
                 // Draw chrome BEFORE content so it stays behind widgets
