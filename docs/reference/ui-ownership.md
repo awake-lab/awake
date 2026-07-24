@@ -150,6 +150,36 @@ Theme rule:
 - property-form rows, checkbox rows, and inspector-style control groupings belong in `ui-dsl`,
   even when they are visually conservative
 
+## Folder Structure And File Naming (2026-07-24)
+
+Decided via Q&A, applies going forward -- existing violations are not retroactively fixed by
+this rule, only new/moved files must comply.
+
+**`ui-core`**
+- No new files directly under `ui/` root. Every new type goes in a themed subfolder
+  (`modifier/`, `style/`, `layout/`, `scope/`, `theme/`, `context/`, `font/`, `graphics/`, or a
+  new one if none fit). The 16 existing root files (`UiAnchor.kt`, `Canvas.kt`, `Dp.kt`, etc.)
+  are legacy debt, not a model to copy -- migrating them is a separate, not-yet-scoped cleanup.
+- Public types in `ui-core` are `Ui`-prefixed (`UiModifier`, `UiSlot`, `UiAnchor`, ...) -- the
+  prefix signals "engine contract type" the way it already does today.
+
+**`ui-unstyled`**
+- No `Ui`-prefix requirement -- the module name already scopes these as generic widgets
+  (`Buttons.kt`, `Surface.kt`, `Spinner.kt`).
+- Subfolder by interaction category: anything that takes user input goes under `input/`
+  (further split by kind where it already exists: `input/text/`, `input/selection/`,
+  `input/toggle/`); everything display-only (`Surface`, `Spinner`, `Separator`, `Avatar`,
+  `Skeleton`) stays at the top level of `unstyled/`.
+
+**`ui-designsystem`**
+- Every component file is prefixed with its brand name (`AwakeShadcn*` today). Components
+  currently live flat under `components/` since only one brand exists -- not yet moved into a
+  `components/shadcn/` subfolder, since there is nothing to disambiguate from yet. The rule for
+  when a second named theme/brand is added: give it its own prefix + subfolder
+  (`components/<brand2>/`), and retroactively move the first brand's files into
+  `components/shadcn/` at that point, rather than a new Gradle module -- only split into a
+  separate module if a brand needs its own dependency graph, not just its own visual language.
+
 ## Naming Guidance
 
 - use general names for real reusable pieces
