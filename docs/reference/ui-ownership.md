@@ -15,19 +15,26 @@ These are placement rules, not style preferences.
    style primitives, theme contracts, and at most a neutral fallback theme.
 2. `awake:engine:ui-unstyled` may expose only generic leaf widgets built on `ui-core`. It
    must not own property-form, inspector, or tooling-shell composition.
-3. `awake:engine:ui-dsl` may expose generic composition templates and DSL surfaces, and it
-   owns neutral property forms and reusable tooling composition, but it
-   must not introduce helper APIs that collapse a low-level primitive and a specific
-   container into one convenience function when a slot/rect primitive can express it.
-4. `awake:engine:ui-designsystem` owns branded or strongly opinionated recipes and every
+3. `awake:engine:ui-designsystem` owns branded or strongly opinionated recipes and every
    named authored theme intended for direct app/sample use.
-5. `samples:*` and future game modules own runtime-bound adapters, authored overlays,
+4. `samples:*` and future game modules own runtime-bound adapters, authored overlays,
    debug HUD wiring, and sample-specific compositions.
-6. `UiSlot` is a `ui-core`-internal measurement type. No module outside `ui-core` may
+5. `UiSlot` is a `ui-core`-internal measurement type. No module outside `ui-core` may
    construct, read, or `.copy()` a `UiSlot`. Anything crossing the `ui-core` boundary
    (`surface{}`/`row{}`/`claimSlot()` return values, `UiSemanticNode.contentBounds`, lambda
    params handed to widget code) must use `UiBounds` instead. See
    `docs/tasks/2026-07-24-uislot-narrowing.md` for the migration in progress.
+6. **No authored param may duplicate what `UiModifier` or `Style` already expresses.** Not
+   limited to params literally named `width`/`height`/`gap`/`insets` -- any `Dp`/`Float` param
+   that's really a size, position, or spacing value under another name (`diameter`, `radius`
+   used as a dimension, `length`, `thickness`, `spacing`, ...) is the same violation. Before
+   adding a sizing/spacing param to a widget signature, check whether
+   `Modifier.size()`/`.width()`/`.height()`/`.padding()`/`.offset()` or
+   `Style.shape()`/`.borderWidth()` already covers it. This has no generic mechanical check
+   (param names vary too much for a denylist) -- it's a manual gate at review time. Found and
+   fixed 2026-07-24: `avatarFallback`'s `diameter: Dp` param (see `docs/tasks/
+   2026-07-17-ui-api-simplification.md`'s modifier-first policy for the full history of this
+   class of bug, starting with `surface()`'s `radius`/`borderWidth`).
 
 ## Unstyled/Designsystem Content Pairing
 
@@ -41,14 +48,22 @@ Concrete rule for what belongs in each module, beyond "generic" vs "branded":
   `shadcnCheckbox`). That wrapper's only job is supplying the brand's `Style`/theme
   defaults on top of the existing `ui-unstyled` widget -- it must not add new structural or
   behavioral logic the underlying widget doesn't already have. If a wrapper needs real new
-  logic, that logic belongs in `ui-unstyled` (generic) or `ui-dsl` (composition), not smuggled
-  into the wrapper.
+  logic, that logic belongs in `ui-unstyled` (generic) -- see the note on neutral
+  composition below.
 - `ui-designsystem` may also own branded *compositions* that don't map to a single
   `ui-unstyled` widget (`shadcnDialog`, `shadcnDropdownMenu`, `shadcnAlertDialog`,
   `shadcnTabs`, `shadcnPropertyDropdown`, ...) when the composition itself is
   brand-opinionated. Every `ui-designsystem` export is `shadcn`-prefixed, including these --
-  there is no unprefixed variant. The same composition with no brand opinion belongs in
-  `ui-dsl` instead (Hard Rule 3).
+  there is no unprefixed variant.
+
+**Neutral composition currently has no dedicated module.** `awake:engine:ui-dsl` used to be
+that home but was deleted 2026-07-24 -- it had accumulated zero production code (every real
+composition had already migrated into `ui-unstyled`/`ui-designsystem`/`game-dsl` over time,
+leaving only stray test files behind). If a genuinely neutral (unbranded) composition need
+comes up again, don't default to recreating a `ui-dsl`-shaped module reflexively -- place it in
+`ui-unstyled` if it's still widget-shaped, or scope a new module deliberately if it's large
+enough to need one. Treat "we need a neutral composition layer" as a real decision to make at
+the time, not a foregone conclusion.
 
 ## Module Responsibilities
 
@@ -56,7 +71,6 @@ Concrete rule for what belongs in each module, beyond "generic" vs "branded":
 |---|---|---|
 | `awake:engine:ui-core` | Foundational drawing, layout, and surface primitives | low-level layout, drawing, clipping, slots, style plumbing, `UiTheme`, `CoreUiTheme` |
 | `awake:engine:ui-unstyled` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
-| `awake:engine:ui-dsl` | Style-agnostic composition templates and UI DSL surfaces | shells, sections, property forms, reusable inspector layouts |
 | `awake:engine:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
 | `samples:*` or game modules | Sample/game adapters and authored usage | scene inspector bindings, demo-specific overlays, debug HUD wiring |
 
@@ -102,7 +116,7 @@ Where a color/token comes from depends on the module:
 - `ui-core` owns the *contract* only -- `UiColorTokens` (the interface), `UiTheme`, and
   `CoreUiTheme` (the one neutral fallback instance, generic gray/white values). No named or
   branded token values live here.
-- `ui-unstyled` and `ui-dsl` must never call `Color(...)` directly or hardcode a token value.
+- `ui-unstyled` must never call `Color(...)` directly or hardcode a token value.
   Widgets read colors exclusively through the ambient theme (`theme.tokens.background`,
   `theme.tokens.primary`, etc.) or a resolved `Style` built from those tokens. This is already
   true in practice -- `ui-unstyled` has zero raw `Color(...)` call sites.
@@ -120,7 +134,7 @@ Where a color/token comes from depends on the module:
 | `UiSlot.anchored(anchor, width, height, margin)` | `ui-core` | pure placement math returning a slot |
 | `button`, `checkbox`, `slider` | `ui-unstyled` | generic reusable leaf widgets |
 | `CoreUiTheme`, `UiTheme`, `UiColorTokens` | `ui-core` | theme contract and neutral fallback only |
-| `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-dsl` | reusable compositions of primitives/widgets |
+| `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-unstyled` (or a scoped-for-purpose new module, see Neutral composition note above) | reusable compositions of primitives/widgets |
 | `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
 | `ShadcnPanelStyle`, branded variants | `ui-designsystem` | visual opinion, not engine primitive |
 | hardcoded `Color(...)` token values | `ui-designsystem` theme-definition files only | everywhere else reads `theme.tokens.*` |
@@ -138,7 +152,7 @@ These API shapes are specifically discouraged in reusable UI modules:
 - `LightUiTheme` in `ui-core`
 - `HelloCube*`
 - helpers that know `SceneGameRuntime`, ECS `World`, demo modes, or sample debug state
-- raw `Color(...)` literals in `ui-unstyled`/`ui-dsl`, or in `ui-designsystem` component files
+- raw `Color(...)` literals in `ui-unstyled`, or in `ui-designsystem` component files
   outside its theme-definition files
 
 Rule of thumb: if the API name bakes in both a placement concern and a concrete container,
@@ -176,8 +190,8 @@ Theme rule:
 - `ui-core` stays neutral. If the API needs a no-dependency fallback theme, keep it generic
   and do not treat it as the authored app theme.
 - named shipped themes for apps, demos, docs, and samples belong in `ui-designsystem`
-- property-form rows, checkbox rows, and inspector-style control groupings belong in `ui-dsl`,
-  even when they are visually conservative
+- property-form rows, checkbox rows, and inspector-style control groupings are neutral
+  composition -- see the note under Unstyled/Designsystem Content Pairing above
 
 ## Folder Structure And File Naming (2026-07-24)
 
@@ -233,9 +247,36 @@ Before adding a new UI type, ask:
 Use the answers like this:
 
 - foundational + generic -> `ui-core` or `ui-unstyled`
-- compositional + generic -> `ui-dsl`
+- compositional + generic -> `ui-unstyled` (or a scoped-for-purpose new module -- see the
+  Neutral composition note above; there is no default composition-only module anymore)
 - branded/opinionated -> `ui-designsystem`
 - sample/runtime-bound -> sample or game module
+
+## Test File Rule (2026-07-24)
+
+One test file per component/behavior under test. A test file that covers several unrelated
+components "because they're all UI" is a god-class test file -- it hides which component broke
+when the suite fails, and it invites unrelated tests to keep accumulating in one place with no
+natural stopping point.
+
+- Name the test file after the thing it tests (`CheckboxTest.kt`, not `WidgetsTest.kt` or
+  `UiTest.kt`). If you can't name it after one component, that's the signal it's testing too
+  much.
+- A shared setup helper (e.g. a `testSnapshot()` frame builder) used by multiple test files is
+  fine and expected -- put it in its own `*TestSupport.kt` file, not inline in one of the test
+  classes that happens to need it first.
+- Integration/composition tests that deliberately exercise several primitives together (e.g.
+  proving `surface`/`row`/`dropdown` compose correctly) are still one file per *composition
+  pattern under test*, named for that pattern -- not bundled into a generic catch-all just
+  because no single widget owns the whole scenario.
+- Found and fixed 2026-07-24: `UiDslTest.kt` (318 lines, 8 tests spanning surface/dropdown/
+  toggle/canvas/scroll, with its own doc comment reading `/** Too generic **/`) was split into
+  `CanvasResponsiveLayoutTest.kt`, `ToggleCompositionTest.kt`, `ScrollPanelCompositionTest.kt`,
+  `RowSpacerCompositionTest.kt`, `SurfaceDropdownCompositionTest.kt`, and a shared
+  `UiDslTestSupport.kt` for the `testSnapshot()` helper, when the file moved out of the deleted
+  `ui-dsl` module into `game-dsl`.
+- Not (yet) mechanically enforced -- like the modifier-first checklist above, file scope is a
+  judgment call a lint can't reliably make. Catch it at review time or during an audit pass.
 
 ## Mechanical Enforcement
 
@@ -243,7 +284,6 @@ This policy is build-enforced in Awake's reusable UI modules.
 
 - `:awake:engine:ui-core:check`
 - `:awake:engine:ui-unstyled:check`
-- `:awake:engine:ui-dsl:check`
 
 run a `verifyUiOwnership` task that rejects:
 
@@ -258,7 +298,6 @@ policy grows, expand the canonical doc first, then update the check.
 Awake also build-enforces authored-unit usage in:
 
 - `:awake:engine:ui-unstyled`
-- `:awake:engine:ui-dsl`
 - `:awake:engine:ui-designsystem`
 - `:awake:engine:game-dsl`
 - `:samples:ui-showcase`
