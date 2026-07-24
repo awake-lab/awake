@@ -60,13 +60,25 @@ samples, and tests (several tests construct `UiSlot(...)` directly as the arg).
 5. Compile whole tree (0 errors), run `desktopTest`, confirm baseline: scene-dsl=1,
    ui-showcase=6, ui-dsl=3 (now under game-dsl), all other modules 0.
 
-**Batch 2 -- widget return types (not started).** Change public-facing return types
-(`surface{}`, `row{}`, `claimSlot()`, `UiSemanticNode.contentBounds`/`bounds`, `UiButtonResult
-.slot`, and other widget-result `.slot` fields) from `UiSlot` to `UiBounds`. This is what lets
-Batch 1's callers drop their explicit `.toBounds()` calls (the value is already `UiBounds` by
-the time it reaches them). Heaviest-consumer-first module order (ui-unstyled, then
-ui-designsystem, engine/ui/ui-testing, game-dsl, samples, backends), same
-compile-iterate-to-convergence technique used for the layout/style package move.
+**Batch 2 -- widget return types (not started, re-scoped 2026-07-24).** Change public-facing
+return types (`surface{}`, `row{}`, `claimSlot()`, `UiSemanticNode.contentBounds`/`bounds`,
+`UiButtonResult.slot`, and other widget-result `.slot` fields), plus every
+`content: XScope.(slot: UiSlot) -> Unit` lambda param (the Slot-API content-lambda pattern
+carries measured output through nearly every widget), from `UiSlot` to `UiBounds`. This is what
+lets Batch 1's callers drop their explicit `.toBounds()` calls (the value is already `UiBounds`
+by the time it reaches them).
+
+**Full audit (2026-07-24) found this is much larger than the original ~166-site estimate
+implied:** in `ui-unstyled`/`ui-designsystem` `commonMain` alone -- not counting ui-core-internal
+call sites, game-dsl, samples, or test files -- there are 29 public `UiSlot` return types, 79
+public `UiSlot` param types (mostly the content-lambda pattern above), and 5 data classes with a
+`UiSlot` field (`Buttons.kt`, `Interaction.kt`, `Surface.kt`, `DropdownMenu.kt`,
+`ShadcnPropertyRow.kt`). Realistic total is 150-200+ edits, effectively the whole widget API
+surface, not a contained slice. Treat this as its own dedicated session, not a continuation of
+Batch 1 -- do a fresh, file-by-file inventory of all ~113+ commonMain sites before starting (the
+counts above are from grep, not yet triaged into "must convert" vs "internal, leave as UiSlot"),
+then apply the same compile-iterate-to-convergence technique, heaviest-consumer-first module
+order (ui-unstyled, then ui-designsystem, engine/ui/ui-testing, game-dsl, samples, backends).
 
 **Batch 3 -- lock it down (not started).**
 1. Mark `UiSlot`'s constructor/class `internal` to `ui-core` once no downstream file references it.
