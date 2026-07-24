@@ -57,6 +57,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ext.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.size
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
@@ -411,7 +412,7 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
         ) {
             row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.copy(height = 48f.dp.toDimension())) {
                 shadcnAvatar("CN")
-                shadcnAvatar("RV", diameter = 48f.dp)
+                shadcnAvatar("RV", modifier = Modifier.size(48f.dp, 48f.dp))
             }
         }
         return AwakeUiPreviewFrame(

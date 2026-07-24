@@ -57,6 +57,17 @@ Three different things, easy to conflate under "get rid of slots":
   `ui-core`'s own public surface (`surface()`'s `radius`/`borderWidth` were the same mistake one
   layer down -- see the Core-UI audit finding below).
 
+**Checklist before adding any new widget param (found via `avatarFallback`'s `diameter: Dp`,
+2026-07-24):** the anti-pattern isn't limited to params literally named `width`/`height`/`gap`.
+Any authored param that's really a size, position, or spacing value under a different name
+(`diameter`, `radius` used as a dimension rather than `Style.shape()`, `length`, `thickness`,
+`spacing`, ...) is the same violation just spelled differently. Before adding a `Dp`/`Float`
+param to a widget signature, ask: *"could `Modifier.size()`/`.width()`/`.height()`/`.padding()`
+or `Style.shape()`/`.borderWidth()` already express this?"* If yes, use that instead of a new
+param -- don't rely on the param's literal name matching a denylist, since names vary and no
+generic grep/lint can catch every synonym. This is a manual gate (code review / self-check when
+authoring a widget), not a mechanical one.
+
 In short: content composition stays Slot API; measured/composed output stays `UiSlot`; authored
 input goes through `UiModifier`/`Style`. The root-level sweep below finished the *root* half of
 the modifier-first half; the base-component widget-signature half is done too (see Core-UI
