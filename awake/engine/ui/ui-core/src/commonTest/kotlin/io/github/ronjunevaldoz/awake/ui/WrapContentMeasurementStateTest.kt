@@ -77,4 +77,71 @@ class WrapContentMeasurementStateTest {
                 "measurement pass fell back to -- short=${slotShort?.height} long=${slotLong?.height}"
         )
     }
+
+    private fun statefulRows(stateKey: String): io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiSlot) -> Unit = {
+        val mode by rememberStateValue(stateKey, "value") { "short" }
+        val rows = if (mode == "short") 1 else 20
+        repeat(rows) { index ->
+            surface(id = "row-$index", modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(36f.px))) { }
+        }
+    }
+
+    private fun measureAfterNavigation(
+        stateKey: String,
+        wrap: io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiSlot) -> Unit) -> UiSlot
+    ): Pair<Float, Float> {
+        val content = statefulRows(stateKey)
+        val ui = UiContext()
+        ui.beginFrame(920f, 620f, testSnapshot())
+        var slotShort: UiSlot? = null
+        ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
+            id = "content-viewport",
+            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {
+            slotShort = wrap(this, content)
+        }
+        ui.endFrame()
+
+        ui.rememberStateValue<String>(stateKey, "value") { "short" }.value = "long"
+
+        ui.beginFrame(920f, 620f, testSnapshot())
+        var slotLong: UiSlot? = null
+        ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
+            id = "content-viewport",
+            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {
+            slotLong = wrap(this, content)
+        }
+        ui.endFrame()
+        return (slotShort?.height ?: 0f) to (slotLong?.height ?: 0f)
+    }
+
+    @Test
+    fun wrapContentColumnNestedInsideWrapContentSurfaceSizesAgainstRealState() {
+        // Two levels of WrapContent nesting: scroll column -> surface(WrapContent) ->
+        // column(WrapContent) -> stateful rows. Each level has its own trial-measurement pass,
+        // so a state-store leak at any level would clip this the same way.
+        val (short, long) = measureAfterNavigation("page-mode-nested-surface-column") { content ->
+            surface(id = "content", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) { slot ->
+                column(id = "inner", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent), content = content)
+            }
+        }
+        assertTrue(
+            long > short * 5f,
+            "double-nested WrapContent (surface -> column) must size against real state -- short=$short long=$long"
+        )
+    }
+
+    @Test
+    fun wrapContentSurfaceNestedInsideWrapContentColumnSizesAgainstRealState() {
+        // Reverse nesting order: scroll column -> column(WrapContent) -> surface(WrapContent) ->
+        // stateful rows.
+        val (short, long) = measureAfterNavigation("page-mode-nested-column-surface") { content ->
+            column(id = "outer", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
+                surface(id = "content", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent), content = content)
+            }
+        }
+        assertTrue(
+            long > short * 5f,
+            "double-nested WrapContent (column -> surface) must size against real state -- short=$short long=$long"
+        )
+    }
 }
