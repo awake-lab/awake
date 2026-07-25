@@ -131,7 +131,6 @@ object ShadcnStyles {
         theme: ShadcnResolvedTheme,
         variant: ShadcnSurfaceVariant
     ): Style = when (variant) {
-        ShadcnSurfaceVariant.Card -> theme.components.surface
         ShadcnSurfaceVariant.Sidebar -> Style {
             background(theme.sidebar)
             foreground(theme.onSidebar)

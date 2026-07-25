@@ -78,7 +78,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
             }
             surface(
                 id = "starter-footer-compact",
-                style = ShadcnStyles.surface(ShadcnSurfaceVariant.Card),
+                style = ShadcnTheme.components.surface,
                 modifier = (Modifier
                     .align(UiAlignment.BottomStart)
                     .padding(16f.dp)).width(footerWidth).height(Dimension.WrapContent)) { _ ->
@@ -96,7 +96,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
 
             surface(
                 id = "starter-inspector",
-                style = ShadcnStyles.surface(ShadcnSurfaceVariant.Card),
+                style = ShadcnTheme.components.surface,
                 modifier = (Modifier
                     .align(UiAlignment.TopEnd)
                     .padding(start = 0f.dp, top = 20f.dp, end = 20f.dp, bottom = 0f.dp)).width(sideWidth).height(Dimension.WrapContent)) { _ ->
@@ -105,7 +105,7 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
 
             surface(
                 id = "starter-footer",
-                style = ShadcnStyles.surface(ShadcnSurfaceVariant.Card),
+                style = ShadcnTheme.components.surface,
                 modifier = (Modifier
                     .align(UiAlignment.BottomStart)
                     .padding(start = 20f.dp, top = 0f.dp, end = 0f.dp, bottom = 20f.dp)).width(footerWidth).height(Dimension.WrapContent)) { _ ->

@@ -54,13 +54,13 @@ private fun ColumnScope.shadcnCardContent(
 fun UiScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
-    variant: ShadcnSurfaceVariant = ShadcnSurfaceVariant.Card,
+    variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = surface(
     id = id,
     modifier = modifier,
-    style = ShadcnStyles.surface(theme.asShadcnTheme(), variant) then style,
+    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
     content = content
 )
 
@@ -68,13 +68,13 @@ fun UiScope.shadcnSurface(
 fun ColumnScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
-    variant: ShadcnSurfaceVariant = ShadcnSurfaceVariant.Card,
+    variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = surface(
     id = id,
     modifier = modifier,
-    style = ShadcnStyles.surface(theme.asShadcnTheme(), variant) then style,
+    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
     content = content
 )
 
@@ -82,13 +82,13 @@ fun ColumnScope.shadcnSurface(
 fun RowScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
-    variant: ShadcnSurfaceVariant = ShadcnSurfaceVariant.Card,
+    variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = surface(
     id = id,
     modifier = modifier,
-    style = ShadcnStyles.surface(theme.asShadcnTheme(), variant) then style,
+    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
     content = content
 )
 
@@ -96,20 +96,21 @@ fun RowScope.shadcnSurface(
 fun BoxScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
-    variant: ShadcnSurfaceVariant = ShadcnSurfaceVariant.Card,
+    variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot = surface(
     id = id,
     modifier = modifier,
-    style = ShadcnStyles.surface(theme.asShadcnTheme(), variant) then style,
+    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
     content = content
 )
 
 /** Real shadcn's `Card`: a dedicated header/body/footer composition, not just a
  * background/border flavor of [shadcnSurface]. Header and footer are optional slots
  * separated from the body by the shared divider convention (see [DropdownMenu]'s item
- * separator); body is required. Always uses the [ShadcnSurfaceVariant.Card] visual style. */
+ * separator); body is required. Uses the base theme surface style directly -- it isn't
+ * a [ShadcnSurfaceVariant] flavor, just a plain surface with header/body/footer structure. */
 fun UiScope.shadcnCard(
     id: String,
     modifier: UiModifier = Modifier,
@@ -120,7 +121,7 @@ fun UiScope.shadcnCard(
 ): UiSlot = surface(
     id = id,
     modifier = modifier,
-    style = ShadcnStyles.surface(theme.asShadcnTheme(), ShadcnSurfaceVariant.Card) then style,
+    style = theme.asShadcnTheme().components.surface then style,
     content = { slot -> shadcnCardContent(slot, header, footer, body) }
 )
 
@@ -135,7 +136,7 @@ fun ColumnScope.shadcnCard(
 ): UiSlot = surface(
     id = id,
     modifier = modifier,
-    style = ShadcnStyles.surface(theme.asShadcnTheme(), ShadcnSurfaceVariant.Card) then style,
+    style = theme.asShadcnTheme().components.surface then style,
     content = { slot -> shadcnCardContent(slot, header, footer, body) }
 )
 
@@ -150,7 +151,7 @@ fun RowScope.shadcnCard(
 ): UiSlot = surface(
     id = id,
     modifier = modifier,
-    style = ShadcnStyles.surface(theme.asShadcnTheme(), ShadcnSurfaceVariant.Card) then style,
+    style = theme.asShadcnTheme().components.surface then style,
     content = { slot -> shadcnCardContent(slot, header, footer, body) }
 )
 
@@ -165,6 +166,6 @@ fun BoxScope.shadcnCard(
 ): UiSlot = surface(
     id = id,
     modifier = modifier,
-    style = ShadcnStyles.surface(theme.asShadcnTheme(), ShadcnSurfaceVariant.Card) then style,
+    style = theme.asShadcnTheme().components.surface then style,
     content = { slot -> shadcnCardContent(slot, header, footer, body) }
 )

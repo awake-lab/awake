@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupporting
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -61,7 +60,6 @@ internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
     spacer(Modifier.height(8f.dp))
     shadcnSurface(
         id = "showcase-scroll-panel-page",
-        variant = ShadcnSurfaceVariant.Card,
         style = Style { shape(14f.dp) }
     , modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.Fixed(176f.dp))) { _ ->
         column(
@@ -95,7 +93,6 @@ internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
     spacer(Modifier.height(8f.dp))
     shadcnSurface(
         id = "showcase-canvas-page",
-        variant = ShadcnSurfaceVariant.Card,
         style = Style { shape(16f.dp) }
     , modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.Fixed(220f.dp))) { slot ->
         recordSemantic(

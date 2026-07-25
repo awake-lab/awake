@@ -32,7 +32,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDrop
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -561,7 +560,6 @@ private fun renderUiShowcaseCardPreviewFrame(
         ) {
             shadcnSurface(
                 id = "ui-showcase-preview-$surfaceId",
-                variant = ShadcnSurfaceVariant.Card,
                 style = Style { shape(16f.dp) },
                 modifier = Modifier.copy(
                     widthDimension = Dimension.FillMax,

@@ -15,7 +15,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.suppo
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.textLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -82,7 +81,6 @@ internal fun ColumnScope.drawUiShowcasePageContent(
         spacer(Modifier.height(12f.dp))
         shadcnSurface(
             id = "ui-showcase-notes-${page.id}",
-            variant = ShadcnSurfaceVariant.Card,
             style = Style { shape(14f.dp) }
         , modifier = Modifier.height(Dimension.WrapContent)) {
             shadcnSectionTitle("Notes")
@@ -164,7 +162,6 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
     spacer(Modifier.height(8f.dp))
     shadcnSurface(
         id = "ui-showcase-preview-code-${page.id}",
-        variant = ShadcnSurfaceVariant.Card,
         style = Style { shape(14f.dp) }
     , modifier = Modifier.height(Dimension.WrapContent)) {
         if (showCode) {
