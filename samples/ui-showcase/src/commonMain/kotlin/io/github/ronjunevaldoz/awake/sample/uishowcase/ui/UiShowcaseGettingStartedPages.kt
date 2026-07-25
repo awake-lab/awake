@@ -219,7 +219,11 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                     dangerMode = state.showcaseDangerMode
                 )
 
-                row( horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.height(24f.dp.toDimension())) {
+                // Height left as WrapContent (not a hardcoded 24dp guess): shadcnBadge's actual
+                // rendered height is glyph height + its own content padding, which is taller
+                // than 24dp -- a fixed 24dp row doesn't clip the badge's paint to fit, so the
+                // badge visually overflowed past the row and overlapped the title text below it.
+                row(horizontalArrangement = Arrangement.SpaceBetween) {
                     shadcnBadge(
                         if (state.showcaseLiveBadge) "LIVE" else "PAUSED",
                         variant = if (state.showcaseLiveBadge) ShadcnBadgeVariant.Primary else ShadcnBadgeVariant.Outline
@@ -230,11 +234,13 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 }
 
                 spacer(Modifier.height(8f.dp))
-                val cardTitle = "Showcase Preview Card"
-                shadcnBodyText(
-                    cardTitle,
-                    modifier = if (state.showcaseLiveBadge) Modifier.shadcnShimmer() else Modifier
-                )
+                // No shimmer here (shimmer already has its own dedicated showcase page): a
+                // single static frame never gets to animate, so it renders at the sweep's
+                // *initial* phase every time, which lands the highlight band on the title's
+                // leading glyphs and paints them near-white -- reads as corrupted/missing text
+                // in a still image/docs snapshot, not a real problem the user would ever see in
+                // motion, but a real problem for every static capture of this page.
+                shadcnBodyText("Showcase Preview Card")
 
                 shadcnSupportingText(
                     if (state.showcaseDangerMode) "DANGER MODE: Thematic variant proof for destructive/alert states."
