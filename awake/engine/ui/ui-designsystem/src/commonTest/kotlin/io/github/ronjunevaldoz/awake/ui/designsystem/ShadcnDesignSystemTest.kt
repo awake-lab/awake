@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
@@ -367,6 +368,70 @@ class ShadcnDesignSystemTest {
         val buttonCenterX = buttonBounds.x + buttonBounds.w / 2f
 
         assertTrue(abs(glyphCenterX - buttonCenterX) < 5f, "Text should be roughly horizontally centered in button: glyphCenterX=$glyphCenterX, buttonCenterX=$buttonCenterX")
+    }
+
+    @Test
+    fun shadcnCardOrdersHeaderBodyFooterWithoutOverlap() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(280f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
+            shadcnCard(
+                id = "card-full",
+                modifier = Modifier.height(Dimension.WrapContent),
+                header = { text("Card title") },
+                footer = { text("Card footer") }
+            ) {
+                text("Card body")
+            }
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val header = assertNotNull(semantics.firstOrNull { it.label == "Card title" })
+        val body = assertNotNull(semantics.firstOrNull { it.label == "Card body" })
+        val footer = assertNotNull(semantics.firstOrNull { it.label == "Card footer" })
+
+        assertTrue(
+            header.bounds.y + header.bounds.height <= body.bounds.y + 1f,
+            "header must sit above the body, not overlap it"
+        )
+        assertTrue(
+            body.bounds.y + body.bounds.height <= footer.bounds.y + 1f,
+            "body must sit above the footer, not overlap it"
+        )
+    }
+
+    @Test
+    fun shadcnCardOmitsDanglingSpaceWhenHeaderOrFooterIsAbsent() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(280f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
+            shadcnCard(
+                id = "card-body-only",
+                modifier = Modifier.height(Dimension.WrapContent)
+            ) {
+                text("Only body")
+            }
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val card = assertNotNull(semantics.firstOrNull { it.id == "card-body-only" })
+        val body = assertNotNull(semantics.firstOrNull { it.label == "Only body" })
+
+        // With no header/footer, the card's wrap-content height should hug the body plus its
+        // own padding -- no leftover header/footer divider gap baked in.
+        val theme = ShadcnTheme
+        val verticalPadding = theme.components.surface.resolve().contentPadding.verticalPx()
+        assertTrue(
+            abs(card.bounds.height - (body.bounds.height + verticalPadding)) < 2f,
+            "header/footer-omitted card should not leave dangling empty space: " +
+                "card height=${card.bounds.height}, body height=${body.bounds.height}, padding=$verticalPadding"
+        )
     }
 }
 
