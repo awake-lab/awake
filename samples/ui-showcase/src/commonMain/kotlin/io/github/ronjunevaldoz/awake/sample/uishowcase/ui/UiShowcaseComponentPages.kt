@@ -33,6 +33,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -121,13 +122,13 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRunti
         , modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
             shadcnSeparator(modifier = Modifier.padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
-                text("@radix-ui/primitives", modifier = Modifier.padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
+                text("@radix-ui/primitives", style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) })
             }
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
-                text("@radix-ui/colors", modifier = Modifier.padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
+                text("@radix-ui/colors", style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) })
             }
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
-                text("@stitches/react", modifier = Modifier.padding(12f.dp, 0f.dp, 0f.dp, 0f.dp))
+                text("@stitches/react", style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) })
             }
         }
     }

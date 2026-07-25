@@ -16,8 +16,10 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
@@ -35,13 +37,16 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -76,7 +81,9 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseTooltipOpenPreview,
     UiShowcaseAlertDialogPreview,
     UiShowcaseScrollPanelPreview,
-    UiShowcaseShimmerPreview
+    UiShowcaseShimmerPreview,
+    UiShowcaseCollapsiblePreview,
+    UiShowcaseCollapsibleOpenPreview
 )
 
 private val PreviewOverlayMenuItems = listOf(
@@ -462,6 +469,41 @@ internal object UiShowcaseAlertDialogPreview : AwakeUiPreviewEntry {
         }
 }
 
+@AwakeUiPreview(
+    id = "ui-showcase-collapsible",
+    title = "Collapsible",
+    group = "Layout",
+    summary = "Ghost-button header disclosure panel in its default collapsed state.",
+    width = 900,
+    height = 360,
+    reportScale = 2
+)
+internal object UiShowcaseCollapsiblePreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "collapsible")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-collapsible-open",
+    title = "Collapsible Open State",
+    group = "Layout",
+    summary = "Expanded-state proof for the collapsible's animated height transition and revealed content.",
+    width = 900,
+    height = 440,
+    reportScale = 2
+)
+internal object UiShowcaseCollapsibleOpenPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcaseCardPreviewFrame(
+            metadata = metadata,
+            badge = "LAYOUT",
+            title = "Collapsible open state",
+            summary = "Expanded content, separators, and row spacing stay stable while the panel is open."
+        ) {
+            drawUiShowcaseCollapsibleOpenContent()
+        }
+}
+
 private fun renderUiShowcasePagePreviewFrame(
     metadata: AwakeUiPreviewMetadata,
     pageId: String,
@@ -783,6 +825,32 @@ private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
         confirmLabel = "Delete",
         dismissLabel = "Cancel"
     )
+}
+
+private fun ColumnScope.drawUiShowcaseCollapsibleOpenContent() {
+    shadcnSupportingText(
+        "The panel is rendered expanded on purpose so revealed-content spacing and separators are reviewable without live interaction."
+    )
+    spacer(Modifier.height(8f.dp))
+    shadcnCollapsible(
+        id = "showcase-matrix-collapsible",
+        title = "@radix-ui/primitives",
+        expanded = true,
+        onExpandedChange = {}
+    ) {
+        column(
+            verticalArrangement = Arrangement.spacedBy(8f.dp),
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)
+        ) {
+            shadcnSeparator(modifier = Modifier.padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
+            row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
+                text("@radix-ui/colors", style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) })
+            }
+            row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
+                text("@stitches/react", style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) })
+            }
+        }
+    }
 }
 
 private fun ColumnScope.drawUiShowcaseScrollPanelContent() {
