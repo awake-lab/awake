@@ -9,13 +9,13 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.FreeFlyControl
 import io.github.ronjunevaldoz.awake.scene.components.MovementControl
 import io.github.ronjunevaldoz.awake.scene.components.OrbitControl
-import io.github.ronjunevaldoz.awake.ui.context.UiInputResult
+import io.github.ronjunevaldoz.awake.ui.context.UiInputOwnership
 
 /**
  * Dedicated system for handling user input and mapping it to control intent components.
  * This is the ONLY system that should read/consume hardware snapshots.
  *
- * Decoupled from UI: queries a provided [UiInputResult] each frame to decide if
+ * Decoupled from UI: queries a provided [UiInputOwnership] each frame to decide if
  * hardware events should be ignored.
  */
 class PlayerControlSystem(
@@ -25,7 +25,7 @@ class PlayerControlSystem(
     /** Provider for the hardware snapshot for the current frame. */
     private val inputProvider: () -> InputSnapshot,
     /** Provider for the UI's input consumption results from the most recent UI pass. */
-    private val uiResultProvider: () -> UiInputResult
+    private val uiResultProvider: () -> UiInputOwnership
 ) : System {
     private var lastPointerX = 0f
     private var lastPointerY = 0f

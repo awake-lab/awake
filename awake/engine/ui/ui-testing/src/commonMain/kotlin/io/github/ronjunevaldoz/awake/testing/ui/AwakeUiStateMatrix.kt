@@ -40,14 +40,15 @@ fun AwakeUiPreviewMetadata.componentStateMatrix(
             y = 0f,
             width = width.toFloat(),
         ).block(forcedModifier)
+        val frameOutput = ui.finishFrame()
         sample(
             idSuffix = idSuffix,
             titleSuffix = idSuffix.replaceFirstChar { it.uppercase() },
             frame = AwakeUiPreviewFrame(
-                primitives = ui.endFrame(),
+                primitives = frameOutput.primitives,
                 background = resolvedTheme.tokens.background,
                 font = font,
-                semantics = ui.semanticNodes()
+                semantics = frameOutput.semantics
             )
         )
     }

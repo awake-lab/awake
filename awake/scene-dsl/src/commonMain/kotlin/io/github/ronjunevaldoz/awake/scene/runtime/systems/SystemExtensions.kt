@@ -59,7 +59,7 @@ fun SceneGameDsl.playerControlSystem(
             zoomSpeed = zoomSpeed,
             pinchZoomSpeed = pinchZoomSpeed,
             inputProvider = { requireService(io.github.ronjunevaldoz.awake.core.input.Input::class).currentSnapshot },
-            uiResultProvider = { uiContext.inputResult() }
+            uiResultProvider = { uiContext.finishFrame().ownership }
         )
     }
 }
