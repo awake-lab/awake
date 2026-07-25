@@ -294,6 +294,55 @@ internal val ShowcasePages = listOf(
         renderPreview = { drawUiShowcaseSelectionPreview() }
     ),
     ShowcasePage(
+        id = "avatar",
+        title = "Avatar",
+        category = ShowcaseCategory.Inputs,
+        description = "A circular fallback avatar -- initials text via the convenience overload, or arbitrary caller-supplied content (e.g. an icon) via the slot-based primary overload.",
+        usageCode = """
+            shadcnAvatar("RV", modifier = Modifier.width(40f.dp).height(40f.dp))
+            shadcnAvatar(modifier = Modifier.width(40f.dp).height(40f.dp)) { slot ->
+                icon(UiIcons.chevronDown, modifier = Modifier.align(UiAlignment.Center))
+            }
+        """.trimIndent(),
+        notes = listOf(
+            "Awake has no image-loading pipeline wired in yet, so this is the fallback-only look -- a real gap, not a faked one.",
+            "The initials overload is sugar over the slot-based primary overload; there is no capability gap between them."
+        ),
+        renderPreview = { drawUiShowcaseAvatarPreview() }
+    ),
+    ShowcasePage(
+        id = "breadcrumb",
+        title = "Breadcrumb",
+        category = ShowcaseCategory.Layout,
+        description = "A trail of muted links separated by a glyph, with the last item rendered as plain current-page text.",
+        usageCode = """
+            shadcnBreadcrumb(listOf("Scenes", "Lighting", "Exposure"))
+        """.trimIndent(),
+        notes = listOf(
+            "No click/navigation wiring -- that's caller-owned routing, same as every other Awake nav element.",
+            "The string-list overload is sugar over a content-lambda overload for custom trail items."
+        ),
+        renderPreview = { drawUiShowcaseBreadcrumbPreview() }
+    ),
+    ShowcasePage(
+        id = "alert",
+        title = "Alert",
+        category = ShowcaseCategory.Overlays,
+        description = "A static inline banner for default and destructive status messages -- not a modal.",
+        usageCode = """
+            shadcnAlert(
+                id = "saved",
+                title = "Scene saved",
+                description = "Your changes are stored in the current project."
+            )
+        """.trimIndent(),
+        notes = listOf(
+            "No dismiss/action slot yet -- shadcn's own Alert doesn't have one either; that's composed alongside it by the caller.",
+            "See the Dropdown Menu And Dialog page for overlay/modal surfaces instead."
+        ),
+        renderPreview = { drawUiShowcaseAlertPreview() }
+    ),
+    ShowcasePage(
         id = "popups",
         title = "Dropdown Menu And Dialog",
         category = ShowcaseCategory.Overlays,

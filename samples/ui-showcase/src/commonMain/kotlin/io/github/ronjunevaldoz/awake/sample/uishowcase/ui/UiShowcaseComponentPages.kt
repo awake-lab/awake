@@ -3,6 +3,11 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
@@ -10,29 +15,27 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyTextField
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.modifier.align
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
     shadcnSupportingText("Matches docs/reference/shadcn-previews/button_variants_light.png for a direct side-by-side.")
@@ -208,5 +211,46 @@ internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
     spacer(Modifier.height(8f.dp))
     shadcnSupportingText(
         "Selection state now lives in the same preview lane as fields and overlays, so color inversions and label alignment regressions show up faster."
+    )
+}
+
+internal fun ColumnScope.drawUiShowcaseAvatarPreview() {
+    shadcnSupportingText("The initials-string overload is sugar over the slot-based primary overload -- both share the same circular structure.")
+    spacer(Modifier.height(8f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
+        shadcnAvatar("RV", modifier = Modifier.width(40f.dp).height(40f.dp))
+        shadcnAvatar("AK", modifier = Modifier.width(40f.dp).height(40f.dp))
+        shadcnAvatar(modifier = Modifier.width(40f.dp).height(40f.dp)) { _ ->
+            icon(UiIcons.chevronDown, modifier = Modifier.align(UiAlignment.Center))
+        }
+    }
+    spacer(Modifier.height(8f.dp))
+    shadcnSupportingText("Awake has no image-loading pipeline yet, so this is the fallback-only look (initials or caller-supplied content) -- see ShadcnAvatars.kt.")
+}
+
+internal fun ColumnScope.drawUiShowcaseBreadcrumbPreview() {
+    shadcnSupportingText("A trail of muted links with the last item rendered as plain current-page text.")
+    spacer(Modifier.height(8f.dp))
+    shadcnBreadcrumb(listOf("Scenes", "Lighting", "Exposure"))
+    spacer(Modifier.height(8f.dp))
+    shadcnSupportingText("No click/navigation wiring -- that routing stays caller-owned, same as every other Awake nav element.")
+}
+
+internal fun ColumnScope.drawUiShowcaseAlertPreview() {
+    shadcnSupportingText("A static inline banner, not a modal -- see the Dropdown Menu And Dialog page for overlay surfaces.")
+    spacer(Modifier.height(8f.dp))
+    shadcnAlert(
+        id = "showcase-alert-default",
+        title = "Scene saved",
+        description = "Your changes are stored in the current project.",
+        modifier = Modifier.fillMaxWidth()
+    )
+    spacer(Modifier.height(8f.dp))
+    shadcnAlert(
+        id = "showcase-alert-destructive",
+        title = "Unable to load scene",
+        description = "The scene file is missing or corrupted. Choose another scene to continue.",
+        variant = ShadcnAlertVariant.Destructive,
+        modifier = Modifier.fillMaxWidth()
     )
 }

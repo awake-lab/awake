@@ -63,6 +63,9 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseCanvasPreview,
     UiShowcaseSlotApisPreview,
     UiShowcaseButtonsPreview,
+    UiShowcaseAvatarPreview,
+    UiShowcaseBreadcrumbPreview,
+    UiShowcaseAlertPreview,
     UiShowcaseTextInputPreview,
     UiShowcasePopupsPreview,
     UiShowcaseStatePreview,
@@ -211,6 +214,48 @@ internal object UiShowcaseSlotApisPreview : AwakeUiPreviewEntry {
 internal object UiShowcaseButtonsPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "buttons")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-avatar",
+    title = "Avatar",
+    group = "Inputs",
+    summary = "Initials-string convenience overload beside the slot-based primary overload rendering custom icon content.",
+    width = 900,
+    height = 360,
+    reportScale = 2
+)
+internal object UiShowcaseAvatarPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "avatar")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-breadcrumb",
+    title = "Breadcrumb",
+    group = "Layout",
+    summary = "A muted link trail with the last item rendered as plain current-page text.",
+    width = 900,
+    height = 320,
+    reportScale = 2
+)
+internal object UiShowcaseBreadcrumbPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "breadcrumb")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-alert",
+    title = "Alert",
+    group = "Overlays",
+    summary = "Default and destructive inline banner variants.",
+    width = 900,
+    height = 400,
+    reportScale = 2
+)
+internal object UiShowcaseAlertPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "alert")
 }
 
 @AwakeUiPreview(
