@@ -20,6 +20,13 @@ fun UiContext.animateFloat(
 ): Float {
     val state = widgetStateInternal("__animation__$id")
     val current = state.get("value", initial)
+    // WrapContent/scroll trial-measurement passes now share the real state store (see
+    // UiContextMeasureState.createMeasureContext) so stateful branches measure against the true
+    // current value. animateFloat's step is a *side effect* though -- it advances the stored
+    // value by frameDeltaSecondsInternal() on every call -- so letting a trial pass step it too
+    // would double-advance the animation (once for the trial re-execution, once for the real
+    // pass) each real frame. Guard it like every other side-effecting UiContext operation.
+    if (isMeasuringInternal()) return current
     val next = animateFloatStep(current, target, frameDeltaSecondsInternal(), responsiveness, snapDistance)
     state.set("value", next)
     return next
