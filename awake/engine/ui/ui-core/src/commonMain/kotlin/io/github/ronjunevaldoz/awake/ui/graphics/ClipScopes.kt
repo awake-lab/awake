@@ -1,4 +1,4 @@
-package io.github.ronjunevaldoz.awake.ui.core.graphics
+package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath

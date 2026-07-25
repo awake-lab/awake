@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.ui
 
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.clip
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx

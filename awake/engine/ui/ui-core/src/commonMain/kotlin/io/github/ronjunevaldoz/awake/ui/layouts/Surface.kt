@@ -15,8 +15,8 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.core.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.clip
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement

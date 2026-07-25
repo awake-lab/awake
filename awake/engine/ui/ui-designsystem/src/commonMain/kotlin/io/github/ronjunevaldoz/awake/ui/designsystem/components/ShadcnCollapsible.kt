@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.core.graphics.animation.animatedHeight
+import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement

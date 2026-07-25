@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.core.graphics.emitInsetAccent
+import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetAccent
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback

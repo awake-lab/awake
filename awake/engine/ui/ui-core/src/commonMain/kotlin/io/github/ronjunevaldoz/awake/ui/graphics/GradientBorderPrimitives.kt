@@ -1,4 +1,4 @@
-package io.github.ronjunevaldoz.awake.ui.graphics.internal
+package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient

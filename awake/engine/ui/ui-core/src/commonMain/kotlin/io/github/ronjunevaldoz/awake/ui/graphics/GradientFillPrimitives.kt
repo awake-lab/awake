@@ -1,10 +1,10 @@
-package io.github.ronjunevaldoz.awake.ui.graphics.internal
+package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.core.graphics.emitPrimitive
+import io.github.ronjunevaldoz.awake.ui.graphics.emitPrimitive
 
 internal fun UiScope.gradientRect(
     slot: UiSlot,

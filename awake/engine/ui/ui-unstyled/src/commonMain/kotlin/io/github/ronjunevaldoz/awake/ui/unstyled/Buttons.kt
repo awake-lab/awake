@@ -167,7 +167,7 @@ fun UiScope.button(
  * Ghost button reads as "just a border" / "just a label" the way shadcn's own CSS variants
  * do), and [Outline] additionally always draws a `theme.tokens.border` stroke regardless of
  * hover state. [buttonSlot] is the single place that interprets this -- a consumer widget
- * built on the same primitives ([UiScope.claimSlot]/[UiScope.emit]/[io.github.ronjunevaldoz.awake.ui.core.graphics.border]) can
+ * built on the same primitives ([UiScope.claimSlot]/[UiScope.emit]/[io.github.ronjunevaldoz.awake.ui.graphics.border]) can
  * define its own variant vocabulary instead of this one; nothing else in the library assumes
  * these three exist.
  */

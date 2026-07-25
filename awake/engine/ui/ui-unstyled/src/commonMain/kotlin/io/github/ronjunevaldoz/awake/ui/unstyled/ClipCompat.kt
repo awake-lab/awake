@@ -6,20 +6,20 @@ import io.github.ronjunevaldoz.awake.ui.UiPath
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.core.graphics.clip as coreClip
+import io.github.ronjunevaldoz.awake.ui.graphics.clip as coreClip
 
 @Deprecated(
-    message = "Compatibility clip alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.core.graphics.clip or the ui-core clip helpers directly."
+    message = "Compatibility clip alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.graphics.clip or the ui-core clip helpers directly."
 )
 fun UiScope.clip(rect: UiSlot, content: UiScope.() -> Unit) = coreClip(rect, content)
 
 @Deprecated(
-    message = "Compatibility clip alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.core.graphics.clip or the ui-core clip helpers directly."
+    message = "Compatibility clip alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.graphics.clip or the ui-core clip helpers directly."
 )
 fun UiScope.clip(path: UiPath, content: UiScope.() -> Unit) = coreClip(path, content)
 
 @Deprecated(
-    message = "Compatibility clip alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.core.graphics.clip or the ui-core clip helpers directly."
+    message = "Compatibility clip alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.graphics.clip or the ui-core clip helpers directly."
 )
 fun UiScope.clip(shape: UiShapeSpec, rect: UiSlot, content: UiScope.() -> Unit) =
     coreClip(shape, rect, content)

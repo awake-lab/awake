@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.animateFloat
-import io.github.ronjunevaldoz.awake.ui.core.graphics.clip
+import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.px
