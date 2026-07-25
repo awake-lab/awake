@@ -9,8 +9,8 @@ import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -56,9 +56,8 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
             column(
                 verticalArrangement = Arrangement.spacedBy(12f.dp),
                 modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax)) {
-                shadcnSurface(
+                shadcnSidebar(
                     id = "ui-showcase-mobile-sidebar",
-                    variant = ShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
                     modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).height(Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = true)
@@ -79,9 +78,8 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
             row(
                 horizontalArrangement = Arrangement.spacedBy(railGap),
                 modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax)) {
-                shadcnSurface(
+                shadcnSidebar(
                     id = "ui-showcase-sidebar",
-                    variant = ShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
                     modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).width(sidebarWidth).height(Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = false)

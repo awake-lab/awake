@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.metaText
@@ -19,8 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.secti
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -65,10 +64,9 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                 modifier = (Modifier
                     .align(UiAlignment.TopStart)
                     .padding(16f.dp)).width(Dimension.FillMax).height(Dimension.WrapContent)) {
-                shadcnSurface(
+                shadcnSidebar(
                     id = "starter-nav-compact",
-                    variant = ShadcnSurfaceVariant.Sidebar
-                , modifier = Modifier.width(navWidth).height(Dimension.WrapContent)) { _ ->
+                    modifier = Modifier.width(navWidth).height(Dimension.WrapContent)) { _ ->
                     drawStarterNavigation(model, router)
                 }
                 shadcnSurface(
@@ -85,9 +83,8 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                 drawStarterFooter()
             }
         } else {
-            surface(
+            shadcnSidebar(
                 id = "starter-nav",
-                style = ShadcnStyles.surface(ShadcnSurfaceVariant.Sidebar),
                 modifier = (Modifier
                     .align(UiAlignment.TopStart)
                     .padding(start = 20f.dp, top = 20f.dp, end = 0f.dp, bottom = 0f.dp)).width(navWidth).height(Dimension.WrapContent)) { _ ->

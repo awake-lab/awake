@@ -45,8 +45,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -365,9 +365,8 @@ class UiShowcaseGameTest {
             row(
                 horizontalArrangement = Arrangement.spacedBy(20f.dp),
                 modifier = (Modifier.fillMaxSize().padding(24f.dp)).width(Dimension.FillMax).height(Dimension.Fixed(900f.px))) {
-                shadcnSurface(
+                shadcnSidebar(
                     id = "ui-showcase-sidebar",
-                    variant = ShadcnSurfaceVariant.Sidebar,
                     style = Style { shape(16f.dp) },
                     modifier = (Modifier.verticalScroll(sidebarScroll)).width(264f.dp.toDimension()).height(Dimension.FillMax)) {
                     drawUiShowcaseSidebar(compact = false)
@@ -467,11 +466,10 @@ private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
         font = BitmapFont(),
         theme = theme
     ).run {
-        shadcnSurface(
+        shadcnSidebar(
             id = "sidebar-probe",
-            variant = ShadcnSurfaceVariant.Sidebar,
-            style = Style { shape(16f.dp) }
-        , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(120f.dp))) {
+            style = Style { shape(16f.dp) },
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(120f.dp))) {
             text("Probe")
         }
     }
