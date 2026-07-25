@@ -75,7 +75,7 @@ internal val ShowcasePages = listOf(
                 selectedIndex = 0,
                 modifier = Modifier.width(128f.dp)
             )
-            shadcnSurface("card", variant = ShadcnSurfaceVariant.Card) { ... }
+            shadcnCard("card") { ... }
         """.trimIndent(),
         notes = listOf(
             "The point is visual calibration, not pixel-perfect cloning.",
