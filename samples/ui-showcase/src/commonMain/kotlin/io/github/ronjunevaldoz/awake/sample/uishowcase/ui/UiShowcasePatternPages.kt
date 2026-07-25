@@ -4,11 +4,12 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
@@ -25,8 +26,10 @@ internal fun ColumnScope.drawUiShowcaseSlotApiPreview() {
         style = theme.components.button
     ) {
         val labelSize = Style { textSize(theme.typography.label) }
-        text(">", modifier = Modifier.offset(x = 12f.dp).width(16f.dp), style = labelSize)
-        text("Launch", modifier = Modifier.offset(x = 32f.dp), style = labelSize)
+        row(horizontalArrangement = Arrangement.spacedBy(4f.dp)) {
+            text(">", modifier = Modifier.width(16f.dp), style = labelSize)
+            text("Launch", style = labelSize)
+        }
     }
     spacer(Modifier.height(16f.dp))
     shadcnSupportingText("samples:hello-cube's Gauge.kt is a fully custom widget built from the same claimSlot()/emit() primitives a built-in widget uses -- no library-only capability gap.")

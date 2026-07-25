@@ -29,7 +29,6 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
@@ -51,8 +50,10 @@ internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
     spacer(Modifier.height(8f.dp))
     row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
         shadcnButton("showcase-button-icon", modifier = Modifier.width(140f.dp)) {
-            icon(UiIcons.chevronDown, modifier = Modifier.offset(x = 12f.dp))
-            text("Expand", modifier = Modifier.offset(x = 28f.dp))
+            row(horizontalArrangement = Arrangement.spacedBy(6f.dp)) {
+                icon(UiIcons.chevronDown)
+                text("Expand")
+            }
         }
     }
 }
