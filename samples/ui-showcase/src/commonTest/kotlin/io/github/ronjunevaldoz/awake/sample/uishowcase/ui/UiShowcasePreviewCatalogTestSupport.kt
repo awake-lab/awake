@@ -69,6 +69,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseButtonsPreview,
     UiShowcaseAvatarPreview,
     UiShowcaseBreadcrumbPreview,
+    UiShowcaseCardPreview,
     UiShowcaseAlertPreview,
     UiShowcaseTextInputPreview,
     UiShowcasePopupsPreview,
@@ -248,6 +249,20 @@ internal object UiShowcaseAvatarPreview : AwakeUiPreviewEntry {
 internal object UiShowcaseBreadcrumbPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "breadcrumb")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-card",
+    title = "Card",
+    group = "Layout",
+    summary = "Full header+body+footer, header+body-only, and body-only slot combinations of shadcnCard.",
+    width = 900,
+    height = 620,
+    reportScale = 2
+)
+internal object UiShowcaseCardPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "card")
 }
 
 @AwakeUiPreview(

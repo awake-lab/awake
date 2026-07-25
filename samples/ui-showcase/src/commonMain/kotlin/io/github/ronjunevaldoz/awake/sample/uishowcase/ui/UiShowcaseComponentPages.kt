@@ -7,10 +7,13 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnProp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
@@ -235,6 +238,28 @@ internal fun ColumnScope.drawUiShowcaseBreadcrumbPreview() {
     shadcnBreadcrumb(listOf("Scenes", "Lighting", "Exposure"))
     spacer(Modifier.height(8f.dp))
     shadcnSupportingText("No click/navigation wiring -- that routing stays caller-owned, same as every other Awake nav element.")
+}
+
+internal fun ColumnScope.drawUiShowcaseCardPreview() {
+    shadcnSupportingText("Header and footer are each independently optional -- three real slot combinations, not hover/pressed states.")
+    spacer(Modifier.height(8f.dp))
+    shadcnCard(
+        id = "showcase-card-full",
+        modifier = Modifier.fillMaxWidth(),
+        header = { shadcnSectionTitle("Full card") },
+        footer = { shadcnButton("showcase-card-full-action", label = "Save", modifier = Modifier.width(96f.dp).height(32f.dp)) }
+    ) { shadcnBodyText("Header, body, and footer all present.") }
+    spacer(Modifier.height(8f.dp))
+    shadcnCard(
+        id = "showcase-card-header-only",
+        modifier = Modifier.fillMaxWidth(),
+        header = { shadcnSectionTitle("Header, no footer") }
+    ) { shadcnBodyText("Only header and body -- no divider or footer below the body.") }
+    spacer(Modifier.height(8f.dp))
+    shadcnCard(
+        id = "showcase-card-body-only",
+        modifier = Modifier.fillMaxWidth()
+    ) { shadcnBodyText("Body only -- neither header nor footer, so no dividers at all.") }
 }
 
 internal fun ColumnScope.drawUiShowcaseAlertPreview() {

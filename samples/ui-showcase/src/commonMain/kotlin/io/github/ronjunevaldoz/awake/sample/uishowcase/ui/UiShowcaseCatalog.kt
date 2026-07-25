@@ -325,6 +325,24 @@ internal val ShowcasePages = listOf(
         renderPreview = { drawUiShowcaseBreadcrumbPreview() }
     ),
     ShowcasePage(
+        id = "card",
+        title = "Card",
+        category = ShowcaseCategory.Layout,
+        description = "A header/body/footer surface composition -- both slots are optional and separated from the body by the same divider convention as DropdownMenu's item separator.",
+        usageCode = """
+            shadcnCard(
+                id = "card",
+                header = { shadcnSectionTitle("Title") },
+                footer = { shadcnButton("save", label = "Save") }
+            ) { shadcnBodyText("Body content.") }
+        """.trimIndent(),
+        notes = listOf(
+            "Header and footer are independently optional -- a body-only card is just shadcnCard with neither slot filled.",
+            "Uses the base theme surface style directly; it isn't a ShadcnSurfaceVariant flavor like shadcnSurface's Card variant used to be."
+        ),
+        renderPreview = { drawUiShowcaseCardPreview() }
+    ),
+    ShowcasePage(
         id = "alert",
         title = "Alert",
         category = ShowcaseCategory.Overlays,
