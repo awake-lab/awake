@@ -408,6 +408,33 @@ internal val ShowcasePages = listOf(
         renderPreview = { drawUiShowcasePopupPreview() }
     ),
     ShowcasePage(
+        id = "popover",
+        title = "Popover",
+        category = ShowcaseCategory.Overlays,
+        description = "A trigger-anchored floating panel for freeform content -- not a fixed list of menu rows like the dropdown menu.",
+        usageCode = """
+            val trigger = buttonSlot(
+                id = "share",
+                label = "Share",
+                modifier = Modifier.width(120f.dp).height(36f.dp)
+            )
+            val popoverResult = shadcnPopover(
+                id = "share.popover",
+                anchorSlot = trigger.slot.toBounds(),
+                expanded = popoverState.expanded,
+                width = Dimension.Fixed(280f.dp)
+            ) {
+                text("Share scene", wrap = UiTextWrap.Word, maxLines = 1)
+                shadcnSupportingText("Anyone with the link can view this scene until you revoke it.")
+            }
+        """.trimIndent(),
+        notes = listOf(
+            "The caller owns the trigger widget and expanded state, same split as shadcnDropdownMenu -- shadcnPopover only owns anchored positioning, dismiss, and panel chrome.",
+            "Content is freeform (any ColumnScope body), unlike the dropdown menu's fixed list of UiDropdownMenuItem rows."
+        ),
+        renderPreview = { drawUiShowcasePopoverPreview() }
+    ),
+    ShowcasePage(
         id = "tooltip",
         title = "Tooltip",
         category = ShowcaseCategory.Overlays,

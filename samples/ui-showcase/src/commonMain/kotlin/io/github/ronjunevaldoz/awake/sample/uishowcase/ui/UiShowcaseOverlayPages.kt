@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -224,6 +225,52 @@ internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
     }
     spacer(Modifier.height(8f.dp))
     shadcnSupportingText("The preview suite keeps an open-state proof so tooltip width, wrap, and anchoring stay reviewable without hover automation.")
+}
+
+internal fun ColumnScope.drawUiShowcasePopoverPreview() {
+    val popoverState = context.rememberPopupState("ui-showcase-popover")
+
+    shadcnSupportingText("Popover owns anchored positioning, dismiss, and panel chrome; the caller renders its own trigger and expanded state, same split as the dropdown menu.")
+    spacer(Modifier.height(8f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+        val trigger = buttonSlot(
+            id = "ui-showcase-popover-trigger",
+            label = "Share",
+            modifier = Modifier.width(120f.dp).height(36f.dp),
+            style = theme.components.button,
+            variant = UiButtonVariant.Filled
+        )
+        if (trigger.clicked) {
+            popoverState.toggle()
+        }
+        val popoverResult = shadcnPopover(
+            id = "ui-showcase-popover",
+            anchorSlot = trigger.slot.toBounds(),
+            expanded = popoverState.expanded,
+            width = Dimension.Fixed(280f.dp)
+        ) {
+            text(
+                label = "Share scene",
+                wrap = UiTextWrap.Word,
+                overflow = UiTextOverflow.Ellipsis,
+                maxLines = 1,
+                style = Style {
+                    foreground(theme.tokens.foreground)
+                    textSize(theme.typography.body)
+                }
+            )
+            shadcnSupportingText("Anyone with the link can view this scene until you revoke it.")
+        }
+        if (popoverResult.dismissed) {
+            popoverState.close()
+        }
+        shadcnButton(
+            id = "ui-showcase-popover-reference",
+            label = "Reference",
+            modifier = Modifier.width(120f.dp).height(36f.dp),
+            variant = ShadcnButtonVariant.Secondary
+        )
+    }
 }
 
 private fun UiShowcaseCounterContract.Effect.toDebugLabel(): String = when (this) {

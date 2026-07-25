@@ -30,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -79,6 +80,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseFieldMatrixPreview,
     UiShowcaseSliderMatrixPreview,
     UiShowcaseDropdownOpenPreview,
+    UiShowcasePopoverOpenPreview,
     UiShowcaseTooltipOpenPreview,
     UiShowcaseAlertDialogPreview,
     UiShowcaseScrollPanelPreview,
@@ -457,6 +459,27 @@ internal object UiShowcaseDropdownOpenPreview : AwakeUiPreviewEntry {
 }
 
 @AwakeUiPreview(
+    id = "ui-showcase-popover-open",
+    title = "Popover Open State",
+    group = "Overlays",
+    summary = "Open popover proof for freeform content, anchored placement, and panel chrome.",
+    width = 920,
+    height = 380,
+    reportScale = 2
+)
+internal object UiShowcasePopoverOpenPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcaseCardPreviewFrame(
+            metadata = metadata,
+            badge = "OVERLAYS",
+            title = "Popover open state",
+            summary = "The panel stays inside a real popover container anchored to its trigger, with freeform content instead of a fixed menu row list."
+        ) {
+            drawUiShowcasePopoverOpenContent()
+        }
+}
+
+@AwakeUiPreview(
     id = "ui-showcase-tooltip-open",
     title = "Tooltip Open State",
     group = "Overlays",
@@ -795,6 +818,49 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
             label = "Secondary",
             modifier = Modifier.width(132f.px).height(36f.dp),
             variant = ShadcnButtonVariant.Outline
+        )
+    }
+}
+
+private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
+    shadcnSupportingText(
+        "This preview intentionally renders the popover in its expanded state so anchored placement and panel chrome are reviewable in docs."
+    )
+    spacer(Modifier.height(8f.dp))
+    row(
+        horizontalArrangement = Arrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp.toDimension())
+    ) {
+        spacer(Modifier.width(100f.px))
+        val trigger = buttonSlot(
+            id = "showcase-matrix-popover-trigger",
+            label = "Share",
+            modifier = Modifier.width(120f.px).height(36f.dp),
+            style = theme.components.button
+        )
+        shadcnPopover(
+            id = "showcase-matrix-popover",
+            anchorSlot = trigger.slot.toBounds(),
+            expanded = true,
+            width = Dimension.Fixed(280f.px)
+        ) {
+            text(
+                label = "Share scene",
+                wrap = UiTextWrap.Word,
+                overflow = UiTextOverflow.Ellipsis,
+                maxLines = 1,
+                style = Style {
+                    foreground(theme.tokens.foreground)
+                    textSize(theme.typography.body)
+                }
+            )
+            shadcnSupportingText("Anyone with the link can view this scene until you revoke it.")
+        }
+        shadcnButton(
+            id = "showcase-matrix-popover-secondary",
+            label = "Reference",
+            modifier = Modifier.width(120f.px).height(36f.dp),
+            variant = ShadcnButtonVariant.Secondary
         )
     }
 }
