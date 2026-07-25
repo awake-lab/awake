@@ -192,9 +192,14 @@ private fun ColumnScope.dropdownMenuItem(
 
         box.apply {
             // --- 1. Label (Primary text) ---
+            // Explicit width = bodyWidth (already reserves room for the trailing shortcut):
+            // without it, overflow=Ellipsis makes text() default the claimed width to the
+            // FULL row (fillWidthOrNull()), so a long label only ellipsizes once it exceeds
+            // the whole row, not once it reaches the trailing shortcut -- it draws straight
+            // through/under the shortcut instead of truncating before it.
             text(
                 label = item.label,
-                modifier = Modifier.padding(start = 12f.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(labelAlignment),
+                modifier = Modifier.width(bodyWidth.px).padding(start = 12f.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(labelAlignment),
                 color = textColor,
                 font = resolvedFont,
                 overflow = UiTextOverflow.Ellipsis,

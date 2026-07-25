@@ -249,6 +249,52 @@ class UiPopupCompositionsTest {
     }
 
     @Test
+    fun dropdownMenuItemLabelDoesNotOverlapSupportingTextOrTrailingLabel() {
+        // Regression test for the item label/supporting-text overlap bug: a two-line item
+        // (label + supporting text) grows its box taller to fit the stack, but the label used
+        // to center vertically in that taller box regardless, drifting down into the supporting
+        // text's fixed top-offset position. The trailing shortcut had a matching horizontal bug
+        // (overflow=Ellipsis silently widened its claimed box to FillMax, leaving align(End)
+        // nothing to shift into, so it drew left-anchored under the label).
+        val ui = UiContext()
+        val anchor = UiBounds(20f, 16f, 120f, 28f)
+        ui.pushFont(BitmapFont())
+        ui.beginFrame(320f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
+            shadcnDropdownMenu(
+                id = "menu",
+                anchorSlot = anchor,
+                expanded = true,
+                items = listOf(
+                    UiDropdownMenuItem(
+                        label = "Duplicate panel",
+                        trailingLabel = "Cmd+D",
+                        supportingText = "Secondary action metadata sits on the trailing edge."
+                    )
+                ),
+                style = Style.Companion { contentPadding(0f.dp) }
+            )
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val label = assertNotNull(semantics.firstOrNull { it.label == "Duplicate panel" })
+        val supporting = assertNotNull(
+            semantics.firstOrNull { it.label == "Secondary action metadata sits on the trailing edge." }
+        )
+        val trailing = assertNotNull(semantics.firstOrNull { it.label == "Cmd+D" })
+
+        assertTrue(
+            label.bounds.y + label.bounds.height <= supporting.bounds.y + 1f,
+            "item label must sit above its own supporting text, not overlap it"
+        )
+        assertTrue(
+            trailing.bounds.x >= label.bounds.x + label.bounds.width,
+            "trailing shortcut must sit to the right of the label, not overlap it"
+        )
+    }
+
+    @Test
     fun dialogActionButtonLabelInheritsThemedForeground() {
         // Regression test for the "button label not displayed" bug: a dialog action button's
         // Slot-API content lambda (`shadcnButton(id, ...) { text(...) }`) must inherit the

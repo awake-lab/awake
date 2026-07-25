@@ -29,6 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
@@ -51,8 +52,12 @@ internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
     row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
         shadcnButton("showcase-button-icon", modifier = Modifier.width(140f.dp)) {
             row(horizontalArrangement = Arrangement.spacedBy(6f.dp)) {
-                icon(UiIcons.chevronDown)
-                text("Expand")
+                // row()'s children default to top alignment on the cross axis (matches
+                // Compose's Row default) -- an icon much shorter than the text's line height
+                // needs an explicit center to read as a real icon+label combo instead of
+                // "riding high" above the label's visual center.
+                icon(UiIcons.chevronDown, modifier = Modifier.align(UiAlignment.CenterStart))
+                text("Expand", modifier = Modifier.align(UiAlignment.CenterStart))
             }
         }
     }

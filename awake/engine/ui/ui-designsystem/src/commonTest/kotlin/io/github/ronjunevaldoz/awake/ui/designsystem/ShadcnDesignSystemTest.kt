@@ -33,6 +33,7 @@ import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -282,6 +283,33 @@ class ShadcnDesignSystemTest {
         val primitives = ui.endFrame()
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 5)
+    }
+
+    @Test
+    fun shadcnPropertyDropdownLabelIsVerticallyCenteredInItsRow() {
+        // Regression test: the property-row label text() calls never passed
+        // verticallyCentered, and text()'s default (verticallyCentered = centered) resolves to
+        // false when centered=false is passed for horizontal-only centering -- so the label
+        // silently pinned to the top of its 40dp row instead of centering next to the control.
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(320f, 120f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+            shadcnPropertyDropdown("mode", "Camera Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
+        }
+
+        val label = assertNotNull(
+            ui.finishFrame().semantics.firstOrNull { it.label == "Camera Mode" }
+        )
+        val content = assertNotNull(label.contentBounds, "label should report tight content bounds")
+        val slack = label.bounds.height - content.height
+        val expectedCenteredY = label.bounds.y + slack / 2f
+        assertTrue(
+            abs(content.y - expectedCenteredY) < 1f,
+            "label should be vertically centered in its row (expected y=$expectedCenteredY, was y=${content.y})"
+        )
     }
 
     @Test
