@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyDropdown
@@ -431,6 +432,69 @@ class ShadcnDesignSystemTest {
             abs(card.bounds.height - (body.bounds.height + verticalPadding)) < 2f,
             "header/footer-omitted card should not leave dangling empty space: " +
                 "card height=${card.bounds.height}, body height=${body.bounds.height}, padding=$verticalPadding"
+        )
+    }
+    @Test
+    fun shadcnSidebarOrdersHeaderContentFooterWithoutOverlap() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(280f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
+            shadcnSidebar(
+                id = "sidebar-full",
+                modifier = Modifier.height(Dimension.WrapContent),
+                header = { text("Sidebar title") },
+                footer = { text("Sidebar footer") }
+            ) {
+                text("Sidebar content")
+            }
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val header = assertNotNull(semantics.firstOrNull { it.label == "Sidebar title" })
+        val content = assertNotNull(semantics.firstOrNull { it.label == "Sidebar content" })
+        val footer = assertNotNull(semantics.firstOrNull { it.label == "Sidebar footer" })
+
+        assertTrue(
+            header.bounds.y + header.bounds.height <= content.bounds.y + 1f,
+            "header must sit above the content, not overlap it"
+        )
+        assertTrue(
+            content.bounds.y + content.bounds.height <= footer.bounds.y + 1f,
+            "content must sit above the footer, not overlap it"
+        )
+    }
+
+    @Test
+    fun shadcnSidebarOmitsDanglingSpaceWhenHeaderOrFooterIsAbsent() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(280f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
+            shadcnSidebar(
+                id = "sidebar-content-only",
+                modifier = Modifier.height(Dimension.WrapContent)
+            ) {
+                text("Only content")
+            }
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val sidebar = assertNotNull(semantics.firstOrNull { it.id == "sidebar-content-only" })
+        val content = assertNotNull(semantics.firstOrNull { it.label == "Only content" })
+
+        // With no header/footer, the sidebar's wrap-content height should hug the content
+        // plus its own padding -- no leftover header/footer divider gap baked in.
+        val verticalPadding = Style { contentPadding(ShadcnTheme.metrics.surfacePadding) }
+            .resolve().contentPadding.verticalPx()
+        assertTrue(
+            abs(sidebar.bounds.height - (content.bounds.height + verticalPadding)) < 2f,
+            "header/footer-omitted sidebar should not leave dangling empty space: " +
+                "sidebar height=${sidebar.bounds.height}, content height=${content.bounds.height}, padding=$verticalPadding"
         )
     }
 }

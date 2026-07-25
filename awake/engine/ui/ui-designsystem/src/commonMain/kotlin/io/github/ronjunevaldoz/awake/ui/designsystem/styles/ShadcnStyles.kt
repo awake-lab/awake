@@ -131,14 +131,6 @@ object ShadcnStyles {
         theme: ShadcnResolvedTheme,
         variant: ShadcnSurfaceVariant
     ): Style = when (variant) {
-        ShadcnSurfaceVariant.Sidebar -> Style {
-            background(theme.sidebar)
-            foreground(theme.onSidebar)
-            borderWidth(1f.dp)
-            borderColor(theme.sidebarBorder)
-            shape(theme.radii.xl)
-            contentPadding(theme.metrics.surfacePadding)
-        }
         ShadcnSurfaceVariant.Popover -> Style {
             background(theme.popover)
             foreground(theme.onPopover)

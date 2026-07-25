@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -168,4 +169,80 @@ fun BoxScope.shadcnCard(
     modifier = modifier,
     style = theme.asShadcnTheme().components.surface then style,
     content = { slot -> shadcnCardContent(slot, header, footer, body) }
+)
+
+/** Own visual style for real shadcn's `Sidebar`: the dedicated sidebar background/border
+ * tokens, not routed through [ShadcnSurfaceVariant] -- same "no shared enum" call as
+ * [shadcnCard]'s `components.surface`. */
+private fun sidebarStyle(theme: ShadcnResolvedTheme): Style = Style {
+    background(theme.sidebar)
+    foreground(theme.onSidebar)
+    borderWidth(1f.dp)
+    borderColor(theme.sidebarBorder)
+    shape(theme.radii.xl)
+    contentPadding(theme.metrics.surfacePadding)
+}
+
+/** Real shadcn's `Sidebar`: a navigation shell with optional header/footer slots around a
+ * required, typically scrollable nav [content] area (see `SidebarHeader`/`SidebarContent`/
+ * `SidebarFooter`). Header/footer share the same divider convention as [shadcnCard]. Scrolling
+ * is wired the same way every other surface in this module wires it: apply
+ * `Modifier.verticalScroll(state)` to [modifier], there's no bespoke scroll plumbing here. */
+fun UiScope.shadcnSidebar(
+    id: String,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty,
+    header: (ColumnScope.() -> Unit)? = null,
+    footer: (ColumnScope.() -> Unit)? = null,
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiSlot = surface(
+    id = id,
+    modifier = modifier,
+    style = sidebarStyle(theme.asShadcnTheme()) then style,
+    content = { slot -> shadcnCardContent(slot, header, footer, content) }
+)
+
+/** [shadcnSidebar] override for [ColumnScope]. */
+fun ColumnScope.shadcnSidebar(
+    id: String,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty,
+    header: (ColumnScope.() -> Unit)? = null,
+    footer: (ColumnScope.() -> Unit)? = null,
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiSlot = surface(
+    id = id,
+    modifier = modifier,
+    style = sidebarStyle(theme.asShadcnTheme()) then style,
+    content = { slot -> shadcnCardContent(slot, header, footer, content) }
+)
+
+/** [shadcnSidebar] override for [RowScope]. */
+fun RowScope.shadcnSidebar(
+    id: String,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty,
+    header: (ColumnScope.() -> Unit)? = null,
+    footer: (ColumnScope.() -> Unit)? = null,
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiSlot = surface(
+    id = id,
+    modifier = modifier,
+    style = sidebarStyle(theme.asShadcnTheme()) then style,
+    content = { slot -> shadcnCardContent(slot, header, footer, content) }
+)
+
+/** [shadcnSidebar] override for [BoxScope]. */
+fun BoxScope.shadcnSidebar(
+    id: String,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty,
+    header: (ColumnScope.() -> Unit)? = null,
+    footer: (ColumnScope.() -> Unit)? = null,
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiSlot = surface(
+    id = id,
+    modifier = modifier,
+    style = sidebarStyle(theme.asShadcnTheme()) then style,
+    content = { slot -> shadcnCardContent(slot, header, footer, content) }
 )
