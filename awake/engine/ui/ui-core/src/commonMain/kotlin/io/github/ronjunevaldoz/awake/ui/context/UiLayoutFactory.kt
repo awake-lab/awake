@@ -76,7 +76,13 @@ internal class UiLayoutFactory(
         y: Float,
         testTag: String? = null,
         overlayOnly: Boolean = false
-    ): AbsoluteScope = AbsoluteScope(context, x, y, testTag, overlayOnly)
+    ): AbsoluteScope = AbsoluteScope(
+        context = context,
+        x = x,
+        y = y,
+        testTag = testTag,
+        emitToOverlay = overlayOnly
+    )
 
     fun createAbsolute(
         slot: UiSlot,

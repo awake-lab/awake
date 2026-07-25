@@ -82,7 +82,7 @@ private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x1d1d18996a9a94b9uL,
     "ui-shaped-panel" to 0x0b3b98a1f52a409fuL,
     "ui-panel-controls" to 0x12efed30c106994euL,
-    "ui-alert-dialog" to 0x0884ad0703d2f558uL,
+    "ui-alert-dialog" to 0x7faec6b59bddb798uL,
     "ui-component-state-matrix" to 0x65591657a6b3495fuL,
     "ui-rounded-clip-vector" to 0x719c914ed1c9c29auL,
     "ui-awake-shadcn-showcase" to 0xfaaa7421359bf950uL

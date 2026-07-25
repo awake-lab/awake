@@ -42,7 +42,7 @@ private fun UiScope.emitFillShape(
     color: Color,
     radiusPx: Float,
     shapeSpec: UiShapeSpec?,
-    overlay: Boolean = false
+    overlay: Boolean = emitsToOverlay
 ) {
     if (color.isTransparent()) return
     val pathShape = pathOnlyShape(slot, shapeSpec)
@@ -67,7 +67,7 @@ fun UiScope.emitFillAndBorder(
     borderWidth: Dp,
     borderColor: Color = context.currentTheme.tokens.border,
     shapeSpec: UiShapeSpec? = null,
-    overlay: Boolean = false
+    overlay: Boolean = emitsToOverlay
 ) {
     val hasFill = !fillColor.isTransparent()
     val borderPx = borderWidth.toPx()
