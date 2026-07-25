@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.style.Style
@@ -26,10 +27,14 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
  * (forceHover/forceActive/forceFocus/testTag/styleable/graphicsLayer) share a same-named
  * builder function too and carry the same latent risk, but haven't been confirmed to trigger
  * it -- not renamed here to avoid renaming on a guess.
+ *
+ * [layoutWeight] is likewise not named `weight` for the same reason -- [io.github.ronjunevaldoz.awake.ui.modifier.weight]
+ * is the builder extension function name in LayoutModifiers.kt.
  */
 data class UiModifier(
     val widthDimension: Dimension? = null,
     val heightDimension: Dimension? = null,
+    val layoutWeight: LayoutWeight? = null,
     val testTag: String? = null,
     val alignment: UiAlignment? = null,
     val offsetX: Dp = UiShape.none,

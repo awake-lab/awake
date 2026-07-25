@@ -28,7 +28,7 @@ class AbsoluteScope internal constructor(
     // centered) got a harmless zero-width UiSlot back. FillMax has no configured size to
     // resolve against on this scope, so it resolves to 0f -- the same literal passthrough
     // behavior, not a new error mode.
-    override fun claimSlot(width: Dimension, height: Dimension): UiSlot =
+    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiSlot =
         UiSlot(
             x,
             y,

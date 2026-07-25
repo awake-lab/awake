@@ -52,11 +52,22 @@ fun UiScope.debugScopeLabel(): String {
 }
 
 fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiSlot {
-    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
-    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
-    val containerSlot = claimSlot(requestedWidth, requestedHeight)
+    // A weighted child's own width/height defaults to WrapContent below (no Dimension set by
+    // weight() itself, see UiModifier), which Dimension.resolveAgainst() can't handle -- weight
+    // only sizes the row/column's main axis, so on that axis "unset" must resolve like FillMax
+    // instead (the row/column then works out the child's real weighted share once every
+    // sibling's width/height is known -- see resolveWeightedMainAxis()).
+    val requestedWidth =
+        modifier.widthDimension ?: (if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent)
+    val requestedHeight =
+        modifier.heightDimension ?: (if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent)
+    val containerSlot = claimSlot(requestedWidth, requestedHeight, modifier.layoutWeight)
     val width = requestedWidth.resolveAgainst(containerSlot.width)
     val height = requestedHeight.resolveAgainst(containerSlot.height)
+    // claimSlot() above already recorded containerSlot for measurement purposes -- recording
+    // the aligned/inset/offset placement again here would double-count this single widget claim
+    // in measured.slots (corrupting row/column child-count-sized aggregates like arrangement
+    // distribution and weight division), so this placed rect is deliberately not re-recorded.
     return containerSlot.place(
         width = width,
         height = height,
@@ -64,7 +75,7 @@ fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiSlot {
         insets = modifier.insets,
         offsetX = modifier.offsetX.toPx(),
         offsetY = modifier.offsetY.toPx()
-    ).also(context::recordMeasuredSlot)
+    )
 }
 
 private fun UiScope.defaultAlignment(): UiAlignment = when (this) {

@@ -24,6 +24,6 @@ class BoxScope internal constructor(
     override val fillWidth: Float? = this.width
     override val fillHeight: Float? = this.height
 
-    override fun claimSlot(width: Dimension, height: Dimension): UiSlot =
+    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiSlot =
         UiSlot(x, y, this.width, this.height).also(context::recordMeasuredSlot)
 }

@@ -14,11 +14,13 @@ internal class UiContextMeasureState {
     internal var measuredMaxRight = 0f
     internal var measuredMaxBottom = 0f
     internal val measuredSlots = ArrayList<UiSlot>()
+    internal val measuredWeights = ArrayList<LayoutWeight?>()
 
     fun beginFrame() {
         measuredMaxRight = 0f
         measuredMaxBottom = 0f
         measuredSlots.clear()
+        measuredWeights.clear()
     }
 
     fun record(slot: UiSlot) {
@@ -27,15 +29,20 @@ internal class UiContextMeasureState {
         measuredSlots += slot
     }
 
+    fun recordWeight(weight: LayoutWeight?) {
+        measuredWeights += weight
+    }
+
     fun measureColumnContent(
         width: Float,
         gap: Float,
         insets: UiInsets,
         sourceContext: UiContext,
+        height: Float = 100_000f,
         content: ColumnScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
-        val outerSlot = UiSlot(0f, 0f, width.coerceAtLeast(0f), 100_000f)
+        val outerSlot = UiSlot(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
         val measureScope = measureContext.createColumn(
             slot = outerSlot,
             gap = gap,
@@ -50,10 +57,11 @@ internal class UiContextMeasureState {
         gap: Float,
         insets: UiInsets,
         sourceContext: UiContext,
+        width: Float = 100_000f,
         content: RowScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
-        val outerSlot = UiSlot(0f, 0f, 100_000f, height.coerceAtLeast(0f))
+        val outerSlot = UiSlot(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
         val measureScope = measureContext.createRow(
             slot = outerSlot,
             gap = gap,

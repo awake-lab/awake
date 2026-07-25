@@ -17,7 +17,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.plan
-import io.github.ronjunevaldoz.awake.ui.layouts.requiresMeasuredDistribution
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
@@ -248,19 +247,30 @@ fun UiScope.column(
     val requestedWidth = sizedModifier.widthDimension ?: Dimension.FillMax
     val requestedHeight = sizedModifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = verticalArrangement
-    val scope = if (effectiveArrangement.requiresMeasuredDistribution()) {
-        val measured = context.measureColumnContent(
-            width = slot.width,
-            gap = 0f,
-            content = content
+    // ponytail: see the matching comment in UiScope.row() -- a plain Start/SpacedBy column
+    // with no weighted children still takes the original fast childColumn() path below.
+    val measured = context.measureColumnContent(
+        width = slot.width,
+        // See the matching comment in UiScope.row() -- real gap so a FillMax child's trial
+        // height already accounts for the gap before its next sibling.
+        gap = effectiveArrangement.baseSpacingPx(),
+        height = slot.height,
+        content = content
+    )
+    val hasWeightedChild = measured.weights.any { it != null }
+    val scope = if (effectiveArrangement.requiresMeasuredDistribution() || hasWeightedChild) {
+        val childHeights = resolveWeightedMainAxis(
+            measuredSizes = measured.slots.map { it.height },
+            weights = measured.weights,
+            containerSize = slot.height,
+            gap = effectiveArrangement.baseSpacingPx()
         )
-        val childHeights = measured.slots.map { it.height }
         val occupiedHeight = childHeights.sum() + effectiveArrangement.baseSpacingPx() * (childHeights.size - 1).coerceAtLeast(0)
         val plan = effectiveArrangement.plan(slot.height, childHeights.size, occupiedHeight)
         var y = slot.y + plan.leadingSpacePx
-        val arrangedSlots = measured.slots.map { child ->
-            UiSlot(slot.x, y, child.width, child.height).also {
-                y += child.height + plan.betweenSpacePx
+        val arrangedSlots = childHeights.mapIndexed { index, height ->
+            UiSlot(slot.x, y, measured.slots[index].width, height).also {
+                y += height + plan.betweenSpacePx
             }
         }
         context.createColumn(

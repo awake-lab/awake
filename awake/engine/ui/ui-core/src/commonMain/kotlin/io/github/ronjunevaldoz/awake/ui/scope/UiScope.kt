@@ -34,9 +34,10 @@ interface UiScope {
 
     /**
      * Reserves the next layout position for a widget of the given size and returns its
-     * resolved screen-space rect.
+     * resolved screen-space rect. [weight] is only honored by [io.github.ronjunevaldoz.awake.ui.layouts.RowScope]/
+     * [io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope] (see [io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight]); every other scope ignores it.
      */
-    fun claimSlot(width: Dimension, height: Dimension): UiSlot
+    fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight? = null): UiSlot
 
     fun hitTest(slot: UiSlot): Boolean
     fun isActive(id: String): Boolean

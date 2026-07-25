@@ -21,22 +21,29 @@ internal class UiMeasurementRuntime(
         measureState.record(slot)
     }
 
+    fun recordWeight(weight: LayoutWeight?) {
+        measureState.recordWeight(weight)
+    }
+
     fun snapshot(): UiMeasuredContent = UiMeasuredContent(
         width = measureState.measuredMaxRight,
         height = measureState.measuredMaxBottom,
-        slots = measureState.measuredSlots.toList()
+        slots = measureState.measuredSlots.toList(),
+        weights = measureState.measuredWeights.toList()
     )
 
     fun measureColumnContent(
         width: Float,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
+        height: Float = 100_000f,
         sourceContext: UiContext,
         content: ColumnScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent = measureState.measureColumnContent(
         width = width,
         gap = gap,
         insets = insets,
+        height = height,
         sourceContext = sourceContext,
         content = content
     )
@@ -45,12 +52,14 @@ internal class UiMeasurementRuntime(
         height: Float,
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
+        width: Float = 100_000f,
         sourceContext: UiContext,
         content: RowScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent = measureState.measureRowContent(
         height = height,
         gap = gap,
         insets = insets,
+        width = width,
         sourceContext = sourceContext,
         content = content
     )

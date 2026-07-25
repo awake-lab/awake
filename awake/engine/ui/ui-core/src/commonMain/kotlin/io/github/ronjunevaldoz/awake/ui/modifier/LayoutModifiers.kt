@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
 
@@ -26,6 +27,11 @@ fun UiModifier.fillMaxWidth(): UiModifier = copy(widthDimension = Dimension.Fill
 fun UiModifier.fillMaxHeight(): UiModifier = copy(heightDimension = Dimension.FillMax)
 fun UiModifier.fillMaxSize(): UiModifier =
     copy(widthDimension = Dimension.FillMax, heightDimension = Dimension.FillMax)
+
+/** Distributes remaining row/column main-axis space proportionally to [weight] among sibling
+ * weighted children -- see [LayoutWeight]. */
+fun UiModifier.weight(weight: Float, fill: Boolean = true): UiModifier =
+    copy(layoutWeight = LayoutWeight(weight, fill))
 
 fun UiModifier.align(alignment: UiAlignment): UiModifier = copy(alignment = alignment)
 fun UiModifier.offset(x: Dp = UiShape.none, y: Dp = UiShape.none): UiModifier =

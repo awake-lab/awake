@@ -32,13 +32,19 @@ class RowScope internal constructor(
         get() = width?.let { (it - (cursorX - startX)).coerceAtLeast(0f) }
     override val fillHeight: Float? = height
 
-    override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
+    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiSlot {
         plannedSlots?.let { slots ->
             val slot = slots[plannedIndex++]
             context.recordMeasuredSlot(slot)
+            context.recordMeasuredWeight(weight)
             return slot
         }
-        val resolvedWidth = width.resolve {
+        // A weighted child's own width defaults to WrapContent (see claimModifiedSlot), which
+        // Dimension.resolve() can't handle -- weight() replaces it with the width axis's normal
+        // FillMax behavior here so [io.github.ronjunevaldoz.awake.ui.layouts.UiScope.row]'s weight-distribution pass
+        // (over the resulting measured widths) has something meaningful to work with.
+        val effectiveWidth = if (weight != null && width == Dimension.WrapContent) Dimension.FillMax else width
+        val resolvedWidth = effectiveWidth.resolve {
             val availableWidth = this.width ?: (context.frameBoundsInternal().width - cursorX)
             (availableWidth - (cursorX - startX)).coerceAtLeast(0f)
         }
@@ -51,6 +57,7 @@ class RowScope internal constructor(
         )
         cursorX += resolvedWidth + gap
         context.recordMeasuredSlot(slot)
+        context.recordMeasuredWeight(weight)
         return slot
     }
 }

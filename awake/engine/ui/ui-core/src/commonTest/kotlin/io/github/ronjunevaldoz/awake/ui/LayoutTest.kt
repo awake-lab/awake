@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -335,6 +336,134 @@ class LayoutTest {
         assertTrue(error.message.orEmpty().contains("content-viewport"))
         assertTrue(error.message.orEmpty().contains("preview-root"))
         assertTrue(!error.message.orEmpty().contains("surface-semantic"))
+    }
+
+    @Test
+    fun rowWeightSplitsRemainingSpaceEvenlyForEqualWeights() {
+        val ui = UiContext()
+        ui.beginFrame(200f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
+        var first: UiSlot? = null
+        var second: UiSlot? = null
+
+        root.row(
+            horizontalArrangement = Arrangement.spacedBy(0f.px),
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+        ) {
+            first = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
+            second = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
+        }
+
+        assertEquals(100f, first?.width)
+        assertEquals(0f, first?.x)
+        assertEquals(100f, second?.width)
+        assertEquals(100f, second?.x)
+    }
+
+    @Test
+    fun rowWeightSplitsRemainingSpaceProportionallyForUnequalWeights() {
+        val ui = UiContext()
+        ui.beginFrame(200f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
+        var first: UiSlot? = null
+        var second: UiSlot? = null
+
+        root.row(
+            horizontalArrangement = Arrangement.spacedBy(0f.px),
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+        ) {
+            first = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
+            second = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(3f))
+        }
+
+        assertEquals(50f, first?.width)
+        assertEquals(150f, second?.width)
+        assertEquals(50f, second?.x)
+    }
+
+    @Test
+    fun rowWeightReservesFixedSiblingSpaceFirst() {
+        val ui = UiContext()
+        ui.beginFrame(200f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
+        var fixed: UiSlot? = null
+        var weighted: UiSlot? = null
+
+        root.row(
+            horizontalArrangement = Arrangement.spacedBy(0f.px),
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+        ) {
+            fixed = claimSlot(Dimension.Fixed(50f.px), Dimension.FillMax)
+            weighted = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
+        }
+
+        assertEquals(50f, fixed?.width)
+        assertEquals(150f, weighted?.width, "weighted child must only get the space left after the fixed sibling")
+        assertEquals(50f, weighted?.x)
+    }
+
+    @Test
+    fun rowWeightFillFalseLetsChildUseLessThanItsAllottedShare() {
+        val ui = UiContext()
+        ui.beginFrame(200f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
+        var filled: UiSlot? = null
+        var unfilled: UiSlot? = null
+
+        root.row(
+            horizontalArrangement = Arrangement.spacedBy(0f.px),
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+        ) {
+            filled = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f, fill = true))
+            unfilled = claimSlot(Dimension.Fixed(30f.px), Dimension.FillMax, LayoutWeight(1f, fill = false))
+        }
+
+        assertEquals(100f, filled?.width, "fill=true still claims its full 100px share of the 200px row")
+        assertEquals(30f, unfilled?.width, "fill=false must cap the child at its own requested size, not the full 100px share")
+        assertEquals(100f, unfilled?.x)
+    }
+
+    @Test
+    fun columnWeightSplitsRemainingSpaceEvenlyForEqualWeights() {
+        val ui = UiContext()
+        ui.beginFrame(80f, 200f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 80f)
+        var first: UiSlot? = null
+        var second: UiSlot? = null
+
+        root.column(
+            verticalArrangement = Arrangement.spacedBy(0f.px),
+            modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(200f.px))
+        ) {
+            first = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
+            second = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
+        }
+
+        assertEquals(100f, first?.height)
+        assertEquals(0f, first?.y)
+        assertEquals(100f, second?.height)
+        assertEquals(100f, second?.y)
+    }
+
+    @Test
+    fun rowModifierWeightWiresThroughClaimModifiedSlot() {
+        val ui = UiContext()
+        ui.beginFrame(200f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
+        var first: UiSlot? = null
+        var second: UiSlot? = null
+
+        root.row(
+            horizontalArrangement = Arrangement.spacedBy(0f.px),
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+        ) {
+            first = claimModifiedSlot(Modifier.weight(1f).height(Dimension.FillMax))
+            second = claimModifiedSlot(Modifier.weight(1f).height(Dimension.FillMax))
+        }
+
+        assertEquals(100f, first?.width)
+        assertEquals(100f, second?.width)
+        assertEquals(100f, second?.x)
     }
 }
 

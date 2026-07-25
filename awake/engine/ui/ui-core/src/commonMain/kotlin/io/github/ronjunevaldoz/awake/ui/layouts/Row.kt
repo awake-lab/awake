@@ -22,7 +22,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.plan
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.layouts.requiresMeasuredDistribution
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -199,19 +198,37 @@ fun UiScope.row(
     val requestedWidth = sizedModifier.widthDimension ?: Dimension.FillMax
     val requestedHeight = sizedModifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = horizontalArrangement
-    val scope = if (effectiveArrangement.requiresMeasuredDistribution()) {
-        val measured = context.measureRowContent(
-            height = slot.height,
-            gap = 0f,
-            content = content
+    // ponytail: a plain Arrangement.Start/SpacedBy row with no weighted children still takes
+    // the original fast, single-pass childRow() path below (byte-for-byte, zero regression
+    // risk) -- but weight() needs every sibling's width known upfront to divide remaining
+    // space, and there's no way to know a row *has* a weighted child without evaluating its
+    // content once, so every row now pays for one throwaway trial measurement (discarded
+    // below when it turns out nobody used weight() or the arrangement doesn't need it either).
+    // Revisit with a static "this row uses weight" hint if that trial cost ever matters.
+    val measured = context.measureRowContent(
+        height = slot.height,
+        // Real gap, not 0 -- a FillMax child's own trial width must already account for the
+        // gap before its next sibling, or it silently overclaims the space that sibling's
+        // gap will later eat into (only matters for SpacedBy: every other arrangement's own
+        // spacing comes from plan()'s free-space division below, not this base gap).
+        gap = effectiveArrangement.baseSpacingPx(),
+        width = slot.width,
+        content = content
+    )
+    val hasWeightedChild = measured.weights.any { it != null }
+    val scope = if (effectiveArrangement.requiresMeasuredDistribution() || hasWeightedChild) {
+        val childWidths = resolveWeightedMainAxis(
+            measuredSizes = measured.slots.map { it.width },
+            weights = measured.weights,
+            containerSize = slot.width,
+            gap = effectiveArrangement.baseSpacingPx()
         )
-        val childWidths = measured.slots.map { it.width }
         val occupiedWidth = childWidths.sum() + effectiveArrangement.baseSpacingPx() * (childWidths.size - 1).coerceAtLeast(0)
         val plan = effectiveArrangement.plan(slot.width, childWidths.size, occupiedWidth)
         var x = slot.x + plan.leadingSpacePx
-        val arrangedSlots = measured.slots.map { child ->
-            UiSlot(x, slot.y, child.width, child.height).also {
-                x += child.width + plan.betweenSpacePx
+        val arrangedSlots = childWidths.mapIndexed { index, width ->
+            UiSlot(x, slot.y, width, measured.slots[index].height).also {
+                x += width + plan.betweenSpacePx
             }
         }
         context.createRow(

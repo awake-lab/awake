@@ -32,14 +32,18 @@ class ColumnScope internal constructor(
         private set
     private var plannedIndex: Int = 0
 
-    override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
+    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiSlot {
         plannedSlots?.let { slots ->
             val slot = slots[plannedIndex++]
             context.recordMeasuredSlot(slot)
+            context.recordMeasuredWeight(weight)
             return slot
         }
         val resolvedWidth = width.resolve { this.width }
-        val resolvedHeight = height.resolve {
+        // See RowScope.claimSlot -- symmetric WrapContent-to-FillMax substitution on the main
+        // (height) axis for a weighted child.
+        val effectiveHeight = if (weight != null && height == Dimension.WrapContent) Dimension.FillMax else height
+        val resolvedHeight = effectiveHeight.resolve {
             val availableHeight = this.height ?: (context.frameBoundsInternal().height - cursorY)
             (availableHeight - (cursorY - startY)).coerceAtLeast(0f)
         }
@@ -51,6 +55,7 @@ class ColumnScope internal constructor(
         )
         cursorY += resolvedHeight + gap
         context.recordMeasuredSlot(slot)
+        context.recordMeasuredWeight(weight)
         return slot
     }
 }

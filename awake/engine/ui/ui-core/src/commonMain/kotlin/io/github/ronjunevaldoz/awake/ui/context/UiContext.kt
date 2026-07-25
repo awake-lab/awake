@@ -446,17 +446,23 @@ class UiContext internal constructor(
         if (measuring) measurement.record(slot)
     }
 
+    internal fun recordMeasuredWeight(weight: LayoutWeight?) {
+        if (measuring) measurement.recordWeight(weight)
+    }
+
     internal fun measuredContentSnapshot(): UiMeasuredContent = measurement.snapshot()
 
     internal fun measureColumnContentInternal(
         width: Float,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
+        height: Float = 100_000f,
         content: ColumnScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent = measurement.measureColumnContent(
         width = width,
         gap = gap,
         insets = insets,
+        height = height,
         sourceContext = this,
         content = content
     )
@@ -468,11 +474,13 @@ class UiContext internal constructor(
         width: Float,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
+        height: Float = 100_000f,
         content: ColumnScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent = measureColumnContentInternal(
         width = width,
         gap = gap,
         insets = insets,
+        height = height,
         content = content
     )
 
@@ -480,11 +488,13 @@ class UiContext internal constructor(
         height: Float,
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
+        width: Float = 100_000f,
         content: RowScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent = measurement.measureRowContent(
         height = height,
         gap = gap,
         insets = insets,
+        width = width,
         sourceContext = this,
         content = content
     )
@@ -496,11 +506,13 @@ class UiContext internal constructor(
         height: Float,
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
+        width: Float = 100_000f,
         content: RowScope.(slot: UiSlot) -> Unit
     ): UiMeasuredContent = measureRowContentInternal(
         height = height,
         gap = gap,
         insets = insets,
+        width = width,
         content = content
     )
 
