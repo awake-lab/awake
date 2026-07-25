@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -322,10 +321,7 @@ fun UiScope.shadcnDropdown(
         width = Dimension.Fixed(trigger.slot.width.px),
         itemHeight = 32f,
         positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
-        style = ShadcnStyles.surface(
-            theme.asShadcnTheme(),
-            ShadcnSurfaceVariant.Popover
-        ) then Style {
+        style = popoverStyle(theme.asShadcnTheme()) then Style {
             contentPadding(4f.dp)
         }
     )

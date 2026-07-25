@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyDropdown
@@ -29,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.math.abs
@@ -434,6 +436,98 @@ class ShadcnDesignSystemTest {
                 "card height=${card.bounds.height}, body height=${body.bounds.height}, padding=$verticalPadding"
         )
     }
+    @Test
+    fun shadcnPopoverAnchorsContentBelowAndCenteredOnItsTrigger() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(320f, 240f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        val anchorSlot = ui.createAbsolute(modifier = Modifier.offset(40f.dp, 40f.dp))
+            .shadcnSurface(
+                id = "trigger",
+                modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px))
+            ) { }
+
+        val result = ui.createAbsolute()
+            .shadcnPopover(
+                id = "popover",
+                anchorSlot = anchorSlot.toBounds(),
+                expanded = true,
+                width = Dimension.Fixed(120f.px),
+                height = Dimension.Fixed(60f.px)
+            ) { }
+
+        ui.endFrame()
+
+        val slot = assertNotNull(result.slot, "expanded popover should place its content")
+        val expectedX = anchorSlot.x + anchorSlot.width / 2f - slot.width / 2f
+        val expectedY = anchorSlot.y + anchorSlot.height + 4f.dp.toPx()
+        assertTrue(abs(slot.x - expectedX) < 1f, "popover should be centered under its anchor: expected x=$expectedX, was x=${slot.x}")
+        assertTrue(abs(slot.y - expectedY) < 1f, "popover should sit just below its anchor: expected y=$expectedY, was y=${slot.y}")
+        assertTrue(!result.dismissed, "no click occurred, popover must not report dismissed")
+    }
+
+    @Test
+    fun shadcnPopoverCollapsesToNoContentWhenNotExpanded() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(320f, 240f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        val anchorSlot = ui.createAbsolute(modifier = Modifier.offset(40f.dp, 40f.dp))
+            .shadcnSurface(
+                id = "trigger",
+                modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px))
+            ) { }
+
+        val result = ui.createAbsolute()
+            .shadcnPopover(
+                id = "popover",
+                anchorSlot = anchorSlot.toBounds(),
+                expanded = false,
+                width = Dimension.Fixed(120f.px),
+                height = Dimension.Fixed(60f.px)
+            ) { }
+
+        ui.endFrame()
+
+        assertEquals(null, result.slot, "collapsed popover must not claim/place a content slot")
+        assertTrue(!result.dismissed, "collapsed popover never had a chance to dismiss")
+    }
+
+    @Test
+    fun shadcnPopoverDismissesOnOutsideClickButNotOnInsideClick() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+
+        fun frame(pointerX: Float, pointerY: Float, down: Boolean) = run {
+            ui.beginFrame(320f, 240f, testSnapshot(x = pointerX, y = pointerY, down = down))
+            val anchorSlot = ui.createAbsolute(modifier = Modifier.offset(40f.dp, 40f.dp))
+                .shadcnSurface(
+                    id = "trigger",
+                    modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px))
+                ) { }
+            val result = ui.createAbsolute()
+                .shadcnPopover(
+                    id = "popover",
+                    anchorSlot = anchorSlot.toBounds(),
+                    expanded = true,
+                    width = Dimension.Fixed(120f.px),
+                    height = Dimension.Fixed(60f.px)
+                ) { }
+            ui.endFrame()
+            result
+        }
+
+        val insideClick = frame(pointerX = 100f, pointerY = 100f, down = true)
+        assertTrue(!insideClick.dismissed, "clicking inside the popover content must not dismiss it")
+
+        val outsideClick = frame(pointerX = 5f, pointerY = 5f, down = true)
+        assertTrue(outsideClick.dismissed, "clicking outside the anchor and content must dismiss the popover")
+    }
+
     @Test
     fun shadcnSidebarOrdersHeaderContentFooterWithoutOverlap() {
         val ui = UiContext()

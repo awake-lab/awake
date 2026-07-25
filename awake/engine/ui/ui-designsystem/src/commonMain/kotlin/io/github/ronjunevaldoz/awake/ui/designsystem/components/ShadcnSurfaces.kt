@@ -4,6 +4,10 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
+import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
+import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
+import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
@@ -16,9 +20,11 @@ import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -246,3 +252,66 @@ fun BoxScope.shadcnSidebar(
     style = sidebarStyle(theme.asShadcnTheme()) then style,
     content = { slot -> shadcnCardContent(slot, header, footer, content) }
 )
+
+/** Own visual style for real shadcn's `Popover` panel chrome -- the dedicated popover
+ * background/border tokens pulled straight off [ShadcnResolvedTheme], not routed through
+ * [ShadcnSurfaceVariant] -- same "no shared enum" call as [shadcnCard]'s `components.surface`
+ * and [shadcnSidebar]'s [sidebarStyle]. Mirrors what `ShadcnSurfaceVariant.Popover` used to
+ * resolve to before this extraction. */
+internal fun popoverStyle(theme: ShadcnResolvedTheme): Style = Style {
+    background(theme.popover)
+    foreground(theme.onPopover)
+    borderWidth(1f.dp)
+    borderColor(theme.tokens.border)
+    shape(theme.radii.xl)
+    contentPadding(theme.metrics.panelPadding)
+}
+
+/** Result of a [shadcnPopover] call: the resolved content slot (null while collapsed) and
+ * whether this frame's interaction dismissed it. Mirrors [io.github.ronjunevaldoz.awake.ui.UiPopupResult] /
+ * `UiDropdownMenuResult`'s shape -- a dedicated type per component rather than reusing the
+ * primitive's result across design-system components. */
+data class UiPopoverResult(
+    val slot: UiSlot?,
+    val dismissed: Boolean
+)
+
+/** Real shadcn's `Popover`: a trigger-anchored floating panel (Radix's `Popover.Content`),
+ * not a plain background/border flavor of [shadcnSurface]. Awake's immediate-mode model
+ * already has the caller render its own trigger widget and own the `expanded` state -- same
+ * split [shadcnDropdownMenu] already uses -- so this only owns anchored positioning, dismiss,
+ * and the popover's own panel chrome; it never renders a trigger itself. Built directly on
+ * the [popup] primitive that already implements anchoring/positioning/dismiss, with
+ * [UiPopupDefaults.popover] as the default placement (centered under the anchor, matching
+ * Radix/shadcn's `side="bottom" align="center"`). Only a [UiScope] overload exists -- like
+ * [shadcnDropdownMenu], this is driven by an external [anchorSlot] rather than composed
+ * inline in a content scope, so there's nothing for Column/Row/Box overloads to add. */
+fun UiScope.shadcnPopover(
+    id: String,
+    anchorSlot: UiBounds,
+    expanded: Boolean,
+    width: Dimension = Dimension.WrapContent,
+    height: Dimension = Dimension.WrapContent,
+    positionProvider: UiPopupPositionProvider = UiPopupDefaults.popover(),
+    properties: UiPopupProperties = UiPopupProperties(),
+    style: Style = Style.Empty,
+    content: ColumnScope.(slot: UiSlot) -> Unit
+): UiPopoverResult {
+    val resolvedTheme = theme.asShadcnTheme()
+    val popupResult = popup(
+        anchorSlot = anchorSlot,
+        expanded = expanded,
+        width = width,
+        height = height,
+        positionProvider = positionProvider,
+        properties = properties
+    ) { popupSlot ->
+        surface(
+            id = "$id.content",
+            style = popoverStyle(resolvedTheme) then style,
+            modifier = Modifier.width(Dimension.Fixed(popupSlot.width.px)).height(height),
+            content = content
+        )
+    }
+    return UiPopoverResult(slot = popupResult.slot, dismissed = popupResult.dismissed)
+}

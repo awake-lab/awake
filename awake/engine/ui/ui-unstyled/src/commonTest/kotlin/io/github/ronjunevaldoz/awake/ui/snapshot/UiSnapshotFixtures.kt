@@ -434,7 +434,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     spacer(Modifier.height(8f.dp))
                     shadcnSurface(
                         id = "shadcn-subcard",
-                        variant = ShadcnSurfaceVariant.Popover
+                        variant = ShadcnSurfaceVariant.Muted
                     , modifier = Modifier.height(Dimension.WrapContent)) {
                         text("Preview Card")
                         supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")

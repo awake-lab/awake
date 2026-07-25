@@ -70,6 +70,19 @@ object UiPopupDefaults {
             alignment = UiAlignment.Center
         )
     }
+
+    // Real Radix/shadcn Popover default: side="bottom", align="center", sideOffset=4 -- the
+    // content is centered under its trigger with a small gap, unlike [dropdown]'s
+    // start-aligned, flush-against-the-trigger placement.
+    fun popover(
+        offsetX: Dp = UiShape.none,
+        offsetY: Dp = 4f.dp
+    ): UiPopupPositionProvider = aligned(
+        anchorAlignment = UiAlignment.BottomCenter,
+        popupAlignment = UiAlignment.TopCenter,
+        offsetX = offsetX,
+        offsetY = offsetY
+    )
 }
 
 fun UiScope.popup(

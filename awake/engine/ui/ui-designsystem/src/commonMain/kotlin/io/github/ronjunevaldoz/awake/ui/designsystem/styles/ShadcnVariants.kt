@@ -30,7 +30,6 @@ enum class ShadcnBadgeVariant {
 }
 
 enum class ShadcnSurfaceVariant {
-    Popover,
     Muted
 }
 
