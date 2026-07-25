@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnProp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -15,10 +16,12 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
@@ -260,6 +263,32 @@ internal fun ColumnScope.drawUiShowcaseCardPreview() {
         id = "showcase-card-body-only",
         modifier = Modifier.fillMaxWidth()
     ) { shadcnBodyText("Body only -- neither header nor footer, so no dividers at all.") }
+}
+
+internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
+    shadcnSupportingText("Header and footer are each independently optional, same as Card -- a fixed nav-rail width keeps it from stretching full-width.")
+    spacer(Modifier.height(8f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(Dimension.WrapContent)) {
+        shadcnSidebar(
+            id = "showcase-sidebar-full",
+            modifier = Modifier.width(220f.dp).height(Dimension.WrapContent),
+            header = { shadcnBadge("STARTER", variant = ShadcnBadgeVariant.Primary) },
+            footer = { shadcnButton("showcase-sidebar-full-signout", label = "Sign out", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Outline) }
+        ) { _ ->
+            shadcnButton("showcase-sidebar-full-lighting", label = "Lighting", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Primary)
+            shadcnButton("showcase-sidebar-full-camera", label = "Camera", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Secondary)
+            shadcnButton("showcase-sidebar-full-exposure", label = "Exposure", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Secondary)
+        }
+        shadcnSidebar(
+            id = "showcase-sidebar-content-only",
+            modifier = Modifier.width(220f.dp).height(Dimension.WrapContent)
+        ) { _ ->
+            shadcnButton("showcase-sidebar-content-only-lighting", label = "Lighting", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Primary)
+            shadcnButton("showcase-sidebar-content-only-camera", label = "Camera", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Secondary)
+        }
+    }
+    spacer(Modifier.height(8f.dp))
+    shadcnSupportingText("No header/footer here -- neither divider renders, matching shadcnCard's body-only case.")
 }
 
 internal fun ColumnScope.drawUiShowcaseAlertPreview() {

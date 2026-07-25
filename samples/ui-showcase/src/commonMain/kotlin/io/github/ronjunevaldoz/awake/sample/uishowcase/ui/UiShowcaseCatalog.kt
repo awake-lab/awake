@@ -343,6 +343,28 @@ internal val ShowcasePages = listOf(
         renderPreview = { drawUiShowcaseCardPreview() }
     ),
     ShowcasePage(
+        id = "sidebar",
+        title = "Sidebar",
+        category = ShowcaseCategory.Layout,
+        description = "A fixed-width navigation shell -- optional header/footer slots around a required nav-item content area, sharing the same divider convention as Card.",
+        usageCode = """
+            shadcnSidebar(
+                id = "nav",
+                modifier = Modifier.width(220f.dp).height(Dimension.WrapContent),
+                header = { shadcnBadge("STARTER", variant = ShadcnBadgeVariant.Primary) },
+                footer = { shadcnButton("sign-out", label = "Sign out") }
+            ) { _ ->
+                shadcnButton("scene-lighting", label = "Lighting", variant = ShadcnButtonVariant.Primary)
+                shadcnButton("scene-camera", label = "Camera", variant = ShadcnButtonVariant.Secondary)
+            }
+        """.trimIndent(),
+        notes = listOf(
+            "Header and footer are each independently optional, same as shadcnCard -- a content-only sidebar is just shadcnSidebar with neither slot filled.",
+            "Real usage (see StarterGameUi.kt, UiShowcaseUi.kt) gives it a fixed width; letting it stretch full-width reads wrong for a nav rail."
+        ),
+        renderPreview = { drawUiShowcaseSidebarPreview() }
+    ),
+    ShowcasePage(
         id = "alert",
         title = "Alert",
         category = ShowcaseCategory.Overlays,

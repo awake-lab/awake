@@ -70,6 +70,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseAvatarPreview,
     UiShowcaseBreadcrumbPreview,
     UiShowcaseCardPreview,
+    UiShowcaseSidebarPreview,
     UiShowcaseAlertPreview,
     UiShowcaseTextInputPreview,
     UiShowcasePopupsPreview,
@@ -263,6 +264,20 @@ internal object UiShowcaseBreadcrumbPreview : AwakeUiPreviewEntry {
 internal object UiShowcaseCardPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "card")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-sidebar",
+    title = "Sidebar",
+    group = "Layout",
+    summary = "A fixed-width navigation shell beside a content-only variant, both header/footer optional.",
+    width = 900,
+    height = 560,
+    reportScale = 2
+)
+internal object UiShowcaseSidebarPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "sidebar")
 }
 
 @AwakeUiPreview(
