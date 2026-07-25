@@ -103,6 +103,7 @@ fun UiScope.shadcnPropertyRow(
         font = resolvedFont,
         color = labelColor,
         centered = false,
+        verticallyCentered = true,
         overflow = UiTextOverflow.Ellipsis,
     )
     return layout.controlSlot

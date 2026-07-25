@@ -32,6 +32,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 private fun BoxScope.shadcnPropertyLabel(label: String) {
     text(
         label = label,
+        verticallyCentered = true,
         style = Style {
             val shadcnTheme = theme.asShadcnTheme()
             foreground(shadcnTheme.tokens.foreground)

@@ -179,15 +179,22 @@ private fun ColumnScope.dropdownMenuItem(
         }
 
         val verticalPadding = if (supportingLayout == null) 0f.dp else 8f.dp
-        
+        // A one-line item centers its label in the full row height. A two-line item (with
+        // supporting text) must pin the label to the top instead -- supportingLayout's own
+        // position is a fixed top-offset ("8dp top + label + 4dp gap + supporting"), so
+        // centering the label in the taller box would drift it down into that fixed offset
+        // and overlap the supporting text.
+        val labelAlignment = if (supportingLayout == null) UiAlignment.CenterStart else UiAlignment.TopStart
+        val trailingAlignment = if (supportingLayout == null) UiAlignment.CenterEnd else UiAlignment.TopEnd
+
         // Use a relative child box to anchor content correctly within the button
         val box = childBox(contentSlot)
-        
+
         box.apply {
             // --- 1. Label (Primary text) ---
             text(
                 label = item.label,
-                modifier = Modifier.padding(start = 12f.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(UiAlignment.CenterStart),
+                modifier = Modifier.padding(start = 12f.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(labelAlignment),
                 color = textColor,
                 font = resolvedFont,
                 overflow = UiTextOverflow.Ellipsis,
@@ -199,10 +206,15 @@ private fun ColumnScope.dropdownMenuItem(
                 val trailingColor = if (!item.enabled) theme.tokens.mutedForeground else if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground
                 text(
                     label = label,
-                    modifier = Modifier.align(UiAlignment.CenterEnd).padding(start = 0f.dp, top = verticalPadding, end = 12f.dp, bottom = 0f.dp),
+                    // No overflow/wrap here on purpose: either one makes text()'s own sizing
+                    // default the claimed width to FillMax, which fills the whole row and
+                    // defeats `.align(trailingAlignment)` -- the End-aligned box has no room
+                    // left to shift into, so the shortcut draws left-anchored under the label
+                    // instead of at the row's right edge. Shortcuts are short fixed strings
+                    // ("Cmd+D", "Del") that never need to wrap or truncate.
+                    modifier = Modifier.align(trailingAlignment).padding(start = 0f.dp, top = verticalPadding, end = 12f.dp, bottom = 0f.dp),
                     color = trailingColor,
                     font = resolvedFont,
-                    overflow = UiTextOverflow.Ellipsis,
                     textStyle = resolvedTextStyle
                 )
             }
