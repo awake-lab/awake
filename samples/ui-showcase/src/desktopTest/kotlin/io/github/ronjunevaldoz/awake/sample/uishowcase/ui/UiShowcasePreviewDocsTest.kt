@@ -23,12 +23,12 @@ private val KnownPreviewIssues: Map<String, AwakeUiPreviewValidationConfig> = ma
     "ui-showcase-field-matrix" to AwakeUiPreviewValidationConfig(
         contentFitTolerancePx = 8f
     ),
-    // Tracked in task #11: dropdown item supporting text sometimes clips its wrapped second
-    // line -- claimed semantic bounds report shorter than the actual measured content.
+    // Items 1/2's supporting text is intentionally longer than fits in 2 lines -- expected
+    // ellipsis truncation, not a layout bug. (Item 0's supporting text fits in 2 lines exactly
+    // and is no longer allowlisted; see DropdownMenu.kt's dropdownMenuItem for the fixed
+    // top-inset unit bug that used to clip it.)
     "ui-showcase-dropdown-open" to AwakeUiPreviewValidationConfig(
-        contentFitTolerancePx = 30f,
         allowTruncatedTextIds = setOf(
-            "showcase-matrix-dropdown-menu.item.0.supporting",
             "showcase-matrix-dropdown-menu.item.1.supporting",
             "showcase-matrix-dropdown-menu.item.2.supporting"
         )

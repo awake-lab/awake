@@ -226,9 +226,17 @@ private fun ColumnScope.dropdownMenuItem(
 
             // --- 3. Supporting Text ---
             supportingLayout?.let {
+                // `glyphPx` is already a resolved raster-pixel value (it went through
+                // labelSize.toPx() above), same as the "8dp top + label + 4dp gap" offset
+                // baked into computedHeight's own raw-px math. Using `.dp` here would push it
+                // through UiDensity.scale a second time -- at density > 1 that inflates this
+                // top inset well past what computedHeight budgeted for, so `place()`'s
+                // height-vs-container clamp (UiAlignment.kt) chops the wrapped second line
+                // even though text()'s own layout pass measured it correctly. `.px` keeps this
+                // offset in the same already-scaled unit space as computedHeight.
                 text(
                     label = item.supportingText!!,
-                    modifier = Modifier.padding(start = 12f.dp, top = (8f + glyphPx + 4f).dp, end = 12f.dp, bottom = 0f.dp).align(UiAlignment.TopStart),
+                    modifier = Modifier.padding(start = 12f.dp, top = (8f + glyphPx + 4f).px, end = 12f.dp, bottom = 0f.dp).align(UiAlignment.TopStart),
                     color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
                     font = resolvedFont,
                     wrap = UiTextWrap.Word,
