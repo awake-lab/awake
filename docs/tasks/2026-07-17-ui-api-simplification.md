@@ -236,7 +236,16 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
    from `ui-core` into a real modifier-driven effect, matching the shadcn-compose extension
    pattern instead of being hardcoded into core. **(done)**
 10. Button-label bug fix on dialog and dropdown menu -- decouple label the same way (modifier/
-    slot content, not a hardcoded param), not just patch the symptom. **(done)**
+    slot content, not a hardcoded param), not just patch the symptom. **(done)** -- the label
+    decoupling landed first, but the label was still invisible: item/dialog button text painted
+    *underneath* its own popup surface. Root cause was two z-order bugs in `ui-core`, not the
+    Slot API shape: `emitFillAndBorder` defaulted `overlay = false` unconditionally instead of
+    the calling scope's `emitsToOverlay`, and `UiLayoutFactory.createAbsolute(x, y, testTag,
+    overlayOnly)` constructed `AbsoluteScope` with positional args that don't line up with its
+    constructor, silently dropping `overlayOnly` into `hasBoundedFillWidth`. Any widget routing
+    its content lambda through `AbsoluteScope` (`buttonSlot`'s content-lambda overload, used by
+    dropdown menu items) drew its text on the base layer, under its own popup's overlay-layer
+    background. Fixed in both places; regression-covered by `UiOverlayLayerTest`.
 
 ## First Slice
 
