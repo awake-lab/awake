@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.engine.application.gameModule
 import io.github.ronjunevaldoz.awake.engine.application.gameSpec
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.engine.application.module
+import io.github.ronjunevaldoz.awake.engine.application.ui
 
 fun ecsGameSpec(
     block: EcsGameDsl.() -> Unit
@@ -77,9 +78,18 @@ class EcsGameDsl internal constructor() {
         val builtScene = checkNotNull(sceneInstaller) {
             "ecsGameSpec requires a scene { ... }, ecs { ... }, or flow { ... } block."
         }
-        val featureModule = gameModule {
+        val featureModule = gameModule module@{
             install(builtScene)
-            uiSpec?.let { ui(it) }
+            // Explicit `this@module` receiver required: GameModuleDsl.ui(spec) is an extension,
+            // but EcsGameDsl also has a member ui(spec) (this@build's implicit outer receiver)
+            // with the same signature -- Kotlin always prefers a member over an extension
+            // regardless of scope distance, so an implicit-receiver `ui(it)` call here silently
+            // resolves to EcsGameDsl.ui(spec) (just uiSpec = uiSpec, a no-op) instead of
+            // installing the spec into this GameModuleDsl builder.
+            val spec = uiSpec
+            if (spec != null) {
+                this@module.ui(spec)
+            }
             installers.forEach { install(it) }
         }
         return gameSpec {
