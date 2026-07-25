@@ -27,12 +27,12 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  * retained widget tree, no ECS entities). Pure layout and spatial hit-testing engine.
  */
 class UiContext internal constructor(
-    private val measuring: Boolean = false
+    private val measuring: Boolean = false,
+    private val stateStore: UiStateStore = UiStateStore()
 ) {
     constructor() : this(measuring = false)
 
     private val stacks = UiContextStacks()
-    private val stateStore = UiStateStore()
     private val runtime = UiRuntimeCoordinator(stateStore = stateStore)
     private val measurement = UiMeasurementRuntime()
     private val layouts = UiLayoutFactory(this)
@@ -436,6 +436,13 @@ class UiContext internal constructor(
     fun frameBounds(): UiSlot = frameBoundsInternal()
 
     internal fun isMeasuringInternal(): Boolean = measuring
+
+    /** The real, persisted widget-state store this context reads/writes through
+     * [rememberStateValue][io.github.ronjunevaldoz.awake.ui.rememberStateValue] et al. --
+     * exposed so a trial/measurement [UiContext] (see [UiContextMeasureState]) can share it
+     * with its source context instead of measuring stateful content (a `WrapContent` branch
+     * that reads persisted selection/toggle state, for example) against fresh default values. */
+    internal fun stateStoreInternal(): UiStateStore = stateStore
 
     @Deprecated(
         message = "Measurement mode is engine plumbing; prefer UiScope/layout helpers instead of branching on UiContext."

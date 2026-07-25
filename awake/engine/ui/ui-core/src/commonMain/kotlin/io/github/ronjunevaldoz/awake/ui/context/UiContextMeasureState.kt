@@ -72,7 +72,11 @@ internal class UiContextMeasureState {
     }
 
     private fun createMeasureContext(sourceContext: UiContext): UiContext {
-        val measureContext = UiContext(measuring = true)
+        // Share the real state store rather than a fresh one -- a WrapContent/scroll trial pass
+        // re-executes the same content, and any persisted (rememberStateValue) branch inside
+        // that content (e.g. "which page is selected") must see the real current value, not
+        // reset to its default. See RepoBugTest for the regression this fixes.
+        val measureContext = UiContext(measuring = true, stateStore = sourceContext.stateStoreInternal())
         measureContext.beginFrame(
             UiFrameInput(
                 viewportWidth = 100_000f,
