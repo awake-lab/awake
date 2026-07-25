@@ -234,6 +234,7 @@ private fun ColumnScope.dropdownMenuItem(
                     wrap = UiTextWrap.Word,
                     overflow = UiTextOverflow.Ellipsis,
                     maxLines = 2,
+                    semanticId = "$id.supporting",
                     textStyle = resolvedTextStyle
                 )
             }
