@@ -17,8 +17,8 @@ internal class UiMeasurementRuntime(
         measureState.beginFrame()
     }
 
-    fun record(slot: UiSlot, measuring: Boolean) {
-        measureState.record(slot, measuring)
+    fun record(slot: UiSlot) {
+        measureState.record(slot)
     }
 
     fun snapshot(): UiMeasuredContent = UiMeasuredContent(

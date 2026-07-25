@@ -21,8 +21,7 @@ internal class UiContextMeasureState {
         measuredSlots.clear()
     }
 
-    fun record(slot: UiSlot, measuring: Boolean) {
-        if (!measuring) return
+    fun record(slot: UiSlot) {
         measuredMaxRight = max(measuredMaxRight, slot.x + slot.width)
         measuredMaxBottom = max(measuredMaxBottom, slot.y + slot.height)
         measuredSlots += slot

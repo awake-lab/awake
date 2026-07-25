@@ -43,33 +43,28 @@ internal class UiContextInteractionState {
         isScrollConsumedThisFrame = true
     }
 
-    fun hitTest(slot: UiSlot, inputState: UiInputState, measuring: Boolean): Boolean =
-        !measuring &&
-            inputState.pointerX in slot.x..(slot.x + slot.width) &&
+    fun hitTest(slot: UiSlot, inputState: UiInputState): Boolean =
+        inputState.pointerX in slot.x..(slot.x + slot.width) &&
             inputState.pointerY in slot.y..(slot.y + slot.height)
 
     fun isActive(id: String): Boolean = activeId == id
 
-    fun tryClaimActive(id: String, hovered: Boolean, inputState: UiInputState, measuring: Boolean) {
-        if (measuring) return
+    fun tryClaimActive(id: String, hovered: Boolean, inputState: UiInputState) {
         if (hovered && inputState.pointerDown && activeId == null) activeId = id
     }
 
-    fun releaseActiveIfMatches(id: String, inputState: UiInputState, measuring: Boolean) {
-        if (measuring) return
+    fun releaseActiveIfMatches(id: String, inputState: UiInputState) {
         if (!inputState.pointerDown && activeId == id) activeId = null
     }
 
     fun isFocused(id: String): Boolean = focusedId == id
 
-    fun requestFocus(id: String, measuring: Boolean) {
-        if (measuring) return
+    fun requestFocus(id: String) {
         focusedId = id
         focusClaimedThisFrame = true
     }
 
-    fun clearFocusIfMatches(id: String, measuring: Boolean) {
-        if (measuring) return
+    fun clearFocusIfMatches(id: String) {
         if (focusedId == id) focusedId = null
     }
 

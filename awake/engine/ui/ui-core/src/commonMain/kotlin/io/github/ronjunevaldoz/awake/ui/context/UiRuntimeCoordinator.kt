@@ -49,51 +49,51 @@ internal class UiRuntimeCoordinator(
         )
     }
 
-    fun onOverScrollable(measuring: Boolean) {
-        if (!measuring) interaction.onOverScrollable()
+    fun onOverScrollable() {
+        interaction.onOverScrollable()
     }
 
-    fun onScrollConsumed(measuring: Boolean) {
-        if (!measuring) interaction.onScrollConsumed()
+    fun onScrollConsumed() {
+        interaction.onScrollConsumed()
     }
 
     fun semanticNodes(): List<UiSemanticNode> = finalizedFrameOutput?.semantics ?: frameState.semanticNodes()
 
-    fun hitTest(slot: UiSlot, measuring: Boolean): Boolean =
-        interaction.hitTest(slot, frameState.inputState, measuring)
+    fun hitTest(slot: UiSlot): Boolean =
+        interaction.hitTest(slot, frameState.inputState)
 
     fun isActive(id: String): Boolean = interaction.isActive(id)
 
-    fun tryClaimActive(id: String, hovered: Boolean, measuring: Boolean) {
-        interaction.tryClaimActive(id, hovered, frameState.inputState, measuring)
+    fun tryClaimActive(id: String, hovered: Boolean) {
+        interaction.tryClaimActive(id, hovered, frameState.inputState)
     }
 
-    fun releaseActiveIfMatches(id: String, measuring: Boolean) {
-        interaction.releaseActiveIfMatches(id, frameState.inputState, measuring)
+    fun releaseActiveIfMatches(id: String) {
+        interaction.releaseActiveIfMatches(id, frameState.inputState)
     }
 
     fun isFocused(id: String): Boolean = interaction.isFocused(id)
 
-    fun requestFocus(id: String, measuring: Boolean) {
-        interaction.requestFocus(id, measuring)
+    fun requestFocus(id: String) {
+        interaction.requestFocus(id)
     }
 
-    fun clearFocusIfMatches(id: String, measuring: Boolean) {
-        interaction.clearFocusIfMatches(id, measuring)
+    fun clearFocusIfMatches(id: String) {
+        interaction.clearFocusIfMatches(id)
     }
 
-    fun emit(primitive: UiDrawPrimitive, measuring: Boolean) {
-        frameState.emit(primitive, measuring)
+    fun emit(primitive: UiDrawPrimitive) {
+        frameState.emit(primitive)
     }
 
-    fun emitOverlay(primitive: UiDrawPrimitive, measuring: Boolean) {
-        frameState.emitOverlay(primitive, measuring)
+    fun emitOverlay(primitive: UiDrawPrimitive) {
+        frameState.emitOverlay(primitive)
     }
 
     fun widgetState(id: String): WidgetState = stateStore.widgetState(id)
 
-    fun recordSemantic(node: UiSemanticNode, measuring: Boolean) {
-        frameState.recordSemantic(node, measuring)
+    fun recordSemantic(node: UiSemanticNode) {
+        frameState.recordSemantic(node)
     }
 
     fun pushClip(rect: UiSlot): UiSlot = frameState.pushClip(rect)

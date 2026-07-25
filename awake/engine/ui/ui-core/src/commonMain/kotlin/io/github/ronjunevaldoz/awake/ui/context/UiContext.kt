@@ -315,7 +315,7 @@ class UiContext internal constructor(
     fun finishFrame(): UiFrameOutput = runtime.finishFrame()
 
     internal fun onOverScrollableInternal() {
-        runtime.onOverScrollable(measuring)
+        if (!measuring) runtime.onOverScrollable()
     }
 
     @Deprecated(
@@ -324,7 +324,7 @@ class UiContext internal constructor(
     fun onOverScrollable() = onOverScrollableInternal()
 
     internal fun onScrollConsumedInternal() {
-        runtime.onScrollConsumed(measuring)
+        if (!measuring) runtime.onScrollConsumed()
     }
 
     @Deprecated(
@@ -338,40 +338,40 @@ class UiContext internal constructor(
     fun semanticNodes(): List<UiSemanticNode> = runtime.semanticNodes()
 
     internal fun hitTestInternal(slot: UiSlot): Boolean =
-        runtime.hitTest(slot, measuring)
+        !measuring && runtime.hitTest(slot)
 
     internal fun isActiveInternal(id: String): Boolean = runtime.isActive(id)
 
     internal fun tryClaimActiveInternal(id: String, hovered: Boolean) {
-        runtime.tryClaimActive(id, hovered, measuring)
+        if (!measuring) runtime.tryClaimActive(id, hovered)
     }
 
     internal fun releaseActiveIfMatchesInternal(id: String) {
-        runtime.releaseActiveIfMatches(id, measuring)
+        if (!measuring) runtime.releaseActiveIfMatches(id)
     }
 
     internal fun isFocusedInternal(id: String): Boolean = runtime.isFocused(id)
 
     internal fun requestFocusInternal(id: String) {
-        runtime.requestFocus(id, measuring)
+        if (!measuring) runtime.requestFocus(id)
     }
 
     internal fun clearFocusIfMatchesInternal(id: String) {
-        runtime.clearFocusIfMatches(id, measuring)
+        if (!measuring) runtime.clearFocusIfMatches(id)
     }
 
     internal fun emitInternal(p: UiDrawPrimitive) {
-        runtime.emit(p, measuring)
+        if (!measuring) runtime.emit(p)
     }
 
     internal fun emitOverlayInternal(p: UiDrawPrimitive) {
-        runtime.emitOverlay(p, measuring)
+        if (!measuring) runtime.emitOverlay(p)
     }
 
     internal fun widgetStateInternal(id: String): WidgetState = runtime.widgetState(id)
 
     internal fun recordSemanticInternal(node: UiSemanticNode) {
-        runtime.recordSemantic(node, measuring)
+        if (!measuring) runtime.recordSemantic(node)
     }
 
     internal fun pushClipInternal(rect: UiSlot): UiSlot = runtime.pushClip(rect)
@@ -443,7 +443,7 @@ class UiContext internal constructor(
     fun isMeasuring(): Boolean = isMeasuringInternal()
 
     internal fun recordMeasuredSlot(slot: UiSlot) {
-        measurement.record(slot, measuring)
+        if (measuring) measurement.record(slot)
     }
 
     internal fun measuredContentSnapshot(): UiMeasuredContent = measurement.snapshot()

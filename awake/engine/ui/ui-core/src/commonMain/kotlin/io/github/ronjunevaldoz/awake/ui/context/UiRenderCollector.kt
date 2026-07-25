@@ -13,12 +13,12 @@ internal class UiRenderCollector {
         overlayPrimitives.clear()
     }
 
-    fun emit(primitive: UiDrawPrimitive, measuring: Boolean) {
-        if (!measuring) primitives += primitive
+    fun emit(primitive: UiDrawPrimitive) {
+        primitives += primitive
     }
 
-    fun emitOverlay(primitive: UiDrawPrimitive, measuring: Boolean) {
-        if (!measuring) overlayPrimitives += primitive
+    fun emitOverlay(primitive: UiDrawPrimitive) {
+        overlayPrimitives += primitive
     }
 
     fun endFrame(): List<UiDrawPrimitive> = primitives + overlayPrimitives

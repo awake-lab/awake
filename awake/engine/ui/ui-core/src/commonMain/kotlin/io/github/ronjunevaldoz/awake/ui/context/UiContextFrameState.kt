@@ -31,14 +31,14 @@ internal class UiContextFrameState {
 
     fun endFrame(): List<UiDrawPrimitive> = renderCollector.endFrame()
 
-    fun emit(primitive: UiDrawPrimitive, measuring: Boolean) =
-        renderCollector.emit(primitive, measuring)
+    fun emit(primitive: UiDrawPrimitive) =
+        renderCollector.emit(primitive)
 
-    fun emitOverlay(primitive: UiDrawPrimitive, measuring: Boolean) =
-        renderCollector.emitOverlay(primitive, measuring)
+    fun emitOverlay(primitive: UiDrawPrimitive) =
+        renderCollector.emitOverlay(primitive)
 
-    fun recordSemantic(node: UiSemanticNode, measuring: Boolean) =
-        semanticCollector.record(node, measuring)
+    fun recordSemantic(node: UiSemanticNode) =
+        semanticCollector.record(node)
 
     fun semanticNodes(): List<UiSemanticNode> = semanticCollector.snapshot()
 

@@ -11,8 +11,8 @@ internal class UiSemanticCollector {
         nodes.clear()
     }
 
-    fun record(node: UiSemanticNode, measuring: Boolean) {
-        if (!measuring) nodes += node
+    fun record(node: UiSemanticNode) {
+        nodes += node
     }
 
     fun snapshot(): List<UiSemanticNode> = nodes.toList()
