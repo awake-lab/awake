@@ -14,7 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.scope.intersect
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.unstyled.clip
+import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
