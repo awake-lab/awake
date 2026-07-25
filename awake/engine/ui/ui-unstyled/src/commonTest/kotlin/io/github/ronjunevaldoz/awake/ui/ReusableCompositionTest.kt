@@ -134,7 +134,7 @@ private class DiagonalScope(
 ) : io.github.ronjunevaldoz.awake.ui.layouts.AbstractUiScope(context) {
     private var index = 0
 
-    override fun claimSlot(width: Dimension, height: Dimension): UiSlot {
+    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiSlot {
         val slot = UiSlot(
             x = startX + stepX * index,
             y = startY + stepY * index,
