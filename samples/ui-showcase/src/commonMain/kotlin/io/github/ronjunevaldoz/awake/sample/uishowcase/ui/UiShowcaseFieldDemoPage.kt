@@ -24,10 +24,9 @@ import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.toPx
 
 // First entry of each list doubles as the unselected placeholder ("MM"/"YYYY"), matching the
 // reference screenshot without needing a dedicated placeholder concept on shadcnSelect.
@@ -70,16 +69,9 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview(state: UiShowcaseRuntime
                     )
                     shadcnFieldDescription("Enter your 16-digit card number")
                 }
-                // CSS grid-cols-3 gap-4 equivalent. row()'s own weight() modifier only settles
-                // through a WrapContent trial-measure pass that this framework's weighted-row
-                // resolution doesn't yet handle cleanly for nested shadcnField columns (see
-                // docs/reference/ui-ownership.md -- row/column measurement internals are
-                // ui-core, not ui-designsystem, territory) -- so this splits the row's own
-                // already-known [width] into three fixed-width columns directly instead.
-                val gridGapPx = 16f.dp.toPx()
-                val gridColumnWidthPx = (width - gridGapPx * 2) / 3f
-                row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(76f.dp)) {
-                    column(modifier = Modifier.width(gridColumnWidthPx.px)) {
+                // CSS grid-cols-3 gap-4 equivalent.
+                row(horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
+                    column(modifier = Modifier.weight(1f)) {
                         shadcnField(id = "checkout-month") {
                             shadcnFieldLabel("Month")
                             monthIndex = shadcnSelect(
@@ -89,7 +81,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview(state: UiShowcaseRuntime
                             ) ?: monthIndex
                         }
                     }
-                    column(modifier = Modifier.width(gridColumnWidthPx.px)) {
+                    column(modifier = Modifier.weight(1f)) {
                         shadcnField(id = "checkout-year") {
                             shadcnFieldLabel("Year")
                             yearIndex = shadcnSelect(
@@ -99,7 +91,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview(state: UiShowcaseRuntime
                             ) ?: yearIndex
                         }
                     }
-                    column(modifier = Modifier.width(gridColumnWidthPx.px)) {
+                    column(modifier = Modifier.weight(1f)) {
                         shadcnField(id = "checkout-cvv") {
                             shadcnFieldLabel("CVV")
                             cvv = shadcnInput(
