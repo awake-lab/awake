@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -65,6 +66,10 @@ fun ColumnScope.row(
         verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
+        // See the matching comment in resolveMeasuredColumn()/UiScope.column() -- reuse this
+        // WrapContent trial's already-known weighted-child answer instead of paying for a
+        // second, identical trial of [content] inside UiScope.row()'s own unconditional pass.
+        precomputedMeasured = measured,
         content = content
     )
 }
@@ -105,6 +110,10 @@ fun RowScope.row(
         verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
+        // See the matching comment in resolveMeasuredColumn()/UiScope.column() -- reuse this
+        // WrapContent trial's already-known weighted-child answer instead of paying for a
+        // second, identical trial of [content] inside UiScope.row()'s own unconditional pass.
+        precomputedMeasured = measured,
         content = content
     )
 }
@@ -145,6 +154,10 @@ fun AbsoluteScope.row(
         verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
+        // See the matching comment in resolveMeasuredColumn()/UiScope.column() -- reuse this
+        // WrapContent trial's already-known weighted-child answer instead of paying for a
+        // second, identical trial of [content] inside UiScope.row()'s own unconditional pass.
+        precomputedMeasured = measured,
         content = content
     )
 }
@@ -185,6 +198,10 @@ fun BoxScope.row(
         verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
+        // See the matching comment in resolveMeasuredColumn()/UiScope.column() -- reuse this
+        // WrapContent trial's already-known weighted-child answer instead of paying for a
+        // second, identical trial of [content] inside UiScope.row()'s own unconditional pass.
+        precomputedMeasured = measured,
         content = content
     )
 }
@@ -196,6 +213,11 @@ fun UiScope.row(
     testTag: String? = null,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    // Set only by the ColumnScope/RowScope/AbsoluteScope/BoxScope row() wrappers above, which
+    // already ran a full trial of [content] to size a WrapContent row -- see the call site
+    // comments there. Every other caller leaves this null and pays the same unconditional trial
+    // this function has always run.
+    precomputedMeasured: UiMeasuredContent? = null,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
@@ -216,20 +238,34 @@ fun UiScope.row(
     // risk) -- but weight() needs every sibling's width known upfront to divide remaining
     // space, and there's no way to know a row *has* a weighted child without evaluating its
     // content once, so every row now pays for one throwaway trial measurement (discarded
-    // below when it turns out nobody used weight() or the arrangement doesn't need it either).
-    // Revisit with a static "this row uses weight" hint if that trial cost ever matters.
-    val measured = context.measureRowContent(
-        height = slot.height,
-        // Real gap, not 0 -- a FillMax child's own trial width must already account for the
-        // gap before its next sibling, or it silently overclaims the space that sibling's
-        // gap will later eat into (only matters for SpacedBy: every other arrangement's own
-        // spacing comes from plan()'s free-space division below, not this base gap).
-        gap = effectiveArrangement.baseSpacingPx(),
-        width = slot.width,
-        content = content
-    )
-    val hasWeightedChild = measured.weights.any { it != null }
+    // below when it turns out nobody used weight() or the arrangement doesn't need it either),
+    // UNLESS [precomputedMeasured] was already supplied (the ColumnScope/RowScope/etc. row()
+    // wrapper above already ran an equivalent trial to size a WrapContent row) -- weighted-ness
+    // is structural (which children called weight()), not dependent on the width/height bound a
+    // trial measured against, so it's always safe to reuse for this check alone.
+    val hasWeightedChild = (precomputedMeasured ?: run {
+        context.measureRowContent(
+            height = slot.height,
+            gap = effectiveArrangement.baseSpacingPx(),
+            width = slot.width,
+            content = content
+        )
+    }).weights.any { it != null }
     val scope = if (effectiveArrangement.requiresMeasuredDistribution() || hasWeightedChild) {
+        // The plannedSlots branch below positions children using real, final pixel sizes --
+        // unlike the hasWeightedChild check above, this genuinely needs a trial at this row's
+        // actual resolved [slot] (not the wrapper's provisional available-size bound), so always
+        // re-measure here regardless of whether a precomputed trial was supplied.
+        val measured = context.measureRowContent(
+            height = slot.height,
+            // Real gap, not 0 -- a FillMax child's own trial width must already account for the
+            // gap before its next sibling, or it silently overclaims the space that sibling's
+            // gap will later eat into (only matters for SpacedBy: every other arrangement's own
+            // spacing comes from plan()'s free-space division below, not this base gap).
+            gap = effectiveArrangement.baseSpacingPx(),
+            width = slot.width,
+            content = content
+        )
         val childWidths = resolveWeightedMainAxis(
             measuredSizes = measured.slots.map { it.width },
             weights = measured.weights,

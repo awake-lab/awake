@@ -23,6 +23,19 @@ internal class UiContextMeasureState {
     // instead of collapsing to zero -- see snapshot().
     internal var measuredMaxRightExcludingFill = 0f
     internal var measuredMaxBottom = 0f
+    // Same running max as [measuredMaxBottom], but skipping slots recorded with
+    // contributesToWrapHeight = false -- the height-axis counterpart to
+    // [measuredMaxRightExcludingFill]. A RowScope child that resolves Dimension.FillMax height
+    // (e.g. a weight()-tagged column() inside a row, which defaults to FillMax height to stretch
+    // to the row's cross axis) has no real "intrinsic" height of its own -- during a WrapContent-
+    // height row's *own* sizing trial, that child's resolved height is bounded by the trial's
+    // arbitrary upper-bound placeholder (see UiScope.row()'s 4096f fallback), not the row's real
+    // final height, so it must not be allowed to dictate that WrapContent row's own measured
+    // height (see snapshot()) -- task #34's "checkout form has a huge blank gap" report traced to
+    // exactly this: a weight(1f) column with no explicit height defaulted to FillMax, inherited
+    // the row-sizing trial's 4096px placeholder bound as its "real" height, and that leaked all
+    // the way up into the row's resolved WrapContent height.
+    internal var measuredMaxBottomExcludingFill = 0f
     internal val measuredSlots = ArrayList<UiSlot>()
     internal val measuredWeights = ArrayList<LayoutWeight?>()
 
@@ -30,11 +43,17 @@ internal class UiContextMeasureState {
         measuredMaxRight = 0f
         measuredMaxRightExcludingFill = 0f
         measuredMaxBottom = 0f
+        measuredMaxBottomExcludingFill = 0f
         measuredSlots.clear()
         measuredWeights.clear()
     }
 
-    fun record(slot: UiSlot, contributesToWrapWidth: Boolean = true, contributesToChildList: Boolean = true) {
+    fun record(
+        slot: UiSlot,
+        contributesToWrapWidth: Boolean = true,
+        contributesToWrapHeight: Boolean = true,
+        contributesToChildList: Boolean = true
+    ) {
         // A child that explicitly requested Dimension.FillMax on the cross axis (e.g. a
         // ColumnScope child's width) fills whatever width its container ends up with -- it
         // has no real "intrinsic" width of its own, so as long as some *other* sibling has a
@@ -47,7 +66,11 @@ internal class UiContextMeasureState {
         if (contributesToWrapWidth) {
             measuredMaxRightExcludingFill = max(measuredMaxRightExcludingFill, right)
         }
-        measuredMaxBottom = max(measuredMaxBottom, slot.y + slot.height)
+        val bottom = slot.y + slot.height
+        measuredMaxBottom = max(measuredMaxBottom, bottom)
+        if (contributesToWrapHeight) {
+            measuredMaxBottomExcludingFill = max(measuredMaxBottomExcludingFill, bottom)
+        }
         // measuredMaxRight/measuredMaxRightExcludingFill/measuredMaxBottom deliberately keep
         // tracking *every* descendant claim (not just direct children) -- WrapContent width/
         // height resolution (see snapshot()) has always relied on hugging the deepest actual

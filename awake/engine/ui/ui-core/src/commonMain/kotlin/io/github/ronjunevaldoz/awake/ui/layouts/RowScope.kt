@@ -65,7 +65,15 @@ class RowScope internal constructor(
             resolvedHeight
         )
         cursorX += resolvedWidth + gap
-        context.recordMeasuredSlot(slot)
+        // height == FillMax means this child stretches to whatever height the row ends up
+        // with (its cross axis) -- it has no intrinsic height of its own, so it must not
+        // dictate the row's own WrapContent height back up. Symmetric with ColumnScope's
+        // contributesToWrapWidth = width != Dimension.FillMax (its cross axis) above -- see
+        // UiContextMeasureState.record(). Without this, a weight()-tagged column() inside a
+        // WrapContent-height row (which defaults to FillMax height, not WrapContent -- see
+        // RowScope.column()) inherits that row's own sizing-trial placeholder bound as its
+        // "real" height, inflating the row's resolved WrapContent height (task #34).
+        context.recordMeasuredSlot(slot, contributesToWrapHeight = height != Dimension.FillMax)
         context.recordMeasuredWeight(weight)
         return slot
     }

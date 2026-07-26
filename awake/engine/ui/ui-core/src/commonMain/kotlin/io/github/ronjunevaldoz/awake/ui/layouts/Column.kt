@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childColumn
@@ -185,6 +186,16 @@ private fun UiScope.resolveMeasuredColumn(
         horizontalAlignment = horizontalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
+        // We already ran a full trial measurement of [content] above (to size this WrapContent
+        // column) -- hand it to column() so its own unconditional weight-detection trial (see
+        // the "every row/column now pays for one throwaway trial measurement" comment there) can
+        // reuse it instead of re-executing [content] a second time whenever this column turns out
+        // to have no weighted children/no measured-distribution arrangement (the overwhelming
+        // common case -- e.g. every shadcnField/shadcnFieldGroup/shadcnFieldSet in a real form).
+        // column() still redoes its own trial at the real, tightened slot width if this reused
+        // one turns out to actually need plannedSlots -- that path's math depends on the final
+        // resolved width, not this trial's (possibly wider) available-width bound.
+        precomputedMeasured = measured,
         content = content
     )
     if (role != UiSemanticRole.None && id != null) {
@@ -281,6 +292,10 @@ fun UiScope.column(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    // Set only by resolveMeasuredColumn(), which already ran a full trial of [content] to size
+    // this WrapContent column -- see the call site comment there. Every other caller leaves this
+    // null and pays the same unconditional trial this function has always run.
+    precomputedMeasured: UiMeasuredContent? = null,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
@@ -298,16 +313,32 @@ fun UiScope.column(
     val effectiveArrangement = verticalArrangement
     // ponytail: see the matching comment in UiScope.row() -- a plain Start/SpacedBy column
     // with no weighted children still takes the original fast childColumn() path below.
-    val measured = context.measureColumnContent(
-        width = slot.width,
-        // See the matching comment in UiScope.row() -- real gap so a FillMax child's trial
-        // height already accounts for the gap before its next sibling.
-        gap = effectiveArrangement.baseSpacingPx(),
-        height = slot.height,
-        content = content
-    )
-    val hasWeightedChild = measured.weights.any { it != null }
+    // [precomputedMeasured] (when supplied) already answers "does this content have a weighted
+    // child" -- weighted-ness is structural (which children called weight()), not dependent on
+    // the width/height bound a trial measured against, so it's always safe to reuse for this
+    // check alone, even though it was measured against resolveMeasuredColumn's wider
+    // available-width bound rather than this column's real, tightened [slot].
+    val hasWeightedChild = (precomputedMeasured ?: run {
+        context.measureColumnContent(
+            width = slot.width,
+            gap = effectiveArrangement.baseSpacingPx(),
+            height = slot.height,
+            content = content
+        )
+    }).weights.any { it != null }
     val scope = if (effectiveArrangement.requiresMeasuredDistribution() || hasWeightedChild) {
+        // The plannedSlots branch below positions children using real, final pixel sizes --
+        // unlike the hasWeightedChild check above, this genuinely needs a trial at this column's
+        // actual resolved [slot] (not resolveMeasuredColumn's provisional available-width bound),
+        // so always re-measure here regardless of whether a precomputed trial was supplied.
+        val measured = context.measureColumnContent(
+            width = slot.width,
+            // See the matching comment in UiScope.row() -- real gap so a FillMax child's trial
+            // height already accounts for the gap before its next sibling.
+            gap = effectiveArrangement.baseSpacingPx(),
+            height = slot.height,
+            content = content
+        )
         val childHeights = resolveWeightedMainAxis(
             measuredSizes = measured.slots.map { it.height },
             weights = measured.weights,

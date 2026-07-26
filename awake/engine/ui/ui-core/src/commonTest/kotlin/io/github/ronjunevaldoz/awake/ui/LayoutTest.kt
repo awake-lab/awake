@@ -591,6 +591,70 @@ class LayoutTest {
         val expectedRowHeight = 16f + UiSpacing.sm.toPx() + 32f
         assertEquals(expectedRowHeight, rowSlot.height, 0.01f, "WrapContent row height must hug the tallest child's real content height")
     }
+
+    @Test
+    fun nestedWrapContentColumnsWithNoWeightedChildrenReuseTheSizingTrialInsteadOfRetrialingWeight() {
+        // Task #34 (checkout-form "laggy" report): a plain (non-weighted) WrapContent column
+        // nested N levels deep -- e.g. shadcnFieldGroup > shadcnFieldSet > shadcnFieldGroup >
+        // shadcnField -- used to pay for 3 full re-executions of [content] per level (the
+        // resolveMeasuredColumn() sizing trial, UiScope.column()'s own unconditional
+        // weight-detection trial, and the real render), compounding to 3^N leaf calls for a
+        // single real leaf widget. resolveMeasuredColumn() now hands its already-computed trial
+        // to column() so the redundant second trial is skipped whenever there's no weighted
+        // child to justify it -- cutting this to 2^N. Regression guard: 4 levels must invoke the
+        // leaf content exactly 16 times (2^4), not 81 (3^4).
+        val ui = UiContext()
+        ui.beginFrame(400f, 800f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 400f)
+        var leafCount = 0
+
+        root.column(modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
+            column(modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
+                column(modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
+                    column(modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
+                        leafCount++
+                        surface(
+                            id = "leaf-$leafCount",
+                            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(16f.px))
+                        ) {}
+                    }
+                }
+            }
+        }
+
+        assertEquals(16, leafCount, "4 levels of plain WrapContent column nesting must cost 2^4 leaf calls, not 3^4")
+    }
+
+    @Test
+    fun wrapContentHeightRowWithWeightedColumnAndNoExplicitHeightHugsRealContentNotTheSizingTrialBound() {
+        // Task #34 (checkout-form "big blank gap" report): a WrapContent-height row containing a
+        // weight(1f)-tagged column() with NO explicit .height(...) -- exactly
+        // `row(...) { column(modifier = Modifier.weight(1f)) { ... } }`, the checkout form's real
+        // Month/Year/CVV grid shape -- used to report a WrapContent row height of ~4096px (the
+        // row-sizing trial's arbitrary upper-bound placeholder, see UiScope.row()) instead of the
+        // real ~40px content height. RowScope.column() defaults every column's height to FillMax
+        // (stretch to the row's cross axis); during the row's own WrapContent-height sizing
+        // trial, that FillMax resolved against the trial's placeholder bound, and (with no
+        // height-side counterpart to measuredMaxRightExcludingFill) leaked straight into the
+        // row's own measured height. Regression guard: this row must hug its one real 40px-tall
+        // child, not the sizing trial's placeholder.
+        val ui = UiContext()
+        ui.beginFrame(300f, 2000f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 300f)
+
+        val rowSlot = root.row(modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
+            repeat(3) { index ->
+                column(id = "grid-cell-$index", modifier = Modifier.weight(1f)) {
+                    surface(
+                        id = "control-$index",
+                        modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(40f.px))
+                    ) {}
+                }
+            }
+        }
+
+        assertEquals(40f, rowSlot.height, 0.01f, "WrapContent row must hug its real 40px content, not the sizing trial's placeholder bound")
+    }
 }
 
 private fun renderScrollableNestedSurface(

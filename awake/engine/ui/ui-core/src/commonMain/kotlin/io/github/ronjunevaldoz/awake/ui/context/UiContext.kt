@@ -446,8 +446,19 @@ class UiContext internal constructor(
     // shadcnCard sizing itself around a nested row's own buttons).
     private var recordingSuppressionDepth = 0
 
-    internal fun recordMeasuredSlot(slot: UiSlot, contributesToWrapWidth: Boolean = true) {
-        if (measuring) measurement.record(slot, contributesToWrapWidth, contributesToChildList = recordingSuppressionDepth == 0)
+    internal fun recordMeasuredSlot(
+        slot: UiSlot,
+        contributesToWrapWidth: Boolean = true,
+        contributesToWrapHeight: Boolean = true
+    ) {
+        if (measuring) {
+            measurement.record(
+                slot,
+                contributesToWrapWidth,
+                contributesToWrapHeight,
+                contributesToChildList = recordingSuppressionDepth == 0
+            )
+        }
     }
 
     internal fun recordMeasuredWeight(weight: LayoutWeight?) {
