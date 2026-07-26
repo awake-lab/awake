@@ -550,6 +550,26 @@ internal val ShowcasePages = listOf(
             "Can be enabled/disabled via the modifier property."
         ),
         renderPreview = { _ -> drawUiShowcaseShimmerPreview() }
+    ),
+    ShowcasePage(
+        id = "easing",
+        title = "Easing",
+        category = ShowcaseCategory.Animations,
+        description = "Fixed-duration tweens shaped by an Easing curve, distinct from the spring-style animateFloat above.",
+        usageCode = """
+            val fraction = animateFloatTween(
+                id = "panel-reveal",
+                target = 1f,
+                durationMs = 1200f,
+                easing = EaseInOut
+            )
+        """.trimIndent(),
+        notes = listOf(
+            "LinearEasing, EaseIn, EaseOut, and EaseInOut mirror CSS's transition-timing-function presets.",
+            "Retargeting mid-tween restarts the duration from the current animated value instead of snapping back to the start.",
+            "Each row's thumbnail samples the same Easing.transform used to drive the moving thumb, so the shape and the motion always agree."
+        ),
+        renderPreview = { _ -> drawUiShowcaseEasingPreview() }
     )
 )
 

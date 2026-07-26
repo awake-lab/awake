@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
@@ -86,7 +87,10 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseScrollPanelPreview,
     UiShowcaseShimmerPreview,
     UiShowcaseCollapsiblePreview,
-    UiShowcaseCollapsibleOpenPreview
+    UiShowcaseCollapsibleOpenPreview,
+    UiShowcaseEasingRestPreview,
+    UiShowcaseEasingInFlightPreview,
+    UiShowcaseEasingSettledPreview
 )
 
 private val PreviewOverlayMenuItems = listOf(
@@ -359,6 +363,54 @@ internal object UiShowcaseShimmerPreview : AwakeUiPreviewEntry {
         renderUiShowcasePagePreviewFrame(metadata, pageId = "shimmer")
 }
 
+// The easing page's tween thumbs animate continuously, so per docs/reference/ui-validation.md's
+// "Animated Components" rule a single rest-frame snapshot isn't enough proof. Each of the three
+// previews below drives the *same* page content through UiShowcaseEasingDurationMs (1200ms) worth
+// of elapsed time by feeding a single beginFrame() call a specific deltaSeconds -- animateFloatTween
+// advances its stored elapsed time by exactly that delta on the one frame it's called, so this
+// reaches an exact fraction without needing to loop multiple frames.
+@AwakeUiPreview(
+    id = "ui-showcase-easing-rest",
+    title = "Easing (Rest)",
+    group = "Animations",
+    summary = "Easing tween thumbs at their rest state (fraction 0) before the animation starts.",
+    width = 900,
+    height = 620,
+    reportScale = 2
+)
+internal object UiShowcaseEasingRestPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcaseEasingPreviewFrame(metadata, deltaSeconds = 0f)
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-easing-in-flight",
+    title = "Easing (In Flight)",
+    group = "Animations",
+    summary = "Easing tween thumbs mid-animation (fraction 0.5), where the four curves visibly diverge in position.",
+    width = 900,
+    height = 620,
+    reportScale = 2
+)
+internal object UiShowcaseEasingInFlightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcaseEasingPreviewFrame(metadata, deltaSeconds = 0.6f)
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-easing-settled",
+    title = "Easing (Settled)",
+    group = "Animations",
+    summary = "Easing tween thumbs at their settled state (fraction 1) once the tween duration elapses.",
+    width = 900,
+    height = 620,
+    reportScale = 2
+)
+internal object UiShowcaseEasingSettledPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcaseEasingPreviewFrame(metadata, deltaSeconds = 1.2f)
+}
+
 @AwakeUiPreview(
     id = "ui-showcase-state",
     title = "State Container",
@@ -571,6 +623,68 @@ private fun renderUiShowcasePagePreviewFrame(
         summary = page.description
     ) {
         renderUiShowcasePagePreview(page, state)
+    }
+}
+
+/**
+ * Renders the easing page's content with a single [deltaSeconds] fed into one [UiContext.beginFrame]
+ * call, so [io.github.ronjunevaldoz.awake.ui.animateFloatTween]'s stored elapsed time advances by
+ * exactly that amount (see [UiShowcaseEasingRestPreview] and friends above).
+ */
+private fun renderUiShowcaseEasingPreviewFrame(
+    metadata: AwakeUiPreviewMetadata,
+    deltaSeconds: Float
+): AwakeUiPreviewFrame {
+    val previewScale = metadata.reportScale.coerceAtLeast(1)
+    val state = UiShowcaseRuntimeState()
+    val theme = state.showcaseTheme()
+    val font = UiFonts.default(cellSize = 12 * previewScale)
+    val ui = UiContext()
+    val page = ShowcasePages.firstOrNull { it.id == "easing" } ?: error("Unknown showcase page: easing")
+
+    return withPreviewDensity(previewScale) {
+        val insetPx = 24f * previewScale
+        val contentGapPx = 10f * previewScale
+        val previewInput = Input()
+        previewInput.setPointer(down = false, x = -100f, y = -100f)
+        ui.beginFrame(
+            UiFrameInput(
+                viewportWidth = metadata.rasterWidth.toFloat(),
+                viewportHeight = metadata.rasterHeight.toFloat(),
+                input = previewInput.updateSnapshot().toUiInputState(),
+                deltaSeconds = deltaSeconds
+            )
+        )
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        ui.column(
+            modifier = Modifier
+                .offset(insetPx.dp, insetPx.dp)
+                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).dp)
+                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).dp),
+            verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp)
+        ) {
+            shadcnSurface(
+                id = "ui-showcase-preview-${metadata.id}",
+                style = Style { shape(16f.dp) },
+                modifier = Modifier.copy(
+                    widthDimension = Dimension.FillMax,
+                    heightDimension = Dimension.WrapContent
+                )
+            ) {
+                shadcnBadge(page.category.title.uppercase(), variant = ShadcnBadgeVariant.Outline)
+                shadcnSectionHeader(title = metadata.title, description = metadata.summary)
+                spacer(Modifier.height(10f.dp))
+                renderUiShowcasePagePreview(page, state)
+            }
+        }
+
+        AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
     }
 }
 
