@@ -37,12 +37,28 @@ interface UiFont {
     fun advanceFor(char: Char, glyphPx: Float): Float = glyphPx
 }
 
+/**
+ * Sums per-glyph [advanceFor] to get the pen distance the string travels -- but a glyph's own
+ * ink (its [GlyphRect.offsetXEm]/[GlyphRect.widthEm] quad) can extend past its own advance;
+ * several packed fonts (e.g. the embedded Roboto data) declare advances a few percent narrower
+ * than the glyph's actual right edge (positive `offsetXEm + widthEm - advance`), which every
+ * *interior* glyph gets away with since the next glyph's quad simply overlaps/redraws over that
+ * overhang -- only the string's trailing glyph has nothing after it to hide the clip. A caller
+ * that boxes text exactly to this width (see `shadcnLabel`) would otherwise clip that last
+ * glyph's overhanging pixels. Widen the result to also cover the last glyph's real right edge.
+ */
 fun UiFont.measureTextWidth(label: String, glyphPx: Float): Float {
     var width = 0f
+    var lastChar: Char? = null
     label.forEach { char ->
         if (char != '\n') {
             width += advanceFor(char, glyphPx)
+            lastChar = char
         }
     }
-    return width
+    val trailingChar = lastChar ?: return width
+    val glyph = uvFor(trailingChar) ?: return width
+    val lastAdvance = advanceFor(trailingChar, glyphPx)
+    val lastGlyphRightEdge = (width - lastAdvance) + (glyph.offsetXEm + glyph.widthEm) * glyphPx
+    return maxOf(width, lastGlyphRightEdge)
 }
