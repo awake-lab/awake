@@ -103,7 +103,8 @@ class UiContext internal constructor(
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = height != null,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null
+        plannedSlots: List<UiSlot>? = null,
+        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
     ): ColumnScope = layouts.createColumn(
         x = x,
         y = y,
@@ -115,7 +116,8 @@ class UiContext internal constructor(
         hasBoundedFillWidth = hasBoundedFillWidth,
         hasBoundedFillHeight = hasBoundedFillHeight,
         overlayOnly = overlayOnly,
-        plannedSlots = plannedSlots
+        plannedSlots = plannedSlots,
+        horizontalAlignment = horizontalAlignment
     )
 
     fun createColumn(
@@ -127,7 +129,8 @@ class UiContext internal constructor(
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null
+        plannedSlots: List<UiSlot>? = null,
+        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
     ): ColumnScope = layouts.createColumn(
         slot = slot,
         gap = gap,
@@ -137,7 +140,8 @@ class UiContext internal constructor(
         hasBoundedFillWidth = hasBoundedFillWidth,
         hasBoundedFillHeight = hasBoundedFillHeight,
         overlayOnly = overlayOnly,
-        plannedSlots = plannedSlots
+        plannedSlots = plannedSlots,
+        horizontalAlignment = horizontalAlignment
     )
 
     fun createAbsolute(
@@ -165,7 +169,8 @@ class UiContext internal constructor(
         hasBoundedFillWidth: Boolean = width != null,
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null
+        plannedSlots: List<UiSlot>? = null,
+        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
     ): RowScope = layouts.createRow(
         x = x,
         y = y,
@@ -177,7 +182,8 @@ class UiContext internal constructor(
         hasBoundedFillWidth = hasBoundedFillWidth,
         hasBoundedFillHeight = hasBoundedFillHeight,
         overlayOnly = overlayOnly,
-        plannedSlots = plannedSlots
+        plannedSlots = plannedSlots,
+        verticalAlignment = verticalAlignment
     )
 
     fun createRow(
@@ -189,7 +195,8 @@ class UiContext internal constructor(
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null
+        plannedSlots: List<UiSlot>? = null,
+        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
     ): RowScope = layouts.createRow(
         slot = slot,
         gap = gap,
@@ -199,7 +206,8 @@ class UiContext internal constructor(
         hasBoundedFillWidth = hasBoundedFillWidth,
         hasBoundedFillHeight = hasBoundedFillHeight,
         overlayOnly = overlayOnly,
-        plannedSlots = plannedSlots
+        plannedSlots = plannedSlots,
+        verticalAlignment = verticalAlignment
     )
 
     fun createBox(

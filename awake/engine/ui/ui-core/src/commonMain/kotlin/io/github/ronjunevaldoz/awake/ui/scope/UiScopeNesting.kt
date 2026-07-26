@@ -23,7 +23,8 @@ fun UiScope.childColumn(
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     hasBoundedFillWidth: Boolean = true,
-    hasBoundedFillHeight: Boolean = true
+    hasBoundedFillHeight: Boolean = true,
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
 ): ColumnScope = context.createColumn(
     slot = slot,
     gap = verticalArrangement.baseSpacingPx(),
@@ -32,7 +33,8 @@ fun UiScope.childColumn(
     testTag = modifier.testTag,
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
-    overlayOnly = emitsToOverlay
+    overlayOnly = emitsToOverlay,
+    horizontalAlignment = horizontalAlignment
 )
 
 fun UiScope.childRow(
@@ -40,7 +42,8 @@ fun UiScope.childRow(
     horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     hasBoundedFillWidth: Boolean = true,
-    hasBoundedFillHeight: Boolean = true
+    hasBoundedFillHeight: Boolean = true,
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
 ): RowScope = context.createRow(
     slot = slot,
     gap = horizontalArrangement.baseSpacingPx(),
@@ -49,7 +52,8 @@ fun UiScope.childRow(
     testTag = modifier.testTag,
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
-    overlayOnly = emitsToOverlay
+    overlayOnly = emitsToOverlay,
+    verticalAlignment = verticalAlignment
 )
 
 fun UiScope.childAbsolute(

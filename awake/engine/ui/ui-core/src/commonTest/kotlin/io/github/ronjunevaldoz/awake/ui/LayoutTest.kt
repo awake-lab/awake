@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
@@ -141,6 +142,84 @@ class LayoutTest {
         val row = ui.createRow(x = 0f, y = 0f, height = 40f)
         val slot = row.claimSlot(Dimension.Fixed(50f.px), Dimension.FillMax)
         assertEquals(40f, slot.height, "FillMax must resolve to the row's own configured height")
+    }
+
+    @Test
+    fun rowVerticalAlignmentCentersMismatchedHeightChildrenWithoutPerChildAlign() {
+        val ui = UiContext()
+        ui.beginFrame(240f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 240f)
+        var tall: UiSlot? = null
+        var short: UiSlot? = null
+
+        root.row(
+            verticalAlignment = UiAlignment.Vertical.Center,
+            modifier = Modifier.width(Dimension.Fixed(240f.px)).height(Dimension.Fixed(60f.px))
+        ) {
+            tall = claimModifiedSlot(Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(60f.px)))
+            short = claimModifiedSlot(Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)))
+        }
+
+        assertEquals(0f, tall?.y, "a full-height child has no slack left to center within")
+        assertEquals(20f, short?.y, "a 20px-tall child in a 60px row centers to (60 - 20) / 2 = 20")
+    }
+
+    @Test
+    fun rowChildExplicitAlignOverridesContainerVerticalAlignment() {
+        val ui = UiContext()
+        ui.beginFrame(240f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 240f)
+        var overridden: UiSlot? = null
+
+        root.row(
+            verticalAlignment = UiAlignment.Vertical.Center,
+            modifier = Modifier.width(Dimension.Fixed(240f.px)).height(Dimension.Fixed(60f.px))
+        ) {
+            overridden = claimModifiedSlot(
+                Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)).align(UiAlignment.BottomStart)
+            )
+        }
+
+        assertEquals(40f, overridden?.y, "an explicit per-child .align() must win over the row's own default")
+    }
+
+    @Test
+    fun columnHorizontalAlignmentCentersMismatchedWidthChildrenWithoutPerChildAlign() {
+        val ui = UiContext()
+        ui.beginFrame(120f, 240f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 120f)
+        var wide: UiSlot? = null
+        var narrow: UiSlot? = null
+
+        root.column(
+            horizontalAlignment = UiAlignment.Horizontal.Center,
+            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(80f.px))
+        ) {
+            wide = claimModifiedSlot(Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(20f.px)))
+            narrow = claimModifiedSlot(Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)))
+        }
+
+        assertEquals(0f, wide?.x, "a full-width child has no slack left to center within")
+        assertEquals(40f, narrow?.x, "a 40px-wide child in a 120px column centers to (120 - 40) / 2 = 40")
+    }
+
+    @Test
+    fun columnChildExplicitAlignOverridesContainerHorizontalAlignment() {
+        val ui = UiContext()
+        ui.beginFrame(120f, 240f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 120f)
+        var overridden: UiSlot? = null
+
+        root.column(
+            horizontalAlignment = UiAlignment.Horizontal.Center,
+            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(80f.px))
+        ) {
+            overridden = claimModifiedSlot(
+                Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)).align(UiAlignment.TopEnd)
+            )
+        }
+
+        assertEquals(80f, overridden?.x, "an explicit per-child .align() must win over the column's own default")
     }
 
     @Test

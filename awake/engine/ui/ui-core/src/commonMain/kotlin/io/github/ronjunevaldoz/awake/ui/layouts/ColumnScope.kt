@@ -22,7 +22,10 @@ class ColumnScope internal constructor(
     override val hasBoundedFillWidth: Boolean = true,
     override val hasBoundedFillHeight: Boolean = height != null,
     emitToOverlay: Boolean = false,
-    private val plannedSlots: List<UiSlot>? = null
+    private val plannedSlots: List<UiSlot>? = null,
+    /** Container-level cross-axis default -- matches Compose's `Column(horizontalAlignment =
+     * ...)`. See [RowScope.verticalAlignment] for the matching row-side explanation. */
+    val horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     override val fillWidth: Float = width
     override val fillHeight: Float?

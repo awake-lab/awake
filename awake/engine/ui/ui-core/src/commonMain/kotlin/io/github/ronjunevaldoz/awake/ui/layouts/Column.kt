@@ -42,6 +42,12 @@ internal fun UiScope.smartColumn(
     modifier: UiModifier,
     clipContent: Boolean = false,
     role: UiSemanticRole = UiSemanticRole.None,
+    // ponytail: only the plain-measured-column strategy below actually applies this -- the
+    // scrollable/visual-surface strategies delegate to scrollPanel()/surface(), which are a
+    // separate widget surface (out of this task's row()/column() scope) and always keep their
+    // own Start default. Thread it through those too if a scrollable/surfaced column ever needs
+    // a non-default cross-axis alignment.
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     if (modifier.scrollState != null && id != null) {
@@ -53,7 +59,7 @@ internal fun UiScope.smartColumn(
         return resolveVisualSurface(id, modifier, effectiveStyle, verticalArrangement, clipContent, content)
     }
 
-    return resolveMeasuredColumn(id, modifier, effectiveStyle, verticalArrangement, role, content)
+    return resolveMeasuredColumn(id, modifier, effectiveStyle, verticalArrangement, role, horizontalAlignment, content)
 }
 
 /** True if [effectiveStyle] (merged with this role's theme defaults) resolves to a real
@@ -118,6 +124,7 @@ private fun UiScope.resolveMeasuredColumn(
     effectiveStyle: Style,
     verticalArrangement: Arrangement,
     role: UiSemanticRole,
+    horizontalAlignment: UiAlignment.Horizontal,
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val insets = modifier.insets
@@ -153,6 +160,7 @@ private fun UiScope.resolveMeasuredColumn(
 
     val rawSlot = column(
         verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
@@ -166,6 +174,7 @@ private fun UiScope.resolveMeasuredColumn(
 fun ColumnScope.column(
     id: String? = null,
     verticalArrangement: Arrangement = defaultArrangement(),
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
@@ -176,12 +185,14 @@ fun ColumnScope.column(
     style,
     modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent),
     clipContent = false,
+    horizontalAlignment = horizontalAlignment,
     content = content
 )
 
 fun RowScope.column(
     id: String? = null,
     verticalArrangement: Arrangement = defaultArrangement(),
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
@@ -192,12 +203,14 @@ fun RowScope.column(
     style,
     modifier.withSizeFallback(Dimension.WrapContent, Dimension.FillMax),
     clipContent = false,
+    horizontalAlignment = horizontalAlignment,
     content = content
 )
 
 fun AbsoluteScope.column(
     id: String? = null,
     verticalArrangement: Arrangement = defaultArrangement(),
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
@@ -208,12 +221,14 @@ fun AbsoluteScope.column(
     style,
     modifier.withSizeFallback(Dimension.WrapContent, Dimension.WrapContent),
     clipContent = false,
+    horizontalAlignment = horizontalAlignment,
     content = content
 )
 
 fun BoxScope.column(
     id: String? = null,
     verticalArrangement: Arrangement = defaultArrangement(),
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
@@ -224,12 +239,14 @@ fun BoxScope.column(
     style,
     modifier.withSizeFallback(Dimension.WrapContent, Dimension.WrapContent),
     clipContent = false,
+    horizontalAlignment = horizontalAlignment,
     content = content
 )
 
 
 fun UiScope.column(
     verticalArrangement: Arrangement = defaultArrangement(),
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: ColumnScope.(slot: UiSlot) -> Unit
@@ -280,7 +297,8 @@ fun UiScope.column(
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
             overlayOnly = emitsToOverlay,
-            plannedSlots = arrangedSlots
+            plannedSlots = arrangedSlots,
+            horizontalAlignment = horizontalAlignment
         )
     } else {
         childColumn(
@@ -288,7 +306,8 @@ fun UiScope.column(
             verticalArrangement = effectiveArrangement,
             modifier = UiModifier(testTag = modifier.testTag),
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
-            hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
+            hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
+            horizontalAlignment = horizontalAlignment
         )
     }
     scope.content(slot)

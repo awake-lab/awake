@@ -22,7 +22,13 @@ class RowScope internal constructor(
     override val hasBoundedFillWidth: Boolean = width != null,
     override val hasBoundedFillHeight: Boolean = true,
     emitToOverlay: Boolean = false,
-    private val plannedSlots: List<UiSlot>? = null
+    private val plannedSlots: List<UiSlot>? = null,
+    /** Container-level cross-axis default -- matches Compose's `Row(verticalAlignment = ...)`.
+     * Every child not carrying its own explicit `.align(...)` falls back to this via
+     * `claimModifiedSlot()`'s `defaultAlignment()`, which widens that child's alignment
+     * container up to this row's own full height first (see
+     * `UiScopeMetrics.crossAxisAlignmentContainer`) so there's real slack to center/end into. */
+    val verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
     var cursorX: Float = startX
         private set

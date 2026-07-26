@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun ColumnScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
@@ -57,6 +58,7 @@ fun ColumnScope.row(
     val effectiveStyle = modifier.styleable ?: Style.Empty
     return (this as UiScope).row(
         horizontalArrangement = effectiveArrangement,
+        verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
@@ -65,6 +67,7 @@ fun ColumnScope.row(
 
 fun RowScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
@@ -95,6 +98,7 @@ fun RowScope.row(
     val effectiveStyle = modifier.styleable ?: Style.Empty
     return (this as UiScope).row(
         horizontalArrangement = effectiveArrangement,
+        verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
@@ -103,6 +107,7 @@ fun RowScope.row(
 
 fun AbsoluteScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
@@ -133,6 +138,7 @@ fun AbsoluteScope.row(
     val effectiveStyle = modifier.styleable ?: Style.Empty
     return (this as UiScope).row(
         horizontalArrangement = effectiveArrangement,
+        verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
@@ -141,6 +147,7 @@ fun AbsoluteScope.row(
 
 fun BoxScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
@@ -171,6 +178,7 @@ fun BoxScope.row(
     val effectiveStyle = modifier.styleable ?: Style.Empty
     return (this as UiScope).row(
         horizontalArrangement = effectiveArrangement,
+        verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
         content = content
@@ -180,6 +188,7 @@ fun BoxScope.row(
 
 fun UiScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     testTag: String? = null,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
@@ -239,7 +248,8 @@ fun UiScope.row(
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
             overlayOnly = emitsToOverlay,
-            plannedSlots = arrangedSlots
+            plannedSlots = arrangedSlots,
+            verticalAlignment = verticalAlignment
         )
     } else {
         childRow(
@@ -247,7 +257,8 @@ fun UiScope.row(
             horizontalArrangement = effectiveArrangement,
             modifier = UiModifier(testTag = testTag ?: modifier.testTag),
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
-            hasBoundedFillHeight = requestedHeight != Dimension.WrapContent
+            hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
+            verticalAlignment = verticalAlignment
         )
     }
     scope.content(slot)

@@ -28,7 +28,8 @@ internal class UiLayoutFactory(
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = height != null,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null
+        plannedSlots: List<UiSlot>? = null,
+        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
     ): ColumnScope = ColumnScope(
         context,
         x,
@@ -41,7 +42,8 @@ internal class UiLayoutFactory(
         hasBoundedFillWidth,
         hasBoundedFillHeight,
         overlayOnly,
-        plannedSlots
+        plannedSlots,
+        horizontalAlignment
     )
 
     fun createColumn(
@@ -53,7 +55,8 @@ internal class UiLayoutFactory(
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null
+        plannedSlots: List<UiSlot>? = null,
+        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
     ): ColumnScope {
         val content = slot.inset(insets)
         return createColumn(
@@ -67,7 +70,8 @@ internal class UiLayoutFactory(
             hasBoundedFillWidth = hasBoundedFillWidth,
             hasBoundedFillHeight = hasBoundedFillHeight,
             overlayOnly = overlayOnly,
-            plannedSlots = plannedSlots
+            plannedSlots = plannedSlots,
+            horizontalAlignment = horizontalAlignment
         )
     }
 
@@ -105,7 +109,8 @@ internal class UiLayoutFactory(
         hasBoundedFillWidth: Boolean = width != null,
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null
+        plannedSlots: List<UiSlot>? = null,
+        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
     ): RowScope = RowScope(
         context,
         x,
@@ -118,7 +123,8 @@ internal class UiLayoutFactory(
         hasBoundedFillWidth,
         hasBoundedFillHeight,
         overlayOnly,
-        plannedSlots
+        plannedSlots,
+        verticalAlignment
     )
 
     fun createRow(
@@ -130,7 +136,8 @@ internal class UiLayoutFactory(
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null
+        plannedSlots: List<UiSlot>? = null,
+        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
     ): RowScope {
         val content = slot.inset(insets)
         return createRow(
@@ -144,7 +151,8 @@ internal class UiLayoutFactory(
             hasBoundedFillWidth = hasBoundedFillWidth,
             hasBoundedFillHeight = hasBoundedFillHeight,
             overlayOnly = overlayOnly,
-            plannedSlots = plannedSlots
+            plannedSlots = plannedSlots,
+            verticalAlignment = verticalAlignment
         )
     }
 

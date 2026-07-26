@@ -7,7 +7,9 @@ import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.place
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.FillAwareScope
+import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -68,7 +70,7 @@ fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiSlot {
     // the aligned/inset/offset placement again here would double-count this single widget claim
     // in measured.slots (corrupting row/column child-count-sized aggregates like arrangement
     // distribution and weight division), so this placed rect is deliberately not re-recorded.
-    return containerSlot.place(
+    return crossAxisAlignmentContainer(containerSlot).place(
         width = width,
         height = height,
         alignment = modifier.alignment ?: defaultAlignment(),
@@ -80,5 +82,31 @@ fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiSlot {
 
 private fun UiScope.defaultAlignment(): UiAlignment = when (this) {
     is BoxScope -> contentAlignment
+    // A row's own horizontal position on the main axis is already fully determined by
+    // arrangement/cursor placement (see RowScope.claimSlot) -- Horizontal.Start here is a
+    // no-op, only the Vertical component ever has room to act.
+    is RowScope -> UiAlignment.of(verticalAlignment, UiAlignment.Horizontal.Start)
+    is ColumnScope -> UiAlignment.of(UiAlignment.Vertical.Top, horizontalAlignment)
     else -> UiAlignment.TopStart
+}
+
+/** Widens [containerSlot]'s cross-axis size (only, and only ever upward -- see below) to the
+ * row/column's own full cross-axis extent, so [defaultAlignment]'s verticalAlignment/
+ * horizontalAlignment (and an explicit per-child `.align(...)`) has real slack to center/end a
+ * shorter child into. Deliberately not done inside [RowScope.claimSlot]/[ColumnScope.claimSlot]
+ * themselves -- those keep returning a request-shaped rect because plenty of existing call
+ * sites read that returned rect directly for non-alignment purposes.
+ *
+ * `coerceAtLeast(containerSlot.*)` rather than an unconditional swap: [RowScope.height]/
+ * [ColumnScope.width] is a snapshot taken at scope-construction time, and a handful of existing
+ * call sites (test fixtures in particular) build/reuse a scope before a frame has ever begun,
+ * where that snapshot is a stale 0 -- widening down to 0 would make [place] clamp every child's
+ * real, already-resolved size down to nothing instead of just leaving it un-centered. Only ever
+ * growing the container guarantees this can't regress a single existing call site; it just
+ * silently gives up centering for that (already degenerate) one.
+ */
+private fun UiScope.crossAxisAlignmentContainer(containerSlot: UiSlot): UiSlot = when (this) {
+    is RowScope -> containerSlot.copy(height = height.coerceAtLeast(containerSlot.height))
+    is ColumnScope -> containerSlot.copy(width = width.coerceAtLeast(containerSlot.width))
+    else -> containerSlot
 }
