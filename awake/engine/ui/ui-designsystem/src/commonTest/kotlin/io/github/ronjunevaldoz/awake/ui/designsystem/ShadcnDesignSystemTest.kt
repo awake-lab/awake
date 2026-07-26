@@ -19,8 +19,13 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldDivider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldDescription
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldError
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLabel
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -439,7 +444,7 @@ class ShadcnDesignSystemTest {
         )
     }
     @Test
-    fun shadcnFieldGroupStacksFieldsWithDividersWithoutOverlap() {
+    fun shadcnFieldGroupStacksFieldsWithSeparatorsWithoutOverlap() {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
@@ -448,9 +453,9 @@ class ShadcnDesignSystemTest {
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnFieldGroup(id = "settings-group") {
                 shadcnFieldToggle("show-grid", "Show Grid", checked = true)
-                shadcnFieldDivider()
+                shadcnFieldSeparator()
                 shadcnFieldDropdown("mode", "Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
-                shadcnFieldDivider()
+                shadcnFieldSeparator(label = "more")
                 shadcnFieldSlider("speed", "Speed", min = 1f, max = 10f, value = 5f)
             }
         }
@@ -459,6 +464,7 @@ class ShadcnDesignSystemTest {
         val gridLabel = assertNotNull(semantics.firstOrNull { it.label == "Show Grid" })
         val modeLabel = assertNotNull(semantics.firstOrNull { it.label == "Mode" })
         val speedLabel = assertNotNull(semantics.firstOrNull { it.label == "Speed" })
+        val separatorLabel = assertNotNull(semantics.firstOrNull { it.label == "more" })
 
         assertTrue(
             gridLabel.bounds.y + gridLabel.bounds.height <= modeLabel.bounds.y + 1f,
@@ -468,11 +474,63 @@ class ShadcnDesignSystemTest {
             modeLabel.bounds.y + modeLabel.bounds.height <= speedLabel.bounds.y + 1f,
             "second field must sit above the third, not overlap it"
         )
-        // Each divider is a 4dp spacer + 1dp separator + 4dp spacer (9dp), so a group with two
-        // dividers between three fields must be noticeably taller than the same fields with no
-        // spacing at all.
+        assertTrue(
+            modeLabel.bounds.y < separatorLabel.bounds.y && separatorLabel.bounds.y < speedLabel.bounds.y,
+            "labeled separator should sit between its two neighboring fields"
+        )
+        // shadcnFieldGroup's own spacedBy(xl) gap between fields must be reserved even with no
+        // divider content -- a group with a separator between three fields must be noticeably
+        // taller than the same fields packed with zero spacing.
         val gap = modeLabel.bounds.y - (gridLabel.bounds.y + gridLabel.bounds.height)
-        assertTrue(gap >= 8f.dp.toPx(), "divider gap between fields should reserve the shared spacer+separator convention, was $gap")
+        assertTrue(gap >= 8f.dp.toPx(), "field group spacing should reserve real space between fields, was $gap")
+    }
+
+    @Test
+    fun shadcnFieldVerticalOrientationStacksLabelAboveControl() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(320f, 180f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+            shadcnField(id = "vertical-field", orientation = ShadcnFieldOrientation.Vertical) {
+                shadcnFieldLabel("Display Name", required = true)
+                text("Ada Lovelace")
+                shadcnFieldDescription("Shown on your public profile.")
+            }
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val nameValue = assertNotNull(semantics.firstOrNull { it.label == "Ada Lovelace" })
+        val description = assertNotNull(
+            semantics.firstOrNull { it.label == "Shown on your public profile." }
+        )
+        assertTrue(
+            nameValue.bounds.y + nameValue.bounds.height <= description.bounds.y + 1f,
+            "vertical field must stack control above its description, not overlap it"
+        )
+    }
+
+    @Test
+    fun shadcnFieldErrorRendersDestructiveColoredText() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(320f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+            shadcnField(id = "error-field", orientation = ShadcnFieldOrientation.Vertical) {
+                shadcnFieldLabel("Email")
+                shadcnFieldError("Required")
+            }
+        }
+
+        val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
+        val destructive = ShadcnTheme.tokens.destructive
+        assertTrue(
+            glyphs.any { abs(it.color.r - destructive.r) < 0.01f && abs(it.color.g - destructive.g) < 0.01f },
+            "shadcnFieldError text should render in the theme's destructive color"
+        )
     }
 
     @Test

@@ -133,32 +133,28 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 id = "showcase-style-preset",
                 label = "Style",
                 options = ShowcaseStyleOptions,
-                selectedIndex = state.showcaseStylePresetIndex,
-                labelWidth = 64f.dp
+                selectedIndex = state.showcaseStylePresetIndex
             )?.let { state.showcaseStylePresetIndex = it }
 
             shadcnFieldDropdown(
                 id = "showcase-base-color",
                 label = "Base",
                 options = ShowcaseBaseColorOptions,
-                selectedIndex = state.showcaseBaseColorIndex,
-                labelWidth = 64f.dp
+                selectedIndex = state.showcaseBaseColorIndex
             )?.let { state.showcaseBaseColorIndex = it }
 
             shadcnFieldDropdown(
                 id = "showcase-theme-mode",
                 label = "Mode",
                 options = ShowcaseThemeModeOptions,
-                selectedIndex = state.showcaseThemeModeIndex,
-                labelWidth = 64f.dp
+                selectedIndex = state.showcaseThemeModeIndex
             )?.let { state.showcaseThemeModeIndex = it }
 
             shadcnFieldDropdown(
                 id = "showcase-accent",
                 label = "Accent",
                 options = ShowcaseAccentOptions,
-                selectedIndex = state.showcaseAccentIndex,
-                labelWidth = 64f.dp
+                selectedIndex = state.showcaseAccentIndex
             )?.let { state.showcaseAccentIndex = it }
 
             spacer(Modifier.height(8f.dp))

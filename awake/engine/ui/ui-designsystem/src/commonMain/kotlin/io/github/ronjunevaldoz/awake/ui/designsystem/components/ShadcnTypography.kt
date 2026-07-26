@@ -8,10 +8,21 @@ import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -108,6 +119,45 @@ fun UiScope.shadcnText(
     } then style,
     maxLines = maxLines
 )
+
+/** Real shadcn's `Label` -- a purely presentational field label. Compose has no HTML `for`
+ * attribute to wire up, so association with a field is just visual (place it directly above or
+ * beside the field it describes, matching [io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField]). */
+fun UiScope.shadcnLabel(
+    text: String,
+    modifier: UiModifier = Modifier,
+    required: Boolean = false,
+    disabled: Boolean = false
+): UiSlot {
+    val shadcnTheme = theme.asShadcnTheme()
+    // Pin both dimensions from a synchronous glyph measurement instead of leaning on row()'s
+    // WrapContent/FillMax fallbacks: (1) row()'s plain UiScope overload claims its slot
+    // directly with no pre-measuring trial pass, so a WrapContent height crashes when nested
+    // inside another container's own measuring pass; (2) a FillMax-width label sitting next to
+    // a weight()ed control (every real shadcnField* call site) reports its huge FillMax trial
+    // width as this row's "non-weighted occupied space", starving the weighted control of the
+    // width it should get. A label's own text is already knowable up front, so measure it
+    // instead of asking the layout system to guess.
+    val labelTextStyle = textStyle then TextStyle(size = shadcnTheme.typography.label)
+    val glyphPx = resolveGlyphPx(font, labelTextStyle)
+    val fullText = if (required) "$text *" else text
+    val labelWidthPx = font.measureTextWidth(fullText, glyphPx)
+    return row(
+        modifier = modifier.width(labelWidthPx.px).height(glyphPx.px),
+        horizontalArrangement = Arrangement.spacedBy(0f.dp)
+    ) {
+        shadcnText(text, muted = disabled, style = Style { textSize(shadcnTheme.typography.label) })
+        if (required) {
+            shadcnText(
+                " *",
+                style = Style {
+                    foreground(shadcnTheme.tokens.destructive)
+                    textSize(shadcnTheme.typography.label)
+                }
+            )
+        }
+    }
+}
 
 /** Common section header layout (title + optional description). */
 fun ColumnScope.shadcnSectionHeader(

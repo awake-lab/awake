@@ -281,10 +281,10 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     text("Controls")
                     supportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
                     spacer(Modifier.height(4f.dp))
-                    shadcnFieldDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0, labelWidth = 96f.dp)
+                    shadcnFieldDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0)
                     shadcnFieldToggle("debug", "Debug Frustum Overlay", checked = true)
                     shadcnFieldToggle("grid", "Show Reference Grid", checked = false)
-                    shadcnFieldSlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f, labelWidth = 96f.dp)
+                    shadcnFieldSlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f)
                     checkbox("wireframe", checked = true, label = "Wireframe Overlay")
                 }
             }
