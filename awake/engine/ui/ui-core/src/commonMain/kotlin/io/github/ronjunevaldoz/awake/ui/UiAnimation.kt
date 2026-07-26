@@ -54,3 +54,65 @@ internal fun animateFloatStep(
     val next = current + (target - current) * t
     return if (abs(target - next) <= snapDistance) target else next
 }
+
+/**
+ * Fixed-duration, [Easing]-shaped tween -- distinct from the spring-style [animateFloat] above,
+ * which has no fixed end time and just chases [target] forever. A caller feeds a stable [id] and
+ * a target each frame; the animation runs for [durationMs] milliseconds shaped by [easing], the
+ * same `tween(durationMillis, easing)` concept as Compose's `AnimationSpec`. Retargeting mid-tween
+ * (changing [target] before the previous tween finished) restarts the duration from the current
+ * animated value, matching Compose's `animateFloatAsState` behavior, rather than jumping back to
+ * [initial].
+ */
+fun UiContext.animateFloatTween(
+    id: String,
+    target: Float,
+    initial: Float = target,
+    durationMs: Float = 300f,
+    easing: Easing = LinearEasing
+): Float {
+    val state = widgetStateInternal("__tween__$id")
+    val currentValue = state.get("value", initial)
+    val startValue = state.get("start", initial)
+    val storedTarget = state.get("target", target)
+    val elapsedMs = state.get("elapsed", 0f)
+
+    // Same guard as animateFloat above: this step is a side effect, so trial-measurement passes
+    // (which share the real state store, see UiContextMeasureState.createMeasureContext) must not
+    // advance it a second time on top of the real frame's pass.
+    if (isMeasuringInternal()) return currentValue
+
+    val retargeted = target != storedTarget
+    val effectiveStart = if (retargeted) currentValue else startValue
+    val effectiveElapsed = if (retargeted) 0f else elapsedMs
+    val nextElapsed = effectiveElapsed + frameDeltaSecondsInternal() * 1000f
+
+    val next = animateFloatTweenStep(effectiveStart, target, nextElapsed, durationMs, easing)
+
+    state.set("start", effectiveStart)
+    state.set("target", target)
+    state.set("elapsed", nextElapsed)
+    state.set("value", next)
+    return next
+}
+
+fun UiScope.animateFloatTween(
+    id: String,
+    target: Float,
+    initial: Float = target,
+    durationMs: Float = 300f,
+    easing: Easing = LinearEasing
+): Float = context.animateFloatTween(id, target, initial, durationMs, easing)
+
+internal fun animateFloatTweenStep(
+    startValue: Float,
+    target: Float,
+    elapsedMs: Float,
+    durationMs: Float,
+    easing: Easing
+): Float {
+    if (durationMs <= 0f) return target
+    val fraction = (elapsedMs / durationMs).coerceIn(0f, 1f)
+    val eased = easing.transform(fraction)
+    return startValue + (target - startValue) * eased
+}

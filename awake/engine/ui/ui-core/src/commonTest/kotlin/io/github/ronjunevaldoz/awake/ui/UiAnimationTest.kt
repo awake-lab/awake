@@ -105,4 +105,103 @@ class UiAnimationTest {
             actual = animateFloatStep(current = 1f, target = 8f, deltaSeconds = 1f / 60f, responsiveness = 0f)
         )
     }
+
+    @Test
+    fun linearEasingIsLinearAtMidpoint() {
+        assertEquals(0.5f, LinearEasing.transform(0.5f), absoluteTolerance = 1e-4f)
+    }
+
+    @Test
+    fun easeInStartsSlowerThanLinear() {
+        assertTrue(EaseIn.transform(0.25f) < 0.25f, "ease-in should lag behind linear progress early on")
+    }
+
+    @Test
+    fun easeOutStartsFasterThanLinear() {
+        assertTrue(EaseOut.transform(0.25f) > 0.25f, "ease-out should lead linear progress early on")
+    }
+
+    @Test
+    fun easeInOutDeviatesInBothDirections() {
+        assertTrue(EaseInOut.transform(0.25f) < 0.25f, "ease-in-out should start slow like ease-in")
+        assertTrue(EaseInOut.transform(0.75f) > 0.75f, "ease-in-out should finish fast like ease-out")
+    }
+
+    @Test
+    fun tweenCompletesExactlyAtTargetOnceElapsedReachesDuration() {
+        assertEquals(
+            expected = 10f,
+            actual = animateFloatTweenStep(startValue = 0f, target = 10f, elapsedMs = 300f, durationMs = 300f, easing = LinearEasing)
+        )
+        assertEquals(
+            expected = 10f,
+            actual = animateFloatTweenStep(startValue = 0f, target = 10f, elapsedMs = 500f, durationMs = 300f, easing = LinearEasing),
+            "elapsed past duration must clamp, not overshoot"
+        )
+    }
+
+    @Test
+    fun uiContextAnimateFloatTweenSamplesMultipleFramesAlongTheCurve() {
+        // Per this session's animation-coverage rule: sample several points along the curve, not
+        // just the rest frame, so a regression that only breaks mid-tween interpolation (and not
+        // the initial/final values) would still be caught.
+        val ui = UiContext()
+        val durationMs = 1000f // 6 frames of 1/60s (~100ms) land well short of a 1000ms duration.
+        val samples = mutableListOf<Float>()
+
+        repeat(6) {
+            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+            samples += ui.animateFloatTween(id = "slider-thumb", target = 100f, initial = 0f, durationMs = durationMs, easing = LinearEasing)
+            ui.endFrame()
+        }
+
+        for (i in 1 until samples.size) {
+            assertTrue(samples[i] > samples[i - 1], "linear tween must strictly progress every frame while mid-flight")
+        }
+        assertTrue(samples.last() < 100f, "6 frames (~100ms) into a 1000ms tween should still be mid-flight, not complete")
+    }
+
+    @Test
+    fun uiContextAnimateFloatTweenCompletesAtTargetOnceDurationElapses() {
+        val ui = UiContext()
+
+        repeat(30) { // 30 frames * 1/60s = 500ms, comfortably past a 300ms duration.
+            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+            ui.animateFloatTween(id = "panel-slide", target = 50f, initial = 0f, durationMs = 300f, easing = LinearEasing)
+            ui.endFrame()
+        }
+
+        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        val final = ui.animateFloatTween(id = "panel-slide", target = 50f, initial = 0f, durationMs = 300f, easing = LinearEasing)
+        assertEquals(50f, final)
+    }
+
+    @Test
+    fun uiContextAnimateFloatTweenRetargetsFromCurrentValueNotInitial() {
+        val ui = UiContext()
+
+        repeat(15) { // 15 frames * 1/60s = 250ms into a 300ms tween toward 100 -- clearly mid-flight.
+            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+            ui.animateFloatTween(id = "retarget-demo", target = 100f, initial = 0f, durationMs = 300f, easing = LinearEasing)
+            ui.endFrame()
+        }
+
+        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        val valueBeforeRetarget = ui.animateFloatTween(id = "retarget-demo", target = 100f, initial = 0f, durationMs = 300f, easing = LinearEasing)
+
+        // Retarget mid-flight: the very next frame must continue from valueBeforeRetarget, not
+        // snap back toward `initial` (0f).
+        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        val firstFrameAfterRetarget =
+            ui.animateFloatTween(id = "retarget-demo", target = 0f, initial = 0f, durationMs = 300f, easing = LinearEasing)
+
+        assertTrue(
+            firstFrameAfterRetarget < valueBeforeRetarget,
+            "retargeting toward 0 should move down from the current value"
+        )
+        assertTrue(
+            firstFrameAfterRetarget > 0f,
+            "retargeting must start easing from the current animated value, not jump straight to 0"
+        )
+    }
 }
