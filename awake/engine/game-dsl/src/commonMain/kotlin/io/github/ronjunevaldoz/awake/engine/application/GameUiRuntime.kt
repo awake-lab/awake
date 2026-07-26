@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
@@ -118,7 +117,6 @@ class GameUiRuntime(
                 offsetX = modifier.offsetX.toPx(),
                 offsetY = modifier.offsetY.toPx()
             ),
-            gap = verticalArrangement.baseSpacingPx(),
             verticalArrangement = verticalArrangement,
             testTag = modifier.testTag
         ).block()
@@ -136,7 +134,6 @@ class GameUiRuntime(
     ) {
         uiContext.createColumn(
             slot = slot,
-            gap = verticalArrangement.baseSpacingPx(),
             insets = modifier.insets,
             verticalArrangement = verticalArrangement,
             testTag = modifier.testTag

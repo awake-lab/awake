@@ -145,7 +145,6 @@ fun UiScope.popup(
 
     context.createColumn(
         slot = popupSlot,
-        gap = gap,
         insets = insets,
         verticalArrangement = verticalArrangement,
         testTag = modifier.testTag,

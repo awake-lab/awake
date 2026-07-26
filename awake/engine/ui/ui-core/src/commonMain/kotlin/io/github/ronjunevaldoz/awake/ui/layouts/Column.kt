@@ -324,7 +324,11 @@ fun UiScope.column(
         }
         context.createColumn(
             slot = slot,
-            gap = plan.betweenSpacePx,
+            // Note: gap is no longer threaded here -- this branch always supplies plannedSlots,
+            // and ColumnScope.claimSlot()'s plannedSlots-present path never consults gap for
+            // cursor math (each slot is pre-computed via plan()/arrangedSlots above), so the
+            // derived `effectiveArrangement.baseSpacingPx()` gap this column ends up with is
+            // dead weight either way -- unused, not incorrect.
             verticalArrangement = effectiveArrangement,
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,

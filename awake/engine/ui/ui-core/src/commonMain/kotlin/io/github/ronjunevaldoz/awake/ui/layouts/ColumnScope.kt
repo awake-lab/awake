@@ -16,7 +16,6 @@ class ColumnScope internal constructor(
     private val startY: Float,
     val width: Float,
     val height: Float? = null,
-    val gap: Float,
     val verticalArrangement: Arrangement = defaultArrangement(),
     override val testTag: String? = null,
     override val hasBoundedFillWidth: Boolean = true,
@@ -27,6 +26,10 @@ class ColumnScope internal constructor(
      * ...)`. See [RowScope.verticalAlignment] for the matching row-side explanation. */
     val horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
+    /** Cursor advance between successive children -- derived from [verticalArrangement] rather
+     * than threaded separately, since it was always just `verticalArrangement.baseSpacingPx()`
+     * at every real call site (see UiLayoutFactory). */
+    val gap: Float = verticalArrangement.baseSpacingPx()
     override val fillWidth: Float = width
     override val fillHeight: Float?
         get() = height?.let { (it - (cursorY - startY)).coerceAtLeast(0f) }

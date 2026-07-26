@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.measureColumnContent
 import io.github.ronjunevaldoz.awake.ui.px
@@ -47,7 +48,9 @@ fun ColumnScope.animatedHeight(
         val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
         val slot = claimSlot(requestedWidth, Dimension.Fixed(animatedHeight.px))
         clip(slot) {
-            context.createColumn(slot, gap = this@animatedHeight.gap)
+            // Preserve this scope's own real gap on the fresh clipped column -- createColumn no
+            // longer takes a raw gap, so reconstruct it as an equivalent SpacedBy arrangement.
+            context.createColumn(slot, verticalArrangement = Arrangement.spacedBy(this@animatedHeight.gap.px))
                 .content(slot)
         }
         slot

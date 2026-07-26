@@ -31,7 +31,7 @@ class LayoutTest {
     @Test
     fun columnScopeAdvancesCursorByHeightPlusGap() {
         val ui = UiContext()
-        val column = ui.createColumn(x = 10f, y = 20f, width = 100f, gap = 8f)
+        val column = ui.createColumn(x = 10f, y = 20f, width = 100f, verticalArrangement = Arrangement.spacedBy(8f.px))
 
         val first = column.claimSlot(Dimension.Fixed(100f.px), Dimension.Fixed(32f.px))
         assertEquals(10f, first.x)
@@ -86,7 +86,7 @@ class LayoutTest {
     @Test
     fun rowScopeAdvancesCursorByWidthPlusGap() {
         val ui = UiContext()
-        val row = ui.createRow(x = 10f, y = 20f, height = 32f, gap = 8f)
+        val row = ui.createRow(x = 10f, y = 20f, height = 32f, horizontalArrangement = Arrangement.spacedBy(8f.px))
 
         val first = row.claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(32f.px))
         assertEquals(10f, first.x)

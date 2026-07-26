@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -27,7 +26,6 @@ fun UiScope.childColumn(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
 ): ColumnScope = context.createColumn(
     slot = slot,
-    gap = verticalArrangement.baseSpacingPx(),
     insets = modifier.insets,
     verticalArrangement = verticalArrangement,
     testTag = modifier.testTag,
@@ -46,7 +44,6 @@ fun UiScope.childRow(
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
 ): RowScope = context.createRow(
     slot = slot,
-    gap = horizontalArrangement.baseSpacingPx(),
     insets = modifier.insets,
     horizontalArrangement = horizontalArrangement,
     testTag = modifier.testTag,

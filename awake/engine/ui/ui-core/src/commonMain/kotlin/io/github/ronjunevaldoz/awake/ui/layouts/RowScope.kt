@@ -16,7 +16,6 @@ class RowScope internal constructor(
     private val y: Float,
     val width: Float? = null,
     val height: Float,
-    val gap: Float,
     val horizontalArrangement: Arrangement = defaultArrangement(),
     override val testTag: String? = null,
     override val hasBoundedFillWidth: Boolean = width != null,
@@ -30,6 +29,10 @@ class RowScope internal constructor(
      * `UiScopeMetrics.crossAxisAlignmentContainer`) so there's real slack to center/end into. */
     val verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
 ) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
+    /** Cursor advance between successive children -- derived from [horizontalArrangement] rather
+     * than threaded separately, since it was always just `horizontalArrangement.baseSpacingPx()`
+     * at every real call site (see UiLayoutFactory). */
+    val gap: Float = horizontalArrangement.baseSpacingPx()
     var cursorX: Float = startX
         private set
     private var plannedIndex: Int = 0

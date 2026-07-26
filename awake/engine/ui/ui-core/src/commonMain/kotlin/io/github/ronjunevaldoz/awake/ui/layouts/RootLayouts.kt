@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
@@ -32,7 +31,6 @@ fun UiContext.column(
 ) {
     createColumn(
         slot = resolveRootSlot(modifier),
-        gap = verticalArrangement.baseSpacingPx(),
         verticalArrangement = verticalArrangement,
         testTag = modifier.testTag
     ).block()
@@ -45,7 +43,6 @@ fun UiContext.row(
 ) {
     createRow(
         slot = resolveRootSlot(modifier),
-        gap = horizontalArrangement.baseSpacingPx(),
         horizontalArrangement = horizontalArrangement,
         testTag = modifier.testTag
     ).block()

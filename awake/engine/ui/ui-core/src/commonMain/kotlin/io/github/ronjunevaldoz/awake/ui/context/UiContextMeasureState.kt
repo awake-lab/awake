@@ -3,7 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import kotlin.math.max
@@ -79,7 +81,12 @@ internal class UiContextMeasureState {
         val outerSlot = UiSlot(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
         val measureScope = measureContext.createColumn(
             slot = outerSlot,
-            gap = gap,
+            // This trial column's own cursor advance must match the real column's actual
+            // [gap] (already resolved by the caller from its real arrangement), not this trial
+            // scope's own default arrangement -- reconstruct an equivalent SpacedBy arrangement
+            // via .px (not .dp) so verticalArrangement.baseSpacingPx() round-trips back to the
+            // exact same pixel value regardless of UiDensity.scale.
+            verticalArrangement = Arrangement.spacedBy(gap.px),
             insets = insets
         )
         measureScope.content(outerSlot)
@@ -98,7 +105,9 @@ internal class UiContextMeasureState {
         val outerSlot = UiSlot(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
         val measureScope = measureContext.createRow(
             slot = outerSlot,
-            gap = gap,
+            // See the matching comment in measureColumnContent -- same real-gap-not-default
+            // reasoning, row-side.
+            horizontalArrangement = Arrangement.spacedBy(gap.px),
             insets = insets
         )
         measureScope.content(outerSlot)

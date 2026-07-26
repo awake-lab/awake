@@ -246,7 +246,9 @@ fun UiScope.row(
         }
         context.createRow(
             slot = slot,
-            gap = plan.betweenSpacePx,
+            // See the matching comment in UiScope.column() -- gap is unused whenever
+            // plannedSlots is supplied (this branch always supplies it), so it's no longer
+            // threaded here either.
             horizontalArrangement = effectiveArrangement,
             testTag = testTag ?: modifier.testTag,
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,

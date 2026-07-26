@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
@@ -78,7 +77,6 @@ fun UiContext.createColumn(
 ): ColumnScope = withRootEnvironment(font, theme, textScale) {
     createColumn(
         slot = resolveRootSlot(modifier),
-        gap = verticalArrangement.baseSpacingPx(),
         insets = modifier.insets,
         verticalArrangement = verticalArrangement,
         testTag = modifier.testTag,
@@ -126,7 +124,6 @@ fun UiContext.createRow(
     }
     return createRow(
         slot = resolveRootSlot(modifier),
-        gap = horizontalArrangement.baseSpacingPx(),
         horizontalArrangement = horizontalArrangement,
         testTag = modifier.testTag,
         overlayOnly = overlayOnly
