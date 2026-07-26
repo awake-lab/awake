@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -129,33 +130,42 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             shadcnSupportingText("Configure the look and feel.")
             spacer(Modifier.height(12f.dp))
 
+            // Shared fixed label width across all rows in this settings panel -- sized to fit
+            // the longest label ("Accent") so dropdowns align to the same x position instead of
+            // each row's label claiming only its own intrinsic width.
+            val settingsLabelWidth = 72f.dp
+
             shadcnFieldDropdown(
                 id = "showcase-style-preset",
-                label = "Style",
                 options = ShowcaseStyleOptions,
                 selectedIndex = state.showcaseStylePresetIndex
-            )?.let { state.showcaseStylePresetIndex = it }
+            ) {
+                shadcnFieldLabel("Style", modifier = Modifier.width(settingsLabelWidth))
+            }?.let { state.showcaseStylePresetIndex = it }
 
             shadcnFieldDropdown(
                 id = "showcase-base-color",
-                label = "Base",
                 options = ShowcaseBaseColorOptions,
                 selectedIndex = state.showcaseBaseColorIndex
-            )?.let { state.showcaseBaseColorIndex = it }
+            ) {
+                shadcnFieldLabel("Base", modifier = Modifier.width(settingsLabelWidth))
+            }?.let { state.showcaseBaseColorIndex = it }
 
             shadcnFieldDropdown(
                 id = "showcase-theme-mode",
-                label = "Mode",
                 options = ShowcaseThemeModeOptions,
                 selectedIndex = state.showcaseThemeModeIndex
-            )?.let { state.showcaseThemeModeIndex = it }
+            ) {
+                shadcnFieldLabel("Mode", modifier = Modifier.width(settingsLabelWidth))
+            }?.let { state.showcaseThemeModeIndex = it }
 
             shadcnFieldDropdown(
                 id = "showcase-accent",
-                label = "Accent",
                 options = ShowcaseAccentOptions,
                 selectedIndex = state.showcaseAccentIndex
-            )?.let { state.showcaseAccentIndex = it }
+            ) {
+                shadcnFieldLabel("Accent", modifier = Modifier.width(settingsLabelWidth))
+            }?.let { state.showcaseAccentIndex = it }
 
             spacer(Modifier.height(8f.dp))
             shadcnSupportingText(

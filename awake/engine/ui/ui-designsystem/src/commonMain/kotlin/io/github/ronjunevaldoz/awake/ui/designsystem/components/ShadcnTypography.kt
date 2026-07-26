@@ -142,8 +142,12 @@ fun UiScope.shadcnLabel(
     val glyphPx = resolveGlyphPx(font, labelTextStyle)
     val fullText = if (required) "$text *" else text
     val labelWidthPx = font.measureTextWidth(fullText, glyphPx)
+    // Respect an explicit caller-supplied width (e.g. a shared label column across sibling
+    // rows) -- only fall back to the intrinsic glyph measurement when the caller didn't ask
+    // for a specific width.
+    val resolvedWidth = modifier.widthDimension ?: Dimension.Fixed(labelWidthPx.px)
     return row(
-        modifier = modifier.width(labelWidthPx.px).height(glyphPx.px),
+        modifier = modifier.width(resolvedWidth).height(glyphPx.px),
         horizontalArrangement = Arrangement.spacedBy(0f.dp)
     ) {
         shadcnText(text, muted = disabled, style = Style { textSize(shadcnTheme.typography.label) })
