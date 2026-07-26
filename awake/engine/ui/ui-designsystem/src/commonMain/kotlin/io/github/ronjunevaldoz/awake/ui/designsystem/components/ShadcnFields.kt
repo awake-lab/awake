@@ -239,7 +239,7 @@ fun ColumnScope.shadcnTabs(
     return resolved
 }
 
-fun UiScope.shadcnTextField(
+fun UiScope.shadcnInput(
     id: String,
     value: String,
     placeholder: String = "",
@@ -279,7 +279,7 @@ fun UiScope.shadcnTextarea(
     minLines = minLines
 )
 
-fun UiScope.shadcnDropdown(
+fun UiScope.shadcnSelect(
     id: String,
     options: List<String>,
     selectedIndex: Int,

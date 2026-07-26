@@ -69,7 +69,7 @@ internal val ShowcasePages = listOf(
                 label = "Primary",
                 modifier = Modifier.width(120f.dp).height(36f.dp)
             )
-            shadcnDropdown(
+            shadcnSelect(
                 id = "style",
                 options = options,
                 selectedIndex = 0,
@@ -230,7 +230,7 @@ internal val ShowcasePages = listOf(
         description = "A real, typeable single-line field -- click to focus, type, backspace, and use the arrow keys to move the cursor.",
         usageCode = """
             var name by remember { "" }
-            name = shadcnTextField(
+            name = shadcnInput(
                 id = "name",
                 value = name,
                 placeholder = "Jane Doe",

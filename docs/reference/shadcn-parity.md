@@ -40,7 +40,7 @@ widget that could be styled to look similar."
 | Card | ✓ `shadcnSurface(variant = Card)` |
 | Badge | ✓ `shadcnBadge` |
 | Chip | ✗ |
-| TextField | ✓ `shadcnTextField` (built this session -- see gaps above) |
+| TextField | ✓ `shadcnInput` (built this session -- see gaps above) |
 | Text | ✓ `shadcnBodyText`/`Headline`/`SectionTitle`/`SupportingText` |
 | Icon | ✓ `icon()` (ui-unstyled, theme-agnostic; no shadcn-specific auto-tint wrapper) |
 
@@ -105,7 +105,7 @@ widget that could be styled to look similar."
 | Sheet | ✗ |
 | Drawer | ✗ |
 | Combobox | ✗ |
-| Select | ✓ `shadcnDropdown` (non-searchable, matches real shadcn's plain Select) |
+| Select | ✓ `shadcnSelect` (non-searchable, matches real shadcn's plain Select) |
 | Date Picker | ✗ |
 | Command | ✗ |
 | Menubar | ✗ |
@@ -146,7 +146,7 @@ field/overlay/selection families; this inventory is what to consult when decidin
 | `button` | `ButtonVariant`: Default, Outline, Secondary, Ghost, Destructive, Link; `ButtonSize`: Xs, Sm, Md, Lg, Icon | `ShadcnButtonVariant`: Primary, Secondary, Outline, Ghost, Danger, Link; `ShadcnButtonSize`: Xs, Sm, Md, Lg, Icon (**added** -- height-only, width still comes from caller's modifier/content) | Closed. |
 | `badge` | `BadgeVariant`: Default, Secondary, Destructive, Outline, Ghost | `ShadcnBadgeVariant`: Primary, Secondary, Outline, Danger, **Ghost** (added) | Closed. |
 | `text-field` | `TextFieldVariant`: Default, Filled, Ghost | `ShadcnTextFieldVariant`: Default, **Filled**, **Ghost** (added); error/invalid and disabled states already existed | Closed. |
-| `select` | `SelectVariant`: Default | `shadcnDropdown()`: no variant axis | Matches (both effectively single-variant). |
+| `select` | `SelectVariant`: Default | `shadcnSelect()`: no variant axis | Matches (both effectively single-variant). |
 | `checkbox` / `switch` / `slider` / `tabs` / `tooltip` / `popover` / `dropdown-menu` / `dialog` / `alert-dialog` | No variant axis in the real component either | Matches | No gap -- these are correctly single-look on both sides. |
 | `toggle` | `ToggleVariant`: Default, Outline | We have no separate "Toggle" component from "Switch" -- Awake's `toggle()` is the switch equivalent; a bordered-button-style toggle (shadcn's actual `Toggle`, a different component from `Switch`) doesn't exist here. | Not a gap in the switch we have -- a genuinely separate missing *component* (icon/text toggle-button, not a boolean switch). |
 
@@ -165,7 +165,7 @@ components, not all at once up front.
 ## Recommended next steps, in priority order
 
 1. ~~Add `textField()`'s missing states~~ -- done: `enabled`/`isError` on `textField()` and
-   `shadcnTextField()`, `errorText` on `shadcnPropertyTextField()`. Verified visually
+   `shadcnInput()`, `errorText` on `shadcnPropertyTextField()`. Verified visually
    against `docs/reference/awake-previews/awake-textfield-states-light.png`.
 2. ~~Add a `Link` button variant~~ -- done: `ShadcnButtonVariant.Link`. Verified visually
    against `docs/reference/awake-previews/awake-button-variants-light.png`.

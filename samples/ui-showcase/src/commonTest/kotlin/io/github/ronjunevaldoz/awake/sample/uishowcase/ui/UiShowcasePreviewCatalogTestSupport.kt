@@ -17,13 +17,13 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
@@ -693,13 +693,13 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
         modifier = Modifier.height(36f.dp.toDimension())
     ) {
-        shadcnTextField(
+        shadcnInput(
             id = "showcase-matrix-field-empty",
             value = "",
             placeholder = "Placeholder",
             modifier = Modifier.width(200f.px).height(36f.dp)
         )
-        shadcnTextField(
+        shadcnInput(
             id = "showcase-matrix-field-focused",
             value = "Typed text",
             modifier = Modifier.width(200f.px).height(36f.dp)
@@ -709,13 +709,13 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
         modifier = Modifier.height(36f.dp.toDimension())
     ) {
-        shadcnDropdown(
+        shadcnSelect(
             id = "showcase-matrix-dropdown-theme",
             options = listOf("Light", "Dark", "Auto"),
             selectedIndex = 0,
             modifier = Modifier.width(200f.px)
         )
-        shadcnDropdown(
+        shadcnSelect(
             id = "showcase-matrix-dropdown-accent",
             options = listOf("Base", "Blue", "Emerald"),
             selectedIndex = 1,

@@ -43,7 +43,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSpinner
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
@@ -261,11 +261,11 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
                 .height((metadata.height.toFloat() - 48f).dp),
             verticalArrangement = Arrangement.spacedBy(16f.dp)
         ) {
-            shadcnTextField("parity-field-1", value = "", placeholder = "Default", modifier = Modifier.width(248f.px).height(40f.px))
-            shadcnTextField("parity-field-2", value = "", placeholder = "Filled", variant = ShadcnTextFieldVariant.Filled, modifier = Modifier.width(248f.px).height(40f.px))
-            shadcnTextField("parity-field-3", value = "", placeholder = "Ghost", variant = ShadcnTextFieldVariant.Ghost, modifier = Modifier.width(248f.px).height(40f.px))
-            shadcnTextField("parity-field-4", value = "Invalid value", modifier = Modifier.width(248f.px).height(40f.px), isError = true)
-            shadcnTextField("parity-field-5", value = "", placeholder = "Disabled", modifier = Modifier.width(248f.px).height(40f.px), enabled = false)
+            shadcnInput("parity-field-1", value = "", placeholder = "Default", modifier = Modifier.width(248f.px).height(40f.px))
+            shadcnInput("parity-field-2", value = "", placeholder = "Filled", variant = ShadcnTextFieldVariant.Filled, modifier = Modifier.width(248f.px).height(40f.px))
+            shadcnInput("parity-field-3", value = "", placeholder = "Ghost", variant = ShadcnTextFieldVariant.Ghost, modifier = Modifier.width(248f.px).height(40f.px))
+            shadcnInput("parity-field-4", value = "Invalid value", modifier = Modifier.width(248f.px).height(40f.px), isError = true)
+            shadcnInput("parity-field-5", value = "", placeholder = "Disabled", modifier = Modifier.width(248f.px).height(40f.px), enabled = false)
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
