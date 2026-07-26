@@ -24,7 +24,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnF
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldError
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLabel
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLegend
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldSet
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -530,6 +532,42 @@ class ShadcnDesignSystemTest {
         assertTrue(
             glyphs.any { abs(it.color.r - destructive.r) < 0.01f && abs(it.color.g - destructive.g) < 0.01f },
             "shadcnFieldError text should render in the theme's destructive color"
+        )
+    }
+
+    @Test
+    fun shadcnFieldSetRendersLegendAboveContentWithoutOverlap() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(320f, 220f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+            shadcnFieldSet(id = "payment-fieldset") {
+                shadcnFieldLegend("Payment Method")
+                shadcnFieldDescription("All transactions are secure and encrypted")
+                shadcnFieldGroup {
+                    shadcnField(id = "card-name", orientation = ShadcnFieldOrientation.Vertical) {
+                        shadcnFieldLabel("Name on Card")
+                        text("Evil Rabbit")
+                    }
+                }
+            }
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val legend = assertNotNull(semantics.firstOrNull { it.label == "Payment Method" })
+        val description = assertNotNull(
+            semantics.firstOrNull { it.label == "All transactions are secure and encrypted" }
+        )
+        val cardName = assertNotNull(semantics.firstOrNull { it.label == "Evil Rabbit" })
+        assertTrue(
+            legend.bounds.y + legend.bounds.height <= description.bounds.y + 1f,
+            "field set legend must render above its description, not overlap it"
+        )
+        assertTrue(
+            description.bounds.y + description.bounds.height <= cardName.bounds.y + 1f,
+            "field set legend/description must render above the nested field group content"
         )
     }
 

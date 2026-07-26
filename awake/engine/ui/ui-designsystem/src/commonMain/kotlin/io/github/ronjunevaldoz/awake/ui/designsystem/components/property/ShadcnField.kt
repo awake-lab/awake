@@ -5,7 +5,9 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.property
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnLabel
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
@@ -15,10 +17,9 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Matches real shadcn-compose's `Field` orientation switch -- [Vertical] stacks label above
@@ -84,6 +85,27 @@ fun UiScope.shadcnFieldError(text: String, modifier: UiModifier = Modifier): UiS
         }
     )
 }
+
+/**
+ * Real shadcn's `FieldSet` (HTML `<fieldset>` equivalent) -- a titled section wrapper, typically
+ * containing a [shadcnFieldLegend], an optional [shadcnFieldDescription], and a nested
+ * [shadcnFieldGroup]. Real shadcn resets the browser's default fieldset border/padding to
+ * nothing, so like [shadcnField] this is just structural grouping -- a plain column, no
+ * border/background.
+ */
+fun ColumnScope.shadcnFieldSet(
+    id: String? = null,
+    modifier: UiModifier = Modifier,
+    content: ColumnScope.() -> Unit
+): UiSlot = column(id = id, verticalArrangement = Arrangement.spacedBy(UiSpacing.sm), modifier = modifier) { content() }
+
+/** Real shadcn's `FieldLegend` (HTML `<legend>` equivalent) -- the title of a [shadcnFieldSet],
+ * one step up in visual weight from [shadcnFieldLabel]. Delegates to [shadcnSectionTitle] for the
+ * same size/weight used by every other section-level heading in this module. */
+fun ColumnScope.shadcnFieldLegend(
+    text: String,
+    modifier: UiModifier = Modifier
+): UiSlot = shadcnSectionTitle(text, modifier = modifier)
 
 /** Real shadcn's `FieldGroup` -- groups several [shadcnField]s into one column. */
 fun ColumnScope.shadcnFieldGroup(

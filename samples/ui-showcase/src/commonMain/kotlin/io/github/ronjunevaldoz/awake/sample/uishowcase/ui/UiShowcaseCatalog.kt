@@ -570,6 +570,40 @@ internal val ShowcasePages = listOf(
             "Each row's thumbnail samples the same Easing.transform used to drive the moving thumb, so the shape and the motion always agree."
         ),
         renderPreview = { _ -> drawUiShowcaseEasingPreview() }
+    ),
+    ShowcasePage(
+        id = "field-demo",
+        title = "Checkout Form",
+        category = ShowcaseCategory.Patterns,
+        description = "A real-world composed pattern: shadcn/ui's Payment Method checkout form, built from shadcnFieldSet/shadcnFieldLegend and the rest of the Field family.",
+        usageCode = """
+            shadcnFieldGroup {
+                shadcnFieldSet(id = "checkout-payment") {
+                    shadcnFieldLegend("Payment Method")
+                    shadcnFieldDescription("All transactions are secure and encrypted")
+                    shadcnFieldGroup {
+                        shadcnField(id = "checkout-name-on-card") {
+                            shadcnFieldLabel("Name on Card")
+                            shadcnInput(id = "...", value = nameOnCard, placeholder = "Evil Rabbit")
+                        }
+                        row(horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
+                            column(modifier = Modifier.weight(1f)) {
+                                shadcnField(id = "checkout-month") { ... }
+                            }
+                            // ...Year, CVV
+                        }
+                    }
+                }
+                shadcnFieldSeparator()
+                shadcnFieldSet(id = "checkout-billing") { ... }
+            }
+        """.trimIndent(),
+        notes = listOf(
+            "shadcnFieldSet/shadcnFieldLegend are new -- a titled section wrapper and its title, one step up in weight from shadcnFieldLabel.",
+            "The Month/Year/CVV row uses row() + weight(1f) columns, the same pattern CSS's grid-cols-3 gap-4 maps to.",
+            "No border/background chrome on shadcnFieldSet, matching real shadcn's CSS reset of the native <fieldset> border."
+        ),
+        renderPreview = { state -> drawUiShowcaseFieldDemoPreview(state) }
     )
 )
 

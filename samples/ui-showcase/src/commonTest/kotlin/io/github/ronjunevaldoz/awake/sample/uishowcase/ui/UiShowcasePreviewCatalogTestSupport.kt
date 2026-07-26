@@ -90,7 +90,8 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseCollapsibleOpenPreview,
     UiShowcaseEasingRestPreview,
     UiShowcaseEasingInFlightPreview,
-    UiShowcaseEasingSettledPreview
+    UiShowcaseEasingSettledPreview,
+    UiShowcaseFieldDemoPreview
 )
 
 private val PreviewOverlayMenuItems = listOf(
@@ -606,6 +607,20 @@ internal object UiShowcaseCollapsibleOpenPreview : AwakeUiPreviewEntry {
         ) {
             drawUiShowcaseCollapsibleOpenContent()
         }
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-field-demo",
+    title = "Checkout Form",
+    group = "Patterns",
+    summary = "shadcn/ui's Payment Method checkout form rebuilt from shadcnFieldSet/shadcnFieldLegend and the rest of the Field family.",
+    width = 900,
+    height = 1000,
+    reportScale = 2
+)
+internal object UiShowcaseFieldDemoPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "field-demo")
 }
 
 private fun renderUiShowcasePagePreviewFrame(
