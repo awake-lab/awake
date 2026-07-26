@@ -7,7 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.EaseInOut
 import io.github.ronjunevaldoz.awake.ui.EaseOut
 import io.github.ronjunevaldoz.awake.ui.Easing
 import io.github.ronjunevaldoz.awake.ui.LinearEasing
-import io.github.ronjunevaldoz.awake.ui.animateFloatTween
+import io.github.ronjunevaldoz.awake.ui.RepeatMode
+import io.github.ronjunevaldoz.awake.ui.animateFloatRepeatable
 import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
@@ -23,7 +24,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.shadcnShimmer
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.layout.*
@@ -76,18 +76,14 @@ internal fun ColumnScope.drawUiShowcaseEasingPreview() {
 
 private fun ColumnScope.drawUiShowcaseEasingRow(name: String, easing: Easing) {
     val id = "showcase-easing-${name.lowercase().replace(" ", "-")}"
-    // ponytail: naive endpoint-threshold ping-pong, good enough for a looping demo; swap for a
-    // proper repeat-forever animation spec if this pattern shows up elsewhere.
-    val forward = context.rememberBooleanState(id = "$id-direction", initial = true)
-    val fraction = animateFloatTween(
+    val fraction = animateFloatRepeatable(
         id = id,
-        target = if (forward.value) 1f else 0f,
-        initial = 0f,
+        initialValue = 0f,
+        targetValue = 1f,
         durationMs = UiShowcaseEasingDurationMs,
-        easing = easing
+        easing = easing,
+        repeatMode = RepeatMode.Reverse
     )
-    if (forward.value && fraction >= 0.999f) forward.value = false
-    if (!forward.value && fraction <= 0.001f) forward.value = true
 
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),

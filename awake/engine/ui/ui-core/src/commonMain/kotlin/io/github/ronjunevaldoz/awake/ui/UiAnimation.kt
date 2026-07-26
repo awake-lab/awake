@@ -116,3 +116,95 @@ internal fun animateFloatTweenStep(
     val eased = easing.transform(fraction)
     return startValue + (target - startValue) * eased
 }
+
+/**
+ * How [animateFloatRepeatable] plays each subsequent cycle after the first, matching Compose's
+ * `RepeatMode`.
+ */
+enum class RepeatMode {
+    /** Jump back to [animateFloatRepeatable]'s `initialValue` and play forward again. */
+    Restart,
+
+    /** Play the previous cycle backward -- a continuous ping-pong with no jump. */
+    Reverse
+}
+
+/**
+ * Repeat-wrapped [animateFloatTween] -- separates the tween SPEC (`durationMs` + [easing]) from a
+ * repeat policy ([repeatMode], [iterations]), the same split as Compose's `repeatable`/
+ * `infiniteRepeatable` wrapping a `tween` `AnimationSpec`. `iterations = Int.MAX_VALUE` (the
+ * default) means "repeat forever"; there's no dedicated infinite/finite sealed type because a
+ * sentinel int is the same one Compose itself uses (`AnimationConstants.Infinite`) and keeps this
+ * a single flat parameter instead of an extra type callers have to construct.
+ *
+ * Unlike [animateFloatTween]'s reactive per-frame stepping, the progress here is computed in
+ * closed form from a monotonically increasing elapsed-time accumulator: `cycleIndex` and
+ * `cycleElapsedMs` fall out of `elapsedMs / durationMs`, and [RepeatMode.Reverse] mirrors the
+ * fraction on odd cycles (`1f - cycleFraction`). Nothing observes the *output* value to decide
+ * when to turn around, so there's no one-frame-late flip and no stutter at the turnaround --
+ * the bug the naive "watch the fraction, flip target when it settles" approach had.
+ */
+fun UiContext.animateFloatRepeatable(
+    id: String,
+    initialValue: Float,
+    targetValue: Float,
+    durationMs: Float = 300f,
+    easing: Easing = LinearEasing,
+    repeatMode: RepeatMode = RepeatMode.Restart,
+    iterations: Int = Int.MAX_VALUE
+): Float {
+    val state = widgetStateInternal("__repeatable__$id")
+    val elapsedMs = state.get("elapsed", 0f)
+
+    // Same guard as animateFloat/animateFloatTween above: advancing the elapsed-time accumulator
+    // is a side effect, so a trial-measurement pass (sharing the real state store, see
+    // UiContextMeasureState.createMeasureContext) must not advance it a second time on top of the
+    // real frame's pass -- this exact bug class was already found and fixed for shimmer (85f14821).
+    if (isMeasuringInternal()) {
+        return animateFloatRepeatableStep(
+            initialValue, targetValue, elapsedMs, durationMs, easing, repeatMode, iterations
+        )
+    }
+
+    val nextElapsed = elapsedMs + frameDeltaSecondsInternal() * 1000f
+    state.set("elapsed", nextElapsed)
+    return animateFloatRepeatableStep(
+        initialValue, targetValue, nextElapsed, durationMs, easing, repeatMode, iterations
+    )
+}
+
+fun UiScope.animateFloatRepeatable(
+    id: String,
+    initialValue: Float,
+    targetValue: Float,
+    durationMs: Float = 300f,
+    easing: Easing = LinearEasing,
+    repeatMode: RepeatMode = RepeatMode.Restart,
+    iterations: Int = Int.MAX_VALUE
+): Float = context.animateFloatRepeatable(id, initialValue, targetValue, durationMs, easing, repeatMode, iterations)
+
+internal fun animateFloatRepeatableStep(
+    startValue: Float,
+    target: Float,
+    elapsedMs: Float,
+    durationMs: Float,
+    easing: Easing,
+    repeatMode: RepeatMode,
+    iterations: Int
+): Float {
+    if (durationMs <= 0f) return target
+
+    val rawCycleIndex = (elapsedMs / durationMs).toInt()
+    val finished = iterations != Int.MAX_VALUE && rawCycleIndex >= iterations
+    // Once a finite iteration count is exhausted, hold at the last permitted cycle's end value
+    // instead of continuing to wrap into cycles that were never allowed to happen.
+    val cycleIndex = if (finished) iterations - 1 else rawCycleIndex
+    val cycleElapsedMs = if (finished) durationMs else elapsedMs - cycleIndex * durationMs
+
+    val cycleFraction = (cycleElapsedMs / durationMs).coerceIn(0f, 1f)
+    val reversed = repeatMode == RepeatMode.Reverse && cycleIndex % 2 == 1
+    val rawFraction = if (reversed) 1f - cycleFraction else cycleFraction
+
+    val eased = easing.transform(rawFraction)
+    return startValue + (target - startValue) * eased
+}

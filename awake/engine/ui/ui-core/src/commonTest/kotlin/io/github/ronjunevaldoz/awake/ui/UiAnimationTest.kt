@@ -204,4 +204,90 @@ class UiAnimationTest {
             "retargeting must start easing from the current animated value, not jump straight to 0"
         )
     }
+
+    @Test
+    fun repeatModeRestartSnapsCleanlyAtCycleBoundaries() {
+        val durationMs = 300f
+        val justBeforeBoundary = animateFloatRepeatableStep(
+            startValue = 0f, target = 10f, elapsedMs = durationMs - 1f, durationMs = durationMs,
+            easing = LinearEasing, repeatMode = RepeatMode.Restart, iterations = Int.MAX_VALUE
+        )
+        val atBoundary = animateFloatRepeatableStep(
+            startValue = 0f, target = 10f, elapsedMs = durationMs, durationMs = durationMs,
+            easing = LinearEasing, repeatMode = RepeatMode.Restart, iterations = Int.MAX_VALUE
+        )
+
+        assertTrue(justBeforeBoundary > 9f, "just before the boundary the cycle should be nearly complete")
+        assertEquals(0f, atBoundary, "Restart must jump straight back to the start value at a cycle boundary")
+    }
+
+    @Test
+    fun repeatModeReverseIsSmoothAcrossACycleBoundary() {
+        val durationMs = 300f
+        val epsilon = 0.5f
+        val justBefore = animateFloatRepeatableStep(
+            startValue = 0f, target = 10f, elapsedMs = durationMs - epsilon, durationMs = durationMs,
+            easing = LinearEasing, repeatMode = RepeatMode.Reverse, iterations = Int.MAX_VALUE
+        )
+        val justAfter = animateFloatRepeatableStep(
+            startValue = 0f, target = 10f, elapsedMs = durationMs + epsilon, durationMs = durationMs,
+            easing = LinearEasing, repeatMode = RepeatMode.Reverse, iterations = Int.MAX_VALUE
+        )
+
+        assertTrue(
+            kotlin.math.abs(justAfter - justBefore) < 0.1f,
+            "Reverse must not jump at a cycle boundary -- sampled just before ($justBefore) and just " +
+                "after ($justAfter) the boundary should be nearly identical"
+        )
+    }
+
+    @Test
+    fun finiteIterationsStopAndHoldAtTheFinalValue() {
+        val durationMs = 300f
+        val midSecondCycle = animateFloatRepeatableStep(
+            startValue = 0f, target = 10f, elapsedMs = durationMs * 1.5f, durationMs = durationMs,
+            easing = LinearEasing, repeatMode = RepeatMode.Restart, iterations = 2
+        )
+        val wayPastExhaustion = animateFloatRepeatableStep(
+            startValue = 0f, target = 10f, elapsedMs = durationMs * 50f, durationMs = durationMs,
+            easing = LinearEasing, repeatMode = RepeatMode.Restart, iterations = 2
+        )
+
+        assertEquals(5f, midSecondCycle, "with 2 iterations, the second cycle should still play toward target, not already be held")
+        assertEquals(10f, wayPastExhaustion, "once iterations are exhausted the value must hold at target, not wrap into a phantom cycle")
+    }
+
+    @Test
+    fun infiniteRepeatKeepsAdvancingAcrossSeveralCycles() {
+        val durationMs = 300f
+        val midCycle0 = animateFloatRepeatableStep(
+            startValue = 0f, target = 10f, elapsedMs = durationMs * 0.5f, durationMs = durationMs,
+            easing = LinearEasing, repeatMode = RepeatMode.Restart, iterations = Int.MAX_VALUE
+        )
+        val midCycle5 = animateFloatRepeatableStep(
+            startValue = 0f, target = 10f, elapsedMs = durationMs * 5.5f, durationMs = durationMs,
+            easing = LinearEasing, repeatMode = RepeatMode.Restart, iterations = Int.MAX_VALUE
+        )
+
+        assertEquals(5f, midCycle0, absoluteTolerance = 1e-3f)
+        assertEquals(5f, midCycle5, absoluteTolerance = 1e-3f)
+    }
+
+    @Test
+    fun uiContextAnimateFloatRepeatableAdvancesTheAccumulatorOncePerFrame() {
+        val ui = UiContext()
+        val durationMs = 300f
+
+        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        val first = ui.animateFloatRepeatable(
+            id = "pulse", initialValue = 0f, targetValue = 10f, durationMs = durationMs, easing = LinearEasing
+        )
+
+        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        val second = ui.animateFloatRepeatable(
+            id = "pulse", initialValue = 0f, targetValue = 10f, durationMs = durationMs, easing = LinearEasing
+        )
+
+        assertTrue(second > first, "each real frame must advance the underlying elapsed-time accumulator")
+    }
 }
