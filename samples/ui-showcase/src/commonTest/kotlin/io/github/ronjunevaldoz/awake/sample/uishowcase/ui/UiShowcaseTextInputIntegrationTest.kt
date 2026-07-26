@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
 /**
  * Drives the REAL "text-input" showcase page -- the actual [ShowcasePages] entry,
  * [renderUiShowcasePagePreview] dispatch, [drawUiShowcaseTextInputPreview] composition, and
- * [io.github.ronjunevaldoz.awake.ui.designsystem.shadcnPropertyTextField] wrapper -- across
+ * [io.github.ronjunevaldoz.awake.ui.designsystem.shadcnFieldTextField] wrapper -- across
  * multiple frames with a persisted [UiContext], the same shape [io.github.ronjunevaldoz.awake
  * .ui.GameUiRuntime.render] uses in the live app. Every prior text-field test exercised
  * `textField()` in isolation with a hand-built [UiContext]; none of them went through this

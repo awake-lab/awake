@@ -3,8 +3,8 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyTextField
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -79,13 +79,13 @@ internal fun ColumnScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntime
 
     shadcnSupportingText("Click a field, type, backspace, and use the arrow keys -- this is a real keyboard-driven widget, not a mockup.")
     spacer(Modifier.height(8f.dp))
-    shadcnPropertyTextField(
+    shadcnFieldTextField(
         id = "showcase-name",
         label = "Name",
         value = name,
         placeholder = "Jane Doe"
     ).also { name = it }
-    shadcnPropertyTextField(
+    shadcnFieldTextField(
         id = "showcase-email",
         label = "Email",
         value = email,
@@ -93,7 +93,7 @@ internal fun ColumnScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntime
     ).also { email = it }
 
     var bio by context.rememberStateValue("ui-showcase-text-input", "bio") { "" }
-    shadcnPropertyTextarea(
+    shadcnFieldTextarea(
         id = "showcase-bio",
         label = "Bio",
         value = bio,

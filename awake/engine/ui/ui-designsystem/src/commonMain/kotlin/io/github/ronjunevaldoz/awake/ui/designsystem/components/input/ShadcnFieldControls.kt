@@ -6,13 +6,13 @@ import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnPropertyRow
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -29,7 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-private fun BoxScope.shadcnPropertyLabel(label: String) {
+private fun BoxScope.shadcnFieldLabel(label: String) {
     text(
         label = label,
         verticallyCentered = true,
@@ -41,7 +41,7 @@ private fun BoxScope.shadcnPropertyLabel(label: String) {
     )
 }
 
-fun ColumnScope.shadcnPropertyToggle(
+fun ColumnScope.shadcnFieldToggle(
     id: String,
     checked: Boolean,
     modifier: UiModifier = Modifier,
@@ -49,7 +49,7 @@ fun ColumnScope.shadcnPropertyToggle(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
     var resolved = checked
-    shadcnPropertyRow(
+    shadcnField(
         modifier = modifier.height(40f.dp),
         labelContent = labelContent
     ) { _ ->
@@ -62,7 +62,7 @@ fun ColumnScope.shadcnPropertyToggle(
     return resolved
 }
 
-fun ColumnScope.shadcnPropertyToggle(
+fun ColumnScope.shadcnFieldToggle(
     id: String,
     checked: Boolean,
     height: Dp,
@@ -71,7 +71,7 @@ fun ColumnScope.shadcnPropertyToggle(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Boolean {
     var resolved = checked
-    shadcnPropertyRow(
+    shadcnField(
         height = height,
         labelContent = labelContent
     ) { _ ->
@@ -85,22 +85,22 @@ fun ColumnScope.shadcnPropertyToggle(
     return resolved
 }
 
-fun ColumnScope.shadcnPropertyToggle(
+fun ColumnScope.shadcnFieldToggle(
     id: String,
     label: String,
     checked: Boolean,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
-): Boolean = shadcnPropertyToggle(
+): Boolean = shadcnFieldToggle(
     id = id,
     checked = checked,
     modifier = modifier,
     style = style
 ) {
-    shadcnPropertyLabel(label)
+    shadcnFieldLabel(label)
 }
 
-fun ColumnScope.shadcnPropertyDropdown(
+fun ColumnScope.shadcnFieldDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
@@ -110,12 +110,12 @@ fun ColumnScope.shadcnPropertyDropdown(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Int? {
     var resolved: Int? = null
-    shadcnPropertyRow(
+    shadcnField(
         modifier = modifier.height(40f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        resolved = shadcnDropdown(
+        resolved = shadcnSelect(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
@@ -126,7 +126,7 @@ fun ColumnScope.shadcnPropertyDropdown(
     return resolved
 }
 
-fun ColumnScope.shadcnPropertyDropdown(
+fun ColumnScope.shadcnFieldDropdown(
     id: String,
     options: List<String>,
     selectedIndex: Int,
@@ -136,12 +136,12 @@ fun ColumnScope.shadcnPropertyDropdown(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Int? {
     var resolved: Int? = null
-    shadcnPropertyRow(
+    shadcnField(
         height = height,
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        resolved = shadcnDropdown(
+        resolved = shadcnSelect(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
@@ -152,7 +152,7 @@ fun ColumnScope.shadcnPropertyDropdown(
     return resolved
 }
 
-fun ColumnScope.shadcnPropertyDropdown(
+fun ColumnScope.shadcnFieldDropdown(
     id: String,
     label: String,
     options: List<String>,
@@ -160,7 +160,7 @@ fun ColumnScope.shadcnPropertyDropdown(
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
-): Int? = shadcnPropertyDropdown(
+): Int? = shadcnFieldDropdown(
     id = id,
     options = options,
     selectedIndex = selectedIndex,
@@ -168,10 +168,10 @@ fun ColumnScope.shadcnPropertyDropdown(
     labelWidth = labelWidth,
     style = style
 ) {
-    shadcnPropertyLabel(label)
+    shadcnFieldLabel(label)
 }
 
-fun ColumnScope.shadcnPropertyTextField(
+fun ColumnScope.shadcnFieldTextField(
     id: String,
     value: String,
     placeholder: String = "",
@@ -188,12 +188,12 @@ fun ColumnScope.shadcnPropertyTextField(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): String {
     var resolved = value
-    shadcnPropertyRow(
+    shadcnField(
         modifier = modifier.height(40f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
     ) { slot ->
-        resolved = shadcnTextField(
+        resolved = shadcnInput(
             id = id,
             value = value,
             placeholder = placeholder,
@@ -212,7 +212,7 @@ fun ColumnScope.shadcnPropertyTextField(
     return resolved
 }
 
-fun ColumnScope.shadcnPropertyTextField(
+fun ColumnScope.shadcnFieldTextField(
     id: String,
     label: String,
     value: String,
@@ -222,7 +222,7 @@ fun ColumnScope.shadcnPropertyTextField(
     style: Style = Style.Empty,
     enabled: Boolean = true,
     errorText: String? = null
-): String = shadcnPropertyTextField(
+): String = shadcnFieldTextField(
     id = id,
     value = value,
     placeholder = placeholder,
@@ -232,10 +232,10 @@ fun ColumnScope.shadcnPropertyTextField(
     enabled = enabled,
     errorText = errorText
 ) {
-    shadcnPropertyLabel(label)
+    shadcnFieldLabel(label)
 }
 
-fun ColumnScope.shadcnPropertyTextarea(
+fun ColumnScope.shadcnFieldTextarea(
     id: String,
     value: String,
     placeholder: String = "",
@@ -260,7 +260,7 @@ fun ColumnScope.shadcnPropertyTextarea(
     val minHeight = (fontHeight * minLines) + (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
 
     var resolved = value
-    shadcnPropertyRow(
+    shadcnField(
         modifier = modifier.height(minHeight.px),
         labelWidth = labelWidth,
         labelContent = labelContent
@@ -285,7 +285,7 @@ fun ColumnScope.shadcnPropertyTextarea(
     return resolved
 }
 
-fun ColumnScope.shadcnPropertyTextarea(
+fun ColumnScope.shadcnFieldTextarea(
     id: String,
     label: String,
     value: String,
@@ -296,7 +296,7 @@ fun ColumnScope.shadcnPropertyTextarea(
     enabled: Boolean = true,
     errorText: String? = null,
     minLines: Int = 3
-): String = shadcnPropertyTextarea(
+): String = shadcnFieldTextarea(
     id = id,
     value = value,
     placeholder = placeholder,
@@ -307,10 +307,10 @@ fun ColumnScope.shadcnPropertyTextarea(
     errorText = errorText,
     minLines = minLines
 ) {
-    shadcnPropertyLabel(label)
+    shadcnFieldLabel(label)
 }
 
-fun ColumnScope.shadcnPropertySlider(
+fun ColumnScope.shadcnFieldSlider(
     id: String,
     min: Float,
     max: Float,
@@ -321,7 +321,7 @@ fun ColumnScope.shadcnPropertySlider(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Float {
     var resolved = value
-    shadcnPropertyRow(
+    shadcnField(
         modifier = modifier.height(40f.dp),
         labelWidth = labelWidth,
         labelContent = labelContent
@@ -338,7 +338,7 @@ fun ColumnScope.shadcnPropertySlider(
     return resolved
 }
 
-fun ColumnScope.shadcnPropertySlider(
+fun ColumnScope.shadcnFieldSlider(
     id: String,
     min: Float,
     max: Float,
@@ -349,7 +349,7 @@ fun ColumnScope.shadcnPropertySlider(
     labelContent: BoxScope.(slot: UiSlot) -> Unit
 ): Float {
     var resolved = value
-    shadcnPropertyRow(
+    shadcnField(
         height = height,
         labelWidth = labelWidth,
         labelContent = labelContent
@@ -366,7 +366,7 @@ fun ColumnScope.shadcnPropertySlider(
     return resolved
 }
 
-fun ColumnScope.shadcnPropertySlider(
+fun ColumnScope.shadcnFieldSlider(
     id: String,
     label: String,
     min: Float,
@@ -375,7 +375,7 @@ fun ColumnScope.shadcnPropertySlider(
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     style: Style = Style.Empty
-): Float = shadcnPropertySlider(
+): Float = shadcnFieldSlider(
     id = id,
     min = min,
     max = max,
@@ -384,5 +384,5 @@ fun ColumnScope.shadcnPropertySlider(
     labelWidth = labelWidth,
     style = style
 ) {
-    shadcnPropertyLabel(label)
+    shadcnFieldLabel(label)
 }

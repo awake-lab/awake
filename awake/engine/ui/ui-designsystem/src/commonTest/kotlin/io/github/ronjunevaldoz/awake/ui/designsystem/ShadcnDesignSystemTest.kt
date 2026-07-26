@@ -16,9 +16,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyDropdown
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertySlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldDivider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -212,9 +214,9 @@ class ShadcnDesignSystemTest {
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnSurface(
                 id = "dsl-fields", modifier = Modifier.height(Dimension.WrapContent)) {
-                shadcnPropertyToggle("show-grid", "Show Grid", checked = true)
-                shadcnPropertyDropdown("mode", "Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
-                shadcnPropertySlider("speed", "Speed", min = 1f, max = 10f, value = 5f)
+                shadcnFieldToggle("show-grid", "Show Grid", checked = true)
+                shadcnFieldDropdown("mode", "Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
+                shadcnFieldSlider("speed", "Speed", min = 1f, max = 10f, value = 5f)
             }
         }
 
@@ -266,7 +268,7 @@ class ShadcnDesignSystemTest {
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnSurface(
                 id = "slot-fields", modifier = Modifier.height(Dimension.WrapContent)) {
-                shadcnPropertyDropdown(
+                shadcnFieldDropdown(
                     id = "mode",
                     options = listOf("Orbit", "Fly"),
                     selectedIndex = 0,
@@ -274,7 +276,7 @@ class ShadcnDesignSystemTest {
                         text("Camera Mode")
                     }
                 )
-                shadcnPropertyToggle(
+                shadcnFieldToggle(
                     id = "grid",
                     checked = true,
                     labelContent = {
@@ -290,7 +292,7 @@ class ShadcnDesignSystemTest {
     }
 
     @Test
-    fun shadcnPropertyDropdownLabelIsVerticallyCenteredInItsRow() {
+    fun shadcnFieldDropdownLabelIsVerticallyCenteredInItsRow() {
         // Regression test: the property-row label text() calls never passed
         // verticallyCentered, and text()'s default (verticallyCentered = centered) resolves to
         // false when centered=false is passed for horizontal-only centering -- so the label
@@ -301,7 +303,7 @@ class ShadcnDesignSystemTest {
         ui.beginFrame(320f, 120f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
-            shadcnPropertyDropdown("mode", "Camera Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
+            shadcnFieldDropdown("mode", "Camera Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
         }
 
         val label = assertNotNull(
@@ -436,6 +438,43 @@ class ShadcnDesignSystemTest {
                 "card height=${card.bounds.height}, body height=${body.bounds.height}, padding=$verticalPadding"
         )
     }
+    @Test
+    fun shadcnFieldGroupStacksFieldsWithDividersWithoutOverlap() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(320f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+            shadcnFieldGroup(id = "settings-group") {
+                shadcnFieldToggle("show-grid", "Show Grid", checked = true)
+                shadcnFieldDivider()
+                shadcnFieldDropdown("mode", "Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
+                shadcnFieldDivider()
+                shadcnFieldSlider("speed", "Speed", min = 1f, max = 10f, value = 5f)
+            }
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val gridLabel = assertNotNull(semantics.firstOrNull { it.label == "Show Grid" })
+        val modeLabel = assertNotNull(semantics.firstOrNull { it.label == "Mode" })
+        val speedLabel = assertNotNull(semantics.firstOrNull { it.label == "Speed" })
+
+        assertTrue(
+            gridLabel.bounds.y + gridLabel.bounds.height <= modeLabel.bounds.y + 1f,
+            "first field must sit above the second, not overlap it"
+        )
+        assertTrue(
+            modeLabel.bounds.y + modeLabel.bounds.height <= speedLabel.bounds.y + 1f,
+            "second field must sit above the third, not overlap it"
+        )
+        // Each divider is a 4dp spacer + 1dp separator + 4dp spacer (9dp), so a group with two
+        // dividers between three fields must be noticeably taller than the same fields with no
+        // spacing at all.
+        val gap = modeLabel.bounds.y - (gridLabel.bounds.y + gridLabel.bounds.height)
+        assertTrue(gap >= 8f.dp.toPx(), "divider gap between fields should reserve the shared spacer+separator convention, was $gap")
+    }
+
     @Test
     fun shadcnPopoverAnchorsContentBelowAndCenteredOnItsTrigger() {
         val ui = UiContext()

@@ -5,23 +5,25 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.canvas
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyDropdown
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertySlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -31,13 +33,11 @@ import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.shadcnShimmer
-import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
+import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.theme
 
 internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
     shadcnBadge("SHOWCASE", variant = ShadcnBadgeVariant.Secondary)
@@ -54,12 +54,14 @@ internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
 }
 
 internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
-    val cardWidth = 220f
-    row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(Dimension.WrapContent)) {
-        surface(
+    row(
+        horizontalArrangement = Arrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(Dimension.WrapContent)
+    ) {
+        shadcnCard(
             id = "ui-showcase-reference-spec",
-            style = theme.components.surface then Style { shape(14f.dp) }
-        , modifier = Modifier.width(Dimension.Fixed(cardWidth.dp)).height(Dimension.Fixed(284f.dp))) {
+            modifier = Modifier.width(Dimension.WrapContent).height(Dimension.Fixed(284f.dp))
+        ) {
             shadcnSectionTitle("Official cues")
             shadcnSupportingText("The reference we keep checking against.")
             spacer(Modifier.height(8f.dp))
@@ -73,10 +75,11 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
             spacer(Modifier.height(8f.dp))
             shadcnBadge("TARGET", variant = ShadcnBadgeVariant.Outline)
         }
-        surface(
+        shadcnCard(
             id = "ui-showcase-reference-awake",
-            style = theme.components.surface then Style { shape(14f.dp) }
-        , modifier = Modifier.width(Dimension.Fixed(cardWidth.dp)).height(Dimension.Fixed(284f.dp))) {
+            modifier = Modifier.width(Dimension.WrapContent)
+                .height(Dimension.Fixed(284f.dp))
+        ) {
             shadcnSectionTitle("Awake now")
             shadcnSupportingText("Our current implementation after the sizing and popover pass.")
             spacer(Modifier.height(8f.dp))
@@ -85,7 +88,10 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
                 maxLines = 4
             )
             spacer(Modifier.height(8f.dp))
-            row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+            row(
+                horizontalArrangement = Arrangement.spacedBy(8f.dp),
+                modifier = Modifier.height(36f.dp.toDimension())
+            ) {
                 shadcnButton(
                     "reference-primary",
                     "Primary",
@@ -109,17 +115,21 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
     shadcnSupportingText("This page proves that the Awake theme factory can re-skin the entire component library live, including custom canvas chrome.")
     spacer(Modifier.height(16f.dp))
 
-    row( horizontalArrangement = Arrangement.spacedBy(24f.dp), modifier = Modifier.height(Dimension.WrapContent)) {
+    row(
+        horizontalArrangement = Arrangement.spacedBy(24f.dp),
+        modifier = Modifier.height(Dimension.WrapContent)
+    ) {
         // --- Settings Column ---
         surface(
             id = "showcase-theme-settings",
-            style = theme.components.surface then Style { shape(12f.dp) }
-        , modifier = Modifier.width(Dimension.Fixed(320f.dp)).height(Dimension.WrapContent)) {
+            style = theme.components.surface then Style { shape(12f.dp) },
+            modifier = Modifier.width(Dimension.Fixed(320f.dp)).height(Dimension.WrapContent)
+        ) {
             shadcnSectionTitle("Theme Settings")
             shadcnSupportingText("Configure the look and feel.")
             spacer(Modifier.height(12f.dp))
 
-            shadcnPropertyDropdown(
+            shadcnFieldDropdown(
                 id = "showcase-style-preset",
                 label = "Style",
                 options = ShowcaseStyleOptions,
@@ -127,7 +137,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 labelWidth = 64f.dp
             )?.let { state.showcaseStylePresetIndex = it }
 
-            shadcnPropertyDropdown(
+            shadcnFieldDropdown(
                 id = "showcase-base-color",
                 label = "Base",
                 options = ShowcaseBaseColorOptions,
@@ -135,7 +145,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 labelWidth = 64f.dp
             )?.let { state.showcaseBaseColorIndex = it }
 
-            shadcnPropertyDropdown(
+            shadcnFieldDropdown(
                 id = "showcase-theme-mode",
                 label = "Mode",
                 options = ShowcaseThemeModeOptions,
@@ -143,7 +153,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 labelWidth = 64f.dp
             )?.let { state.showcaseThemeModeIndex = it }
 
-            shadcnPropertyDropdown(
+            shadcnFieldDropdown(
                 id = "showcase-accent",
                 label = "Accent",
                 options = ShowcaseAccentOptions,
@@ -158,13 +168,13 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             )
             spacer(Modifier.height(12f.dp))
 
-            shadcnPropertyToggle(
+            shadcnFieldToggle(
                 id = "showcase-live",
                 label = "Live animation",
                 checked = state.showcaseLiveBadge
             ).let { if (it != state.showcaseLiveBadge) state.showcaseLiveBadge = it }
 
-            shadcnPropertyToggle(
+            shadcnFieldToggle(
                 id = "showcase-danger-mode",
                 label = "Danger treatment",
                 checked = state.showcaseDangerMode
@@ -173,8 +183,9 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
 
         // --- Preview Column ---
         column(
-            verticalArrangement = Arrangement.spacedBy(16f.dp)
-        , modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.WrapContent)) {
+            verticalArrangement = Arrangement.spacedBy(16f.dp),
+            modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.WrapContent)
+        ) {
             shadcnBadge("LIVE PREVIEW", variant = ShadcnBadgeVariant.Secondary)
 
             val previewLift = animateFloat(
@@ -193,7 +204,10 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                     borderWidth(0f.dp) // Proves we can override variant defaults
                 }
             ) { previewSlot ->
-                var shimmerForward by rememberBooleanState("showcase-preview-shimmer-direction", initial = true)
+                var shimmerForward by rememberBooleanState(
+                    "showcase-preview-shimmer-direction",
+                    initial = true
+                )
                 val shimmerTarget = when {
                     !state.showcaseLiveBadge -> 0.15f // Static position when paused
                     shimmerForward -> 1f
@@ -248,7 +262,10 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 )
 
                 spacer(Modifier.height(12f.dp))
-                row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+                row(
+                    horizontalArrangement = Arrangement.spacedBy(10f.dp),
+                    modifier = Modifier.height(36f.dp.toDimension())
+                ) {
                     if (
                         shadcnButton(
                             id = "preview-primary-action",
@@ -273,9 +290,10 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
 
             surface(
                 id = "showcase-theme-radius-config",
-                style = theme.components.surface then Style { shape(12f.dp) }
-            , modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
-                state.showcaseSurfaceRadius = shadcnPropertySlider(
+                style = theme.components.surface then Style { shape(12f.dp) },
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)
+            ) {
+                state.showcaseSurfaceRadius = shadcnFieldSlider(
                     id = "showcase-radius",
                     label = "Corner Radius",
                     min = 0f,
@@ -294,7 +312,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
 ) {
     val tokens = theme.tokens
     val headerHeight = 40f
-    
+
     val themeGradient = UiLinearGradient.horizontal(
         start = tokens.primary.withAlpha(0.08f),
         end = tokens.accent.withAlpha(0.12f)
@@ -302,8 +320,9 @@ private fun ColumnScope.drawShowcaseGradientChrome(
 
     canvas(slot) {
         // Inherit shape from surface stack if available, otherwise fallback to sharp corners
-        val clipSpec = context.currentShapeSpec ?: io.github.ronjunevaldoz.awake.ui.UiShapeSpec.RoundedRectangle(0f.dp)
-        
+        val clipSpec = context.currentShapeSpec
+            ?: io.github.ronjunevaldoz.awake.ui.UiShapeSpec.RoundedRectangle(0f.dp)
+
         // Clip all chrome to the surface's corners
         clipShape(
             shape = clipSpec,
@@ -324,10 +343,10 @@ private fun ColumnScope.drawShowcaseGradientChrome(
             // --- 2. Shimmer Peak (main pass, behind content) ---
             val shimmerWidth = 160f
             val shimmerX = -shimmerWidth + (bounds.width + shimmerWidth) * shimmerPhase
-            
+
             val shimmerColor = if (dangerMode) tokens.destructive else tokens.accent
             val highlight = shimmerColor.withAlpha(0.12f)
-            
+
             // Left half: Transparent -> Highlight
             drawGradientRect(
                 x = shimmerX,

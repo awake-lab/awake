@@ -14,7 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.metaText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
@@ -147,7 +147,7 @@ private fun ColumnScope.drawStarterInspectorPanel(
     metaText("shared UI shell")
     metaText("thin platform entrypoints")
     spacer(Modifier.height(10f.dp))
-    val nextTipsVisible = shadcnPropertyToggle(
+    val nextTipsVisible = shadcnFieldToggle(
         id = "starter-tips",
         checked = model.tipsVisible,
         height = 24f.dp

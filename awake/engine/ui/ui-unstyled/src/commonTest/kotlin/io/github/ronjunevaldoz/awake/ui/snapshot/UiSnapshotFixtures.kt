@@ -17,9 +17,9 @@ import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyDropdown
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertySlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnPropertyToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
@@ -281,10 +281,10 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     text("Controls")
                     supportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
                     spacer(Modifier.height(4f.dp))
-                    shadcnPropertyDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0, labelWidth = 96f.dp)
-                    shadcnPropertyToggle("debug", "Debug Frustum Overlay", checked = true)
-                    shadcnPropertyToggle("grid", "Show Reference Grid", checked = false)
-                    shadcnPropertySlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f, labelWidth = 96f.dp)
+                    shadcnFieldDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0, labelWidth = 96f.dp)
+                    shadcnFieldToggle("debug", "Debug Frustum Overlay", checked = true)
+                    shadcnFieldToggle("grid", "Show Reference Grid", checked = false)
+                    shadcnFieldSlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f, labelWidth = 96f.dp)
                     checkbox("wireframe", checked = true, label = "Wireframe Overlay")
                 }
             }

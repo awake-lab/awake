@@ -11,6 +11,9 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -20,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -29,7 +33,7 @@ private const val PROPERTY_LABEL_MAX_FRACTION = 0.45f
 private const val PROPERTY_MIN_CONTROL_WIDTH_GLYPHS = 12
 private val DefaultPropertyRowHeight = 40f.dp
 
-internal data class PropertyRowLayout(
+internal data class FieldLayout(
     val labelSlot: UiSlot,
     val controlSlot: UiSlot
 )
@@ -38,7 +42,7 @@ internal data class PropertyRowLayout(
  * Standard property row with a label and a control area.
  * Returns the slot reserved for the control.
  */
-fun UiScope.shadcnPropertyRow(
+fun UiScope.shadcnField(
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     labelContent: BoxScope.(slot: UiSlot) -> Unit,
@@ -48,9 +52,9 @@ fun UiScope.shadcnPropertyRow(
     val resolvedFont = font
     theme.typography.caption
     val glyphPx = resolveGlyphPx(resolvedFont)
-    val layout = layoutPropertyRow(
+    val layout = layoutField(
         rowSlot = rowSlot,
-        labelWidthPx = resolvePropertyLabelWidthPx(
+        labelWidthPx = resolveFieldLabelWidthPx(
             rowWidthPx = rowSlot.width,
             label = "",
             requestedWidthPx = labelWidth.toPx(),
@@ -63,21 +67,21 @@ fun UiScope.shadcnPropertyRow(
     return layout.controlSlot
 }
 
-/** [shadcnPropertyRow] convenience with a fixed height. */
-fun UiScope.shadcnPropertyRow(
+/** [shadcnField] convenience with a fixed height. */
+fun UiScope.shadcnField(
     height: Dp,
     labelWidth: Dp = 64f.dp,
     labelContent: BoxScope.(slot: UiSlot) -> Unit,
     content: BoxScope.(slot: UiSlot) -> Unit
-): UiSlot = shadcnPropertyRow(
+): UiSlot = shadcnField(
     modifier = Modifier.height(height),
     labelWidth = labelWidth,
     labelContent = labelContent,
     content = content
 )
 
-/** [shadcnPropertyRow] convenience with a plain string label. */
-fun UiScope.shadcnPropertyRow(
+/** [shadcnField] convenience with a plain string label. */
+fun UiScope.shadcnField(
     label: String,
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp
@@ -86,9 +90,9 @@ fun UiScope.shadcnPropertyRow(
     val resolvedFont = font
     val labelSize = theme.typography.caption
     val glyphPx = resolveGlyphPx(resolvedFont, textStyle = textStyle then TextStyle(size = labelSize))
-    val layout = layoutPropertyRow(
+    val layout = layoutField(
         rowSlot = rowSlot,
-        labelWidthPx = resolvePropertyLabelWidthPx(
+        labelWidthPx = resolveFieldLabelWidthPx(
             rowWidthPx = rowSlot.width,
             label = label,
             requestedWidthPx = labelWidth.toPx(),
@@ -109,27 +113,27 @@ fun UiScope.shadcnPropertyRow(
     return layout.controlSlot
 }
 
-/** [shadcnPropertyRow] convenience with a plain string label and a content lambda for the control. */
-fun UiScope.shadcnPropertyRow(
+/** [shadcnField] convenience with a plain string label and a content lambda for the control. */
+fun UiScope.shadcnField(
     label: String,
     modifier: UiModifier = Modifier,
     labelWidth: Dp = 64f.dp,
     content: BoxScope.(slot: UiSlot) -> Unit
 ): UiSlot {
-    val slot = shadcnPropertyRow(label, modifier, labelWidth)
+    val slot = shadcnField(label, modifier, labelWidth)
     childBox(slot).content(slot)
     return slot
 }
 
-/** [shadcnPropertyRow] convenience with a plain string label and fixed height. */
-fun UiScope.shadcnPropertyRow(
+/** [shadcnField] convenience with a plain string label and fixed height. */
+fun UiScope.shadcnField(
     label: String,
     height: Dp,
     labelWidth: Dp = 64f.dp,
     content: BoxScope.(slot: UiSlot) -> Unit
-): UiSlot = shadcnPropertyRow(label, Modifier.height(height), labelWidth, content)
+): UiSlot = shadcnField(label, Modifier.height(height), labelWidth, content)
 
-internal fun resolvePropertyLabelWidthPx(
+internal fun resolveFieldLabelWidthPx(
     rowWidthPx: Float,
     label: String,
     requestedWidthPx: Float,
@@ -153,10 +157,29 @@ internal fun resolvePropertyLabelWidthPx(
     return baseWidth.coerceAtMost(maxLabelWidth)
 }
 
-private fun layoutPropertyRow(rowSlot: UiSlot, labelWidthPx: Float): PropertyRowLayout {
+/** Matches real shadcn's `Field`/`FieldGroup` split: [shadcnField] is a single label+control
+ * row, [shadcnFieldGroup] groups several of them into one column. Call [shadcnFieldDivider]
+ * between fields to get the same seam already established for
+ * [io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard]'s header/body/footer
+ * dividers -- a 4dp spacer, a border-colored hairline, then another 4dp spacer. */
+fun ColumnScope.shadcnFieldGroup(
+    id: String? = null,
+    modifier: UiModifier = Modifier,
+    content: ColumnScope.() -> Unit
+): UiSlot = column(id = id, modifier = modifier) { content() }
+
+/** Shared seam between fields inside a [shadcnFieldGroup] -- same 4dp-spacer/1dp-hairline/4dp-spacer
+ * convention as `shadcnCardDivider`/`shadcnSidebarDivider`. */
+fun ColumnScope.shadcnFieldDivider() {
+    spacer(Modifier.height(4f.dp))
+    separator(color = theme.tokens.border.withAlpha(0.72f))
+    spacer(Modifier.height(4f.dp))
+}
+
+private fun layoutField(rowSlot: UiSlot, labelWidthPx: Float): FieldLayout {
     val resolvedLabelWidth = labelWidthPx.coerceAtLeast(0f)
         .coerceAtMost((rowSlot.width - PROPERTY_LABEL_GAP).coerceAtLeast(0f))
-    return PropertyRowLayout(
+    return FieldLayout(
         labelSlot = UiSlot(rowSlot.x, rowSlot.y, resolvedLabelWidth, rowSlot.height),
         controlSlot = UiSlot(
             rowSlot.x + resolvedLabelWidth + PROPERTY_LABEL_GAP,
