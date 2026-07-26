@@ -8,11 +8,22 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
-import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+
+/**
+ * The bookkeeping flags every [UiLayoutFactory] `create*` call repeats identically --
+ * [testTag]/[hasBoundedFillWidth]/[hasBoundedFillHeight]/[overlayOnly] -- grouped into one
+ * value instead of four separate parameters per function. Not a layout *sizing* constraint
+ * (see [Dimension]) -- purely scope bookkeeping, hence "tracking" rather than "constraints".
+ */
+internal data class UiLayoutTracking(
+    val testTag: String? = null,
+    val hasBoundedFillWidth: Boolean = true,
+    val hasBoundedFillHeight: Boolean = true,
+    val overlayOnly: Boolean = false
+)
 
 internal class UiLayoutFactory(
     private val context: UiContext
@@ -22,12 +33,8 @@ internal class UiLayoutFactory(
         y: Float,
         width: Float,
         height: Float? = null,
-        gap: Float = UiSpacing.sm.toPx(),
         verticalArrangement: Arrangement = defaultArrangement(),
-        testTag: String? = null,
-        hasBoundedFillWidth: Boolean = true,
-        hasBoundedFillHeight: Boolean = height != null,
-        overlayOnly: Boolean = false,
+        tracking: UiLayoutTracking = UiLayoutTracking(hasBoundedFillHeight = height != null),
         plannedSlots: List<UiSlot>? = null,
         horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
     ): ColumnScope = ColumnScope(
@@ -36,25 +43,20 @@ internal class UiLayoutFactory(
         y,
         width,
         height,
-        gap,
         verticalArrangement,
-        testTag,
-        hasBoundedFillWidth,
-        hasBoundedFillHeight,
-        overlayOnly,
+        tracking.testTag,
+        tracking.hasBoundedFillWidth,
+        tracking.hasBoundedFillHeight,
+        tracking.overlayOnly,
         plannedSlots,
         horizontalAlignment
     )
 
     fun createColumn(
         slot: UiSlot,
-        gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         verticalArrangement: Arrangement = defaultArrangement(),
-        testTag: String? = null,
-        hasBoundedFillWidth: Boolean = true,
-        hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false,
+        tracking: UiLayoutTracking = UiLayoutTracking(),
         plannedSlots: List<UiSlot>? = null,
         horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
     ): ColumnScope {
@@ -64,12 +66,8 @@ internal class UiLayoutFactory(
             y = content.y,
             width = content.width,
             height = content.height,
-            gap = gap,
             verticalArrangement = verticalArrangement,
-            testTag = testTag,
-            hasBoundedFillWidth = hasBoundedFillWidth,
-            hasBoundedFillHeight = hasBoundedFillHeight,
-            overlayOnly = overlayOnly,
+            tracking = tracking,
             plannedSlots = plannedSlots,
             horizontalAlignment = horizontalAlignment
         )
@@ -103,12 +101,8 @@ internal class UiLayoutFactory(
         y: Float,
         height: Float,
         width: Float? = null,
-        gap: Float = UiSpacing.sm.toPx(),
         horizontalArrangement: Arrangement = defaultArrangement(),
-        testTag: String? = null,
-        hasBoundedFillWidth: Boolean = width != null,
-        hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false,
+        tracking: UiLayoutTracking = UiLayoutTracking(hasBoundedFillWidth = width != null),
         plannedSlots: List<UiSlot>? = null,
         verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
     ): RowScope = RowScope(
@@ -117,25 +111,20 @@ internal class UiLayoutFactory(
         y,
         width,
         height,
-        gap,
         horizontalArrangement,
-        testTag,
-        hasBoundedFillWidth,
-        hasBoundedFillHeight,
-        overlayOnly,
+        tracking.testTag,
+        tracking.hasBoundedFillWidth,
+        tracking.hasBoundedFillHeight,
+        tracking.overlayOnly,
         plannedSlots,
         verticalAlignment
     )
 
     fun createRow(
         slot: UiSlot,
-        gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         horizontalArrangement: Arrangement = defaultArrangement(),
-        testTag: String? = null,
-        hasBoundedFillWidth: Boolean = true,
-        hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false,
+        tracking: UiLayoutTracking = UiLayoutTracking(),
         plannedSlots: List<UiSlot>? = null,
         verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
     ): RowScope {
@@ -145,12 +134,8 @@ internal class UiLayoutFactory(
             y = content.y,
             height = content.height,
             width = content.width,
-            gap = gap,
             horizontalArrangement = horizontalArrangement,
-            testTag = testTag,
-            hasBoundedFillWidth = hasBoundedFillWidth,
-            hasBoundedFillHeight = hasBoundedFillHeight,
-            overlayOnly = overlayOnly,
+            tracking = tracking,
             plannedSlots = plannedSlots,
             verticalAlignment = verticalAlignment
         )
@@ -162,10 +147,7 @@ internal class UiLayoutFactory(
         width: Float,
         height: Float,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
-        testTag: String? = null,
-        hasBoundedFillWidth: Boolean = true,
-        hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false
+        tracking: UiLayoutTracking = UiLayoutTracking()
     ): BoxScope = BoxScope(
         context,
         x,
@@ -173,20 +155,17 @@ internal class UiLayoutFactory(
         width,
         height,
         contentAlignment,
-        testTag,
-        hasBoundedFillWidth,
-        hasBoundedFillHeight,
-        overlayOnly
+        tracking.testTag,
+        tracking.hasBoundedFillWidth,
+        tracking.hasBoundedFillHeight,
+        tracking.overlayOnly
     )
 
     fun createBox(
         slot: UiSlot,
         insets: UiInsets = UiInsets.Zero,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
-        testTag: String? = null,
-        hasBoundedFillWidth: Boolean = true,
-        hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false
+        tracking: UiLayoutTracking = UiLayoutTracking()
     ): BoxScope {
         val content = slot.inset(insets)
         return createBox(
@@ -195,10 +174,7 @@ internal class UiLayoutFactory(
             width = content.width,
             height = content.height,
             contentAlignment = contentAlignment,
-            testTag = testTag,
-            hasBoundedFillWidth = hasBoundedFillWidth,
-            hasBoundedFillHeight = hasBoundedFillHeight,
-            overlayOnly = overlayOnly
+            tracking = tracking
         )
     }
 }

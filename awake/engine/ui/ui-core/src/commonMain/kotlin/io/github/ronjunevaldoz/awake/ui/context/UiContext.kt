@@ -14,7 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
@@ -97,7 +96,6 @@ class UiContext internal constructor(
         y: Float,
         width: Float,
         height: Float? = null,
-        gap: Float = UiSpacing.sm.toPx(),
         verticalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = true,
@@ -110,19 +108,14 @@ class UiContext internal constructor(
         y = y,
         width = width,
         height = height,
-        gap = gap,
         verticalArrangement = verticalArrangement,
-        testTag = testTag,
-        hasBoundedFillWidth = hasBoundedFillWidth,
-        hasBoundedFillHeight = hasBoundedFillHeight,
-        overlayOnly = overlayOnly,
+        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
         plannedSlots = plannedSlots,
         horizontalAlignment = horizontalAlignment
     )
 
     fun createColumn(
         slot: UiSlot,
-        gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         verticalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
@@ -133,13 +126,9 @@ class UiContext internal constructor(
         horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
     ): ColumnScope = layouts.createColumn(
         slot = slot,
-        gap = gap,
         insets = insets,
         verticalArrangement = verticalArrangement,
-        testTag = testTag,
-        hasBoundedFillWidth = hasBoundedFillWidth,
-        hasBoundedFillHeight = hasBoundedFillHeight,
-        overlayOnly = overlayOnly,
+        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
         plannedSlots = plannedSlots,
         horizontalAlignment = horizontalAlignment
     )
@@ -163,7 +152,6 @@ class UiContext internal constructor(
         y: Float,
         height: Float,
         width: Float? = null,
-        gap: Float = UiSpacing.sm.toPx(),
         horizontalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = width != null,
@@ -176,19 +164,14 @@ class UiContext internal constructor(
         y = y,
         height = height,
         width = width,
-        gap = gap,
         horizontalArrangement = horizontalArrangement,
-        testTag = testTag,
-        hasBoundedFillWidth = hasBoundedFillWidth,
-        hasBoundedFillHeight = hasBoundedFillHeight,
-        overlayOnly = overlayOnly,
+        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
         plannedSlots = plannedSlots,
         verticalAlignment = verticalAlignment
     )
 
     fun createRow(
         slot: UiSlot,
-        gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         horizontalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
@@ -199,13 +182,9 @@ class UiContext internal constructor(
         verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
     ): RowScope = layouts.createRow(
         slot = slot,
-        gap = gap,
         insets = insets,
         horizontalArrangement = horizontalArrangement,
-        testTag = testTag,
-        hasBoundedFillWidth = hasBoundedFillWidth,
-        hasBoundedFillHeight = hasBoundedFillHeight,
-        overlayOnly = overlayOnly,
+        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
         plannedSlots = plannedSlots,
         verticalAlignment = verticalAlignment
     )
@@ -226,10 +205,7 @@ class UiContext internal constructor(
         width = width,
         height = height,
         contentAlignment = contentAlignment,
-        testTag = testTag,
-        hasBoundedFillWidth = hasBoundedFillWidth,
-        hasBoundedFillHeight = hasBoundedFillHeight,
-        overlayOnly = overlayOnly
+        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly)
     )
 
     fun createBox(
@@ -244,10 +220,7 @@ class UiContext internal constructor(
         slot = slot,
         insets = insets,
         contentAlignment = contentAlignment,
-        testTag = testTag,
-        hasBoundedFillWidth = hasBoundedFillWidth,
-        hasBoundedFillHeight = hasBoundedFillHeight,
-        overlayOnly = overlayOnly
+        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly)
     )
 
     fun column(
@@ -259,7 +232,6 @@ class UiContext internal constructor(
     ) {
         createColumn(
             slot = slot,
-            gap = verticalArrangement.baseSpacingPx(),
             insets = insets,
             verticalArrangement = verticalArrangement,
             testTag = testTag
@@ -275,7 +247,6 @@ class UiContext internal constructor(
     ) {
         createRow(
             slot = slot,
-            gap = horizontalArrangement.baseSpacingPx(),
             insets = insets,
             horizontalArrangement = horizontalArrangement,
             testTag = testTag
