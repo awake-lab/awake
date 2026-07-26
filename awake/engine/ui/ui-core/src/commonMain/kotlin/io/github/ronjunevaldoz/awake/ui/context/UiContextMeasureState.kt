@@ -12,19 +12,39 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal class UiContextMeasureState {
     internal var measuredMaxRight = 0f
+    // Same running max as [measuredMaxRight], but skipping slots recorded with
+    // contributesToWrapWidth = false (a Dimension.FillMax-width child, e.g. a divider --
+    // see [record]). Kept separate rather than folded into [measuredMaxRight] directly so a
+    // WrapContent container with *only* FillMax children (e.g. a lone word-wrapped Text whose
+    // width is FillMax purely to know its own wrap boundary, not because it wants to dictate
+    // the container's size) still falls back to the old, correct "hug whatever's there" answer
+    // instead of collapsing to zero -- see snapshot().
+    internal var measuredMaxRightExcludingFill = 0f
     internal var measuredMaxBottom = 0f
     internal val measuredSlots = ArrayList<UiSlot>()
     internal val measuredWeights = ArrayList<LayoutWeight?>()
 
     fun beginFrame() {
         measuredMaxRight = 0f
+        measuredMaxRightExcludingFill = 0f
         measuredMaxBottom = 0f
         measuredSlots.clear()
         measuredWeights.clear()
     }
 
-    fun record(slot: UiSlot) {
-        measuredMaxRight = max(measuredMaxRight, slot.x + slot.width)
+    fun record(slot: UiSlot, contributesToWrapWidth: Boolean = true) {
+        // A child that explicitly requested Dimension.FillMax on the cross axis (e.g. a
+        // ColumnScope child's width) fills whatever width its container ends up with -- it
+        // has no real "intrinsic" width of its own, so as long as some *other* sibling has a
+        // real (non-fill) width to hug, this FillMax child must not be allowed to dictate the
+        // WrapContent container's own measured width just because it happened to be present in
+        // the content (e.g. `shadcnCard`'s divider -- `separator()` defaults to fillMaxWidth()
+        // -- must not force the whole card full-width when the body content is short).
+        val right = slot.x + slot.width
+        measuredMaxRight = max(measuredMaxRight, right)
+        if (contributesToWrapWidth) {
+            measuredMaxRightExcludingFill = max(measuredMaxRightExcludingFill, right)
+        }
         measuredMaxBottom = max(measuredMaxBottom, slot.y + slot.height)
         measuredSlots += slot
     }

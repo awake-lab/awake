@@ -449,8 +449,8 @@ class UiContext internal constructor(
     )
     fun isMeasuring(): Boolean = isMeasuringInternal()
 
-    internal fun recordMeasuredSlot(slot: UiSlot) {
-        if (measuring) measurement.record(slot)
+    internal fun recordMeasuredSlot(slot: UiSlot, contributesToWrapWidth: Boolean = true) {
+        if (measuring) measurement.record(slot, contributesToWrapWidth)
     }
 
     internal fun recordMeasuredWeight(weight: LayoutWeight?) {

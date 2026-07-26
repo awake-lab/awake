@@ -17,8 +17,8 @@ internal class UiMeasurementRuntime(
         measureState.beginFrame()
     }
 
-    fun record(slot: UiSlot) {
-        measureState.record(slot)
+    fun record(slot: UiSlot, contributesToWrapWidth: Boolean = true) {
+        measureState.record(slot, contributesToWrapWidth)
     }
 
     fun recordWeight(weight: LayoutWeight?) {
@@ -26,7 +26,11 @@ internal class UiMeasurementRuntime(
     }
 
     fun snapshot(): UiMeasuredContent = UiMeasuredContent(
-        width = measureState.measuredMaxRight,
+        // Hug the non-fill content's own extent when there is any -- only fall back to the
+        // (possibly FillMax-inflated) full max when *every* child was FillMax-width, so a lone
+        // wrap-bounded child (see UiContextMeasureState.measuredMaxRightExcludingFill) doesn't
+        // collapse a WrapContent container to zero.
+        width = measureState.measuredMaxRightExcludingFill.takeIf { it > 0f } ?: measureState.measuredMaxRight,
         height = measureState.measuredMaxBottom,
         slots = measureState.measuredSlots.toList(),
         weights = measureState.measuredWeights.toList()

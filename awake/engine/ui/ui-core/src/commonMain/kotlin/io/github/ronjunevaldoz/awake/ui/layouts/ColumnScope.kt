@@ -54,7 +54,10 @@ class ColumnScope internal constructor(
             resolvedHeight
         )
         cursorY += resolvedHeight + gap
-        context.recordMeasuredSlot(slot)
+        // width == FillMax means this child fills whatever width the column ends up with -- it
+        // has no intrinsic width of its own, so it must not dictate the column's own WrapContent
+        // width back up. See UiContextMeasureState.record().
+        context.recordMeasuredSlot(slot, contributesToWrapWidth = width != Dimension.FillMax)
         context.recordMeasuredWeight(weight)
         return slot
     }
