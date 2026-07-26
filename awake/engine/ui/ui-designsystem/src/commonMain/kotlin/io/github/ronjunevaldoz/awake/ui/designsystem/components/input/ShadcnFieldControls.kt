@@ -19,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -92,7 +92,7 @@ fun ColumnScope.shadcnFieldDropdown(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
-            modifier = Modifier.fillMaxWidth().height(40f.dp),
+            modifier = Modifier.weight(1f).height(40f.dp),
             style = style
         )
     }
@@ -114,7 +114,7 @@ fun ColumnScope.shadcnFieldDropdown(
             id = id,
             options = options,
             selectedIndex = selectedIndex,
-            modifier = Modifier.fillMaxWidth().height(height),
+            modifier = Modifier.weight(1f).height(height),
             style = style
         )
     }
@@ -159,7 +159,7 @@ fun ColumnScope.shadcnFieldTextField(
             id = id,
             value = value,
             placeholder = placeholder,
-            modifier = Modifier.fillMaxWidth().height(40f.dp),
+            modifier = Modifier.weight(1f).height(40f.dp),
             style = style,
             enabled = enabled,
             isError = errorText != null
@@ -222,7 +222,7 @@ fun ColumnScope.shadcnFieldTextarea(
             id = id,
             value = value,
             placeholder = placeholder,
-            modifier = Modifier.fillMaxWidth().height(minHeight.dp),
+            modifier = Modifier.weight(1f).height(minHeight.dp),
             style = style,
             enabled = enabled,
             isError = errorText != null,
@@ -275,7 +275,7 @@ fun ColumnScope.shadcnFieldSlider(
             min = min,
             max = max,
             value = value,
-            modifier = Modifier.fillMaxWidth().height(40f.dp),
+            modifier = Modifier.weight(1f).height(40f.dp),
             style = style
         )
     }
@@ -299,7 +299,7 @@ fun ColumnScope.shadcnFieldSlider(
             min = min,
             max = max,
             value = value,
-            modifier = Modifier.fillMaxWidth().height(height),
+            modifier = Modifier.weight(1f).height(height),
             style = style
         )
     }
