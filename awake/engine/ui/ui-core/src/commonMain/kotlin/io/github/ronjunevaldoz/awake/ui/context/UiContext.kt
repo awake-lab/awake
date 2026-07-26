@@ -457,12 +457,44 @@ class UiContext internal constructor(
     )
     fun isMeasuring(): Boolean = isMeasuringInternal()
 
+    // A row/column's own "measured" trial (see measureRowContentInternal/measureColumnContentInternal
+    // below) reads measuredSlots/measuredWeights as one entry per DIRECT child claim, index-
+    // paired (resolveWeightedMainAxis() zips measured.slots[i] with measured.weights[i] as "the
+    // same child"). But claimSlot() (RowScope/ColumnScope/BoxScope/AbsoluteScope alike) always
+    // calls context.recordMeasuredSlot()/recordMeasuredWeight() whenever this context is
+    // measuring -- and once a DIRECT child is itself composite (e.g. a column() wrapping its
+    // own label/input surfaces), that composite child's *own* real render pass (its
+    // `scope.content(slot)` tail call) reuses this very same context/measurement pair, so its
+    // grandchildren's claims would land in the same flat measuredSlots/measuredWeights lists as
+    // the row's direct children, corrupting that index pairing. recordingSuppressionDepth is a
+    // bracket around exactly that "rendering a composite child's own children" window (see
+    // UiScope.row()/UiScope.column()) -- it only excludes claims from measuredSlots/
+    // measuredWeights (via contributesToChildList below), NOT from measuredMaxRight/
+    // measuredMaxBottom (see UiContextMeasureState.record()), which WrapContent width/height
+    // resolution intentionally keeps hugging across the *whole* subtree (e.g. a WrapContent
+    // shadcnCard sizing itself around a nested row's own buttons).
+    private var recordingSuppressionDepth = 0
+
     internal fun recordMeasuredSlot(slot: UiSlot, contributesToWrapWidth: Boolean = true) {
-        if (measuring) measurement.record(slot, contributesToWrapWidth)
+        if (measuring) measurement.record(slot, contributesToWrapWidth, contributesToChildList = recordingSuppressionDepth == 0)
     }
 
     internal fun recordMeasuredWeight(weight: LayoutWeight?) {
-        if (measuring) measurement.recordWeight(weight)
+        if (measuring) measurement.recordWeight(weight, contributesToChildList = recordingSuppressionDepth == 0)
+    }
+
+    /** Suppresses [recordMeasuredSlot]/[recordMeasuredWeight]'s contribution to measuredSlots/
+     * measuredWeights (only) for the duration of [block] -- wrap a composite child's own
+     * `scope.content(slot)` call with this so its descendants' claims don't corrupt an ancestor
+     * row/column's own in-progress weight-distribution accounting. Nests correctly (a depth
+     * counter, not a flag) for arbitrarily deep composite children. */
+    internal inline fun <T> withMeasuredRecordingSuppressed(block: () -> T): T {
+        recordingSuppressionDepth++
+        try {
+            return block()
+        } finally {
+            recordingSuppressionDepth--
+        }
     }
 
     internal fun measuredContentSnapshot(): UiMeasuredContent = measurement.snapshot()

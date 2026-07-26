@@ -128,13 +128,35 @@ private fun UiScope.resolveMeasuredColumn(
     content: ColumnScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val insets = modifier.insets
-    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
+    // A weight()-tagged column's width (its host row's main axis) is never actually decided by
+    // its own WrapContent content -- it's decided later by the row's weight-distribution pass
+    // (see UiScope.row()/resolveWeightedMainAxis()). Falling through to WrapContent here like
+    // any other column would let this function's own content trial below permanently bake a
+    // Fixed(measuredWidth) into the modifier -- and because Dimension.Fixed.resolveAgainst()
+    // always returns its own value regardless of the container slot it's placed into (see
+    // Layout.kt), that bogus Fixed width then overrides whatever real share the row's weight
+    // distribution assigns downstream. FillMax defers width resolution to claimSlot()/
+    // claimModifiedSlot(), which already special-case a weighted child correctly.
+    val isWeighted = modifier.layoutWeight != null
+    val requestedWidth = modifier.widthDimension ?: (if (isWeighted) Dimension.FillMax else Dimension.WrapContent)
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
 
     val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
         val availableWidth = when (requestedWidth) {
             is Dimension.Fixed -> requestedWidth.dp.toPx()
-            Dimension.FillMax, Dimension.WrapContent -> fillWidthOrNull() ?: 4096f
+            Dimension.FillMax, Dimension.WrapContent ->
+                if (isWeighted) {
+                    // Bound this column's own cross-axis (height) content trial by the row's
+                    // real, static configured width -- not fillWidthOrNull()'s cursor-shrunk
+                    // "space left after earlier siblings claimed theirs" reading, which starves
+                    // every weighted sibling after the first toward (or below) zero during any
+                    // un-resolved trial pass (real final placement always goes through
+                    // resolveWeightedMainAxis()/plannedSlots, so this bound only needs to be
+                    // sane, not exact).
+                    (this as? RowScope)?.width ?: fillWidthOrNull() ?: 4096f
+                } else {
+                    fillWidthOrNull() ?: 4096f
+                }
         }
         context.measureColumnContent(
             width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
@@ -201,7 +223,17 @@ fun RowScope.column(
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
-    modifier.withSizeFallback(Dimension.WrapContent, Dimension.FillMax),
+    // Width is this column's main axis (the row's horizontal axis) -- a plain column hugs its
+    // own content (WrapContent) by default, but a weight()-tagged one must default to FillMax
+    // instead: resolveMeasuredColumn()'s own weight-aware WrapContent deferral (see isWeighted
+    // there) only ever sees a *null* widthDimension to override -- withSizeFallback() already
+    // bakes in a concrete Dimension before that check runs, so leaving this unconditional here
+    // would silently defeat it, right back to a Fixed(measuredContentWidth) that resolveAgainst()
+    // then honors over the row's real weighted share (see UiScopeMetrics.claimModifiedSlot).
+    modifier.withSizeFallback(
+        if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent,
+        Dimension.FillMax
+    ),
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
     content = content
@@ -310,7 +342,10 @@ fun UiScope.column(
             horizontalAlignment = horizontalAlignment
         )
     }
-    scope.content(slot)
+    // See the matching comment in UiScope.row() -- suppress recording while rendering this
+    // column's own real children so a composite (e.g. weighted) child's grandchildren don't
+    // corrupt an ancestor row/column's own in-progress measured.slots/weights trial.
+    context.withMeasuredRecordingSuppressed { scope.content(slot) }
     context.popTextStyle()
     return slot
 }

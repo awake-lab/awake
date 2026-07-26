@@ -17,12 +17,12 @@ internal class UiMeasurementRuntime(
         measureState.beginFrame()
     }
 
-    fun record(slot: UiSlot, contributesToWrapWidth: Boolean = true) {
-        measureState.record(slot, contributesToWrapWidth)
+    fun record(slot: UiSlot, contributesToWrapWidth: Boolean = true, contributesToChildList: Boolean = true) {
+        measureState.record(slot, contributesToWrapWidth, contributesToChildList)
     }
 
-    fun recordWeight(weight: LayoutWeight?) {
-        measureState.recordWeight(weight)
+    fun recordWeight(weight: LayoutWeight?, contributesToChildList: Boolean = true) {
+        measureState.recordWeight(weight, contributesToChildList)
     }
 
     fun snapshot(): UiMeasuredContent = UiMeasuredContent(

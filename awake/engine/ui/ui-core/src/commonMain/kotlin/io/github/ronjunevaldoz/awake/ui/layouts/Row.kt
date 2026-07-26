@@ -32,7 +32,11 @@ fun ColumnScope.row(
     content: RowScope.(slot: UiSlot) -> Unit
 ): UiSlot {
     val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
-    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
+    // Height is this row's main axis when it's hosted in a column -- a weight()-tagged row must
+    // default to FillMax here (deferred to the column's own weight-distribution pass), not
+    // WrapContent, the same reasoning as RowScope.column()'s width fallback above.
+    val requestedHeight = modifier.heightDimension
+        ?: (if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent)
     val effectiveArrangement = horizontalArrangement
     val measured =
         if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
@@ -261,7 +265,13 @@ fun UiScope.row(
             verticalAlignment = verticalAlignment
         )
     }
-    scope.content(slot)
+    // This row's own direct-child claims were already recorded above (via the `measured`
+    // trial); rendering this row's real content now would re-claim (harmlessly, since
+    // childRow()/the plannedSlots branch don't re-measure) but -- critically -- also render any
+    // composite child's *own* grandchildren through this same context. Suppress recording for
+    // that window so a weighted sibling's WrapContent content doesn't corrupt this row's own
+    // already-computed measured.slots/weights (see UiContext.withMeasuredRecordingSuppressed).
+    context.withMeasuredRecordingSuppressed { scope.content(slot) }
     context.popTextStyle()
     return slot
 }

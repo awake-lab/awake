@@ -32,7 +32,7 @@ internal class UiContextMeasureState {
         measuredWeights.clear()
     }
 
-    fun record(slot: UiSlot, contributesToWrapWidth: Boolean = true) {
+    fun record(slot: UiSlot, contributesToWrapWidth: Boolean = true, contributesToChildList: Boolean = true) {
         // A child that explicitly requested Dimension.FillMax on the cross axis (e.g. a
         // ColumnScope child's width) fills whatever width its container ends up with -- it
         // has no real "intrinsic" width of its own, so as long as some *other* sibling has a
@@ -46,11 +46,25 @@ internal class UiContextMeasureState {
             measuredMaxRightExcludingFill = max(measuredMaxRightExcludingFill, right)
         }
         measuredMaxBottom = max(measuredMaxBottom, slot.y + slot.height)
-        measuredSlots += slot
+        // measuredMaxRight/measuredMaxRightExcludingFill/measuredMaxBottom deliberately keep
+        // tracking *every* descendant claim (not just direct children) -- WrapContent width/
+        // height resolution (see snapshot()) has always relied on hugging the deepest actual
+        // content extent, e.g. a WrapContent shadcnCard sizing itself around a nested row's own
+        // buttons. measuredSlots is different: it's an index-paired-with-measuredWeights list
+        // that resolveWeightedMainAxis() reads as "one entry per direct child" -- a composite
+        // direct child's *own* grandchildren claims (recorded while contributesToChildList is
+        // false, see UiContext.withMeasuredRecordingSuppressed) must not leak into this list or
+        // they corrupt that pairing (measuredSlots[i] no longer lines up with measuredWeights[i]
+        // for the row/column's actual i-th direct child).
+        if (contributesToChildList) {
+            measuredSlots += slot
+        }
     }
 
-    fun recordWeight(weight: LayoutWeight?) {
-        measuredWeights += weight
+    fun recordWeight(weight: LayoutWeight?, contributesToChildList: Boolean = true) {
+        if (contributesToChildList) {
+            measuredWeights += weight
+        }
     }
 
     fun measureColumnContent(

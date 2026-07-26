@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
@@ -543,6 +544,52 @@ class LayoutTest {
         assertEquals(100f, first?.width)
         assertEquals(100f, second?.width)
         assertEquals(100f, second?.x)
+    }
+
+    @Test
+    fun rowWrapContentHeightWithWeightedWrapContentColumnsSplitsWidthEvenlyAndHugsTallestChild() {
+        // Reproduces task #30: a WrapContent-height row containing several weight(1f)-tagged
+        // WrapContent-height columns, each wrapping a small "label + control" shape (mimicking
+        // shadcnField's label+input). Every child column is the same shape/height on purpose --
+        // if the bug regresses, sibling columns after the first collapse toward/under a zero
+        // width bound during trial measurement, which both corrupts their width share and risks
+        // a negative-size crash in real widgets (e.g. a surface subtracting border/padding from
+        // a near-zero measured width).
+        val ui = UiContext()
+        ui.beginFrame(300f, 200f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 300f)
+        val columnSlots = mutableListOf<UiSlot>()
+        var rowSlot: UiSlot? = null
+
+        rowSlot = root.row(
+            horizontalArrangement = Arrangement.spacedBy(16f.px),
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)
+        ) {
+            // This content lambda re-runs across trial-measurement passes before the real,
+            // final render -- only the last invocation's slots reflect real placement, so start
+            // each pass with a clean list rather than accumulating throwaway trial results too.
+            columnSlots.clear()
+            repeat(3) { index ->
+                columnSlots += column(
+                    id = "field-$index",
+                    modifier = Modifier.weight(1f).height(Dimension.WrapContent)
+                ) {
+                    surface(id = "label-$index", modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(16f.px))) {}
+                    surface(id = "input-$index", modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(32f.px))) {}
+                }
+            }
+        }
+
+        val gap = 16f
+        val expectedColumnWidth = (300f - gap * 2) / 3f
+        columnSlots.forEach { slot ->
+            assertTrue(slot.width > 0f, "weighted column width must be positive, was ${slot.width}")
+            assertEquals(expectedColumnWidth, slot.width, 0.01f, "each weighted column must get an equal 1/3 share")
+        }
+
+        // Tallest (and only) child shape is 16px label + default sm gap + 32px input.
+        val expectedRowHeight = 16f + UiSpacing.sm.toPx() + 32f
+        assertEquals(expectedRowHeight, rowSlot.height, 0.01f, "WrapContent row height must hug the tallest child's real content height")
     }
 }
 
