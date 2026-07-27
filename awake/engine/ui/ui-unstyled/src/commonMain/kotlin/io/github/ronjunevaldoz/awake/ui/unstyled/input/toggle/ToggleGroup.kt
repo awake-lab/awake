@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.weight
 
 fun UiScope.toggleGroup(
     id: String,
@@ -22,6 +23,7 @@ fun UiScope.toggleGroup(
                 id = "$id.$index",
                 checked = selectedIndex == index,
                 label = option,
+                modifier = Modifier.weight(1f),
                 onCheckedChange = { if (it) onIndexChange(index) }
             )
         }

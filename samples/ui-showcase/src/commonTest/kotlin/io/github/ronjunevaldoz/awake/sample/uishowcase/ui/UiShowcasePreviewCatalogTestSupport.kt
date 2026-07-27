@@ -313,7 +313,7 @@ internal object UiShowcaseSidebarPreview : AwakeUiPreviewEntry {
     group = "Inputs",
     summary = "Toggle, Switch, Checkbox, RadioGroup, and ToggleGroup -- the current Awake-owned selection family.",
     width = 900,
-    height = 520,
+    height = 640,
     reportScale = 2
 )
 internal object UiShowcaseSelectionPreview : AwakeUiPreviewEntry {

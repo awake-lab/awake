@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupporting
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -210,15 +211,9 @@ internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
     var stats by context.rememberStateValue("ui-showcase-selection", "stats") { false }
     var darkMode by context.rememberStateValue("ui-showcase-selection", "darkMode") { false }
     var quality by context.rememberStateValue("ui-showcase-selection", "quality") { 1 }
+    var alignment by context.rememberStateValue("ui-showcase-selection", "alignment") { 1 }
 
-    // shadcnToggleGroup is intentionally not demonstrated here: toggleGroup() (ui-unstyled)
-    // renders each option with a default FillMax-width modifier, and FillMax inside a row
-    // resolves against the row's *remaining* width per child rather than dividing it evenly
-    // across siblings (see the Layout Primitives page's own note on this), so every option
-    // after the first claims a zero-width slot and its label overflows. Real widget bug, not
-    // a showcase-content gap -- flagged for awake-ui-systems-engineer rather than worked
-    // around here.
-    shadcnSupportingText("The current Awake-owned selection controls: two independent booleans (Toggle/Switch), an exclusive checkbox group (Checkbox), and single-select (RadioGroup).")
+    shadcnSupportingText("The current Awake-owned selection controls: two independent booleans (Toggle/Switch), an exclusive checkbox group (Checkbox), and single-select (RadioGroup/ToggleGroup).")
     spacer(Modifier.height(8f.dp))
     wireframe = shadcnToggle(
         id = "showcase-selection-wireframe",
@@ -246,6 +241,16 @@ internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
         options = listOf("Low", "Medium", "High"),
         selectedIndex = quality,
         modifier = Modifier.width(220f.dp)
+    )
+    spacer(Modifier.height(10f.dp))
+    shadcnSupportingText("ToggleGroup: row of mutually exclusive toggle buttons, each option gets an equal share of the group width.")
+    spacer(Modifier.height(4f.dp))
+    shadcnToggleGroup(
+        id = "showcase-selection-alignment",
+        options = listOf("Left", "Center", "Right", "Justify"),
+        selectedIndex = alignment,
+        modifier = Modifier.width(280f.dp).height(32f.dp),
+        onIndexChange = { alignment = it }
     )
     spacer(Modifier.height(8f.dp))
     shadcnSupportingText(

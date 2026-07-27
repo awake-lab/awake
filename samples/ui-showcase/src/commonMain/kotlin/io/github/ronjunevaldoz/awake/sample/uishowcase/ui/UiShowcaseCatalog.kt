@@ -281,11 +281,14 @@ internal val ShowcasePages = listOf(
 
             var quality by rememberStateValue("scene", "quality") { 1 }
             quality = shadcnRadioGroup(id = "quality", options = listOf("Low", "Medium", "High"), selectedIndex = quality)
+
+            var alignment by rememberStateValue("scene", "alignment") { 1 }
+            alignment = shadcnToggleGroup(id = "alignment", options = listOf("Left", "Center", "Right", "Justify"), selectedIndex = alignment)
         """.trimIndent(),
         notes = listOf(
             "shadcnSwitch is real shadcn's `Switch`; shadcnToggle is our own boolean pressable control -- both exist and both get a row here.",
             "shadcnRadioGroup reuses checkbox() with a Circle shape for single-select semantics.",
-            "shadcnToggleGroup is deliberately NOT shown here: toggleGroup() (ui-unstyled) gives every option after the first a zero-width slot because its children rely on FillMax inside a row without per-item division -- a real widget bug found during this audit, flagged for awake-ui-systems-engineer rather than worked around in this sample.",
+            "shadcnToggleGroup delegates entirely to toggleGroup() (ui-unstyled); each option now gets an equal weight(1f) share of the group width (previously the first option's FillMax claimed the whole row, leaving every option after it zero-width -- fixed).",
             "Their checked/unchecked and selected-index states are also covered in the widget preview lanes."
         ),
         renderPreview = { drawUiShowcaseSelectionPreview() }
