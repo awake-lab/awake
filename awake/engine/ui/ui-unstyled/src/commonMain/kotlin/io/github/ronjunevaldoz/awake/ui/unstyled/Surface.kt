@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.unstyled
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -136,7 +137,8 @@ internal fun UiScope.paintSurface(
     slot: UiSlot,
     resolved: ResolvedStyle,
     fillColor: Color? = null,
-    borderColor: Color? = null
+    borderColor: Color? = null,
+    shapeSpec: UiShapeSpec? = resolved.shapeSpec
 ) {
     val theme = context.currentTheme
     emitFillAndBorder(
@@ -145,6 +147,6 @@ internal fun UiScope.paintSurface(
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
         borderColor = borderColor ?: resolved.borderColor ?: theme.tokens.border,
-        shapeSpec = resolved.shapeSpec
+        shapeSpec = shapeSpec
     )
 }

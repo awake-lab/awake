@@ -40,13 +40,22 @@ fun UiScope.switch(
         selected = checked
     )
     val newChecked = if (surface.interaction.clicked) !checked else checked
-    val trackFill =
-        if (newChecked) theme.tokens.primary else (surface.resolved.background ?: theme.tokens.background)
+    // Both states are hardcoded tokens, not resolved.background -- a Switch's on/off track
+    // color is structural to what a switch communicates, not something a caller-supplied
+    // style should be able to accidentally collapse to the page background (verified via a
+    // real render: falling back to resolved.background/theme.tokens.background left the
+    // unchecked track literally invisible whenever a style plumbed in a background matching
+    // the page, e.g. shadcnSwitch borrowing a text-field style).
+    val trackFill = if (newChecked) theme.tokens.primary else theme.tokens.muted
+    // The track is always a true stadium/pill regardless of what shape the caller's style
+    // resolves to -- same reasoning as the color above, and consistent with the knob below,
+    // which already hardcodes UiShapeSpec.Pill instead of trusting the resolved style.
     paintSurface(
         slot = surface.interaction.slot,
         resolved = surface.resolved,
         fillColor = trackFill,
-        borderColor = surface.resolved.borderColor ?: theme.tokens.border
+        borderColor = surface.resolved.borderColor ?: theme.tokens.border,
+        shapeSpec = UiShapeSpec.Pill
     )
     val knobDiameter = surface.interaction.slot.height - TOGGLE_KNOB_INSET_PX * 2f
     val knobX = if (newChecked) {
