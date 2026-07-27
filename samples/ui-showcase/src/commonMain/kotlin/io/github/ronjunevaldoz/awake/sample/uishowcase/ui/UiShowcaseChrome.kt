@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeSt
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnHeadline
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
@@ -102,34 +103,53 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
     onSelect: (ShowcasePage) -> Unit,
 ) {
     ShowcasePagesByCategory.forEach { (category, pages) ->
-        if (!compact) {
-            shadcnSectionTitle(category.title)
-            spacer(Modifier.height(4f.dp))
-        }
-        pages.forEach { page ->
-            if (
-                shadcnButton(
-                    id = "ui-showcase-page-${page.id}",
-                    label = page.title,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(36f.dp),
-                    style = Style {
-                        contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
-                    },
-                    variant = if (page.id == selectedPageId) {
-                        ShadcnButtonVariant.Primary
-                    } else {
-                        ShadcnButtonVariant.Ghost
-                    },
-                    centered = false,
-                    verticallyCentered = true
-                )
-            ) {
-                onSelect(page)
+        if (compact) {
+            pages.forEach { page ->
+                drawUiShowcaseSidebarPageButton(page, selectedPageId, onSelect)
             }
+            spacer(Modifier.height(8f.dp))
+        } else {
+            var expanded by context.rememberStateValue("ui-showcase-sidebar-category", category.name) { true }
+            shadcnCollapsible(
+                id = "ui-showcase-sidebar-category-${category.name}",
+                title = category.title,
+                expanded = expanded,
+                onExpandedChange = { expanded = it }
+            ) {
+                pages.forEach { page ->
+                    drawUiShowcaseSidebarPageButton(page, selectedPageId, onSelect)
+                }
+            }
+            spacer(Modifier.height(12f.dp))
         }
-        spacer(Modifier.height(if (compact) 8f.dp else 12f.dp))
+    }
+}
+
+private fun ColumnScope.drawUiShowcaseSidebarPageButton(
+    page: ShowcasePage,
+    selectedPageId: String,
+    onSelect: (ShowcasePage) -> Unit,
+) {
+    if (
+        shadcnButton(
+            id = "ui-showcase-page-${page.id}",
+            label = page.title,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(36f.dp),
+            style = Style {
+                contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
+            },
+            variant = if (page.id == selectedPageId) {
+                ShadcnButtonVariant.Primary
+            } else {
+                ShadcnButtonVariant.Ghost
+            },
+            centered = false,
+            verticallyCentered = true
+        )
+    ) {
+        onSelect(page)
     }
 }
 

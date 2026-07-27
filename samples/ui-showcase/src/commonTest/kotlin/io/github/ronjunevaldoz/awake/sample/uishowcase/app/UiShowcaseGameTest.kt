@@ -404,6 +404,48 @@ class UiShowcaseGameTest {
             "desktop shell should render a single introduction preview card"
         )
     }
+
+    @Test
+    fun uiShowcaseSidebarCategoryGroupsAreCollapsibleAndDefaultExpanded() {
+        val ui = UiContext()
+        val input = Input()
+
+        fun renderSidebar() {
+            // Large deltaSeconds lets the collapsible's height animation converge in one frame.
+            ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
+            ui.createColumn(
+                modifier = Modifier.width(264f.dp).height(900f.dp),
+                font = BitmapFont(),
+                theme = shadcnTheme(dark = false)
+            ).run {
+                drawUiShowcaseSidebar(compact = false)
+            }
+            ui.endFrame()
+        }
+
+        renderSidebar()
+        var semantics = ui.semanticNodes()
+        assertTrue(
+            semantics.any { it.id == "ui-showcase-sidebar-category-GettingStarted.header" },
+            "expected a collapsible header for the GettingStarted category"
+        )
+        assertTrue(
+            semantics.any { it.id == "ui-showcase-page-introduction" },
+            "the selected page's category (GettingStarted) should be expanded by default"
+        )
+
+        // Collapse the GettingStarted group directly through its persisted state, same as a click would.
+        var expanded by ui.rememberStateValue("ui-showcase-sidebar-category", "GettingStarted") { true }
+        expanded = false
+
+        renderSidebar()
+        renderSidebar()
+        semantics = ui.semanticNodes()
+        assertTrue(
+            semantics.none { it.id == "ui-showcase-page-introduction" },
+            "collapsing the GettingStarted group should hide its page buttons"
+        )
+    }
 }
 
 private fun UiDrawPrimitive.RoundedQuad.matchesRegion(
