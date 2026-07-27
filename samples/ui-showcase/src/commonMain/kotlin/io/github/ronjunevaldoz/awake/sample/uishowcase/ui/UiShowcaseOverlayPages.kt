@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDia
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
@@ -112,6 +113,7 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
 internal fun ColumnScope.drawUiShowcasePopupPreview() {
     val actionMenuState = context.rememberPopupState("ui-showcase-action-menu")
     val deleteDialogState = context.rememberPopupState("ui-showcase-delete-dialog")
+    val infoDialogState = context.rememberPopupState("ui-showcase-info-dialog")
     var feedbackMessage by context.rememberStateValue("ui-showcase-popup-feedback") {
         "Try the action menu and dialog to inspect the popup layer."
     }
@@ -154,16 +156,54 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         if (
             shadcnButton(
                 id = "ui-showcase-delete-trigger",
-                label = "Open Dialog",
+                label = "Delete Scene",
                 modifier = Modifier.width(128f.dp).height(36f.dp),
                 variant = ShadcnButtonVariant.Outline
             )
         ) {
             deleteDialogState.open()
         }
+        if (
+            shadcnButton(
+                id = "ui-showcase-info-trigger",
+                label = "Open Info Dialog",
+                modifier = Modifier.width(150f.dp).height(36f.dp),
+                variant = ShadcnButtonVariant.Secondary
+            )
+        ) {
+            infoDialogState.open()
+        }
     }
     spacer(Modifier.height(4f.dp))
     shadcnSupportingText(feedbackMessage)
+
+    // The plain shadcnDialog: freeform header/content/actions slots, distinct from
+    // shadcnAlertDialog's fixed title+message+confirm/dismiss composition below.
+    val infoDialogPopup = shadcnDialog(
+        id = "ui-showcase-info-dialog",
+        expanded = infoDialogState.expanded,
+        width = Dimension.Fixed(320f.dp),
+        header = {
+            text("Scene info", style = Style { textSize(theme.typography.title) }, wrap = UiTextWrap.Word)
+        },
+        actions = {
+            if (
+                shadcnButton(
+                    id = "ui-showcase-info-dialog-close",
+                    label = "Close",
+                    modifier = Modifier.width(88f.dp).height(32f.dp),
+                    variant = ShadcnButtonVariant.Outline
+                )
+            ) {
+                infoDialogState.close()
+            }
+        }
+    ) { _ ->
+        shadcnBodyText("shadcnDialog is the plain content-based dialog -- shadcnAlertDialog is composed from it with a fixed title/message/confirm-cancel shape.")
+    }
+    if (infoDialogPopup.dismissed) {
+        infoDialogState.close()
+    }
 
     val dialogResult = shadcnAlertDialog(
         id = "ui-showcase-delete-dialog",

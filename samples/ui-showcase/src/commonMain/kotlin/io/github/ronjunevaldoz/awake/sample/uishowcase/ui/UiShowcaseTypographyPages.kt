@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnHeadline
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
@@ -50,6 +51,14 @@ internal fun ColumnScope.drawUiShowcaseTypographySpecimenPreview() {
     spacer(Modifier.height(8f.dp))
     shadcnText("Generic shadcn text, unmuted.")
     shadcnText("Generic shadcn text, muted.", muted = true)
+    spacer(Modifier.height(12f.dp))
+    shadcnSupportingText("Label: a purely presentational field label -- shadcnFieldLabel (used throughout the Text Input and Checkout Form pages) is sugar over this.")
+    spacer(Modifier.height(4f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
+        shadcnLabel("Name")
+        shadcnLabel("Email", required = true)
+        shadcnLabel("Legacy field", disabled = true)
+    }
 }
 
 internal fun ColumnScope.drawUiShowcaseFontsPreview() {

@@ -14,11 +14,19 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnKbd
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnProgress
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSkeleton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSpinner
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -200,13 +208,28 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
 internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
     var wireframe by context.rememberStateValue("ui-showcase-selection", "wireframe") { true }
     var stats by context.rememberStateValue("ui-showcase-selection", "stats") { false }
+    var darkMode by context.rememberStateValue("ui-showcase-selection", "darkMode") { false }
+    var quality by context.rememberStateValue("ui-showcase-selection", "quality") { 1 }
 
-    shadcnSupportingText("These are the current Awake-owned selection controls. They already share the same shadcn token layer even though radio and tab families are still pending.")
+    // shadcnToggleGroup is intentionally not demonstrated here: toggleGroup() (ui-unstyled)
+    // renders each option with a default FillMax-width modifier, and FillMax inside a row
+    // resolves against the row's *remaining* width per child rather than dividing it evenly
+    // across siblings (see the Layout Primitives page's own note on this), so every option
+    // after the first claims a zero-width slot and its label overflows. Real widget bug, not
+    // a showcase-content gap -- flagged for awake-ui-systems-engineer rather than worked
+    // around here.
+    shadcnSupportingText("The current Awake-owned selection controls: two independent booleans (Toggle/Switch), an exclusive checkbox group (Checkbox), and single-select (RadioGroup).")
     spacer(Modifier.height(8f.dp))
     wireframe = shadcnToggle(
         id = "showcase-selection-wireframe",
         checked = wireframe,
         label = "Wireframe overlay",
+        modifier = Modifier.width(220f.dp).height(24f.dp)
+    )
+    darkMode = shadcnSwitch(
+        id = "showcase-selection-dark-mode",
+        checked = darkMode,
+        label = "Dark mode",
         modifier = Modifier.width(220f.dp).height(24f.dp)
     )
     stats = shadcnCheckbox(
@@ -215,10 +238,100 @@ internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
         label = "Scene statistics",
         modifier = Modifier.width(220f.dp).height(24f.dp)
     )
+    spacer(Modifier.height(10f.dp))
+    shadcnSupportingText("RadioGroup: single-select, clicking the already-selected item is a no-op.")
+    spacer(Modifier.height(4f.dp))
+    quality = shadcnRadioGroup(
+        id = "showcase-selection-quality",
+        options = listOf("Low", "Medium", "High"),
+        selectedIndex = quality,
+        modifier = Modifier.width(220f.dp)
+    )
     spacer(Modifier.height(8f.dp))
     shadcnSupportingText(
         "Selection state now lives in the same preview lane as fields and overlays, so color inversions and label alignment regressions show up faster."
     )
+}
+
+internal fun ColumnScope.drawUiShowcaseTabsPreview() {
+    var section by context.rememberStateValue("ui-showcase-tabs", "section") { 0 }
+    val sections = listOf("Account", "Password", "Team")
+
+    shadcnSupportingText("Composed from shadcnButton, same reuse-existing-variant approach as RadioGroup -- the active tab uses Primary with an overridden background/foreground, inactive tabs stay Ghost.")
+    spacer(Modifier.height(8f.dp))
+    section = shadcnTabs(
+        id = "showcase-tabs-section",
+        tabs = sections,
+        selectedIndex = section
+    )
+    spacer(Modifier.height(8f.dp))
+    shadcnSupportingText("Selected: ${sections[section]}")
+}
+
+internal fun ColumnScope.drawUiShowcaseFeedbackPreview() {
+    shadcnSupportingText("Progress -- a static fraction bar.")
+    spacer(Modifier.height(4f.dp))
+    shadcnProgress(
+        id = "showcase-feedback-progress-low",
+        value = 0.25f,
+        modifier = Modifier.width(320f.dp).height(8f.dp)
+    )
+    spacer(Modifier.height(6f.dp))
+    shadcnProgress(
+        id = "showcase-feedback-progress-high",
+        value = 0.8f,
+        modifier = Modifier.width(320f.dp).height(8f.dp)
+    )
+    spacer(Modifier.height(12f.dp))
+    shadcnSupportingText("Skeleton -- a real per-widget opacity pulse standing in for unloaded content.")
+    spacer(Modifier.height(4f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
+        shadcnSkeleton(id = "showcase-feedback-skeleton-a", modifier = Modifier.width(160f.dp).height(20f.dp))
+        shadcnSkeleton(id = "showcase-feedback-skeleton-b", modifier = Modifier.width(96f.dp).height(20f.dp))
+    }
+    spacer(Modifier.height(12f.dp))
+    shadcnSupportingText("Spinner -- an orbiting-dots loader.")
+    spacer(Modifier.height(4f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(24f.dp.toDimension())) {
+        shadcnSpinner(id = "showcase-feedback-spinner", modifier = Modifier.width(24f.dp).height(24f.dp))
+        text("Loading scene...", modifier = Modifier.align(UiAlignment.CenterStart))
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseSelectPreview() {
+    var themeOption by context.rememberStateValue("ui-showcase-select", "theme") { 0 }
+    var accentOption by context.rememberStateValue("ui-showcase-select", "accent") { 1 }
+
+    shadcnSupportingText("A closed-state trigger + popover dropdown -- see the Dropdown Menu And Dialog page for the open-state proof of the same underlying popover mechanics.")
+    spacer(Modifier.height(8f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
+        themeOption = shadcnSelect(
+            id = "showcase-select-theme",
+            options = listOf("Light", "Dark", "Auto"),
+            selectedIndex = themeOption,
+            modifier = Modifier.width(200f.dp)
+        ) ?: themeOption
+        accentOption = shadcnSelect(
+            id = "showcase-select-accent",
+            options = listOf("Base", "Blue", "Emerald", "Rose"),
+            selectedIndex = accentOption,
+            modifier = Modifier.width(200f.dp)
+        ) ?: accentOption
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseKbdSeparatorPreview() {
+    row(horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(28f.dp.toDimension())) {
+        shadcnKbd("Cmd", modifier = Modifier.width(48f.dp).height(28f.dp))
+        shadcnKbd("Shift", modifier = Modifier.width(56f.dp).height(28f.dp))
+        shadcnKbd("P", modifier = Modifier.width(32f.dp).height(28f.dp))
+    }
+    spacer(Modifier.height(16f.dp))
+    shadcnBodyText("Above the fold.")
+    spacer(Modifier.height(8f.dp))
+    shadcnSeparator(modifier = Modifier.width(320f.dp))
+    spacer(Modifier.height(8f.dp))
+    shadcnBodyText("Below the fold.")
 }
 
 internal fun ColumnScope.drawUiShowcaseAvatarPreview() {

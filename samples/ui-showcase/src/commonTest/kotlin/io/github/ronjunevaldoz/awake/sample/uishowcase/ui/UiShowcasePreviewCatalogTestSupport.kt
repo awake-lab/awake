@@ -64,6 +64,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseOverviewPreview,
     UiShowcaseReferencePreview,
     UiShowcaseThemePreview,
+    UiShowcaseTypographyPreview,
     UiShowcaseFontsPreview,
     UiShowcaseLayoutPreview,
     UiShowcaseCanvasPreview,
@@ -73,6 +74,11 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseBreadcrumbPreview,
     UiShowcaseCardPreview,
     UiShowcaseSidebarPreview,
+    UiShowcaseSelectionPreview,
+    UiShowcaseTabsPreview,
+    UiShowcaseSelectPreview,
+    UiShowcaseKbdSeparatorPreview,
+    UiShowcaseFeedbackPreview,
     UiShowcaseAlertPreview,
     UiShowcaseTextInputPreview,
     UiShowcasePopupsPreview,
@@ -159,6 +165,20 @@ internal object UiShowcaseReferencePreview : AwakeUiPreviewEntry {
 internal object UiShowcaseThemePreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "theming")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-typography",
+    title = "Typography",
+    group = "Typography",
+    summary = "The shadcn text component family, including shadcnLabel's default/required/disabled states.",
+    width = 900,
+    height = 620,
+    reportScale = 2
+)
+internal object UiShowcaseTypographyPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "typography")
 }
 
 @AwakeUiPreview(
@@ -285,6 +305,76 @@ internal object UiShowcaseCardPreview : AwakeUiPreviewEntry {
 internal object UiShowcaseSidebarPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "sidebar")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-selection",
+    title = "Selection Controls",
+    group = "Inputs",
+    summary = "Toggle, Switch, Checkbox, RadioGroup, and ToggleGroup -- the current Awake-owned selection family.",
+    width = 900,
+    height = 520,
+    reportScale = 2
+)
+internal object UiShowcaseSelectionPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "selection")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-tabs",
+    title = "Tabs",
+    group = "Layout",
+    summary = "A muted track with a raised active tab, composed from shadcnButton.",
+    width = 900,
+    height = 320,
+    reportScale = 2
+)
+internal object UiShowcaseTabsPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "tabs")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-select",
+    title = "Select",
+    group = "Inputs",
+    summary = "Closed-state dropdown triggers -- a non-searchable Select matching real shadcn's plain Select.",
+    width = 900,
+    height = 320,
+    reportScale = 2
+)
+internal object UiShowcaseSelectPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "select")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-kbd-separator",
+    title = "Kbd And Separator",
+    group = "Layout",
+    summary = "Two tiny presentational primitives with no variant/state axis, grouped on one page.",
+    width = 900,
+    height = 360,
+    reportScale = 2
+)
+internal object UiShowcaseKbdSeparatorPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "kbd-separator")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-feedback",
+    title = "Feedback",
+    group = "Layout",
+    summary = "Progress, Skeleton, and Spinner -- three small loading/status primitives grouped on one page.",
+    width = 900,
+    height = 480,
+    reportScale = 2
+)
+internal object UiShowcaseFeedbackPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "feedback")
 }
 
 @AwakeUiPreview(

@@ -106,16 +106,18 @@ internal val ShowcasePages = listOf(
         id = "typography",
         title = "Typography",
         category = ShowcaseCategory.Typography,
-        description = "The shadcn text component family: sectionTitle, headline, bodyText, supportingText, and generic text.",
+        description = "The shadcn text component family: sectionTitle, headline, bodyText, supportingText, generic text, and label.",
         usageCode = """
             shadcnSectionTitle("Section Title")
             shadcnHeadline("Headline text sets the tone for a page or panel.")
             shadcnBodyText("Body text is the default reading size for paragraphs.")
             shadcnSupportingText("Supporting text is the muted caption size.")
             shadcnText("Generic shadcn text.", muted = true)
+            shadcnLabel("Email", required = true)
         """.trimIndent(),
         notes = listOf(
             "These are the actual owned typography components, not a font-rendering-path comparison.",
+            "shadcnLabel's required/disabled states show up here in isolation -- shadcnFieldLabel (used throughout Text Input and Checkout Form) is sugar over the default-state case of the same function.",
             "See the Font Atlas page for bitmap-vs-TTF glyph quality instead."
         ),
         renderPreview = { drawUiShowcaseTypographySpecimenPreview() }
@@ -267,31 +269,99 @@ internal val ShowcasePages = listOf(
     ),
     ShowcasePage(
         id = "selection",
-        title = "Toggle And Checkbox",
+        title = "Selection Controls",
         category = ShowcaseCategory.Inputs,
-        description = "The current Awake-owned binary selection controls, shown as reusable pieces while radio and tabs remain future work.",
+        description = "The Awake-owned selection family: Toggle, Switch, Checkbox, and RadioGroup, all sharing the same shadcn token layer.",
         usageCode = """
             var wireframe by rememberStateValue("scene", "wireframe") { true }
-            wireframe = shadcnToggle(
-                id = "wireframe",
-                checked = wireframe,
-                label = "Wireframe overlay",
-                modifier = Modifier.width(220f.dp).height(24f.dp)
-            )
+            wireframe = shadcnToggle(id = "wireframe", checked = wireframe, label = "Wireframe overlay")
 
-            var stats by rememberStateValue("scene", "stats") { false }
-            stats = shadcnCheckbox(
-                id = "stats",
-                checked = stats,
-                label = "Scene statistics",
-                modifier = Modifier.width(220f.dp).height(24f.dp)
+            var darkMode by rememberStateValue("scene", "darkMode") { false }
+            darkMode = shadcnSwitch(id = "dark-mode", checked = darkMode, label = "Dark mode")
+
+            var quality by rememberStateValue("scene", "quality") { 1 }
+            quality = shadcnRadioGroup(id = "quality", options = listOf("Low", "Medium", "High"), selectedIndex = quality)
+        """.trimIndent(),
+        notes = listOf(
+            "shadcnSwitch is real shadcn's `Switch`; shadcnToggle is our own boolean pressable control -- both exist and both get a row here.",
+            "shadcnRadioGroup reuses checkbox() with a Circle shape for single-select semantics.",
+            "shadcnToggleGroup is deliberately NOT shown here: toggleGroup() (ui-unstyled) gives every option after the first a zero-width slot because its children rely on FillMax inside a row without per-item division -- a real widget bug found during this audit, flagged for awake-ui-systems-engineer rather than worked around in this sample.",
+            "Their checked/unchecked and selected-index states are also covered in the widget preview lanes."
+        ),
+        renderPreview = { drawUiShowcaseSelectionPreview() }
+    ),
+    ShowcasePage(
+        id = "tabs",
+        title = "Tabs",
+        category = ShowcaseCategory.Layout,
+        description = "A muted track with a raised active tab, composed from shadcnButton the same way shadcnRadioGroup composes from checkbox().",
+        usageCode = """
+            var section by rememberStateValue("scene", "section") { 0 }
+            section = shadcnTabs(
+                id = "section",
+                tabs = listOf("Account", "Password", "Team"),
+                selectedIndex = section
             )
         """.trimIndent(),
         notes = listOf(
-            "Selection-family parity in the task doc is broader than these two controls, but this page gives the existing components a first-class home.",
-            "Their checked and unchecked states are also covered in the widget preview lanes."
+            "The active tab uses ShadcnButtonVariant.Primary with its background/foreground overridden to the card color; inactive tabs stay Ghost for the real chromeless-until-hover look.",
+            "No variant axis on real shadcn's Tabs either -- single look, single-select state is the whole story."
         ),
-        renderPreview = { drawUiShowcaseSelectionPreview() }
+        renderPreview = { drawUiShowcaseTabsPreview() }
+    ),
+    ShowcasePage(
+        id = "select",
+        title = "Select",
+        category = ShowcaseCategory.Inputs,
+        description = "A non-searchable dropdown trigger -- matches real shadcn's plain Select, not a searchable Combobox.",
+        usageCode = """
+            var theme by rememberStateValue("scene", "theme") { 0 }
+            theme = shadcnSelect(
+                id = "theme",
+                options = listOf("Light", "Dark", "Auto"),
+                selectedIndex = theme,
+                modifier = Modifier.width(200f.dp)
+            ) ?: theme
+        """.trimIndent(),
+        notes = listOf(
+            "shadcnSelect already appears composed inside the Checkout Form and the Field State Matrix preview -- this page is its own first-class home in isolation.",
+            "The Dropdown Menu And Dialog page's open-state preview demonstrates the same underlying popover anchoring shadcnSelect builds on."
+        ),
+        renderPreview = { drawUiShowcaseSelectPreview() }
+    ),
+    ShowcasePage(
+        id = "kbd-separator",
+        title = "Kbd And Separator",
+        category = ShowcaseCategory.Layout,
+        description = "Two tiny presentational primitives with no variant or state axis, grouped on one page instead of two near-empty ones.",
+        usageCode = """
+            shadcnKbd("Cmd")
+            shadcnKbd("Shift")
+            shadcnKbd("P")
+
+            shadcnSeparator(modifier = Modifier.width(320f.dp))
+        """.trimIndent(),
+        notes = listOf(
+            "shadcnKbd shares its 'measure text, draw a box, draw the label' mechanics with shadcnBadge -- just a different (sm-radius, muted) style.",
+            "shadcnSeparator is separator() with shadcn's border token -- no shadcn-specific style axis beyond that."
+        ),
+        renderPreview = { drawUiShowcaseKbdSeparatorPreview() }
+    ),
+    ShowcasePage(
+        id = "feedback",
+        title = "Feedback",
+        category = ShowcaseCategory.Layout,
+        description = "Progress, Skeleton, and Spinner -- three small loading/status primitives grouped on one page since none carry a variant axis of their own.",
+        usageCode = """
+            shadcnProgress(id = "load", value = 0.8f, modifier = Modifier.width(320f.dp).height(8f.dp))
+            shadcnSkeleton(id = "row", modifier = Modifier.width(160f.dp).height(20f.dp))
+            shadcnSpinner(id = "spinner", modifier = Modifier.width(24f.dp).height(24f.dp))
+        """.trimIndent(),
+        notes = listOf(
+            "Skeleton has a real per-widget opacity pulse (not a static box); Spinner is a real orbiting-dots animation approximating shadcn's CSS-rotated Lucide icon.",
+            "See the Shimmer page for the other loading-state animation -- a moving highlight sweep rather than a pulse or rotation."
+        ),
+        renderPreview = { drawUiShowcaseFeedbackPreview() }
     ),
     ShowcasePage(
         id = "avatar",
@@ -400,9 +470,15 @@ internal val ShowcasePages = listOf(
                 items = ShowcaseActionMenuItems
             )
             shadcnAlertDialog("delete", expanded = dialogState.expanded, title = "Delete scene?")
+            shadcnDialog(
+                id = "info",
+                expanded = infoDialogState.expanded,
+                header = { text("Scene info") }
+            ) { _ -> shadcnBodyText("Freeform content, unlike AlertDialog's fixed title/message shape.") }
         """.trimIndent(),
         notes = listOf(
             "The dropdown now renders inside a popover container with padding and grouped rows.",
+            "shadcnDialog is the plain content-based dialog shadcnAlertDialog is itself composed from -- this page now shows both, not just the alert-dialog wrapper.",
             "This page is the easiest way to spot overlay spacing regressions."
         ),
         renderPreview = { drawUiShowcasePopupPreview() }
