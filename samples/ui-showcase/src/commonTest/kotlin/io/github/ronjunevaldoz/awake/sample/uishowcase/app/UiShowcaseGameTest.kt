@@ -446,6 +446,61 @@ class UiShowcaseGameTest {
             "collapsing the GettingStarted group should hide its page buttons"
         )
     }
+
+    @Test
+    fun uiShowcaseSidebarCategoryHeaderCentersIconAndTitleVertically() {
+        val ui = UiContext()
+        val input = Input()
+
+        ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
+        ui.createColumn(
+            modifier = Modifier.width(264f.dp).height(900f.dp),
+            font = BitmapFont(),
+            theme = shadcnTheme(dark = false)
+        ).run {
+            drawUiShowcaseSidebar(compact = false)
+        }
+        ui.endFrame()
+
+        val semantics = ui.semanticNodes()
+        val header = requireSemanticNode(
+            semantics,
+            "ui-showcase-sidebar-category-GettingStarted.header",
+            UiSemanticRole.Button
+        )
+        val headerCenterY = header.bounds.y + header.bounds.height / 2f
+
+        val icon = requireNotNull(
+            semantics.firstOrNull {
+                it.role == UiSemanticRole.Text &&
+                    (it.label == "-" || it.label == "+") &&
+                    it.bounds.y >= header.bounds.y &&
+                    it.bounds.y <= header.bounds.y + header.bounds.height
+            }
+        ) { "expected the collapsible header's expand/collapse glyph as a Text semantic node" }
+        val title = requireNotNull(
+            semantics.firstOrNull {
+                it.role == UiSemanticRole.Text &&
+                    it.label == "Getting Started" &&
+                    it.bounds.y >= header.bounds.y &&
+                    it.bounds.y <= header.bounds.y + header.bounds.height
+            }
+        ) { "expected the collapsible header's category title as a Text semantic node" }
+
+        val iconContentCenterY = requireNotNull(icon.contentBounds).let { it.y + it.height / 2f }
+        val titleContentCenterY = requireNotNull(title.contentBounds).let { it.y + it.height / 2f }
+
+        assertTrue(
+            abs(iconContentCenterY - headerCenterY) <= 1f,
+            "expected the collapsible header's +/- glyph to be vertically centered in the header row: " +
+                "iconCenterY=$iconContentCenterY headerCenterY=$headerCenterY"
+        )
+        assertTrue(
+            abs(titleContentCenterY - headerCenterY) <= 1f,
+            "expected the collapsible header's title to be vertically centered in the header row: " +
+                "titleCenterY=$titleContentCenterY headerCenterY=$headerCenterY"
+        )
+    }
 }
 
 private fun UiDrawPrimitive.RoundedQuad.matchesRegion(

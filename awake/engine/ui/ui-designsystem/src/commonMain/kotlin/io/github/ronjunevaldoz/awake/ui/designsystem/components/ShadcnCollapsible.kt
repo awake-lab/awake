@@ -49,7 +49,8 @@ fun ColumnScope.shadcnCollapsible(
         // We use a simple row with fixed dimensions or predictable scaling logic.
         // To avoid WrapContent issues, we ensure children don't force unmeasured constraints.
         this.row(
-            horizontalArrangement = Arrangement.spacedBy(8f.dp)
+            horizontalArrangement = Arrangement.spacedBy(8f.dp),
+            verticalAlignment = UiAlignment.Vertical.Center
         , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))) {
              text(
                  label = if (expanded) "-" else "+",
