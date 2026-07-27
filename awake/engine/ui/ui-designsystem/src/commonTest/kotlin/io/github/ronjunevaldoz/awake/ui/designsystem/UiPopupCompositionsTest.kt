@@ -179,7 +179,26 @@ class UiPopupCompositionsTest {
         ui.pushFont(BitmapFont())
         var result: UiAlertDialogResult? = null
 
-        ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = true))
+        // First frame: no pointer down yet, just render to find the Confirm button's real
+        // position -- clicking a hardcoded pixel guess breaks the moment the actions row's
+        // arrangement changes (e.g. Arrangement.SpaceBetween moving Confirm to the row's right
+        // edge instead of wherever it used to sit).
+        ui.beginFrame(320f, 220f, testSnapshot(x = -1f, y = -1f, down = false))
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
+            result = shadcnAlertDialog(
+                id = "confirm",
+                expanded = true,
+                title = "Delete",
+                message = "Delete this scene?"
+            )
+        }
+        val confirmBounds = assertNotNull(
+            ui.finishFrame().semantics.firstOrNull { it.id == "confirm.confirm" }
+        ).bounds
+        val clickX = confirmBounds.x + confirmBounds.width / 2f
+        val clickY = confirmBounds.y + confirmBounds.height / 2f
+
+        ui.beginFrame(320f, 220f, testSnapshot(x = clickX, y = clickY, down = true))
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
             result = shadcnAlertDialog(
                 id = "confirm",
@@ -190,7 +209,7 @@ class UiPopupCompositionsTest {
         }
         ui.endFrame()
 
-        ui.beginFrame(320f, 220f, testSnapshot(x = 208f, y = 117f, down = false))
+        ui.beginFrame(320f, 220f, testSnapshot(x = clickX, y = clickY, down = false))
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
             result = shadcnAlertDialog(
                 id = "confirm",
