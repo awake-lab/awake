@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
@@ -174,13 +174,13 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             )
             spacer(Modifier.height(12f.dp))
 
-            shadcnFieldToggle(
+            shadcnFieldSwitch(
                 id = "showcase-live",
                 label = "Live animation",
                 checked = state.showcaseLiveBadge
             ).let { if (it != state.showcaseLiveBadge) state.showcaseLiveBadge = it }
 
-            shadcnFieldToggle(
+            shadcnFieldSwitch(
                 id = "showcase-danger-mode",
                 label = "Danger treatment",
                 checked = state.showcaseDangerMode

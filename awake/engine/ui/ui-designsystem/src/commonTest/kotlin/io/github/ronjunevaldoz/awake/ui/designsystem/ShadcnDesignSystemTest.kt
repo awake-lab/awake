@@ -18,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupporting
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldDescription
@@ -230,6 +231,25 @@ class ShadcnDesignSystemTest {
         val primitives = ui.endFrame()
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "field wrappers should keep text rendering intact")
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 6, "surface and field wrappers should emit shaped chrome")
+    }
+
+    @Test
+    fun shadcnFieldSwitchRendersSwitchPillBesideLabel() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(320f, 180f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+            shadcnSurface(
+                id = "dsl-switch", modifier = Modifier.height(Dimension.WrapContent)) {
+                shadcnFieldSwitch("live-animation", "Live animation", checked = true)
+            }
+        }
+
+        val primitives = ui.endFrame()
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "label beside the switch should still render text")
+        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 3, "surface, switch pill, and thumb should emit shaped chrome")
     }
 
     @Test

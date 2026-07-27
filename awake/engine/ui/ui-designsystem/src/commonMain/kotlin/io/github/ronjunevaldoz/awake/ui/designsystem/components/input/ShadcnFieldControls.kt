@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
@@ -69,6 +70,51 @@ fun ColumnScope.shadcnFieldToggle(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
 ): Boolean = shadcnFieldToggle(
+    id = id,
+    checked = checked,
+    modifier = modifier,
+    style = style
+) {
+    shadcnFieldLabel(label)
+}
+
+fun ColumnScope.shadcnFieldSwitch(
+    id: String,
+    checked: Boolean,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty,
+    labelContent: UiScope.() -> Unit
+): Boolean {
+    var resolved = checked
+    shadcnField(modifier = modifier, orientation = ShadcnFieldOrientation.Horizontal) {
+        labelContent()
+        resolved = shadcnSwitch(id = id, checked = checked, style = style)
+    }
+    return resolved
+}
+
+fun ColumnScope.shadcnFieldSwitch(
+    id: String,
+    checked: Boolean,
+    height: Dp,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty,
+    labelContent: UiScope.() -> Unit
+): Boolean = shadcnFieldSwitch(
+    id = id,
+    checked = checked,
+    modifier = modifier.height(height),
+    style = style,
+    labelContent = labelContent
+)
+
+fun ColumnScope.shadcnFieldSwitch(
+    id: String,
+    label: String,
+    checked: Boolean,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty
+): Boolean = shadcnFieldSwitch(
     id = id,
     checked = checked,
     modifier = modifier,
