@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /** Colors for [UiSemanticNode.debugOverlayPrimitives] -- one lane per rect kind so bounds,
  * content padding, and clip regions stay visually distinguishable when overlaid together. */
@@ -14,7 +14,7 @@ object UiDebugOverlayColors {
     val ClippedBounds = Color(1f, 0.35f, 0.3f, 0.9f)
 }
 
-private fun rectOutline(slot: UiSlot): UiPath = uiPath {
+private fun rectOutline(slot: UiBounds): UiPath = uiPath {
     moveTo(slot.x, slot.y)
     lineTo(slot.x + slot.width, slot.y)
     lineTo(slot.x + slot.width, slot.y + slot.height)

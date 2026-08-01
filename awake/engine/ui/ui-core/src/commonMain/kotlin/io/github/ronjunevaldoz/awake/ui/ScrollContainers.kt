@@ -156,9 +156,9 @@ fun UiScope.scrollPanel(
     recordSemantic(
         role = UiSemanticRole.ScrollPanel,
         id = id,
-        bounds = slot,
-        contentBounds = viewport,
-        clippedBounds = viewport
+        bounds = slot.toBounds(),
+        contentBounds = viewport.toBounds(),
+        clippedBounds = viewport.toBounds()
     )
 
     state.update(

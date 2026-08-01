@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -14,11 +13,11 @@ fun UiScope.resolveStyle(
 
 fun UiScope.recordSemantic(
     role: UiSemanticRole,
-    bounds: UiSlot,
+    bounds: UiBounds,
     id: String? = null,
     label: String? = null,
-    contentBounds: UiSlot? = null,
-    clippedBounds: UiSlot? = null,
+    contentBounds: UiBounds? = null,
+    clippedBounds: UiBounds? = null,
     truncated: Boolean = false,
     lineCount: Int = 0,
     selected: Boolean? = null

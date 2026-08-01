@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import kotlin.test.Test
@@ -20,7 +20,7 @@ class UiFrameOutputTest {
         ui.requestFocus("field")
         ui.createAbsolute(modifier = Modifier.offset(10f.dp, 10f.dp)).recordSemantic(
             role = UiSemanticRole.Text,
-            bounds = UiSlot(10f, 10f, 80f, 20f),
+            bounds = UiBounds(10f, 10f, 80f, 20f),
             id = "field.label",
             label = "Name"
         )

@@ -188,7 +188,7 @@ fun UiScope.surface(
     recordSemantic(
         role = UiSemanticRole.Panel,
         id = id,
-        bounds = slot
+        bounds = slot.toBounds()
     )
     context.pushTextStyle(resolved.textStyle)
     val effectiveShape = resolved.shapeSpec ?: UiShapeSpec.RoundedRectangle(resolved.shape)

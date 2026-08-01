@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import kotlin.test.Test
@@ -14,7 +14,7 @@ class UiDebugOverlayTest {
 
     @Test
     fun boundsOnlyNodeEmitsExactlyOneStrokedPath() {
-        val node = UiSemanticNode(role = UiSemanticRole.Panel, bounds = UiSlot(0f, 0f, 100f, 40f))
+        val node = UiSemanticNode(role = UiSemanticRole.Panel, bounds = UiBounds(0f, 0f, 100f, 40f))
         val primitives = node.debugOverlayPrimitives()
         assertEquals(1, primitives.size, "no contentBounds/clippedBounds should mean just the bounds outline")
         val stroked = primitives.single() as UiDrawPrimitive.StrokedPath
@@ -25,9 +25,9 @@ class UiDebugOverlayTest {
     fun contentAndClippedBoundsAddTheirOwnDistinctlyColoredOutlines() {
         val node = UiSemanticNode(
             role = UiSemanticRole.Button,
-            bounds = UiSlot(0f, 0f, 100f, 40f),
-            contentBounds = UiSlot(8f, 8f, 84f, 24f),
-            clippedBounds = UiSlot(0f, 0f, 60f, 40f)
+            bounds = UiBounds(0f, 0f, 100f, 40f),
+            contentBounds = UiBounds(8f, 8f, 84f, 24f),
+            clippedBounds = UiBounds(0f, 0f, 60f, 40f)
         )
         val primitives = node.debugOverlayPrimitives().filterIsInstance<UiDrawPrimitive.StrokedPath>()
         assertEquals(3, primitives.size)
@@ -39,7 +39,7 @@ class UiDebugOverlayTest {
     fun contextOverlaySurvivesPastEndFrameUntilNextBeginFrame() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(10f.dp, 10f.dp)).recordSemantic(role = UiSemanticRole.Button, bounds = UiSlot(
+        ui.createAbsolute(modifier = Modifier.offset(10f.dp, 10f.dp)).recordSemantic(role = UiSemanticRole.Button, bounds = UiBounds(
             10f,
             10f,
             80f,

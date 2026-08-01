@@ -199,7 +199,7 @@ private fun UiScope.resolveMeasuredColumn(
         content = content
     )
     if (role != UiSemanticRole.None && id != null) {
-        recordSemantic(role = role, id = id, bounds = rawSlot)
+        recordSemantic(role = role, id = id, bounds = rawSlot.toBounds())
     }
     return rawSlot
 }

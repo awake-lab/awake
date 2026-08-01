@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /**
  * Flat semantic record for one UI element emitted during a frame.
@@ -31,11 +31,11 @@ enum class UiSemanticRole {
  */
 data class UiSemanticNode(
     val role: UiSemanticRole,
-    val bounds: UiSlot,
+    val bounds: UiBounds,
     val id: String? = null,
     val label: String? = null,
-    val contentBounds: UiSlot? = null,
-    val clippedBounds: UiSlot? = null,
+    val contentBounds: UiBounds? = null,
+    val clippedBounds: UiBounds? = null,
     val truncated: Boolean = false,
     val lineCount: Int = 0,
     val selected: Boolean? = null
