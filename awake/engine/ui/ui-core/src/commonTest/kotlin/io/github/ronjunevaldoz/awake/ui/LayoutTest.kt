@@ -482,6 +482,56 @@ class LayoutTest {
     }
 
     @Test
+    fun rowWeightIsNotStarvedByNonWeightedFillMaxSibling() {
+        // Reproduces the root cause behind the shadcnField*/checkout-form-grid/shadcnToggleGroup
+        // workarounds this session: a plain (non-weighted) FillMax sibling must not claim the
+        // row's full width as "occupied" before the weighted sibling gets its share -- see
+        // resolveWeightedMainAxis() in Arrangement.kt.
+        val ui = UiContext()
+        ui.beginFrame(200f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
+        var weighted: UiSlot? = null
+        var fillMax: UiSlot? = null
+
+        root.row(
+            horizontalArrangement = Arrangement.spacedBy(0f.px),
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+        ) {
+            weighted = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
+            fillMax = claimSlot(Dimension.FillMax, Dimension.FillMax)
+        }
+
+        assertTrue(
+            (weighted?.width ?: 0f) > 100f,
+            "weighted sibling must get a reasonable, non-zero share of the row, got ${weighted?.width}"
+        )
+    }
+
+    @Test
+    fun rowWeightIsNotStarvedByNonWeightedFillMaxSiblingRegardlessOfOrder() {
+        // Reverse-order case: the non-weighted FillMax sibling comes first. Fix must not be
+        // order-dependent.
+        val ui = UiContext()
+        ui.beginFrame(200f, 80f, testSnapshot())
+        val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
+        var fillMax: UiSlot? = null
+        var weighted: UiSlot? = null
+
+        root.row(
+            horizontalArrangement = Arrangement.spacedBy(0f.px),
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+        ) {
+            fillMax = claimSlot(Dimension.FillMax, Dimension.FillMax)
+            weighted = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
+        }
+
+        assertTrue(
+            (weighted?.width ?: 0f) > 100f,
+            "weighted sibling must get a reasonable, non-zero share regardless of sibling order, got ${weighted?.width}"
+        )
+    }
+
+    @Test
     fun rowWeightFillFalseLetsChildUseLessThanItsAllottedShare() {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())

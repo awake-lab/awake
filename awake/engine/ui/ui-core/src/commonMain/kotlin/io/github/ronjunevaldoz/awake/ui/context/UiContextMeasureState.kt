@@ -38,6 +38,7 @@ internal class UiContextMeasureState {
     internal var measuredMaxBottomExcludingFill = 0f
     internal val measuredSlots = ArrayList<UiSlot>()
     internal val measuredWeights = ArrayList<LayoutWeight?>()
+    internal val measuredFillsMainAxis = ArrayList<Boolean>()
 
     fun beginFrame() {
         measuredMaxRight = 0f
@@ -46,6 +47,7 @@ internal class UiContextMeasureState {
         measuredMaxBottomExcludingFill = 0f
         measuredSlots.clear()
         measuredWeights.clear()
+        measuredFillsMainAxis.clear()
     }
 
     fun record(
@@ -89,6 +91,15 @@ internal class UiContextMeasureState {
     fun recordWeight(weight: LayoutWeight?, contributesToChildList: Boolean = true) {
         if (contributesToChildList) {
             measuredWeights += weight
+        }
+    }
+
+    /** Records whether a claimed slot filled the row/column's own main axis -- see
+     * [UiMeasuredContent.fillsMainAxis]'s doc comment for why this is tracked separately from
+     * [recordWeight]/[record]. */
+    fun recordMainAxisFill(fillsMainAxis: Boolean, contributesToChildList: Boolean = true) {
+        if (contributesToChildList) {
+            measuredFillsMainAxis += fillsMainAxis
         }
     }
 

@@ -270,7 +270,8 @@ fun UiScope.row(
             measuredSizes = measured.slots.map { it.width },
             weights = measured.weights,
             containerSize = slot.width,
-            gap = effectiveArrangement.baseSpacingPx()
+            gap = effectiveArrangement.baseSpacingPx(),
+            fillsMainAxis = measured.fillsMainAxis
         )
         val occupiedWidth = childWidths.sum() + effectiveArrangement.baseSpacingPx() * (childWidths.size - 1).coerceAtLeast(0)
         val plan = effectiveArrangement.plan(slot.width, childWidths.size, occupiedWidth)

@@ -465,6 +465,14 @@ class UiContext internal constructor(
         if (measuring) measurement.recordWeight(weight, contributesToChildList = recordingSuppressionDepth == 0)
     }
 
+    /** Records whether a just-claimed slot filled the row/column's own main axis -- see
+     * [UiMeasuredContent.fillsMainAxis]. */
+    internal fun recordMeasuredMainAxisFill(fillsMainAxis: Boolean) {
+        if (measuring) {
+            measurement.recordMainAxisFill(fillsMainAxis, contributesToChildList = recordingSuppressionDepth == 0)
+        }
+    }
+
     /** Suppresses [recordMeasuredSlot]/[recordMeasuredWeight]'s contribution to measuredSlots/
      * measuredWeights (only) for the duration of [block] -- wrap a composite child's own
      * `scope.content(slot)` call with this so its descendants' claims don't corrupt an ancestor

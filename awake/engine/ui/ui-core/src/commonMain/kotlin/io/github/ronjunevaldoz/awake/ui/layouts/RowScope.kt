@@ -46,6 +46,7 @@ class RowScope internal constructor(
             val slot = slots[plannedIndex++]
             context.recordMeasuredSlot(slot)
             context.recordMeasuredWeight(weight)
+            context.recordMeasuredMainAxisFill(weight == null && width == Dimension.FillMax)
             return slot
         }
         // A weighted child's own width defaults to WrapContent (see claimModifiedSlot), which
@@ -75,6 +76,12 @@ class RowScope internal constructor(
         // "real" height, inflating the row's resolved WrapContent height (task #34).
         context.recordMeasuredSlot(slot, contributesToWrapHeight = height != Dimension.FillMax)
         context.recordMeasuredWeight(weight)
+        // Main axis for a row is width -- a non-weighted child that claimed Dimension.FillMax
+        // here has no real "intrinsic" width of its own (its trial size is just whatever the
+        // cursor happened to have left at trial time, not a real occupied claim) -- see
+        // resolveWeightedMainAxis()'s doc comment for why this must not count as "occupied"
+        // space that starves a weighted sibling.
+        context.recordMeasuredMainAxisFill(weight == null && effectiveWidth == Dimension.FillMax)
         return slot
     }
 }

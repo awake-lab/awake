@@ -30,6 +30,10 @@ internal class UiMeasurementRuntime(
         measureState.recordWeight(weight, contributesToChildList)
     }
 
+    fun recordMainAxisFill(fillsMainAxis: Boolean, contributesToChildList: Boolean = true) {
+        measureState.recordMainAxisFill(fillsMainAxis, contributesToChildList)
+    }
+
     fun snapshot(): UiMeasuredContent = UiMeasuredContent(
         // Hug the non-fill content's own extent when there is any -- only fall back to the
         // (possibly FillMax-inflated) full max when *every* child was FillMax-width, so a lone
@@ -42,7 +46,8 @@ internal class UiMeasurementRuntime(
         // own to hug).
         height = measureState.measuredMaxBottomExcludingFill.takeIf { it > 0f } ?: measureState.measuredMaxBottom,
         slots = measureState.measuredSlots.toList(),
-        weights = measureState.measuredWeights.toList()
+        weights = measureState.measuredWeights.toList(),
+        fillsMainAxis = measureState.measuredFillsMainAxis.toList()
     )
 
     fun measureColumnContent(

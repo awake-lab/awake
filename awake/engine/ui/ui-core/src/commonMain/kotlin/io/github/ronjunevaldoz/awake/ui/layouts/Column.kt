@@ -343,7 +343,8 @@ fun UiScope.column(
             measuredSizes = measured.slots.map { it.height },
             weights = measured.weights,
             containerSize = slot.height,
-            gap = effectiveArrangement.baseSpacingPx()
+            gap = effectiveArrangement.baseSpacingPx(),
+            fillsMainAxis = measured.fillsMainAxis
         )
         val occupiedHeight = childHeights.sum() + effectiveArrangement.baseSpacingPx() * (childHeights.size - 1).coerceAtLeast(0)
         val plan = effectiveArrangement.plan(slot.height, childHeights.size, occupiedHeight)

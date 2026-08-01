@@ -43,6 +43,7 @@ class ColumnScope internal constructor(
             val slot = slots[plannedIndex++]
             context.recordMeasuredSlot(slot)
             context.recordMeasuredWeight(weight)
+            context.recordMeasuredMainAxisFill(weight == null && height == Dimension.FillMax)
             return slot
         }
         val resolvedWidth = width.resolve { this.width }
@@ -65,6 +66,10 @@ class ColumnScope internal constructor(
         // width back up. See UiContextMeasureState.record().
         context.recordMeasuredSlot(slot, contributesToWrapWidth = width != Dimension.FillMax)
         context.recordMeasuredWeight(weight)
+        // Main axis for a column is height -- see RowScope.claimSlot's matching comment
+        // (height-side counterpart) for why a non-weighted FillMax child's trial size must not
+        // count as "occupied" in resolveWeightedMainAxis().
+        context.recordMeasuredMainAxisFill(weight == null && effectiveHeight == Dimension.FillMax)
         return slot
     }
 }

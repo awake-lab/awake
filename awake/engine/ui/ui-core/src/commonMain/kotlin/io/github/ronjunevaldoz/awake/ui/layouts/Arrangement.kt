@@ -61,36 +61,68 @@ internal fun Arrangement.plan(containerSize: Float, childCount: Int, occupiedSiz
 }
 
 /**
- * Distributes a row/column's main-axis space between fixed-size children (untouched) and
- * [LayoutWeight]-tagged children (share [remaining] proportionally to their weight) -- shared
- * by [io.github.ronjunevaldoz.awake.ui.UiScope.row]/[io.github.ronjunevaldoz.awake.ui.UiScope.column]. [measuredSizes]/[weights] are
- * parallel lists (one entry per child, `weights[i] == null` for a non-weighted child), matching
- * [io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent.slots]/[io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent.weights].
+ * Distributes a row/column's main-axis space between non-weighted children (untouched, except
+ * for the FillMax case below) and [LayoutWeight]-tagged children (share [remaining] proportionally
+ * to their weight) -- shared by [io.github.ronjunevaldoz.awake.ui.UiScope.row]/[io.github.ronjunevaldoz.awake.ui.UiScope.column].
+ * [measuredSizes]/[weights]/[fillsMainAxis] are parallel lists (one entry per child, `weights[i]
+ * == null` for a non-weighted child), matching
+ * [io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent.slots]/[io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent.weights]/
+ * [io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent.fillsMainAxis].
+ *
+ * Resolution order matters: weighted children claim their share of [containerSize] first, as if
+ * every non-weighted `FillMax` sibling weren't there at all -- only a non-weighted child with a
+ * real fixed/intrinsic-content size counts as "occupied" up front. `FillMax` non-weighted
+ * siblings then divide whatever's left over *after* weighted children are resolved (which may be
+ * zero -- a `fillMaxWidth()` sibling competing with `weight()` siblings for the same axis is a
+ * genuine contradiction in intent, and Compose resolves it the same way: weighted children are
+ * measured against the real constraint first, so a `fillMaxWidth()` sibling naturally shrinks to
+ * make room instead of starving them). Fixes a real, already-hit bug class (`shadcnField*`,
+ * checkout-form grid, `shadcnToggleGroup` all needed `weight()`-only workarounds this session
+ * because the old order let a `FillMax` sibling's own trial-measured (pre-weight-resolution) size
+ * claim the entire row/column as "occupied" before weighted siblings got anything).
  *
  * ponytail: overflowing total weight just clamps `remaining` (and therefore every weighted
  * child) to 0 rather than shrinking non-weighted siblings -- matches the task's stated edge
- * case, not full Compose min-constraint negotiation.
+ * case, not full Compose min-constraint negotiation. Multiple non-weighted FillMax siblings all
+ * separately claim the *same* leftover amount (not shared/split between them) -- matches the old
+ * behavior for that case and mirrors Compose's own overlapping-fillMaxWidth-siblings outcome.
  */
 internal fun resolveWeightedMainAxis(
     measuredSizes: List<Float>,
     weights: List<LayoutWeight?>,
     containerSize: Float,
-    gap: Float
+    gap: Float,
+    fillsMainAxis: List<Boolean> = emptyList()
 ): List<Float> {
     if (weights.none { it != null }) return measuredSizes
     val gapsTotal = gap * (measuredSizes.size - 1).coerceAtLeast(0)
-    var nonWeightedOccupied = 0f
+    var occupied = 0f
     var totalWeight = 0f
     measuredSizes.forEachIndexed { index, size ->
         val weight = weights.getOrNull(index)
-        if (weight == null) nonWeightedOccupied += size else totalWeight += weight.weight
+        when {
+            weight != null -> totalWeight += weight.weight
+            // A non-weighted FillMax sibling's trial size is an artifact of the trial measuring
+            // against the full container before any weighted sibling claimed its share -- it is
+            // not a real "occupied" claim, so it must not shrink what weighted siblings get.
+            fillsMainAxis.getOrNull(index) == true -> Unit
+            else -> occupied += size
+        }
     }
-    val remaining = (containerSize - nonWeightedOccupied - gapsTotal).coerceAtLeast(0f)
+    val remaining = (containerSize - occupied - gapsTotal).coerceAtLeast(0f)
     val weightUnit = if (totalWeight > 0f) remaining / totalWeight else 0f
-    return measuredSizes.mapIndexed { index, size ->
+    var weightedTotal = 0f
+    val withWeightResolved = measuredSizes.mapIndexed { index, size ->
         val weight = weights.getOrNull(index) ?: return@mapIndexed size
         val allotted = (weightUnit * weight.weight).coerceAtLeast(0f)
-        if (weight.fill) allotted else min(size, allotted)
+        val resolved = if (weight.fill) allotted else min(size, allotted)
+        weightedTotal += resolved
+        resolved
+    }
+    val leftoverForFill = (containerSize - occupied - weightedTotal - gapsTotal).coerceAtLeast(0f)
+    return withWeightResolved.mapIndexed { index, size ->
+        if (weights.getOrNull(index) != null) return@mapIndexed size
+        if (fillsMainAxis.getOrNull(index) == true) leftoverForFill else size
     }
 }
 
