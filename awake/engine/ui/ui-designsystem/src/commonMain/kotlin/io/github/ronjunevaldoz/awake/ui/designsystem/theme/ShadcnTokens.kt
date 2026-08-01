@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.theme
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
 
 internal data class ShadcnRadiusScale(
@@ -24,6 +25,17 @@ internal data class ShadcnRadiusScale(
             full = 9999f.dp
         )
     }
+}
+
+/** shadcn-matching spacing names, wrapping [UiSpacing]'s dp values instead of duplicating them --
+ * ui-core owns the raw scale, this just renames/extends it for shadcn call sites (e.g. `theme.spacing.xxl`). */
+internal object ShadcnSpacing {
+    val xs: Dp = UiSpacing.xs
+    val sm: Dp = UiSpacing.sm
+    val md: Dp = UiSpacing.md
+    val lg: Dp = UiSpacing.lg
+    val xl: Dp = UiSpacing.xl
+    val xxl: Dp = 48f.dp
 }
 
 internal data class ShadcnMetrics(

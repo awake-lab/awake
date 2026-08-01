@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
@@ -13,7 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme

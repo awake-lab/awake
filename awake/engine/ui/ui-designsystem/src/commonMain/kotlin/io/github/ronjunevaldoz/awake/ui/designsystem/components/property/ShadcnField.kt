@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -43,12 +42,12 @@ fun ColumnScope.shadcnField(
 ): UiSlot = when (orientation) {
     ShadcnFieldOrientation.Vertical -> column(
         id = id,
-        verticalArrangement = Arrangement.spacedBy(UiSpacing.sm),
+        verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
         modifier = modifier
     ) { content() }
 
     ShadcnFieldOrientation.Horizontal -> row(
-        horizontalArrangement = Arrangement.spacedBy(UiSpacing.md),
+        horizontalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.md),
         verticalAlignment = UiAlignment.Vertical.Center,
         modifier = modifier
     ) { content() }
@@ -97,7 +96,7 @@ fun ColumnScope.shadcnFieldSet(
     id: String? = null,
     modifier: UiModifier = Modifier,
     content: ColumnScope.() -> Unit
-): UiSlot = column(id = id, verticalArrangement = Arrangement.spacedBy(UiSpacing.sm), modifier = modifier) { content() }
+): UiSlot = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm), modifier = modifier) { content() }
 
 /** Real shadcn's `FieldLegend` (HTML `<legend>` equivalent) -- the title of a [shadcnFieldSet],
  * one step up in visual weight from [shadcnFieldLabel]. Delegates to [shadcnSectionTitle] for the
@@ -112,7 +111,7 @@ fun ColumnScope.shadcnFieldGroup(
     id: String? = null,
     modifier: UiModifier = Modifier,
     content: ColumnScope.() -> Unit
-): UiSlot = column(id = id, verticalArrangement = Arrangement.spacedBy(UiSpacing.xl), modifier = modifier) { content() }
+): UiSlot = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xxl), modifier = modifier) { content() }
 
 /**
  * Real shadcn's `FieldSeparator` -- a plain hairline between fields, or (with [label]) a
@@ -124,7 +123,7 @@ fun ColumnScope.shadcnFieldSeparator(modifier: UiModifier = Modifier, label: Str
         separator(modifier = modifier, color = borderColor)
     } else {
         row(
-            horizontalArrangement = Arrangement.spacedBy(UiSpacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
             verticalAlignment = UiAlignment.Vertical.Center,
             modifier = modifier
         ) {

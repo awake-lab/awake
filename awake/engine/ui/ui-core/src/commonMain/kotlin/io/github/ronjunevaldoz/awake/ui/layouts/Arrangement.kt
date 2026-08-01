@@ -1,6 +1,7 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.toPx

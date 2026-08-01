@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.font
 
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectTextScale
 import io.github.ronjunevaldoz.awake.ui.toPx
 //

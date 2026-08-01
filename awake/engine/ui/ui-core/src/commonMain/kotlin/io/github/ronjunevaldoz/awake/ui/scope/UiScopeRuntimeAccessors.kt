@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*

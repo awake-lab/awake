@@ -8,9 +8,9 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -28,7 +28,7 @@ fun UiScope.shadcnTooltip(
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.aligned(
         anchorAlignment = UiAlignment.BottomCenter,
         popupAlignment = UiAlignment.TopCenter,
-        offsetY = UiSpacing.xs
+        offsetY = theme.asShadcnTheme().spacing.xs
     ),
     properties: UiPopupProperties = UiPopupProperties(),
     style: Style = Style.Empty,

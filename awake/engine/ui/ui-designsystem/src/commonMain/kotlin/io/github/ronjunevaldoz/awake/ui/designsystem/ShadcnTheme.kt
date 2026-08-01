@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnPalette
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.layout.*
@@ -149,6 +150,7 @@ internal interface ShadcnResolvedTheme : UiTheme {
     val palette: ShadcnPalette
     val radii: ShadcnRadiusScale
     val metrics: ShadcnMetrics
+    val spacing: ShadcnSpacing get() = ShadcnSpacing
     override val typography: UiTypography
 
     val card: Color get() = palette.card
