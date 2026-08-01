@@ -7,7 +7,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: kmm-agent-skills
-  last-updated: '2026-07-19'
+  last-updated: '2026-07-31'
   keywords:
     - Ktlint
     - Detekt
@@ -26,6 +26,12 @@ metadata:
     - kdoc vs comment
     - extension function documentation
     - documentation by architectural level
+    - Android Kotlin style guide
+    - naming conventions
+    - acronym casing
+    - composable naming
+    - constant naming
+    - backing property
 ---
 
 ## When to Use This Skill
@@ -191,6 +197,17 @@ complexity:
   CyclomaticComplexMethod:
     active: true
     threshold: 15
+  LargeClass:
+    active: true
+    threshold: 400
+  TooManyFunctions:
+    active: true
+    thresholdInClasses: 15
+
+coupling:
+  CouplingBetweenObjects:
+    active: true
+    threshold: 12
 
 naming:
   FunctionNaming:
@@ -227,6 +244,81 @@ inheritance chain, which is exactly the pattern `kotlin-multiplatform-clean-arch
 "Composition Over Inheritance" section explains how to avoid — see that section for the
 full rationale and fix.
 
+`LargeClass`/`TooManyFunctions`/`CouplingBetweenObjects` were a real gap: this collection
+had god-object detection scoped to only two file types (`kotlin-multiplatform-audit`'s
+`_detect_viewmodel_size` for ViewModels, `_detect_god_composable` for Compose screens) —
+nothing caught a repository, use case, or manager class accumulating too many
+responsibilities. These three are real, AST-based Detekt rules (not this collection's own
+heuristic), so they catch it precisely instead of approximately:
+- `LargeClass` — a class over 400 lines, tuned above `LongMethod`'s 60-line function
+  threshold since a class legitimately holding several medium methods is normal; the
+  smell is the *class* growing unbounded, not any one method
+- `TooManyFunctions` — 15+ functions in one class is usually multiple responsibilities
+  that haven't been split yet
+- `CouplingBetweenObjects` — 12+ distinct types referenced by one class's signatures is a
+  fan-out smell; the class knows about too much of the codebase to test or change safely
+
+`kotlin-multiplatform-audit`'s `_detect_god_class` is the non-Detekt backstop for a
+project that hasn't wired this config yet — see that skill's own docs for its (looser,
+heuristic) thresholds.
+
+### Long Parameter List, and its worse variant: a regressed Parameter Object
+
+`LongParameterList` (Fowler's *Refactoring* catalog name — Detekt's rule is named the
+same thing) flags any function past the configured threshold. The standard fix is
+**Introduce Parameter Object**: group related parameters into one data class.
+
+There's a worse version of this smell than a plain long list: a function that *already
+has* a parameter object one call away, and re-explodes it into individual primitives
+anyway instead of accepting and forwarding the object directly.
+
+```kotlin
+// ❌ UiLayoutTracking already exists and is what layouts.createColumn actually wants —
+// this wrapper flattens it into 4 primitives just to reconstruct it one line later
+fun createColumn(
+    x: Float, y: Float, width: Float, height: Float? = null,
+    verticalArrangement: Arrangement = defaultArrangement(),
+    testTag: String? = null,
+    hasBoundedFillWidth: Boolean = true,
+    hasBoundedFillHeight: Boolean = height != null,
+    overlayOnly: Boolean = false,
+    plannedSlots: List<UiSlot>? = null,
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
+): ColumnScope = layouts.createColumn(
+    x = x, y = y, width = width, height = height,
+    verticalArrangement = verticalArrangement,
+    tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
+    plannedSlots = plannedSlots,
+    horizontalAlignment = horizontalAlignment,
+)
+
+// ✓ accept and forward the object that already exists — 11 params drop to 8,
+// and a future field added to UiLayoutTracking can't drift out of sync with this
+// wrapper's signature, because the wrapper no longer restates its shape
+fun createColumn(
+    x: Float, y: Float, width: Float, height: Float? = null,
+    verticalArrangement: Arrangement = defaultArrangement(),
+    tracking: UiLayoutTracking = UiLayoutTracking(),
+    plannedSlots: List<UiSlot>? = null,
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
+): ColumnScope = layouts.createColumn(
+    x = x, y = y, width = width, height = height,
+    verticalArrangement = verticalArrangement,
+    tracking = tracking,
+    plannedSlots = plannedSlots,
+    horizontalAlignment = horizontalAlignment,
+)
+```
+
+This compounds **Primitive Obsession** (Fowler again — using primitives instead of a
+small object for something that already has one) onto Long Parameter List: the smell
+isn't that nobody solved it, it's that the solution was undone one layer up. Not
+mechanically detected here — distinguishing "this wrapper's params happen to overlap a
+nearby class" from "this wrapper is literally reconstructing that exact class" needs more
+context than a regex reasonably gets right without false positives. Catch it in review:
+if a function's parameter list, minus 1-2 params, matches a data class used in its own
+body, forward the object instead of restating its fields.
+
 ### Usage
 
 ```bash
@@ -239,6 +331,65 @@ full rationale and fix.
 # Fix auto-fixable issues (formatting only)
 ./gradlew detektFormat
 ```
+
+---
+
+## Naming Conventions (Android Kotlin Style Guide)
+
+Ktlint/Detekt above enforce *formatting* mechanically. They do not enforce naming
+*semantics* — whether an acronym is cased right, whether a `val` actually qualifies as a
+constant, whether a `@Composable` reads as a type or a verb. Verified against the real,
+current [Android Kotlin style guide](https://developer.android.com/kotlin/style-guide)
+(Google's official doc, last updated 2023-09-06), not assumed:
+
+### File and package naming
+
+- A file with one top-level class is named exactly after that class, case-sensitive —
+  `AuthViewModel.kt`, never `authviewmodel.kt` or `AuthVM.kt`
+- A file with multiple top-level declarations (extension functions, several small types)
+  gets a descriptive PascalCase name — `StringExtensions.kt`, `NetworkResult.kt`
+- Package names are all lowercase, words concatenated with no underscores —
+  `GROUP_ID.feature.auth.presenter`, never `GROUP_ID.feature.auth_flow`
+
+### Type, function, and constant names
+
+| Kind | Case | Notes |
+|---|---|---|
+| Class / interface / object | `PascalCase` | Nouns or noun phrases (`AuthRepository`); interfaces may be adjectives too (`Readable`) |
+| Test class | `PascalCase` + `Test` | `AuthViewModelTest`, `AuthRepositoryIntegrationTest` |
+| Function | `camelCase` | Verb or verb phrase — `sendMessage`, `refreshToken` |
+| Test function | `camelCase`, underscores allowed | `` `pop_emptyStack`` — underscores separate logical components, test names only |
+| **`@Composable` function returning `Unit`** | **`PascalCase`, noun** | Read as a type, not a verb — `AppButton`, `ProductListScreen`. **Not** `appButton`/`renderProductList` |
+| `@Composable` function returning a value | `camelCase` | A factory, not a UI node — `rememberScrollState()`, not `RememberScrollState()` |
+| Constant (`const val`, or a `val` with no custom getter and deeply immutable contents) | `UPPER_SNAKE_CASE` | Only legal in an `object` or at top level — a `class`'s own property can't be a "constant" by this definition, even if it never changes; use `camelCase` there instead |
+| Backing property | `_` + real property name | `private var _table: Map<...>?` backing `val table: Map<...>` |
+| Type variable | Single capital + optional numeral, or `NameT` | `T`, `E`, `T2`, or `RequestT` |
+
+The `@Composable` PascalCase rule is the one most relevant to this collection's own
+generated code — every `App*`/`Shadcn*` component already follows it by convention; this
+is the first place it's stated as an explicit, checkable naming rule rather than an
+implicit pattern. `kotlin-multiplatform-audit`'s `_detect_lowercase_unit_composable`
+mechanically enforces it.
+
+### Acronym casing
+
+The style guide's camelCase conversion process lowercases an acronym's letters except
+the first, same as any other word — never keep an acronym fully capitalized:
+
+| Prose | Correct | Incorrect |
+|---|---|---|
+| "XML Http Request" | `XmlHttpRequest` | `XMLHTTPRequest` |
+| "new customer ID" | `newCustomerId` | `newCustomerID` |
+| "supports IPv6 on iOS" | `supportsIpv6OnIos` | `supportsIPv6OnIOS` |
+
+### A known, deliberate deviation: line length
+
+The Android guide sets a 100-character column limit. This repo's own
+`.editorconfig` (see Ktlint Setup above) sets `max_line_length = 120`, matching
+[kotlinlang.org's own Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
+recommendation instead. This is a real, acknowledged conflict between the two official
+sources, not an oversight — 120 stays the default here; a project that wants strict
+Android-guide alignment should set `max_line_length = 100` in its own `.editorconfig`.
 
 ---
 
@@ -286,6 +437,14 @@ Verified against Kotlin's own official coding conventions (kotlinlang.org), not 
   links wherever it's mentioned, and use `@param`/`@return` only when the description is
   long enough that it doesn't fit the flow of the prose. This repo's own tag table below
   lists them as available tags, not as the default shape every KDoc should take.
+- **Coverage is all-or-nothing, never partial.** The choice above is about *form*
+  (inline `[name]` vs an `@param` tag), never about which parameters get addressed at
+  all. If a function has 3 parameters and the KDoc documents 1 of them, that's a real
+  defect — either say something about all 3 (mixing inline mentions and `@param` tags on
+  the same declaration is fine) or write a plain single-line summary with no parameter
+  detail at all. A KDoc block that looks thorough but silently skips 2 of 3 parameters is
+  worse than no KDoc — it reads as complete and isn't. `kotlin-multiplatform-audit`'s
+  `_detect_partial_param_documentation` catches this mechanically.
 - **KDoc supports Markdown** — verified against kotlinlang.org, not assumed. Inline markup
   inside `/** */` is regular Markdown (bold/italic, lists, links), plus a KDoc-specific
   shorthand for linking to another declaration:
@@ -367,6 +526,11 @@ includeBuild("tailwind/style-experimental")
 DSL) — never required per function or per file, same "why not what" rule as `//`. When one
 is warranted, use `@sample`, not a pasted code block: it points at a real compiled
 function, so it's type-checked and can't silently drift stale.
+
+**When more than one tag is used on the same declaration, the required order is**
+`@constructor`, `@receiver`, `@param`, `@property`, `@return`, `@throws`, `@see` — per the
+[Android Kotlin style guide](https://developer.android.com/kotlin/style-guide)'s Block
+tags rule. A tag never appears with an empty description; skip it entirely instead.
 
 ```kotlin
 /**
@@ -519,7 +683,7 @@ lint:
 - `kotlin-multiplatform-feature-scaffold` — convention plugins are where Ktlint/Detekt are applied
 - `kotlin-multiplatform-project-docs-maintainer` — `docs/reference/` is where development notes go when a code comment's rationale outgrows what belongs inline
 - `kotlin-multiplatform-library-publishing` — per-file license headers, a related but separate comment-placement decision
-- `kotlin-multiplatform-audit` — `_detect_what_comment_in_control_flow` checks the "Inline blocks" rule below automatically; `/kmm-clean-comments` applies the fix across all four documentation levels; `_detect_destructive_read_accessor` checks the "Side-Effect-Free Accessors" rule
+- `kotlin-multiplatform-audit` — `_detect_what_comment_in_control_flow` checks the "Inline blocks" rule below automatically; `/kmm-clean-comments` applies the fix across all four documentation levels; `_detect_destructive_read_accessor` checks the "Side-Effect-Free Accessors" rule; `_detect_god_class` is the non-Detekt backstop for `LargeClass`/`TooManyFunctions` above
 - `kotlin-multiplatform-docs-site` — applies this skill's `@sample` principle (a real, compiled reference beats a pasted block that can drift stale) to public developer-guide code examples via snippet extraction
 
 ---
@@ -527,6 +691,8 @@ lint:
 ## Common Anti-Patterns
 
 - applying Detekt only to the root project — violations in submodules go undetected; apply via convention plugins
+- leaving `LargeClass`/`TooManyFunctions`/`CouplingBetweenObjects` unconfigured — god-object detection then only exists for ViewModels and Composables (via `kotlin-multiplatform-audit`), not for a repository/use-case/manager class accumulating too many responsibilities
+- a wrapper function re-exploding an existing parameter object into individual primitives instead of accepting and forwarding the object — Primitive Obsession compounding Long Parameter List; the fix already exists one call away and got undone
 - setting `maxIssues > 0` — a non-zero threshold lets violations accumulate silently
 - using Ktlint without `.editorconfig` — line length defaults to 80; too short for Kotlin
 - running `ktlintFormat` in CI instead of `ktlintCheck` — CI should fail, not silently reformat
@@ -539,6 +705,60 @@ lint:
 - a `consume*()`/getter that clears the field it just read before returning — fine with one caller, silently drops data for every other caller reading the same accessor in the same tick/request; expose a single owned `snapshot()`/`markAllRead()` instead
 
 If Detekt reports false positives, use `@Suppress("RuleName")` at the call site, not a global exclude.
+
+---
+
+## Kotlin Library & Pattern Choices
+
+### `kotlin-reflect` — avoid in shared code
+
+`kotlin-reflect` is a JVM-primary API — limited or absent on Kotlin/Native and Kotlin/JS,
+and a real runtime/startup cost even on JVM. Never add it to `commonMain`'s dependencies;
+if a `commonMain` file imports `kotlin.reflect.*` beyond the always-available `KClass`/
+`::class` literal (full reflection: `memberProperties`, `KFunction.call`, etc.), that's a
+signal the platform split was skipped, not a genuine cross-platform need.
+
+- **Fine**: JVM-only modules (a Ktor server, a desktop-only feature) that already accept
+  JVM as their sole target
+- **Not fine**: reaching for reflection-based serialization or object inspection in
+  shared code — use `kotlinx.serialization` instead, which code-generates via a compiler
+  plugin and needs no runtime reflection on any platform
+- `kotlin-multiplatform-audit`'s `_detect_kotlin_reflect_in_common` catches full-reflection
+  imports in `commonMain`
+
+### Util/extension file organization
+
+A single `Utils.kt`/`Helpers.kt`/`Extensions.kt` file accumulating unrelated top-level
+functions across different domains (string formatting next to date math next to network
+retry logic) is a real smell — the file has no single responsibility, and nothing about
+its name tells a reader what's actually inside. Split by what the functions are *for*:
+`StringExtensions.kt`, `DateExtensions.kt`, or move the function into the module that
+owns the domain it touches. A file of extension functions all sharing the same receiver
+type is fine and not what this flags — the smell is unrelated functions sharing only a
+generic filename. `_detect_god_utils_file` flags a `*Utils.kt`/`*Helpers.kt` file with
+10+ top-level functions spanning 3+ distinct (or no) receiver types.
+
+### Regex readability
+
+A regex used more than once, or complex enough to need explaining, must be bound to a
+well-named constant — never inlined as a raw literal inside a function call:
+
+```kotlin
+// ❌ — unreadable inline, no name to signal intent, recompiled if hit in a hot path
+if (Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$").matches(input)) { ... }
+
+// ✓ — named, compiled once, self-documenting call site
+private val EMAIL_RE = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+if (EMAIL_RE.matches(input)) { ... }
+```
+
+For a pattern with 2+ capture groups, prefer named groups over positional ones — a caller
+reading `match.groups["year"]` doesn't need to cross-reference the pattern to know what
+`match.groupValues[2]` means. Add a one-line WHY comment above any pattern using
+lookaheads/lookbehinds or non-obvious escaping — what it matches should not require
+mentally executing the regex. `_detect_inline_unnamed_regex` flags a `Regex(...)`/
+`toRegex()` call inlined directly as a function-call argument instead of bound to a
+`val`.
 
 ---
 
@@ -557,6 +777,11 @@ When asked about code quality, linting, or formatting for KMP, respond in this o
 
 | Date | Change |
 |---|---|
+| 2026-07-31 | Added "Kotlin Library & Pattern Choices" — `kotlin-reflect` (avoid in `commonMain`, JVM-primary and limited/absent on Native/JS), util/extension file organization (a god `Utils.kt` grab-bag is a real smell distinct from a single-receiver extension file), and regex readability (bind to a named `val`, never inline; named capture groups over positional for 2+ groups). Backed by `kotlin-multiplatform-audit`'s three new detectors. Also added the Alpha-stability caveat kotlinx.collections.immutable was missing wherever this skill referenced it. |
+| 2026-07-31 | Added a completeness rule to `@param`/`@return` guidance: the existing "avoid these tags, weave into prose" advice was about *form*, never about whether every parameter gets addressed — a user reported seeing generated KDoc that documented 1 of several parameters. Coverage is now explicit: all parameters or none, never partial. Backed by `kotlin-multiplatform-audit`'s new `_detect_partial_param_documentation`. |
+| 2026-07-31 | Added "Naming Conventions (Android Kotlin Style Guide)" — real gap: this skill covered formatting (Ktlint/Detekt, mechanical) and comment/KDoc conventions, but never naming *semantics* — verified against the real, current [Android Kotlin style guide](https://developer.android.com/kotlin/style-guide). Covers file/package naming, the type/function/constant naming table (including the `@Composable`-returning-`Unit`-must-be-PascalCase rule this repo's own generated components already followed by convention but never stated explicitly), acronym casing (`XmlHttpRequest` not `XMLHTTPRequest`), backing property `_x` convention, type variable naming, and the required KDoc block-tag order. Also flagged a real, deliberate conflict: the guide sets a 100-char line limit, this repo's `.editorconfig` sets 120 (matching kotlinlang.org's own convention instead) — documented as an acknowledged deviation, not silently changed. Added `kotlin-multiplatform-audit`'s `_detect_lowercase_unit_composable` as the mechanical enforcement for the Composable-naming rule. |
+| 2026-07-25 | Added "Long Parameter List, and its worse variant: a regressed Parameter Object" — named from a real example (an 11-param wrapper that re-exploded an existing `UiLayoutTracking` parameter object into 4 primitives just to reconstruct it one line later, even though the function it delegates to already accepts the object directly). Not mechanically detected — flagged in review guidance instead, since distinguishing "params happen to overlap a class" from "this is literally that class flattened" needs more context than a safe regex gets. 1 new anti-pattern. |
+| 2026-07-20 | Enabled Detekt's `LargeClass`, `TooManyFunctions`, and `coupling.CouplingBetweenObjects` — real gap: god-object detection existed only for ViewModels and Composables (`kotlin-multiplatform-audit`'s `_detect_viewmodel_size`/`_detect_god_composable`), nothing caught a repository/use-case/manager class doing too much. These are real AST-based Detekt rules, not a hand-rolled heuristic. `_detect_god_class` added as the non-Detekt backstop, cross-referenced here. |
 | 2026-07-19 | New "Side-Effect-Free Accessors (Destructive Reads)" section — a real gap found while diagnosing a skill-vs-model-capability question against a separate KMP game project's commit history: a `consume*()` accessor that clears the field it just read before returning silently drops data for a second caller in the same tick/request (real bug: `Input.consumeTypedText()`/`consumeEditActions()`, fixed by moving the clear into one owned `snapshot()`). Rule generalized past input handling with a repository/`StateFlow` example. New `kotlin-multiplatform-audit` detector `_detect_destructive_read_accessor` (heuristic 3-line "read into local, clear same field, return local" shape), 1 new anti-pattern, cross-referenced in Related Skills. |
 | 2026-07-14 | Two additions to Comment & KDoc Conventions: (1) "Whether to write a comment at all" — a 4-step decision order that was previously scattered across prose rather than stated as one procedure. (2) "Formatting" — real, verified rules from Kotlin's own official coding conventions (kotlinlang.org): one space after `//`, KDoc's `/**`-alone-then-`*`-prefixed-lines-then-`*/`-alone shape for long comments vs single-line `/** ... */` for short ones, and the official guidance to *avoid* `@param`/`@return` in favor of inline prose — which contradicted this skill's own tag table until now (fixed both rows to state the real guidance instead of presenting the tags as the default shape). |
 | 2026-07-14 | Real gap closed: the "grows past ~4 lines, split to docs/reference/" rule was documented but never mechanically checked anywhere — a user reported still seeing long stacked `//` blocks in their project after this skill shipped. Added `kotlin-multiplatform-audit`'s `_detect_long_stacked_comment_block` (5+ consecutive `//` lines, no `docs/reference/` pointer) and cross-referenced it inline in the Comment & KDoc Conventions table. Excludes a leading license/copyright header (consistent with this skill's own existing license-header note) — verified against a real false-positive case before shipping. |

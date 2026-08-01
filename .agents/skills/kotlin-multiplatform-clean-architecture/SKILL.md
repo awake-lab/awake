@@ -8,7 +8,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: kmm-agent-skills
-  last-updated: '2026-07-13'
+  last-updated: '2026-07-26'
   keywords:
     - clean architecture
     - Kotlin Multiplatform
@@ -378,6 +378,46 @@ to the UI layer as-is (see `kotlin-multiplatform-mvi` for the `UiError` sealed t
 
 ---
 
+## Typed Domain IDs
+
+A `:model` with two or more raw `String`/`Long` identifiers (`userId`, `orderId`,
+`productId`) is the same class of bug as an untyped domain error — nothing stops
+`getOrder(userId)` from compiling. Wrap each identifier in its own `@JvmInline value
+class` instead of a `typealias` — a `typealias` is assignment-compatible with the
+underlying type (so the mix-up still compiles), a `value class` is not.
+
+```kotlin
+// :feature:orders:model
+@JvmInline
+value class OrderId(val value: String)
+
+@JvmInline
+value class UserId(val value: String)
+
+data class Order(
+    val id: OrderId,
+    val userId: UserId,
+    // ...
+)
+
+// getOrders(userId: UserId, orderId: OrderId) — passing them swapped no longer compiles
+```
+
+The compiler erases the wrapper at the JVM bytecode level (no allocation, no boxing) as
+long as the value class isn't used as `Any`, a generic type argument, or through
+reflection — those paths box it back into a real object. Rule of thumb: fine for
+function parameters, return types, and `data class` properties; watch boxing if it ends
+up in a `List<OrderId>` or gets passed through a generic API.
+
+**When NOT to reach for this:** a value class holds exactly one property — a type that
+needs two or more (e.g. `Money` wanting both `amount` and `currency`) is a `data class`,
+not a value class (multi-field value classes are still experimental as of Kotlin 2.4).
+And don't wrap a value that's about to cross a `kotlinx.serialization` boundary without
+checking the serializer sees the underlying type, not the wrapper, unless a custom
+serializer is registered for it.
+
+---
+
 ## Cross-Feature Navigation
 
 `:feature` modules must not depend on each other. When feature A needs to navigate to
@@ -577,12 +617,13 @@ which Gradle allows fine and nothing else catches.
 - `kotlin-multiplatform-unit-testing` — JVM-based ViewModel tests enabled by the `:presenter`/`:ui` split
 - `kotlin-multiplatform-code-quality` — Ktlint + Detekt setup; Detekt's `UnnecessaryAbstractClass` rule is the mechanical enforcement for Composition Over Inheritance
 - `kotlin-multiplatform-dependency-injection` — Koin wiring for interface + injection, the replacement for inheritance-based extension points
-- `kotlin-multiplatform-audit` — `_detect_extensible_abstract_class_in_common` and `_detect_module_layer_violation` are the mechanical enforcement for this skill's Composition Over Inheritance and layer-order rules, independent of whether Detekt is configured
+- `kotlin-multiplatform-audit` — `_detect_extensible_abstract_class_in_common` and `_detect_module_layer_violation` are the mechanical enforcement for this skill's Composition Over Inheritance and layer-order rules, independent of whether Detekt is configured; `_detect_value_class_opportunity` is a LOW-severity nudge for the Typed Domain IDs rule above; `_detect_bare_core_module` enforces the ":core" vs ":feature" Split below
 
 ---
 
 ## Common Anti-Patterns
 
+- **umbrella module** — one massive `:shared` (or `:core`) module holding everything instead of the 6-layer per-feature split; every change recompiles the whole module, and nothing stops a screen from reaching straight into a repository implementation. `kotlin-multiplatform-audit`'s `_detect_feature_split` reports whether a project has the full split, a partial one, or none at all; `_detect_bare_core_module` specifically flags a `core/build.gradle.kts` — `:core` must be a folder group of separate modules (`:core:model`, `:core:api`, ...), never a module in its own right.
 - putting data classes in `:api` — they belong in `:model`; `:api` should be interfaces only
 - adding Compose to `:presenter` — kills JVM testability; Compose belongs only in `:ui`
 - `:ui` importing from `:data` directly — all state must route through `:presenter`
@@ -597,6 +638,8 @@ which Gradle allows fine and nothing else catches.
 - passing `NavController` through a `NavGraphBuilder` extension — extensions receive lambdas or `AppNavigator`, never `NavController` directly
 - a public `abstract class` in `commonMain` with only abstract members, requiring every consumer to subclass it — replace with an interface consumers implement and inject; see Composition Over Inheritance above
 - reaching for inheritance to make something "reusable" or "shared" by default — interface + Koin injection gives the same swap-per-consumer flexibility without dictating the consumer's own class hierarchy
+- using a raw `String`/`Long` for two or more distinct domain identifiers in the same `:model` — nothing stops `getOrder(userId)` from compiling; wrap each in a `@JvmInline value class`
+- using a `typealias` instead of a `value class` to distinguish domain IDs — a `typealias` is assignment-compatible with the underlying type, so the mix-up still compiles; only a `value class` actually prevents it
 
 If a layer violation is hard to fix, it usually means a type belongs one layer lower (closer to `:model`).
 
@@ -617,6 +660,10 @@ When asked about architecture layers or module boundaries, respond in this order
 
 | Date | Change |
 |---|---|
+| 2026-07-26 | Real gap closed: the ":core" vs ":feature" Split table already documented `:core` as separate modules (`:core:model`, `:core:api`, ...) mirroring `:feature:*`'s shape, but `_detect_module_layer_violation`'s module-path regex only ever matched `feature/<name>/<layer>` — it never applied to `:core` at all, so a monolithic `:core` module went completely uncaught. Added `kotlin-multiplatform-audit`'s new `_detect_bare_core_module`. |
+| 2026-07-20 | Added an explicit "umbrella module" anti-pattern — a real, general KMM anti-pattern this skill's 6-layer contract already prevents structurally but never named outright; cross-referenced `kotlin-multiplatform-audit`'s existing `_detect_feature_split` status check. |
+| 2026-07-20 | Cross-referenced `kotlin-multiplatform-audit`'s new `_detect_value_class_opportunity` — a LOW-severity nudge that flags 2+ raw String/Long ID parameters in one function signature, mechanically surfacing the Typed Domain IDs rule below instead of relying on an agent to remember it unprompted. |
+| 2026-07-20 | Added "Typed Domain IDs" — `@JvmInline value class` for domain identifiers instead of raw `String`/`Long`, verified this collection had zero references to value classes despite them being idiomatic Kotlin since 1.5. Distinguishes from `typealias` (assignment-compatible, doesn't prevent the mix-up) and covers the multi-field/boxing/serialization caveats. 2 new anti-patterns. |
 | 2026-07-13 | Added a note explaining why the Use Case Pattern has no "skip it if trivial" exception, even for a 1:1 pass-through with zero added logic: the boundary rule ("ViewModel only ever depends on `:domain`") is bright-line and mechanically checkable; a judgment-call exception isn't. The cost tradeoff (small future refactor if skipped vs. paying ceremony cost today if always wrapped) is real but secondary to the enforceability argument in this repo specifically. |
 | 2026-07-11 | Added a "Module layer-order violation" fitness function: `kotlin-multiplatform-audit`'s new `_detect_module_layer_violation` parses every module's `build.gradle.kts` for `projects.*` references and checks the full layer order plus cross-feature dependencies, generalizing the single ad-hoc `:ui`-vs-`:data`/`:domain` grep this section used to show. A literal circular dependency can't happen silently (Gradle refuses to build a real cycle) — the real, previously-uncaught gap is a wrong-*direction* one-way dependency declared at the Gradle level before any file imports the forbidden package, which file-level Detekt rules can't see yet. Verified against 5 synthetic cases (3 violation types, a valid full graph, and a core-module dependency correctly ignored) before shipping. |
 | 2026-07-11 | Added "Composition Over Inheritance in commonMain" — a real, recurring anti-pattern where an agent creates a public `abstract class` in `commonMain` (e.g. a `GenericGameApplication`) with only abstract members, forcing every consumer to subclass it. Not scoped to any domain name — the smell is the shape, not the name. Wired to Detekt's real `UnnecessaryAbstractClass` rule (added to `kotlin-multiplatform-code-quality`'s base `detekt.yml`) and a new project-independent backstop detector in `kotlin-multiplatform-audit` (`_detect_extensible_abstract_class_in_common`), verified against positive/negative/scope-boundary test cases before shipping. 2 new anti-patterns. |

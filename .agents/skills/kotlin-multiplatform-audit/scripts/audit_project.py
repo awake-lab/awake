@@ -327,6 +327,46 @@ def _detect_agent_setup(root: Path) -> list[str]:
         findings.append("agent-setup [MEDIUM]: .claude/skills/ missing or empty — skills not deployed")
 
     has_claude_setup = (root / "CLAUDE.md").exists() or claude.exists()
+
+    agents_skills_dir = root / ".agents" / "skills"
+    if has_claude_setup:
+        if not agents_skills_dir.exists() or not any(agents_skills_dir.iterdir()):
+            findings.append(
+                "agent-setup [MEDIUM]: .agents/skills/ missing or empty — the "
+                "agentskills.io cross-client target isn't deployed; other clients "
+                "(Cursor, Amp, Goose, ...) working in this project see no skills "
+                "(run /kmm-setup-agents or update-consumer-skills.sh)"
+            )
+        elif skills_dir.exists() and any(skills_dir.iterdir()):
+            claude_names = {p.name for p in skills_dir.iterdir() if p.is_dir()}
+            agents_names = {p.name for p in agents_skills_dir.iterdir() if p.is_dir()}
+            if claude_names != agents_names:
+                only_claude = sorted(claude_names - agents_names)
+                only_agents = sorted(agents_names - claude_names)
+                detail = []
+                if only_claude:
+                    detail.append(f"only in .claude/skills/: {only_claude}")
+                if only_agents:
+                    detail.append(f"only in .agents/skills/: {only_agents}")
+                findings.append(
+                    "agent-setup [MEDIUM]: .claude/skills/ and .agents/skills/ have "
+                    "drifted — " + "; ".join(detail) + " (re-run the deploy step so "
+                    "both copies match)"
+                )
+
+    project_skills_dir = root / "skills"
+    if project_skills_dir.is_dir():
+        bundled_named = sorted(
+            p.name for p in project_skills_dir.iterdir()
+            if p.is_dir() and (p.name.startswith("kotlin-multiplatform-") or p.name.startswith("jni-"))
+        )
+        if bundled_named:
+            findings.append(
+                "agent-setup [HIGH]: bundled-looking skill name(s) under project-root "
+                f"skills/ — {bundled_named}; project-root skills/ is for project-owned "
+                "CUSTOM skills only, bundled kmm-agent-skills content belongs in "
+                ".agents/skills/ and .claude/skills/, never copied into the source tree"
+            )
     source_layout = {
         "agents/": root / "agents",
         "rules/": root / "rules",
@@ -696,6 +736,560 @@ def _detect_god_composable(root: Path) -> list[str]:
                 f"collection + persistence into viewModelScope (see MVI skill decision order)\n"
                 f"    {line_no} | {snippet}"
             )
+    return findings
+
+
+# ── God class (repo-wide, not scoped to ViewModel/Composable) ──────────────────
+# god-object detection existed for exactly two file types — ViewModel size and
+# god composable — nothing caught a repository, use case, or manager class
+# accumulating too many responsibilities. This is the heuristic backstop for a
+# project that hasn't wired kotlin-multiplatform-code-quality's LargeClass/
+# TooManyFunctions Detekt rules yet; those AST-based rules are the precise version
+# of this same check.
+
+_PLAIN_CLASS_DECL_RE = re.compile(
+    r"(?m)^(?!.*\b(?:data|sealed|enum|value|annotation)\s+class\b).*\bclass\s+(\w+)"
+)
+_FUN_DECL_RE = re.compile(r"\bfun\s+\w+\s*\(")
+_GOD_CLASS_LINE_THRESHOLD = 400
+_GOD_CLASS_FUN_THRESHOLD = 15
+
+
+def _detect_god_class(root: Path) -> list[str]:
+    """Flag a plain class (not data/sealed/enum/value/annotation) that's grown past
+    both a line-count and a function-count threshold — a repository, use case, or
+    manager accumulating too many responsibilities. Skips files already covered by
+    the ViewModel-size and god-composable detectors to avoid double-reporting.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if path.stem.endswith("ViewModel") or _is_viewmodel_file(text):
+            continue
+        if _is_compose_ui_file(text, path):
+            continue
+        class_match = _PLAIN_CLASS_DECL_RE.search(text)
+        if not class_match:
+            continue
+        line_count = len(text.splitlines())
+        fun_count = len(_FUN_DECL_RE.findall(text))
+        if line_count < _GOD_CLASS_LINE_THRESHOLD or fun_count < _GOD_CLASS_FUN_THRESHOLD:
+            continue
+        severity = "HIGH" if (line_count >= 700 or fun_count >= 25) else "MEDIUM"
+        line_no, snippet = _at(text, class_match.start())
+        findings.append(
+            f"god class [{severity}]: {path.relative_to(root)}:{line_no} "
+            f"— {line_count} lines, {fun_count} functions in '{class_match.group(1)}'; "
+            f"split into smaller, single-responsibility classes. Per "
+            f"kotlin-multiplatform-code-quality's LargeClass/TooManyFunctions Detekt "
+            f"rules, this should already fail CI once configured\n"
+            f"    {line_no} | {snippet}"
+        )
+    return findings
+
+
+# ── runBlocking in shared (commonMain) code ─────────────────────────────────────
+# runBlocking blocks the calling thread until the coroutine completes — on Android/iOS
+# that's very often the main thread. Fine in a JVM/Desktop CLI entry point (fun main),
+# a real correctness hazard (ANR / deadlock risk) anywhere else in shared business logic.
+
+_RUNBLOCKING_RE = re.compile(r"\brunBlocking\s*[{(]")
+_FUN_MAIN_RE = re.compile(r"\bfun\s+main\s*\(")
+
+
+def _detect_runblocking_in_shared_code(root: Path) -> list[str]:
+    """Flag runBlocking used in commonMain outside a fun main() entry point."""
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        if "/commonmain/" not in path.as_posix().lower():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if _FUN_MAIN_RE.search(text):
+            continue
+        match = _RUNBLOCKING_RE.search(text)
+        if not match:
+            continue
+        line_no, snippet = _at(text, match.start())
+        findings.append(
+            f"runBlocking in shared code [MEDIUM]: {path.relative_to(root)}:{line_no} "
+            f"— blocks the calling thread, often the main thread on Android/iOS; use a "
+            f"suspend function and let the caller's coroutine scope handle it instead\n"
+            f"    {line_no} | {snippet}"
+        )
+    return findings
+
+
+# ── Koin circular dependency ─────────────────────────────────────────────────────
+# Only detects bindings that use an explicit single<Type>/factory<Type>/scoped<Type>
+# declaration and explicit get<Type>() calls within the same line — this collection's
+# own kotlin-multiplatform-dependency-injection skill already recommends explicit
+# typing for interface bindings. A plain single { Foo(get(), get()) } with no explicit
+# type arguments can't be resolved to a dependency graph without also parsing Foo's
+# constructor signature elsewhere, which this heuristic doesn't attempt — real gap,
+# but narrowing scope to explicitly-typed bindings keeps false positives near zero.
+
+_KOIN_TYPED_BINDING_RE = re.compile(
+    r"\b(?:single|factory|scoped)\s*<\s*(\w+)\s*>\s*\{([^}]*)\}"
+)
+_KOIN_GET_TYPED_RE = re.compile(r"\bget\s*<\s*(\w+)\s*>\s*\(")
+
+
+def _detect_koin_circular_dependency(root: Path) -> list[str]:
+    """Flag a cycle among explicitly-typed Koin bindings (single<A>/factory<A>/
+    scoped<A> referencing get<B>() where B eventually depends back on A).
+    """
+    graph: dict[str, set[str]] = {}
+    origin: dict[str, tuple[Path, int]] = {}
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if "module {" not in text and "module{" not in text:
+            continue
+        for match in _KOIN_TYPED_BINDING_RE.finditer(text):
+            bound_type, body = match.group(1), match.group(2)
+            deps = set(_KOIN_GET_TYPED_RE.findall(body)) - {bound_type}
+            graph.setdefault(bound_type, set()).update(deps)
+            if bound_type not in origin:
+                origin[bound_type] = (path, _at(text, match.start())[0])
+
+    findings: list[str] = []
+    reported: set[frozenset] = set()
+
+    def find_cycle(start: str) -> list[str] | None:
+        stack = [(start, [start])]
+        seen_paths: set[str] = set()
+        while stack:
+            node, path_so_far = stack.pop()
+            for neighbor in graph.get(node, ()):
+                if neighbor == start:
+                    return path_so_far + [start]
+                if neighbor in path_so_far or neighbor in seen_paths:
+                    continue
+                seen_paths.add(neighbor)
+                stack.append((neighbor, path_so_far + [neighbor]))
+        return None
+
+    for bound_type in graph:
+        cycle = find_cycle(bound_type)
+        if not cycle:
+            continue
+        key = frozenset(cycle)
+        if key in reported:
+            continue
+        reported.add(key)
+        path, line_no = origin[bound_type]
+        findings.append(
+            f"koin circular dependency [HIGH]: {path.relative_to(root)}:{line_no} "
+            f"— {' → '.join(cycle)}; break the cycle by extracting the shared piece "
+            f"into a third binding both sides depend on, or by injecting a Provider/"
+            f"lazy indirection at one edge\n"
+            f"    {line_no} | {bound_type} binding"
+        )
+    return findings
+
+
+# ── Compose unstable collection parameter ─────────────────────────────────────
+# Raw List<T>/Map<K,V>/Set<T> parameters on a @Composable are treated as unstable by
+# the Compose compiler (they're mutable-capable interfaces), forcing recomposition on
+# every parent recompose even when the contents haven't changed. kotlinx.collections
+# .immutable's ImmutableList/ImmutableMap/ImmutableSet (or a wrapping @Immutable data
+# class) fix this. Heuristic-only nudge — a raw collection param is common and often
+# fine for a leaf composable that recomposes cheaply; this is a LOW-severity signal for
+# a composable worth checking, not a claim it's definitely wrong.
+
+_UNSTABLE_COLLECTION_PARAM_RE = re.compile(r"\b(?:List|Map|Set)\s*<")
+_IMMUTABLE_COLLECTION_PREFIX_RE = re.compile(r"\b(?:Immutable|Persistent)(?:List|Map|Set)\s*<")
+
+
+def _detect_compose_unstable_collection_param(root: Path) -> list[str]:
+    """Flag a @Composable function with a raw List/Map/Set parameter — Compose treats
+    these as unstable, causing unnecessary recomposition.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if not _is_compose_ui_file(text, path):
+            continue
+        for match in _COMPOSABLE_FUN_RE.finditer(text):
+            fn_name = match.group(1)
+            params = _split_top_level(match.group("params"))
+            unstable = [
+                p.strip()
+                for p in params
+                if _UNSTABLE_COLLECTION_PARAM_RE.search(p)
+                and not _IMMUTABLE_COLLECTION_PREFIX_RE.search(p)
+            ]
+            if not unstable:
+                continue
+            line_no, snippet = _at(text, match.start())
+            findings.append(
+                f"compose unstable collection param [LOW]: {path.relative_to(root)}:{line_no} "
+                f"— '{fn_name}' takes a raw List/Map/Set parameter ({'; '.join(unstable)}); "
+                f"Compose treats these as unstable, forcing recomposition even when "
+                f"contents are unchanged. Use kotlinx.collections.immutable's "
+                f"ImmutableList/ImmutableMap/ImmutableSet instead — note the library is "
+                f"still Alpha (API subject to change), so pin its version deliberately "
+                f"and don't expose it across a library's own public API surface\n"
+                f"    {line_no} | {snippet}"
+            )
+    return findings
+
+
+# ── Undocumented public API (library projects only) ─────────────────────────────
+# kotlin-multiplatform-library-publishing's explicitApi() forces every public
+# declaration to state its visibility explicitly — once "public" is a deliberate
+# choice, an undocumented one is a real gap. Gated on the project actually using
+# explicitApi()/explicitApiWarning() anywhere; without it "public" isn't a strong
+# enough signal to check (most app code is public by Kotlin's own default).
+
+_EXPLICIT_API_MARKER_RE = re.compile(r"\bexplicitApi(?:Warning)?\s*\(")
+_PUBLIC_DECL_RE = re.compile(
+    r"(?m)^(?P<indent>[ \t]*)public\s+(?:class|interface|object|fun)\s+(\w+)"
+)
+
+
+def _project_uses_explicit_api(root: Path) -> bool:
+    for path in root.rglob("*.gradle.kts"):
+        if _is_excluded(path, root):
+            continue
+        try:
+            if _EXPLICIT_API_MARKER_RE.search(path.read_text(encoding="utf-8", errors="ignore")):
+                return True
+        except OSError:
+            continue
+    return False
+
+
+def _detect_undocumented_public_api(root: Path) -> list[str]:
+    """Flag a `public class`/`interface`/`object`/`fun` with no KDoc block in the
+    lines immediately above it — scoped to projects that already use explicitApi().
+    """
+    if not _project_uses_explicit_api(root):
+        return []
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        except OSError:
+            continue
+        for i, line in enumerate(lines):
+            match = _PUBLIC_DECL_RE.match(line)
+            if not match:
+                continue
+            # Look back up to 5 lines for a KDoc close (*/) — the doc block itself
+            # may span several lines above that.
+            preceding = lines[max(0, i - 5): i]
+            if any("*/" in p for p in preceding):
+                continue
+            findings.append(
+                f"undocumented public api [LOW]: {path.relative_to(root)}:{i + 1} "
+                f"— '{match.group(2)}' is public with no KDoc; a consumer sees it in "
+                f"autocomplete with no explanation. Per kotlin-multiplatform-library-"
+                f"publishing's KDoc coverage rule, document the public contract\n"
+                f"    {i + 1} | {line.strip()}"
+            )
+    return findings
+
+
+# ── @Composable function returning Unit named like a verb, not a type ──────────
+# Per the Android Kotlin style guide's naming rules: a @Composable function that
+# returns Unit is a UI node, not an action — it must be PascalCase, read as a noun
+# (AppButton, ProductListScreen), never camelCase like a verb (appButton). A
+# @Composable that returns a value (rememberScrollState()) is a factory, not a UI
+# node, and correctly stays camelCase — excluded by requiring no explicit return
+# type before the opening brace.
+
+_COMPOSABLE_ANNOTATION_RE = re.compile(r"@Composable\b")
+_FUN_AFTER_COMPOSABLE_RE = re.compile(
+    r"\bfun\s+(?:<[^>]*>\s*)?([a-zA-Z_]\w*)\s*\("
+)
+
+
+def _find_matching_paren(text: str, open_idx: int) -> int | None:
+    depth = 0
+    for i in range(open_idx, len(text)):
+        if text[i] == "(":
+            depth += 1
+        elif text[i] == ")":
+            depth -= 1
+            if depth == 0:
+                return i
+    return None
+
+
+def _detect_lowercase_unit_composable(root: Path) -> list[str]:
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for ann_match in _COMPOSABLE_ANNOTATION_RE.finditer(text):
+            fun_match = _FUN_AFTER_COMPOSABLE_RE.search(text, ann_match.end())
+            if not fun_match or fun_match.start() > ann_match.end() + 200:
+                continue
+            name = fun_match.group(1)
+            if not name[0].islower():
+                continue
+            paren_start = fun_match.end() - 1
+            close_idx = _find_matching_paren(text, paren_start)
+            if close_idx is None:
+                continue
+            rest = text[close_idx + 1:close_idx + 30]
+            after = rest.lstrip()
+            if not after.startswith("{"):
+                continue  # explicit return type present — a factory function, not a UI node
+            line_no, snippet = _at(text, fun_match.start())
+            findings.append(
+                f"lowercase unit composable [MEDIUM]: {path.relative_to(root)}:{line_no} "
+                f"— '{name}' is a @Composable function returning Unit (a UI node), named "
+                f"like a verb; per the Android Kotlin style guide, it must be PascalCase, "
+                f"read as a noun (e.g. '{name[0].upper()}{name[1:]}')\n"
+                f"    {line_no} | {snippet}"
+            )
+    return findings
+
+
+# ── KDoc documents some parameters but not others ───────────────────────────
+# A KDoc block that names one parameter and stays silent on the rest reads as
+# complete but isn't — worse than no KDoc, since a reader has no signal anything
+# is missing. Coverage must be all-or-nothing: either every parameter gets a
+# mention (inline [name] or @param), or none do (a plain summary with no
+# parameter-level detail, which the official guidance already allows).
+
+_KDOC_BLOCK_RE = re.compile(r"/\*\*(.*?)\*/", re.DOTALL)
+_KDOC_FUN_SIGNATURE_RE = re.compile(r"\bfun\s+(?:<[^>]*>\s*)?\w+\s*\(")
+_PARAM_NAME_RE = re.compile(r"^\s*(?:vararg\s+)?(?:val\s+|var\s+)?(\w+)\s*:")
+_PARAM_TAG_NAME_RE = re.compile(r"@param\s+(\w+)")
+_INLINE_BRACKET_REF_RE = re.compile(r"\[(\w+)\]")
+
+
+def _detect_partial_param_documentation(root: Path) -> list[str]:
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for kdoc_match in _KDOC_BLOCK_RE.finditer(text):
+            window_start = kdoc_match.end()
+            window = text[window_start:window_start + 300]
+            fun_match = _KDOC_FUN_SIGNATURE_RE.search(window)
+            if not fun_match or fun_match.start() > 200:
+                continue  # not immediately followed by a function (annotations tolerated)
+            paren_start = window_start + fun_match.end() - 1
+            close_idx = _find_matching_paren(text, paren_start)
+            if close_idx is None:
+                continue
+            params = _split_top_level(text[paren_start + 1:close_idx])
+            names = [m.group(1) for p in params if (m := _PARAM_NAME_RE.search(p))]
+            if len(names) < 2:
+                continue  # "partial" is meaningless with 0-1 params
+            kdoc_body = kdoc_match.group(1)
+            documented = set(_PARAM_TAG_NAME_RE.findall(kdoc_body)) | set(
+                _INLINE_BRACKET_REF_RE.findall(kdoc_body)
+            )
+            covered = [n for n in names if n in documented]
+            missing = [n for n in names if n not in documented]
+            if not covered or not missing:
+                continue  # zero coverage (allowed) or full coverage — not partial
+            line_no, snippet = _at(text, window_start + fun_match.start())
+            findings.append(
+                f"partial param documentation [MEDIUM]: {path.relative_to(root)}:{line_no} "
+                f"— KDoc documents {covered} but not {missing}; per "
+                f"kotlin-multiplatform-code-quality's coverage rule, either address every "
+                f"parameter or none — a partially-documented signature reads as complete "
+                f"and isn't\n"
+                f"    {line_no} | {snippet}"
+            )
+    return findings
+
+
+# ── Full kotlin-reflect usage in commonMain ──────────────────────────────────
+# kotlin-reflect is JVM-primary — limited/absent on Kotlin/Native and Kotlin/JS, and a
+# real runtime cost even on JVM. A commonMain file reaching for full reflection (not the
+# always-available KClass/::class literal) signals the platform split was skipped.
+
+_KOTLIN_REFLECT_FULL_RE = re.compile(
+    r"\bimport\s+kotlin\.reflect\.full\.|\bmemberProperties\b|\bdeclaredMemberFunctions\b|"
+    r"\bprimaryConstructor\b|\.callBy\("
+)
+
+
+def _detect_kotlin_reflect_in_common(root: Path) -> list[str]:
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        if "/commonmain/" not in path.as_posix().lower():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        match = _KOTLIN_REFLECT_FULL_RE.search(text)
+        if not match:
+            continue
+        line_no, snippet = _at(text, match.start())
+        findings.append(
+            f"kotlin-reflect in commonMain [MEDIUM]: {path.relative_to(root)}:{line_no} "
+            f"— full reflection API used in shared code; kotlin-reflect is JVM-primary "
+            f"and limited/absent on Native and JS/Wasm. Use kotlinx.serialization "
+            f"(compiler-plugin codegen, no runtime reflection) for cross-platform needs, "
+            f"or move this code to a JVM-only module\n"
+            f"    {line_no} | {snippet}"
+        )
+    return findings
+
+
+# ── God Utils/Helpers/Extensions file ────────────────────────────────────────
+# A *Utils.kt/*Helpers.kt file accumulating unrelated top-level functions across
+# different domains has no single responsibility — the filename tells a reader nothing
+# about what's actually inside. A file of extensions all sharing one receiver type is
+# fine; the smell is unrelated functions sharing only a generic filename.
+
+_UTILS_FILENAME_RE = re.compile(r"(Utils|Helpers)$", re.IGNORECASE)
+_TOP_LEVEL_FUN_RE = re.compile(r"(?m)^fun\s+(?:<[^>]*>\s*)?(?:([\w.]+)\.)?(\w+)\s*\(")
+_GOD_UTILS_MIN_FUNCTIONS = 10
+_GOD_UTILS_MIN_RECEIVER_TYPES = 3
+
+
+def _detect_god_utils_file(root: Path) -> list[str]:
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        if not _UTILS_FILENAME_RE.search(path.stem):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        matches = list(_TOP_LEVEL_FUN_RE.finditer(text))
+        if len(matches) < _GOD_UTILS_MIN_FUNCTIONS:
+            continue
+        receivers = {m.group(1) or "(none)" for m in matches}
+        if len(receivers) < _GOD_UTILS_MIN_RECEIVER_TYPES:
+            continue
+        findings.append(
+            f"god utils file [LOW]: {path.relative_to(root)} — {len(matches)} top-level "
+            f"functions spanning {len(receivers)} distinct receiver types/none "
+            f"({sorted(receivers)}); split by what each function is for "
+            f"(StringExtensions.kt, DateExtensions.kt, ...) or move each into the "
+            f"module that owns its domain\n"
+            f"    1 | {path.name}"
+        )
+    return findings
+
+
+# ── Regex literal inlined instead of bound to a named val ───────────────────
+# A regex used more than once, or complex enough to need explaining, should be a
+# well-named constant — an inline literal buried in a function call is unreadable at
+# the call site and gets recompiled on every call if it's on a hot path.
+
+_INLINE_REGEX_CALL_RE = re.compile(r"\b(?:Regex|Pattern)\s*\(\s*\"(?P<pattern>(?:[^\"\\]|\\.)*)\"|\"(?P<pattern2>(?:[^\"\\]|\\.)*)\"\.toRegex\(")
+_NAMED_REGEX_BINDING_RE = re.compile(
+    r"\b(?:private\s+|internal\s+)?val\s+\w+\s*(?::\s*(?:Regex|Pattern))?\s*=\s*"
+)
+_MIN_INLINE_REGEX_PATTERN_LEN = 12
+
+
+def _detect_inline_unnamed_regex(root: Path) -> list[str]:
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        except OSError:
+            continue
+        for i, line in enumerate(lines):
+            match = _INLINE_REGEX_CALL_RE.search(line)
+            if not match:
+                continue
+            prefix = line[: match.start()]
+            if _NAMED_REGEX_BINDING_RE.search(prefix):
+                continue  # bound to a val on this line — named, not inline
+            pattern_text = match.group("pattern") or match.group("pattern2") or ""
+            if len(pattern_text) < _MIN_INLINE_REGEX_PATTERN_LEN:
+                continue  # short enough not to need a name
+            findings.append(
+                f"inline unnamed regex [LOW]: {path.relative_to(root)}:{i + 1} — a "
+                f"Regex/Pattern is constructed inline as part of an expression instead "
+                f"of bound to a named `val`; bind it to a well-named constant so the "
+                f"call site is readable and it isn't recompiled on every call\n"
+                f"    {i + 1} | {line.strip()}"
+            )
+    return findings
+
+
+# ── Hardcoded user-facing string in Compose UI ───────────────────────────────
+# Documented in this skill's own "What to Inspect" checklist since the beginning
+# ("flag hardcoded user-facing strings, route to kotlin-multiplatform-shared-resources")
+# but never mechanically checked — every other "hardcoded X" (colors, spacing, URLs,
+# version codes) already has a real detector; strings didn't.
+
+_HARDCODED_TEXT_CALL_RE = re.compile(
+    r'\b(?:Text|AppText|ShadcnText)\s*\(\s*"([^"]{2,})"'
+)
+_HARDCODED_CONTENT_DESC_RE = re.compile(r'\bcontentDescription\s*=\s*"([^"]{2,})"')
+_NON_TRANSLATABLE_STRING_RE = re.compile(r"^[\d\s.,:/%+\-]*$")
+
+
+def _detect_hardcoded_ui_string(root: Path) -> list[str]:
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        if "Preview" in path.stem:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if not _is_compose_ui_file(text, path):
+            continue
+        for pattern, label in (
+            (_HARDCODED_TEXT_CALL_RE, "Text/AppText/ShadcnText call"),
+            (_HARDCODED_CONTENT_DESC_RE, "contentDescription"),
+        ):
+            for match in pattern.finditer(text):
+                literal = match.group(1)
+                if _NON_TRANSLATABLE_STRING_RE.match(literal):
+                    continue  # numbers/punctuation only — nothing to localize
+                line_no, snippet = _at(text, match.start())
+                findings.append(
+                    f"hardcoded ui string [LOW]: {path.relative_to(root)}:{line_no} "
+                    f"— literal \"{literal}\" in a {label}; route through "
+                    f"kotlin-multiplatform-shared-resources's stringResource(Res.string.x) "
+                    f"instead so it can be localized\n"
+                    f"    {line_no} | {snippet}"
+                )
     return findings
 
 
@@ -1201,6 +1795,334 @@ def _detect_combined_sqldelight_table_file(root: Path) -> list[str]:
     return findings
 
 
+# ── Combined design-system component file ───────────────────────────────────────
+# kotlin-multiplatform-design-system/-extended's own generated templates always put
+# one component per file (verified: 27 + 18 separate file headings, zero bundling
+# across both skills) — but that convention was never stated as a rule, and nothing
+# checked it for a real project's own component files. Scoped to designsystem/
+# components/ paths so a legitimate multi-composable feature file (Screen + Content,
+# or a screen with private helper composables) isn't caught by mistake.
+
+_TOP_LEVEL_COMPOSABLE_NAME_RE = re.compile(
+    r"@Composable\s*\n?\s*(?:private\s+|internal\s+|public\s+)?fun\s+(\w+)\s*\("
+)
+
+
+def _is_design_system_component_path(path: Path) -> bool:
+    p = path.as_posix().lower()
+    return "designsystem" in p or "/components/" in p
+
+
+def _detect_combined_component_file(root: Path) -> list[str]:
+    """Flag a designsystem/components file defining 3+ top-level component-style
+    composables — excludes Preview functions and Screen/Content pairs, which
+    legitimately live together per this collection's own MVI convention.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        if not _is_design_system_component_path(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        matches = [
+            m for m in _TOP_LEVEL_COMPOSABLE_NAME_RE.finditer(text)
+            if "Preview" not in m.group(1)
+            and not m.group(1).endswith("Screen")
+            and not m.group(1).endswith("Content")
+        ]
+        if len(matches) < 3:
+            continue
+        names = [m.group(1) for m in matches]
+        line_no, snippet = _at(text, matches[0].start())
+        findings.append(
+            f"combined component file [MEDIUM]: {path.relative_to(root)}:{line_no} — "
+            f"defines {len(names)} components ({', '.join(names)}) in one file; "
+            f"keep one component per file, matching kotlin-multiplatform-design-system's "
+            f"own generated file layout\n"
+            f"    {line_no} | {snippet}"
+        )
+    return findings
+
+
+# ── Combined design-system style file ────────────────────────────────────────────
+# Same bundling problem as _detect_combined_component_file, one directory over:
+# styles/ButtonStyles.kt holds exactly ButtonVariant, matched 1:1 with
+# components/AppButton.kt. Nothing stopped a styles/AllStyles.kt from bundling
+# ButtonVariant/CardVariant/BadgeVariant into one file the same way components/ could.
+
+_VARIANT_SEALED_TYPE_RE = re.compile(r"\bsealed\s+(?:class|interface)\s+(\w*Variant)\b")
+
+
+def _detect_combined_style_file(root: Path) -> list[str]:
+    """Flag a designsystem/styles file defining 2+ *Variant sealed types."""
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        p = path.as_posix().lower()
+        if "designsystem" not in p or "/styles/" not in p:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        matches = list(_VARIANT_SEALED_TYPE_RE.finditer(text))
+        if len(matches) < 2:
+            continue
+        names = [m.group(1) for m in matches]
+        line_no, snippet = _at(text, matches[0].start())
+        findings.append(
+            f"combined style file [MEDIUM]: {path.relative_to(root)}:{line_no} — "
+            f"defines {len(names)} variant types ({', '.join(names)}) in one file; "
+            f"keep one component's variants per file, matching this project's own "
+            f"styles/<Component>Styles.kt layout\n"
+            f"    {line_no} | {snippet}"
+        )
+    return findings
+
+
+# ── ViewModel handling too many distinct Intent variants ────────────────────────
+# _detect_viewmodel_size only measures line count — a terse ViewModel handling 20+
+# Intent variants in short when-branches can dodge that threshold while still doing
+# far too much. Counts data class/data object declarations nested inside a
+# `sealed interface Intent { ... }` (or `sealed class`) block via brace depth.
+
+_INTENT_SEALED_TYPE_RE = re.compile(r"\bsealed\s+(?:class|interface)\s+Intent\b[^{]*\{")
+_INTENT_VARIANT_RE = re.compile(r"\bdata\s+(?:class|object)\s+\w+")
+_INTENT_COUNT_THRESHOLD = 15
+
+
+def _detect_viewmodel_too_many_intents(root: Path) -> list[str]:
+    """Flag a ViewModel/Contract file whose sealed Intent type has 15+ variants."""
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if not (path.stem.endswith("ViewModel") or path.stem.endswith("Contract")
+                or _is_viewmodel_file(text)):
+            continue
+        match = _INTENT_SEALED_TYPE_RE.search(text)
+        if not match:
+            continue
+        depth = 1
+        i = match.end()
+        while i < len(text) and depth > 0:
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+            i += 1
+        body = text[match.end():i]
+        count = len(_INTENT_VARIANT_RE.findall(body))
+        if count < _INTENT_COUNT_THRESHOLD:
+            continue
+        line_no, snippet = _at(text, match.start())
+        findings.append(
+            f"viewmodel too many intents [MEDIUM]: {path.relative_to(root)}:{line_no} "
+            f"— {count} Intent variants in one sealed type; a ViewModel handling this "
+            f"many distinct user actions is likely doing more than one screen's worth "
+            f"of work even if it stays under the line-count threshold — consider "
+            f"splitting into separate screens/ViewModels per kotlin-multiplatform-mvi's "
+            f"orchestration decision order\n"
+            f"    {line_no} | {snippet}"
+        )
+    return findings
+
+
+# ── ViewModel exposing multiple StateFlow properties instead of one UiState ────
+# MVI's whole contract is one State per screen. A ViewModel exposing state1/state2/
+# state3 as separate public StateFlows is often the same god-ViewModel smell wearing
+# a different shape — the fix is combine() into one State, not multiple flows a
+# screen has to collect independently. `state` and `effect` are the standard MVI
+# pair and excluded.
+
+_PUBLIC_STATEFLOW_PROPERTY_RE = re.compile(r"(?m)^\s*val\s+(\w+)\s*:\s*StateFlow\s*<")
+
+
+def _detect_viewmodel_multiple_stateflows(root: Path) -> list[str]:
+    """Flag a ViewModel exposing 2+ public StateFlow properties beyond `state`."""
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if not (path.stem.endswith("ViewModel") or _is_viewmodel_file(text)):
+            continue
+        matches = [
+            m for m in _PUBLIC_STATEFLOW_PROPERTY_RE.finditer(text)
+            if m.group(1) != "state"
+        ]
+        if len(matches) < 2:
+            continue
+        names = [m.group(1) for m in matches]
+        line_no, snippet = _at(text, matches[0].start())
+        findings.append(
+            f"viewmodel multiple stateflows [MEDIUM]: {path.relative_to(root)}:{line_no} "
+            f"— exposes {len(names)} StateFlow properties beyond 'state' "
+            f"({', '.join(names)}); MVI's contract is one State per screen — combine() "
+            f"these into one State instead of making the screen collect multiple flows\n"
+            f"    {line_no} | {snippet}"
+        )
+    return findings
+
+
+# ── ViewModel injecting a Repository directly instead of a UseCase ─────────────
+# kotlin-multiplatform-mvi's own changelog: "the boundary rule (ViewModel only ever
+# depends on :domain) is bright-line and mechanically checkable" — it wasn't actually
+# checked. _detect_module_layer_violation can't catch this either: _ALLOWED_DEPS
+# explicitly permits presenter -> api at the module level (legitimate for other
+# reasons), so a ViewModel injecting a Repository interface directly doesn't fail
+# that check. This is a file-level check instead: a *ViewModel's primary constructor
+# parameter typed *Repository.
+
+_VM_CLASS_CTOR_RE = re.compile(r"\bclass\s+(\w*ViewModel)\s*\(([^)]*)\)\s*(?::[^{]*)?\{", re.DOTALL)
+_CTOR_PARAM_TYPE_RE = re.compile(r"\bval\s+\w+\s*:\s*(\w+)")
+
+
+def _detect_viewmodel_injects_repository(root: Path) -> list[str]:
+    """Flag a ViewModel's primary constructor taking a *Repository param directly —
+    per kotlin-multiplatform-mvi's rule, a ViewModel depends on :domain (use cases),
+    never :api/:data (repositories) directly, with no trivial-case exception.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for match in _VM_CLASS_CTOR_RE.finditer(text):
+            vm_name = match.group(1)
+            params = _split_top_level(match.group(2))
+            repo_params = [
+                pm.group(1)
+                for p in params
+                if (pm := _CTOR_PARAM_TYPE_RE.search(p)) and pm.group(1).endswith("Repository")
+            ]
+            if not repo_params:
+                continue
+            line_no, snippet = _at(text, match.start())
+            findings.append(
+                f"viewmodel injects repository [HIGH]: {path.relative_to(root)}:{line_no} "
+                f"— '{vm_name}' takes {', '.join(repo_params)} directly in its "
+                f"constructor; per kotlin-multiplatform-mvi, a ViewModel depends on a "
+                f"use case (:domain), never a repository (:api/:data) directly — no "
+                f"trivial-pass-through exception\n"
+                f"    {line_no} | {snippet}"
+            )
+    return findings
+
+
+# ── ViewModel name vs its own Intent set (semantic naming drift hint) ──────────
+# Non-blocking by design: a token-overlap heuristic will misfire on legitimately
+# generic names. Kept out of audit_project()'s findings list and surfaced through a
+# separate hints() channel in main() so it never gates CI or /kmm-verify — it's a
+# nudge to manually check the name still matches the behavior, not an enforced rule.
+
+_INTENT_VARIANT_RE = re.compile(r"\bdata\s+(?:object|class)\s+(\w+)\s*[:(]")
+_INTENT_BLOCK_RE = re.compile(r"sealed\s+interface\s+Intent\b[^{]*\{(.*?)\n\s*\}", re.DOTALL)
+_CAMEL_WORD_RE = re.compile(r"[A-Z][a-z0-9]*|[a-z0-9]+")
+
+
+def _camel_words(name: str) -> set[str]:
+    return {w.lower() for w in _CAMEL_WORD_RE.findall(name) if len(w) > 2}
+
+
+def _detect_name_behavior_drift(root: Path) -> list[str]:
+    """Hint-only: flag a ViewModel whose name shares no words with any of its own
+    Intent variant names. Reads a sibling <Base>Contract.kt if present (the
+    kotlin-multiplatform-mvi Contract-pattern convention), else the ViewModel file
+    itself. Needs at least 2 intents to fire — too little signal below that.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*ViewModel.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        base = path.stem[: -len("ViewModel")]
+        if not base:
+            continue
+        contract_path = path.parent / f"{base}Contract.kt"
+        source_path = contract_path if contract_path.is_file() else path
+        try:
+            text = source_path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+
+        block_match = _INTENT_BLOCK_RE.search(text)
+        search_text = block_match.group(1) if block_match else text
+        intents = _INTENT_VARIANT_RE.findall(search_text)
+        if len(intents) < 2:
+            continue
+
+        base_words = _camel_words(base)
+        intent_words: set[str] = set()
+        for intent in intents:
+            intent_words |= _camel_words(intent)
+        if not base_words or base_words & intent_words:
+            continue
+
+        shown = ", ".join(intents[:5]) + ("..." if len(intents) > 5 else "")
+        findings.append(
+            f"name-behavior drift (hint) [INFO]: {path.relative_to(root)} — "
+            f"'{base}ViewModel' shares no words with its own Intents ({shown}); "
+            f"verify the name still describes what this screen does — non-blocking, "
+            f"manual check only"
+        )
+    return findings
+
+
+# ── Vague class-name suffix (hint) ───────────────────────────────────────────
+# Non-blocking by design, same reasoning as name-behavior drift above: Manager/
+# Processor/Helper/Info/Data are a well-known naming smell (Clean Code) — they say a
+# class "does stuff" without saying what, but a well-scoped, small class using one of
+# these suffixes for a genuinely bounded concern (this repo's own offline-first skill
+# ships a SyncManager interface) is not automatically wrong. A pure regex can't judge
+# whether the name is actually vague for *this* class's real responsibility — that
+# needs a reader, so this stays a nudge, never a blocking finding.
+
+_VAGUE_CLASS_DECL_RE = re.compile(
+    r"(?m)^(?!.*\b(?:data|enum|sealed|annotation)\s+class\b)"
+    r"(?:[\w@()]+\s+)*(?:class|interface|object)\s+(\w*(?:Manager|Processor|Helper|Info|Data))\b"
+)
+
+
+def _detect_vague_class_name_suffix(root: Path) -> list[str]:
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for match in _VAGUE_CLASS_DECL_RE.finditer(text):
+            name = match.group(1)
+            line_no, snippet = _at(text, match.start())
+            findings.append(
+                f"vague class name suffix (hint) [INFO]: {path.relative_to(root)}:{line_no} "
+                f"— '{name}' uses a filler suffix (Manager/Processor/Helper/Info/Data) "
+                f"that names what the class *is* without saying what it *does*; per "
+                f"Clean Code's naming guidance, consider a name describing its actual "
+                f"responsibility (e.g. a Coordinator, Service, Repository, or Store) — "
+                f"non-blocking, a well-scoped small class with this suffix can still be "
+                f"the right call\n"
+                f"    {line_no} | {snippet}"
+            )
+    return findings
+
+
 # ── Raw HTTP bypassing an established Ktor client ──────────────────────────────
 # Real bug: kotlin-multiplatform-network-layer only checked for a module literally
 # named :core:network. A new server module or feature under a different name found no
@@ -1434,6 +2356,124 @@ def _detect_destructive_read_accessor(root: Path) -> list[str]:
     return findings
 
 
+# ── Value class opportunity (2+ raw String/Long ID params in one signature) ─────
+# kotlin-multiplatform-clean-architecture's "Typed Domain IDs" rule: nothing stops
+# getOrder(userId, orderId) from compiling when both are raw String. This is an
+# opportunity nudge, not a misuse flag — the code isn't wrong, it's just missing a
+# cheap compile-time guardrail. Heuristic-only: matches parameter names ending in
+# "Id" (case-insensitive) typed as String or Long within the same function signature.
+
+_FUN_SIGNATURE_RE = re.compile(r"\bfun\s+(?:<[^>]*>\s*)?[\w.]*\s*\(([^)]*)\)", re.DOTALL)
+_ID_PARAM_RE = re.compile(r"(?:^|,)\s*(?:vararg\s+)?(\w*[Ii]d)\s*:\s*(String|Long)\b")
+
+
+def _split_top_level(param_str: str) -> list[str]:
+    """Split a parameter list on top-level commas only — doesn't break on commas
+    inside generic type arguments (Map<String, Int>) or default-value lambdas."""
+    parts: list[str] = []
+    depth = 0
+    current: list[str] = []
+    for ch in param_str:
+        if ch in "<([":
+            depth += 1
+        elif ch in ">)]":
+            depth -= 1
+        if ch == "," and depth == 0:
+            parts.append("".join(current))
+            current = []
+        else:
+            current.append(ch)
+    if current:
+        parts.append("".join(current))
+    return parts
+
+
+def _detect_value_class_opportunity(root: Path) -> list[str]:
+    """Flag a function signature with 2+ String/Long parameters whose names end in
+    'Id' — the exact shape that lets a caller pass them in the wrong order and still
+    compile. Nudge toward kotlin-multiplatform-clean-architecture's value class rule.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for match in _FUN_SIGNATURE_RE.finditer(text):
+            params = _split_top_level(match.group(1))
+            id_params = [
+                m.group(1)
+                for p in params
+                if (m := _ID_PARAM_RE.search("," + p))
+            ]
+            if len(id_params) < 2:
+                continue
+            line_no, snippet = _at(text, match.start())
+            findings.append(
+                f"value class opportunity [LOW]: {path.relative_to(root)}:{line_no} "
+                f"— {len(id_params)} raw String/Long ID parameters ({', '.join(id_params)}) "
+                f"in one signature; nothing stops them being passed in the wrong order. "
+                f"Per kotlin-multiplatform-clean-architecture's Typed Domain IDs rule, "
+                f"wrap each in a @JvmInline value class\n"
+                f"    {line_no} | {snippet}"
+            )
+    return findings
+
+
+# ── Context parameter opportunity (same param repeated across many signatures) ──
+# kotlin-multiplatform-dependency-injection's Context Parameters section: a value
+# threaded through many function signatures in the same file (a logger, a session)
+# that isn't actually each function's job is a context-parameter candidate. Heuristic
+# and lower-confidence than the value-class check — a repeated parameter name/type
+# pair is a much weaker signal than a directly-observed bug shape, so this stays LOW
+# severity and is explicitly a nudge, not a claim the code is wrong.
+
+_CONTEXT_PARAM_OPPORTUNITY_MIN_COUNT = 5
+
+
+def _detect_context_parameter_opportunity(root: Path) -> list[str]:
+    """Flag a (name, type) parameter pair repeated across 5+ function signatures in
+    the same file — a candidate for Kotlin 2.4's context parameters instead of
+    threading the same explicit parameter through every function.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        counts: dict[tuple[str, str], int] = {}
+        first_line: dict[tuple[str, str], int] = {}
+        for match in _FUN_SIGNATURE_RE.finditer(text):
+            for p in _split_top_level(match.group(1)):
+                pm = re.match(r"\s*(?:vararg\s+)?(\w+)\s*:\s*([\w.]+)", p)
+                if not pm:
+                    continue
+                key = (pm.group(1), pm.group(2))
+                counts[key] = counts.get(key, 0) + 1
+                if key not in first_line:
+                    first_line[key] = _at(text, match.start())[0]
+        for (name, type_name), count in counts.items():
+            if count < _CONTEXT_PARAM_OPPORTUNITY_MIN_COUNT:
+                continue
+            line_no = first_line[(name, type_name)]
+            findings.append(
+                f"context parameter opportunity [LOW]: {path.relative_to(root)}:{line_no} "
+                f"— '{name}: {type_name}' repeated as an explicit parameter across "
+                f"{count} function signatures in this file. Per "
+                f"kotlin-multiplatform-dependency-injection's Context Parameters "
+                f"section, consider threading it implicitly via context(...) instead "
+                f"— only if it's a cross-cutting value, not part of each function's "
+                f"actual job\n"
+                f"    {line_no} | first appears here"
+            )
+    return findings
+
+
 # ── Extensible abstract class in commonMain ─────────────────────────────────────
 # commonMain APIs should be called or composed, not extended. An abstract class with
 # only abstract members (no concrete implementation at all) forces every consumer into
@@ -1614,6 +2654,108 @@ def _detect_module_layer_violation(root: Path) -> list[str]:
                     f"file-level Detekt import rules alone won't catch it\n"
                     f"    {line_no} | {snippet}"
                 )
+    return findings
+
+
+# ── Bare :core module (not split into :core:model/:core:api/etc.) ──────────────
+# kotlin-multiplatform-clean-architecture's ":core vs :feature Split" documents :core
+# as a folder GROUP of separate modules (:core:model, :core:api, :core:domain,
+# :core:testing, :core:ui, ...), mirroring :feature:*'s own shape — never stated as
+# an enforced rule. _detect_module_layer_violation's _MODULE_PATH_RE only matches
+# feature/<name>/<layer> — it never applied to :core at all, so a monolithic :core
+# module (root/core/build.gradle.kts, no further nesting) went uncaught.
+
+def _detect_bare_core_module(root: Path) -> list[str]:
+    """Flag a root/core/build.gradle.kts — :core must be a folder group of separate
+    modules (:core:model, :core:api, ...), never a module in its own right.
+    """
+    findings: list[str] = []
+    for core_dir_name in ("core", "shared/core"):
+        candidate = root / core_dir_name / "build.gradle.kts"
+        if _is_excluded(candidate, root) or not candidate.is_file():
+            continue
+        findings.append(
+            f"bare core module [HIGH]: {candidate.relative_to(root)} — "
+            f":core has its own build.gradle.kts, making it a single monolithic "
+            f"module instead of a folder group. Per kotlin-multiplatform-clean-"
+            f"architecture's \":core\" vs \":feature\" Split, split into "
+            f":core:model/:core:api/:core:domain/:core:testing/:core:ui (etc.), "
+            f"mirroring :feature:*'s own shape — :core itself should have no "
+            f"build.gradle.kts, only its named submodules do\n"
+            f"    1 | {core_dir_name}/build.gradle.kts"
+        )
+    return findings
+
+
+# ── Unauthorized module nested under :app:* ──────────────────────────────────
+# kmp-wizard's real all-targets template (verified against the live repo, not
+# assumed) nests exactly four modules under app/: androidApp, desktopApp, webApp
+# (thin platform entry points) and shared (the CMP composition root) — plus a
+# native, non-Gradle app/iosApp/ Xcode project. :core:*/:feature:* already own
+# business logic and cross-feature infrastructure; a new module dropped directly
+# under app/ duplicates that job and blurs the entry-point boundary kmp-wizard
+# itself draws.
+
+_KNOWN_APP_SUBMODULES = {"androidApp", "desktopApp", "webApp", "shared"}
+_APP_SUBMODULE_RE = re.compile(r"^app[\\/](\w+)$")
+
+
+def _detect_unauthorized_app_submodule(root: Path) -> list[str]:
+    """Flag a build.gradle.kts under app/<name>/ where <name> isn't one of
+    kmp-wizard's own four entry-point modules (androidApp/desktopApp/webApp/shared).
+    """
+    findings: list[str] = []
+    for path in root.rglob("build.gradle.kts"):
+        if _is_excluded(path, root):
+            continue
+        module_dir = path.parent.relative_to(root).as_posix()
+        match = _APP_SUBMODULE_RE.match(module_dir)
+        if not match:
+            continue
+        name = match.group(1)
+        if name in _KNOWN_APP_SUBMODULES:
+            continue
+        findings.append(
+            f"unauthorized app submodule [HIGH]: {path.relative_to(root)} — "
+            f"a module was created directly under :app:*, but only kmp-wizard's own "
+            f"four entry points (androidApp, desktopApp, webApp, shared) belong there. "
+            f"New feature logic goes in :feature:<name>:*, new cross-feature "
+            f"infrastructure goes in :core:* — never a new :app:<name> module\n"
+            f"    1 | app/{name}/build.gradle.kts"
+        )
+    return findings
+
+
+# ── Leftover kmp-wizard demo/placeholder code ────────────────────────────────
+# kmp-wizard's real all-targets template ships app/shared with a working demo screen
+# (a "Click me!" button revealing Greeting().greet() text over a Compose Multiplatform
+# logo image) — verified against the live template, not assumed. It must be deleted
+# once real feature work starts; left in place it ships to production as dead sample
+# code and confuses anyone reading :app:shared expecting only composition-root wiring.
+
+_WIZARD_DEMO_RE = re.compile(r"\bclass\s+Greeting\b|\bcompose_multiplatform\b")
+
+
+def _detect_leftover_wizard_demo_code(root: Path) -> list[str]:
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        match = _WIZARD_DEMO_RE.search(text)
+        if not match:
+            continue
+        line_no, snippet = _at(text, match.start())
+        findings.append(
+            f"leftover wizard demo code [HIGH]: {path.relative_to(root)}:{line_no} — "
+            f"kmp-wizard's default Greeting/\"Compose Multiplatform\" logo demo is still "
+            f"present; delete it before real feature work starts — :app:shared should "
+            f"only ever hold composition-root wiring (App(), theme, Koin, NavHost)\n"
+            f"    {line_no} | {snippet}"
+        )
     return findings
 
 
@@ -2195,8 +3337,40 @@ _DESIGN_SYSTEM_MARKER_RE = re.compile(r"\bAppTheme\b|\bfun\s+App[A-Z]\w*\s*\(")
 # A file that DEFINES App* wrappers — legitimately uses raw primitives internally.
 _APP_WRAPPER_DEF_RE = re.compile(r"\bfun\s+App[A-Z]")
 
+# shadcn-compose subset — deliberately narrower than _RAW_COMPONENT_MAP. Verified against
+# /kmm-migrate-to-shadcn's own Component Mapping Table: shadcn/ui is web-first and has no
+# Scaffold/TopAppBar concept, so those stay raw Compose by design in a shadcn-compose
+# project — including them here would produce a wrong "bypass" finding.
+_SHADCN_RAW_COMPONENT_MAP = {
+    "Button": "ShadcnButton",
+    "OutlinedButton": "ShadcnButton",
+    "TextButton": "ShadcnButton",
+    "ElevatedButton": "ShadcnButton",
+    "FilledTonalButton": "ShadcnButton",
+    "Card": "ShadcnCard",
+    "ElevatedCard": "ShadcnCard",
+    "OutlinedCard": "ShadcnCard",
+    "TextField": "ShadcnTextField",
+    "OutlinedTextField": "ShadcnTextField",
+    "AlertDialog": "ShadcnAlertDialog",
+    "ModalBottomSheet": "ShadcnSheet",
+    "Badge": "ShadcnBadge",
+}
+_SHADCN_RAW_COMPONENT_RE = re.compile(
+    r"\b(" + "|".join(sorted(map(re.escape, _SHADCN_RAW_COMPONENT_MAP), key=len, reverse=True)) + r")\s*[({]"
+)
+_SHADCN_MARKER_RE = re.compile(r"\bShadcnTheme\b|\bfun\s+Shadcn[A-Z]\w*\s*\(")
+_SHADCN_WRAPPER_DEF_RE = re.compile(r"\bfun\s+Shadcn[A-Z]")
 
-def _project_has_design_system(root: Path) -> bool:
+
+def _project_design_system_kind(root: Path) -> str | None:
+    """Return 'app' if the project has a generated/owned design system (AppTheme/App*
+    wrappers), 'shadcn' if it has shadcn-compose wired (ShadcnTheme/Shadcn* wrappers),
+    or None if neither is present. The two are documented as mutually exclusive
+    alternatives — `_detect_mixed_design_system_usage` handles the case both fire.
+    """
+    has_app = False
+    has_shadcn = False
     for path in root.rglob("*.kt"):
         if _is_excluded(path, root):
             continue
@@ -2204,21 +3378,40 @@ def _project_has_design_system(root: Path) -> bool:
             text = path.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        if _DESIGN_SYSTEM_MARKER_RE.search(text):
-            return True
-    return False
+        if not has_app and _DESIGN_SYSTEM_MARKER_RE.search(text):
+            has_app = True
+        if not has_shadcn and _SHADCN_MARKER_RE.search(text):
+            has_shadcn = True
+        if has_app and has_shadcn:
+            break
+    if has_app:
+        return "app"
+    if has_shadcn:
+        return "shadcn"
+    return None
 
 
 def _detect_raw_component_bypass(root: Path) -> list[str]:
-    """Flag raw Material/Foundation components used where an App* wrapper exists.
-
-    Only runs when the project HAS a design system (App* components / AppTheme). Files
-    that define App* wrappers, theme/token files, and previews are skipped — they
-    legitimately build on raw primitives. The design-system skill mandates the App*
-    components ('never raw Scaffold'); raw usage elsewhere is a design-system bypass.
+    """Flag raw Material/Foundation components used where a design-system wrapper
+    exists — either the generated/owned App* system or shadcn-compose's Shadcn*
+    components, whichever the project actually has wired. Files that define wrappers,
+    theme/token files, and previews are skipped — they legitimately build on raw
+    primitives.
     """
-    if not _project_has_design_system(root):
+    kind = _project_design_system_kind(root)
+    if kind is None:
         return []
+
+    if kind == "app":
+        component_map, component_re, wrapper_def_re, skip_path_tokens = (
+            _RAW_COMPONENT_MAP, _RAW_COMPONENT_RE, _APP_WRAPPER_DEF_RE,
+            ("designsystem", "design-system"),
+        )
+    else:
+        component_map, component_re, wrapper_def_re, skip_path_tokens = (
+            _SHADCN_RAW_COMPONENT_MAP, _SHADCN_RAW_COMPONENT_RE, _SHADCN_WRAPPER_DEF_RE,
+            ("designsystem", "design-system", "shadcn"),
+        )
 
     findings: list[str] = []
     for path in root.rglob("*.kt"):
@@ -2231,27 +3424,29 @@ def _detect_raw_component_bypass(root: Path) -> list[str]:
         if not _is_compose_ui_file(text, path):
             continue
         # Skip the design-system definition layer, theme/token files, and previews.
-        if _APP_WRAPPER_DEF_RE.search(text):
+        if wrapper_def_re.search(text):
             continue
         if any(p in path.stem for p in ("Theme", "theme", "Token", "token", "Preview")):
             continue
-        if "designsystem" in path.as_posix() or "design-system" in path.as_posix():
+        if any(t in path.as_posix() for t in skip_path_tokens):
             continue
 
         found: dict[str, str] = {}
         anchor = None
-        for m in _RAW_COMPONENT_RE.finditer(text):
+        for m in component_re.finditer(text):
             raw = m.group(1)
-            found.setdefault(raw, _RAW_COMPONENT_MAP[raw])
+            found.setdefault(raw, component_map[raw])
             if anchor is None:
                 anchor = m
         if found:
             line_no, snippet = _at(text, anchor.start())
             mapping = ", ".join(f"{r}→{a}" for r, a in list(found.items())[:5])
+            wrapper_skill = "shadcn-compose" if kind == "shadcn" else "design-system"
             findings.append(
                 f"raw component bypass [MEDIUM]: {path.relative_to(root)}:{line_no} "
                 f"— raw components instead of design-system wrappers ({mapping}); use the "
-                f"App* components so styling/tokens stay consistent (see design-system skill)\n"
+                f"{'Shadcn*' if kind == 'shadcn' else 'App*'} components so styling/tokens "
+                f"stay consistent (see {wrapper_skill} skill)\n"
                 f"    {line_no} | {snippet}"
             )
     return findings
@@ -2859,11 +4054,44 @@ def audit_project(root: Path) -> list[str]:
     # ── Destructive-read accessor (single-writer snapshot anti-pattern) ─────────
     findings.extend(_detect_destructive_read_accessor(root))
 
+    # ── Pattern-adoption opportunities (nudges, not misuse flags) ───────────────
+    findings.extend(_detect_value_class_opportunity(root))
+    findings.extend(_detect_context_parameter_opportunity(root))
+
+    # ── God class (repo-wide, not scoped to ViewModel/Composable) ───────────────
+    findings.extend(_detect_god_class(root))
+
+    # ── runBlocking in shared code, Koin cycles, unstable Compose collections ───
+    findings.extend(_detect_runblocking_in_shared_code(root))
+    findings.extend(_detect_koin_circular_dependency(root))
+    findings.extend(_detect_compose_unstable_collection_param(root))
+
+    # ── Undocumented public API (library projects only) ──────────────────────────
+    findings.extend(_detect_undocumented_public_api(root))
+    findings.extend(_detect_lowercase_unit_composable(root))
+    findings.extend(_detect_partial_param_documentation(root))
+    findings.extend(_detect_kotlin_reflect_in_common(root))
+    findings.extend(_detect_god_utils_file(root))
+    findings.extend(_detect_inline_unnamed_regex(root))
+    findings.extend(_detect_hardcoded_ui_string(root))
+
+    # ── Combined design-system component file ────────────────────────────────────
+    findings.extend(_detect_combined_component_file(root))
+    findings.extend(_detect_combined_style_file(root))
+
+    # ── ViewModel god-class signals beyond line count ────────────────────────────
+    findings.extend(_detect_viewmodel_too_many_intents(root))
+    findings.extend(_detect_viewmodel_multiple_stateflows(root))
+    findings.extend(_detect_viewmodel_injects_repository(root))
+
     # ── Extensible abstract class in commonMain ─────────────────────────────────
     findings.extend(_detect_extensible_abstract_class_in_common(root))
 
     # ── Module layer-order violation ────────────────────────────────────────────
     findings.extend(_detect_module_layer_violation(root))
+    findings.extend(_detect_bare_core_module(root))
+    findings.extend(_detect_unauthorized_app_submodule(root))
+    findings.extend(_detect_leftover_wizard_demo_code(root))
 
     # ── Hardcoded base URL (library-first / configurability) ───────────────────
     findings.extend(_detect_hardcoded_base_url(root))
@@ -2978,14 +4206,23 @@ def main() -> int:
         return 1 if has_high else 0
 
     findings = audit_project(root)
+    hints = _detect_name_behavior_drift(root) + _detect_vague_class_name_suffix(root)
 
     if findings:
         print("FINDINGS:")
         for finding in findings:
             print(f"- {finding}")
+        if hints:
+            print("\nHINTS (non-blocking, manual review only):")
+            for hint in hints:
+                print(f"- {hint}")
         return 1
 
     print("OK: no architecture violations detected")
+    if hints:
+        print("\nHINTS (non-blocking, manual review only):")
+        for hint in hints:
+            print(f"- {hint}")
     return 0
 
 

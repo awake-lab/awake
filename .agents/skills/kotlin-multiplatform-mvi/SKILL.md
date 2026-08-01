@@ -10,7 +10,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: kmm-agent-skills
-  last-updated: '2026-07-09'
+  last-updated: '2026-07-26'
   keywords:
     - MVI
     - Model-View-Intent
@@ -31,6 +31,8 @@ metadata:
     - screen state
     - side effect
     - one-shot event
+    - Divergent Change
+    - God State
 ---
 
 ## When to Use This Skill
@@ -55,7 +57,8 @@ screen behavior, screen interaction, handle user input, form state, form handlin
 user interaction, screen state management, UI state, state management,
 nav args ViewModel, route arguments ViewModel, pass id to ViewModel,
 search debounce ViewModel, cancel job intent, in-flight cancellation,
-typed error state, UiError sealed, shared ViewModel, wizard ViewModel, multi-step flow.
+typed error state, UiError sealed, shared ViewModel, wizard ViewModel, multi-step flow,
+Divergent Change, God State, unrelated concerns in one ViewModel, state cohesion.
 
 **Freshness rule:** `lifecycle-viewmodel-compose` and CMP lifecycle integration change between
 releases — recheck the AndroidX lifecycle and JetBrains CMP docs before upgrading.
@@ -1293,6 +1296,7 @@ transform, submit) rather than independent state machines.
 - State assembly uses `combine(...).stateIn(...)` — never `derivedStateOf` in the composable.
 - Effect collection lives in the ViewModel (`init {}` via `viewModelScope.launch`), never in the screen — the screen keeps exactly one `LaunchedEffect(vm)` for its own nav/toast effects.
 - Extract state-combination into a pure `StateAssembler` object so precedence rules are unit-tested independently of the ViewModel.
+- **A coordinator is not exempt from the same size limits as any other ViewModel.** Choosing Option 2/3 to escape a god composable doesn't grant immunity from becoming a god ViewModel instead — `kotlin-multiplatform-audit`'s `_detect_viewmodel_size` still applies to `DashboardCoordinatorViewModel` exactly like any other ViewModel. If a coordinator crosses that threshold even after delegating to State Holders/use cases and extracting a `StateAssembler`, that's a signal the sub-units were never simultaneous-and-interactive enough to justify Option 2/3 in the first place — split back out to Option 1 (separate screens + repository) rather than adding a second layer of coordinators.
 
 ---
 
@@ -1401,6 +1405,47 @@ Stop and decompose when the ViewModel:
 - has a `State` data class with more than ~8 fields
 - contains `if/else` or `when` chains that span more than 10–15 lines per branch
 
+### Field count alone isn't the test — Divergent Change is
+
+The ~8-field guideline above is a rough trigger, not the actual rule. A `State` with 8
+*related* fields is normal and correct; a `State` with 3 *unrelated* fields can already be
+a violation. The named smell (Fowler's *Refactoring* catalog, same family as Long
+Parameter List/Primitive Obsession elsewhere in this collection) is **Divergent Change**:
+one type gets modified for multiple unrelated reasons. A `State` mixing chat, project, and
+session fields changes every time *any one* of those three unrelated concerns changes —
+three different reasons to touch one type. The real question: **does every field belong to
+one cohesive screen concern, or does the `State` span concerns that don't actually depend
+on each other?**
+
+```kotlin
+// ✓ 4 fields, all part of ONE concern (search) — combining these is the whole point
+// of MVI's Contract pattern, not a violation
+data class SearchState(
+    val query: String = "",
+    val results: List<Item> = emptyList(),
+    val isLoading: Boolean = false,
+    val filters: SearchFilters = SearchFilters(),
+)
+
+// ❌ 3 fields, THREE unrelated concerns wearing one State — a "shell" ViewModel that
+// grew past coordinating into owning chat business logic, project metadata, and
+// session lifecycle all at once
+data class ChatShellState(
+    val messages: List<Message> = emptyList(),   // chat concern
+    val projectName: String = "",                // project concern
+    val sessionExpiresAt: Instant? = null,        // session concern
+)
+```
+
+Litmus test: if you can name the `State` after a single noun that every field is *about*
+(`SearchState`, `OrderState`) without stretching, it's cohesive. If describing what the
+`State` holds needs "and" between unrelated nouns ("chat messages *and* project info *and*
+session status"), split it — each concern gets its own `State`/ViewModel (`ChatViewModel`,
+`ProjectSideBarViewModel`, a session-owning ViewModel), not one `State` holding all three.
+This can't be mechanically checked — a field-count threshold can't tell "8 related fields"
+from "8 unrelated ones" — so this is a review-time judgment call, same treatment as
+`kotlin-multiplatform-code-quality`'s Parameter Object regression.
+
 ### Decision table: what to extract
 
 | Symptom | Extract to |
@@ -1494,10 +1539,15 @@ must stay synchronized — see the Shared ViewModel section above for the patter
 
 ## Common Anti-Patterns
 
+- a ViewModel's constructor injecting a `*Repository` directly instead of a use case — the bright-line rule has no trivial-pass-through exception, and `_detect_module_layer_violation` can't catch it since `presenter -> api` is an allowed module-level dependency for other reasons
+- a ViewModel's `Intent` sealed type growing past ~15 variants — a god-ViewModel signal that line count alone can miss, since terse `when` branches keep the file short while the ViewModel still does one screen too many jobs
+- exposing `state1`/`state2`/`state3` as separate public `StateFlow` properties instead of `combine()`-ing them into one `State` — breaks the Contract pattern's "one State per screen" rule without tripping a size threshold
+- Divergent Change in a `State` type — fields for unrelated concerns (chat + project + session) that each change for their own reason, wearing one `State`; see "Field count alone isn't the test — Divergent Change is" above
 - using `SharedFlow` for effects — events replay on new collectors and break "fire once" guarantees
 - emitting `Effect` from `init {}` — fires on every ViewModel recreation, not just on user action
 - putting navigation logic inside `State` — navigation is an effect, not persisted state
 - using `copy {}` with a stale `state` reference instead of `update {}` — causes lost updates under concurrency
+- treating a Coordinator ViewModel as exempt from `_detect_viewmodel_size`'s god-ViewModel threshold — escaping a god composable by centralizing into a coordinator just relocates the same size problem unless it actually stays small; a coordinator that keeps growing after delegating to State Holders/use cases needed Option 1 (separate screens), not a bigger coordinator
 - exposing mutable `StateFlow` from the ViewModel — UI should never mutate state directly
 - missing `isLoading` guard on submit actions — lets rapid taps fire multiple network calls
 - forgetting to reset `isLoading` on error — every branch that sets it `true` must reset it in success, error, and cancellation
@@ -1537,6 +1587,7 @@ If the ViewModel is growing beyond 150–200 lines, apply the decomposition deci
 - `kotlin-multiplatform-unit-testing` — `runTest` + Turbine for testing `StateFlow` transitions and `Channel` effects
 - `kotlin-multiplatform-compose-state-container` — when to use `remember` vs ViewModel as the state container
 - `kotlin-multiplatform-preview-driven-development` — `FooContent` stateless composables are the fast-preview target
+- `kotlin-multiplatform-audit` — `_detect_viewmodel_too_many_intents` (15+ Intent variants — a god-ViewModel signal line count alone can miss), `_detect_viewmodel_multiple_stateflows` (2+ exposed StateFlow properties beyond `state` — the Contract pattern's "one State per screen" broken a different way), and `_detect_viewmodel_injects_repository` (a `*Repository` constructor param — the ViewModel-depends-only-on-`:domain` rule, made mechanically enforced instead of just documented)
 
 ---
 
@@ -1557,6 +1608,11 @@ Keep each snippet to one block. Use the user's actual screen name and state fiel
 
 | Date | Change |
 |---|---|
+| 2026-07-26 | Real gap closed: this skill's own earlier changelog called the ViewModel-depends-only-on-`:domain` rule "bright-line and mechanically checkable," but nothing actually checked it — `_detect_module_layer_violation` can't, since `presenter -> api` is an allowed module-level edge. Added `kotlin-multiplatform-audit`'s new `_detect_viewmodel_injects_repository`, a file-level check on the ViewModel's constructor param types. 1 new anti-pattern. |
+| 2026-07-26 | Renamed the previous entry's section to "Field count alone isn't the test — Divergent Change is" and named the smell properly (Fowler's *Refactoring* catalog — same family as Long Parameter List/Primitive Obsession already named elsewhere in this collection) instead of an ad-hoc "relatedness litmus test" phrase, for a better search term. Added `Divergent Change`/`God State` to keywords and trigger keywords. |
+| 2026-07-26 | Added "Field count alone isn't the test — relatedness is" — clarifies the existing ~8-field god-ViewModel symptom, which couldn't distinguish a cohesive multi-field `State` (`SearchState`) from an unrelated-concerns `State` (a real `ChatShellState` mixing chat/project/session). Gives a naming litmus test instead of a count. Deliberately not mechanically detected — same treatment as the Parameter Object regression in `kotlin-multiplatform-code-quality`. |
+| 2026-07-26 | Added two more god-ViewModel signals beyond line count: 15+ `Intent` variants, and 2+ exposed `StateFlow` properties beyond `state`. Backed by `kotlin-multiplatform-audit`'s new `_detect_viewmodel_too_many_intents`/`_detect_viewmodel_multiple_stateflows` — real gap, since `_detect_viewmodel_size` alone can miss a terse-but-overloaded ViewModel. 2 new anti-patterns. |
+| 2026-07-26 | Added a de-escalation guardrail: a Coordinator ViewModel (Option 2/3) is not exempt from `_detect_viewmodel_size`'s god-ViewModel threshold — a real gap where choosing a coordinator to escape a god composable could quietly relocate the same size problem instead of fixing it. If a coordinator keeps growing after delegating to State Holders/use cases, that's a signal to split back to Option 1. 1 new anti-pattern. |
 | 2026-06-28 | Add @Stable/@Immutable rule for State types; CoroutineExceptionHandler in MviViewModel base class; rememberUpdatedState section with decision table. Three new anti-patterns.
 | 2026-06-28 | Add multi-source state: combine(), WhileSubscribed(5_000) table, flatMapLatest, snapshotFlow with debounce example. Four new anti-patterns.
 | 2026-06-28 | Add collectAsStateWithLifecycle vs collectAsState rule; LaunchedEffect vs DisposableEffect vs SideEffect decision table; SavedStateHandle + viewModelOf Koin wiring; four new anti-patterns.

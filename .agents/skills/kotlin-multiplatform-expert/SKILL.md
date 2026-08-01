@@ -13,7 +13,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: kmm-agent-skills
-  last-updated: '2026-07-19'
+  last-updated: '2026-07-31'
   keywords:
     - KMP expert
     - orchestrator
@@ -203,7 +203,7 @@ versions when the local repo can be checked directly.
 
 ---
 
-## The 64 Skills and What They Own
+## The 66 Skills and What They Own
 
 ### Layer 0 — Architecture Contract
 | Skill | Owns |
@@ -243,6 +243,7 @@ versions when the local repo can be checked directly.
 | `kotlin-multiplatform-xcframework-spm` | XCFramework build, SPM binary target, Xcode integration |
 | `kotlin-multiplatform-library-publishing` | Maven Central publishing (vanniktech plugin), GitHub Packages, BOM, binary-compatibility-validator, SNAPSHOT vs stable channels, GPG signing, release checklist |
 | `kotlin-multiplatform-docs-site` | GitHub Pages developer guide for a published library — MkDocs Material, Dokka HTML API reference, compiler-verified snippet extraction, release-tag-triggered CI deploy |
+| `kotlin-multiplatform-api-mimicry` | Mimicking a reference API's shape (Modifier-style chains, slot lambdas, DSL markers) for a from-scratch library on a non-standard runtime (custom native renderer, custom transport) — plain-function DSL vs. real-compiler-plugin decision, mirror-map documentation |
 | `kotlin-multiplatform-logging` | logger wrapper, kotlin-logging or Kermit, log levels, logger factory, crash breadcrumb bridge, Koin wiring |
 
 ### Layer 3 — Platform Patterns
@@ -251,6 +252,7 @@ versions when the local repo can be checked directly.
 | `kotlin-multiplatform-expect-actual` | `expect/actual` mechanism, interface-injection alternative, `@ObjCName`, Kotlin/Native memory |
 | `kotlin-multiplatform-repository-pattern` | Data layer, single source of truth, fetch strategies, domain mapping, optimistic updates |
 | `kotlin-multiplatform-jni-pro` | JVM↔C++ JNI bridges (`JNIEnv`, `Java_*`, `GetStringUTFChars`, `*-jni.cpp`/`*-wrapper.cpp`), memory safety across the JVM boundary, 3rd-party C++ as read-only black box + C-shim wrapping, symbol-conflict isolation. **NOT** Kotlin/Native cinterop (`CPointer`/`.def`) |
+| `kotlin-multiplatform-native-authoring` | Authoring brand-new, first-party C/C++ source for a KMP library's native core (directory layout, CMake, public C-ABI header, native ctest) — always followed by `jni-pro` for the actual bridge. **NOT** bridging to code that already exists |
 
 ### Layer 4 — Feature Building Blocks
 | Skill | Owns |
@@ -321,6 +323,8 @@ kotlin-multiplatform-feature-scaffold       ← scaffold second (implements the 
 ├── kotlin-multiplatform-network-layer      (depends on: scaffold)
 ├── kotlin-multiplatform-sqldelight-setup   (depends on: scaffold)
 ├── kotlin-multiplatform-xcframework-spm    (depends on: scaffold, ci)
+├── kotlin-multiplatform-api-mimicry        (depends on: library-publishing)
+├── kotlin-multiplatform-native-authoring   (no deps; always followed by jni-pro)
 ├── kotlin-multiplatform-expect-actual      (depends on: scaffold)
 ├── kotlin-multiplatform-repository-pattern (depends on: network-layer, sqldelight-setup)
 ├── kotlin-multiplatform-navigation         (depends on: scaffold)
@@ -648,6 +652,7 @@ When the user asks about one of these topics, invoke the corresponding skill:
 | "adaptive layout", "WindowSizeClass", "tablet layout", "desktop layout", "mobile layout", "phone layout", "list detail", "detail split", "split screen", "navigation rail", "Compact Medium Expanded", "responsive UI", "master detail", "multi-pane", "different layout phone tablet", "different layout phone desktop", "screen size breakpoint", "pane layout", "layout per screen size", "layout phone desktop" | `kotlin-multiplatform-adaptive-layout` |
 | "dialog", "bottom sheet", "toast", "tabs", "TopAppBar", "Checkbox" | `kotlin-multiplatform-design-system-extended` |
 | "shadcn-compose", "ShadcnButton", "ShadcnTheme", "ShadcnCard", "shadcn ui kotlin", "shadcn compose multiplatform", "ExperimentalFoundationStyleApi", "shadcn kmp" | `kotlin-multiplatform-shadcn-compose` |
+| "mimic api", "api mimicry", "clone api shape", "inspired by jetpack compose", "custom dsl engine", "from-scratch renderer", "vulkan ui", "metal ui", "port api ergonomics", "reimplement compose-like dsl", "non-compose renderer", "engine-agnostic dsl", "own compiler-free dsl", "api shape porting" | `kotlin-multiplatform-api-mimicry` |
 | "slot API", "content lambda", "composable parameter", "scoped slot" | `kotlin-multiplatform-compose-slot-api` |
 | "state hoisting", "hoist state", "controlled component", "where does state go" | `kotlin-multiplatform-compose-state-hoisting` |
 | "remember vs ViewModel", "rememberSaveable", "state survival", "config change" | `kotlin-multiplatform-compose-state-container` |
@@ -673,6 +678,7 @@ When the user asks about one of these topics, invoke the corresponding skill:
 | "crash reporting", "crashlytics", "firebase crashes", "sentry", "non-fatal", "symbolication", "dSYM", "breadcrumb bridge", "crash handler", "breadcrumb crash" | `kotlin-multiplatform-crash-reporting` |
 | "DataStore", "Preferences DataStore", "Proto DataStore", "save settings", "persist user prefs", "SharedPreferences migration", "createDataStore", "local key-value store" | `kotlin-multiplatform-datastore` |
 | "JNI", "JNI bridge", "native bridge", "JNIEnv", "Java_*", "GetStringUTFChars", "jbyteArray", "wrapper.cpp", "vendor C++", "3rd-party C++", "CMake JNI", "NDK", "call C++ from Kotlin/JVM", "native memory leak", "symbol conflict", "C-shim", "header compatibility" | `kotlin-multiplatform-jni-pro` |
+| "native core", "first-party native code", "author C++ library", "write native code from scratch", "native library scaffold", "public C-ABI header", "native renderer", "custom engine", "native ctest" | `kotlin-multiplatform-native-authoring` |
 | Disambiguation — "platform-specific code", "iOS implementation", "CPointer", "cinterop", ".def file", "Kotlin/Native" → `kotlin-multiplatform-expect-actual` (NOT `kotlin-multiplatform-jni-pro`; JNI is JVM-only) | — |
 | "privacy policy", "terms and conditions", "terms of service", "GDPR", "CCPA", "data safety", "App Store privacy", "legal docs", "user data disclosure", "consent screen", "privacy screen", "play store legal", "app store compliance" | `kotlin-multiplatform-legal-docs` |
 | "ProGuard", "R8", "obfuscation", "minification", "keep rules", "proguard-rules.pro", "release build crash", "ClassNotFoundException release", "NoSuchMethodException release", "APK size", "minifyEnabled", "shrinkResources", "Koin keep", "Ktor keep", "SQLDelight keep", "kotlinx.serialization keep" | `kotlin-multiplatform-proguard-r8` |
@@ -742,17 +748,22 @@ Layout — flat, `<name>` is the artifact's own name, never the app/project name
 ├── agents/<agent-name>.md               ← source
 ├── rules/<rule-name>.md                 ← source
 ├── commands/<command-name>.md           ← source
-├── skills/<skill-name>/SKILL.md         ← source
+├── skills/<skill-name>/SKILL.md         ← source — project-owned CUSTOM skills only,
+│                                           never bundled kmm-agent-skills content
 ├── hooks/<hook-name>.sh                 ← source
 ├── docs/reference/ai-collaboration.md   ← canonical cross-agent policy
 ├── docs/reference/agent-catalog.md      ← canonical model-tier mapping
 ├── AGENTS.md                            ← optional thin bootstrap
 ├── CLAUDE.md                            ← optional thin bootstrap
 ├── GEMINI.md                            ← optional thin bootstrap
+├── .agents/
+│   └── skills/<skill-name>/             ← DEPLOYED — bundled kmm-agent-skills + mirrored
+│                                           custom skills; the cross-client target, read
+│                                           by any agentskills.io-compliant client
 └── .claude/
     ├── AGENTS.md                        ← deployed routing/context
     ├── commands/<command-name>.md       ← deployed copy
-    ├── skills/<skill-name>/             ← deployed copy
+    ├── skills/<skill-name>/             ← deployed copy, mirrors .agents/skills/
     └── settings.json                    ← permissions + hook wiring
 ```
 
@@ -871,6 +882,9 @@ Keep the response concise — this skill routes to other skills, not implements.
 
 | Date | Change |
 |---|---|
+| 2026-07-31 | Fixed the "Project-Specific Commands/Agents/Skills" canonical layout diagram — it never mentioned `.agents/skills/` at all, only `.claude/`, despite `.agents/skills/` being the actual cross-client deploy target this collection has used since an earlier fix. Added it to the diagram, and clarified project-root `skills/` is for custom skills only. Matches the same fix applied to `docs/reference/ai-collaboration.md`. |
+| 2026-07-31 | Added `kotlin-multiplatform-native-authoring` (66th skill) — real gap: `kotlin-multiplatform-jni-pro` explicitly assumes the native C/C++ code already exists (its whole framing is "3rd-party files are read-only," library-first discovery) and never covered authoring brand-new first-party native source. Scaffolds directory layout, CMake, public C-ABI header design, and native-side testing; always hands off to `jni-pro` for the actual bridge. Added to the Meta list, Skill Invocation Map, and dependency graph. |
+| 2026-07-31 | Added `kotlin-multiplatform-api-mimicry` (65th skill) — a real gap: nothing covered mimicking a reference API's *shape* (Modifier-style chains, slot lambdas, DSL markers) when building a KMP library on a non-standard runtime (custom native renderer, custom transport) that isn't real Compose Multiplatform underneath. Distinct from `design-system`, which builds atop the real Compose runtime. Added to the Meta list, Skill Invocation Map, and dependency graph. |
 | 2026-07-15 | Expanded the project-owned scaffold contract for Claude consumers: `rules/` and `docs/reference/ai-collaboration.md` are now part of the canonical source layout, and `CLAUDE.md` is explicitly treated as a thin bootstrap rather than the only copy of project policy. This keeps project-specific agent guidance at the repo root while `.claude/` remains the deployed runtime layer. |
 | 2026-07-14 | Added "Project-Specific Commands/Agents/Skills — Source of Truth": a real gap found while reviewing a consumer project (a KMP game engine) whose two custom agent definitions were authored directly into `.claude/agents/` with no project-owned source anywhere. Documents mirroring this repo's own layout (`agents/`, `commands/`, `skills/`, `hooks/` at the project root as canonical source, `.claude/` as the deployed copy) for any project-specific artifact that isn't from `kmm-agent-skills` itself. Cross-referenced from `/kmm-setup-agents`, which only deploys this collection's own skills/commands, not project-owned ones. Corrected same-day: the layout initially nested a skill under an app-name folder (`skills/<app-name>/<skill-name>/`) — verified against `anthropic-skills:skill-creator`'s real, official skill anatomy that this isn't a recognized convention; skills are flat, named after what they do. Fixed to `skills/<skill-name>/`, with name-collision guidance (rename the skill, don't nest it) instead. |
 | 2026-07-11 | Added an invocation-map row routing "composition over inheritance"/"abstract class in commonMain"/"agent over-abstracting" to `kotlin-multiplatform-clean-architecture`'s new Composition Over Inheritance section — a real, recurring anti-pattern where an agent creates a public abstract class in commonMain requiring consumer inheritance. |
