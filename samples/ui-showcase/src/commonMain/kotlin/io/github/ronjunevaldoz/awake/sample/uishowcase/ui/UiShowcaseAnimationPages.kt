@@ -108,7 +108,7 @@ private fun RowScope.drawUiShowcaseEasingThumbnail(
         style = Style { shape(10f.dp) },
         modifier = modifier
     ) { slot ->
-        canvas(slot) {
+        canvas(slot.toSlot()) {
             val tokens = context.currentTheme.tokens
             val margin = bounds.width * 0.18f
             val innerWidth = bounds.width - margin * 2f

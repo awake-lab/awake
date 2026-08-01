@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.CanvasScope
 import io.github.ronjunevaldoz.awake.ui.UiFillRule
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -14,43 +15,71 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
+import io.github.ronjunevaldoz.awake.ui.layout.toSlot
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.uiPath
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.uiPath
 
 internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
     shadcnSupportingText("row(...) advances a cursor along the horizontal axis; each child claims the next slot in call order.")
     spacer(Modifier.height(8f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(48f.dp.toDimension())) {
-        surface(id = "layout-row-a", style = Style { background(theme.tokens.primary) }, modifier = Modifier.width(Dimension.Fixed(80f.dp)).height(Dimension.FillMax)) { }
-        surface(id = "layout-row-b", style = Style { background(theme.tokens.secondary) }, modifier = Modifier.width(Dimension.Fixed(120f.dp)).height(Dimension.FillMax)) { }
-        surface(id = "layout-row-c", style = Style { background(theme.tokens.muted) }, modifier = Modifier.width(Dimension.Fixed(160f.dp)).height(Dimension.FillMax)) { }
+    row(
+        horizontalArrangement = Arrangement.spacedBy(8f.dp),
+        modifier = Modifier.height(48f.dp.toDimension())
+    ) {
+        surface(
+            id = "layout-row-a",
+            style = Style { background(theme.tokens.primary) },
+            modifier = Modifier.width(Dimension.Fixed(80f.dp)).height(Dimension.FillMax)
+        ) { }
+        surface(
+            id = "layout-row-b",
+            style = Style { background(theme.tokens.secondary) },
+            modifier = Modifier.width(Dimension.Fixed(120f.dp)).height(Dimension.FillMax)
+        ) { }
+        surface(
+            id = "layout-row-c",
+            style = Style { background(theme.tokens.muted) },
+            modifier = Modifier.width(Dimension.Fixed(160f.dp)).height(Dimension.FillMax)
+        ) { }
     }
     spacer(Modifier.height(16f.dp))
     shadcnSupportingText("column(...) advances a cursor along the vertical axis -- the default layout for every page in this catalog.")
     spacer(Modifier.height(8f.dp))
     column(
-        verticalArrangement = Arrangement.spacedBy(6f.dp)
-    , modifier = Modifier.width(Dimension.Fixed(200f.dp)).height(Dimension.Fixed(112f.dp))) {
-        surface(id = "layout-col-a", style = Style { background(theme.tokens.primary) }, modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(28f.dp))) { }
-        surface(id = "layout-col-b", style = Style { background(theme.tokens.secondary) }, modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(28f.dp))) { }
-        surface(id = "layout-col-c", style = Style { background(theme.tokens.muted) }, modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(28f.dp))) { }
+        verticalArrangement = Arrangement.spacedBy(6f.dp),
+        modifier = Modifier.width(Dimension.Fixed(200f.dp)).height(Dimension.Fixed(112f.dp))
+    ) {
+        surface(
+            id = "layout-col-a",
+            style = Style { background(theme.tokens.primary) },
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(28f.dp))
+        ) { }
+        surface(
+            id = "layout-col-b",
+            style = Style { background(theme.tokens.secondary) },
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(28f.dp))
+        ) { }
+        surface(
+            id = "layout-col-c",
+            style = Style { background(theme.tokens.muted) },
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(28f.dp))
+        ) { }
     }
 }
 
@@ -60,8 +89,10 @@ internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
     spacer(Modifier.height(8f.dp))
     shadcnSurface(
         id = "showcase-scroll-panel-page",
-        style = Style { shape(14f.dp) }
-    , modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.Fixed(176f.dp))) { _ ->
+        style = Style { shape(14f.dp) },
+        modifier = Modifier.width(Dimension.Fixed(420f.dp))
+            .height(Dimension.WrapContent)
+    ) { _ ->
         column(
             id = "scroll-container",
             modifier = Modifier
@@ -93,14 +124,16 @@ internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
     spacer(Modifier.height(8f.dp))
     shadcnSurface(
         id = "showcase-canvas-page",
-        style = Style { shape(16f.dp) }
-    , modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.Fixed(220f.dp))) { slot ->
+        style = Style { shape(16f.dp) },
+        modifier = Modifier.width(Dimension.Fixed(420f.dp))
+            .height(Dimension.Fixed(220f.dp))
+    ) { slot ->
         recordSemantic(
             role = UiSemanticRole.Panel,
             id = "showcase-canvas-root",
-            bounds = slot
+            bounds = slot.toSlot()
         )
-        canvas(slot) {
+        canvas(slot.toSlot()) {
             drawShowcaseCanvasScene()
         }
     }

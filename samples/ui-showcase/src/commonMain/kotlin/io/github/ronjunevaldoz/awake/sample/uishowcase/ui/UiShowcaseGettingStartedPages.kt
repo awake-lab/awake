@@ -36,7 +36,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.toSlot
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 
@@ -312,7 +313,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
 }
 
 private fun ColumnScope.drawShowcaseGradientChrome(
-    slot: UiSlot,
+    slot: UiBounds,
     shimmerPhase: Float,
     dangerMode: Boolean,
 ) {
@@ -324,7 +325,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
         end = tokens.accent.withAlpha(0.12f)
     )
 
-    canvas(slot) {
+    canvas(slot.toSlot()) {
         // Inherit shape from surface stack if available, otherwise fallback to sharp corners
         val clipSpec = context.currentShapeSpec
             ?: io.github.ronjunevaldoz.awake.ui.UiShapeSpec.RoundedRectangle(0f.dp)

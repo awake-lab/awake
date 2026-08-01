@@ -134,7 +134,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         }
         val menuResult = shadcnDropdownMenu(
             id = "ui-showcase-action-menu",
-            anchorSlot = menuTrigger.slot.toBounds(),
+            anchorSlot = menuTrigger.slot,
             expanded = actionMenuState.expanded,
             items = ShowcaseActionMenuItems,
             style = Style { contentPadding(4f.dp) }
@@ -244,7 +244,7 @@ internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
         )
         val visibility by rememberStateValue("showcase-tooltip-visible") { true }
         shadcnTooltip(
-            anchorSlot = trigger.slot.toBounds(),
+            anchorSlot = trigger.slot,
             visible = visibility,
             width = Dimension.Fixed(260f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
@@ -285,7 +285,7 @@ internal fun ColumnScope.drawUiShowcasePopoverPreview() {
         }
         val popoverResult = shadcnPopover(
             id = "ui-showcase-popover",
-            anchorSlot = trigger.slot.toBounds(),
+            anchorSlot = trigger.slot,
             expanded = popoverState.expanded,
             width = Dimension.Fixed(280f.dp)
         ) {
