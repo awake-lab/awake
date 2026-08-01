@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
@@ -53,7 +52,7 @@ class RowSpacerCompositionTest {
 
         val firstSlot = assertNotNull(first).slot
         val secondSlot = assertNotNull(second).slot
-        assertEquals(UiSlot(10f, 20f, 60f, 30f), firstSlot)
-        assertEquals(UiSlot(90f, 20f, 60f, 30f), secondSlot)
+        assertEquals(UiBounds(10f, 20f, 60f, 30f), firstSlot)
+        assertEquals(UiBounds(90f, 20f, 60f, 30f), secondSlot)
     }
 }
