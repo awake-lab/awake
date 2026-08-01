@@ -22,6 +22,14 @@ import io.ygdrasil.webgpu.TextureViewDescriptor
  *
  * Carries its own depth attachment so offscreen readbacks match the same occlusion rules as
  * the on-screen WebGPU path.
+ *
+ * [colorTexture]'s format follows the same browser-preferred format as the swapchain
+ * ([graphicsDevice].wgpuContext.renderingContext.textureFormat, see `SwapchainManager` and
+ * `WebGpuCanvasHost.configureSurface`) rather than a hardcoded guess -- `Renderer.renderToTexture`
+ * draws into this target with the SAME `RenderPipeline` instance used for the on-screen pass
+ * (built with `ColorTargetState(format = swapchainManager.imageFormatWebGpu)`), and WebGPU
+ * requires a render pass's color attachment format to exactly match the bound pipeline's
+ * target format.
  */
 class OffscreenRenderTarget(
     graphicsDevice: GraphicsDevice,
@@ -31,7 +39,7 @@ class OffscreenRenderTarget(
     val colorTexture: GPUTexture = graphicsDevice.wgpuContext.device.createTexture(
         TextureDescriptor(
             size = Extent3D(width = width.toUInt(), height = height.toUInt()),
-            format = GPUTextureFormat.RGBA8Unorm,
+            format = graphicsDevice.wgpuContext.renderingContext.textureFormat,
             usage = GPUTextureUsage.RenderAttachment or GPUTextureUsage.TextureBinding or GPUTextureUsage.CopySrc,
             dimension = GPUTextureDimension.TwoD
         )

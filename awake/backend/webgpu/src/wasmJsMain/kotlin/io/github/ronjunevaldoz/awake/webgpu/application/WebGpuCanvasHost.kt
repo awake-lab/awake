@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.webgpu.application
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.ygdrasil.webgpu.CompositeAlphaMode
-import io.ygdrasil.webgpu.GPUTextureFormat
 import io.ygdrasil.webgpu.GPUTextureUsage
 import io.ygdrasil.webgpu.SurfaceConfiguration
 import io.ygdrasil.webgpu.WGPUContext
@@ -159,11 +158,21 @@ private fun syncCanvasSize(canvas: HTMLCanvasElement, width: Int, height: Int) {
     canvas.height = height
 }
 
+/**
+ * Configures the canvas surface using the browser's own preferred format
+ * ([WGPUContext.renderingContext]'s `textureFormat`, resolved once by wgpu4k's
+ * `canvasContextRenderer()` from `navigator.gpu.getPreferredCanvasFormat()`) rather than a
+ * hardcoded guess -- configuring with any other format forces WebGPU to insert an extra copy
+ * on every present (Chrome's console warns about exactly this). Every render pipeline in this
+ * module reads the same resolved format back via `SwapchainManager.imageFormatWebGpu`, so
+ * this stays the single source of truth for what the swapchain (and anything built to match
+ * it, like [io.github.ronjunevaldoz.awake.webgpu.texture.OffscreenRenderTarget]) is configured with.
+ */
 private fun configureSurface(wgpuContext: WGPUContext) {
     wgpuContext.surface.configure(
         SurfaceConfiguration(
             device = wgpuContext.device,
-            format = GPUTextureFormat.RGBA8Unorm,
+            format = wgpuContext.renderingContext.textureFormat,
             usage = GPUTextureUsage.RenderAttachment or GPUTextureUsage.CopySrc,
             alphaMode = CompositeAlphaMode.Opaque
         )

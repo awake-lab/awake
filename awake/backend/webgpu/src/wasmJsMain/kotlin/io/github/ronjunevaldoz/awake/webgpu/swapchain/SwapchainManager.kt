@@ -31,6 +31,13 @@ class SwapchainManager(
     val inFlightFences = LongArray(maxFramesInFlight)
     var currentFrame = 0
 
+    // The browser's real preferred canvas format (`navigator.gpu.getPreferredCanvasFormat()`,
+    // typically BGRA8Unorm on most desktop GPUs/OSes) -- resolved once by wgpu4k's own
+    // `canvasContextRenderer()` into `WGPUContext.renderingContext.textureFormat` (see
+    // `SurfaceRenderingContext`) and mirrored here so every render pipeline that reads
+    // [imageFormatWebGpu] agrees with what `WebGpuCanvasHost.configureSurface()` actually
+    // configures the surface with. A mismatch here forces WebGPU to insert an extra copy
+    // every present (Chrome logs exactly this) -- see docs/MVP_PLAN.md.
     internal var imageFormatWebGpu: GPUTextureFormat = GPUTextureFormat.RGBA8Unorm
         private set
 
@@ -44,7 +51,7 @@ class SwapchainManager(
     private val renderingContext get() = graphicsDevice.wgpuContext.renderingContext
 
     fun create() {
-        imageFormatWebGpu = GPUTextureFormat.RGBA8Unorm
+        imageFormatWebGpu = renderingContext.textureFormat
         syncSurface()
     }
 
@@ -61,7 +68,7 @@ class SwapchainManager(
     }
 
     fun syncSurface() {
-        imageFormatWebGpu = GPUTextureFormat.RGBA8Unorm
+        imageFormatWebGpu = renderingContext.textureFormat
         val width = renderingContext.width
         val height = renderingContext.height
         if (width == configuredWidth && height == configuredHeight && depthTextureView != null) return
