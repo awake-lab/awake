@@ -188,43 +188,6 @@ internal fun UiScope.renderTextBlock(
     return slot
 }
 
-@Deprecated(
-    message = "Use text(...) for component-level text and reserve basicText(...) for low-level glyph primitives only.",
-    replaceWith = ReplaceWith("text(label = label, slot = slot ?: claimSlot(Dimension.FillMax, Dimension.Fixed(resolveGlyphPx(checkNotNull(font), textStyle).px)), font = checkNotNull(font), color = color, centered = centered, verticallyCentered = verticallyCentered, wrap = wrap, overflow = overflow, maxLines = maxLines, textStyle = textStyle, semanticId = semanticId, semanticRole = semanticRole)")
-)
-fun UiScope.basicText(
-    label: String,
-    slot: UiSlot? = null,
-    font: UiFont? = context.currentFont,
-    color: Color? = context.currentTextStyle.color,
-    centered: Boolean = false,
-    verticallyCentered: Boolean = centered,
-    wrap: UiTextWrap = UiTextWrap.None,
-    overflow: UiTextOverflow = UiTextOverflow.Visible,
-    maxLines: Int = 1,
-    textStyle: TextStyle = context.currentTextStyle,
-    semanticId: String? = null,
-    semanticRole: UiSemanticRole = UiSemanticRole.Text
-): UiSlot {
-    val resolvedFont = checkNotNull(font) { "text() requires a font, either from the UiScope or passed explicitly" }
-    val glyphPx = resolveGlyphPx(resolvedFont, textStyle)
-    val resolvedSlot = slot ?: claimSlot(Dimension.FillMax, Dimension.Fixed(glyphPx.px))
-    return renderTextBlock(
-        label = label,
-        slot = resolvedSlot,
-        font = resolvedFont,
-        color = color,
-        centered = centered,
-        verticallyCentered = verticallyCentered,
-        wrap = wrap,
-        overflow = overflow,
-        maxLines = maxLines,
-        textStyle = textStyle,
-        semanticId = semanticId,
-        semanticRole = semanticRole
-    )
-}
-
 private fun resolveTextContentBounds(
     slot: UiSlot,
     lineWidths: List<Float>,

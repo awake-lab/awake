@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.basicText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -137,7 +137,7 @@ fun UiScope.drawDropdownTriggerContent(
     val horizontalPad = 10f
     val chevronGap = 6f
     val chevronSize = 8f
-    basicText(
+    text(
         label,
         slot = UiSlot(
             x = slot.x + horizontalPad,
