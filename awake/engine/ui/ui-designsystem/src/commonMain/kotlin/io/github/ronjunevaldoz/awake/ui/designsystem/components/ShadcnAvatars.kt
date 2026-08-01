@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -27,7 +26,7 @@ private fun shadcnAvatarStyle(theme: UiTheme, style: Style): Style {
 fun UiScope.shadcnAvatar(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    content: BoxScope.(slot: UiSlot) -> Unit
+    content: BoxScope.(slot: UiBounds) -> Unit
 ): Unit = avatarFallback(
     modifier = modifier,
     style = shadcnAvatarStyle(theme, style),

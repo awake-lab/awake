@@ -54,13 +54,13 @@ fun UiScope.shadcnSelect(
         role = UiSemanticRole.Dropdown,
         id = id,
         label = selectedLabel,
-        bounds = trigger.slot,
+        bounds = trigger.slot.toSlot(),
         selected = popupState.expanded
     )
 
     val result = shadcnDropdownMenu(
         id = "$id.dropdown",
-        anchorSlot = trigger.slot.toBounds(),
+        anchorSlot = trigger.slot,
         expanded = popupState.expanded,
         items = options.map { UiDropdownMenuItem(label = it) },
         selectedIndex = selectedIndex,

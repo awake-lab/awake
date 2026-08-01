@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
@@ -27,13 +26,13 @@ fun ColumnScope.shadcnAlert(
     variant: ShadcnAlertVariant = ShadcnAlertVariant.Default,
     style: Style = Style.Empty,
     content: ColumnScope.() -> Unit
-): UiSlot = surface(
+): UiBounds = surface(
     id = id,
     modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent),
     style = ShadcnStyles.alert(theme.asShadcnTheme(), variant) then style
 ) {
     content()
-}
+}.toBounds()
 
 /** [shadcnAlert] convenience with plain string title/description. */
 fun ColumnScope.shadcnAlert(
@@ -43,7 +42,7 @@ fun ColumnScope.shadcnAlert(
     modifier: UiModifier = Modifier,
     variant: ShadcnAlertVariant = ShadcnAlertVariant.Default,
     style: Style = Style.Empty
-): UiSlot = shadcnAlert(
+): UiBounds = shadcnAlert(
     id = id,
     modifier = modifier,
     variant = variant,

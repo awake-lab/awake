@@ -5,7 +5,6 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
@@ -118,7 +117,7 @@ fun UiScope.shadcnDropdownMenu(
         }
     }
     return UiDropdownMenuResult(
-        slot = popupResult.slot,
+        slot = popupResult.slot?.toBounds(),
         selectedIndex = picked,
         dismissed = popupResult.dismissed
     )
@@ -188,7 +187,7 @@ private fun ColumnScope.dropdownMenuItem(
         val trailingAlignment = if (supportingLayout == null) UiAlignment.CenterEnd else UiAlignment.TopEnd
 
         // Use a relative child box to anchor content correctly within the button
-        val box = childBox(contentSlot)
+        val box = childBox(contentSlot.toSlot())
 
         box.apply {
             // --- 1. Label (Primary text) ---
@@ -252,7 +251,7 @@ private fun ColumnScope.dropdownMenuItem(
 }
 
 data class UiDropdownMenuResult(
-    val slot: UiSlot?,
+    val slot: UiBounds?,
     val selectedIndex: Int?,
     val dismissed: Boolean
 )

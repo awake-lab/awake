@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
@@ -29,12 +28,12 @@ fun ColumnScope.shadcnBreadcrumb(
     modifier: UiModifier = Modifier,
     height: Dp = 20f.dp,
     content: RowScope.() -> Unit
-): UiSlot = row(
+): UiBounds = row(
     horizontalArrangement = Arrangement.spacedBy(6f.dp),
     modifier = modifier.height(height.toDimension())
 ) {
     content()
-}
+}.toBounds()
 
 /** [shadcnBreadcrumb] convenience with a plain string trail. */
 fun ColumnScope.shadcnBreadcrumb(
@@ -42,7 +41,7 @@ fun ColumnScope.shadcnBreadcrumb(
     modifier: UiModifier = Modifier,
     separator: String = "/",
     height: Dp = 20f.dp
-): UiSlot {
+): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     return shadcnBreadcrumb(modifier = modifier, height = height) {
         items.forEachIndexed { index, label ->

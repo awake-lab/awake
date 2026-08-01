@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.styleable
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.popup
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 
@@ -34,9 +34,9 @@ fun UiScope.shadcnDialog(
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
     properties: UiDialogProperties = UiDialogProperties(),
-    header: (ColumnScope.(slot: UiSlot) -> Unit)? = null,
-    actions: (RowScope.(slot: UiSlot) -> Unit)? = null,
-    content: ColumnScope.(slot: UiSlot) -> Unit
+    header: (ColumnScope.(slot: UiBounds) -> Unit)? = null,
+    actions: (RowScope.(slot: UiBounds) -> Unit)? = null,
+    content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiPopupResult {
     if (!expanded) return UiPopupResult(slot = null, dismissed = false)
 
@@ -76,14 +76,15 @@ fun UiScope.shadcnDialog(
                 .styleable(theme.components.surface then Style { shape(UiShape.md) } then properties.surfaceStyle),
             clipContent = true
         ) { slot ->
-            header?.invoke(this, slot)
-            content(slot)
+            val boundsSlot = slot.toBounds()
+            header?.invoke(this, boundsSlot)
+            content(boundsSlot)
             if (actions != null) {
                 row(
                     modifier = Modifier.width(Dimension.FillMax).height(36f.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) { actionSlot ->
-                    actions(actionSlot)
+                    actions(actionSlot.toBounds())
                 }
             }
         }

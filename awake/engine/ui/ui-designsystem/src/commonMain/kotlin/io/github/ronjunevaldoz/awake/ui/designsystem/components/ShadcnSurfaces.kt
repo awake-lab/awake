@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.popup
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
@@ -40,10 +39,10 @@ private fun ColumnScope.shadcnCardDivider() {
  * [surface] content slot. Header/footer are optional; body is required. Matches real
  * shadcn's `CardHeader`/`CardContent`/`CardFooter` composition. */
 private fun ColumnScope.shadcnCardContent(
-    slot: UiSlot,
+    slot: UiBounds,
     header: (ColumnScope.() -> Unit)?,
     footer: (ColumnScope.() -> Unit)?,
-    body: ColumnScope.(slot: UiSlot) -> Unit
+    body: ColumnScope.(slot: UiBounds) -> Unit
 ) {
     if (header != null) {
         header()
@@ -63,13 +62,13 @@ fun UiScope.shadcnSurface(
     modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = content
-)
+    content = { slot -> content(slot.toBounds()) }
+).toBounds()
 
 /** [shadcnSurface] override for [ColumnScope]. */
 fun ColumnScope.shadcnSurface(
@@ -77,13 +76,13 @@ fun ColumnScope.shadcnSurface(
     modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = content
-)
+    content = { slot -> content(slot.toBounds()) }
+).toBounds()
 
 /** [shadcnSurface] override for [RowScope]. */
 fun RowScope.shadcnSurface(
@@ -91,13 +90,13 @@ fun RowScope.shadcnSurface(
     modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = content
-)
+    content = { slot -> content(slot.toBounds()) }
+).toBounds()
 
 /** [shadcnSurface] override for [BoxScope]. */
 fun BoxScope.shadcnSurface(
@@ -105,13 +104,13 @@ fun BoxScope.shadcnSurface(
     modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = content
-)
+    content = { slot -> content(slot.toBounds()) }
+).toBounds()
 
 /** Real shadcn's `Card`: a dedicated header/body/footer composition, not just a
  * background/border flavor of [shadcnSurface]. Header and footer are optional slots
@@ -124,13 +123,13 @@ fun UiScope.shadcnCard(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    body: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = theme.asShadcnTheme().components.surface then style,
-    content = { slot -> shadcnCardContent(slot, header, footer, body) }
-)
+    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, body) }
+).toBounds()
 
 /** [shadcnCard] override for [ColumnScope]. */
 fun ColumnScope.shadcnCard(
@@ -139,13 +138,13 @@ fun ColumnScope.shadcnCard(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    body: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = theme.asShadcnTheme().components.surface then style,
-    content = { slot -> shadcnCardContent(slot, header, footer, body) }
-)
+    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, body) }
+).toBounds()
 
 /** [shadcnCard] override for [RowScope]. */
 fun RowScope.shadcnCard(
@@ -154,13 +153,13 @@ fun RowScope.shadcnCard(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    body: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = theme.asShadcnTheme().components.surface then style,
-    content = { slot -> shadcnCardContent(slot, header, footer, body) }
-)
+    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, body) }
+).toBounds()
 
 /** [shadcnCard] override for [BoxScope]. */
 fun BoxScope.shadcnCard(
@@ -169,13 +168,13 @@ fun BoxScope.shadcnCard(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    body: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = theme.asShadcnTheme().components.surface then style,
-    content = { slot -> shadcnCardContent(slot, header, footer, body) }
-)
+    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, body) }
+).toBounds()
 
 /** Own visual style for real shadcn's `Sidebar`: the dedicated sidebar background/border
  * tokens, not routed through [ShadcnSurfaceVariant] -- same "no shared enum" call as
@@ -200,13 +199,13 @@ fun UiScope.shadcnSidebar(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot, header, footer, content) }
-)
+    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, content) }
+).toBounds()
 
 /** [shadcnSidebar] override for [ColumnScope]. */
 fun ColumnScope.shadcnSidebar(
@@ -215,13 +214,13 @@ fun ColumnScope.shadcnSidebar(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot, header, footer, content) }
-)
+    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, content) }
+).toBounds()
 
 /** [shadcnSidebar] override for [RowScope]. */
 fun RowScope.shadcnSidebar(
@@ -230,13 +229,13 @@ fun RowScope.shadcnSidebar(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot, header, footer, content) }
-)
+    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, content) }
+).toBounds()
 
 /** [shadcnSidebar] override for [BoxScope]. */
 fun BoxScope.shadcnSidebar(
@@ -245,13 +244,13 @@ fun BoxScope.shadcnSidebar(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot, header, footer, content) }
-)
+    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, content) }
+).toBounds()
 
 /** Own visual style for real shadcn's `Popover` panel chrome -- the dedicated popover
  * background/border tokens pulled straight off [ShadcnResolvedTheme], not routed through
@@ -272,7 +271,7 @@ internal fun popoverStyle(theme: ShadcnResolvedTheme): Style = Style {
  * `UiDropdownMenuResult`'s shape -- a dedicated type per component rather than reusing the
  * primitive's result across design-system components. */
 data class UiPopoverResult(
-    val slot: UiSlot?,
+    val slot: UiBounds?,
     val dismissed: Boolean
 )
 
@@ -295,7 +294,7 @@ fun UiScope.shadcnPopover(
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.popover(),
     properties: UiPopupProperties = UiPopupProperties(),
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiPopoverResult {
     val resolvedTheme = theme.asShadcnTheme()
     val popupResult = popup(
@@ -310,8 +309,8 @@ fun UiScope.shadcnPopover(
             id = "$id.content",
             style = popoverStyle(resolvedTheme) then style,
             modifier = Modifier.width(Dimension.Fixed(popupSlot.width.px)).height(height),
-            content = content
+            content = { slot -> content(slot.toBounds()) }
         )
     }
-    return UiPopoverResult(slot = popupResult.slot, dismissed = popupResult.dismissed)
+    return UiPopoverResult(slot = popupResult.slot?.toBounds(), dismissed = popupResult.dismissed)
 }

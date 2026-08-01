@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -17,7 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 fun UiScope.shadcnSeparator(
     modifier: UiModifier = Modifier,
     thickness: Dp = 1f.dp
-): UiSlot = separator(
+): UiBounds = separator(
     thickness = thickness,
     modifier = modifier,
     color = theme.tokens.border

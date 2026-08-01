@@ -607,7 +607,7 @@ class ShadcnDesignSystemTest {
         val result = ui.createAbsolute()
             .shadcnPopover(
                 id = "popover",
-                anchorSlot = anchorSlot.toBounds(),
+                anchorSlot = anchorSlot,
                 expanded = true,
                 width = Dimension.Fixed(120f.px),
                 height = Dimension.Fixed(60f.px)
@@ -639,7 +639,7 @@ class ShadcnDesignSystemTest {
         val result = ui.createAbsolute()
             .shadcnPopover(
                 id = "popover",
-                anchorSlot = anchorSlot.toBounds(),
+                anchorSlot = anchorSlot,
                 expanded = false,
                 width = Dimension.Fixed(120f.px),
                 height = Dimension.Fixed(60f.px)
@@ -667,7 +667,7 @@ class ShadcnDesignSystemTest {
             val result = ui.createAbsolute()
                 .shadcnPopover(
                     id = "popover",
-                    anchorSlot = anchorSlot.toBounds(),
+                    anchorSlot = anchorSlot,
                     expanded = true,
                     width = Dimension.Fixed(120f.px),
                     height = Dimension.Fixed(60f.px)

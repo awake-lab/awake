@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
@@ -72,7 +71,7 @@ fun UiScope.shadcnButton(
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
     onClick: (() -> Unit)? = null,
-    content: BoxScope.(slot: UiSlot) -> Unit
+    content: BoxScope.(slot: UiBounds) -> Unit
 ): Boolean {
     val buttonStyle = shadcnButtonStyle(theme, variant, style)
     val result = buttonSlot(
@@ -88,7 +87,7 @@ fun UiScope.shadcnButton(
             verticallyCentered -> UiAlignment.CenterStart
             else -> UiAlignment.TopStart
         }
-        val box = childBox(contentSlot, contentAlignment = alignment)
+        val box = childBox(contentSlot.toSlot(), contentAlignment = alignment)
         box.content(contentSlot)
     }
     if (result.clicked) onClick?.invoke()

@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
@@ -32,7 +31,7 @@ fun UiScope.shadcnBadge(
     modifier: UiModifier = Modifier,
     variant: ShadcnBadgeVariant = ShadcnBadgeVariant.Secondary,
     style: Style = Style.Empty
-): UiSlot = text(
+): UiBounds = text(
     label = label,
     modifier = modifier,
     style = ShadcnStyles.badge(theme.asShadcnTheme(), variant) then ShadcnStyles.badgeContent(theme.asShadcnTheme()) then style,
@@ -45,7 +44,7 @@ fun UiScope.shadcnKbd(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
-): UiSlot = text(
+): UiBounds = text(
     label = label,
     modifier = modifier,
     style = ShadcnStyles.kbd(theme.asShadcnTheme()) then style,

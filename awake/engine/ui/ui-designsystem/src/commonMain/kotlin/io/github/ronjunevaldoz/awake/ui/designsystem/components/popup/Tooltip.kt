@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -32,7 +31,7 @@ fun UiScope.shadcnTooltip(
     ),
     properties: UiPopupProperties = UiPopupProperties(),
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiPopupResult = popup(
     anchorSlot = anchorSlot,
     expanded = visible,
@@ -47,6 +46,6 @@ fun UiScope.shadcnTooltip(
         style = Style { shape(UiShape.sm) } then theme.components.surface then style,
         modifier = Modifier.width(width).height(height)
     ) { slot ->
-        content(slot)
+        content(slot.toBounds())
     }
 }

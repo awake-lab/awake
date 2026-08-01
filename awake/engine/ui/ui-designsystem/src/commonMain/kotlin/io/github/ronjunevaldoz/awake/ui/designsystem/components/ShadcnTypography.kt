@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
@@ -31,7 +30,7 @@ fun ColumnScope.shadcnSectionTitle(
     title: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
-): UiSlot = sectionTitle(
+): UiBounds = sectionTitle(
     title = title,
     modifier = modifier,
     style = Style {
@@ -48,7 +47,7 @@ fun ColumnScope.shadcnHeadline(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
-): UiSlot = text(
+): UiBounds = text(
     label = label,
     modifier = modifier,
     style = Style {
@@ -66,7 +65,7 @@ fun ColumnScope.shadcnBodyText(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     maxLines: Int = Int.MAX_VALUE
-): UiSlot = text(
+): UiBounds = text(
     label = label,
     modifier = modifier,
     style = Style {
@@ -85,7 +84,7 @@ fun ColumnScope.shadcnSupportingText(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     maxLines: Int = Int.MAX_VALUE
-): UiSlot = supportingText(
+): UiBounds = supportingText(
     label = label,
     modifier = modifier,
     style = Style {
@@ -105,7 +104,7 @@ fun UiScope.shadcnText(
     style: Style = Style.Empty,
     muted: Boolean = false,
     maxLines: Int = Int.MAX_VALUE
-): UiSlot = text(
+): UiBounds = text(
     label = label,
     modifier = modifier,
     style = Style {
@@ -128,7 +127,7 @@ fun UiScope.shadcnLabel(
     modifier: UiModifier = Modifier,
     required: Boolean = false,
     disabled: Boolean = false
-): UiSlot {
+): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     // Pin both dimensions from a synchronous glyph measurement instead of leaning on row()'s
     // WrapContent/FillMax fallbacks: (1) row()'s plain UiScope overload claims its slot
@@ -160,7 +159,7 @@ fun UiScope.shadcnLabel(
                 }
             )
         }
-    }
+    }.toBounds()
 }
 
 /** Common section header layout (title + optional description). */

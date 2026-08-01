@@ -15,7 +15,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
@@ -39,7 +40,7 @@ fun ColumnScope.shadcnField(
     modifier: UiModifier = Modifier,
     orientation: ShadcnFieldOrientation = ShadcnFieldOrientation.Vertical,
     content: UiScope.() -> Unit
-): UiSlot = when (orientation) {
+): UiBounds = when (orientation) {
     ShadcnFieldOrientation.Vertical -> column(
         id = id,
         verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
@@ -51,7 +52,7 @@ fun ColumnScope.shadcnField(
         verticalAlignment = UiAlignment.Vertical.Center,
         modifier = modifier
     ) { content() }
-}
+}.toBounds()
 
 /** Real shadcn's `FieldLabel` -- delegates to [shadcnLabel]. */
 fun UiScope.shadcnFieldLabel(
@@ -59,10 +60,10 @@ fun UiScope.shadcnFieldLabel(
     modifier: UiModifier = Modifier,
     required: Boolean = false,
     disabled: Boolean = false
-): UiSlot = shadcnLabel(text, modifier, required, disabled)
+): UiBounds = shadcnLabel(text, modifier, required, disabled)
 
 /** Real shadcn's `FieldDescription` -- muted small text below a field's control. */
-fun UiScope.shadcnFieldDescription(text: String, modifier: UiModifier = Modifier): UiSlot {
+fun UiScope.shadcnFieldDescription(text: String, modifier: UiModifier = Modifier): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     return shadcnText(
         text,
@@ -73,7 +74,7 @@ fun UiScope.shadcnFieldDescription(text: String, modifier: UiModifier = Modifier
 }
 
 /** Real shadcn's `FieldError` -- destructive-colored small text below a field's control. */
-fun UiScope.shadcnFieldError(text: String, modifier: UiModifier = Modifier): UiSlot {
+fun UiScope.shadcnFieldError(text: String, modifier: UiModifier = Modifier): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     return shadcnText(
         text,
@@ -96,7 +97,7 @@ fun ColumnScope.shadcnFieldSet(
     id: String? = null,
     modifier: UiModifier = Modifier,
     content: ColumnScope.() -> Unit
-): UiSlot = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm), modifier = modifier) { content() }
+): UiBounds = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm), modifier = modifier) { content() }.toBounds()
 
 /** Real shadcn's `FieldLegend` (HTML `<legend>` equivalent) -- the title of a [shadcnFieldSet],
  * one step up in visual weight from [shadcnFieldLabel]. Delegates to [shadcnSectionTitle] for the
@@ -104,14 +105,14 @@ fun ColumnScope.shadcnFieldSet(
 fun ColumnScope.shadcnFieldLegend(
     text: String,
     modifier: UiModifier = Modifier
-): UiSlot = shadcnSectionTitle(text, modifier = modifier)
+): UiBounds = shadcnSectionTitle(text, modifier = modifier)
 
 /** Real shadcn's `FieldGroup` -- groups several [shadcnField]s into one column. */
 fun ColumnScope.shadcnFieldGroup(
     id: String? = null,
     modifier: UiModifier = Modifier,
     content: ColumnScope.() -> Unit
-): UiSlot = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xxl), modifier = modifier) { content() }
+): UiBounds = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xxl), modifier = modifier) { content() }.toBounds()
 
 /**
  * Real shadcn's `FieldSeparator` -- a plain hairline between fields, or (with [label]) a
