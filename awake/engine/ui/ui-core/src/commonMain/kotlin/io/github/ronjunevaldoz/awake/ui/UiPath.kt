@@ -352,12 +352,29 @@ fun UiPath.tessellateFill(): UiTriangleMesh {
     contours.forEach { contour ->
         val polygon = contour.points
         if (polygon.size < 3) return@forEach
+        // Fan from the polygon's centroid rather than vertex 0: for wide, shallow convex
+        // shapes (e.g. a 600x36 rounded-rect button), a vertex-0 fan produces near-degenerate
+        // sliver triangles between points on the far side of the shape (e.g. two points a few
+        // tenths of a pixel apart in y but ~600px apart in x, both opposite the fan origin).
+        // The rasterizer's edge function subtracts products of that huge x-span against a
+        // tiny y-span, and float32 catastrophic cancellation flips the inside/outside test for
+        // pixels near that sliver -- visible as a seam/gap along the top edge on the side far
+        // from vertex 0. A centroid fan keeps every triangle's extent close to the shape's own
+        // size, avoiding the cancellation. Safe for all current callers (rect/rounded-rect/
+        // circle/pill/cut-corner) since they're always convex.
+        var centroidX = 0f
+        var centroidY = 0f
+        polygon.forEach { centroidX += it.x; centroidY += it.y }
+        centroidX /= polygon.size
+        centroidY /= polygon.size
+
         val base = points.size
+        points += UiPoint(centroidX, centroidY)
         points += polygon
-        for (i in 1 until polygon.lastIndex) {
+        for (i in 0 until polygon.size) {
             indices += base
-            indices += base + i
-            indices += base + i + 1
+            indices += base + 1 + i
+            indices += base + 1 + (i + 1) % polygon.size
         }
     }
     return UiTriangleMesh(points, indices.toIntArray())

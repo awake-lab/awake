@@ -130,8 +130,11 @@ class UiPathTest {
     fun cutCornerFillTessellatesIntoTriangleFan() {
         val mesh = UiShapeSpec.CutCorner(6f.dp).toPath(UiSlot(0f, 0f, 40f, 20f)).tessellateFill()
 
-        assertEquals(8, mesh.points.size)
-        assertEquals(18, mesh.indices.size, "8-point convex polygon should tessellate to 6 triangles")
+        // Fan is built from the polygon's centroid (not vertex 0) for numeric robustness on
+        // wide/shallow shapes -- see UiPath.tessellateFill -- so the mesh gains one extra
+        // (centroid) point and one triangle per polygon edge instead of per interior vertex.
+        assertEquals(9, mesh.points.size, "8 polygon points plus 1 centroid point")
+        assertEquals(24, mesh.indices.size, "8-point convex polygon should tessellate to 8 centroid-fan triangles")
     }
 
     @Test
