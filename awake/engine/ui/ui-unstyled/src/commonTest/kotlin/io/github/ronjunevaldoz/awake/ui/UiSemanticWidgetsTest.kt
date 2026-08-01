@@ -8,11 +8,11 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -52,7 +52,7 @@ class UiSemanticWidgetsTest {
         context.beginFrame(180f, 64f, testSnapshot())
         context.createAbsolute(modifier = Modifier.offset(12f.dp, 12f.dp), font = font).text(
             label = "This label is intentionally too wide for the slot",
-            slot = UiSlot(12f, 12f, 80f, 16f),
+            slot = UiBounds(12f, 12f, 80f, 16f),
             overflow = UiTextOverflow.Ellipsis,
             semanticId = "truncated.copy"
         )

@@ -46,8 +46,8 @@ class ReusableCompositionTest {
         val first = scope.buttonSlot("one", label = "ONE", modifier = Modifier.width(100f.px).height(30f.px))
         val second = scope.buttonSlot("two", label = "TWO", modifier = Modifier.width(100f.px).height(30f.px))
 
-        assertEquals(UiSlot(10f, 20f, 100f, 30f), first.slot)
-        assertEquals(UiSlot(25f, 30f, 100f, 30f), second.slot)
+        assertEquals(UiBounds(10f, 20f, 100f, 30f), first.slot)
+        assertEquals(UiBounds(25f, 30f, 100f, 30f), second.slot)
     }
 
     @Test
@@ -64,14 +64,14 @@ class ReusableCompositionTest {
         ) { slot ->
             text(
                 label = ">",
-                slot = UiSlot(slot.x, slot.y, 12f, slot.height),
+                slot = UiBounds(slot.x, slot.y, 12f, slot.height),
                 font = font,
                 centered = false,
                 verticallyCentered = true
             )
             text(
                 label = "Launch",
-                slot = UiSlot(slot.x + 18f, slot.y, 72f, slot.height),
+                slot = UiBounds(slot.x + 18f, slot.y, 72f, slot.height),
                 font = font,
                 centered = false,
                 verticallyCentered = true
@@ -79,7 +79,7 @@ class ReusableCompositionTest {
         }
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
-        assertEquals(UiSlot(20f, 20f, 180f, 40f), result.slot)
+        assertEquals(UiBounds(20f, 20f, 180f, 40f), result.slot)
         assertTrue(glyphs.size >= 7, "custom button slot content should be able to emit multiple glyph runs")
         assertTrue(glyphs.first().x >= 32f, "slot content should render inside the padded content region, not against the outer button edge")
     }
@@ -121,7 +121,7 @@ private fun UiScope.badge(
         borderColor = resolved.borderColor ?: theme.tokens.border
     )
     if (font != null) {
-        text(label, slot, font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
+        text(label, slot.toBounds(), font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
     }
 }
 

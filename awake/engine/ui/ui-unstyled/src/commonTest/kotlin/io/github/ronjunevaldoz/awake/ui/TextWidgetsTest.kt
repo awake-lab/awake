@@ -46,7 +46,7 @@ class TextWidgetsTest {
 
         scope.text(
             label = "TOOLONG",
-            slot = UiSlot(10f, 20f, slotWidthPx, 12f),
+            slot = UiBounds(10f, 20f, slotWidthPx, 12f),
             font = font,
             overflow = UiTextOverflow.Ellipsis
         )
@@ -128,7 +128,7 @@ class TextWidgetsTest {
         ui.beginFrame(200f, 80f, testSnapshot())
         ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).text(
             label = "BUTTON",
-            slot = UiSlot(20f, 20f, 160f, 40f),
+            slot = UiBounds(20f, 20f, 160f, 40f),
             font = font,
             centered = true
         )
@@ -150,7 +150,7 @@ class TextWidgetsTest {
         ui.beginFrame(180f, 80f, testSnapshot())
         ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).text(
             label = "Title",
-            slot = UiSlot(16f, 24f, 120f, 20f),
+            slot = UiBounds(16f, 24f, 120f, 20f),
             font = font
         )
 
@@ -190,8 +190,8 @@ class TextWidgetsTest {
         val ui = UiContext()
         ui.beginFrame(240f, 120f, testSnapshot(x = 20f, y = 12f))
 
-        var firstSlot: UiSlot? = null
-        var secondSlot: UiSlot? = null
+        var firstSlot: UiBounds? = null
+        var secondSlot: UiBounds? = null
 
         ui.column(
             modifier = Modifier.width(200f.dp),
