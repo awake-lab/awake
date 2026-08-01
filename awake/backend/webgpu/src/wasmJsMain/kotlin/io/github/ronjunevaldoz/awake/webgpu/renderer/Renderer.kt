@@ -996,13 +996,19 @@ class Renderer(
                         is UiRun.ClipRun -> {
                             // Not a real draw call -- run.rect is already fully resolved (see
                             // UiContext's clip stack), so this just needs to set the scissor
-                            // rect at this exact point in the paint order.
-                            setScissorRect(
-                                run.rect.x.toInt().toUInt(),
-                                run.rect.y.toInt().toUInt(),
-                                run.rect.width.toInt().toUInt(),
-                                run.rect.height.toInt().toUInt()
-                            )
+                            // rect at this exact point in the paint order. Clamped to the
+                            // render target's own bounds: nested scroll/clip regions can
+                            // accumulate a few px of floating-point rounding past the frame
+                            // edge, which WebGPU's stricter scissor validation rejects outright
+                            // (the whole command buffer becomes invalid, dropping the frame) --
+                            // unlike Vulkan, which tolerates the same imprecision silently.
+                            val maxX = renderingContext.width.toInt()
+                            val maxY = renderingContext.height.toInt()
+                            val x = run.rect.x.toInt().coerceIn(0, maxX)
+                            val y = run.rect.y.toInt().coerceIn(0, maxY)
+                            val width = run.rect.width.toInt().coerceAtLeast(0).coerceAtMost(maxX - x)
+                            val height = run.rect.height.toInt().coerceAtLeast(0).coerceAtMost(maxY - y)
+                            setScissorRect(x.toUInt(), y.toUInt(), width.toUInt(), height.toUInt())
                         }
                         is UiRun.TextureRun -> {
                             // Render-target-backed textured quads (e.g. a minimap), one draw

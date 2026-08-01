@@ -245,9 +245,21 @@ internal fun Renderer.recordCommandBuffer(commandBuffer: Long, acquiredImageInde
                     }
                 }
                 is Renderer.UiRun.ClipRun -> {
+                    // Clamped to the swapchain's own extent: nested scroll/clip regions can
+                    // accumulate a few px of floating-point rounding past the frame edge.
+                    // Vulkan tolerates an out-of-bounds scissor rect silently on most
+                    // drivers, but it's equally out-of-spec here -- clamp defensively rather
+                    // than rely on driver leniency (see WebGPU's Renderer.kt equivalent,
+                    // which hits a hard validation error for the exact same unclamped rect).
+                    val maxX = swapchainManager.extent.width
+                    val maxY = swapchainManager.extent.height
+                    val x = run.rect.x.toInt().coerceIn(0, maxX)
+                    val y = run.rect.y.toInt().coerceIn(0, maxY)
+                    val width = run.rect.width.toInt().coerceAtLeast(0).coerceAtMost(maxX - x)
+                    val height = run.rect.height.toInt().coerceAtLeast(0).coerceAtMost(maxY - y)
                     val scissor = VkRect2D(
-                        offset = VkOffset2D(run.rect.x.toInt(), run.rect.y.toInt()),
-                        extent = VkExtent2D(run.rect.width.toInt(), run.rect.height.toInt())
+                        offset = VkOffset2D(x, y),
+                        extent = VkExtent2D(width, height)
                     )
                     Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
                 }
