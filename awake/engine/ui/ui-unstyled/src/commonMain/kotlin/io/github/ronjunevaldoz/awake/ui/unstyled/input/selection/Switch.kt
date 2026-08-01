@@ -76,7 +76,7 @@ fun UiScope.switch(
             ?: 160f).coerceAtLeast(0f)
         text(
             label,
-            slot = UiSlot(
+            slot = UiBounds(
                 surface.interaction.slot.x + surface.interaction.slot.width + TOGGLE_LABEL_GAP,
                 surface.interaction.slot.y,
                 labelWidth,

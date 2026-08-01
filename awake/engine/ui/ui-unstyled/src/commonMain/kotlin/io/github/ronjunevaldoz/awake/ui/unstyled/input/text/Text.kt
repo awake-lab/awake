@@ -73,7 +73,7 @@ internal fun UiScope.drawResolvedText(
 
 fun UiScope.text(
     label: String,
-    slot: UiSlot,
+    slot: UiBounds,
     style: Style = Style.Empty,
     font: UiFont = context.currentFont,
     color: Color? = null,
@@ -86,7 +86,8 @@ fun UiScope.text(
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text,
     shimmer: Boolean = false
-): UiSlot {
+): UiBounds {
+    val slotAsSlot = slot.toSlot()
     val theme = context.currentTheme
     val resolved = resolveStyle(
         style = style,
@@ -96,12 +97,12 @@ fun UiScope.text(
             }
         },
         state = MutableStyleState(
-            hovered = hitTest(slot)
+            hovered = hitTest(slotAsSlot)
         )
     )
     return drawResolvedText(
         label = label,
-        slot = slot,
+        slot = slotAsSlot,
         resolvedFont = font,
         resolvedStyle = resolved,
         color = color,
@@ -114,7 +115,7 @@ fun UiScope.text(
         semanticId = semanticId,
         semanticRole = semanticRole,
         shimmer = shimmer
-    )
+    ).toBounds()
 }
 
 /**
@@ -135,7 +136,7 @@ fun UiScope.text(
     textStyle: TextStyle? = context.currentTextStyle,
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text
-): UiSlot {
+): UiBounds {
     val resolvedFont = font
     val theme = context.currentTheme
     val resolvedSemanticId = semanticId ?: if (modifier.shimmer) modifier.testTag ?: "shimmer-${label.hashCode()}" else null
@@ -253,5 +254,5 @@ fun UiScope.text(
         semanticId = resolvedSemanticId,
         semanticRole = semanticRole,
         shimmer = modifier.shimmer
-    )
+    ).toBounds()
 }

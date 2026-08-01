@@ -21,8 +21,8 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
-/** [button] with the resolved [UiSlot] alongside the click result. */
-data class UiButtonResult(val clicked: Boolean, val slot: UiSlot)
+/** [button] with the resolved [UiBounds] alongside the click result. */
+data class UiButtonResult(val clicked: Boolean, val slot: UiBounds)
 
 private inline fun UiScope.buttonSlotInternal(
     id: String,
@@ -70,7 +70,7 @@ private inline fun UiScope.buttonSlotInternal(
         bounds = surface.interaction.slot,
         contentBounds = surface.contentSlot
     )
-    return UiButtonResult(surface.interaction.clicked, surface.interaction.slot)
+    return UiButtonResult(surface.interaction.clicked, surface.interaction.slot.toBounds())
 }
 
 fun UiScope.button(
@@ -114,7 +114,7 @@ fun UiScope.buttonSlot(
             val theme = context.currentTheme
             text(
                 label = label,
-                slot = contentSlot,
+                slot = contentSlot.toBounds(),
                 font = context.currentFont,
                 color = resolved.foreground ?: theme.tokens.foreground,
                 centered = centered,
@@ -133,7 +133,7 @@ fun UiScope.buttonSlot(
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
-    content: AbsoluteScope.(slot: UiSlot) -> Unit
+    content: AbsoluteScope.(slot: UiBounds) -> Unit
 ): UiButtonResult = buttonSlotInternal(
     id = id,
     modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
@@ -141,7 +141,7 @@ fun UiScope.buttonSlot(
     variant = variant,
     radius = radius
 ) { contentSlot, _ ->
-    content(contentSlot)
+    content(contentSlot.toBounds())
 }
 
 fun UiScope.button(
@@ -150,7 +150,7 @@ fun UiScope.button(
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
-    content: AbsoluteScope.(slot: UiSlot) -> Unit
+    content: AbsoluteScope.(slot: UiBounds) -> Unit
 ): Boolean = buttonSlot(
     id = id,
     modifier = modifier,

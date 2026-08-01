@@ -65,12 +65,12 @@ fun UiScope.dropdown(
         role = UiSemanticRole.Dropdown,
         id = id,
         label = selectedLabel,
-        bounds = slot,
+        bounds = slot.toSlot(),
         selected = expandedState.expanded
     )
     var picked: Int? = null
     val popupResult = popup(
-        anchorSlot = slot.toBounds(),
+        anchorSlot = slot,
         expanded = expandedState.expanded,
         width = Dimension.Fixed(slot.width.px),
         height = Dimension.WrapContent,
@@ -115,7 +115,7 @@ fun UiScope.dropdown(
  * also needs a popup menu shaped differently from [dropdown]'s own) can reuse the same
  * label/chevron layout instead of re-deriving it. */
 fun UiScope.drawDropdownTriggerContent(
-    slot: UiSlot,
+    slot: UiBounds,
     label: String,
     expanded: Boolean,
     style: Style,
@@ -124,7 +124,7 @@ fun UiScope.drawDropdownTriggerContent(
     val theme = context.currentTheme
     val resolvedFont = context.currentFont
     val resolved = resolveStyle(defaults = style, state = MutableStyleState(
-            hovered = hitTest(slot),
+            hovered = hitTest(slot.toSlot()),
             active = expanded
         )
     )
@@ -139,7 +139,7 @@ fun UiScope.drawDropdownTriggerContent(
     val chevronSize = 8f
     text(
         label,
-        slot = UiSlot(
+        slot = UiBounds(
             x = slot.x + horizontalPad,
             y = slot.y,
             width = (slot.width - horizontalPad * 2 - chevronSize - chevronGap).coerceAtLeast(0f),

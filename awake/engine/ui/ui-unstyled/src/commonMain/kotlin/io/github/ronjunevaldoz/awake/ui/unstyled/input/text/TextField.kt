@@ -146,7 +146,7 @@ fun UiScope.textField(
         if (displayed.isNotEmpty()) {
             text(
                 label = displayed,
-                slot = UiSlot(contentSlot.x, contentSlot.y, contentSlot.width, contentSlot.height),
+                slot = UiBounds(contentSlot.x, contentSlot.y, contentSlot.width, contentSlot.height),
                 font = resolvedFont,
                 color = if (showingPlaceholder) theme.tokens.mutedForeground else (surface.resolved.foreground
                     ?: theme.tokens.foreground),

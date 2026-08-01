@@ -20,7 +20,7 @@ fun UiScope.icon(
     modifier: UiModifier = Modifier,
     tint: Color = context.currentTheme.tokens.foreground,
     overlay: Boolean = false
-): UiSlot {
+): UiBounds {
     val slot = claimModifiedSlot(
         modifier.withSizeFallback(
             Dimension.Fixed(imageVector.defaultWidth),
@@ -36,5 +36,5 @@ fun UiScope.icon(
             emit(UiDrawPrimitive.FilledPath(vectorPath.path, fillColor))
         }
     }
-    return slot
+    return slot.toBounds()
 }

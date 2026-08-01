@@ -187,7 +187,7 @@ fun UiScope.textarea(
         if (displayed.isNotEmpty()) {
             text(
                 label = displayed,
-                slot = contentSlot,
+                slot = contentSlot.toBounds(),
                 font = resolvedFont,
                 color = if (showingPlaceholder) theme.tokens.mutedForeground else (resolvedWithInteraction.foreground
                     ?: theme.tokens.foreground),

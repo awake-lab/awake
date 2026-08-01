@@ -36,7 +36,7 @@ private val AVATAR_DEFAULT_DIAMETER = 40f.dp
 fun UiScope.avatarFallback(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    content: BoxScope.(slot: UiSlot) -> Unit
+    content: BoxScope.(slot: UiBounds) -> Unit
 ) {
     val theme = context.currentTheme
     val resolved = resolveStyle(style = style, defaults = theme.components.avatar)
@@ -54,7 +54,7 @@ fun UiScope.avatarFallback(
         borderColor = resolved.borderColor ?: theme.tokens.border,
         shapeSpec = UiShapeSpec.Circle
     )
-    childBox(slot).content(slot)
+    childBox(slot).content(slot.toBounds())
 }
 
 /** [avatarFallback] convenience that renders plain initials text as the content. */

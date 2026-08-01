@@ -99,7 +99,7 @@ fun UiScope.slider(
     if (label != null) {
         text(
             label,
-            slot = slot,
+            slot = slot.toBounds(),
             font = font,
             color = surface.resolved.foreground ?: theme.tokens.foreground,
             centered = true,

@@ -20,10 +20,10 @@ fun UiScope.separator(
     thickness: Dp = 1f.dp,
     modifier: UiModifier = Modifier,
     color: Color = context.currentTheme.tokens.border
-): UiSlot {
+): UiBounds {
     val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(thickness)))
     val lineHeight = thickness.toPx().coerceAtLeast(1f)
     val lineY = slot.y + (slot.height - lineHeight) / 2f
     emit(UiDrawPrimitive.Quad(slot.x, lineY, slot.width, lineHeight, color))
-    return slot
+    return slot.toBounds()
 }
