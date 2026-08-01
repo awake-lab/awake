@@ -55,8 +55,8 @@ import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
  * position/color vertex attribute layout, same `NONE` cull mode (see the rasterization state's
  * comment for why) -- this is a structural move, not a behavior change.
  *
- * Takes compiled SPIR-V bytecode directly (`vertShaderCode`/`fragShaderCode`) rather than
- * loading it itself: reading a shader asset off disk is a platform/resource concern
+ * Takes compiled SPIR-V bytecode directly (a [ShaderPair]) rather than loading it itself:
+ * reading a shader asset off disk is a platform/resource concern
  * (`readResourceBytes`), not a pipeline concern, matching how [Mesh][io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh]
  * takes raw vertex/index data instead of loading a model file itself.
  *
@@ -77,8 +77,7 @@ class RenderPipeline(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     descriptorSetLayout: DescriptorSetLayoutHandle,
-    vertShaderCode: ByteArray,
-    fragShaderCode: ByteArray,
+    shaders: ShaderPair,
     vertexStride: Int,
     vertexEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
     fragmentEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT
@@ -96,8 +95,8 @@ class RenderPipeline(
         renderPass = createRenderPass()
         createGraphicsPipeline(
             descriptorSetLayout = descriptorSetLayout,
-            vertShaderCode = vertShaderCode,
-            fragShaderCode = fragShaderCode,
+            vertShaderCode = shaders.vertex,
+            fragShaderCode = shaders.fragment,
             vertexStride = vertexStride,
             vertexEntryPoint = vertexEntryPoint,
             fragmentEntryPoint = fragmentEntryPoint

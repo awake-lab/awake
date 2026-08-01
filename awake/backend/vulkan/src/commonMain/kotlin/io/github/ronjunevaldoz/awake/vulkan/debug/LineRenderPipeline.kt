@@ -42,6 +42,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineVerte
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineViewportStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAttributeDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 
 /**
@@ -57,8 +58,7 @@ class LineRenderPipeline(
     graphicsDevice: GraphicsDevice,
     private val swapchainManager: SwapchainManager,
     private val renderPass: Long,
-    vertShaderCode: ByteArray,
-    fragShaderCode: ByteArray
+    shaders: ShaderPair
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -76,7 +76,7 @@ class LineRenderPipeline(
         descriptorSetLayout = createDescriptorSetLayout()
         createMvpUniformBuffer()
         createDescriptorSet()
-        createGraphicsPipeline(vertShaderCode, fragShaderCode)
+        createGraphicsPipeline(shaders.vertex, shaders.fragment)
     }
 
     private fun createDescriptorSetLayout(): Long = VulkanDescriptors.vkCreateDescriptorSetLayout(

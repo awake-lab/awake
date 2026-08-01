@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 
@@ -73,8 +74,7 @@ class VulkanGameApplication(
             graphicsDevice,
             swapchainManager,
             pipelineLayoutMaterial.descriptorSetLayout,
-            readResourceBytes(vertexShaderResourcePath),
-            readResourceBytes(fragmentShaderResourcePath),
+            loadShaderPair(vertexShaderResourcePath, fragmentShaderResourcePath),
             vertexStride,
             vertexShaderEntryPoint,
             fragmentShaderEntryPoint
@@ -83,8 +83,7 @@ class VulkanGameApplication(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
-            readResourceBytes(DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH),
-            readResourceBytes(DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH)
+            loadShaderPair(DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH, DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH)
         )
         transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(
@@ -93,14 +92,10 @@ class VulkanGameApplication(
             renderPipeline,
             lineRenderPipeline,
             transferContext,
-            readResourceBytes(UI_VERTEX_SHADER_RESOURCE_PATH),
-            readResourceBytes(UI_FRAGMENT_SHADER_RESOURCE_PATH),
-            readResourceBytes(UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH),
-            readResourceBytes(UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH),
-            readResourceBytes(UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH),
-            readResourceBytes(UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH),
-            readResourceBytes(UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH),
-            readResourceBytes(UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH),
+            loadShaderPair(UI_VERTEX_SHADER_RESOURCE_PATH, UI_FRAGMENT_SHADER_RESOURCE_PATH),
+            loadShaderPair(UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH, UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH),
+            loadShaderPair(UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH, UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH),
+            loadShaderPair(UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH, UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH),
             MAX_FRAMES_IN_FLIGHT
         )
         swapchainManager.createSyncObjects()
@@ -132,6 +127,12 @@ class VulkanGameApplication(
         lineRenderPipeline.destroy()
         graphicsDevice.destroy()
     }
+
+    /** Reads [vertexPath]/[fragmentPath] into one [ShaderPair] -- collapses the repeated
+     * `ShaderPair(readResourceBytes(x), readResourceBytes(y))` shape at every pipeline
+     * construction call site above into a single-line call. */
+    private suspend fun loadShaderPair(vertexPath: String, fragmentPath: String): ShaderPair =
+        ShaderPair(readResourceBytes(vertexPath), readResourceBytes(fragmentPath))
 
     private companion object {
         const val MAX_FRAMES_IN_FLIGHT = 2

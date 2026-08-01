@@ -14,7 +14,9 @@ import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
+import io.github.ronjunevaldoz.awake.vulkan.renderer.renderUiGlyphsToTexture
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
@@ -23,6 +25,12 @@ import java.io.File
 import javax.imageio.ImageIO
 import kotlin.test.Test
 import kotlin.test.assertTrue
+
+/** Reads [vertexPath]/[fragmentPath] into one [ShaderPair] -- same collapsing helper
+ * `VulkanGameApplication.loadShaderPair` uses, duplicated here since this test constructs its
+ * pipelines directly rather than through that class. */
+private suspend fun loadShaderPair(vertexPath: String, fragmentPath: String): ShaderPair =
+    ShaderPair(readResourceBytes(vertexPath), readResourceBytes(fragmentPath))
 
 private fun writeUiBaselinePng(pixels: ByteArray, width: Int, height: Int, file: File) {
     val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
@@ -180,16 +188,14 @@ class RendererHeadlessUiGlyphBaselineTest {
                 graphicsDevice,
                 swapchainManager,
                 pipelineLayoutMaterial.descriptorSetLayout,
-                runBlocking { readResourceBytes("assets/shader/vulkan/triangle.vert.spv") },
-                runBlocking { readResourceBytes("assets/shader/vulkan/triangle.frag.spv") },
+                runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
                 SAMPLE_VERTEX_STRIDE
             )
             val lineRenderPipeline = LineRenderPipeline(
                 graphicsDevice,
                 swapchainManager,
                 renderPipeline.renderPass,
-                runBlocking { readResourceBytes("assets/shader/vulkan/debug_line.vert.spv") },
-                runBlocking { readResourceBytes("assets/shader/vulkan/debug_line.frag.spv") }
+                runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }
             )
             val transferContext = TransferContext(graphicsDevice)
             val renderer = Renderer(
@@ -198,14 +204,12 @@ class RendererHeadlessUiGlyphBaselineTest {
                 renderPipeline,
                 lineRenderPipeline,
                 transferContext,
-                runBlocking { readResourceBytes("assets/shader/vulkan/ui_quad.vert.spv") },
-                runBlocking { readResourceBytes("assets/shader/vulkan/ui_quad.frag.spv") },
-                runBlocking { readResourceBytes("assets/shader/vulkan/ui_glyph.vert.spv") },
-                runBlocking { readResourceBytes("assets/shader/vulkan/ui_glyph.frag.spv") },
-                runBlocking { readResourceBytes("assets/shader/vulkan/ui_texture.vert.spv") },
-                runBlocking { readResourceBytes("assets/shader/vulkan/ui_texture.frag.spv") },
-                runBlocking { readResourceBytes("assets/shader/vulkan/ui_rounded_quad.vert.spv") },
-                runBlocking { readResourceBytes("assets/shader/vulkan/ui_rounded_quad.frag.spv") },
+                runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") },
+                runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") },
+                runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") },
+                runBlocking {
+                    loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
+                },
                 MAX_FRAMES_IN_FLIGHT
             )
 
