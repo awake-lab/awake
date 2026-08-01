@@ -19,17 +19,12 @@ These are placement rules, not style preferences.
    named authored theme intended for direct app/sample use.
 4. `samples:*` and future game modules own runtime-bound adapters, authored overlays,
    debug HUD wiring, and sample-specific compositions.
-5. `UiSlot` is a `ui-core`-internal measurement type. No module outside `ui-core` may
-   construct, read, or `.copy()` a `UiSlot`. Anything crossing the `ui-core` boundary
-   (`surface{}`/`row{}`/`claimSlot()` return values, `UiSemanticNode.contentBounds`, lambda
-   params handed to widget code) must use `UiBounds` instead. **Confirmed concrete instances
-   of this violation (2026-07-24):** `popup(anchorSlot: UiSlot, ...)` (`ui-core/UiPopup.kt`)
-   and its downstream `anchorSlot: UiSlot` params on `shadcnTooltip`, `shadcnTooltipText`,
-   `shadcnDropdownMenu` (`ui-designsystem/components/popup/`) -- these take a caller-supplied
-   `UiSlot`, and several call sites (including test files) construct `UiSlot(...)` directly as
-   the argument, which is exactly what this rule forbids. See
-   `docs/tasks/2026-07-24-uislot-narrowing.md` for the batched migration plan -- `anchorSlot` is
-   Batch 1.
+5. **Superseded (2026-08-01):** `UiSlot` was merged into `UiBounds` -- there is now a single
+   `ui-core`-public measured-bounds type (`io.github.ronjunevaldoz.awake.ui.layout.UiBounds`),
+   not a public/internal pair. The dual-type split this rule described, and the mechanical
+   enforcement it called for, were dropped as not worth the maintenance cost once Batch 2 of
+   `docs/tasks/2026-07-24-uislot-narrowing.md` had already narrowed the public surface. See that
+   doc's Resolution section for the full rationale.
 6. **No authored param may duplicate what `UiModifier` or `Style` already expresses.** Not
    limited to params literally named `width`/`height`/`gap`/`insets` -- any `Dp`/`Float` param
    that's really a size, position, or spacing value under another name (`diameter`, `radius`
@@ -219,7 +214,7 @@ this rule, only new/moved files must comply.
   (`modifier/`, `style/`, `layout/`, `scope/`, `theme/`, `context/`, `font/`, `graphics/`, or a
   new one if none fit). The 16 existing root files (`UiAnchor.kt`, `Canvas.kt`, `Dp.kt`, etc.)
   are legacy debt, not a model to copy -- migrating them is a separate, not-yet-scoped cleanup.
-- Public types in `ui-core` are `Ui`-prefixed (`UiModifier`, `UiSlot`, `UiAnchor`, ...) -- the
+- Public types in `ui-core` are `Ui`-prefixed (`UiModifier`, `UiBounds`, `UiAnchor`, ...) -- the
   prefix signals "engine contract type" the way it already does today.
 
 **`ui-unstyled`**

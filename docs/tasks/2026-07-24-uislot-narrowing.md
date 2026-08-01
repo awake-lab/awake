@@ -99,5 +99,20 @@ order (ui-unstyled, then ui-designsystem, engine/ui/ui-testing, game-dsl, sample
 - [x] Contract audit
 - [x] Rule recorded in `docs/reference/ui-ownership.md` (rule 5, with concrete `anchorSlot` example)
 - [x] Batch 1 (`anchorSlot` params)
-- [ ] Batch 2 (widget return types)
-- [ ] Batch 3 (lock down + mechanical enforcement)
+- [x] Batch 2 (widget return types, content-lambda params, semantic node bounds)
+- [x] Resolved differently than planned Batch 3 (see below)
+
+## Resolution (superseded plan)
+
+`UiSlot` and `UiBounds` turned out structurally identical (`x`/`y`/`width`/`height`, both
+immutable `val`) -- the only real distinction was the intended public/internal split, which the
+two-type-plus-converter design enforced by convention, not by the compiler. Once Batch 2 finished
+converting the public widget surface to `UiBounds`, the remaining `UiSlot` was renamed into
+`UiBounds` directly (merged into a single `ui-core` public type in the `layout` package) instead
+of proceeding with the originally planned Batch 3 (`internal`-lock `UiSlot` +
+`forbiddenUiTypeReferences` Gradle enforcement). This eliminates the `toBounds()`/`toSlot()`
+conversion boundary and the dual-type maintenance cost entirely, at the cost of no longer having a
+compiler-enforced internal/public split -- accepted as the better tradeoff since the split wasn't
+buying meaningful safety once the public surface was already narrowed. The Hard Rule above (rule
+6 in `docs/reference/ui-ownership.md`) is now moot and should be removed/updated to reflect the
+merged type.
