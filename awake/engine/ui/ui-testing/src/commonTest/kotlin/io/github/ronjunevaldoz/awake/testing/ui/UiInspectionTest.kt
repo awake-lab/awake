@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -29,7 +29,7 @@ class UiInspectionTest {
                     color = Color.White
                 )
             ),
-            frame = UiSlot(0f, 0f, 80f, 40f),
+            frame = UiBounds(0f, 0f, 80f, 40f),
             font = null
         )
 
@@ -41,10 +41,10 @@ class UiInspectionTest {
     fun reportsClipStackUnderflowAndUnbalancedPushes() {
         val report = inspectUiFrame(
             primitives = listOf(
-                UiDrawPrimitive.ClipPop(UiSlot(0f, 0f, 80f, 40f)),
-                UiDrawPrimitive.ClipPush(UiSlot(8f, 8f, 24f, 24f))
+                UiDrawPrimitive.ClipPop(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 80f, 40f)),
+                UiDrawPrimitive.ClipPush(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(8f, 8f, 24f, 24f))
             ),
-            frame = UiSlot(0f, 0f, 80f, 40f)
+            frame = UiBounds(0f, 0f, 80f, 40f)
         )
 
         assertEquals(
@@ -61,7 +61,7 @@ class UiInspectionTest {
         val font = BitmapFont()
         val report = inspectUiFrame(
             primitives = listOf(
-                UiDrawPrimitive.ClipPush(UiSlot(0f, 0f, 40f, 20f)),
+                UiDrawPrimitive.ClipPush(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 40f, 20f)),
                 UiDrawPrimitive.Glyph(
                     x = 8f,
                     y = 4f,
@@ -73,9 +73,9 @@ class UiInspectionTest {
                     v1 = 1f,
                     color = Color.White
                 ),
-                UiDrawPrimitive.ClipPop(UiSlot(0f, 0f, 80f, 40f))
+                UiDrawPrimitive.ClipPop(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 80f, 40f))
             ),
-            frame = UiSlot(0f, 0f, 80f, 40f),
+            frame = UiBounds(0f, 0f, 80f, 40f),
             font = font
         )
 
@@ -87,9 +87,9 @@ class UiInspectionTest {
         val report = inspectNonOverlappingBounds(
             label = "sample cards",
             bounds = listOf(
-                UiSlot(0f, 0f, 80f, 40f),
-                UiSlot(60f, 20f, 80f, 40f),
-                UiSlot(180f, 20f, 40f, 40f)
+                UiBounds(0f, 0f, 80f, 40f),
+                UiBounds(60f, 20f, 80f, 40f),
+                UiBounds(180f, 20f, 40f, 40f)
             )
         )
 

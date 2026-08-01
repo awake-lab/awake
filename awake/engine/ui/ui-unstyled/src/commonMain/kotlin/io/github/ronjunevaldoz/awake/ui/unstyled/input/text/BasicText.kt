@@ -11,15 +11,13 @@ import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
-import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.scope.intersect
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** Draws [label] as a row of glyph quads. */
 enum class UiTextWrap {
@@ -35,7 +33,7 @@ enum class UiTextOverflow {
 
 internal fun UiScope.renderTextBlock(
     label: String,
-    slot: UiSlot,
+    slot: UiBounds,
     font: UiFont,
     color: Color?,
     centered: Boolean = false,
@@ -47,7 +45,7 @@ internal fun UiScope.renderTextBlock(
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text,
     shimmer: Boolean = false
-) : UiSlot {
+) : UiBounds {
     val glyphPx = resolveGlyphPx(font, textStyle)
     val layout = layoutBitmapText(
         label = label,
@@ -74,9 +72,9 @@ internal fun UiScope.renderTextBlock(
         role = semanticRole,
         id = semanticId,
         label = label,
-        bounds = slot,
-        contentBounds = contentBounds,
-        clippedBounds = clippedBounds,
+        bounds = slot.toBounds(),
+        contentBounds = contentBounds.toBounds(),
+        clippedBounds = clippedBounds.toBounds(),
         truncated = layout.truncated,
         lineCount = layout.lines.size
     )
@@ -189,12 +187,12 @@ internal fun UiScope.renderTextBlock(
 }
 
 private fun resolveTextContentBounds(
-    slot: UiSlot,
+    slot: UiBounds,
     lineWidths: List<Float>,
     blockHeight: Float,
     verticallyCentered: Boolean,
     centered: Boolean
-): UiSlot {
+): UiBounds {
     val top = if (verticallyCentered) {
         slot.y + (slot.height - blockHeight) / 2f
     } else {
@@ -215,12 +213,12 @@ private fun resolveTextContentBounds(
             lineLeft + lineWidth
         }
     }
-    return UiSlot(
+    return io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         x = left,
         y = top,
         width = (right - left).coerceAtLeast(0f),
         height = blockHeight.coerceAtLeast(0f)
-    )
+    ).toSlot()
 }
 
 data class UiBitmapTextLayout(

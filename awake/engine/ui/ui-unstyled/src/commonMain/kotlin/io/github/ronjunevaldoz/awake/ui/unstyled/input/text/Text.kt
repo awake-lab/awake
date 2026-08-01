@@ -4,7 +4,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun UiScope.drawResolvedText(
     label: String,
-    slot: UiSlot,
+    slot: UiBounds,
     resolvedFont: UiFont,
     resolvedStyle: ResolvedStyle,
     color: Color? = null,
@@ -36,7 +36,7 @@ internal fun UiScope.drawResolvedText(
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text,
     shimmer: Boolean = false
-): UiSlot {
+): UiBounds {
     val theme = context.currentTheme
     if (
         resolvedStyle.background != null ||

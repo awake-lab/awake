@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
@@ -19,8 +19,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** Proves the `surface`/`row`/`dropdown` composition path -- a slot-based property row built
  * from public DSL primitives, not a dedicated widget of its own. */
@@ -31,8 +29,8 @@ class SurfaceDropdownCompositionTest {
         val ui = UiContext()
         ui.beginFrame(320f, 240f, testSnapshot())
 
-        var panelSlot: UiSlot? = null
-        var controlSlot: UiSlot? = null
+        var panelSlot: UiBounds? = null
+        var controlSlot: UiBounds? = null
 
         ui.pushFont(BitmapFont())
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(200f.dp).height(220f.dp)) {
@@ -68,7 +66,7 @@ class SurfaceDropdownCompositionTest {
         val ui = UiContext()
         ui.beginFrame(320f, 160f, testSnapshot())
 
-        var controlSlot: UiSlot? = null
+        var controlSlot: UiBounds? = null
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(220f.dp).height(160f.dp)) {
             surface(id = "slot-panel", modifier = Modifier.height(100f.toDimension())) {

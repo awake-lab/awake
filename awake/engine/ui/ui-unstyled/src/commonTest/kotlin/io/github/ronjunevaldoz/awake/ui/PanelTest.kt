@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,7 +38,7 @@ class PanelTest {
         val ui = UiContext()
         val column = ui.createColumn(modifier = Modifier.offset((10f).dp, (20f).dp).width((200f).dp))
 
-        var firstChildSlot: UiSlot? = null
+        var firstChildSlot: UiBounds? = null
         column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px))) { slot ->
             firstChildSlot = claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(20f.px))
         }

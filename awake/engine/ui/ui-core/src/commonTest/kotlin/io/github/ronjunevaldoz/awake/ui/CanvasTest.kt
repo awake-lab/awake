@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -13,7 +13,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertSame
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class CanvasTest {
 
@@ -115,7 +114,7 @@ class CanvasTest {
         assertEquals(17f, pathBounds.y)
 
         val clipPush = primitives.filterIsInstance<UiDrawPrimitive.ClipPathPush>().single()
-        assertEquals(UiSlot(14f, 21f, 30f, 24f), clipPush.boundsRect)
+        assertEquals(UiBounds(14f, 21f, 30f, 24f), clipPush.boundsRect)
     }
 
     @Test

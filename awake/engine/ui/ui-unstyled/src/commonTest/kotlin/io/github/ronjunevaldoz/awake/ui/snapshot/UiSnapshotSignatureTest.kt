@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 import io.github.ronjunevaldoz.awake.core.utils.summarizePixels
 import io.github.ronjunevaldoz.awake.testing.ui.inspectUiFrame
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -40,7 +40,7 @@ private fun assertSnapshotSignatures(
     scenes.forEach { scene ->
         val inspection = inspectUiFrame(
             primitives = scene.primitives,
-            frame = UiSlot(0f, 0f, scene.width.toFloat(), scene.height.toFloat()),
+            frame = UiBounds(0f, 0f, scene.width.toFloat(), scene.height.toFloat()),
             font = scene.font
         )
         assertEquals(true, inspection.isClean, "UI inspection failed for ${scene.name}:\n${inspection.summary()}")

@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -113,7 +113,7 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
 }
 
 private fun ColumnScope.drawUiShowcaseFontSpecimen(
-    slot: UiSlot,
+    slot: UiBounds,
     label: String,
     detail: String,
     previewFont: UiFont,

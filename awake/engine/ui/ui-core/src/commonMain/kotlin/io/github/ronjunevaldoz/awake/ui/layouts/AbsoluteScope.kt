@@ -1,9 +1,8 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Manual placement at an exact x/y, ignoring whatever width/height a widget requests as a
@@ -28,8 +27,8 @@ class AbsoluteScope internal constructor(
     // centered) got a harmless zero-width UiSlot back. FillMax has no configured size to
     // resolve against on this scope, so it resolves to 0f -- the same literal passthrough
     // behavior, not a new error mode.
-    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiSlot =
-        UiSlot(
+    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiBounds =
+        UiBounds(
             x,
             y,
             width.resolve { 0f },

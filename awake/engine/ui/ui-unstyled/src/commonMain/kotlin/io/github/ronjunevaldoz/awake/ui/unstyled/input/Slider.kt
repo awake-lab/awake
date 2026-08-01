@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
@@ -59,12 +58,12 @@ fun UiScope.slider(
         defaults = theme.components.slider,
         focused = false
     )
-    val trackSlot = UiSlot(
+    val trackSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         slot.x,
         slot.y + (slot.height - SLIDER_TRACK_HEIGHT_PX) / 2f,
         slot.width,
         SLIDER_TRACK_HEIGHT_PX
-    )
+    ).toSlot()
     paintSurface(
         slot = trackSlot,
         resolved = surface.resolved.copy(shapeSpec = UiShapeSpec.Pill)
@@ -73,7 +72,8 @@ fun UiScope.slider(
     val handleWidth = (trackSlot.width * fraction).coerceAtLeast(0f)
     if (handleWidth > 0f) {
         emitFillAndBorder(
-            slot = UiSlot(trackSlot.x, trackSlot.y, handleWidth, trackSlot.height),
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(trackSlot.x, trackSlot.y, handleWidth, trackSlot.height)
+                .toSlot(),
             fillColor = theme.tokens.primary,
             radiusPx = 0f,
             borderWidth = UiShape.none,
@@ -83,12 +83,12 @@ fun UiScope.slider(
     }
     val knobCenterX = trackSlot.x + handleWidth
     paintSurface(
-        slot = UiSlot(
+        slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
             knobCenterX - SLIDER_KNOB_DIAMETER_PX / 2f,
             slot.y + (slot.height - SLIDER_KNOB_DIAMETER_PX) / 2f,
             SLIDER_KNOB_DIAMETER_PX,
             SLIDER_KNOB_DIAMETER_PX
-        ),
+        ).toSlot(),
         resolved = surface.resolved.copy(
             borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
             shapeSpec = UiShapeSpec.Pill
@@ -112,8 +112,8 @@ fun UiScope.slider(
         role = UiSemanticRole.Slider,
         id = id,
         label = label,
-        bounds = slot,
-        contentBounds = if (handleWidth > 0f) UiSlot(
+        bounds = slot.toBounds(),
+        contentBounds = if (handleWidth > 0f) io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
             slot.x,
             slot.y,
             handleWidth,

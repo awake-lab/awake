@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -23,7 +23,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class LayoutTest {
 
@@ -103,8 +102,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(240f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 240f)
-        var first: UiSlot? = null
-        var second: UiSlot? = null
+        var first: UiBounds? = null
+        var second: UiBounds? = null
 
         root.row(
             horizontalArrangement = Arrangement.SpaceBetween
@@ -122,8 +121,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(120f, 200f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 120f, height = 200f)
-        var first: UiSlot? = null
-        var second: UiSlot? = null
+        var first: UiBounds? = null
+        var second: UiBounds? = null
 
         root.column(
             verticalArrangement = Arrangement.SpaceEvenly
@@ -149,8 +148,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(240f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 240f)
-        var tall: UiSlot? = null
-        var short: UiSlot? = null
+        var tall: UiBounds? = null
+        var short: UiBounds? = null
 
         root.row(
             verticalAlignment = UiAlignment.Vertical.Center,
@@ -169,7 +168,7 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(240f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 240f)
-        var overridden: UiSlot? = null
+        var overridden: UiBounds? = null
 
         root.row(
             verticalAlignment = UiAlignment.Vertical.Center,
@@ -188,8 +187,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(120f, 240f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 120f)
-        var wide: UiSlot? = null
-        var narrow: UiSlot? = null
+        var wide: UiBounds? = null
+        var narrow: UiBounds? = null
 
         root.column(
             horizontalAlignment = UiAlignment.Horizontal.Center,
@@ -208,7 +207,7 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(120f, 240f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 120f)
-        var overridden: UiSlot? = null
+        var overridden: UiBounds? = null
 
         root.column(
             horizontalAlignment = UiAlignment.Horizontal.Center,
@@ -246,7 +245,7 @@ class LayoutTest {
             Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px))
         )
 
-        assertEquals(UiSlot(40f, 40f, 40f, 20f), slot)
+        assertEquals(UiBounds(40f, 40f, 40f, 20f), slot)
     }
 
     @Test
@@ -262,13 +261,13 @@ class LayoutTest {
                 .offset(x = (-2f).dp, y = (-3f).dp)
         )
 
-        assertEquals(UiSlot(68f, 53f, 40f, 20f), slot)
+        assertEquals(UiBounds(68f, 53f, 40f, 20f), slot)
     }
 
     @Test
     fun columnFactoryFromSlotAppliesInsets() {
         val ui = UiContext()
-        val column = ui.createColumn(UiSlot(10f, 20f, 100f, 80f), insets = UiInsets(4f.dp, 6f.dp))
+        val column = ui.createColumn(UiBounds(10f, 20f, 100f, 80f), insets = UiInsets(4f.dp, 6f.dp))
 
         val slot = column.claimSlot(Dimension.FillMax, Dimension.Fixed(20f.px))
 
@@ -281,13 +280,13 @@ class LayoutTest {
     fun uiScopeColumnHelperOpensNestedColumnFromClaimedSlot() {
         val ui = UiContext()
         val box = ui.createBox(x = 0f, y = 0f, width = 240f, height = 120f)
-        var nestedChild: UiSlot? = null
+        var nestedChild: UiBounds? = null
 
-        box.column(slot = UiSlot(20f, 30f, 100f, 60f)) {
+        box.column(slot = UiBounds(20f, 30f, 100f, 60f)) {
             nestedChild = claimSlot(Dimension.FillMax, Dimension.Fixed(18f.px))
         }
 
-        assertEquals(UiSlot(20f, 30f, 100f, 18f), nestedChild)
+        assertEquals(UiBounds(20f, 30f, 100f, 18f), nestedChild)
     }
 
     @Test
@@ -295,8 +294,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(800f, 600f, testSnapshot())
 
-        var sidebarSlot: UiSlot? = null
-        var contentSlot: UiSlot? = null
+        var sidebarSlot: UiBounds? = null
+        var contentSlot: UiBounds? = null
 
         ui.createBox(x = 0f, y = 0f, width = 800f, height = 600f).row(
             horizontalArrangement = Arrangement.spacedBy(20f.px)
@@ -422,8 +421,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
-        var first: UiSlot? = null
-        var second: UiSlot? = null
+        var first: UiBounds? = null
+        var second: UiBounds? = null
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
@@ -444,8 +443,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
-        var first: UiSlot? = null
-        var second: UiSlot? = null
+        var first: UiBounds? = null
+        var second: UiBounds? = null
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
@@ -465,8 +464,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
-        var fixed: UiSlot? = null
-        var weighted: UiSlot? = null
+        var fixed: UiBounds? = null
+        var weighted: UiBounds? = null
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
@@ -490,8 +489,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
-        var weighted: UiSlot? = null
-        var fillMax: UiSlot? = null
+        var weighted: UiBounds? = null
+        var fillMax: UiBounds? = null
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
@@ -514,8 +513,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
-        var fillMax: UiSlot? = null
-        var weighted: UiSlot? = null
+        var fillMax: UiBounds? = null
+        var weighted: UiBounds? = null
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
@@ -536,8 +535,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
-        var filled: UiSlot? = null
-        var unfilled: UiSlot? = null
+        var filled: UiBounds? = null
+        var unfilled: UiBounds? = null
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
@@ -557,8 +556,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(80f, 200f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 80f)
-        var first: UiSlot? = null
-        var second: UiSlot? = null
+        var first: UiBounds? = null
+        var second: UiBounds? = null
 
         root.column(
             verticalArrangement = Arrangement.spacedBy(0f.px),
@@ -579,8 +578,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
-        var first: UiSlot? = null
-        var second: UiSlot? = null
+        var first: UiBounds? = null
+        var second: UiBounds? = null
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
@@ -607,8 +606,8 @@ class LayoutTest {
         val ui = UiContext()
         ui.beginFrame(300f, 200f, testSnapshot())
         val root = ui.createColumn(x = 0f, y = 0f, width = 300f)
-        val columnSlots = mutableListOf<UiSlot>()
-        var rowSlot: UiSlot? = null
+        val columnSlots = mutableListOf<UiBounds>()
+        var rowSlot: UiBounds? = null
 
         rowSlot = root.row(
             horizontalArrangement = Arrangement.spacedBy(16f.px),

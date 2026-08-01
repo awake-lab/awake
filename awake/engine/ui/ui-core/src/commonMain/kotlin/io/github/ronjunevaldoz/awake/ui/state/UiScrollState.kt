@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /** Slot API for custom scrollbar rendering. */
 typealias UiScrollbarSlot = AbsoluteScope.(thumb: UiScrollThumb) -> Unit
@@ -147,12 +147,12 @@ internal class PersistedUiScrollState(
 }
 
 data class UiScrollThumb(
-    val track: UiSlot,
-    val thumb: UiSlot
+    val track: UiBounds,
+    val thumb: UiBounds
 )
 
 fun verticalScrollThumb(
-    track: UiSlot,
+    track: UiBounds,
     state: UiScrollState,
     minThumbHeight: Float = 12f
 ): UiScrollThumb? {
@@ -166,7 +166,7 @@ fun verticalScrollThumb(
     val thumbY = track.y + availableTravel * progress
     return UiScrollThumb(
         track = track,
-        thumb = UiSlot(
+        thumb = UiBounds(
             x = track.x,
             y = thumbY,
             width = track.width,
@@ -176,7 +176,7 @@ fun verticalScrollThumb(
 }
 
 fun horizontalScrollThumb(
-    track: UiSlot,
+    track: UiBounds,
     state: UiScrollState,
     minThumbWidth: Float = 12f
 ): UiScrollThumb? {
@@ -190,7 +190,7 @@ fun horizontalScrollThumb(
     val thumbX = track.x + availableTravel * progress
     return UiScrollThumb(
         track = track,
-        thumb = UiSlot(
+        thumb = UiBounds(
             x = thumbX,
             y = track.y,
             width = thumbWidth,

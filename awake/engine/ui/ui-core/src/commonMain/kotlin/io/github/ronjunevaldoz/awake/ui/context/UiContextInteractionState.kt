@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 internal class UiContextInteractionState {
     private var activeId: String? = null
@@ -43,7 +43,7 @@ internal class UiContextInteractionState {
         isScrollConsumedThisFrame = true
     }
 
-    fun hitTest(slot: UiSlot, inputState: UiInputState): Boolean =
+    fun hitTest(slot: UiBounds, inputState: UiInputState): Boolean =
         inputState.pointerX in slot.x..(slot.x + slot.width) &&
             inputState.pointerY in slot.y..(slot.y + slot.height)
 

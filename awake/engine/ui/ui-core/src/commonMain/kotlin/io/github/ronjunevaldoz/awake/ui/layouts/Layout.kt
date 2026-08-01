@@ -3,10 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Everything a [io.github.ronjunevaldoz.awake.ui.UiScope] needs except `claimSlot` -- shared once here instead of repeated per
@@ -19,7 +18,7 @@ abstract class AbstractUiScope(
     private val emitToOverlay: Boolean = false
 ) : io.github.ronjunevaldoz.awake.ui.UiScope {
     final override val emitsToOverlay: Boolean = emitToOverlay
-    final override fun hitTest(slot: UiSlot) =
+    final override fun hitTest(slot: UiBounds) =
         context.hitTestInternal(slot)
 
     final override fun isActive(id: String) = context.isActiveInternal(id)

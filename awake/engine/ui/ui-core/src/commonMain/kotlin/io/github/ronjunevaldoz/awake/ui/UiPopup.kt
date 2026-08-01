@@ -8,9 +8,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 
 data class UiPopupSize(
@@ -24,16 +23,16 @@ data class UiPopupProperties(
 )
 
 data class UiPopupResult(
-    val slot: UiSlot?,
+    val slot: UiBounds?,
     val dismissed: Boolean
 )
 
 fun interface UiPopupPositionProvider {
     fun calculatePosition(
-        anchorBounds: UiSlot,
-        windowBounds: UiSlot,
+        anchorBounds: UiBounds,
+        windowBounds: UiBounds,
         popupContentSize: UiPopupSize
-    ): UiSlot
+    ): UiBounds
 }
 
 object UiPopupDefaults {
@@ -94,7 +93,7 @@ fun UiScope.popup(
     modifier: UiModifier = Modifier,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
     properties: UiPopupProperties = UiPopupProperties(),
-    content: ColumnScope.(slot: UiSlot) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiPopupResult {
     if (!expanded) {
         return UiPopupResult(slot = null, dismissed = false)
@@ -165,16 +164,16 @@ private fun resolvePopupDimension(
 }
 
 private fun placePopupRelativeToAnchor(
-    anchorBounds: UiSlot,
+    anchorBounds: UiBounds,
     popupSize: UiPopupSize,
     anchorAlignment: UiAlignment,
     popupAlignment: UiAlignment,
     offsetX: Float,
     offsetY: Float
-): UiSlot {
+): UiBounds {
     val anchorPoint = anchorBounds.alignmentPoint(anchorAlignment)
     val popupPoint = popupSize.alignmentOffset(popupAlignment)
-    return UiSlot(
+    return UiBounds(
         x = anchorPoint.first - popupPoint.first + offsetX,
         y = anchorPoint.second - popupPoint.second + offsetY,
         width = popupSize.width,
@@ -182,7 +181,7 @@ private fun placePopupRelativeToAnchor(
     )
 }
 
-private fun UiSlot.alignmentPoint(alignment: UiAlignment): Pair<Float, Float> = when (alignment) {
+private fun UiBounds.alignmentPoint(alignment: UiAlignment): Pair<Float, Float> = when (alignment) {
     UiAlignment.TopStart -> x to y
     UiAlignment.TopCenter -> x + width / 2f to y
     UiAlignment.TopEnd -> x + width to y
@@ -206,8 +205,8 @@ private fun UiPopupSize.alignmentOffset(alignment: UiAlignment): Pair<Float, Flo
     UiAlignment.BottomEnd -> width to height
 }
 
-private fun UiSlot.clampWithin(bounds: UiSlot): UiSlot {
+private fun UiBounds.clampWithin(bounds: UiBounds): UiBounds {
     val clampedX = x.coerceIn(bounds.x, bounds.x + bounds.width - width)
     val clampedY = y.coerceIn(bounds.y, bounds.y + bounds.height - height)
-    return UiSlot(clampedX, clampedY, width, height)
+    return UiBounds(clampedX, clampedY, width, height)
 }

@@ -77,8 +77,8 @@ fun UiScope.toggle(
         role = UiSemanticRole.Toggle,
         id = id,
         label = label,
-        bounds = interaction.slot,
-        contentBounds = surface.contentSlot,
+        bounds = interaction.slot.toBounds(),
+        contentBounds = surface.contentSlot.toBounds(),
         selected = newChecked
     )
 

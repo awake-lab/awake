@@ -10,10 +10,9 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer as extSpacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface as extSurface
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 // Compatibility aliases slated for future removal, kept only so `import
@@ -24,12 +23,12 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 @Deprecated(
     message = "Compatibility clip alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.graphics.clip."
 )
-fun UiScope.clip(rect: UiSlot, content: UiScope.() -> Unit) = coreClip(rect, content)
+fun UiScope.clip(rect: UiBounds, content: UiScope.() -> Unit) = coreClip(rect, content)
 
 @Deprecated(
     message = "Compatibility clip alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.graphics.clip."
 )
-fun UiScope.clip(shape: UiShapeSpec, rect: UiSlot, content: UiScope.() -> Unit) =
+fun UiScope.clip(shape: UiShapeSpec, rect: UiBounds, content: UiScope.() -> Unit) =
     coreClip(shape, rect, content)
 
 @Deprecated(
@@ -41,8 +40,8 @@ fun UiScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
 
 @Deprecated(
     message = "Compatibility surface alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.layouts.surface."
@@ -53,8 +52,8 @@ fun ColumnScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
 
 @Deprecated(
     message = "Compatibility surface alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.layouts.surface."
@@ -65,8 +64,8 @@ fun RowScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
 
 @Deprecated(
     message = "Compatibility surface alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.layouts.surface."
@@ -77,8 +76,8 @@ fun AbsoluteScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
 
 @Deprecated(
     message = "Compatibility surface alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.layouts.surface."
@@ -89,8 +88,8 @@ fun BoxScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = extSurface(id, verticalArrangement, style, modifier, clipContent, content)
 
 @Deprecated(
     message = "Compatibility spacer alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.layouts.spacer."

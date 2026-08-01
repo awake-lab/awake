@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.context
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.WidgetState
 
 internal class UiRuntimeCoordinator(
@@ -17,7 +17,7 @@ internal class UiRuntimeCoordinator(
 
     val inputState: UiInputState get() = frameState.inputState
     val frameDeltaSeconds: Float get() = frameState.frameDeltaSeconds
-    val fullFrameRect: UiSlot get() = frameState.fullFrameRect
+    val fullFrameRect: UiBounds get() = frameState.fullFrameRect
 
     fun beginFrame(
         screenWidth: Float,
@@ -59,7 +59,7 @@ internal class UiRuntimeCoordinator(
 
     fun semanticNodes(): List<UiSemanticNode> = finalizedFrameOutput?.semantics ?: frameState.semanticNodes()
 
-    fun hitTest(slot: UiSlot): Boolean =
+    fun hitTest(slot: UiBounds): Boolean =
         interaction.hitTest(slot, frameState.inputState)
 
     fun isActive(id: String): Boolean = interaction.isActive(id)
@@ -96,9 +96,9 @@ internal class UiRuntimeCoordinator(
         frameState.recordSemantic(node)
     }
 
-    fun pushClip(rect: UiSlot): UiSlot = frameState.pushClip(rect)
+    fun pushClip(rect: UiBounds): UiBounds = frameState.pushClip(rect)
 
-    fun popClip(): UiSlot = frameState.popClip()
+    fun popClip(): UiBounds = frameState.popClip()
 
     fun pointerDownEdge(): Boolean = interaction.pointerDownEdge()
 

@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 data class AwakeUiPreviewOverlapRule(
     val label: String,
@@ -56,7 +56,7 @@ fun validateAwakeUiPreview(
     config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig()
 ): AwakeUiPreviewValidationReport {
     val issues = ArrayList<String>()
-    val frameBounds = UiSlot(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())
+    val frameBounds = UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())
 
     val visualReport = inspectUiFrame(
         primitives = frame.primitives,

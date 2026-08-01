@@ -3,11 +3,10 @@ package io.github.ronjunevaldoz.awake.ui.graphics
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.graphics.emitPrimitive
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 internal fun UiScope.gradientRect(
-    slot: UiSlot,
+    slot: UiBounds,
     gradient: UiLinearGradient,
     overlay: Boolean = false
 ) {

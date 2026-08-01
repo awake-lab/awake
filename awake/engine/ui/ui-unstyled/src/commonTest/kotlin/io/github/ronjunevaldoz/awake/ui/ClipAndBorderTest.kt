@@ -11,8 +11,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.scope.intersect
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import kotlin.test.Test
@@ -26,24 +26,24 @@ class ClipAndBorderTest {
 
     @Test
     fun intersectFullyOverlapping() {
-        val a = UiSlot(0f, 0f, 100f, 100f)
-        val b = UiSlot(20f, 20f, 50f, 50f)
+        val a = UiBounds(0f, 0f, 100f, 100f)
+        val b = UiBounds(20f, 20f, 50f, 50f)
         val result = a.intersect(b)
-        assertEquals(UiSlot(20f, 20f, 50f, 50f), result, "b fully inside a must resolve to b")
+        assertEquals(UiBounds(20f, 20f, 50f, 50f), result, "b fully inside a must resolve to b")
     }
 
     @Test
     fun intersectPartiallyOverlapping() {
-        val a = UiSlot(0f, 0f, 100f, 100f)
-        val b = UiSlot(50f, 50f, 100f, 100f)
+        val a = UiBounds(0f, 0f, 100f, 100f)
+        val b = UiBounds(50f, 50f, 100f, 100f)
         val result = a.intersect(b)
-        assertEquals(UiSlot(50f, 50f, 50f, 50f), result)
+        assertEquals(UiBounds(50f, 50f, 50f, 50f), result)
     }
 
     @Test
     fun intersectDisjointResolvesToZeroSize() {
-        val a = UiSlot(0f, 0f, 10f, 10f)
-        val b = UiSlot(100f, 100f, 10f, 10f)
+        val a = UiBounds(0f, 0f, 10f, 10f)
+        val b = UiBounds(100f, 100f, 10f, 10f)
         val result = a.intersect(b)
         assertEquals(0f, result.width, "disjoint rects must resolve to zero width, not negative")
         assertEquals(0f, result.height, "disjoint rects must resolve to zero height, not negative")
@@ -55,8 +55,8 @@ class ClipAndBorderTest {
         ui.beginFrame(200f, 200f, testSnapshot())
         val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
 
-        scope.clip(UiSlot(0f, 0f, 100f, 100f)) {
-            scope.clip(UiSlot(20f, 20f, 200f, 200f)) {
+        scope.clip(UiBounds(0f, 0f, 100f, 100f)) {
+            scope.clip(UiBounds(20f, 20f, 200f, 200f)) {
                 // no content -- just proving the resolved rects below
             }
         }
@@ -64,8 +64,8 @@ class ClipAndBorderTest {
         val primitives = ui.endFrame()
         val pushes = primitives.filterIsInstance<UiDrawPrimitive.ClipPush>()
         assertEquals(2, pushes.size)
-        assertEquals(UiSlot(0f, 0f, 100f, 100f), pushes[0].rect, "outer clip has no parent to intersect against")
-        assertEquals(UiSlot(20f, 20f, 80f, 80f), pushes[1].rect, "inner clip must be intersected against the outer, not just its own requested rect")
+        assertEquals(UiBounds(0f, 0f, 100f, 100f), pushes[0].rect, "outer clip has no parent to intersect against")
+        assertEquals(UiBounds(20f, 20f, 80f, 80f), pushes[1].rect, "inner clip must be intersected against the outer, not just its own requested rect")
     }
 
     @Test
@@ -74,15 +74,15 @@ class ClipAndBorderTest {
         ui.beginFrame(200f, 200f, testSnapshot())
         val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
 
-        scope.clip(UiSlot(0f, 0f, 100f, 100f)) {
-            scope.clip(UiSlot(20f, 20f, 50f, 50f)) { }
+        scope.clip(UiBounds(0f, 0f, 100f, 100f)) {
+            scope.clip(UiBounds(20f, 20f, 50f, 50f)) { }
         }
 
         val primitives = ui.endFrame()
         val pops = primitives.filterIsInstance<UiDrawPrimitive.ClipPop>()
         assertEquals(2, pops.size)
-        assertEquals(UiSlot(0f, 0f, 100f, 100f), pops[0].restoreRect, "popping the inner clip restores the outer's resolved rect")
-        assertEquals(UiSlot(0f, 0f, 200f, 200f), pops[1].restoreRect, "popping the outermost clip restores the full frame extent")
+        assertEquals(UiBounds(0f, 0f, 100f, 100f), pops[0].restoreRect, "popping the inner clip restores the outer's resolved rect")
+        assertEquals(UiBounds(0f, 0f, 200f, 200f), pops[1].restoreRect, "popping the outermost clip restores the full frame extent")
     }
 
     @Test
@@ -90,7 +90,7 @@ class ClipAndBorderTest {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
         val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
-        val slot = UiSlot(10f, 10f, 100f, 50f)
+        val slot = UiBounds(10f, 10f, 100f, 50f)
         val color = Color(1f, 0f, 0f, 1f)
 
         scope.border(slot, width = 2f.dp, color = color)
@@ -108,7 +108,7 @@ class ClipAndBorderTest {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
         val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
-        scope.border(UiSlot(0f, 0f, 100f, 100f), width = UiShape.none)
+        scope.border(UiBounds(0f, 0f, 100f, 100f), width = UiShape.none)
         assertEquals(0, ui.endFrame().size)
     }
 
@@ -186,10 +186,10 @@ class ClipAndBorderTest {
         ui.beginFrame(100f, 100f, testSnapshot())
         val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
 
-        scope.clip(UiShapeSpec.CutCorner(8f.dp), UiSlot(10f, 10f, 40f, 30f)) { }
+        scope.clip(UiShapeSpec.CutCorner(8f.dp), UiBounds(10f, 10f, 40f, 30f)) { }
 
         val push = ui.endFrame().filterIsInstance<UiDrawPrimitive.ClipPathPush>().single()
-        assertEquals(UiSlot(10f, 10f, 40f, 30f), push.boundsRect)
+        assertEquals(UiBounds(10f, 10f, 40f, 30f), push.boundsRect)
     }
 
     @Test
@@ -197,16 +197,16 @@ class ClipAndBorderTest {
         val red = Color(1f, 0f, 0f, 1f)
         val primitives = buildList {
             add(UiDrawPrimitive.ClipPathPush(UiShapeSpec.CutCorner(8f.dp).toPath(
-                UiSlot(
+                UiBounds(
                     10f,
                     10f,
                     40f,
                     30f
                 )
-            ), UiSlot(10f, 10f, 40f, 30f)
+            ), UiBounds(10f, 10f, 40f, 30f)
             ))
             add(UiDrawPrimitive.Quad(10f, 10f, 40f, 30f, red))
-            add(UiDrawPrimitive.ClipPop(UiSlot(0f, 0f, 64f, 64f)))
+            add(UiDrawPrimitive.ClipPop(UiBounds(0f, 0f, 64f, 64f)))
         }
 
         val pixels = primitives.rasterize(64, 64)

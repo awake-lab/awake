@@ -14,7 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
 import kotlin.test.Test
@@ -42,7 +42,7 @@ class UiCrossPlatformQualityTest {
     @Test
     fun buttonContentFitsRequestedBounds() {
         val font = UiFonts.default()
-        val frame = UiSlot(0f, 0f, 220f, 96f)
+        val frame = UiBounds(0f, 0f, 220f, 96f)
         val context = UiContext()
         context.beginFrame(frame.width, frame.height, testSnapshot())
         context.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = font, theme = shadcnTheme(dark = false))
@@ -52,7 +52,7 @@ class UiCrossPlatformQualityTest {
         inspectBoundsFit(
             label = "button",
             metrics = metrics,
-            allowedBounds = UiSlot(20f, 20f, 180f, 44f),
+            allowedBounds = UiBounds(20f, 20f, 180f, 44f),
             tolerancePx = 1f
         ).requireClean()
     }
@@ -71,6 +71,6 @@ class UiCrossPlatformQualityTest {
         context.beginFrame(frameWidth, frameHeight, testSnapshot())
         context.createAbsolute(modifier = Modifier.offset(((frameWidth - buttonWidth) / 2f).dp, ((frameHeight - buttonHeight) / 2f).dp), font = font, theme = theme)
             .button("quality", label = "Awake Button", modifier = Modifier.width(buttonWidth.px).height(buttonHeight.px))
-        measureUiFrame(context.endFrame(), UiSlot(0f, 0f, frameWidth, frameHeight))
+        measureUiFrame(context.endFrame(), UiBounds(0f, 0f, frameWidth, frameHeight))
     }
 }

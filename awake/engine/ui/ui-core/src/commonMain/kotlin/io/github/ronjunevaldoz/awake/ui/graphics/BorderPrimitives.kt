@@ -4,14 +4,14 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Draws a [color] outline of [width] around an already-claimed [slot] as four thin
  * [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad] strips (top/right/bottom/left). */
 fun UiScope.border(
-    slot: UiSlot,
+    slot: UiBounds,
     width: Dp = 1f.dp,
     color: Color? = null,
     overlay: Boolean = false

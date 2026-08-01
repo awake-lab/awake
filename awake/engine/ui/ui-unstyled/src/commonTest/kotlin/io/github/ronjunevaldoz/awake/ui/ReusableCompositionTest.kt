@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -46,8 +46,8 @@ class ReusableCompositionTest {
         val first = scope.buttonSlot("one", label = "ONE", modifier = Modifier.width(100f.px).height(30f.px))
         val second = scope.buttonSlot("two", label = "TWO", modifier = Modifier.width(100f.px).height(30f.px))
 
-        assertEquals(UiBounds(10f, 20f, 100f, 30f), first.slot)
-        assertEquals(UiBounds(25f, 30f, 100f, 30f), second.slot)
+        assertEquals(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(10f, 20f, 100f, 30f), first.slot)
+        assertEquals(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(25f, 30f, 100f, 30f), second.slot)
     }
 
     @Test
@@ -64,14 +64,14 @@ class ReusableCompositionTest {
         ) { slot ->
             text(
                 label = ">",
-                slot = UiBounds(slot.x, slot.y, 12f, slot.height),
+                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(slot.x, slot.y, 12f, slot.height),
                 font = font,
                 centered = false,
                 verticallyCentered = true
             )
             text(
                 label = "Launch",
-                slot = UiBounds(slot.x + 18f, slot.y, 72f, slot.height),
+                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(slot.x + 18f, slot.y, 72f, slot.height),
                 font = font,
                 centered = false,
                 verticallyCentered = true
@@ -79,7 +79,7 @@ class ReusableCompositionTest {
         }
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
-        assertEquals(UiBounds(20f, 20f, 180f, 40f), result.slot)
+        assertEquals(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 20f, 180f, 40f), result.slot)
         assertTrue(glyphs.size >= 7, "custom button slot content should be able to emit multiple glyph runs")
         assertTrue(glyphs.first().x >= 32f, "slot content should render inside the padded content region, not against the outer button edge")
     }
@@ -134,8 +134,8 @@ private class DiagonalScope(
 ) : io.github.ronjunevaldoz.awake.ui.layouts.AbstractUiScope(context) {
     private var index = 0
 
-    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiSlot {
-        val slot = UiSlot(
+    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiBounds {
+        val slot = UiBounds(
             x = startX + stepX * index,
             y = startY + stepY * index,
             width = resolve(width, fallback = 100f),

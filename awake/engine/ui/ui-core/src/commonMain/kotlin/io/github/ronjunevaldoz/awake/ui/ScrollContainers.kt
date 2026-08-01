@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -18,8 +18,8 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 data class UiScrollPanelResult(
-    val slot: UiSlot,
-    val viewport: UiSlot,
+    val slot: UiBounds,
+    val viewport: UiBounds,
     val contentWidth: Float,
     val contentHeight: Float,
     val verticalThumb: UiScrollThumb?,
@@ -36,7 +36,7 @@ fun UiScope.scrollPanel(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     verticalArrangement: Arrangement = defaultArrangement(),
-    content: ColumnScope.(slot: UiSlot) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiScrollPanelResult {
     val state = requireNotNull(modifier.scrollState) { "scrollPanel requires a scrollState on the modifier" }
     val config = modifier.scrollConfig
@@ -147,7 +147,7 @@ fun UiScope.scrollPanel(
     )
 
     val innerSlot = slot.inset(resolved.contentPadding)
-    val viewport = UiSlot(
+    val viewport = UiBounds(
         x = innerSlot.x,
         y = innerSlot.y,
         width = (innerSlot.width - vScrollReservePx).coerceAtLeast(0f),
@@ -185,7 +185,7 @@ fun UiScope.scrollPanel(
     }
 
     val contentScope = childColumn(
-        slot = UiSlot(
+        slot = UiBounds(
             viewport.x - state.offsetX,
             viewport.y - state.offsetY,
             viewport.width,
@@ -200,7 +200,7 @@ fun UiScope.scrollPanel(
 
     // Vertical Scrollbar
     val vThumb = if (verticalNeeded && config.verticalVisibility != UiScrollbarVisibility.Never) {
-        val vTrackSlot = UiSlot(
+        val vTrackSlot = UiBounds(
             x = innerSlot.x + innerSlot.width - scrollbarWidthPx,
             y = innerSlot.y,
             width = scrollbarWidthPx,
@@ -231,7 +231,7 @@ fun UiScope.scrollPanel(
 
     // Horizontal Scrollbar
     val hThumb = if (horizontalNeeded && config.horizontalVisibility != UiScrollbarVisibility.Never) {
-        val hTrackSlot = UiSlot(
+        val hTrackSlot = UiBounds(
             x = innerSlot.x,
             y = innerSlot.y + innerSlot.height - scrollbarWidthPx,
             width = viewport.width,

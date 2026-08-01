@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.math.roundToInt
 
@@ -53,7 +53,7 @@ fun UiScope.debugScopeLabel(): String {
     return if (name.isNullOrBlank()) typeName else "'$name' ($typeName)"
 }
 
-fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiSlot {
+fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiBounds {
     // A weighted child's own width/height defaults to WrapContent below (no Dimension set by
     // weight() itself, see UiModifier), which Dimension.resolveAgainst() can't handle -- weight
     // only sizes the row/column's main axis, so on that axis "unset" must resolve like FillMax
@@ -105,7 +105,7 @@ private fun UiScope.defaultAlignment(): UiAlignment = when (this) {
  * growing the container guarantees this can't regress a single existing call site; it just
  * silently gives up centering for that (already degenerate) one.
  */
-private fun UiScope.crossAxisAlignmentContainer(containerSlot: UiSlot): UiSlot = when (this) {
+private fun UiScope.crossAxisAlignmentContainer(containerSlot: UiBounds): UiBounds = when (this) {
     is RowScope -> containerSlot.copy(height = height.coerceAtLeast(containerSlot.height))
     is ColumnScope -> containerSlot.copy(width = width.coerceAtLeast(containerSlot.width))
     else -> containerSlot

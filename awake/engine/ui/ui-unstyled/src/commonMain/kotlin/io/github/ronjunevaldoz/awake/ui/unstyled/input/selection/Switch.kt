@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
@@ -64,7 +63,8 @@ fun UiScope.switch(
         surface.interaction.slot.x + TOGGLE_KNOB_INSET_PX
     }
     emitFillAndBorder(
-        slot = UiSlot(knobX, surface.interaction.slot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter),
+        slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, surface.interaction.slot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter)
+            .toSlot(),
         fillColor = theme.tokens.background,
         radiusPx = 0f,
         borderWidth = UiShape.none,
@@ -76,7 +76,7 @@ fun UiScope.switch(
             ?: 160f).coerceAtLeast(0f)
         text(
             label,
-            slot = UiBounds(
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
                 surface.interaction.slot.x + surface.interaction.slot.width + TOGGLE_LABEL_GAP,
                 surface.interaction.slot.y,
                 labelWidth,
@@ -95,7 +95,7 @@ fun UiScope.switch(
         role = UiSemanticRole.Switch,
         id = id,
         label = label,
-        bounds = surface.interaction.slot,
+        bounds = surface.interaction.slot.toBounds(),
         truncated = false,
         selected = newChecked
     )

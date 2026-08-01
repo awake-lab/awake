@@ -9,15 +9,8 @@ import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.childRow
-import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Nested layout entry points from an existing [UiScope].
@@ -26,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  * runtime or needing `this@column` noise at call sites.
  */
 fun UiScope.column(
-    slot: UiSlot,
+    slot: UiBounds,
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     block: ColumnScope.() -> Unit
@@ -39,7 +32,7 @@ fun UiScope.column(
 }
 
 fun UiScope.row(
-    slot: UiSlot,
+    slot: UiBounds,
     horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     block: RowScope.() -> Unit
@@ -52,7 +45,7 @@ fun UiScope.row(
 }
 
 fun UiScope.absolute(
-    slot: UiSlot,
+    slot: UiBounds,
     modifier: UiModifier = Modifier,
     block: AbsoluteScope.() -> Unit
 ) {
@@ -60,7 +53,7 @@ fun UiScope.absolute(
 }
 
 fun UiScope.box(
-    slot: UiSlot,
+    slot: UiBounds,
     modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     block: BoxScope.() -> Unit

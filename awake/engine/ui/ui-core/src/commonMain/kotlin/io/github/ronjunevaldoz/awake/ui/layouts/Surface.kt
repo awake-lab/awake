@@ -12,19 +12,12 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
-import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
-import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
@@ -38,8 +31,8 @@ fun UiScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = smartColumn(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = smartColumn(
     id = id,
     gap = verticalArrangement.baseSpacingPx(),
     verticalArrangement = verticalArrangement,
@@ -59,8 +52,8 @@ fun ColumnScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = (this as UiScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
@@ -75,8 +68,8 @@ fun RowScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = (this as UiScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
@@ -91,8 +84,8 @@ fun AbsoluteScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = (this as UiScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
@@ -107,8 +100,8 @@ fun BoxScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).surface(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = (this as UiScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
@@ -122,8 +115,8 @@ fun UiScope.surface(
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds {
     val width = modifier.widthDimension ?: Dimension.WrapContent
     val height = modifier.heightDimension ?: Dimension.WrapContent
     val gap = verticalArrangement.baseSpacingPx()

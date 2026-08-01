@@ -11,13 +11,12 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Compatibility helpers for root-scope test and preview code.
@@ -34,7 +33,7 @@ internal fun UiContext.resolveRootSlot(
     modifier: UiModifier,
     defaultWidth: Dimension = Dimension.FillMax,
     defaultHeight: Dimension = Dimension.FillMax
-): UiSlot {
+): UiBounds {
     val frame = frameBounds()
     val requestedWidth = modifier.widthDimension ?: defaultWidth
     val requestedHeight = modifier.heightDimension ?: defaultHeight

@@ -3,12 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 data class UiMeasuredContent(
     val width: Float,
     val height: Float,
-    val slots: List<UiSlot> = emptyList(),
+    val slots: List<UiBounds> = emptyList(),
     /** Parallel to [slots] -- `weights[i]` is the [LayoutWeight] claimed alongside `slots[i]`,
      * or null if that child claimed its slot without a weight. */
     val weights: List<LayoutWeight?> = emptyList(),

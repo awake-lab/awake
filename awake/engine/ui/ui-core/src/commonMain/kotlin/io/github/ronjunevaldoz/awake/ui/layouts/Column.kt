@@ -10,17 +10,9 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
-import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
-import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.plan
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.scrollPanel
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.styleable
@@ -49,8 +41,8 @@ internal fun UiScope.smartColumn(
     // own Start default. Thread it through those too if a scrollable/surfaced column ever needs
     // a non-default cross-axis alignment.
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds {
     if (modifier.scrollState != null && id != null) {
         return resolveScrollableContainer(id, modifier, style, verticalArrangement, content)
     }
@@ -91,8 +83,8 @@ private fun UiScope.resolveScrollableContainer(
     modifier: UiModifier,
     style: Style,
     verticalArrangement: Arrangement,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = scrollPanel(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = scrollPanel(
     id = id,
     modifier = modifier,
     style = style,
@@ -106,8 +98,8 @@ private fun UiScope.resolveVisualSurface(
     effectiveStyle: Style,
     verticalArrangement: Arrangement,
     clipContent: Boolean,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
     return surface(
@@ -126,8 +118,8 @@ private fun UiScope.resolveMeasuredColumn(
     verticalArrangement: Arrangement,
     role: UiSemanticRole,
     horizontalAlignment: UiAlignment.Horizontal,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds {
     val insets = modifier.insets
     // A weight()-tagged column's width (its host row's main axis) is never actually decided by
     // its own WrapContent content -- it's decided later by the row's weight-distribution pass
@@ -210,8 +202,8 @@ fun ColumnScope.column(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).smartColumn(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = (this as UiScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
@@ -228,8 +220,8 @@ fun RowScope.column(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).smartColumn(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = (this as UiScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
@@ -256,8 +248,8 @@ fun AbsoluteScope.column(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).smartColumn(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = (this as UiScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
@@ -274,8 +266,8 @@ fun BoxScope.column(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot = (this as UiScope).smartColumn(
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds = (this as UiScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
@@ -296,8 +288,8 @@ fun UiScope.column(
     // this WrapContent column -- see the call site comment there. Every other caller leaves this
     // null and pays the same unconditional trial this function has always run.
     precomputedMeasured: UiMeasuredContent? = null,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds {
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
     val slot = claimModifiedSlot(sizedModifier)
     val styleState = MutableStyleState(
@@ -350,7 +342,7 @@ fun UiScope.column(
         val plan = effectiveArrangement.plan(slot.height, childHeights.size, occupiedHeight)
         var y = slot.y + plan.leadingSpacePx
         val arrangedSlots = childHeights.mapIndexed { index, height ->
-            UiSlot(slot.x, y, measured.slots[index].width, height).also {
+            UiBounds(slot.x, y, measured.slots[index].width, height).also {
                 y += height + plan.betweenSpacePx
             }
         }

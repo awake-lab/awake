@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
 import io.github.ronjunevaldoz.awake.ui.clearFocusIfMatches
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
@@ -146,7 +145,7 @@ fun UiScope.textField(
         if (displayed.isNotEmpty()) {
             text(
                 label = displayed,
-                slot = UiBounds(contentSlot.x, contentSlot.y, contentSlot.width, contentSlot.height),
+                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(contentSlot.x, contentSlot.y, contentSlot.width, contentSlot.height),
                 font = resolvedFont,
                 color = if (showingPlaceholder) theme.tokens.mutedForeground else (surface.resolved.foreground
                     ?: theme.tokens.foreground),
@@ -164,12 +163,12 @@ fun UiScope.textField(
                 val caretX =
                     contentSlot.x + cursorAdvancePx(nextValue, resolvedFont, glyphPx, cursor)
                 emitFillAndBorder(
-                    slot = UiSlot(
+                    slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
                         caretX,
                         contentSlot.y,
                         TEXT_FIELD_CARET_WIDTH_PX,
                         contentSlot.height
-                    ),
+                    ).toSlot(),
                     fillColor = surface.resolved.foreground ?: theme.tokens.foreground,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
@@ -183,8 +182,8 @@ fun UiScope.textField(
         role = UiSemanticRole.Text,
         id = id,
         label = if (nextValue.isEmpty()) placeholder else nextValue,
-        bounds = surface.interaction.slot,
-        contentBounds = contentSlot,
+        bounds = surface.interaction.slot.toBounds(),
+        contentBounds = contentSlot.toBounds(),
         selected = focused
     )
     return nextValue

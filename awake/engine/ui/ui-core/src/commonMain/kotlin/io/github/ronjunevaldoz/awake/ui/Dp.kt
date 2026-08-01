@@ -6,7 +6,7 @@ import kotlin.jvm.JvmInline
 
 /**
  * Device-independent unit -- converted to pixels once, at the point a size is claimed, via
- * [UiDensity]. Never appears past that boundary: [io.github.ronjunevaldoz.awake.ui.scope.UiSlot]/[UiDrawPrimitive]/[Layout.kt]'s
+ * [UiDensity]. Never appears past that boundary: [io.github.ronjunevaldoz.awake.ui.layout.UiBounds]/[UiDrawPrimitive]/[Layout.kt]'s
  * cursor math stay raw pixel [Float], the same contract every backend already consumes.
  */
 @JvmInline

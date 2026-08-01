@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.engine.application.canvas
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -20,7 +20,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 private fun unusedGameServices() = object : GameServiceLookup {
     override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
@@ -35,7 +34,7 @@ class CanvasResponsiveLayoutTest {
         runtime.render(0.016f, 360f, 240f)
 
         var widthClass: UiWidthSizeClass? = null
-        var panelSlot: UiSlot? = null
+        var panelSlot: UiBounds? = null
 
         runtime.canvas { constraints ->
             widthClass = constraints.widthSizeClass
@@ -51,7 +50,7 @@ class CanvasResponsiveLayoutTest {
 
         val primitives = runtime.uiContext.endFrame()
         assertEquals(UiWidthSizeClass.Compact, widthClass)
-        assertEquals(UiSlot(224f, 196f, 120f, 32f), panelSlot)
+        assertEquals(UiBounds(224f, 196f, 120f, 32f), panelSlot)
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
         assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
     }
@@ -62,7 +61,7 @@ class CanvasResponsiveLayoutTest {
         runtime.render(0.016f, 900f, 600f)
 
         var widthClass: UiWidthSizeClass? = null
-        var columnSlot: UiSlot? = null
+        var columnSlot: UiBounds? = null
 
         runtime.canvas { constraints ->
             widthClass = constraints.widthSizeClass
@@ -81,7 +80,7 @@ class CanvasResponsiveLayoutTest {
 
         val primitives = runtime.uiContext.endFrame()
         assertEquals(UiWidthSizeClass.Expanded, widthClass)
-        assertEquals(UiSlot(20f, 20f, 320f, 72f), columnSlot)
+        assertEquals(UiBounds(20f, 20f, 320f, 72f), columnSlot)
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty())
         assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad })
     }

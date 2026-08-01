@@ -3,7 +3,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
@@ -32,7 +32,7 @@ class WrapContentMeasurementStateTest {
         // *inside* the content passed to the WrapContent surface itself, not the outer scroll
         // column -- this is the exact nesting depth where the bug lives, since surface()'s own
         // internal unbounded trial re-executes this same content with a brand-new state store.
-        val content: io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiSlot) -> Unit = {
+        val content: io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiBounds) -> Unit = {
             val mode by rememberStateValue("page-mode", "value") { "short" }
             if (mode == "short") {
                 surface(id = "row-0", modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(36f.px))) { }
@@ -44,7 +44,7 @@ class WrapContentMeasurementStateTest {
         }
 
         // First frame: establish persisted state as "short" (the default).
-        var slotShort: UiSlot? = null
+        var slotShort: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
             modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {
@@ -61,7 +61,7 @@ class WrapContentMeasurementStateTest {
 
         // Second frame: real app-driven state change -- user navigates to the "long" page.
         ui.beginFrame(920f, 620f, testSnapshot())
-        var slotLong: UiSlot? = null
+        var slotLong: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
             modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {
@@ -78,7 +78,7 @@ class WrapContentMeasurementStateTest {
         )
     }
 
-    private fun statefulRows(stateKey: String): io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiSlot) -> Unit = {
+    private fun statefulRows(stateKey: String): io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiBounds) -> Unit = {
         val mode by rememberStateValue(stateKey, "value") { "short" }
         val rows = if (mode == "short") 1 else 20
         repeat(rows) { index ->
@@ -88,12 +88,12 @@ class WrapContentMeasurementStateTest {
 
     private fun measureAfterNavigation(
         stateKey: String,
-        wrap: io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiSlot) -> Unit) -> UiSlot
+        wrap: io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiBounds) -> Unit) -> UiBounds
     ): Pair<Float, Float> {
         val content = statefulRows(stateKey)
         val ui = UiContext()
         ui.beginFrame(920f, 620f, testSnapshot())
-        var slotShort: UiSlot? = null
+        var slotShort: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
             modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {
@@ -104,7 +104,7 @@ class WrapContentMeasurementStateTest {
         ui.rememberStateValue<String>(stateKey, "value") { "short" }.value = "long"
 
         ui.beginFrame(920f, 620f, testSnapshot())
-        var slotLong: UiSlot? = null
+        var slotLong: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
             modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {

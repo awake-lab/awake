@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
 import io.github.ronjunevaldoz.awake.ui.clearFocusIfMatches
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
@@ -214,12 +214,12 @@ fun UiScope.textarea(
                     cursor
                 )
                 emitFillAndBorder(
-                    slot = UiSlot(
+                    slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
                         caretPos.first,
                         caretPos.second,
                         TEXT_FIELD_CARET_WIDTH_PX,
                         glyphPx
-                    ),
+                    ).toSlot(),
                     fillColor = resolvedWithInteraction.foreground ?: theme.tokens.foreground,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
@@ -233,8 +233,8 @@ fun UiScope.textarea(
         role = UiSemanticRole.Text,
         id = id,
         label = nextValue.ifEmpty { placeholder },
-        bounds = interaction.slot,
-        contentBounds = contentSlot,
+        bounds = interaction.slot.toBounds(),
+        contentBounds = contentSlot.toBounds(),
         selected = focused,
         lineCount = layout.lines.size
     )
@@ -280,7 +280,7 @@ private fun cursorPositionPx(
     font: UiFont,
     glyphPx: Float,
     lineGap: Float,
-    contentSlot: UiSlot,
+    contentSlot: UiBounds,
     cursor: Int
 ): Pair<Float, Float> {
     val (lineIdx, colIdx) = cursorToLineAndCol(layout, value, cursor)
@@ -299,7 +299,7 @@ private fun indexForPointerXY(
     font: UiFont,
     glyphPx: Float,
     lineGap: Float,
-    contentSlot: UiSlot,
+    contentSlot: UiBounds,
     pointerX: Float,
     pointerY: Float
 ): Int {

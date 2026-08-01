@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
@@ -44,7 +43,8 @@ fun UiScope.progressBar(
     val fillWidth = (surface.slot.width * fraction).coerceAtLeast(0f)
     if (fillWidth > 0f) {
         emitFillAndBorder(
-            slot = UiSlot(surface.slot.x, surface.slot.y, fillWidth, surface.slot.height),
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(surface.slot.x, surface.slot.y, fillWidth, surface.slot.height)
+                .toSlot(),
             fillColor = surface.resolved.foreground ?: theme.tokens.primary,
             radiusPx = 0f,
             borderWidth = UiShape.none,
@@ -56,6 +56,6 @@ fun UiScope.progressBar(
         role = UiSemanticRole.Text,
         id = id,
         label = "${(fraction * 100).toInt()}%",
-        bounds = surface.slot
+        bounds = surface.slot.toBounds()
     )
 }

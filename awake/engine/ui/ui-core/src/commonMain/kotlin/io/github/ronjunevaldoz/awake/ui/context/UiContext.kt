@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.WidgetState
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
@@ -19,7 +19,6 @@ import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Minimal immediate-mode UI context -- ImGui's own architecture (hot/active id tracking, no
@@ -101,7 +100,7 @@ class UiContext internal constructor(
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = height != null,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null,
+        plannedSlots: List<UiBounds>? = null,
         horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
     ): ColumnScope = layouts.createColumn(
         x = x,
@@ -115,14 +114,14 @@ class UiContext internal constructor(
     )
 
     fun createColumn(
-        slot: UiSlot,
+        slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         verticalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null,
+        plannedSlots: List<UiBounds>? = null,
         horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
     ): ColumnScope = layouts.createColumn(
         slot = slot,
@@ -141,7 +140,7 @@ class UiContext internal constructor(
     ): AbsoluteScope = layouts.createAbsolute(x, y, testTag, overlayOnly)
 
     fun createAbsolute(
-        slot: UiSlot,
+        slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         testTag: String? = null,
         overlayOnly: Boolean = false
@@ -157,7 +156,7 @@ class UiContext internal constructor(
         hasBoundedFillWidth: Boolean = width != null,
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null,
+        plannedSlots: List<UiBounds>? = null,
         verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
     ): RowScope = layouts.createRow(
         x = x,
@@ -171,14 +170,14 @@ class UiContext internal constructor(
     )
 
     fun createRow(
-        slot: UiSlot,
+        slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         horizontalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
-        plannedSlots: List<UiSlot>? = null,
+        plannedSlots: List<UiBounds>? = null,
         verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
     ): RowScope = layouts.createRow(
         slot = slot,
@@ -209,7 +208,7 @@ class UiContext internal constructor(
     )
 
     fun createBox(
-        slot: UiSlot,
+        slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
         testTag: String? = null,
@@ -224,7 +223,7 @@ class UiContext internal constructor(
     )
 
     fun column(
-        slot: UiSlot,
+        slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         verticalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
@@ -239,7 +238,7 @@ class UiContext internal constructor(
     }
 
     fun row(
-        slot: UiSlot,
+        slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         horizontalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
@@ -254,7 +253,7 @@ class UiContext internal constructor(
     }
 
     fun box(
-        slot: UiSlot,
+        slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
         testTag: String? = null,
@@ -269,7 +268,7 @@ class UiContext internal constructor(
     }
 
     fun absolute(
-        slot: UiSlot,
+        slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         testTag: String? = null,
         content: AbsoluteScope.() -> Unit
@@ -316,7 +315,7 @@ class UiContext internal constructor(
     )
     fun semanticNodes(): List<UiSemanticNode> = runtime.semanticNodes()
 
-    internal fun hitTestInternal(slot: UiSlot): Boolean =
+    internal fun hitTestInternal(slot: UiBounds): Boolean =
         !measuring && runtime.hitTest(slot)
 
     internal fun isActiveInternal(id: String): Boolean = runtime.isActive(id)
@@ -353,19 +352,19 @@ class UiContext internal constructor(
         if (!measuring) runtime.recordSemantic(node)
     }
 
-    internal fun pushClipInternal(rect: UiSlot): UiSlot = runtime.pushClip(rect)
+    internal fun pushClipInternal(rect: UiBounds): UiBounds = runtime.pushClip(rect)
 
     @Deprecated(
         message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly."
     )
-    fun pushClip(rect: UiSlot): UiSlot = pushClipInternal(rect)
+    fun pushClip(rect: UiBounds): UiBounds = pushClipInternal(rect)
 
-    internal fun popClipInternal(): UiSlot = runtime.popClip()
+    internal fun popClipInternal(): UiBounds = runtime.popClip()
 
     @Deprecated(
         message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly."
     )
-    fun popClip(): UiSlot = popClipInternal()
+    fun popClip(): UiBounds = popClipInternal()
 
     internal fun pointerDownEdgeInternal(): Boolean = runtime.pointerDownEdge()
 
@@ -407,12 +406,12 @@ class UiContext internal constructor(
     )
     fun frameDeltaSeconds(): Float = frameDeltaSecondsInternal()
 
-    internal fun frameBoundsInternal(): UiSlot = runtime.fullFrameRect
+    internal fun frameBoundsInternal(): UiBounds = runtime.fullFrameRect
 
     @Deprecated(
         message = "Frame metrics should be read from UiScope helpers inside composition."
     )
-    fun frameBounds(): UiSlot = frameBoundsInternal()
+    fun frameBounds(): UiBounds = frameBoundsInternal()
 
     internal fun isMeasuringInternal(): Boolean = measuring
 
@@ -447,7 +446,7 @@ class UiContext internal constructor(
     private var recordingSuppressionDepth = 0
 
     internal fun recordMeasuredSlot(
-        slot: UiSlot,
+        slot: UiBounds,
         contributesToWrapWidth: Boolean = true,
         contributesToWrapHeight: Boolean = true
     ) {
@@ -494,7 +493,7 @@ class UiContext internal constructor(
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         height: Float = 100_000f,
-        content: ColumnScope.(slot: UiSlot) -> Unit
+        content: ColumnScope.(slot: UiBounds) -> Unit
     ): UiMeasuredContent = measurement.measureColumnContent(
         width = width,
         gap = gap,
@@ -512,7 +511,7 @@ class UiContext internal constructor(
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         height: Float = 100_000f,
-        content: ColumnScope.(slot: UiSlot) -> Unit
+        content: ColumnScope.(slot: UiBounds) -> Unit
     ): UiMeasuredContent = measureColumnContentInternal(
         width = width,
         gap = gap,
@@ -526,7 +525,7 @@ class UiContext internal constructor(
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
         width: Float = 100_000f,
-        content: RowScope.(slot: UiSlot) -> Unit
+        content: RowScope.(slot: UiBounds) -> Unit
     ): UiMeasuredContent = measurement.measureRowContent(
         height = height,
         gap = gap,
@@ -544,7 +543,7 @@ class UiContext internal constructor(
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
         width: Float = 100_000f,
-        content: RowScope.(slot: UiSlot) -> Unit
+        content: RowScope.(slot: UiBounds) -> Unit
     ): UiMeasuredContent = measureRowContentInternal(
         height = height,
         gap = gap,

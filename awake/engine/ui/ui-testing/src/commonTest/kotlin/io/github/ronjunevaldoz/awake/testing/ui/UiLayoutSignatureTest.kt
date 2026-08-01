@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -12,8 +12,8 @@ import kotlin.test.assertNotEquals
 class UiLayoutSignatureTest {
 
     private fun sampleNodes() = listOf(
-        UiSemanticNode(role = UiSemanticRole.Button, bounds = UiSlot(0f, 0f, 100f, 40f), id = "primary"),
-        UiSemanticNode(role = UiSemanticRole.Text, bounds = UiSlot(0f, 48f, 100f, 20f), id = "label")
+        UiSemanticNode(role = UiSemanticRole.Button, bounds = UiBounds(0f, 0f, 100f, 40f), id = "primary"),
+        UiSemanticNode(role = UiSemanticRole.Text, bounds = UiBounds(0f, 48f, 100f, 20f), id = "label")
     )
 
     @Test

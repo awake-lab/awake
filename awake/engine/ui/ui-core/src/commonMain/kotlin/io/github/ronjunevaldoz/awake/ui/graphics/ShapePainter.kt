@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toPath
@@ -18,7 +18,7 @@ fun UiScope.emitPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
     if (overlay) emitOverlay(primitive) else emit(primitive)
 }
 
-private fun roundedRadiusFor(slot: UiSlot, radiusPx: Float, shapeSpec: UiShapeSpec?): Float =
+private fun roundedRadiusFor(slot: UiBounds, radiusPx: Float, shapeSpec: UiShapeSpec?): Float =
     when (shapeSpec) {
         null -> radiusPx
         UiShapeSpec.Rectangle -> 0f
@@ -30,7 +30,7 @@ private fun roundedRadiusFor(slot: UiSlot, radiusPx: Float, shapeSpec: UiShapeSp
         is UiShapeSpec.CutCorner -> 0f
     }
 
-private fun UiScope.pathOnlyShape(slot: UiSlot, shapeSpec: UiShapeSpec?): UiShapeSpec? =
+private fun UiScope.pathOnlyShape(slot: UiBounds, shapeSpec: UiShapeSpec?): UiShapeSpec? =
     when (shapeSpec) {
         null, UiShapeSpec.Rectangle, UiShapeSpec.Pill, is UiShapeSpec.RoundedRectangle -> null
         UiShapeSpec.Circle -> if (slot.width == slot.height) null else shapeSpec
@@ -38,7 +38,7 @@ private fun UiScope.pathOnlyShape(slot: UiSlot, shapeSpec: UiShapeSpec?): UiShap
     }
 
 private fun UiScope.emitFillShape(
-    slot: UiSlot,
+    slot: UiBounds,
     color: Color,
     radiusPx: Float,
     shapeSpec: UiShapeSpec?,
@@ -61,7 +61,7 @@ private fun UiScope.emitFillShape(
 
 /** Fill + border for one widget slot, sharing the corner radius correctly between the two. */
 fun UiScope.emitFillAndBorder(
-    slot: UiSlot,
+    slot: UiBounds,
     fillColor: Color,
     radiusPx: Float,
     borderWidth: Dp,
@@ -134,7 +134,7 @@ fun UiScope.emitFillAndBorder(
 }
 
 fun UiScope.emitInsetAccent(
-    slot: UiSlot,
+    slot: UiBounds,
     inset: Float,
     radiusPx: Float,
     shapeSpec: UiShapeSpec? = null
@@ -144,7 +144,7 @@ fun UiScope.emitInsetAccent(
     val w = slot.width - inset * 2
     val h = slot.height - inset * 2
     emitFillShape(
-        slot = UiSlot(x, y, w, h),
+        slot = UiBounds(x, y, w, h),
         color = context.currentTheme.tokens.primary,
         radiusPx = (radiusPx - inset).coerceAtLeast(0f),
         shapeSpec = shapeSpec

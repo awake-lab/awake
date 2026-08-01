@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.layout
 
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 data class UiInsets(
@@ -26,12 +26,12 @@ fun UiInsets.horizontalPx(): Float = (start + end).toPx()
 
 fun UiInsets.verticalPx(): Float = (top + bottom).toPx()
 
-fun UiSlot.inset(insets: UiInsets): UiSlot {
+fun UiBounds.inset(insets: UiInsets): UiBounds {
     val startPx = insets.start.toPx()
     val topPx = insets.top.toPx()
     val endPx = insets.end.toPx()
     val bottomPx = insets.bottom.toPx()
-    return UiSlot(
+    return UiBounds(
         x = x + startPx,
         y = y + topPx,
         width = (width - startPx - endPx).coerceAtLeast(0f),

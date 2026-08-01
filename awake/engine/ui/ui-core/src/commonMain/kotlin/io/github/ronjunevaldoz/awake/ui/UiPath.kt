@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -146,7 +146,7 @@ sealed interface UiShapeSpec {
     data class CutCorner(val size: Dp) : UiShapeSpec
 }
 
-fun UiShapeSpec.toPath(bounds: UiSlot, fillRule: UiFillRule = UiFillRule.NonZero): UiPath = when (this) {
+fun UiShapeSpec.toPath(bounds: UiBounds, fillRule: UiFillRule = UiFillRule.NonZero): UiPath = when (this) {
     UiShapeSpec.Rectangle -> rectanglePath(bounds, fillRule)
     is UiShapeSpec.RoundedRectangle -> roundedRectanglePath(bounds, radius, fillRule)
     UiShapeSpec.Circle -> circlePath(bounds, fillRule)
@@ -154,8 +154,8 @@ fun UiShapeSpec.toPath(bounds: UiSlot, fillRule: UiFillRule = UiFillRule.NonZero
     is UiShapeSpec.CutCorner -> cutCornerPath(bounds, size, fillRule)
 }
 
-fun UiPath.bounds(): UiSlot {
-    if (commands.isEmpty()) return UiSlot(0f, 0f, 0f, 0f)
+fun UiPath.bounds(): UiBounds {
+    if (commands.isEmpty()) return UiBounds(0f, 0f, 0f, 0f)
 
     var minX = Float.POSITIVE_INFINITY
     var minY = Float.POSITIVE_INFINITY
@@ -191,9 +191,9 @@ fun UiPath.bounds(): UiSlot {
     }
 
     if (!minX.isFinite() || !minY.isFinite() || !maxX.isFinite() || !maxY.isFinite()) {
-        return UiSlot(0f, 0f, 0f, 0f)
+        return UiBounds(0f, 0f, 0f, 0f)
     }
-    return UiSlot(minX, minY, (maxX - minX).coerceAtLeast(0f), (maxY - minY).coerceAtLeast(0f))
+    return UiBounds(minX, minY, (maxX - minX).coerceAtLeast(0f), (maxY - minY).coerceAtLeast(0f))
 }
 
 fun UiPath.transform(
@@ -665,7 +665,7 @@ private fun lineIntersection(p1: UiTexturedVertex, p2: UiTexturedVertex, a: UiPo
     )
 }
 
-private fun rectanglePath(bounds: UiSlot, fillRule: UiFillRule): UiPath = uiPath(fillRule) {
+private fun rectanglePath(bounds: UiBounds, fillRule: UiFillRule): UiPath = uiPath(fillRule) {
     moveTo(bounds.x, bounds.y)
     lineTo(bounds.x + bounds.width, bounds.y)
     lineTo(bounds.x + bounds.width, bounds.y + bounds.height)
@@ -673,7 +673,7 @@ private fun rectanglePath(bounds: UiSlot, fillRule: UiFillRule): UiPath = uiPath
     close()
 }
 
-private fun roundedRectanglePath(bounds: UiSlot, radius: Dp, fillRule: UiFillRule): UiPath {
+private fun roundedRectanglePath(bounds: UiBounds, radius: Dp, fillRule: UiFillRule): UiPath {
     val r = radius.toPx().coerceIn(0f, min(bounds.width, bounds.height) / 2f)
     if (r == 0f) return rectanglePath(bounds, fillRule)
 
@@ -696,23 +696,23 @@ private fun roundedRectanglePath(bounds: UiSlot, radius: Dp, fillRule: UiFillRul
     }
 }
 
-private fun circlePath(bounds: UiSlot, fillRule: UiFillRule): UiPath {
+private fun circlePath(bounds: UiBounds, fillRule: UiFillRule): UiPath {
     val diameter = min(bounds.width, bounds.height)
     val insetX = (bounds.width - diameter) / 2f
     val insetY = (bounds.height - diameter) / 2f
     return roundedRectanglePath(
-        bounds = UiSlot(bounds.x + insetX, bounds.y + insetY, diameter, diameter),
+        bounds = UiBounds(bounds.x + insetX, bounds.y + insetY, diameter, diameter),
         radius = (diameter / 2f).px,
         fillRule = fillRule
     )
 }
 
-private fun pillPath(bounds: UiSlot, fillRule: UiFillRule): UiPath {
+private fun pillPath(bounds: UiBounds, fillRule: UiFillRule): UiPath {
     val radiusPx = min(bounds.width, bounds.height) / 2f
     return roundedRectanglePath(bounds, radiusPx.px, fillRule)
 }
 
-private fun cutCornerPath(bounds: UiSlot, size: Dp, fillRule: UiFillRule): UiPath {
+private fun cutCornerPath(bounds: UiBounds, size: Dp, fillRule: UiFillRule): UiPath {
     val cut = size.toPx().coerceIn(0f, min(bounds.width, bounds.height) / 2f)
     if (cut == 0f) return rectanglePath(bounds, fillRule)
 

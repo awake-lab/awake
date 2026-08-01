@@ -1,9 +1,8 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Vertical auto-stacking layout -- replaces every hand-written `PANEL_ROW_*_Y` constant a
@@ -21,7 +20,7 @@ class ColumnScope internal constructor(
     override val hasBoundedFillWidth: Boolean = true,
     override val hasBoundedFillHeight: Boolean = height != null,
     emitToOverlay: Boolean = false,
-    private val plannedSlots: List<UiSlot>? = null,
+    private val plannedSlots: List<UiBounds>? = null,
     /** Container-level cross-axis default -- matches Compose's `Column(horizontalAlignment =
      * ...)`. See [RowScope.verticalAlignment] for the matching row-side explanation. */
     val horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
@@ -38,7 +37,7 @@ class ColumnScope internal constructor(
         private set
     private var plannedIndex: Int = 0
 
-    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiSlot {
+    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiBounds {
         plannedSlots?.let { slots ->
             val slot = slots[plannedIndex++]
             context.recordMeasuredSlot(slot)
@@ -54,7 +53,7 @@ class ColumnScope internal constructor(
             val availableHeight = this.height ?: (context.frameBoundsInternal().height - cursorY)
             (availableHeight - (cursorY - startY)).coerceAtLeast(0f)
         }
-        val slot = UiSlot(
+        val slot = UiBounds(
             x,
             cursorY,
             resolvedWidth,

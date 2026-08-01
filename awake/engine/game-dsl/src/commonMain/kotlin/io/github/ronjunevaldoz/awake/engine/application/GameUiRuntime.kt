@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
@@ -20,7 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Concrete binding between Awake's stateless [UiContext] and the stateful/suspendable
@@ -95,7 +94,7 @@ class GameUiRuntime(
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
     ) {
-        val frame = UiSlot(0f, 0f, viewportWidth, viewportHeight)
+        val frame = UiBounds(0f, 0f, viewportWidth, viewportHeight)
         val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
         val requestedHeight = modifier.heightDimension ?: Dimension.FillMax
         val width = when (requestedWidth) {
@@ -127,7 +126,7 @@ class GameUiRuntime(
         replaceWith = ReplaceWith("rootColumn(modifier = modifier, verticalArrangement = verticalArrangement, block = block)")
     )
     fun rootColumn(
-        slot: UiSlot,
+        slot: UiBounds,
         modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
@@ -155,7 +154,7 @@ class GameUiRuntime(
         level = DeprecationLevel.HIDDEN
     )
     fun column(
-        slot: UiSlot,
+        slot: UiBounds,
         modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
         block: ColumnScope.() -> Unit
@@ -190,7 +189,7 @@ fun GameUiRuntime.canvas(
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     block: BoxScope.(constraints: UiBoxConstraints) -> Unit
 ) {
-    val rootSlot = UiSlot(0f, 0f, viewportWidth, viewportHeight)
+    val rootSlot = UiBounds(0f, 0f, viewportWidth, viewportHeight)
     uiContext.createBox(
         slot = rootSlot,
         contentAlignment = contentAlignment

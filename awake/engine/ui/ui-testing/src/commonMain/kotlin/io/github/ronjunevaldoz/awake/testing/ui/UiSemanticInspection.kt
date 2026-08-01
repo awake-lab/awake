@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 enum class UiSemanticIssueKind {
     InvalidSemanticBounds,
@@ -149,16 +149,16 @@ fun requireSemanticNode(
     "expected semantic node id=$id role=${role ?: "any"}"
 }
 
-private fun UiSlot.hasFiniteSize(): Boolean =
+private fun UiBounds.hasFiniteSize(): Boolean =
     x.isFinite() && y.isFinite() && width.isFinite() && height.isFinite() && width >= 0f && height >= 0f
 
-private fun UiSlot.isWithin(other: UiSlot, tolerancePx: Float): Boolean =
+private fun UiBounds.isWithin(other: UiBounds, tolerancePx: Float): Boolean =
     x >= other.x - tolerancePx &&
         y >= other.y - tolerancePx &&
         x + width <= other.x + other.width + tolerancePx &&
         y + height <= other.y + other.height + tolerancePx
 
-private fun UiSlot.overlaps(other: UiSlot, tolerancePx: Float): Boolean =
+private fun UiBounds.overlaps(other: UiBounds, tolerancePx: Float): Boolean =
     x < other.x + other.width - tolerancePx &&
         x + width > other.x + tolerancePx &&
         y < other.y + other.height - tolerancePx &&

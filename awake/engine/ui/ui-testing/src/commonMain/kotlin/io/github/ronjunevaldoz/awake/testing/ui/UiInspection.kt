@@ -4,10 +4,11 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.toSlot
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.scope.intersect
+import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 enum class UiInspectionIssueKind {
@@ -25,7 +26,7 @@ data class UiInspectionIssue(
 )
 
 data class UiInspectionReport(
-    val frame: UiSlot,
+    val frame: UiBounds,
     val issues: List<UiInspectionIssue>
 ) {
     val isClean: Boolean get() = issues.isEmpty()
@@ -46,13 +47,14 @@ data class UiInspectionReport(
 
 fun inspectUiFrame(
     primitives: List<UiDrawPrimitive>,
-    frame: UiSlot,
+    frame: UiBounds,
     font: UiFont? = null
 ): UiInspectionReport {
+    val frameSlot = frame.toSlot()
     val issues = ArrayList<UiInspectionIssue>()
-    val clipStack = ArrayDeque<UiSlot>()
+    val clipStack = ArrayDeque<io.github.ronjunevaldoz.awake.ui.layout.UiBounds>()
 
-    fun currentClip(): UiSlot = clipStack.lastOrNull() ?: frame
+    fun currentClip(): io.github.ronjunevaldoz.awake.ui.layout.UiBounds = clipStack.lastOrNull() ?: frameSlot
 
     fun addIssue(kind: UiInspectionIssueKind, primitiveIndex: Int? = null, message: String) {
         issues += UiInspectionIssue(kind = kind, primitiveIndex = primitiveIndex, message = message)
@@ -60,31 +62,31 @@ fun inspectUiFrame(
 
     fun Float.isFiniteCoordinate(): Boolean = isFinite() && !isNaN()
 
-    fun slotHasFiniteBounds(slot: UiSlot): Boolean =
+    fun slotHasFiniteBounds(slot: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): Boolean =
         slot.x.isFiniteCoordinate() &&
             slot.y.isFiniteCoordinate() &&
             slot.width.isFiniteCoordinate() &&
             slot.height.isFiniteCoordinate()
 
-    fun slotHasValidSize(slot: UiSlot): Boolean = slot.width >= 0f && slot.height >= 0f
+    fun slotHasValidSize(slot: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): Boolean = slot.width >= 0f && slot.height >= 0f
 
-    fun visibleOutsideFrame(slot: UiSlot): Boolean {
+    fun visibleOutsideFrame(slot: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): Boolean {
         val visible = slot.intersect(currentClip())
         if (visible.width <= 0f || visible.height <= 0f) {
             return false
         }
-        return visible.x < frame.x ||
-            visible.y < frame.y ||
-            visible.x + visible.width > frame.x + frame.width ||
-            visible.y + visible.height > frame.y + frame.height
+        return visible.x < frameSlot.x ||
+            visible.y < frameSlot.y ||
+            visible.x + visible.width > frameSlot.x + frameSlot.width ||
+            visible.y + visible.height > frameSlot.y + frameSlot.height
     }
 
-    fun primitiveBounds(primitive: UiDrawPrimitive): UiSlot? = when (primitive) {
-        is UiDrawPrimitive.Quad -> UiSlot(primitive.x, primitive.y, primitive.w, primitive.h)
-        is UiDrawPrimitive.GradientQuad -> UiSlot(primitive.x, primitive.y, primitive.w, primitive.h)
-        is UiDrawPrimitive.RoundedQuad -> UiSlot(primitive.x, primitive.y, primitive.w, primitive.h)
-        is UiDrawPrimitive.Glyph -> UiSlot(primitive.x, primitive.y, primitive.w, primitive.h)
-        is UiDrawPrimitive.Texture -> UiSlot(primitive.x, primitive.y, primitive.w, primitive.h)
+    fun primitiveBounds(primitive: UiDrawPrimitive): io.github.ronjunevaldoz.awake.ui.layout.UiBounds? = when (primitive) {
+        is UiDrawPrimitive.Quad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.GradientQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
         is UiDrawPrimitive.FilledPath -> primitive.path.bounds()
         is UiDrawPrimitive.StrokedPath -> strokedPathBounds(primitive.path, primitive.stroke.width.toPx())
         is UiDrawPrimitive.ClipPush -> primitive.rect
@@ -164,10 +166,10 @@ fun inspectUiFrame(
     return UiInspectionReport(frame = frame, issues = issues)
 }
 
-private fun strokedPathBounds(path: UiPath, strokeWidthPx: Float): UiSlot {
+private fun strokedPathBounds(path: UiPath, strokeWidthPx: Float): io.github.ronjunevaldoz.awake.ui.layout.UiBounds {
     val bounds = path.bounds()
     val inset = strokeWidthPx / 2f
-    return UiSlot(
+    return io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         x = bounds.x - inset,
         y = bounds.y - inset,
         width = bounds.width + inset * 2f,

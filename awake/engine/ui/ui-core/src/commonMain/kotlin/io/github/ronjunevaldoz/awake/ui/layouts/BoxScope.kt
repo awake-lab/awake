@@ -1,9 +1,8 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Every [claimSlot] call returns the same fixed rect -- for a single fixed-position widget,
@@ -24,6 +23,6 @@ class BoxScope internal constructor(
     override val fillWidth: Float? = this.width
     override val fillHeight: Float? = this.height
 
-    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiSlot =
-        UiSlot(x, y, this.width, this.height).also(context::recordMeasuredSlot)
+    override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiBounds =
+        UiBounds(x, y, this.width, this.height).also(context::recordMeasuredSlot)
 }

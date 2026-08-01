@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -17,7 +17,6 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class UiTypographyTest {
 
@@ -27,7 +26,7 @@ class UiTypographyTest {
         ui.pushFont(UiFonts.bitmap())
         ui.beginFrame(280f, 220f, testSnapshot())
 
-        var panelSlot: UiSlot? = null
+        var panelSlot: UiBounds? = null
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(180f.dp)) {
             surface(id = "copy", modifier = Modifier.height(Dimension.WrapContent)) { slot ->

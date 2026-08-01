@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
 import io.github.ronjunevaldoz.awake.ui.UiPoint
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.UiTexturedTriangleMesh
 import io.github.ronjunevaldoz.awake.ui.UiTexturedVertex
 import io.github.ronjunevaldoz.awake.ui.UiTriangleMesh
@@ -211,7 +211,7 @@ class Renderer(
         /** Not a real draw call -- [rect] is already fully resolved (see [UiContext]'s clip
          * stack), so consuming this just means "set the scissor to this rect" at the point
          * in the command sequence where it was originally emitted, same as any other run. */
-        class ClipRun(val rect: UiSlot) : UiRun()
+        class ClipRun(val rect: UiBounds) : UiRun()
     }
 
     private data class TexturedPrimitiveRun(
@@ -1013,7 +1013,7 @@ class Renderer(
             mesh,
             quads.map { quad ->
                 exactClip(
-                    UiShapeSpec.RoundedRectangle(quad.radius.px).toPath(UiSlot(quad.x, quad.y, quad.w, quad.h)).tessellateFill(),
+                    UiShapeSpec.RoundedRectangle(quad.radius.px).toPath(UiBounds(quad.x, quad.y, quad.w, quad.h)).tessellateFill(),
                     activePathClips
                 ) to quad.color
             },

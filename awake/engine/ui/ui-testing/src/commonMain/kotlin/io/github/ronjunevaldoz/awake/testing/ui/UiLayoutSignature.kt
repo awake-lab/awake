@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /** Golden-layout signature for a full screen/page composition -- a structural fingerprint of
  * every recorded [UiSemanticNode]'s role, id, and rounded bounds, independent of color/style.
@@ -18,7 +18,7 @@ fun layoutSignature(nodes: List<UiSemanticNode>): ULong {
         hash = hash xor value.toULong()
         hash *= 0x100000001b3uL
     }
-    fun mixSlot(slot: UiSlot) {
+    fun mixSlot(slot: UiBounds) {
         mix(slot.x.toInt().toLong())
         mix(slot.y.toInt().toLong())
         mix(slot.width.toInt().toLong())

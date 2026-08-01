@@ -54,7 +54,7 @@ fun UiScope.shadcnSelect(
         role = UiSemanticRole.Dropdown,
         id = id,
         label = selectedLabel,
-        bounds = trigger.slot.toSlot(),
+        bounds = trigger.slot,
         selected = popupState.expanded
     )
 

@@ -56,6 +56,6 @@ fun UiScope.skeleton(
     recordSemantic(
         role = UiSemanticRole.Skeleton,
         id = id,
-        bounds = slot
+        bounds = slot.toBounds()
     )
 }

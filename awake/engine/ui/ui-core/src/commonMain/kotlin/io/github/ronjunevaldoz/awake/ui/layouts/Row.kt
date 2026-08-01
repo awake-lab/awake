@@ -9,18 +9,10 @@ import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childRow
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.fillHeightOrNull
-import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
-import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.plan
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.layout.*
@@ -30,8 +22,8 @@ fun ColumnScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
-    content: RowScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: RowScope.(slot: UiBounds) -> Unit
+): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
     // Height is this row's main axis when it's hosted in a column -- a weight()-tagged row must
     // default to FillMax here (deferred to the column's own weight-distribution pass), not
@@ -78,8 +70,8 @@ fun RowScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
-    content: RowScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: RowScope.(slot: UiBounds) -> Unit
+): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.FillMax
     val effectiveArrangement = horizontalArrangement
@@ -122,8 +114,8 @@ fun AbsoluteScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
-    content: RowScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: RowScope.(slot: UiBounds) -> Unit
+): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = horizontalArrangement
@@ -166,8 +158,8 @@ fun BoxScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
-    content: RowScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: RowScope.(slot: UiBounds) -> Unit
+): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = horizontalArrangement
@@ -218,8 +210,8 @@ fun UiScope.row(
     // comments there. Every other caller leaves this null and pays the same unconditional trial
     // this function has always run.
     precomputedMeasured: UiMeasuredContent? = null,
-    content: RowScope.(slot: UiSlot) -> Unit
-): UiSlot {
+    content: RowScope.(slot: UiBounds) -> Unit
+): UiBounds {
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
     val slot = claimModifiedSlot(sizedModifier)
     val styleState = MutableStyleState(
@@ -277,7 +269,7 @@ fun UiScope.row(
         val plan = effectiveArrangement.plan(slot.width, childWidths.size, occupiedWidth)
         var x = slot.x + plan.leadingSpacePx
         val arrangedSlots = childWidths.mapIndexed { index, width ->
-            UiSlot(x, slot.y, width, measured.slots[index].height).also {
+            UiBounds(x, slot.y, width, measured.slots[index].height).also {
                 x += width + plan.betweenSpacePx
             }
         }

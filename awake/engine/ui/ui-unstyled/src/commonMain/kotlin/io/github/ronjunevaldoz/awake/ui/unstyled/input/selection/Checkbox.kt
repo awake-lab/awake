@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetAccent
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -44,12 +43,12 @@ fun UiScope.checkbox(
         selected = checked
     )
     val boxPx = boxSize.toPx()
-    val boxSlot = UiSlot(
+    val boxSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         surface.interaction.slot.x,
         surface.interaction.slot.y + (surface.interaction.slot.height - boxPx) / 2f,
         boxPx,
         boxPx
-    )
+    ).toSlot()
     paintSurface(slot = boxSlot, resolved = surface.resolved)
     val newChecked = if (surface.interaction.clicked) !checked else checked
     if (newChecked) {
@@ -58,12 +57,12 @@ fun UiScope.checkbox(
     }
     val resolvedFont = context.currentFont
     if (label != null) {
-        val labelSlot = UiSlot(
+        val labelSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
             boxSlot.x + boxPx + CHECKBOX_LABEL_GAP,
             surface.interaction.slot.y,
             surface.interaction.slot.width - boxPx - CHECKBOX_LABEL_GAP,
             surface.interaction.slot.height
-        )
+        ).toSlot()
         text(
             label,
             slot = labelSlot.toBounds(),
@@ -80,8 +79,8 @@ fun UiScope.checkbox(
         role = UiSemanticRole.Checkbox,
         id = id,
         label = label,
-        bounds = surface.interaction.slot,
-        contentBounds = boxSlot,
+        bounds = surface.interaction.slot.toBounds(),
+        contentBounds = boxSlot.toBounds(),
         selected = newChecked
     )
     return newChecked

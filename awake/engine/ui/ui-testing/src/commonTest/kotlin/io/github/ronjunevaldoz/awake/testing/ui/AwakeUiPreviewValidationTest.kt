@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -65,9 +65,9 @@ class AwakeUiPreviewValidationTest {
                         role = UiSemanticRole.Text,
                         id = "headline",
                         label = "Very long title",
-                        bounds = UiSlot(0f, 0f, 160f, 48f),
-                        contentBounds = UiSlot(12f, 12f, 120f, 16f),
-                        clippedBounds = UiSlot(12f, 12f, 120f, 16f),
+                        bounds = UiBounds(0f, 0f, 160f, 48f),
+                        contentBounds = UiBounds(12f, 12f, 120f, 16f),
+                        clippedBounds = UiBounds(12f, 12f, 120f, 16f),
                         truncated = true
                     )
                 )
@@ -99,12 +99,12 @@ class AwakeUiPreviewValidationTest {
                     UiSemanticNode(
                         role = UiSemanticRole.Dropdown,
                         id = "left",
-                        bounds = UiSlot(0f, 0f, 160f, 40f)
+                        bounds = UiBounds(0f, 0f, 160f, 40f)
                     ),
                     UiSemanticNode(
                         role = UiSemanticRole.Dropdown,
                         id = "right",
-                        bounds = UiSlot(120f, 0f, 160f, 40f)
+                        bounds = UiBounds(120f, 0f, 160f, 40f)
                     )
                 )
             ),

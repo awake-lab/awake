@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 class UiPathTest {
@@ -40,7 +39,7 @@ class UiPathTest {
 
     @Test
     fun roundedRectangleExpandsToDeterministicArcSequence() {
-        val path = UiShapeSpec.RoundedRectangle(8f.dp).toPath(UiSlot(0f, 0f, 40f, 20f))
+        val path = UiShapeSpec.RoundedRectangle(8f.dp).toPath(UiBounds(0f, 0f, 40f, 20f))
 
         assertEquals(
             listOf(
@@ -61,7 +60,7 @@ class UiPathTest {
 
     @Test
     fun circleUsesCenteredSquareWithinNonSquareBounds() {
-        val path = UiShapeSpec.Circle.toPath(UiSlot(0f, 0f, 40f, 20f))
+        val path = UiShapeSpec.Circle.toPath(UiBounds(0f, 0f, 40f, 20f))
 
         assertEquals(UiPathCommand.MoveTo(20f, 0f), path.commands.first())
         assertEquals(
@@ -73,7 +72,7 @@ class UiPathTest {
 
     @Test
     fun pillClampsToHalfOfShortestDimension() {
-        val path = UiShapeSpec.Pill.toPath(UiSlot(0f, 0f, 60f, 20f))
+        val path = UiShapeSpec.Pill.toPath(UiBounds(0f, 0f, 60f, 20f))
 
         assertEquals(UiPathCommand.MoveTo(10f, 0f), path.commands.first())
         assertEquals(UiPathCommand.LineTo(50f, 0f), path.commands[1])
@@ -103,9 +102,9 @@ class UiPathTest {
 
     @Test
     fun boundsCoversEntireExpandedPath() {
-        val path = UiShapeSpec.CutCorner(6f.dp).toPath(UiSlot(10f, 20f, 40f, 30f))
+        val path = UiShapeSpec.CutCorner(6f.dp).toPath(UiBounds(10f, 20f, 40f, 30f))
 
-        assertEquals(UiSlot(10f, 20f, 40f, 30f), path.bounds())
+        assertEquals(UiBounds(10f, 20f, 40f, 30f), path.bounds())
     }
 
     @Test
@@ -128,7 +127,7 @@ class UiPathTest {
 
     @Test
     fun cutCornerFillTessellatesIntoTriangleFan() {
-        val mesh = UiShapeSpec.CutCorner(6f.dp).toPath(UiSlot(0f, 0f, 40f, 20f)).tessellateFill()
+        val mesh = UiShapeSpec.CutCorner(6f.dp).toPath(UiBounds(0f, 0f, 40f, 20f)).tessellateFill()
 
         // Fan is built from the polygon's centroid (not vertex 0) for numeric robustness on
         // wide/shallow shapes -- see UiPath.tessellateFill -- so the mesh gains one extra
@@ -139,7 +138,7 @@ class UiPathTest {
 
     @Test
     fun roundedRectangleStrokeTessellatesIntoSegmentQuads() {
-        val mesh = UiShapeSpec.RoundedRectangle(8f.dp).toPath(UiSlot(0f, 0f, 40f, 20f)).tessellateStroke(UiStroke(2f.dp))
+        val mesh = UiShapeSpec.RoundedRectangle(8f.dp).toPath(UiBounds(0f, 0f, 40f, 20f)).tessellateStroke(UiStroke(2f.dp))
 
         assertTrue(mesh.points.size >= 16, "rounded corners should flatten into multiple stroke segments")
         assertEquals(0, mesh.indices.size % 6, "stroke geometry should be emitted as quads split into 2 triangles each")
@@ -147,7 +146,7 @@ class UiPathTest {
 
     @Test
     fun cutCornerPathContainsInteriorButNotClippedCorner() {
-        val path = UiShapeSpec.CutCorner(6f.dp).toPath(UiSlot(0f, 0f, 40f, 20f))
+        val path = UiShapeSpec.CutCorner(6f.dp).toPath(UiBounds(0f, 0f, 40f, 20f))
 
         assertTrue(path.containsPoint(20f, 10f))
         assertTrue(!path.containsPoint(1f, 1f), "the top-left clipped corner should sit outside the path")
@@ -166,7 +165,7 @@ class UiPathTest {
         )
 
         val clipped = quadMesh.clipToConvexPath(UiShapeSpec.CutCorner(6f.dp).toPath(
-            UiSlot(
+            UiBounds(
                 0f,
                 0f,
                 40f,
@@ -191,7 +190,7 @@ class UiPathTest {
         )
 
         val clipped = quadMesh.clipToConvexPath(UiShapeSpec.CutCorner(6f.dp).toPath(
-            UiSlot(
+            UiBounds(
                 0f,
                 0f,
                 40f,
@@ -224,7 +223,7 @@ class UiPathTest {
             }
         }
 
-        val fitted = vector.fitTo(UiSlot(10f, 20f, 24f, 12f)).single().path
+        val fitted = vector.fitTo(UiBounds(10f, 20f, 24f, 12f)).single().path
 
         assertEquals(
             listOf(

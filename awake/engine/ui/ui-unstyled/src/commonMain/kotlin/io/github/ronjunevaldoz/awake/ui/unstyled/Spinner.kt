@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
@@ -57,12 +56,12 @@ fun UiScope.spinner(
         val dotX = centerX + orbitRadius * cos(angle)
         val dotY = centerY + orbitRadius * sin(angle)
         emitFillAndBorder(
-            slot = UiSlot(
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
                 dotX - dotDiameter / 2f,
                 dotY - dotDiameter / 2f,
                 dotDiameter,
                 dotDiameter
-            ),
+            ).toSlot(),
             fillColor = dotColor.withAlpha(dotColor.a * alpha),
             radiusPx = 0f,
             borderWidth = UiShape.none,
@@ -74,6 +73,6 @@ fun UiScope.spinner(
     recordSemantic(
         role = UiSemanticRole.Spinner,
         id = id,
-        bounds = slot
+        bounds = slot.toBounds()
     )
 }

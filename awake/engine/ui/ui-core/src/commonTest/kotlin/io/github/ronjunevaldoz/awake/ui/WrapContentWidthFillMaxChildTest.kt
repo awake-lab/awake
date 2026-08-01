@@ -4,7 +4,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -32,7 +32,7 @@ class WrapContentWidthFillMaxChildTest {
         val ui = UiContext()
         ui.beginFrame(1000f, 400f, testSnapshot())
 
-        var slot: UiSlot? = null
+        var slot: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 900f, height = 400f).column(
             id = "parent",
             modifier = Modifier.width(Dimension.Fixed(900f.px)).height(Dimension.WrapContent)
@@ -61,7 +61,7 @@ class WrapContentWidthFillMaxChildTest {
         val ui = UiContext()
         ui.beginFrame(1000f, 400f, testSnapshot())
 
-        var slot: UiSlot? = null
+        var slot: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 900f, height = 400f).column(
             id = "parent",
             modifier = Modifier.width(Dimension.Fixed(900f.px)).height(Dimension.WrapContent)

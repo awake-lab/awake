@@ -5,17 +5,17 @@ package io.github.ronjunevaldoz.awake.ui.context
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
-import io.github.ronjunevaldoz.awake.ui.scope.intersect
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.intersect
 
 internal class UiContextFrameState {
     private val renderCollector = UiRenderCollector()
     private val semanticCollector = UiSemanticCollector()
-    private val clipStack = ArrayList<UiSlot>()
+    private val clipStack = ArrayList<UiBounds>()
 
     var inputState: UiInputState = UiInputState()
         private set
-    var fullFrameRect: UiSlot = UiSlot(0f, 0f, 0f, 0f)
+    var fullFrameRect: UiBounds = UiBounds(0f, 0f, 0f, 0f)
         private set
     var frameDeltaSeconds: Float = 1f / 60f
         private set
@@ -24,7 +24,7 @@ internal class UiContextFrameState {
         renderCollector.beginFrame()
         semanticCollector.beginFrame()
         clipStack.clear()
-        fullFrameRect = UiSlot(0f, 0f, screenWidth, screenHeight)
+        fullFrameRect = UiBounds(0f, 0f, screenWidth, screenHeight)
         frameDeltaSeconds = deltaSeconds.coerceAtLeast(0f)
         this.inputState = inputState
     }
@@ -42,14 +42,14 @@ internal class UiContextFrameState {
 
     fun semanticNodes(): List<UiSemanticNode> = semanticCollector.snapshot()
 
-    fun pushClip(rect: UiSlot): UiSlot {
+    fun pushClip(rect: UiBounds): UiBounds {
         val current = clipStack.lastOrNull() ?: fullFrameRect
         val resolved = current.intersect(rect)
         clipStack += resolved
         return resolved
     }
 
-    fun popClip(): UiSlot {
+    fun popClip(): UiBounds {
         if (clipStack.isNotEmpty()) clipStack.removeAt(clipStack.size - 1)
         return clipStack.lastOrNull() ?: fullFrameRect
     }

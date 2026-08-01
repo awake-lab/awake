@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.button
@@ -19,7 +19,6 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 class TextWidgetsTest {
@@ -46,7 +45,7 @@ class TextWidgetsTest {
 
         scope.text(
             label = "TOOLONG",
-            slot = UiBounds(10f, 20f, slotWidthPx, 12f),
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(10f, 20f, slotWidthPx, 12f),
             font = font,
             overflow = UiTextOverflow.Ellipsis
         )
@@ -128,7 +127,7 @@ class TextWidgetsTest {
         ui.beginFrame(200f, 80f, testSnapshot())
         ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).text(
             label = "BUTTON",
-            slot = UiBounds(20f, 20f, 160f, 40f),
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 20f, 160f, 40f),
             font = font,
             centered = true
         )
@@ -150,7 +149,7 @@ class TextWidgetsTest {
         ui.beginFrame(180f, 80f, testSnapshot())
         ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).text(
             label = "Title",
-            slot = UiBounds(16f, 24f, 120f, 20f),
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(16f, 24f, 120f, 20f),
             font = font
         )
 
@@ -210,27 +209,27 @@ class TextWidgetsTest {
     }
 }
 
-private fun List<UiDrawPrimitive>.glyphBounds(): UiSlot {
+private fun List<UiDrawPrimitive>.glyphBounds(): UiBounds {
     val glyphs = filterIsInstance<UiDrawPrimitive.Glyph>()
     require(glyphs.isNotEmpty()) { "expected at least one glyph primitive" }
     return glyphs.drop(1).fold(
-        UiSlot(
+        UiBounds(
             glyphs.first().x,
             glyphs.first().y,
             glyphs.first().w,
             glyphs.first().h
         )
     ) { acc, glyph ->
-        acc.union(UiSlot(glyph.x, glyph.y, glyph.w, glyph.h))
+        acc.union(UiBounds(glyph.x, glyph.y, glyph.w, glyph.h))
     }
 }
 
-private fun UiSlot.centerY(): Float = y + height / 2f
+private fun UiBounds.centerY(): Float = y + height / 2f
 
-private fun UiSlot.union(other: UiSlot): UiSlot {
+private fun UiBounds.union(other: UiBounds): UiBounds {
     val minX = minOf(x, other.x)
     val minY = minOf(y, other.y)
     val maxX = maxOf(x + width, other.x + other.width)
     val maxY = maxOf(y + height, other.y + other.height)
-    return UiSlot(minX, minY, maxX - minX, maxY - minY)
+    return UiBounds(minX, minY, maxX - minX, maxY - minY)
 }

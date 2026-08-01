@@ -8,17 +8,16 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Nested-scope factories that inherit the receiver's overlay behavior automatically.
  */
 fun UiScope.childColumn(
-    slot: UiSlot,
+    slot: UiBounds,
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     hasBoundedFillWidth: Boolean = true,
@@ -36,7 +35,7 @@ fun UiScope.childColumn(
 )
 
 fun UiScope.childRow(
-    slot: UiSlot,
+    slot: UiBounds,
     horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     hasBoundedFillWidth: Boolean = true,
@@ -54,7 +53,7 @@ fun UiScope.childRow(
 )
 
 fun UiScope.childAbsolute(
-    slot: UiSlot,
+    slot: UiBounds,
     modifier: UiModifier = Modifier
 ): AbsoluteScope = context.createAbsolute(
     slot = slot,
@@ -64,7 +63,7 @@ fun UiScope.childAbsolute(
 )
 
 fun UiScope.childBox(
-    slot: UiSlot,
+    slot: UiBounds,
     modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     hasBoundedFillWidth: Boolean = true,

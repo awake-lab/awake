@@ -4,13 +4,12 @@ package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import kotlin.math.max
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal class UiContextMeasureState {
     internal var measuredMaxRight = 0f
@@ -36,7 +35,7 @@ internal class UiContextMeasureState {
     // the row-sizing trial's 4096px placeholder bound as its "real" height, and that leaked all
     // the way up into the row's resolved WrapContent height.
     internal var measuredMaxBottomExcludingFill = 0f
-    internal val measuredSlots = ArrayList<UiSlot>()
+    internal val measuredSlots = ArrayList<UiBounds>()
     internal val measuredWeights = ArrayList<LayoutWeight?>()
     internal val measuredFillsMainAxis = ArrayList<Boolean>()
 
@@ -51,7 +50,7 @@ internal class UiContextMeasureState {
     }
 
     fun record(
-        slot: UiSlot,
+        slot: UiBounds,
         contributesToWrapWidth: Boolean = true,
         contributesToWrapHeight: Boolean = true,
         contributesToChildList: Boolean = true
@@ -109,10 +108,10 @@ internal class UiContextMeasureState {
         insets: UiInsets,
         sourceContext: UiContext,
         height: Float = 100_000f,
-        content: ColumnScope.(slot: UiSlot) -> Unit
+        content: ColumnScope.(slot: UiBounds) -> Unit
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
-        val outerSlot = UiSlot(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
+        val outerSlot = UiBounds(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
         val measureScope = measureContext.createColumn(
             slot = outerSlot,
             // This trial column's own cursor advance must match the real column's actual
@@ -133,10 +132,10 @@ internal class UiContextMeasureState {
         insets: UiInsets,
         sourceContext: UiContext,
         width: Float = 100_000f,
-        content: RowScope.(slot: UiSlot) -> Unit
+        content: RowScope.(slot: UiBounds) -> Unit
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
-        val outerSlot = UiSlot(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
+        val outerSlot = UiBounds(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
         val measureScope = measureContext.createRow(
             slot = outerSlot,
             // See the matching comment in measureColumnContent -- same real-gap-not-default

@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -65,7 +65,7 @@ fun UiScope.dropdown(
         role = UiSemanticRole.Dropdown,
         id = id,
         label = selectedLabel,
-        bounds = slot.toSlot(),
+        bounds = slot,
         selected = expandedState.expanded
     )
     var picked: Int? = null
@@ -139,7 +139,7 @@ fun UiScope.drawDropdownTriggerContent(
     val chevronSize = 8f
     text(
         label,
-        slot = UiBounds(
+        slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
             x = slot.x + horizontalPad,
             y = slot.y,
             width = (slot.width - horizontalPad * 2 - chevronSize - chevronGap).coerceAtLeast(0f),
@@ -153,12 +153,12 @@ fun UiScope.drawDropdownTriggerContent(
         textStyle = resolved.textStyle,
         semanticId = semanticId
     )
-    val chevronSlot = UiSlot(
+    val chevronSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         x = slot.x + slot.width - horizontalPad - chevronSize,
         y = slot.y + (slot.height - chevronSize * 0.6f) / 2f,
         width = chevronSize,
         height = chevronSize * 0.6f
-    )
+    ).toSlot()
     UiIcons.chevronDown.fitTo(chevronSlot).forEach { vectorPath ->
         emit(UiDrawPrimitive.FilledPath(vectorPath.path, vectorPath.fill ?: textColor))
     }

@@ -6,9 +6,8 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
@@ -17,20 +16,20 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal data class ResolvedSurface(
-    val slot: UiSlot,
+    val slot: UiBounds,
     val resolved: ResolvedStyle,
-    val contentSlot: UiSlot
+    val contentSlot: UiBounds
 )
 
 internal data class InteractiveSurface(
     val interaction: UiInteraction,
     val resolved: ResolvedStyle,
-    val contentSlot: UiSlot
+    val contentSlot: UiBounds
 )
 
 internal data class SurfaceStyle(
     val resolved: ResolvedStyle,
-    val contentSlot: UiSlot
+    val contentSlot: UiBounds
 )
 
 internal fun UiScope.resolveSurface(
@@ -106,7 +105,7 @@ internal fun UiScope.resolveInteractiveSurface(
 }
 
 private fun UiScope.resolveSurfaceStyle(
-    slot: UiSlot,
+    slot: UiBounds,
     style: Style,
     defaults: Style,
     selected: Boolean,
@@ -134,7 +133,7 @@ private fun UiScope.resolveSurfaceStyle(
 }
 
 internal fun UiScope.paintSurface(
-    slot: UiSlot,
+    slot: UiBounds,
     resolved: ResolvedStyle,
     fillColor: Color? = null,
     borderColor: Color? = null,

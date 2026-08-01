@@ -9,18 +9,17 @@ import io.github.ronjunevaldoz.awake.ui.graphics.emitPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientRect
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 @AwakeUiDsl
 class CanvasScope internal constructor(
     private val scope: UiScope,
-    val bounds: UiSlot
+    val bounds: UiBounds
 ) {
     val context get() = scope.context
 
@@ -34,7 +33,7 @@ class CanvasScope internal constructor(
         if (width <= 0f || height <= 0f) return
         CanvasScope(
             scope = scope,
-            bounds = UiSlot(bounds.x + x, bounds.y + y, width, height)
+            bounds = UiBounds(bounds.x + x, bounds.y + y, width, height)
         ).content()
     }
 
@@ -69,7 +68,7 @@ class CanvasScope internal constructor(
     ) {
         if (width <= 0f || height <= 0f) return
         scope.gradientRect(
-            slot = UiSlot(bounds.x + x, bounds.y + y, width, height),
+            slot = UiBounds(bounds.x + x, bounds.y + y, width, height),
             gradient = gradient,
             overlay = overlay
         )
@@ -86,7 +85,7 @@ class CanvasScope internal constructor(
     ) {
         if (width <= 0f || height <= 0f) return
         scope.gradientBorder(
-            slot = UiSlot(bounds.x + x, bounds.y + y, width, height),
+            slot = UiBounds(bounds.x + x, bounds.y + y, width, height),
             width = borderWidth,
             gradient = gradient,
             overlay = overlay
@@ -107,7 +106,7 @@ class CanvasScope internal constructor(
     ) {
         if (width <= 0f || height <= 0f) return
         scope.emitFillAndBorder(
-            slot = UiSlot(bounds.x + x, bounds.y + y, width, height),
+            slot = UiBounds(bounds.x + x, bounds.y + y, width, height),
             fillColor = color,
             radiusPx = radius.toPx(),
             borderWidth = borderWidth,
@@ -129,7 +128,7 @@ class CanvasScope internal constructor(
         overlay: Boolean = false
     ) {
         if (width <= 0f || height <= 0f) return
-        val slot = UiSlot(bounds.x + x, bounds.y + y, width, height)
+        val slot = UiBounds(bounds.x + x, bounds.y + y, width, height)
         val radius = when (shape) {
             is UiShapeSpec.RoundedRectangle -> shape.radius.toPx()
             else -> 0f
@@ -278,7 +277,7 @@ class CanvasScope internal constructor(
         content: CanvasScope.() -> Unit
     ) {
         if (width <= 0f || height <= 0f) return
-        scope.clip(UiSlot(bounds.x + x, bounds.y + y, width, height)) {
+        scope.clip(UiBounds(bounds.x + x, bounds.y + y, width, height)) {
             CanvasScope(this, this@CanvasScope.bounds).content()
         }
     }
@@ -300,7 +299,7 @@ class CanvasScope internal constructor(
         if (width <= 0f || height <= 0f) return
         scope.clip(
             shape = shape,
-            rect = UiSlot(bounds.x + x, bounds.y + y, width, height)
+            rect = UiBounds(bounds.x + x, bounds.y + y, width, height)
         ) {
             CanvasScope(this, this@CanvasScope.bounds).content()
         }
@@ -310,14 +309,14 @@ class CanvasScope internal constructor(
 fun UiScope.canvas(
     modifier: UiModifier = Modifier,
     content: CanvasScope.() -> Unit
-): UiSlot {
+): UiBounds {
     val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.FillMax))
     CanvasScope(this, slot).content()
     return slot
 }
 
 fun UiScope.canvas(
-    slot: UiSlot,
+    slot: UiBounds,
     content: CanvasScope.() -> Unit
 ) {
     CanvasScope(this, slot).content()

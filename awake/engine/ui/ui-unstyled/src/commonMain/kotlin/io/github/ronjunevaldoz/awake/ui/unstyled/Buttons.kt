@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
@@ -31,7 +31,7 @@ private inline fun UiScope.buttonSlotInternal(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
     semanticLabel: String? = null,
-    drawContent: AbsoluteScope.(contentSlot: UiSlot, resolved: ResolvedStyle) -> Unit
+    drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit
 ): UiButtonResult {
     val theme = context.currentTheme
     val defaults = theme.components.button then Style.Companion {
@@ -67,8 +67,8 @@ private inline fun UiScope.buttonSlotInternal(
         role = UiSemanticRole.Button,
         id = id,
         label = semanticLabel,
-        bounds = surface.interaction.slot,
-        contentBounds = surface.contentSlot
+        bounds = surface.interaction.slot.toBounds(),
+        contentBounds = surface.contentSlot.toBounds()
     )
     return UiButtonResult(surface.interaction.clicked, surface.interaction.slot.toBounds())
 }

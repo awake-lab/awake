@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -150,7 +150,7 @@ class GameUiDslTest {
         runtime.uiContext.beginFrame(240f, 160f, UiInputState())
         with(runtime) {
             uiContext.createBox(
-                slot = UiSlot(0f, 0f, 240f, 160f),
+                slot = UiBounds(0f, 0f, 240f, 160f),
                 contentAlignment = UiAlignment.TopStart,
                 overlayOnly = true
             ).surface(
@@ -161,7 +161,7 @@ class GameUiDslTest {
                 }
             ) { panelSlot ->
                 column(
-                    slot = UiSlot(
+                    slot = UiBounds(
                         x = panelSlot.x + 12f,
                         y = panelSlot.y + 12f,
                         width = 32f,

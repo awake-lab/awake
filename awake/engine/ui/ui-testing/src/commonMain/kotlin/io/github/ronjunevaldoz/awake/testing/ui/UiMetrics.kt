@@ -4,7 +4,8 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.abs
@@ -25,15 +26,15 @@ enum class UiPrimitiveMetricKind {
 }
 
 data class UiFrameMetrics(
-    val frame: UiSlot,
+    val frame: UiBounds,
     val primitiveCounts: Map<UiPrimitiveMetricKind, Int>,
-    val contentBounds: UiSlot?
+    val contentBounds: UiBounds?
 ) {
-    fun normalizedContentBounds(): UiSlot? = contentBounds?.let { bounds ->
+    fun normalizedContentBounds(): UiBounds? = contentBounds?.let { bounds ->
         if (frame.width <= 0f || frame.height <= 0f) {
             null
         } else {
-            UiSlot(
+            UiBounds(
                 x = (bounds.x - frame.x) / frame.width,
                 y = (bounds.y - frame.y) / frame.height,
                 width = bounds.width / frame.width,
@@ -59,10 +60,10 @@ data class UiMetricsReport(val issues: List<String>) {
 
 fun measureUiFrame(
     primitives: List<UiDrawPrimitive>,
-    frame: UiSlot
+    frame: UiBounds
 ): UiFrameMetrics {
     val counts = linkedMapOf<UiPrimitiveMetricKind, Int>()
-    var contentBounds: UiSlot? = null
+    var contentBounds: io.github.ronjunevaldoz.awake.ui.layout.UiBounds? = null
 
     primitives.forEach { primitive ->
         counts[primitive.metricKind()] = (counts[primitive.metricKind()] ?: 0) + 1
@@ -77,7 +78,7 @@ fun measureUiFrame(
     return UiFrameMetrics(
         frame = frame,
         primitiveCounts = counts,
-        contentBounds = contentBounds
+        contentBounds = contentBounds?.toBounds()
     )
 }
 
@@ -128,7 +129,7 @@ fun inspectDensityParity(
 fun inspectBoundsFit(
     label: String,
     metrics: UiFrameMetrics,
-    allowedBounds: UiSlot,
+    allowedBounds: UiBounds,
     tolerancePx: Float = 0f
 ): UiMetricsReport {
     val bounds = metrics.contentBounds ?: return UiMetricsReport(emptyList())
@@ -145,7 +146,7 @@ fun inspectBoundsFit(
 
 fun inspectNonOverlappingBounds(
     label: String,
-    bounds: List<UiSlot>,
+    bounds: List<UiBounds>,
     tolerancePx: Float = 0f
 ): UiMetricsReport {
     val issues = ArrayList<String>()
@@ -166,8 +167,8 @@ fun inspectNonOverlappingBounds(
 
 private fun compareBounds(
     label: String,
-    reference: UiSlot?,
-    candidate: UiSlot?,
+    reference: UiBounds?,
+    candidate: UiBounds?,
     tolerance: Float,
     issues: MutableList<String>
 ) {
@@ -195,12 +196,12 @@ private fun UiDrawPrimitive.metricKind(): UiPrimitiveMetricKind = when (this) {
     is UiDrawPrimitive.ClipPop -> UiPrimitiveMetricKind.ClipPop
 }
 
-private fun UiDrawPrimitive.metricBounds(): UiSlot? = when (this) {
-    is UiDrawPrimitive.Quad -> UiSlot(x, y, w, h)
-    is UiDrawPrimitive.GradientQuad -> UiSlot(x, y, w, h)
-    is UiDrawPrimitive.RoundedQuad -> UiSlot(x, y, w, h)
-    is UiDrawPrimitive.Glyph -> UiSlot(x, y, w, h)
-    is UiDrawPrimitive.Texture -> UiSlot(x, y, w, h)
+private fun UiDrawPrimitive.metricBounds(): io.github.ronjunevaldoz.awake.ui.layout.UiBounds? = when (this) {
+    is UiDrawPrimitive.Quad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.GradientQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
     is UiDrawPrimitive.FilledPath -> path.bounds()
     is UiDrawPrimitive.StrokedPath -> strokedBounds(path, stroke.width.toPx())
     is UiDrawPrimitive.ClipPush -> null
@@ -208,10 +209,10 @@ private fun UiDrawPrimitive.metricBounds(): UiSlot? = when (this) {
     is UiDrawPrimitive.ClipPop -> null
 }
 
-private fun strokedBounds(path: UiPath, strokeWidthPx: Float): UiSlot {
+private fun strokedBounds(path: UiPath, strokeWidthPx: Float): io.github.ronjunevaldoz.awake.ui.layout.UiBounds {
     val bounds = path.bounds()
     val inset = strokeWidthPx / 2f
-    return UiSlot(
+    return io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         x = bounds.x - inset,
         y = bounds.y - inset,
         width = bounds.width + inset * 2f,
@@ -219,12 +220,12 @@ private fun strokedBounds(path: UiPath, strokeWidthPx: Float): UiSlot {
     )
 }
 
-private fun UiSlot.union(other: UiSlot): UiSlot {
+private fun io.github.ronjunevaldoz.awake.ui.layout.UiBounds.union(other: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): io.github.ronjunevaldoz.awake.ui.layout.UiBounds {
     val minX = min(x, other.x)
     val minY = min(y, other.y)
     val maxX = max(x + width, other.x + other.width)
     val maxY = max(y + height, other.y + other.height)
-    return UiSlot(
+    return io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         x = minX,
         y = minY,
         width = maxX - minX,

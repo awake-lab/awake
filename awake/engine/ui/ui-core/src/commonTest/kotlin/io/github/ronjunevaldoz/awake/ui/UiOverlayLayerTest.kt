@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -33,7 +33,7 @@ class UiOverlayLayerTest {
         // overlay flag from whatever scope is doing the popup rendering.
         val overlayColumn = ui.createColumn(x = 0f, y = 0f, width = 100f, overlayOnly = true)
         val overlayMarker = UiDrawPrimitive.Quad(0f, 0f, 10f, 10f, Color(0f, 0f, 1f, 1f))
-        overlayColumn.childAbsolute(UiSlot(0f, 0f, 10f, 10f)).emit(overlayMarker)
+        overlayColumn.childAbsolute(UiBounds(0f, 0f, 10f, 10f)).emit(overlayMarker)
 
         val primitives = ui.endFrame()
         assertEquals(
@@ -59,7 +59,7 @@ class UiOverlayLayerTest {
         // is exactly how surface()/paintSurface() call it.
         val overlayColumn = ui.createColumn(x = 0f, y = 0f, width = 100f, overlayOnly = true)
         overlayColumn.emitFillAndBorder(
-            slot = UiSlot(0f, 0f, 10f, 10f),
+            slot = UiBounds(0f, 0f, 10f, 10f),
             fillColor = Color(0f, 0f, 1f, 1f),
             radiusPx = 0f,
             borderWidth = 0f.dp

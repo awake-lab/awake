@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /**
  * Backend-neutral output of a [io.github.ronjunevaldoz.awake.ui.context.UiContext] frame -- each backend's `Renderer.drawUi` converts
@@ -195,7 +195,7 @@ sealed class UiDrawPrimitive {
      * clipping can use [path] for the exact mask. */
     data class ClipPathPush(
         val path: UiPath,
-        val boundsRect: UiSlot
+        val boundsRect: UiBounds
     ) : UiDrawPrimitive()
 
     /** Marks the start of a clipped region -- [rect] is always already-intersected against
@@ -203,11 +203,11 @@ sealed class UiDrawPrimitive {
      * the backend), so every backend just naively "sets scissor to this rect," identical
      * logic on every platform. Not a real draw call -- carries no vertices, just tells the
      * backend's command-buffer recording where to issue a scissor-rect change. */
-    data class ClipPush(val rect: UiSlot) : UiDrawPrimitive()
+    data class ClipPush(val rect: UiBounds) : UiDrawPrimitive()
 
     /** Restores the scissor rect that was active before the matching [ClipPush] -- [restoreRect]
      * is resolved by [io.github.ronjunevaldoz.awake.ui.context.UiContext] at pop time (the next rect down the clip stack, or the full
      * frame extent if the stack is now empty), so the backend needs no stack-awareness here
      * either. */
-    data class ClipPop(val restoreRect: UiSlot) : UiDrawPrimitive()
+    data class ClipPop(val restoreRect: UiBounds) : UiDrawPrimitive()
 }

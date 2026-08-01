@@ -3,12 +3,11 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal class UiMeasurementRuntime(
     private val measureState: UiContextMeasureState = UiContextMeasureState()
@@ -18,7 +17,7 @@ internal class UiMeasurementRuntime(
     }
 
     fun record(
-        slot: UiSlot,
+        slot: UiBounds,
         contributesToWrapWidth: Boolean = true,
         contributesToWrapHeight: Boolean = true,
         contributesToChildList: Boolean = true
@@ -56,7 +55,7 @@ internal class UiMeasurementRuntime(
         insets: UiInsets = UiInsets.Zero,
         height: Float = 100_000f,
         sourceContext: UiContext,
-        content: ColumnScope.(slot: UiSlot) -> Unit
+        content: ColumnScope.(slot: UiBounds) -> Unit
     ): UiMeasuredContent = measureState.measureColumnContent(
         width = width,
         gap = gap,
@@ -72,7 +71,7 @@ internal class UiMeasurementRuntime(
         insets: UiInsets = UiInsets.Zero,
         width: Float = 100_000f,
         sourceContext: UiContext,
-        content: RowScope.(slot: UiSlot) -> Unit
+        content: RowScope.(slot: UiBounds) -> Unit
     ): UiMeasuredContent = measureState.measureRowContent(
         height = height,
         gap = gap,

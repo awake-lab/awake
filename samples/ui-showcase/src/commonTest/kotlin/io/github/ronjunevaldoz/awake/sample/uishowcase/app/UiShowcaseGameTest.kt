@@ -35,7 +35,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -520,7 +520,7 @@ private fun UiDrawPrimitive.RoundedQuad.matchesRegion(
             bottom <= yRange.endInclusive + tolerance
 }
 
-private fun UiDrawPrimitive.RoundedQuad.toSlot(): UiSlot = UiSlot(x, y, w, h)
+private fun UiDrawPrimitive.RoundedQuad.toSlot(): UiBounds = UiBounds(x, y, w, h)
 
 private fun List<UiDrawPrimitive.RoundedQuad>.largestWithin(
     xRange: ClosedFloatingPointRange<Float>,

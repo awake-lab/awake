@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layout
 
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /**
  * Child placement inside a parent slot. This is the Box-style alignment API; unlike
@@ -54,14 +54,14 @@ enum class UiAlignment {
     }
 }
 
-fun UiSlot.place(
+fun UiBounds.place(
     width: Float,
     height: Float,
     alignment: UiAlignment = UiAlignment.TopStart,
     insets: UiInsets = UiInsets.Zero,
     offsetX: Float = 0f,
     offsetY: Float = 0f
-): UiSlot {
+): UiBounds {
     val content = inset(insets)
     val resolvedWidth = width.coerceIn(0f, content.width)
     val resolvedHeight = height.coerceIn(0f, content.height)
@@ -75,5 +75,5 @@ fun UiSlot.place(
         UiAlignment.CenterStart, UiAlignment.Center, UiAlignment.CenterEnd -> content.y + (content.height - resolvedHeight) / 2f
         UiAlignment.BottomStart, UiAlignment.BottomCenter, UiAlignment.BottomEnd -> content.y + content.height - resolvedHeight
     } + offsetY
-    return UiSlot(x, y, resolvedWidth, resolvedHeight)
+    return UiBounds(x, y, resolvedWidth, resolvedHeight)
 }

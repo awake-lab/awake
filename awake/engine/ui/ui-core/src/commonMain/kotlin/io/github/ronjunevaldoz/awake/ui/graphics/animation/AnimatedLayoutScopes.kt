@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.graphics.animation
 
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.measureColumnContent
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Clips its content to an animated height.
@@ -23,8 +22,8 @@ fun ColumnScope.animatedHeight(
     expanded: Boolean,
     modifier: UiModifier = Modifier,
     responsiveness: Float = 12f,
-    content: ColumnScope.(slot: UiSlot) -> Unit
-): UiSlot? {
+    content: ColumnScope.(slot: UiBounds) -> Unit
+): UiBounds? {
     // 1. Measure the content to know the target expanded height
     val state = widgetState(id)
     var cachedHeight: Float = state.get("measuredHeight", 0f)

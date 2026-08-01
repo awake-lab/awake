@@ -3,9 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * The full set of primitives any widget -- built-in or consumer-defined -- is built from.
@@ -37,9 +36,9 @@ interface UiScope {
      * resolved screen-space rect. [weight] is only honored by [io.github.ronjunevaldoz.awake.ui.layouts.RowScope]/
      * [io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope] (see [io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight]); every other scope ignores it.
      */
-    fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight? = null): UiSlot
+    fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight? = null): UiBounds
 
-    fun hitTest(slot: UiSlot): Boolean
+    fun hitTest(slot: UiBounds): Boolean
     fun isActive(id: String): Boolean
     fun tryClaimActive(id: String, hovered: Boolean)
     fun releaseActiveIfMatches(id: String)

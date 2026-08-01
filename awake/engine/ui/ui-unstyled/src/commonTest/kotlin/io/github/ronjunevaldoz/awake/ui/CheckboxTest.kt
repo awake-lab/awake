@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
@@ -15,7 +15,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 class CheckboxTest {
@@ -104,13 +103,13 @@ class CheckboxTest {
     }
 }
 
-private fun List<UiDrawPrimitive.Glyph>.glyphBounds(): UiSlot {
+private fun List<UiDrawPrimitive.Glyph>.glyphBounds(): UiBounds {
     require(isNotEmpty()) { "expected at least one glyph primitive" }
-    return drop(1).fold(UiSlot(first().x, first().y, first().w, first().h)) { acc, glyph ->
+    return drop(1).fold(UiBounds(first().x, first().y, first().w, first().h)) { acc, glyph ->
         val minX = minOf(acc.x, glyph.x)
         val minY = minOf(acc.y, glyph.y)
         val maxX = maxOf(acc.x + acc.width, glyph.x + glyph.w)
         val maxY = maxOf(acc.y + acc.height, glyph.y + glyph.h)
-        UiSlot(minX, minY, maxX - minX, maxY - minY)
+        UiBounds(minX, minY, maxX - minX, maxY - minY)
     }
 }

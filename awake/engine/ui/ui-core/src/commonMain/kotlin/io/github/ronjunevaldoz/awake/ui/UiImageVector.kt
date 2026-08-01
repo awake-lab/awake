@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 data class UiVectorPath(
     val path: UiPath,
@@ -54,7 +54,7 @@ fun uiImageVector(
     return builder.build()
 }
 
-fun UiImageVector.fitTo(slot: UiSlot): List<UiVectorPath> {
+fun UiImageVector.fitTo(slot: UiBounds): List<UiVectorPath> {
     if (viewportWidth <= 0f || viewportHeight <= 0f || slot.width <= 0f || slot.height <= 0f) return emptyList()
     val scale = minOf(slot.width / viewportWidth, slot.height / viewportHeight)
     val scaledWidth = viewportWidth * scale

@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
-import io.github.ronjunevaldoz.awake.ui.scope.UiSlot
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogResult
@@ -48,7 +47,7 @@ class UiPopupCompositionsTest {
         var result: UiPopupResult? = null
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(220f.dp)) {
             result = shadcnTooltipText(
-                anchorSlot = UiBounds(48f, 24f, 96f, 28f),
+                anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(48f, 24f, 96f, 28f),
                 visible = true,
                 text = "Helpful hint"
             )
@@ -64,7 +63,7 @@ class UiPopupCompositionsTest {
     @Test
     fun dropdownMenuReturnsPickedIndex() {
         val ui = UiContext()
-        val anchor = UiBounds(20f, 16f, 120f, 28f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
         ui.pushFont(BitmapFont())
 
@@ -100,7 +99,7 @@ class UiPopupCompositionsTest {
     @Test
     fun dropdownMenuSupportsSeparatorsAndDisabledItems() {
         val ui = UiContext()
-        val anchor = UiBounds(20f, 16f, 120f, 28f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
         ui.pushFont(BitmapFont())
 
@@ -276,7 +275,7 @@ class UiPopupCompositionsTest {
         // (overflow=Ellipsis silently widened its claimed box to FillMax, leaving align(End)
         // nothing to shift into, so it drew left-anchored under the label).
         val ui = UiContext()
-        val anchor = UiBounds(20f, 16f, 120f, 28f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 120f, 28f)
         ui.pushFont(BitmapFont())
         ui.beginFrame(320f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
 
