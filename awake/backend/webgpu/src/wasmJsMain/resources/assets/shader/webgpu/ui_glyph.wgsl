@@ -32,15 +32,16 @@ fn vertexMain(in: VertexIn) -> VertexOut {
 @fragment
 fn fragmentMain(in: VertexOut) -> @location(0) vec4<f32> {
     let atlas = textureSample(fontAtlas, fontSampler, in.uv);
-    let glyphAlpha = if (uniforms.fontInfo.x < 0.5) {
-        atlas.a
+    var glyphAlpha: f32;
+    if (uniforms.fontInfo.x < 0.5) {
+        glyphAlpha = atlas.a;
     } else {
         let atlasSize = vec2<f32>(textureDimensions(fontAtlas));
         let unitRange = vec2<f32>(uniforms.fontInfo.y) / atlasSize;
         let screenTexSize = vec2<f32>(1.0, 1.0) / fwidth(in.uv);
         let screenPxRange = max(0.5 * dot(unitRange, screenTexSize), 1.0);
         let signedDistance = max(min(atlas.r, atlas.g), min(max(atlas.r, atlas.g), atlas.b));
-        clamp(screenPxRange * (signedDistance - 0.5) + 0.5, 0.0, 1.0)
-    };
+        glyphAlpha = clamp(screenPxRange * (signedDistance - 0.5) + 0.5, 0.0, 1.0);
+    }
     return vec4<f32>(in.color.rgb, in.color.a * glyphAlpha);
 }
