@@ -164,8 +164,9 @@ object ShadcnStyles {
                 background(theme.card)
                 borderColor(theme.ring)
             }
+            // Border width stays constant across states (Default's rest width already matches
+            // focus) -- only borderColor changes, so focusing never re-measures/shifts the field.
             focused {
-                borderWidth(1.5f.dp)
                 borderColor(theme.ring)
             }
         }
@@ -186,12 +187,16 @@ object ShadcnStyles {
         ShadcnTextFieldVariant.Ghost -> Style {
             background(ShadcnTransparent)
             foreground(theme.tokens.foreground)
-            borderWidth(UiShape.none)
+            // Border width is reserved at rest (transparent, invisible) so focusing only swaps
+            // borderColor instead of introducing a border width that wasn't there before --
+            // avoids a focus-triggered re-measure/shift while keeping the "chrome appears only
+            // once focused" affordance from this variant's own doc comment above.
+            borderWidth(1f.dp)
+            borderColor(ShadcnTransparent)
             shape(theme.radii.lg)
             contentPadding(theme.metrics.fieldPaddingX, theme.metrics.fieldPaddingY)
             textSize(theme.typography.label)
             focused {
-                borderWidth(1f.dp)
                 borderColor(theme.ring)
             }
         }
