@@ -84,6 +84,7 @@ class WebGpuGameApplication(
             readResourceBytes(UI_SHADER_RESOURCE_PATH),
             readResourceBytes(UI_GLYPH_SHADER_RESOURCE_PATH),
             readResourceBytes(UI_TEXTURE_SHADER_RESOURCE_PATH),
+            readResourceBytes(UI_ROUNDED_QUAD_SHADER_RESOURCE_PATH),
             0L,
             MAX_FRAMES_IN_FLIGHT
         )
@@ -116,6 +117,7 @@ class WebGpuGameApplication(
         const val UI_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_quad.wgsl"
         const val UI_GLYPH_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_glyph.wgsl"
         const val UI_TEXTURE_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_texture.wgsl"
+        const val UI_ROUNDED_QUAD_SHADER_RESOURCE_PATH = "assets/shader/webgpu/ui_rounded_quad.wgsl"
         const val DEBUG_LINE_SHADER_RESOURCE_PATH = "assets/shader/webgpu/debug_line.wgsl"
     }
 }

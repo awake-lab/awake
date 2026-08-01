@@ -40,6 +40,7 @@ import io.github.ronjunevaldoz.awake.webgpu.texture.OffscreenRenderTarget
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
+import io.github.ronjunevaldoz.awake.webgpu.ui.UiRoundedQuadRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiTextureRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.ygdrasil.webgpu.ArrayBuffer
@@ -87,6 +88,7 @@ class Renderer(
     private val uiShaderCode: ByteArray,
     private val uiGlyphShaderCode: ByteArray,
     private val uiTextureShaderCode: ByteArray,
+    private val uiRoundedQuadShaderCode: ByteArray,
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
@@ -114,6 +116,11 @@ class Renderer(
     // ensureTextureQuadPipeline()'s doc comment.
     private var uiTextureRenderPipeline: UiTextureRenderPipeline? = null
 
+    // Lazily built on the first drawUi() call that has any RoundedQuad primitives outside an
+    // active convex-path clip -- see ensureRoundedQuadPipeline()'s doc comment. Mirrors
+    // Vulkan's Renderer.uiRoundedQuadRenderPipeline (same lazy-pay-only-if-used pattern).
+    private var uiRoundedQuadRenderPipeline: UiRoundedQuadRenderPipeline? = null
+
     // One DynamicMesh per contiguous same-type run in a frame's primitive list (see
     // drawUi()'s run-coalescing) rather than one mesh per type -- mirrors Vulkan's
     // Renderer.kt (same file-level bug-fix rationale: a fixed "all quads, then all glyphs,
@@ -121,12 +128,14 @@ class Renderer(
     // regardless of the source list's paint order). Grown on demand, reused every frame.
     private val uiQuadMeshPool = mutableListOf<DynamicMesh>()
     private val uiGlyphMeshPool = mutableListOf<DynamicMesh>()
+    private val uiRoundedQuadMeshPool = mutableListOf<DynamicMesh>()
     private val textureQuadMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
 
     /** One coalesced same-type run of a frame's UI primitives, in original paint order --
      * see [drawUi]'s doc comment for why runs (not "all quads, then all glyphs") are needed. */
     private sealed class UiRun {
         class QuadRun(val mesh: DynamicMesh) : UiRun()
+        class RoundedQuadRun(val mesh: DynamicMesh) : UiRun()
         class GlyphRun(val mesh: DynamicMesh) : UiRun()
         class TextureRun(val primitives: List<TexturedPrimitiveRun>) : UiRun()
 
@@ -160,6 +169,13 @@ class Renderer(
             uiGlyphMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
         }
         return uiGlyphMeshPool[index]
+    }
+
+    private fun roundedQuadMeshForRun(index: Int): DynamicMesh {
+        while (uiRoundedQuadMeshPool.size <= index) {
+            uiRoundedQuadMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX)
+        }
+        return uiRoundedQuadMeshPool[index]
     }
 
     // Rewritten by drawDebugLines() (staged before draw(), same pattern as uiMesh above).
@@ -317,6 +333,14 @@ class Renderer(
         uiTextureRenderPipeline = UiTextureRenderPipeline(graphicsDevice, swapchainManager, uiTextureShaderCode)
     }
 
+    /** Builds [uiRoundedQuadRenderPipeline] on the first [drawUi] call that has any
+     * [UiDrawPrimitive.RoundedQuad] primitives outside an active convex-path clip -- cached
+     * after that. Mirrors Vulkan's `ensureRoundedQuadPipeline()`. */
+    private fun ensureRoundedQuadPipeline() {
+        if (uiRoundedQuadRenderPipeline != null) return
+        uiRoundedQuadRenderPipeline = UiRoundedQuadRenderPipeline(graphicsDevice, swapchainManager, uiRoundedQuadShaderCode)
+    }
+
     private fun ensureUniformResources(pipeline: GPURenderPipeline) {
         if (uniformBuffer != null) return
         val device = graphicsDevice.wgpuContext.device
@@ -352,9 +376,11 @@ class Renderer(
         ensureUiQuadPipeline()
         if (font != null) ensureGlyphPipeline(font)
         if (primitives.any { it is UiDrawPrimitive.Texture }) ensureTextureQuadPipeline()
+        if (primitives.any { it is UiDrawPrimitive.RoundedQuad }) ensureRoundedQuadPipeline()
 
         val runs = mutableListOf<UiRun>()
         var quadRunCount = 0
+        var roundedQuadRunCount = 0
         var glyphRunCount = 0
         val activePathClips = ArrayList<UiPath>()
         val clipKindStack = ArrayDeque<ClipKind>()
@@ -381,20 +407,23 @@ class Renderer(
                     quadRunCount += 1
                 }
                 is UiDrawPrimitive.RoundedQuad -> {
-                    // No rounded-corner shader support yet (see UI architecture review doc) --
-                    // fall back to drawing it as a flat Quad, dropping radius, rather than
-                    // leaving it unhandled. Real rounding needs a corner distance-field test
-                    // in this pipeline's fragment shader, tracked as a separate follow-up.
+                    // Exact-clip case: tessellate a real rounded-rect path (same as the
+                    // FilledPath/StrokedPath branches). Non-clipped case: dedicated SDF
+                    // UiRoundedQuadRenderPipeline (mirrors Vulkan's uiRoundedQuadRenderPipeline)
+                    // instead of the old flat-Quad fallback that dropped the radius entirely.
                     @Suppress("UNCHECKED_CAST")
                     val roundedSlice = slice as List<UiDrawPrimitive.RoundedQuad>
-                    val mesh = quadMeshForRun(quadRunCount)
                     if (canExactClip(activePathClips)) {
+                        val mesh = quadMeshForRun(quadRunCount)
                         stageRoundedQuadFillRun(mesh, roundedSlice, activePathClips)
+                        runs += UiRun.QuadRun(mesh)
+                        quadRunCount += 1
                     } else {
-                        stageQuadRun(mesh, roundedSlice.map { UiDrawPrimitive.Quad(it.x, it.y, it.w, it.h, it.color) })
+                        val mesh = roundedQuadMeshForRun(roundedQuadRunCount)
+                        stageRoundedQuadRun(mesh, roundedSlice)
+                        runs += UiRun.RoundedQuadRun(mesh)
+                        roundedQuadRunCount += 1
                     }
-                    runs += UiRun.QuadRun(mesh)
-                    quadRunCount += 1
                 }
                 is UiDrawPrimitive.FilledPath -> {
                     @Suppress("UNCHECKED_CAST")
@@ -555,6 +584,44 @@ class Renderer(
             },
             "rounded-quad-clipped"
         )
+    }
+
+    /** Writes [quads] (one run's worth) into [mesh] using the rounded-quad vertex layout --
+     * pos(vec2) + localPos(vec2, pixels relative to the quad's own center) + halfSize(vec2) +
+     * radius(float) + color(vec4), consumed by `ui_rounded_quad.wgsl`'s distance-field test.
+     * Mirrors Vulkan's `stageRoundedQuadRun`. */
+    private fun stageRoundedQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.RoundedQuad>) {
+        require(quads.size <= MAX_UI_QUADS) {
+            "UI rounded-quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
+        }
+        val floatsPerVertex = DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX
+        val vertices = FloatArray(quads.size * DynamicMesh.VERTICES_PER_QUAD * floatsPerVertex)
+        val indices = IntArray(quads.size * DynamicMesh.INDICES_PER_QUAD)
+        var quadIndex = 0
+        while (quadIndex < quads.size) {
+            val quad = quads[quadIndex]
+            val halfW = quad.w / 2f
+            val halfH = quad.h / 2f
+            // Radius can't exceed either half-dimension -- a corner radius bigger than the
+            // quad itself would make the SDF math produce a self-intersecting shape.
+            val radius = quad.radius.coerceAtMost(minOf(halfW, halfH))
+            val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * floatsPerVertex
+            writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.color)
+            writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color)
+            writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color)
+            writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color)
+
+            val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
+            val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
+            indices[indexBase] = vertexOffset
+            indices[indexBase + 1] = vertexOffset + 1
+            indices[indexBase + 2] = vertexOffset + 2
+            indices[indexBase + 3] = vertexOffset + 2
+            indices[indexBase + 4] = vertexOffset + 3
+            indices[indexBase + 5] = vertexOffset
+            quadIndex += 1
+        }
+        mesh.update(vertices, indices)
     }
 
     private fun stageColoredTriangleMeshes(
@@ -765,6 +832,33 @@ class Renderer(
         out[offset + 7] = color.a
     }
 
+    /** Writes one rounded-quad vertex -- pos(vec2) + localPos(vec2) + halfSize(vec2) +
+     * radius(float) + color(vec4), mirrors Vulkan's `writeRoundedQuadVertex`. */
+    private fun writeRoundedQuadVertex(
+        out: FloatArray,
+        offset: Int,
+        x: Float,
+        y: Float,
+        localX: Float,
+        localY: Float,
+        halfW: Float,
+        halfH: Float,
+        radius: Float,
+        color: AwakeColor
+    ) {
+        out[offset] = x
+        out[offset + 1] = y
+        out[offset + 2] = localX
+        out[offset + 3] = localY
+        out[offset + 4] = halfW
+        out[offset + 5] = halfH
+        out[offset + 6] = radius
+        out[offset + 7] = color.r
+        out[offset + 8] = color.g
+        out[offset + 9] = color.b
+        out[offset + 10] = color.a
+    }
+
     override fun draw(camera: Camera, drawCalls: List<DrawCall>) {
         swapchainManager.syncSurface()
         val device = graphicsDevice.wgpuContext.device
@@ -842,6 +936,7 @@ class Renderer(
             quadPipeline.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
             uiGlyphRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
             uiTextureRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
+            uiRoundedQuadRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
             encoder.beginRenderPass(
                 RenderPassDescriptor(
                     colorAttachments = listOf(
@@ -868,6 +963,16 @@ class Renderer(
                             setVertexBuffer(0u, run.mesh.vertexBufferRef())
                             setIndexBuffer(run.mesh.indexBufferRef(), DynamicMesh.indexFormat)
                             drawIndexed(run.mesh.drawIndexCount.toUInt())
+                        }
+                        is UiRun.RoundedQuadRun -> {
+                            val roundedQuadPipeline = uiRoundedQuadRenderPipeline
+                            if (roundedQuadPipeline != null) {
+                                setPipeline(roundedQuadPipeline.pipeline)
+                                setBindGroup(0u, roundedQuadPipeline.screenSizeBindGroup)
+                                setVertexBuffer(0u, run.mesh.vertexBufferRef())
+                                setIndexBuffer(run.mesh.indexBufferRef(), DynamicMesh.indexFormat)
+                                drawIndexed(run.mesh.drawIndexCount.toUInt())
+                            }
                         }
                         is UiRun.GlyphRun -> {
                             if (glyphPipeline != null) {
@@ -928,9 +1033,11 @@ class Renderer(
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
         uiTextureRenderPipeline?.destroy()
+        uiRoundedQuadRenderPipeline?.destroy()
         createdRenderTargets.forEach { it.destroy() }
         uiQuadMeshPool.forEach { it.destroy() }
         uiGlyphMeshPool.forEach { it.destroy() }
+        uiRoundedQuadMeshPool.forEach { it.destroy() }
         textureQuadMesh.destroy()
         lineMesh.destroy()
     }
