@@ -440,11 +440,21 @@ class Renderer(
                     quadRunCount += 1
                 }
                 is UiDrawPrimitive.Glyph -> {
+                    // Chunk a same-type glyph run into MAX_UI_QUADS-sized sub-runs -- mirrors
+                    // Vulkan's Renderer.performDrawUi() Glyph branch, so a single contiguous
+                    // glyph run over MAX_UI_QUADS glyphs doesn't hit stageGlyphRun's
+                    // require(glyphs.size <= MAX_UI_QUADS) guard and throw.
                     @Suppress("UNCHECKED_CAST")
-                    val mesh = glyphMeshForRun(glyphRunCount)
-                    stageGlyphRun(mesh, slice as List<UiDrawPrimitive.Glyph>, activePathClips)
-                    runs += UiRun.GlyphRun(mesh)
-                    glyphRunCount += 1
+                    val glyphSlice = slice as List<UiDrawPrimitive.Glyph>
+                    var chunkStart = 0
+                    while (chunkStart < glyphSlice.size) {
+                        val chunkEnd = minOf(chunkStart + MAX_UI_QUADS, glyphSlice.size)
+                        val mesh = glyphMeshForRun(glyphRunCount)
+                        stageGlyphRun(mesh, glyphSlice.subList(chunkStart, chunkEnd), activePathClips)
+                        runs += UiRun.GlyphRun(mesh)
+                        glyphRunCount += 1
+                        chunkStart = chunkEnd
+                    }
                 }
                 is UiDrawPrimitive.Texture -> {
                     @Suppress("UNCHECKED_CAST")
