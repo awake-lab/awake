@@ -105,26 +105,50 @@ Use snapshot-backed guides for:
 These docs should answer: "How do I actually build this?" rather than "What is the
 signature?"
 
-## Live Preview Loop
+## Unified UI Component Lookup
 
-For fast iteration on `samples/ui-showcase` pages or the `ui-designsystem`/`ui-unstyled`
-components they render, don't run the full `desktopTest` suite -- it runs every test in the
-module, including unrelated pre-existing failures. Instead, scope to the single test class
-that writes the preview gallery:
+`samples/ui-showcase`'s page-level preview gallery and `ui-unstyled`'s bare-widget snapshot
+gallery are two separate Gradle report tasks (they live in different modules on opposite sides
+of the module graph -- see `docs/architecture.md`'s Module Graph -- so merging them into one
+Kotlin test would require an illegal cross-module dependency). Instead, a root-level task reads
+both modules' already-generated output after the fact and writes one merged, searchable page:
 
 ```bash
-./gradlew :samples:ui-showcase:desktopTest --tests "*UiShowcasePreviewDocsTest*" --continuous
+./gradlew :samples:ui-showcase:desktopTest :awake:engine:ui:ui-unstyled:desktopTest uiComponentLookupReport
+```
+
+This regenerates `build/reports/ui-component-lookup/index.html`: every card is tagged with its
+source module (`ui-showcase` or `ui-unstyled`) for correct attribution, and a plain-JS text
+filter (`oninput` substring match against id/title/group/source, no search backend or index
+library) narrows the list as you type a component name.
+
+## Live Preview Loop
+
+For fast iteration on `samples/ui-showcase` pages, `ui-unstyled` widgets, or the
+`ui-designsystem` components either renders, don't run the full `desktopTest` suite for either
+module -- it runs every test, including unrelated pre-existing failures. Instead, scope to the
+two narrow test classes that write the preview/snapshot galleries, then regenerate the merged
+lookup:
+
+```bash
+./gradlew \
+    :samples:ui-showcase:desktopTest --tests "*UiShowcasePreviewDocsTest*" \
+    :awake:engine:ui:ui-unstyled:desktopTest --tests "*UiSnapshotTest*" \
+    uiComponentLookupReport \
+    --continuous
 ```
 
 `--continuous` is Gradle's own file-watch mode: it watches the inputs of every task in the
-graph (so edits to `ui-designsystem`/`ui-unstyled` sources that the showcase depends on
-trigger a rebuild too, not just edits inside `samples/ui-showcase` itself) and reruns on
-change -- regenerating `samples/ui-showcase/build/reports/ui-previews/index.html` in a few
-seconds per change, since `uiShowcasePreviewReport` is `finalizedBy` the test task.
+graph (so edits to `ui-designsystem`/`ui-unstyled` sources that either gallery depends on
+trigger a rebuild too, not just edits inside the two test classes themselves) and reruns the
+whole requested task graph on change -- regenerating both source reports and then
+`build/reports/ui-component-lookup/index.html` in a few seconds per change, since
+`uiShowcasePreviewReport`/`uiSnapshotReport` are each `finalizedBy` their test task and
+`uiComponentLookupReport` runs after both (`mustRunAfter`).
 
 To also auto-reload an open browser tab, run the wrapper script instead, which pairs the
-same `--continuous` task with a tiny static file server that injects a reload-on-change poll
-into the served HTML:
+same `--continuous` task graph with a tiny static file server that injects a reload-on-change
+poll into the served HTML:
 
 ```bash
 ./tools/ui_preview_watch.sh 8090
@@ -133,6 +157,27 @@ into the served HTML:
 
 This is also wired into `.claude/launch.json` as the `ui-preview-watch` configuration,
 matching the `wasmjs-*` entries' launch pattern.
+
+### Reserved dev-server ports
+
+Every wasmJs sample's dev server has a fixed port (configured via `commonWebpackConfig { devServer
+= ... }` inside that sample's `kotlin { wasmJs { browser { ... } } }` block in its
+`build.gradle.kts` -- webpack otherwise defaults every sample to 8080, causing collisions when
+more than one is run at once). `.claude/launch.json`'s `port` field must match the table below.
+
+| Port | Owner | Task |
+|------|-------|------|
+| 8081 | `samples/hello-cube` dev | `:samples:hello-cube:wasmJsBrowserDevelopmentRun` |
+| 8082 | `samples/ui-showcase` dev | `:samples:ui-showcase:wasmJsBrowserDevelopmentRun` |
+| 8083 | `samples/ui-showcase` prod preview | `:samples:ui-showcase:wasmJsBrowserProductionRun` |
+| 8084 | `samples/starter-game` dev | `:samples:starter-game:wasmJsBrowserDevelopmentRun` |
+| 8085 | `samples/hello-cube` prod preview | `:samples:hello-cube:wasmJsBrowserProductionRun` |
+| 8090 | `tools/ui_preview_watch.sh` / `ui_preview_server.py` | live-reload static file server |
+
+Convention: when adding a new dev-server tool (a new sample's wasmJs target, a new preview
+script, etc.), reserve the next free port in this range, wire it into the module's
+`build.gradle.kts` (or the tool's own config) so it's real rather than aspirational, add the
+matching entry to `.claude/launch.json`, and update this table in the same change.
 
 ## Adding a UI Tutorial
 

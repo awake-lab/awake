@@ -64,7 +64,15 @@ kotlin {
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        browser()
+        browser {
+            // Fixed dev-server port so it doesn't collide with the other samples' wasmJs dev
+            // servers (webpack defaults every sample to 8080 otherwise). Keep in sync with
+            // the "wasmjs-starter-game" entry in .claude/launch.json and the port table in
+            // docs/reference/developer-docs.md.
+            commonWebpackConfig {
+                devServer = devServer?.copy(port = 8084)
+            }
+        }
         binaries.executable()
     }
 

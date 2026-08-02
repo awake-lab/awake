@@ -66,7 +66,17 @@ kotlin {
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        browser()
+        browser {
+            // Fixed dev-server ports so dev/prod each get their own, and don't collide with
+            // the other samples' wasmJs dev servers (webpack defaults every sample to 8080
+            // otherwise). Keep in sync with the "wasmjs-ui-showcase"/"wasmjs-ui-showcase-prod"
+            // entries in .claude/launch.json and the port table in
+            // docs/reference/developer-docs.md.
+            commonWebpackConfig {
+                val port = if (mode == org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.Mode.PRODUCTION) 8083 else 8082
+                devServer = devServer?.copy(port = port)
+            }
+        }
         binaries.executable()
     }
 
