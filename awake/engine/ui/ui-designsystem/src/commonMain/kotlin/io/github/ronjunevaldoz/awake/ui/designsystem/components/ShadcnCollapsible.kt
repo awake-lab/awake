@@ -63,8 +63,11 @@ fun ColumnScope.shadcnCollapsible(
     }
 
     // The crash was caused by side-effects in composition via derived 'resolved' variable.
-    // Now we check for the transient .clicked flag directly and only fire on actual change detection.
-    if (trigger.clicked && expanded != !expanded) {
+    // Now we check for the transient .clicked flag directly -- `expanded != !expanded` used to
+    // guard this (a leftover of the old `resolved != expanded` comparison) but that's a boolean
+    // tautology (always true), so it never actually gated anything; `trigger.clicked` alone is
+    // the real and only condition that should fire the toggle.
+    if (trigger.clicked) {
         onExpandedChange(!expanded)
     }
 
