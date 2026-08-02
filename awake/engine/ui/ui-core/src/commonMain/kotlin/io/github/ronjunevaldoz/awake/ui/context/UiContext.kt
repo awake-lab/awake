@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.scaledByAlpha
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
@@ -344,12 +345,31 @@ class UiContext internal constructor(
         if (!measuring) runtime.clearFocusIfMatches(id)
     }
 
+    /** The composed alpha of every active [io.github.ronjunevaldoz.awake.ui.modifier.UiAlphaEffect]
+     * layer (see [pushGraphicsLayerAlphaInternal]) -- `1f` (fully opaque) when none is active. */
+    val currentGraphicsLayerAlpha: Float get() = stacks.currentAlpha
+
+    /**
+     * Pushes [alpha] onto the graphics-layer alpha stack, multiplying with whatever alpha is
+     * already active (so nested layers compose the same way real compositing does) -- every
+     * primitive emitted via [emitInternal]/[emitOverlayInternal] anywhere inside the matching
+     * [popGraphicsLayerAlphaInternal] window, no matter how many nested composite widgets deep,
+     * has its color's alpha channel multiplied by the effective stacked value (see
+     * [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.scaledByAlpha]). This is the real
+     * application point for [io.github.ronjunevaldoz.awake.ui.modifier.UiAlphaEffect] -- see
+     * `UiAnimatedVisibility.kt`'s `withGraphicsLayerAlpha`/`animatedVisibility` for the public
+     * scoped-block API built on top of this pair.
+     */
+    internal fun pushGraphicsLayerAlphaInternal(alpha: Float) = stacks.pushAlpha(alpha)
+
+    internal fun popGraphicsLayerAlphaInternal() = stacks.popAlpha()
+
     internal fun emitInternal(p: UiDrawPrimitive) {
-        if (!measuring) runtime.emit(p)
+        if (!measuring) runtime.emit(p.scaledByAlpha(stacks.currentAlpha))
     }
 
     internal fun emitOverlayInternal(p: UiDrawPrimitive) {
-        if (!measuring) runtime.emitOverlay(p)
+        if (!measuring) runtime.emitOverlay(p.scaledByAlpha(stacks.currentAlpha))
     }
 
     internal fun widgetStateInternal(id: String): WidgetState = runtime.widgetState(id)

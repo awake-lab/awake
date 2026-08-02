@@ -211,3 +211,35 @@ sealed class UiDrawPrimitive {
      * either. */
     data class ClipPop(val restoreRect: UiBounds) : UiDrawPrimitive()
 }
+
+/**
+ * Real alpha-compositing mechanism for `graphicsLayer` (see `modifier/GraphicsLayer.kt`'s
+ * [io.github.ronjunevaldoz.awake.ui.modifier.UiAlphaEffect]) -- multiplies every color-carrying
+ * primitive's alpha channel by [factor], applied once at
+ * [io.github.ronjunevaldoz.awake.ui.context.UiContext]'s own emission choke point rather than
+ * requiring every widget to blend its own colors. `factor == 1f` (the overwhelmingly common
+ * case -- no active alpha effect) returns `this` unchanged, so the hot path every existing widget
+ * already runs every frame pays no allocation cost. Primitives with no [Color] field ([Texture],
+ * the clip markers) pass through unchanged regardless of [factor] -- alpha-compositing an opaque
+ * render-target texture or a non-drawing clip marker isn't this mechanism's job.
+ */
+internal fun UiDrawPrimitive.scaledByAlpha(factor: Float): UiDrawPrimitive {
+    if (factor >= 1f) return this
+    return when (this) {
+        is UiDrawPrimitive.Quad -> copy(color = color.withAlpha(color.a * factor))
+        is UiDrawPrimitive.RoundedQuad -> copy(color = color.withAlpha(color.a * factor))
+        is UiDrawPrimitive.Glyph -> copy(color = color.withAlpha(color.a * factor))
+        is UiDrawPrimitive.FilledPath -> copy(color = color.withAlpha(color.a * factor))
+        is UiDrawPrimitive.StrokedPath -> copy(color = color.withAlpha(color.a * factor))
+        is UiDrawPrimitive.GradientQuad -> copy(
+            gradient = gradient.copy(
+                topLeft = gradient.topLeft.withAlpha(gradient.topLeft.a * factor),
+                topRight = gradient.topRight.withAlpha(gradient.topRight.a * factor),
+                bottomRight = gradient.bottomRight.withAlpha(gradient.bottomRight.a * factor),
+                bottomLeft = gradient.bottomLeft.withAlpha(gradient.bottomLeft.a * factor)
+            )
+        )
+        is UiDrawPrimitive.Texture, is UiDrawPrimitive.ClipPathPush,
+        is UiDrawPrimitive.ClipPush, is UiDrawPrimitive.ClipPop -> this
+    }
+}

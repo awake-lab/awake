@@ -15,10 +15,16 @@ internal class UiContextStacks {
     private val fontStack = mutableListOf(UiFonts.default())
     private val shapeStack = mutableListOf<UiShapeSpec?>(null)
 
+    // Cumulative, not per-level -- each push stores currentAlpha * the newly pushed alpha
+    // directly, so reading the top of the stack is always the fully composed effective alpha
+    // with no need to fold the whole stack on every primitive emission (the hot path).
+    private val alphaStack = mutableListOf(1f)
+
     val currentTheme: UiTheme get() = themeStack.last()
     val currentTextStyle: TextStyle get() = textStyleStack.last()
     val currentFont: UiFont get() = fontStack.last()
     val currentShapeSpec: UiShapeSpec? get() = shapeStack.last()
+    val currentAlpha: Float get() = alphaStack.last()
 
     fun pushTheme(theme: UiTheme) { themeStack.add(theme) }
     fun popTheme() { if (themeStack.size > 1) themeStack.removeAt(themeStack.size - 1) }
@@ -37,6 +43,9 @@ internal class UiContextStacks {
         if (shapeStack.size > 1) shapeStack.removeAt(shapeStack.size - 1)
     }
 
+    fun pushAlpha(alpha: Float) { alphaStack.add((currentAlpha * alpha).coerceIn(0f, 1f)) }
+    fun popAlpha() { if (alphaStack.size > 1) alphaStack.removeAt(alphaStack.size - 1) }
+
     /**
      * Resets all four stacks back to a single base entry carrying [theme]/[textStyle]/[font] --
      * used by a *reused* trial [UiContext] (see [UiContextMeasureState.createMeasureContext])
@@ -53,5 +62,6 @@ internal class UiContextStacks {
         textStyleStack.clear(); textStyleStack.add(textStyle)
         fontStack.clear(); fontStack.add(font)
         shapeStack.clear(); shapeStack.add(null)
+        alphaStack.clear(); alphaStack.add(1f)
     }
 }
