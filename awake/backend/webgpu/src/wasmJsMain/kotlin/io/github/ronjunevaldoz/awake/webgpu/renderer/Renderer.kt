@@ -14,19 +14,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiPath
-import io.github.ronjunevaldoz.awake.ui.UiPoint
-import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.UiTexturedTriangleMesh
-import io.github.ronjunevaldoz.awake.ui.UiTexturedVertex
-import io.github.ronjunevaldoz.awake.ui.UiTriangleMesh
-import io.github.ronjunevaldoz.awake.ui.clipToConvexPaths
-import io.github.ronjunevaldoz.awake.ui.convexClipContour
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.tessellateFill
-import io.github.ronjunevaldoz.awake.ui.tessellateStroke
-import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
@@ -44,9 +32,6 @@ import io.github.ronjunevaldoz.awake.webgpu.ui.UiRoundedQuadRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiTextureRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.ygdrasil.webgpu.ArrayBuffer
-import io.ygdrasil.webgpu.BindGroupDescriptor
-import io.ygdrasil.webgpu.BindGroupEntry
-import io.ygdrasil.webgpu.BufferBinding
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.Color as GpuColor
 import io.ygdrasil.webgpu.Extent3D
@@ -54,9 +39,9 @@ import io.ygdrasil.webgpu.GPUBindGroup
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
 import io.ygdrasil.webgpu.GPULoadOp
+import io.ygdrasil.webgpu.GPUMapMode
 import io.ygdrasil.webgpu.GPURenderPipeline
 import io.ygdrasil.webgpu.GPUStoreOp
-import io.ygdrasil.webgpu.GPUMapMode
 import io.ygdrasil.webgpu.RenderPassColorAttachment
 import io.ygdrasil.webgpu.RenderPassDepthStencilAttachment
 import io.ygdrasil.webgpu.RenderPassDescriptor
@@ -79,16 +64,25 @@ import io.ygdrasil.webgpu.beginRenderPass
  * uniform buffer within one render pass would clobber each other's MVP matrix, since
  * `queue.writeBuffer` is a queue-scheduled op, not something that interleaves mid-encoder.
  * Real per-draw-call (or per-Material) uniform buffers are Material's job once it's real.
+ *
+ * This class is deliberately just the class body (fields, constructor, the 3D resource API,
+ * and [destroy]) -- the rest of its behavior lives in sibling files as `internal` extension
+ * functions on `Renderer`, all in this same package: [RendererUiPipelines.kt] (lazy UI
+ * pipeline construction), [RendererDraw3D.kt] (the 3D frame path + debug lines),
+ * [RendererDrawUi.kt] (UI primitive staging), and [RendererVertexWriters.kt] (pure
+ * vertex-buffer writers). Every field a moved function touches is `internal`, not `private`,
+ * to stay accessible from those extension files -- `internal` stays module-scoped
+ * (`awake:backend:webgpu` only), so this is not a real encapsulation loss.
  */
 class Renderer(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     renderPipeline: RenderPipeline,
-    private val lineRenderPipeline: LineRenderPipeline,
-    private val uiShaderCode: ByteArray,
-    private val uiGlyphShaderCode: ByteArray,
-    private val uiTextureShaderCode: ByteArray,
-    private val uiRoundedQuadShaderCode: ByteArray,
+    internal val lineRenderPipeline: LineRenderPipeline,
+    internal val uiShaderCode: ByteArray,
+    internal val uiGlyphShaderCode: ByteArray,
+    internal val uiTextureShaderCode: ByteArray,
+    internal val uiRoundedQuadShaderCode: ByteArray,
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
@@ -97,43 +91,44 @@ class Renderer(
     // is Y-down, NDC is Y-up"). Unlike Vulkan (+Y down NDC), no flip is needed here.
     override val flipYForClipSpace: Boolean = false
 
-    private val graphicsDevice = graphicsDevice
-    private val swapchainManager = swapchainManager
-    private val renderPipeline = renderPipeline
+    internal val graphicsDevice = graphicsDevice
+    internal val swapchainManager = swapchainManager
+    internal val renderPipeline = renderPipeline
 
-    private var uniformBuffer: GPUBuffer? = null
-    private var uniformBindGroup: GPUBindGroup? = null
+    internal var uniformBuffer: GPUBuffer? = null
+    internal var uniformBindGroup: GPUBindGroup? = null
 
     // Lazily built on the first drawUi() call of any kind (uiRenderPipeline) and on the
     // first call that passes a non-null font (uiGlyphRenderPipeline) -- see
     // ensureUiQuadPipeline()/ensureGlyphPipeline()'s doc comments. A game that never calls
     // drawUi never builds either pipeline at all.
-    private var uiRenderPipeline: UiRenderPipeline? = null
-    private var uiGlyphRenderPipeline: UiGlyphRenderPipeline? = null
-    private var currentUiFont: UiFont? = null
+    internal var uiRenderPipeline: UiRenderPipeline? = null
+    internal var uiGlyphRenderPipeline: UiGlyphRenderPipeline? = null
+    internal var currentUiFont: UiFont? = null
 
     // Lazily built on the first drawUi() call that has any Texture primitives -- see
     // ensureTextureQuadPipeline()'s doc comment.
-    private var uiTextureRenderPipeline: UiTextureRenderPipeline? = null
+    internal var uiTextureRenderPipeline: UiTextureRenderPipeline? = null
 
     // Lazily built on the first drawUi() call that has any RoundedQuad primitives outside an
     // active convex-path clip -- see ensureRoundedQuadPipeline()'s doc comment. Mirrors
     // Vulkan's Renderer.uiRoundedQuadRenderPipeline (same lazy-pay-only-if-used pattern).
-    private var uiRoundedQuadRenderPipeline: UiRoundedQuadRenderPipeline? = null
+    internal var uiRoundedQuadRenderPipeline: UiRoundedQuadRenderPipeline? = null
 
     // One DynamicMesh per contiguous same-type run in a frame's primitive list (see
     // drawUi()'s run-coalescing) rather than one mesh per type -- mirrors Vulkan's
     // Renderer.kt (same file-level bug-fix rationale: a fixed "all quads, then all glyphs,
     // then all textures" pass order can only ever draw every glyph after every quad,
     // regardless of the source list's paint order). Grown on demand, reused every frame.
-    private val uiQuadMeshPool = mutableListOf<DynamicMesh>()
-    private val uiGlyphMeshPool = mutableListOf<DynamicMesh>()
-    private val uiRoundedQuadMeshPool = mutableListOf<DynamicMesh>()
-    private val textureQuadMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+    internal val uiQuadMeshPool = mutableListOf<DynamicMesh>()
+    internal val uiGlyphMeshPool = mutableListOf<DynamicMesh>()
+    internal val uiRoundedQuadMeshPool = mutableListOf<DynamicMesh>()
+    internal val textureQuadMesh = DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
 
     /** One coalesced same-type run of a frame's UI primitives, in original paint order --
-     * see [drawUi]'s doc comment for why runs (not "all quads, then all glyphs") are needed. */
-    private sealed class UiRun {
+     * see `performDrawUi`'s doc comment (in [RendererDrawUi.kt]) for why runs (not "all
+     * quads, then all glyphs") are needed. */
+    internal sealed class UiRun {
         class QuadRun(val mesh: DynamicMesh) : UiRun()
         class RoundedQuadRun(val mesh: DynamicMesh) : UiRun()
         class GlyphRun(val mesh: DynamicMesh) : UiRun()
@@ -145,41 +140,38 @@ class Renderer(
         class ClipRun(val rect: UiBounds) : UiRun()
     }
 
-    private data class TexturedPrimitiveRun(
+    internal data class TexturedPrimitiveRun(
         val material: Any,
         val vertices: FloatArray,
         val indices: IntArray
     )
 
-    private enum class ClipKind {
-        Rect,
-        Path
-    }
+    /** This frame's runs, in paint order -- staged by `performDrawUi`, consumed by
+     * `performDraw` (both in sibling files, see this class's doc comment). */
+    internal var uiRuns: List<UiRun> = emptyList()
 
-    /** This frame's runs, in paint order -- staged by [drawUi], consumed by [draw]. */
-    private var uiRuns: List<UiRun> = emptyList()
-
-    private fun quadMeshForRun(index: Int): DynamicMesh {
+    internal fun quadMeshForRun(index: Int): DynamicMesh {
         while (uiQuadMeshPool.size <= index) uiQuadMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS)
         return uiQuadMeshPool[index]
     }
 
-    private fun glyphMeshForRun(index: Int): DynamicMesh {
+    internal fun glyphMeshForRun(index: Int): DynamicMesh {
         while (uiGlyphMeshPool.size <= index) {
             uiGlyphMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
         }
         return uiGlyphMeshPool[index]
     }
 
-    private fun roundedQuadMeshForRun(index: Int): DynamicMesh {
+    internal fun roundedQuadMeshForRun(index: Int): DynamicMesh {
         while (uiRoundedQuadMeshPool.size <= index) {
             uiRoundedQuadMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX)
         }
         return uiRoundedQuadMeshPool[index]
     }
 
-    // Rewritten by drawDebugLines() (staged before draw(), same pattern as uiMesh above).
-    private val lineMesh = LineMesh(graphicsDevice, MAX_DEBUG_LINES)
+    // Rewritten by performDrawDebugLines() (staged before draw(), same pattern as uiMesh
+    // above).
+    internal val lineMesh = LineMesh(graphicsDevice, MAX_DEBUG_LINES)
 
     /** Uploads [geometry] as a GPU mesh, on demand -- see [RenderRenderer.createMesh]'s doc
      * comment. `runOneTimeCommands` is unused by this backend's `Mesh` (see its own doc
@@ -213,10 +205,10 @@ class Renderer(
         OffscreenRenderTarget(graphicsDevice, width, height).also { createdRenderTargets += it }
 
     /** Renders [drawCalls] against [camera] into [target] -- see
-     * [RenderRenderer.renderToTexture]'s doc comment. This is [draw]'s 3D-pass body, minus
-     * the `getCurrentTexture()` call, targeting [target]'s own [OffscreenRenderTarget.colorView]
-     * instead -- no explicit layout-transition step needed (unlike Vulkan): WebGPU manages
-     * texture state transitions implicitly per-encoder. */
+     * [RenderRenderer.renderToTexture]'s doc comment. This is `performDraw`'s 3D-pass body,
+     * minus the `getCurrentTexture()` call, targeting [target]'s own
+     * [OffscreenRenderTarget.colorView] instead -- no explicit layout-transition step needed
+     * (unlike Vulkan): WebGPU manages texture state transitions implicitly per-encoder. */
     override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) {
         val offscreen = target as OffscreenRenderTarget
         val device = graphicsDevice.wgpuContext.device
@@ -306,741 +298,20 @@ class Renderer(
         return TextureAsset(packed, offscreen.width, offscreen.height)
     }
 
-    /** Builds [uiRenderPipeline] on the first [drawUi] call of any kind -- quad rendering
-     * doesn't need a font, so this doesn't wait for one. Cached after the first build (a
-     * game calls [drawUi] every frame). */
-    private fun ensureUiQuadPipeline() {
-        if (uiRenderPipeline != null) return
-        uiRenderPipeline = UiRenderPipeline(graphicsDevice, swapchainManager, uiShaderCode)
-    }
+    /** Stages this frame's UI overlay content -- delegates to [performDrawUi]
+     * ([RendererDrawUi.kt]). Named differently from the extension function it calls: an
+     * extension function can't share its name with a member function it's called from
+     * without the member call winning resolution and recursing into itself. */
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) = performDrawUi(primitives, font)
 
-    /** Builds [uiGlyphRenderPipeline] on the first [drawUi] call that passes a non-null
-     * [font] -- cached after that (a game calls [drawUi] with the same font every frame). */
-    private fun ensureGlyphPipeline(font: UiFont) {
-        if (currentUiFont !== font) {
-            uiGlyphRenderPipeline?.destroy()
-            uiGlyphRenderPipeline = null
-            currentUiFont = font
-        }
-        if (uiGlyphRenderPipeline != null) return
-        uiGlyphRenderPipeline = UiGlyphRenderPipeline(graphicsDevice, swapchainManager, uiGlyphShaderCode, font)
-    }
+    /** Stages this frame's world-space debug lines -- delegates to [performDrawDebugLines]
+     * ([RendererDraw3D.kt]). See [drawUi]'s doc comment for why this can't just be the
+     * extracted body under the same name. */
+    override fun drawDebugLines(lines: List<LineSegment>) = performDrawDebugLines(lines)
 
-    /** Builds [uiTextureRenderPipeline] on the first [drawUi] call that has any
-     * [UiDrawPrimitive.Texture] primitives -- cached after that. */
-    private fun ensureTextureQuadPipeline() {
-        if (uiTextureRenderPipeline != null) return
-        uiTextureRenderPipeline = UiTextureRenderPipeline(graphicsDevice, swapchainManager, uiTextureShaderCode)
-    }
-
-    /** Builds [uiRoundedQuadRenderPipeline] on the first [drawUi] call that has any
-     * [UiDrawPrimitive.RoundedQuad] primitives outside an active convex-path clip -- cached
-     * after that. Mirrors Vulkan's `ensureRoundedQuadPipeline()`. */
-    private fun ensureRoundedQuadPipeline() {
-        if (uiRoundedQuadRenderPipeline != null) return
-        uiRoundedQuadRenderPipeline = UiRoundedQuadRenderPipeline(graphicsDevice, swapchainManager, uiRoundedQuadShaderCode)
-    }
-
-    private fun ensureUniformResources(pipeline: GPURenderPipeline) {
-        if (uniformBuffer != null) return
-        val device = graphicsDevice.wgpuContext.device
-        val buffer = device.createBuffer(
-            BufferDescriptor(
-                size = (16 * Float.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst
-            )
-        )
-        uniformBuffer = buffer
-        uniformBindGroup = device.createBindGroup(
-            BindGroupDescriptor(
-                layout = pipeline.getBindGroupLayout(0u),
-                entries = listOf(
-                    BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = buffer))
-                )
-            )
-        )
-    }
-
-    /** Stages this frame's UI overlay content -- rewrites [uiRuns]' pooled meshes but issues
-     * no GPU commands itself. Must be called BEFORE [draw] (see `WebGpuGameApplication
-     * .onRender()`'s ordering) so [draw]'s UI pass draws this frame's widgets rather than
-     * lagging a frame behind. Lazily builds the (quad) UI pipeline on first call, and the
-     * glyph pipeline on the first call that passes a non-null [font] -- see
-     * [ensureUiQuadPipeline]/[ensureGlyphPipeline]'s doc comments.
-     *
-     * Walks [primitives] once, coalescing adjacent same-type entries into runs so [draw] can
-     * issue draw calls in the SAME order [primitives] arrived in -- see Vulkan's
-     * `Renderer.drawUi()`'s doc comment (this mirrors it) for the full "all quads, then all
-     * glyphs" bug this fixes. */
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) {
-        ensureUiQuadPipeline()
-        if (font != null) ensureGlyphPipeline(font)
-        if (primitives.any { it is UiDrawPrimitive.Texture }) ensureTextureQuadPipeline()
-        if (primitives.any { it is UiDrawPrimitive.RoundedQuad }) ensureRoundedQuadPipeline()
-
-        val runs = mutableListOf<UiRun>()
-        var quadRunCount = 0
-        var roundedQuadRunCount = 0
-        var glyphRunCount = 0
-        val activePathClips = ArrayList<UiPath>()
-        val clipKindStack = ArrayDeque<ClipKind>()
-        var index = 0
-        while (index < primitives.size) {
-            val runStart = index
-            val first = primitives[runStart]
-            index += 1
-            while (index < primitives.size && primitives[index]::class == first::class) index += 1
-            val slice = primitives.subList(runStart, index)
-            when (first) {
-                is UiDrawPrimitive.Quad -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val mesh = quadMeshForRun(quadRunCount)
-                    stageQuadRun(mesh, slice as List<UiDrawPrimitive.Quad>, activePathClips)
-                    runs += UiRun.QuadRun(mesh)
-                    quadRunCount += 1
-                }
-                is UiDrawPrimitive.GradientQuad -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val mesh = quadMeshForRun(quadRunCount)
-                    stageGradientQuadRun(mesh, slice as List<UiDrawPrimitive.GradientQuad>)
-                    runs += UiRun.QuadRun(mesh)
-                    quadRunCount += 1
-                }
-                is UiDrawPrimitive.RoundedQuad -> {
-                    // Exact-clip case: tessellate a real rounded-rect path (same as the
-                    // FilledPath/StrokedPath branches). Non-clipped case: dedicated SDF
-                    // UiRoundedQuadRenderPipeline (mirrors Vulkan's uiRoundedQuadRenderPipeline)
-                    // instead of the old flat-Quad fallback that dropped the radius entirely.
-                    @Suppress("UNCHECKED_CAST")
-                    val roundedSlice = slice as List<UiDrawPrimitive.RoundedQuad>
-                    if (canExactClip(activePathClips)) {
-                        val mesh = quadMeshForRun(quadRunCount)
-                        stageRoundedQuadFillRun(mesh, roundedSlice, activePathClips)
-                        runs += UiRun.QuadRun(mesh)
-                        quadRunCount += 1
-                    } else {
-                        val mesh = roundedQuadMeshForRun(roundedQuadRunCount)
-                        stageRoundedQuadRun(mesh, roundedSlice)
-                        runs += UiRun.RoundedQuadRun(mesh)
-                        roundedQuadRunCount += 1
-                    }
-                }
-                is UiDrawPrimitive.FilledPath -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val mesh = quadMeshForRun(quadRunCount)
-                    stageFilledPathRun(mesh, slice as List<UiDrawPrimitive.FilledPath>, activePathClips)
-                    runs += UiRun.QuadRun(mesh)
-                    quadRunCount += 1
-                }
-                is UiDrawPrimitive.StrokedPath -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val mesh = quadMeshForRun(quadRunCount)
-                    stageStrokedPathRun(mesh, slice as List<UiDrawPrimitive.StrokedPath>, activePathClips)
-                    runs += UiRun.QuadRun(mesh)
-                    quadRunCount += 1
-                }
-                is UiDrawPrimitive.Glyph -> {
-                    // Chunk a same-type glyph run into MAX_UI_QUADS-sized sub-runs -- mirrors
-                    // Vulkan's Renderer.performDrawUi() Glyph branch, so a single contiguous
-                    // glyph run over MAX_UI_QUADS glyphs doesn't hit stageGlyphRun's
-                    // require(glyphs.size <= MAX_UI_QUADS) guard and throw.
-                    @Suppress("UNCHECKED_CAST")
-                    val glyphSlice = slice as List<UiDrawPrimitive.Glyph>
-                    var chunkStart = 0
-                    while (chunkStart < glyphSlice.size) {
-                        val chunkEnd = minOf(chunkStart + MAX_UI_QUADS, glyphSlice.size)
-                        val mesh = glyphMeshForRun(glyphRunCount)
-                        stageGlyphRun(mesh, glyphSlice.subList(chunkStart, chunkEnd), activePathClips)
-                        runs += UiRun.GlyphRun(mesh)
-                        glyphRunCount += 1
-                        chunkStart = chunkEnd
-                    }
-                }
-                is UiDrawPrimitive.Texture -> {
-                    @Suppress("UNCHECKED_CAST")
-                    runs += UiRun.TextureRun(stageTextureRun(slice as List<UiDrawPrimitive.Texture>, activePathClips))
-                }
-                is UiDrawPrimitive.ClipPathPush -> {
-                    // Keep the resolved bounds scissor even when exact convex path clipping
-                    // is available: it stays the fallback for non-convex paths and still
-                    // trims work outside the path's enclosing rect.
-                    (slice as List<UiDrawPrimitive.ClipPathPush>).forEach {
-                        clipKindStack.addLast(ClipKind.Path)
-                        activePathClips += it.path
-                        runs += UiRun.ClipRun(it.boundsRect)
-                    }
-                }
-                is UiDrawPrimitive.ClipPush -> {
-                    // Each ClipPush/ClipPop is its own run (never coalesced with a sibling --
-                    // they're distinct classes, so the same-class grouping above already
-                    // isolates them one at a time), consumed at the exact point in the paint
-                    // order they were emitted, same as any other run.
-                    (slice as List<UiDrawPrimitive.ClipPush>).forEach {
-                        clipKindStack.addLast(ClipKind.Rect)
-                        runs += UiRun.ClipRun(it.rect)
-                    }
-                }
-                is UiDrawPrimitive.ClipPop -> {
-                    (slice as List<UiDrawPrimitive.ClipPop>).forEach {
-                        when (clipKindStack.removeLastOrNull()) {
-                            ClipKind.Path -> if (activePathClips.isNotEmpty()) activePathClips.removeAt(activePathClips.lastIndex)
-                            ClipKind.Rect, null -> Unit
-                        }
-                        runs += UiRun.ClipRun(it.restoreRect)
-                    }
-                }
-            }
-        }
-        uiRuns = runs
-    }
-
-    /** Writes [quads] (one run's worth) into [mesh] -- extracted from the old single-mesh
-     * [drawUi] body, unchanged vertex/index layout. */
-    private fun stageQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.Quad>, activePathClips: List<UiPath> = emptyList()) {
-        if (canExactClip(activePathClips)) {
-            stageColoredTriangleMeshes(
-                mesh,
-                quads.map { quad ->
-                    exactClip(
-                        UiTriangleMesh(
-                            points = listOf(
-                                UiPoint(quad.x, quad.y),
-                                UiPoint(quad.x + quad.w, quad.y),
-                                UiPoint(quad.x + quad.w, quad.y + quad.h),
-                                UiPoint(quad.x, quad.y + quad.h)
-                            ),
-                            indices = intArrayOf(0, 1, 2, 2, 3, 0)
-                        ),
-                        activePathClips
-                    ) to quad.color
-                },
-                "quad"
-            )
-            return
-        }
-        require(quads.size <= MAX_UI_QUADS) {
-            "UI quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
-        }
-        val vertices = FloatArray(quads.size * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.FLOATS_PER_VERTEX)
-        val indices = IntArray(quads.size * DynamicMesh.INDICES_PER_QUAD)
-        var quadIndex = 0
-        while (quadIndex < quads.size) {
-            val quad = quads[quadIndex]
-            val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.FLOATS_PER_VERTEX
-            writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.color)
-            writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.color)
-            writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.color)
-            writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.color)
-
-            val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
-            val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
-            indices[indexBase] = vertexOffset
-            indices[indexBase + 1] = vertexOffset + 1
-            indices[indexBase + 2] = vertexOffset + 2
-            indices[indexBase + 3] = vertexOffset + 2
-            indices[indexBase + 4] = vertexOffset + 3
-            indices[indexBase + 5] = vertexOffset
-            quadIndex += 1
-        }
-        mesh.update(vertices, indices)
-    }
-
-    private fun stageFilledPathRun(mesh: DynamicMesh, paths: List<UiDrawPrimitive.FilledPath>, activePathClips: List<UiPath>) {
-        val tessellated = paths.map { it to exactClip(it.path.tessellateFill(), activePathClips) }
-        stageColoredTriangleMeshes(mesh, tessellated.map { (primitive, triangleMesh) -> triangleMesh to primitive.color }, "filled-path")
-    }
-
-    private fun stageGradientQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.GradientQuad>) {
-        require(quads.size <= MAX_UI_QUADS) {
-            "UI gradient quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
-        }
-        val vertices = FloatArray(quads.size * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.FLOATS_PER_VERTEX)
-        val indices = IntArray(quads.size * DynamicMesh.INDICES_PER_QUAD)
-        var quadIndex = 0
-        while (quadIndex < quads.size) {
-            val quad = quads[quadIndex]
-            val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.FLOATS_PER_VERTEX
-            writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.gradient.topLeft)
-            writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.gradient.topRight)
-            writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.gradient.bottomRight)
-            writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.gradient.bottomLeft)
-
-            val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
-            val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
-            indices[indexBase] = vertexOffset
-            indices[indexBase + 1] = vertexOffset + 1
-            indices[indexBase + 2] = vertexOffset + 2
-            indices[indexBase + 3] = vertexOffset + 2
-            indices[indexBase + 4] = vertexOffset + 3
-            indices[indexBase + 5] = vertexOffset
-            quadIndex += 1
-        }
-        mesh.update(vertices, indices)
-    }
-
-    private fun stageStrokedPathRun(mesh: DynamicMesh, paths: List<UiDrawPrimitive.StrokedPath>, activePathClips: List<UiPath>) {
-        val tessellated = paths.map { it to exactClip(it.path.tessellateStroke(it.stroke), activePathClips) }
-        stageColoredTriangleMeshes(mesh, tessellated.map { (primitive, triangleMesh) -> triangleMesh to primitive.color }, "stroked-path")
-    }
-
-    private fun stageRoundedQuadFillRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.RoundedQuad>, activePathClips: List<UiPath>) {
-        stageColoredTriangleMeshes(
-            mesh,
-            quads.map { quad ->
-                exactClip(
-                    UiShapeSpec.RoundedRectangle(quad.radius.px).toPath(UiBounds(quad.x, quad.y, quad.w, quad.h)).tessellateFill(),
-                    activePathClips
-                ) to quad.color
-            },
-            "rounded-quad-clipped"
-        )
-    }
-
-    /** Writes [quads] (one run's worth) into [mesh] using the rounded-quad vertex layout --
-     * pos(vec2) + localPos(vec2, pixels relative to the quad's own center) + halfSize(vec2) +
-     * radius(float) + color(vec4), consumed by `ui_rounded_quad.wgsl`'s distance-field test.
-     * Mirrors Vulkan's `stageRoundedQuadRun`. */
-    private fun stageRoundedQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.RoundedQuad>) {
-        require(quads.size <= MAX_UI_QUADS) {
-            "UI rounded-quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
-        }
-        val floatsPerVertex = DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX
-        val vertices = FloatArray(quads.size * DynamicMesh.VERTICES_PER_QUAD * floatsPerVertex)
-        val indices = IntArray(quads.size * DynamicMesh.INDICES_PER_QUAD)
-        var quadIndex = 0
-        while (quadIndex < quads.size) {
-            val quad = quads[quadIndex]
-            val halfW = quad.w / 2f
-            val halfH = quad.h / 2f
-            // Radius can't exceed either half-dimension -- a corner radius bigger than the
-            // quad itself would make the SDF math produce a self-intersecting shape.
-            val radius = quad.radius.coerceAtMost(minOf(halfW, halfH))
-            val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * floatsPerVertex
-            writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.color)
-            writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color)
-            writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color)
-            writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color)
-
-            val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
-            val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
-            indices[indexBase] = vertexOffset
-            indices[indexBase + 1] = vertexOffset + 1
-            indices[indexBase + 2] = vertexOffset + 2
-            indices[indexBase + 3] = vertexOffset + 2
-            indices[indexBase + 4] = vertexOffset + 3
-            indices[indexBase + 5] = vertexOffset
-            quadIndex += 1
-        }
-        mesh.update(vertices, indices)
-    }
-
-    private fun stageColoredTriangleMeshes(
-        mesh: DynamicMesh,
-        geometries: List<Pair<io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, AwakeColor>>,
-        label: String
-    ) {
-        val maxVertices = MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
-        val maxIndices = MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
-        val totalVertices = geometries.sumOf { it.first.points.size }
-        val totalIndices = geometries.sumOf { it.first.indices.size }
-        require(totalVertices <= maxVertices) {
-            "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices vertices)."
-        }
-        require(totalIndices <= maxIndices) {
-            "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices indices)."
-        }
-
-        val vertices = FloatArray(totalVertices * DynamicMesh.FLOATS_PER_VERTEX)
-        val indices = IntArray(totalIndices)
-        var vertexCursor = 0
-        var indexCursor = 0
-        var vertexOffset = 0
-
-        geometries.forEach { (triangleMesh, color) ->
-            triangleMesh.points.forEach { point ->
-                writeVertex(vertices, vertexCursor, point.x, point.y, color)
-                vertexCursor += DynamicMesh.FLOATS_PER_VERTEX
-            }
-            triangleMesh.indices.forEach { index ->
-                indices[indexCursor] = vertexOffset + index
-                indexCursor += 1
-            }
-            vertexOffset += triangleMesh.points.size
-        }
-        mesh.update(vertices, indices)
-    }
-
-    private fun canExactClip(paths: List<UiPath>): Boolean = paths.isNotEmpty() && paths.all { it.convexClipContour() != null }
-
-    private fun exactClip(mesh: UiTriangleMesh, activePathClips: List<UiPath>): UiTriangleMesh =
-        if (canExactClip(activePathClips)) mesh.clipToConvexPaths(activePathClips) else mesh
-
-    private fun exactClip(mesh: UiTexturedTriangleMesh, activePathClips: List<UiPath>): UiTexturedTriangleMesh =
-        if (canExactClip(activePathClips)) mesh.clipToConvexPaths(activePathClips) else mesh
-
-    /** Writes [glyphs] (one run's worth) into [mesh] -- extracted from the old single-mesh
-     * [drawUi] body, unchanged vertex/index layout unless exact path clipping is active. */
-    private fun stageGlyphRun(mesh: DynamicMesh, glyphs: List<UiDrawPrimitive.Glyph>, activePathClips: List<UiPath> = emptyList()) {
-        if (canExactClip(activePathClips)) {
-            stageTexturedTriangleMeshes(
-                mesh,
-                glyphs.map { glyph ->
-                    exactClip(
-                        texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1),
-                        activePathClips
-                    ) to glyph.color
-                },
-                "glyph"
-            )
-            return
-        }
-        require(glyphs.size <= MAX_UI_QUADS) {
-            "UI glyph run size (${glyphs.size}) exceeds Renderer's DynamicMesh capacity ($MAX_UI_QUADS)."
-        }
-        val glyphVertices = FloatArray(glyphs.size * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
-        val glyphIndices = IntArray(glyphs.size * DynamicMesh.INDICES_PER_QUAD)
-        var glyphIndex = 0
-        while (glyphIndex < glyphs.size) {
-            val glyph = glyphs[glyphIndex]
-            val vertexBase = glyphIndex * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.GLYPH_FLOATS_PER_VERTEX
-            writeGlyphVertex(glyphVertices, vertexBase + 0 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y, glyph.u0, glyph.v0, glyph.color)
-            writeGlyphVertex(glyphVertices, vertexBase + 1 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y, glyph.u1, glyph.v0, glyph.color)
-            writeGlyphVertex(glyphVertices, vertexBase + 2 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y + glyph.h, glyph.u1, glyph.v1, glyph.color)
-            writeGlyphVertex(glyphVertices, vertexBase + 3 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y + glyph.h, glyph.u0, glyph.v1, glyph.color)
-
-            val vertexOffset = glyphIndex * DynamicMesh.VERTICES_PER_QUAD
-            val indexBase = glyphIndex * DynamicMesh.INDICES_PER_QUAD
-            glyphIndices[indexBase] = vertexOffset
-            glyphIndices[indexBase + 1] = vertexOffset + 1
-            glyphIndices[indexBase + 2] = vertexOffset + 2
-            glyphIndices[indexBase + 3] = vertexOffset + 2
-            glyphIndices[indexBase + 4] = vertexOffset + 3
-            glyphIndices[indexBase + 5] = vertexOffset
-            glyphIndex += 1
-        }
-        mesh.update(glyphVertices, glyphIndices)
-    }
-
-    private fun stageTextureRun(textures: List<UiDrawPrimitive.Texture>, activePathClips: List<UiPath>): List<TexturedPrimitiveRun> =
-        textures.map { primitive ->
-            val clipped = exactClip(texturedQuadMesh(primitive.x, primitive.y, primitive.w, primitive.h), activePathClips)
-            val (vertices, indices) = texturedGeometryBuffers(clipped, WHITE_RGBA)
-            TexturedPrimitiveRun(primitive.material, vertices, indices)
-        }
-
-    private fun stageTexturedTriangleMeshes(
-        mesh: DynamicMesh,
-        geometries: List<Pair<UiTexturedTriangleMesh, AwakeColor>>,
-        label: String
-    ) {
-        val maxVertices = MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
-        val maxIndices = MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
-        val totalVertices = geometries.sumOf { it.first.vertices.size }
-        val totalIndices = geometries.sumOf { it.first.indices.size }
-        require(totalVertices <= maxVertices) {
-            "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices vertices)."
-        }
-        require(totalIndices <= maxIndices) {
-            "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices indices)."
-        }
-
-        val vertices = FloatArray(totalVertices * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
-        val indices = IntArray(totalIndices)
-        var vertexCursor = 0
-        var indexCursor = 0
-        var vertexOffset = 0
-
-        geometries.forEach { (triangleMesh, color) ->
-            triangleMesh.vertices.forEach { vertex ->
-                writeGlyphVertex(vertices, vertexCursor, vertex.position.x, vertex.position.y, vertex.u, vertex.v, color)
-                vertexCursor += DynamicMesh.GLYPH_FLOATS_PER_VERTEX
-            }
-            triangleMesh.indices.forEach { index ->
-                indices[indexCursor] = vertexOffset + index
-                indexCursor += 1
-            }
-            vertexOffset += triangleMesh.vertices.size
-        }
-        mesh.update(vertices, indices)
-    }
-
-    private fun texturedQuadMesh(
-        x: Float,
-        y: Float,
-        w: Float,
-        h: Float,
-        u0: Float = 0f,
-        v0: Float = 0f,
-        u1: Float = 1f,
-        v1: Float = 1f
-    ): UiTexturedTriangleMesh = UiTexturedTriangleMesh(
-        vertices = listOf(
-            UiTexturedVertex(UiPoint(x, y), u0, v0),
-            UiTexturedVertex(UiPoint(x + w, y), u1, v0),
-            UiTexturedVertex(UiPoint(x + w, y + h), u1, v1),
-            UiTexturedVertex(UiPoint(x, y + h), u0, v1)
-        ),
-        indices = intArrayOf(0, 1, 2, 2, 3, 0)
-    )
-
-    private fun texturedGeometryBuffers(mesh: UiTexturedTriangleMesh, color: AwakeColor): Pair<FloatArray, IntArray> {
-        val vertices = FloatArray(mesh.vertices.size * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
-        var offset = 0
-        mesh.vertices.forEach { vertex ->
-            writeGlyphVertex(vertices, offset, vertex.position.x, vertex.position.y, vertex.u, vertex.v, color)
-            offset += DynamicMesh.GLYPH_FLOATS_PER_VERTEX
-        }
-        return vertices to mesh.indices
-    }
-
-    /** Stages this frame's world-space debug lines (e.g. a frustum wireframe) -- rewrites
-     * [lineMesh]'s buffer but issues no GPU commands itself, same "stage now, consume on
-     * next draw" pattern as [drawUi]. Call before [draw] each frame. */
-    override fun drawDebugLines(lines: List<LineSegment>) {
-        require(lines.size <= MAX_DEBUG_LINES) {
-            "Debug line count (${lines.size}) exceeds Renderer's LineMesh capacity ($MAX_DEBUG_LINES)."
-        }
-        val vertices = FloatArray(lines.size * LineMesh.VERTICES_PER_LINE * LineMesh.FLOATS_PER_VERTEX)
-        var lineIndex = 0
-        while (lineIndex < lines.size) {
-            val line = lines[lineIndex]
-            val vertexBase = lineIndex * LineMesh.VERTICES_PER_LINE * LineMesh.FLOATS_PER_VERTEX
-            writeLineVertex(vertices, vertexBase, line.start.x, line.start.y, line.start.z, line.color)
-            writeLineVertex(vertices, vertexBase + LineMesh.FLOATS_PER_VERTEX, line.end.x, line.end.y, line.end.z, line.color)
-            lineIndex += 1
-        }
-        lineMesh.update(vertices)
-    }
-
-    private fun writeLineVertex(out: FloatArray, offset: Int, x: Float, y: Float, z: Float, color: FloatArray) {
-        out[offset] = x
-        out[offset + 1] = y
-        out[offset + 2] = z
-        out[offset + 3] = color[0]
-        out[offset + 4] = color[1]
-        out[offset + 5] = color[2]
-        out[offset + 6] = if (color.size > 3) color[3] else 1f
-    }
-
-    private fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: AwakeColor) {
-        out[offset] = x
-        out[offset + 1] = y
-        out[offset + 2] = color.r
-        out[offset + 3] = color.g
-        out[offset + 4] = color.b
-        out[offset + 5] = color.a
-    }
-
-    private fun writeGlyphVertex(out: FloatArray, offset: Int, x: Float, y: Float, u: Float, v: Float, color: AwakeColor) {
-        out[offset] = x
-        out[offset + 1] = y
-        out[offset + 2] = u
-        out[offset + 3] = v
-        out[offset + 4] = color.r
-        out[offset + 5] = color.g
-        out[offset + 6] = color.b
-        out[offset + 7] = color.a
-    }
-
-    /** Writes one rounded-quad vertex -- pos(vec2) + localPos(vec2) + halfSize(vec2) +
-     * radius(float) + color(vec4), mirrors Vulkan's `writeRoundedQuadVertex`. */
-    private fun writeRoundedQuadVertex(
-        out: FloatArray,
-        offset: Int,
-        x: Float,
-        y: Float,
-        localX: Float,
-        localY: Float,
-        halfW: Float,
-        halfH: Float,
-        radius: Float,
-        color: AwakeColor
-    ) {
-        out[offset] = x
-        out[offset + 1] = y
-        out[offset + 2] = localX
-        out[offset + 3] = localY
-        out[offset + 4] = halfW
-        out[offset + 5] = halfH
-        out[offset + 6] = radius
-        out[offset + 7] = color.r
-        out[offset + 8] = color.g
-        out[offset + 9] = color.b
-        out[offset + 10] = color.a
-    }
-
-    override fun draw(camera: Camera, drawCalls: List<DrawCall>) {
-        swapchainManager.syncSurface()
-        val device = graphicsDevice.wgpuContext.device
-        val renderingContext = graphicsDevice.wgpuContext.renderingContext
-        val pipeline = WebGpuHandles.resolve<GPURenderPipeline>(renderPipeline.graphicsPipeline[0])
-        ensureUniformResources(pipeline)
-
-        val aspect = renderingContext.width.toFloat() / renderingContext.height.toFloat()
-        val viewProjection = camera.viewProjectionMatrix(aspect)
-        // Debug lines are already in world space, so their MVP is exactly viewProjection.
-        lineRenderPipeline.writeMvp(viewProjection.data)
-
-        val encoder = device.createCommandEncoder()
-        val colorView = renderingContext.getCurrentTexture().createView()
-
-        encoder.beginRenderPass(
-            RenderPassDescriptor(
-                colorAttachments = listOf(
-                    RenderPassColorAttachment(
-                        view = colorView,
-                        loadOp = GPULoadOp.Clear,
-                        clearValue = GpuColor(0.0, 0.0, 0.0, 1.0),
-                        storeOp = GPUStoreOp.Store
-                    )
-                ),
-                depthStencilAttachment = RenderPassDepthStencilAttachment(
-                    view = requireNotNull(swapchainManager.depthTextureView),
-                    depthClearValue = 1.0f,
-                    depthLoadOp = GPULoadOp.Clear,
-                    depthStoreOp = GPUStoreOp.Store
-                )
-            )
-        ) {
-            setPipeline(pipeline)
-            var drawIndex = 0
-            while (drawIndex < drawCalls.size) {
-                val drawCall = drawCalls[drawIndex]
-                // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
-                // Camera.viewProjectionMatrix's docs), matching vulkanMain's Renderer.
-                val mvp = drawCall.model * viewProjection
-                device.queue.writeBuffer(uniformBuffer!!, 0uL, ArrayBuffer.of(mvp.data))
-                setBindGroup(0u, uniformBindGroup!!)
-                // drawCall.mesh is the render-api interface (only bind()/draw()/destroy()) --
-                // cast to this backend's own concrete Mesh for vertexBuffer/indexBuffer/
-                // indexCount, safe since this Renderer only ever runs against this module's
-                // own Mesh instances (never a different backend's).
-                val mesh = drawCall.mesh as Mesh
-                setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))
-                setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
-                drawIndexed(mesh.indexCount.toUInt())
-                drawIndex += 1
-            }
-
-            // Debug lines (e.g. a frustum wireframe), same render pass as the 3D draw
-            // calls above. This backend's 3D pass has no depth attachment at all today
-            // (see LineRenderPipeline's doc comment), so this doesn't depth-test against
-            // scene geometry -- matches this pass's existing (pre-existing, not new) lack
-            // of depth testing for every other draw call too.
-            if (lineMesh.vertexCount > 0) {
-                setPipeline(lineRenderPipeline.pipeline)
-                setBindGroup(0u, lineRenderPipeline.bindGroup)
-                setVertexBuffer(0u, lineMesh.vertexBufferRef())
-                draw(lineMesh.vertexCount.toUInt())
-            }
-            end()
-        }
-
-        // Second pass, same encoder, drawn on top of the 3D pass's output --
-        // `loadOp = Load` (not `Clear`) is the whole trick, no separate framebuffer object
-        // needed at all (WebGPU has no framebuffer object; a render pass just names a
-        // texture view directly). Only recorded once drawUi() has actually built a UI
-        // pipeline at least once -- a game that never calls drawUi never pays for this pass.
-        val quadPipeline = uiRenderPipeline
-        if (quadPipeline != null && uiRuns.isNotEmpty()) {
-            quadPipeline.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
-            uiGlyphRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
-            uiTextureRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
-            uiRoundedQuadRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
-            encoder.beginRenderPass(
-                RenderPassDescriptor(
-                    colorAttachments = listOf(
-                        RenderPassColorAttachment(
-                            view = colorView,
-                            loadOp = GPULoadOp.Load,
-                            storeOp = GPUStoreOp.Store
-                        )
-                    )
-                )
-            ) {
-                // Walk this frame's runs (staged by drawUi(), see UiRun's doc comment) in
-                // original paint order, switching pipeline at each run boundary -- see
-                // Vulkan's Renderer.recordCommandBuffer()'s doc comment (this mirrors it) for
-                // why a fixed per-type pass order broke cross-type paint order.
-                val glyphPipeline = uiGlyphRenderPipeline
-                val texturePipeline = uiTextureRenderPipeline
-                var runIndex = 0
-                while (runIndex < uiRuns.size) {
-                    when (val run = uiRuns[runIndex]) {
-                        is UiRun.QuadRun -> {
-                            setPipeline(quadPipeline.pipeline)
-                            setBindGroup(0u, quadPipeline.screenSizeBindGroup)
-                            setVertexBuffer(0u, run.mesh.vertexBufferRef())
-                            setIndexBuffer(run.mesh.indexBufferRef(), DynamicMesh.indexFormat)
-                            drawIndexed(run.mesh.drawIndexCount.toUInt())
-                        }
-                        is UiRun.RoundedQuadRun -> {
-                            val roundedQuadPipeline = uiRoundedQuadRenderPipeline
-                            if (roundedQuadPipeline != null) {
-                                setPipeline(roundedQuadPipeline.pipeline)
-                                setBindGroup(0u, roundedQuadPipeline.screenSizeBindGroup)
-                                setVertexBuffer(0u, run.mesh.vertexBufferRef())
-                                setIndexBuffer(run.mesh.indexBufferRef(), DynamicMesh.indexFormat)
-                                drawIndexed(run.mesh.drawIndexCount.toUInt())
-                            }
-                        }
-                        is UiRun.GlyphRun -> {
-                            if (glyphPipeline != null) {
-                                setPipeline(glyphPipeline.pipeline)
-                                setBindGroup(0u, glyphPipeline.bindGroup)
-                                setVertexBuffer(0u, run.mesh.vertexBufferRef())
-                                setIndexBuffer(run.mesh.indexBufferRef(), DynamicMesh.indexFormat)
-                                drawIndexed(run.mesh.drawIndexCount.toUInt())
-                            }
-                        }
-                        is UiRun.ClipRun -> {
-                            // Not a real draw call -- run.rect is already fully resolved (see
-                            // UiContext's clip stack), so this just needs to set the scissor
-                            // rect at this exact point in the paint order. Clamped to the
-                            // render target's own bounds: nested scroll/clip regions can
-                            // accumulate a few px of floating-point rounding past the frame
-                            // edge, which WebGPU's stricter scissor validation rejects outright
-                            // (the whole command buffer becomes invalid, dropping the frame) --
-                            // unlike Vulkan, which tolerates the same imprecision silently.
-                            val maxX = renderingContext.width.toInt()
-                            val maxY = renderingContext.height.toInt()
-                            val x = run.rect.x.toInt().coerceIn(0, maxX)
-                            val y = run.rect.y.toInt().coerceIn(0, maxY)
-                            val width = run.rect.width.toInt().coerceAtLeast(0).coerceAtMost(maxX - x)
-                            val height = run.rect.height.toInt().coerceAtLeast(0).coerceAtMost(maxY - y)
-                            setScissorRect(x.toUInt(), y.toUInt(), width.toUInt(), height.toUInt())
-                        }
-                        is UiRun.TextureRun -> {
-                            // Render-target-backed textured quads (e.g. a minimap), one draw
-                            // call per primitive -- each binds that material's own
-                            // (lazily-cached) bind group, see UiTextureRenderPipeline's doc
-                            // comment for why bind groups are cached per material instead of
-                            // rewritten like Vulkan's descriptor set. Geometry is already
-                            // staged, including any exact convex path clipping.
-                            if (texturePipeline != null) {
-                                setPipeline(texturePipeline.pipeline)
-                                var textureIndex = 0
-                                while (textureIndex < run.primitives.size) {
-                                    val p = run.primitives[textureIndex]
-                                    val material = p.material as Material
-                                    setBindGroup(0u, texturePipeline.bindGroupFor(material))
-                                    textureQuadMesh.update(p.vertices, p.indices)
-                                    setVertexBuffer(0u, textureQuadMesh.vertexBufferRef())
-                                    setIndexBuffer(textureQuadMesh.indexBufferRef(), DynamicMesh.indexFormat)
-                                    drawIndexed(textureQuadMesh.drawIndexCount.toUInt())
-                                    textureIndex += 1
-                                }
-                            }
-                        }
-                    }
-                    runIndex += 1
-                }
-                end()
-            }
-        }
-
-        device.queue.submit(listOf(encoder.finish()))
-    }
+    /** Renders one frame -- delegates to [performDraw] ([RendererDraw3D.kt]). See [drawUi]'s
+     * doc comment for why this can't just be the extracted body under the same name. */
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>) = performDraw(camera, drawCalls)
 
     override fun destroy() {
         uniformBuffer?.close()
@@ -1058,9 +329,9 @@ class Renderer(
         lineMesh.destroy()
     }
 
-    private companion object {
-        const val MAX_UI_QUADS = 256
-        const val MAX_DEBUG_LINES = 64
-        val WHITE_RGBA = AwakeColor.White
+    companion object {
+        internal const val MAX_UI_QUADS = 256
+        internal const val MAX_DEBUG_LINES = 64
+        internal val WHITE_RGBA = AwakeColor.White
     }
 }
