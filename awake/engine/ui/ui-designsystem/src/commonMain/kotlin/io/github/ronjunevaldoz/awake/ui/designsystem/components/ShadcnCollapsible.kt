@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
@@ -21,10 +19,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
-import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /**
@@ -64,7 +58,7 @@ fun ColumnScope.shadcnCollapsible(
  * showing a "-"/"+" icon plus caller-supplied [header] content. Kept for callers that only
  * need to customize the header's inner content, not swap the trigger widget itself.
  */
-fun ColumnScope.shadcnCollapsible(
+private fun ColumnScope.shadcnCollapsible(
     id: String,
     expanded: Boolean,
     modifier: UiModifier = Modifier,
@@ -78,43 +72,32 @@ fun ColumnScope.shadcnCollapsible(
     onExpandedChange = onExpandedChange,
     trigger = { isOpen, toggle ->
         val shadcnTheme = theme.asShadcnTheme()
-        val result = buttonSlot(
+        shadcnButton(
             id = "$id.header",
             modifier = modifier.fillMaxWidth()
                 .height(32f.dp),
-            variant = UiButtonVariant.Outline,
+            variant = ShadcnButtonVariant.Ghost,
             style = Style {
                 foreground(shadcnTheme.tokens.foreground)
                 contentPadding(4f.dp, 0f.dp)
-            }
+            },
+            onClick = { toggle() }
         ) { slot ->
             // We use a simple row with fixed dimensions or predictable scaling logic.
             // To avoid WrapContent issues, we ensure children don't force unmeasured constraints.
-            this.row(
+            row(
                 horizontalArrangement = Arrangement.spacedBy(8f.dp),
                 verticalAlignment = UiAlignment.Vertical.Center
             , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))) {
-                 // icon()'s own row-child claim + row's crossAxis centering did not visually
-                 // center the chevron against the adjacent text (confirmed via rendered pixel
-                 // proof) -- mirroring drawDropdownTriggerContent's proven approach instead:
-                 // claim a slot for layout spacing, then compute the chevron's centered bounds
-                 // directly and emit it, rather than trusting the row's automatic alignment for
-                 // this specific shape.
-                 val chevronSlot = claimSlot(Dimension.Fixed(12f.dp), Dimension.Fixed(slot.height.dp))
-                 val chevronSize = 8f.dp.toPx()
-                 val chevronBounds = UiBounds(
-                     x = chevronSlot.x + (chevronSlot.width - chevronSize) / 2f,
-                     y = chevronSlot.y + (chevronSlot.height - chevronSize * 0.6f) / 2f,
-                     width = chevronSize,
-                     height = chevronSize * 0.6f
+                 text(
+                     label = if (isOpen) "-" else "+",
+                     modifier = Modifier.width(12f.dp),
+                     centered = true,
+                     verticallyCentered = true
                  )
-                 (if (isOpen) UiIcons.chevronUp else UiIcons.chevronDown).fitTo(chevronBounds).forEach { vectorPath ->
-                     emit(UiDrawPrimitive.FilledPath(vectorPath.path, vectorPath.fill ?: shadcnTheme.tokens.mutedForeground))
-                 }
                  header()
             }
         }
-        if (result.clicked) toggle()
     },
     content = content
 )
