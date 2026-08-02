@@ -8,16 +8,21 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.SeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-/** [separator] with Shadcn tokens. */
+/** [separator] with Shadcn tokens. Real shadcn's `Separator` has a horizontal/vertical axis
+ * (used e.g. between toolbar buttons or sidebar items); [orientation] threads straight through
+ * to [io.github.ronjunevaldoz.awake.ui.unstyled.separator]. */
 fun UiScope.shadcnSeparator(
     modifier: UiModifier = Modifier,
-    thickness: Dp = 1f.dp
+    thickness: Dp = 1f.dp,
+    orientation: SeparatorOrientation = SeparatorOrientation.Horizontal
 ): UiBounds = separator(
     thickness = thickness,
     modifier = modifier,
-    color = theme.tokens.border
+    color = theme.tokens.border,
+    orientation = orientation
 )

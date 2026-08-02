@@ -150,3 +150,26 @@ fun UiScope.emitInsetAccent(
         shapeSpec = shapeSpec
     )
 }
+
+/** Tri-state checkbox's "indeterminate" mark: a horizontal dash instead of the filled
+ * inset square [emitInsetAccent] draws for "checked" -- mirrors real shadcn's checkbox
+ * drawing a horizontal line (not a checkmark) when its ToggleableState is Indeterminate. */
+fun UiScope.emitInsetDash(
+    slot: UiBounds,
+    inset: Float
+) {
+    val innerW = slot.width - inset * 2
+    val innerH = slot.height - inset * 2
+    val thickness = (minOf(innerW, innerH) * 0.22f).coerceAtLeast(1f)
+    emitFillShape(
+        slot = UiBounds(
+            slot.x + inset,
+            slot.y + inset + (innerH - thickness) / 2f,
+            innerW,
+            thickness
+        ),
+        color = context.currentTheme.tokens.primary,
+        radiusPx = thickness / 2f,
+        shapeSpec = null
+    )
+}

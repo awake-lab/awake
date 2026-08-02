@@ -22,11 +22,13 @@ fun UiScope.shadcnCheckbox(
     checked: Boolean,
     label: String? = null,
     modifier: UiModifier = Modifier,
+    indeterminate: Boolean = false,
     style: Style = Style.Empty
 ): Boolean = checkbox(
     id = id,
     checked = checked,
     label = label,
     modifier = modifier,
-    style = shadcnCheckboxStyle(theme, style)
+    style = shadcnCheckboxStyle(theme, style),
+    indeterminate = indeterminate
 )

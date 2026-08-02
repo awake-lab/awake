@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -19,6 +20,40 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
+/**
+ * [shadcnAlertDialog] primary Slot API: the caller composes their own action row freely (any
+ * number of [shadcnButton]s, any variant, even a non-button action) instead of being locked into
+ * exactly two named buttons. Mirrors the reference shadcn-compose `ShadcnAlertDialog`, which is
+ * just `ShadcnDialog(showCloseButton = false)` with plain buttons composed inside its content --
+ * `dismissOnClickOutside` is left to [properties] (default `true`, same as [shadcnDialog]) rather
+ * than force-disabled, so this stays behavior-identical to the pre-existing fixed-2-button form.
+ * The fixed confirm/dismiss-label overload below is a convenience wrapper built on top of this.
+ */
+fun UiScope.shadcnAlertDialog(
+    id: String,
+    expanded: Boolean,
+    title: String,
+    width: Dimension = Dimension.Fixed(320f.dp),
+    properties: UiDialogProperties = UiDialogProperties(),
+    style: Style = Style.Empty,
+    actions: RowScope.() -> Unit,
+    body: ColumnScope.() -> Unit
+): UiPopupResult = shadcnDialog(
+    id = id,
+    expanded = expanded,
+    width = width,
+    properties = properties.copy(surfaceStyle = properties.surfaceStyle then style),
+    showCloseButton = false,
+    header = {
+        text(title, style = Style { textSize(theme.typography.title) }, wrap = UiTextWrap.Word)
+    },
+    actions = { actions() }
+) {
+    body()
+}
+
+/** [shadcnAlertDialog] convenience with fixed confirm/dismiss [shadcnButton]s, built on the
+ * [actions]-slot primary overload above. Source-compatible with every existing call site. */
 fun UiScope.shadcnAlertDialog(
     id: String,
     expanded: Boolean,
@@ -35,14 +70,13 @@ fun UiScope.shadcnAlertDialog(
     body: ColumnScope.() -> Unit
 ): UiAlertDialogResult {
     var action: UiAlertDialogAction? = null
-    val popup = shadcnDialog(
+    val popup = shadcnAlertDialog(
         id = id,
         expanded = expanded,
+        title = title,
         width = width,
-        properties = properties.copy(surfaceStyle = properties.surfaceStyle then style),
-        header = {
-            text(title, style = Style { textSize(theme.typography.title) }, wrap = UiTextWrap.Word)
-        },
+        properties = properties,
+        style = style,
         actions = {
             // Standard action row
             dismissLabel?.let { label ->

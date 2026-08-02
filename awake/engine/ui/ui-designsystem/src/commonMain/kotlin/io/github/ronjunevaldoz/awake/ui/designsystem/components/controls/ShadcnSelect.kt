@@ -28,9 +28,12 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 fun UiScope.shadcnSelect(
     id: String,
     options: List<String>,
-    selectedIndex: Int,
+    // Nullable: real shadcn's Select explicitly supports "nothing chosen yet, show
+    // placeholder" -- forcing an initial index committed a value the caller never picked.
+    selectedIndex: Int?,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    placeholder: String = ""
 ): Int? {
     val popupState = rememberPopupState(id, key = "expanded")
     val triggerStyle = shadcnFieldStyle(theme, style)
@@ -42,13 +45,15 @@ fun UiScope.shadcnSelect(
     if (trigger.clicked) {
         popupState.toggle()
     }
-    val selectedLabel = options.getOrNull(selectedIndex) ?: ""
+    val hasSelection = selectedIndex != null && options.getOrNull(selectedIndex) != null
+    val selectedLabel = if (hasSelection) options[selectedIndex!!] else placeholder
     drawDropdownTriggerContent(
         slot = trigger.slot,
         label = selectedLabel,
         expanded = popupState.expanded,
         style = triggerStyle,
-        semanticId = "$id.label"
+        semanticId = "$id.label",
+        isPlaceholder = !hasSelection
     )
     recordSemantic(
         role = UiSemanticRole.Dropdown,

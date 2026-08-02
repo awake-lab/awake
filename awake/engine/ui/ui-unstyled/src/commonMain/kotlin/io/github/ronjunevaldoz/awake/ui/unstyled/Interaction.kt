@@ -15,13 +15,18 @@ internal data class UiInteraction(
     val clicked: Boolean
 )
 
+/** [enabled] mirrors [io.github.ronjunevaldoz.awake.ui.modifier.resolveClickable]'s own gating
+ * shape: when `false`, [tryClaimActive] is simply never called with a claimable state, so
+ * `active`/`clicked` (and, for widgets that drive dragging off `isActive`, like `slider`, the
+ * drag itself) can never fire -- no separate `enabled` check needed at each call site below. */
 internal fun UiScope.interact(
     id: String,
-    modifier: UiModifier = Modifier
+    modifier: UiModifier = Modifier,
+    enabled: Boolean = true
 ): UiInteraction {
     val slot = claimModifiedSlot(modifier)
     val hovered = hitTest(slot)
-    tryClaimActive(id, hovered)
+    tryClaimActive(id, hovered && enabled)
     val wasActiveBeforeRelease = isActive(id)
     releaseActiveIfMatches(id)
     val active = isActive(id)

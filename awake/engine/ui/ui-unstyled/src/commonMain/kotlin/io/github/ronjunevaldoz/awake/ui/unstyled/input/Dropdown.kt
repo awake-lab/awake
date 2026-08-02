@@ -120,7 +120,10 @@ fun UiScope.drawDropdownTriggerContent(
     label: String,
     expanded: Boolean,
     style: Style,
-    semanticId: String? = null
+    semanticId: String? = null,
+    // True when [label] is a placeholder rather than a real selected value (shadcnSelect's
+    // `selectedIndex == null` case) -- muted, same treatment textField gives its placeholder.
+    isPlaceholder: Boolean = false
 ) {
     val theme = context.currentTheme
     val resolvedFont = context.currentFont
@@ -129,7 +132,7 @@ fun UiScope.drawDropdownTriggerContent(
             active = expanded
         )
     )
-    val textColor = resolved.foreground ?: theme.tokens.foreground
+    val textColor = if (isPlaceholder) theme.tokens.mutedForeground else (resolved.foreground ?: theme.tokens.foreground)
     // Raw px, not Dp -- `slot` (like every other widget's width/height param in this file)
     // is already raw-pixel space; subtracting a `.dp.toPx()` value here would density-scale
     // ONLY this padding and not `slot.width` itself, silently starving the label's available

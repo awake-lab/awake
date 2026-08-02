@@ -22,11 +22,13 @@ fun UiScope.shadcnSwitch(
     checked: Boolean,
     label: String? = null,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    enabled: Boolean = true
 ): Boolean = switch(
     id = id,
     checked = checked,
     label = label,
     modifier = modifier,
-    style = shadcnSwitchFieldStyle(theme, style)
+    style = shadcnSwitchFieldStyle(theme, style),
+    enabled = enabled
 )

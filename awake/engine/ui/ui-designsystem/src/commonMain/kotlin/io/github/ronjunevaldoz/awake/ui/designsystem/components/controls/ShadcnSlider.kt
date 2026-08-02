@@ -24,7 +24,8 @@ fun UiScope.shadcnSlider(
     value: Float,
     label: String? = null,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    enabled: Boolean = true
 ): Float = slider(
     id = id,
     min = min,
@@ -32,5 +33,6 @@ fun UiScope.shadcnSlider(
     value = value,
     label = label,
     modifier = modifier,
-    style = shadcnSliderStyle(theme, style)
+    style = shadcnSliderStyle(theme, style),
+    enabled = enabled
 )

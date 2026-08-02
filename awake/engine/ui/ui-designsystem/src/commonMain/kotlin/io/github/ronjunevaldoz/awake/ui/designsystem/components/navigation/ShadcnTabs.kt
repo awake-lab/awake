@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation
 
 import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -14,27 +15,45 @@ import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+
+/** One tab in a [shadcnTabs] track. Mirrors shadcn-compose's `ShadcnTabItem`: [value] is the
+ * stable selection identity, [label] is what's drawn -- two tabs can share a [label] without
+ * colliding, since selection keys off [value]. */
+data class ShadcnTabItem(val value: String, val label: String)
 
 // Real shadcn's TabsList is a muted rounded track; the active TabsTrigger gets a raised
 // card-colored background, inactive ones are chromeless labels. Composed from
 // shadcnButton the same way shadcnRadioGroup composes from checkbox(): reuse the
 // existing variant/style system rather than a new low-level widget.
-/** Real shadcn's `Tabs`: a muted track of buttons where the [selectedIndex] gets a raised
- * card-colored background and the rest stay chromeless until hover. Composed from
- * [shadcnButton]. */
+/** Real shadcn's `Tabs`: a muted track of buttons where the tab matching [selected] gets a
+ * raised card-colored background and the rest stay chromeless until hover. Composed from
+ * [shadcnButton]. Each tab hugs its own [ShadcnTabItem.label] content width (real shadcn's
+ * `tabs.tsx` "default" variant never forces a shared fixed width across triggers) -- so the
+ * active tab's raised background resizes to whichever tab is actually selected, rather than
+ * assuming every tab is the same width. Returns the resolved selected [ShadcnTabItem.value]. */
 fun ColumnScope.shadcnTabs(
     id: String,
-    tabs: List<String>,
-    selectedIndex: Int,
+    items: List<ShadcnTabItem>,
+    selected: String,
     modifier: UiModifier = Modifier,
-    tabWidth: Dp = 96f.dp,
     height: Dp = 32f.dp
-): Int {
-    var resolved = selectedIndex
+): String {
+    var resolved = selected
     val shadcnTheme = theme.asShadcnTheme()
+    // Content-hugging width: measure each tab's own label at the same text size shadcnButton's
+    // Primary/Ghost variants both resolve to (theme.typography.label), then add the same
+    // horizontal padding real shadcn's TabsTrigger uses (px-3 / spacing.md on each side). No
+    // per-tab contentPadding Style is set below, so this measured width IS the label's padded
+    // box -- shadcnButton's centered text() fills it exactly.
+    val glyphPx = resolveGlyphPx(textStyle = TextStyle(size = shadcnTheme.typography.label))
+    val horizontalPaddingPx = shadcnTheme.spacing.md.toPx() * 2f
     // Real shadcn's TabsList reserves a p-1 (4px) inset so the active trigger's raised
     // background sits inside the track, not flush against its edges -- previously the row
     // filled the track's full height with no inset, so the active highlight's own rounded
@@ -59,8 +78,8 @@ fun ColumnScope.shadcnTabs(
             horizontalArrangement = Arrangement.spacedBy(2f.dp),
             modifier = Modifier.height(Dimension.FillMax)
         ) {
-            tabs.forEachIndexed { index, label ->
-                val active = index == selectedIndex
+            items.forEachIndexed { index, item ->
+                val active = item.value == selected
                 val tabStyle: Style = if (active) {
                     Style {
                         background(shadcnTheme.card)
@@ -69,8 +88,9 @@ fun ColumnScope.shadcnTabs(
                 } else {
                     Style { foreground(shadcnTheme.tokens.mutedForeground) }
                 }
+                val tabWidthPx = context.currentFont.measureTextWidth(item.label, glyphPx) + horizontalPaddingPx
                 val tabModifier = UiModifier(
-                    widthDimension = Dimension.Fixed(tabWidth),
+                    widthDimension = Dimension.Fixed(tabWidthPx.px),
                     heightDimension = Dimension.FillMax
                 )
                 // UiButtonVariant.Ghost's resolveFill hardcodes fill to transparent unless
@@ -81,14 +101,36 @@ fun ColumnScope.shadcnTabs(
                 // Ghost for the real chromeless-until-hover look.
                 val clicked = shadcnButton(
                     id = "$id.$index",
-                    label = label,
+                    label = item.label,
                     modifier = tabModifier,
                     variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
                     style = tabStyle
                 )
-                if (clicked) resolved = index
+                if (clicked) resolved = item.value
             }
         }
     }
     return resolved
+}
+
+/** [shadcnTabs] convenience over plain label strings, where each tab's identity is its own
+ * label text (`value == label`) and selection is by index -- source-compatible with call sites
+ * that don't need [ShadcnTabItem]'s separate value/label identity. */
+fun ColumnScope.shadcnTabs(
+    id: String,
+    tabs: List<String>,
+    selectedIndex: Int,
+    modifier: UiModifier = Modifier,
+    height: Dp = 32f.dp
+): Int {
+    val items = tabs.map { ShadcnTabItem(value = it, label = it) }
+    val selectedValue = tabs.getOrNull(selectedIndex) ?: tabs.firstOrNull() ?: ""
+    val resolvedValue = shadcnTabs(
+        id = id,
+        items = items,
+        selected = selectedValue,
+        modifier = modifier,
+        height = height
+    )
+    return tabs.indexOf(resolvedValue).takeIf { it >= 0 } ?: selectedIndex
 }

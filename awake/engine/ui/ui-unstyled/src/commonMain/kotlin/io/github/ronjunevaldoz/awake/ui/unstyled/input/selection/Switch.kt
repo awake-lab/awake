@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
@@ -28,7 +29,8 @@ fun UiScope.switch(
     checked: Boolean,
     label: String? = null,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    enabled: Boolean = true
 ): Boolean {
     val theme = context.currentTheme
     val surface = resolveInteractiveSurface(
@@ -36,7 +38,8 @@ fun UiScope.switch(
         style = style,
         defaults = theme.components.toggle,
         modifier = modifier.withSizeFallback(Dimension.Fixed(TOGGLE_WIDTH_PX.dp), Dimension.Fixed(TOGGLE_HEIGHT_PX.dp)),
-        selected = checked
+        selected = checked,
+        enabled = enabled
     )
     val newChecked = if (surface.interaction.clicked) !checked else checked
     // Both states are hardcoded tokens, not resolved.background -- a Switch's on/off track
@@ -46,50 +49,54 @@ fun UiScope.switch(
     // unchecked track literally invisible whenever a style plumbed in a background matching
     // the page, e.g. shadcnSwitch borrowing a text-field style).
     val trackFill = if (newChecked) theme.tokens.primary else theme.tokens.muted
-    // The track is always a true stadium/pill regardless of what shape the caller's style
-    // resolves to -- same reasoning as the color above, and consistent with the knob below,
-    // which already hardcodes UiShapeSpec.Pill instead of trusting the resolved style.
-    paintSurface(
-        slot = surface.interaction.slot,
-        resolved = surface.resolved,
-        fillColor = trackFill,
-        borderColor = surface.resolved.borderColor ?: theme.tokens.border,
-        shapeSpec = UiShapeSpec.Pill
-    )
-    val knobDiameter = surface.interaction.slot.height - TOGGLE_KNOB_INSET_PX * 2f
-    val knobX = if (newChecked) {
-        surface.interaction.slot.x + surface.interaction.slot.width - TOGGLE_KNOB_INSET_PX - knobDiameter
-    } else {
-        surface.interaction.slot.x + TOGGLE_KNOB_INSET_PX
-    }
-    emitFillAndBorder(
-        slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, surface.interaction.slot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter)
-            .toSlot(),
-        fillColor = theme.tokens.background,
-        radiusPx = 0f,
-        borderWidth = UiShape.none,
-        borderColor = Color.Transparent,
-        shapeSpec = UiShapeSpec.Pill
-    )
-    if (label != null) {
-        val labelWidth = (fillWidthOrNull()?.let { it - surface.interaction.slot.width - TOGGLE_LABEL_GAP }
-            ?: 160f).coerceAtLeast(0f)
-        text(
-            label,
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-                surface.interaction.slot.x + surface.interaction.slot.width + TOGGLE_LABEL_GAP,
-                surface.interaction.slot.y,
-                labelWidth,
-                surface.interaction.slot.height
-            ),
-            font = context.currentFont,
-            color = surface.resolved.foreground ?: theme.tokens.foreground,
-            centered = false,
-            verticallyCentered = true,
-            overflow = UiTextOverflow.Ellipsis,
-            textStyle = surface.resolved.textStyle,
-            semanticId = "$id.label"
+    // See `ShadcnButtons.kt`'s `buttonSlotInternal` doc for why this is one group alpha
+    // around the whole painted widget, not a per-color tweak.
+    withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+        // The track is always a true stadium/pill regardless of what shape the caller's style
+        // resolves to -- same reasoning as the color above, and consistent with the knob below,
+        // which already hardcodes UiShapeSpec.Pill instead of trusting the resolved style.
+        paintSurface(
+            slot = surface.interaction.slot,
+            resolved = surface.resolved,
+            fillColor = trackFill,
+            borderColor = surface.resolved.borderColor ?: theme.tokens.border,
+            shapeSpec = UiShapeSpec.Pill
         )
+        val knobDiameter = surface.interaction.slot.height - TOGGLE_KNOB_INSET_PX * 2f
+        val knobX = if (newChecked) {
+            surface.interaction.slot.x + surface.interaction.slot.width - TOGGLE_KNOB_INSET_PX - knobDiameter
+        } else {
+            surface.interaction.slot.x + TOGGLE_KNOB_INSET_PX
+        }
+        emitFillAndBorder(
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, surface.interaction.slot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter)
+                .toSlot(),
+            fillColor = theme.tokens.background,
+            radiusPx = 0f,
+            borderWidth = UiShape.none,
+            borderColor = Color.Transparent,
+            shapeSpec = UiShapeSpec.Pill
+        )
+        if (label != null) {
+            val labelWidth = (fillWidthOrNull()?.let { it - surface.interaction.slot.width - TOGGLE_LABEL_GAP }
+                ?: 160f).coerceAtLeast(0f)
+            text(
+                label,
+                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                    surface.interaction.slot.x + surface.interaction.slot.width + TOGGLE_LABEL_GAP,
+                    surface.interaction.slot.y,
+                    labelWidth,
+                    surface.interaction.slot.height
+                ),
+                font = context.currentFont,
+                color = surface.resolved.foreground ?: theme.tokens.foreground,
+                centered = false,
+                verticallyCentered = true,
+                overflow = UiTextOverflow.Ellipsis,
+                textStyle = surface.resolved.textStyle,
+                semanticId = "$id.label"
+            )
+        }
     }
     recordSemantic(
         role = UiSemanticRole.Switch,

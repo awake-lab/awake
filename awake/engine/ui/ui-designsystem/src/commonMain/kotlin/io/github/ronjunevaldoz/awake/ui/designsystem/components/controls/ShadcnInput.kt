@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
@@ -31,7 +32,10 @@ fun UiScope.shadcnInput(
     variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
     style: Style = Style.Empty,
     enabled: Boolean = true,
-    isError: Boolean = false
+    isError: Boolean = false,
+    leadingIcon: (BoxScope.() -> Unit)? = null,
+    trailingIcon: (BoxScope.() -> Unit)? = null,
+    visualTransformation: (String) -> String = { it }
 ): String = textField(
     id = id,
     value = value,
@@ -39,5 +43,8 @@ fun UiScope.shadcnInput(
     modifier = modifier,
     style = shadcnFieldStyle(theme, variant, style),
     enabled = enabled,
-    isError = isError
+    isError = isError,
+    leadingIcon = leadingIcon,
+    trailingIcon = trailingIcon,
+    visualTransformation = visualTransformation
 )

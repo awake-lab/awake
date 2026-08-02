@@ -22,6 +22,8 @@ import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.requestFocus
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.childBox
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
@@ -49,7 +51,13 @@ fun UiScope.textField(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     enabled: Boolean = true,
-    isError: Boolean = false
+    isError: Boolean = false,
+    leadingIcon: (BoxScope.() -> Unit)? = null,
+    trailingIcon: (BoxScope.() -> Unit)? = null,
+    // Applied only to what's drawn -- `value`/the returned string always carry the real typed
+    // text, same as real shadcn's Input; a password field passes `{ "*".repeat(it.length) }`
+    // here and stores/returns the actual characters untouched.
+    visualTransformation: (String) -> String = { it }
 ): String {
     val interaction = interact(
         id = id,
@@ -88,6 +96,32 @@ fun UiScope.textField(
         resolveGlyphPx(resolvedFont, surface.resolved.textStyle)
     val contentSlot = surface.contentSlot
 
+    // Icon slots are fixed-width squares (matching content height) carved out of either end
+    // of contentSlot; the text area shrinks and shifts to make room so a leading icon never
+    // overlaps typed text (a search box's magnifier sitting on top of the first character is
+    // the bug this guards against).
+    val iconSlotWidth = if (leadingIcon != null || trailingIcon != null) contentSlot.height else 0f
+    val iconGap = 6f
+    val textAreaX = contentSlot.x + if (leadingIcon != null) iconSlotWidth + iconGap else 0f
+    val textAreaWidth = (contentSlot.width
+        - (if (leadingIcon != null) iconSlotWidth + iconGap else 0f)
+        - (if (trailingIcon != null) iconSlotWidth + iconGap else 0f)).coerceAtLeast(0f)
+    val textContentSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+        textAreaX, contentSlot.y, textAreaWidth, contentSlot.height
+    )
+    if (leadingIcon != null) {
+        val iconBounds = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+            contentSlot.x, contentSlot.y, iconSlotWidth, contentSlot.height
+        )
+        childBox(iconBounds.toSlot(), contentAlignment = UiAlignment.Center).leadingIcon()
+    }
+    if (trailingIcon != null) {
+        val iconBounds = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+            contentSlot.x + contentSlot.width - iconSlotWidth, contentSlot.y, iconSlotWidth, contentSlot.height
+        )
+        childBox(iconBounds.toSlot(), contentAlignment = UiAlignment.Center).trailingIcon()
+    }
+
     val cursorState = widgetState(id)
     var cursor = cursorState.get("cursor", value.length).coerceIn(0, value.length)
 
@@ -96,10 +130,14 @@ fun UiScope.textField(
         val clickIndex =
             if (interaction.clicked || (pointerDownEdge() && interaction.hovered)) {
                 indexForPointerX(
-                    value,
+                    // Click-to-cursor mapping walks pixel advances against what's actually on
+                    // screen, i.e. the transformed text (a password field's dots), not the raw
+                    // stored value -- indices still line up 1:1 since a transformation that
+                    // changes the string length would desync display from `value` anyway.
+                    visualTransformation(value),
                     resolvedFont,
                     glyphPx,
-                    contentSlot.x,
+                    textContentSlot.x,
                     inputState.pointerX
                 )
             } else {
@@ -139,13 +177,15 @@ fun UiScope.textField(
     }
     cursorState.set("cursor", cursor)
 
-    clip(contentSlot) {
+    clip(textContentSlot) {
         val showingPlaceholder = nextValue.isEmpty() && !focused
-        val displayed = if (showingPlaceholder) placeholder else nextValue
+        // visualTransformation only ever touches what's drawn here -- `nextValue`, the return
+        // value, and everything stored in WidgetState above stay the real typed text.
+        val displayed = if (showingPlaceholder) placeholder else visualTransformation(nextValue)
         if (displayed.isNotEmpty()) {
             text(
                 label = displayed,
-                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(contentSlot.x, contentSlot.y, contentSlot.width, contentSlot.height),
+                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(textContentSlot.x, textContentSlot.y, textContentSlot.width, textContentSlot.height),
                 font = resolvedFont,
                 color = if (showingPlaceholder) theme.tokens.mutedForeground else (surface.resolved.foreground
                     ?: theme.tokens.foreground),
@@ -161,13 +201,13 @@ fun UiScope.textField(
                 (elapsed % TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS) < TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS / 2f
             if (caretVisible) {
                 val caretX =
-                    contentSlot.x + cursorAdvancePx(nextValue, resolvedFont, glyphPx, cursor)
+                    textContentSlot.x + cursorAdvancePx(visualTransformation(nextValue), resolvedFont, glyphPx, cursor)
                 emitFillAndBorder(
                     slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
                         caretX,
-                        contentSlot.y,
+                        textContentSlot.y,
                         TEXT_FIELD_CARET_WIDTH_PX,
-                        contentSlot.height
+                        textContentSlot.height
                     ).toSlot(),
                     fillColor = surface.resolved.foreground ?: theme.tokens.foreground,
                     radiusPx = 0f,

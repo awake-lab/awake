@@ -42,6 +42,7 @@ fun UiScope.shadcnButton(
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
+    enabled: Boolean = true,
     onClick: (() -> Unit)? = null
 ): Boolean {
     val clicked = buttonSlot(
@@ -52,7 +53,8 @@ fun UiScope.shadcnButton(
         variant = variant.toUiButtonVariant(),
         radius = theme.asShadcnTheme().radii.lg,
         centered = centered,
-        verticallyCentered = verticallyCentered
+        verticallyCentered = verticallyCentered,
+        enabled = enabled
     ).clicked
     if (clicked) onClick?.invoke()
     return clicked
@@ -70,6 +72,7 @@ fun UiScope.shadcnButton(
     style: Style = Style.Empty,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
+    enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
     content: BoxScope.(slot: UiBounds) -> Unit
 ): Boolean {
@@ -79,7 +82,8 @@ fun UiScope.shadcnButton(
         modifier = modifier.withShadcnSize(size),
         style = buttonStyle,
         variant = variant.toUiButtonVariant(),
-        radius = theme.asShadcnTheme().radii.lg
+        radius = theme.asShadcnTheme().radii.lg,
+        enabled = enabled
     ) { contentSlot ->
         val alignment = when {
             centered && verticallyCentered -> UiAlignment.Center

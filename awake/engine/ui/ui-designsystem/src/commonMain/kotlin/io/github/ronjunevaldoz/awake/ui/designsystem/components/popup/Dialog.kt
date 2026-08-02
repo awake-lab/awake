@@ -6,11 +6,15 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.frameBounds
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -23,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 
 private val DetachedPopupAnchor = UiBounds(-1f, -1f, 0f, 0f)
@@ -34,11 +39,15 @@ fun UiScope.shadcnDialog(
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
     properties: UiDialogProperties = UiDialogProperties(),
+    showCloseButton: Boolean = false,
+    closeIcon: (BoxScope.() -> Unit)? = null,
     header: (ColumnScope.(slot: UiBounds) -> Unit)? = null,
     actions: (RowScope.(slot: UiBounds) -> Unit)? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiPopupResult {
     if (!expanded) return UiPopupResult(slot = null, dismissed = false)
+
+    var closeClicked = false
 
     val frameBounds = frameBounds()
     if (properties.showScrim) {
@@ -78,6 +87,21 @@ fun UiScope.shadcnDialog(
             clipContent = true
         ) { slot ->
             val boundsSlot = slot.toBounds()
+            if (showCloseButton) {
+                row(
+                    modifier = Modifier.width(Dimension.FillMax),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    shadcnButton(
+                        id = "$id.close",
+                        modifier = Modifier.width(24f.dp).height(24f.dp),
+                        variant = ShadcnButtonVariant.Ghost,
+                        size = ShadcnButtonSize.Xs
+                    ) {
+                        if (closeIcon != null) closeIcon() else text("x")
+                    }.let { clicked -> if (clicked) closeClicked = true }
+                }
+            }
             header?.invoke(this, boundsSlot)
             content(boundsSlot)
             if (actions != null) {
@@ -90,5 +114,5 @@ fun UiScope.shadcnDialog(
             }
         }
     }
-    return popupResult
+    return if (closeClicked) popupResult.copy(dismissed = true) else popupResult
 }

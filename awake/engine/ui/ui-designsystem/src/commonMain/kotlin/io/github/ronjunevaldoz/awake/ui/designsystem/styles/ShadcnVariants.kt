@@ -43,3 +43,22 @@ enum class ShadcnAlertVariant {
     Default,
     Destructive
 }
+
+enum class ShadcnCardVariant {
+    Default,
+    Elevated
+}
+
+/** Mirrors real shadcn-compose's `CardSize` -- controls header/footer divider spacing only,
+ * everything else about a card's own layout is unaffected. */
+enum class ShadcnCardSize(val dividerGapDp: Float) {
+    Compact(2f),
+    Default(4f)
+}
+
+// Mirrors real shadcn's `ToggleVariant` (Default/Outline) -- Outline reuses the same bordered
+// treatment as ShadcnButtonVariant.Outline (see UiButtonVariant.Outline in shadcnToggle()).
+enum class ShadcnToggleVariant {
+    Default,
+    Outline
+}

@@ -351,4 +351,91 @@ class UiPopupCompositionsTest {
             )
         }
     }
+
+    // Regression coverage for the audit-driven shadcnDialog close-button option and the
+    // shadcnAlertDialog actions-slot overload (the 3-choice Save/Discard/Cancel case the
+    // fixed-2-button API made impossible).
+
+    @Test
+    fun dialogCloseButtonRendersAndFiresDismiss() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+
+        ui.beginFrame(320f, 220f, testSnapshot(x = -1f, y = -1f, down = false))
+        var result: UiPopupResult? = null
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
+            result = shadcnDialog(
+                id = "closable",
+                expanded = true,
+                width = Dimension.Fixed(200f.px),
+                height = Dimension.Fixed(120f.px),
+                showCloseButton = true
+            ) {
+                text("Dialog with a close affordance")
+            }
+        }
+        val closeBounds = assertNotNull(
+            ui.finishFrame().semantics.firstOrNull { it.id == "closable.close" }
+        ).bounds
+        val clickX = closeBounds.x + closeBounds.width / 2f
+        val clickY = closeBounds.y + closeBounds.height / 2f
+
+        ui.beginFrame(320f, 220f, testSnapshot(x = clickX, y = clickY, down = true))
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
+            result = shadcnDialog(
+                id = "closable",
+                expanded = true,
+                width = Dimension.Fixed(200f.px),
+                height = Dimension.Fixed(120f.px),
+                showCloseButton = true
+            ) {
+                text("Dialog with a close affordance")
+            }
+        }
+        ui.endFrame()
+
+        ui.beginFrame(320f, 220f, testSnapshot(x = clickX, y = clickY, down = false))
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
+            result = shadcnDialog(
+                id = "closable",
+                expanded = true,
+                width = Dimension.Fixed(200f.px),
+                height = Dimension.Fixed(120f.px),
+                showCloseButton = true
+            ) {
+                text("Dialog with a close affordance")
+            }
+        }
+        ui.endFrame()
+
+        assertTrue(assertNotNull(result).dismissed, "clicking the reserved close button should report the dialog as dismissed")
+    }
+
+    @Test
+    fun alertDialogActionsSlotAllowsThreeChoices() {
+        // The audit's exact "impossible today" case: Save/Discard/Cancel, not just confirm/dismiss.
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.beginFrame(320f, 220f, testSnapshot(x = -1f, y = -1f, down = false))
+
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
+            shadcnAlertDialog(
+                id = "unsaved",
+                expanded = true,
+                title = "Unsaved changes",
+                actions = {
+                    shadcnButton(id = "unsaved.save", label = "Save", modifier = Modifier.width(80f.dp))
+                    shadcnButton(id = "unsaved.discard", label = "Discard", modifier = Modifier.width(80f.dp))
+                    shadcnButton(id = "unsaved.cancel", label = "Cancel", modifier = Modifier.width(80f.dp))
+                }
+            ) {
+                text("You have unsaved changes.")
+            }
+        }
+
+        val semantics = ui.finishFrame().semantics
+        assertNotNull(semantics.firstOrNull { it.id == "unsaved.save" }, "Save action should render")
+        assertNotNull(semantics.firstOrNull { it.id == "unsaved.discard" }, "Discard action should render")
+        assertNotNull(semantics.firstOrNull { it.id == "unsaved.cancel" }, "Cancel action should render")
+    }
 }

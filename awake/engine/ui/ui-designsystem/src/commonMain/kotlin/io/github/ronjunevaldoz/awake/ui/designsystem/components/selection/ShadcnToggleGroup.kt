@@ -7,8 +7,18 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggleGroup
 
-/** Real shadcn's `ToggleGroup`: a row of mutually exclusive [shadcnToggle]-style buttons.
- * Delegates entirely to [toggleGroup]. */
+/** Real shadcn's `ToggleGroup` multi-select form: toggles in [selectedIndices] can be active
+ * simultaneously (e.g. bold+italic both pressed). Delegates entirely to [toggleGroup]. */
+fun UiScope.shadcnToggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndices: Set<Int>,
+    modifier: UiModifier = Modifier,
+    onSelectedIndicesChange: (Set<Int>) -> Unit = {}
+) = toggleGroup(id, options, selectedIndices, modifier, onSelectedIndicesChange)
+
+/** Real shadcn's `ToggleGroup` single-select convenience form: a row of mutually exclusive
+ * [shadcnToggle]-style buttons. Delegates entirely to [toggleGroup]. */
 fun UiScope.shadcnToggleGroup(
     id: String,
     options: List<String>,

@@ -58,9 +58,10 @@ internal fun UiScope.resolveInteractiveSurface(
     defaults: Style = Style.Empty,
     selected: Boolean = false,
     disabled: Boolean = false,
-    focused: Boolean = false
+    focused: Boolean = false,
+    enabled: Boolean = true
 ): InteractiveSurface {
-    val interaction = interact(id, modifier)
+    val interaction = interact(id, modifier, enabled)
     val surfaceStyle = resolveSurfaceStyle(
         slot = interaction.slot,
         style = style,

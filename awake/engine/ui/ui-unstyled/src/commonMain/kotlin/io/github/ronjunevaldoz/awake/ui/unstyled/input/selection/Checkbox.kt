@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetAccent
+import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -32,7 +33,8 @@ fun UiScope.checkbox(
     label: String? = null,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    boxSize: Dp = 16f.dp
+    boxSize: Dp = 16f.dp,
+    indeterminate: Boolean = false
 ): Boolean {
     val theme = context.currentTheme
     val surface = resolveInteractiveSurface(
@@ -50,9 +52,15 @@ fun UiScope.checkbox(
         boxPx
     ).toSlot()
     paintSurface(slot = boxSlot, resolved = surface.resolved)
-    val newChecked = if (surface.interaction.clicked) !checked else checked
-    if (newChecked) {
-        val inset = boxPx * 0.25f
+    // Mirrors real shadcn's triStateToggleable: clicking an Indeterminate box always lands
+    // on checked=true, same as clicking an Off box -- only an On box flips to false.
+    val newChecked = if (surface.interaction.clicked) {
+        if (indeterminate) true else !checked
+    } else checked
+    val inset = boxPx * 0.25f
+    if (indeterminate) {
+        emitInsetDash(boxSlot, inset)
+    } else if (newChecked) {
         emitInsetAccent(boxSlot, inset, surface.resolved.shape.toPx(), surface.resolved.shapeSpec)
     }
     val resolvedFont = context.currentFont

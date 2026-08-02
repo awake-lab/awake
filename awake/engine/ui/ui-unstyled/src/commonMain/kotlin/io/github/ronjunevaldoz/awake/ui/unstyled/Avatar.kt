@@ -57,7 +57,13 @@ fun UiScope.avatarFallback(
     childBox(slot).content(slot.toBounds())
 }
 
-/** [avatarFallback] convenience that renders plain initials text as the content. */
+/**
+ * [avatarFallback] convenience that renders plain initials text as the content. Threads
+ * [style]'s resolved [io.github.ronjunevaldoz.awake.ui.theme.TextStyle] (e.g. a caller's
+ * `textSize(...)`) into the initials draw call -- previously dropped on the floor here, so a
+ * caller-supplied text size (e.g. a size-driven `shadcnAvatar`) had no effect on the rendered
+ * initials.
+ */
 fun UiScope.avatarFallback(
     initials: String,
     modifier: UiModifier = Modifier,
@@ -71,6 +77,7 @@ fun UiScope.avatarFallback(
             slot = slot,
             font = context.currentFont,
             color = resolved.foreground ?: theme.tokens.foreground,
+            textStyle = resolved.textStyle,
             centered = true
         )
     }

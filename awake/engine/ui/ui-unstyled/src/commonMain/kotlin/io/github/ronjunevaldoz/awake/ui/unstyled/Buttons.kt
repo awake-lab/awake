@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
@@ -31,7 +32,8 @@ private inline fun UiScope.buttonSlotInternal(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
     semanticLabel: String? = null,
-    drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit
+    enabled: Boolean = true,
+    crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit
 ): UiButtonResult {
     val theme = context.currentTheme
     val defaults = theme.components.button then Style.Companion {
@@ -45,24 +47,32 @@ private inline fun UiScope.buttonSlotInternal(
         modifier = modifier,
         style = style,
         defaults = defaults,
-        selected = false
+        selected = false,
+        enabled = enabled
     )
     val baseFill = surface.resolved.background ?: theme.tokens.background
     val fillColor = variant.resolveFill(baseFill, surface.interaction.hovered, surface.interaction.active)
-    paintSurface(
-        slot = surface.interaction.slot,
-        resolved = surface.resolved,
-        fillColor = fillColor,
-    )
-    // Slot-API content (an arbitrary caller-composed lambda) has no other way to know this
-    // button's resolved themed foreground -- push it as the ambient text style so any `text()`
-    // called inside `drawContent` picks up the right contrast automatically, the same way
-    // `surface()`/`column()`/`row()`/`box()` already propagate their resolved text style to
-    // their own children. Mirrors the explicit `color = resolved.foreground` passed to the
-    // label overload's own internal `text()` call below.
-    context.pushTextStyle(surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground))
-    childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
-    context.popTextStyle()
+    // Reference's `disabled:opacity-50` treatment (shadcn-compose's `disabledDim()`), applied
+    // here as a single [withGraphicsLayerAlpha] group covering the fill/border paint and the
+    // content lambda's own text/graphics, the same "one flat composited result, dimmed once"
+    // shape `ShadcnSlider.kt` in the reference repo settled on -- not a per-color alpha tweak,
+    // which double-dims anything the content draws on top of the fill.
+    withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+        paintSurface(
+            slot = surface.interaction.slot,
+            resolved = surface.resolved,
+            fillColor = fillColor,
+        )
+        // Slot-API content (an arbitrary caller-composed lambda) has no other way to know this
+        // button's resolved themed foreground -- push it as the ambient text style so any `text()`
+        // called inside `drawContent` picks up the right contrast automatically, the same way
+        // `surface()`/`column()`/`row()`/`box()` already propagate their resolved text style to
+        // their own children. Mirrors the explicit `color = resolved.foreground` passed to the
+        // label overload's own internal `text()` call below.
+        context.pushTextStyle(surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground))
+        childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
+        context.popTextStyle()
+    }
     recordSemantic(
         role = UiSemanticRole.Button,
         id = id,
@@ -81,7 +91,8 @@ fun UiScope.button(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
     centered: Boolean = true,
-    verticallyCentered: Boolean = centered
+    verticallyCentered: Boolean = centered,
+    enabled: Boolean = true
 ): Boolean = buttonSlot(
     id = id,
     label = label,
@@ -90,7 +101,8 @@ fun UiScope.button(
     variant = variant,
     radius = radius,
     centered = centered,
-    verticallyCentered = verticallyCentered
+    verticallyCentered = verticallyCentered,
+    enabled = enabled
 ).clicked
 
 fun UiScope.buttonSlot(
@@ -101,7 +113,8 @@ fun UiScope.buttonSlot(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
     centered: Boolean = true,
-    verticallyCentered: Boolean = centered
+    verticallyCentered: Boolean = centered,
+    enabled: Boolean = true
 ): UiButtonResult = buttonSlotInternal(
     id = id,
     modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
@@ -109,6 +122,7 @@ fun UiScope.buttonSlot(
     variant = variant,
     radius = radius,
     semanticLabel = label,
+    enabled = enabled,
     drawContent = { contentSlot, resolved ->
         if (label != null) {
             val theme = context.currentTheme
@@ -133,13 +147,15 @@ fun UiScope.buttonSlot(
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
+    enabled: Boolean = true,
     content: AbsoluteScope.(slot: UiBounds) -> Unit
 ): UiButtonResult = buttonSlotInternal(
     id = id,
     modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
     style = style,
     variant = variant,
-    radius = radius
+    radius = radius,
+    enabled = enabled
 ) { contentSlot, _ ->
     content(contentSlot.toBounds())
 }
@@ -150,6 +166,7 @@ fun UiScope.button(
     style: Style = Style.Empty,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
+    enabled: Boolean = true,
     content: AbsoluteScope.(slot: UiBounds) -> Unit
 ): Boolean = buttonSlot(
     id = id,
@@ -157,6 +174,7 @@ fun UiScope.button(
     style = style,
     variant = variant,
     radius = radius,
+    enabled = enabled,
     content = content
 ).clicked
 

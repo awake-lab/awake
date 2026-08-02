@@ -10,6 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -22,17 +24,22 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** Inserts the header/footer separator convention shared with [DropdownMenu]'s
- * item separator: a thin border-colored rule with a small gap on both sides. */
-private fun ColumnScope.shadcnCardDivider() {
-    spacer(Modifier.height(4f.dp))
+ * item separator: a thin border-colored rule with a small gap on both sides,
+ * [gap] sized by [ShadcnCardSize]. */
+private fun ColumnScope.shadcnCardDivider(gap: Dp) {
+    spacer(Modifier.height(gap))
     separator(color = theme.tokens.border.withAlpha(0.72f))
-    spacer(Modifier.height(4f.dp))
+    spacer(Modifier.height(gap))
 }
 
 /** Composes the shared header -> body -> footer structure on top of an already-styled
@@ -40,19 +47,40 @@ private fun ColumnScope.shadcnCardDivider() {
  * shadcn's `CardHeader`/`CardContent`/`CardFooter` composition. */
 private fun ColumnScope.shadcnCardContent(
     slot: UiBounds,
+    size: ShadcnCardSize,
     header: (ColumnScope.() -> Unit)?,
     footer: (ColumnScope.() -> Unit)?,
     body: ColumnScope.(slot: UiBounds) -> Unit
 ) {
+    val gap = size.dividerGapDp.dp
     if (header != null) {
         header()
-        shadcnCardDivider()
+        shadcnCardDivider(gap)
     }
     body(slot)
     if (footer != null) {
-        shadcnCardDivider()
+        shadcnCardDivider(gap)
         footer()
     }
+}
+
+/**
+ * Awake's renderer has no dedicated shadow/blur primitive yet (grepped `ui-core`/
+ * `ui-designsystem`: zero hits outside this function) -- a real drop shadow would need either a
+ * blurred-quad draw primitive or a render-pass-level effect, out of scope for a Card variant
+ * flag. This is the simplest defensible approximation: two thin flat semi-transparent quads
+ * hugging the bottom and right edges, entirely OUTSIDE [slot]'s own rect, so they never paint
+ * over the card's fill/border/content (no z-order primitive to place them "behind" the card
+ * exists in this immediate-mode model -- see [UiDrawPrimitive], primitives just draw in emit
+ * order). Upgrade path: a real [UiDrawPrimitive] blurred/soft-shadow quad type, threaded through
+ * every backend's UI shader, the same shape of work [UiDrawPrimitive.RoundedQuad]'s doc comment
+ * describes for corner rounding.
+ */
+private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
+    val offset = 3f.dp.toPx()
+    val shadowColor = Color.Black.withAlpha(0.16f)
+    emit(UiDrawPrimitive.Quad(slot.x + offset, slot.y + slot.height, slot.width, offset, shadowColor))
+    emit(UiDrawPrimitive.Quad(slot.x + slot.width, slot.y + offset, offset, slot.height, shadowColor))
 }
 
 /** Real shadcn's `Surface`: a contained region (Card, Popover, Dialog) that owns its
@@ -116,65 +144,91 @@ fun BoxScope.shadcnSurface(
  * background/border flavor of [shadcnSurface]. Header and footer are optional slots
  * separated from the body by the shared divider convention (see [DropdownMenu]'s item
  * separator); body is required. Uses the base theme surface style directly -- it isn't
- * a [ShadcnSurfaceVariant] flavor, just a plain surface with header/body/footer structure. */
+ * a [ShadcnSurfaceVariant] flavor, just a plain surface with header/body/footer structure.
+ * [variant] adds [ShadcnCardVariant.Elevated]'s shadow (see [emitCardElevationShadow] for why
+ * it's a scoped-down approximation); [size] controls header/footer divider spacing. */
 fun UiScope.shadcnCard(
     id: String,
     modifier: UiModifier = Modifier,
+    variant: ShadcnCardVariant = ShadcnCardVariant.Default,
+    size: ShadcnCardSize = ShadcnCardSize.Default,
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     body: ColumnScope.(slot: UiBounds) -> Unit
-): UiBounds = surface(
-    id = id,
-    modifier = modifier,
-    style = theme.asShadcnTheme().components.surface then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, body) }
-).toBounds()
+): UiBounds {
+    val bounds = surface(
+        id = id,
+        modifier = modifier,
+        style = theme.asShadcnTheme().components.surface then style,
+        content = { slot -> shadcnCardContent(slot.toBounds(), size, header, footer, body) }
+    ).toBounds()
+    if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
+    return bounds
+}
 
 /** [shadcnCard] override for [ColumnScope]. */
 fun ColumnScope.shadcnCard(
     id: String,
     modifier: UiModifier = Modifier,
+    variant: ShadcnCardVariant = ShadcnCardVariant.Default,
+    size: ShadcnCardSize = ShadcnCardSize.Default,
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     body: ColumnScope.(slot: UiBounds) -> Unit
-): UiBounds = surface(
-    id = id,
-    modifier = modifier,
-    style = theme.asShadcnTheme().components.surface then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, body) }
-).toBounds()
+): UiBounds {
+    val bounds = surface(
+        id = id,
+        modifier = modifier,
+        style = theme.asShadcnTheme().components.surface then style,
+        content = { slot -> shadcnCardContent(slot.toBounds(), size, header, footer, body) }
+    ).toBounds()
+    if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
+    return bounds
+}
 
 /** [shadcnCard] override for [RowScope]. */
 fun RowScope.shadcnCard(
     id: String,
     modifier: UiModifier = Modifier,
+    variant: ShadcnCardVariant = ShadcnCardVariant.Default,
+    size: ShadcnCardSize = ShadcnCardSize.Default,
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     body: ColumnScope.(slot: UiBounds) -> Unit
-): UiBounds = surface(
-    id = id,
-    modifier = modifier,
-    style = theme.asShadcnTheme().components.surface then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, body) }
-).toBounds()
+): UiBounds {
+    val bounds = surface(
+        id = id,
+        modifier = modifier,
+        style = theme.asShadcnTheme().components.surface then style,
+        content = { slot -> shadcnCardContent(slot.toBounds(), size, header, footer, body) }
+    ).toBounds()
+    if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
+    return bounds
+}
 
 /** [shadcnCard] override for [BoxScope]. */
 fun BoxScope.shadcnCard(
     id: String,
     modifier: UiModifier = Modifier,
+    variant: ShadcnCardVariant = ShadcnCardVariant.Default,
+    size: ShadcnCardSize = ShadcnCardSize.Default,
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     body: ColumnScope.(slot: UiBounds) -> Unit
-): UiBounds = surface(
-    id = id,
-    modifier = modifier,
-    style = theme.asShadcnTheme().components.surface then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, body) }
-).toBounds()
+): UiBounds {
+    val bounds = surface(
+        id = id,
+        modifier = modifier,
+        style = theme.asShadcnTheme().components.surface then style,
+        content = { slot -> shadcnCardContent(slot.toBounds(), size, header, footer, body) }
+    ).toBounds()
+    if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
+    return bounds
+}
 
 /** Own visual style for real shadcn's `Sidebar`: the dedicated sidebar background/border
  * tokens, not routed through [ShadcnSurfaceVariant] -- same "no shared enum" call as
@@ -204,7 +258,7 @@ fun UiScope.shadcnSidebar(
     id = id,
     modifier = modifier,
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, content) }
+    content = { slot -> shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
 ).toBounds()
 
 /** [shadcnSidebar] override for [ColumnScope]. */
@@ -219,7 +273,7 @@ fun ColumnScope.shadcnSidebar(
     id = id,
     modifier = modifier,
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, content) }
+    content = { slot -> shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
 ).toBounds()
 
 /** [shadcnSidebar] override for [RowScope]. */
@@ -234,7 +288,7 @@ fun RowScope.shadcnSidebar(
     id = id,
     modifier = modifier,
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, content) }
+    content = { slot -> shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
 ).toBounds()
 
 /** [shadcnSidebar] override for [BoxScope]. */
@@ -249,7 +303,7 @@ fun BoxScope.shadcnSidebar(
     id = id,
     modifier = modifier,
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), header, footer, content) }
+    content = { slot -> shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
 ).toBounds()
 
 /** Own visual style for real shadcn's `Popover` panel chrome -- the dedicated popover
