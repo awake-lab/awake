@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.ui.CoreUiComponentStyles
+import io.github.ronjunevaldoz.awake.ui.theme.CoreUiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.UiFallbackTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme

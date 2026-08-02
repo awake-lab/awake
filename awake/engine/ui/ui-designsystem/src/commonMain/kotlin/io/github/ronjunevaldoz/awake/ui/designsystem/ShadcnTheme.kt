@@ -5,7 +5,8 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
-import io.github.ronjunevaldoz.awake.ui.UiComponentStyles
+import io.github.ronjunevaldoz.awake.ui.theme.UiShapeTokens
+import io.github.ronjunevaldoz.awake.ui.theme.UiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
@@ -152,6 +153,7 @@ internal interface ShadcnResolvedTheme : UiTheme {
     val metrics: ShadcnMetrics
     val spacing: ShadcnSpacing get() = ShadcnSpacing
     override val typography: UiTypography
+    override val shapes: UiShapeTokens get() = radii
 
     val card: Color get() = palette.card
     val onCard: Color get() = palette.cardForeground

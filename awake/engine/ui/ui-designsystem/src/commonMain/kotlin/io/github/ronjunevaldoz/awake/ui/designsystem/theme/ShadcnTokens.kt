@@ -6,15 +6,16 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.theme.UiShapeTokens
 
 internal data class ShadcnRadiusScale(
-    val xs: Dp,
-    val sm: Dp,
-    val md: Dp,
-    val lg: Dp,
-    val xl: Dp,
-    val full: Dp
-) {
+    override val xs: Dp,
+    override val sm: Dp,
+    override val md: Dp,
+    override val lg: Dp,
+    override val xl: Dp,
+    override val full: Dp
+) : UiShapeTokens {
     companion object {
         fun fromBase(base: Dp): ShadcnRadiusScale = ShadcnRadiusScale(
             xs = Dp(base.value * 0.4f),

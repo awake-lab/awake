@@ -1,12 +1,11 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui
+package io.github.ronjunevaldoz.awake.ui.theme
 
+import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
-import io.github.ronjunevaldoz.awake.ui.theme.neutralStyle
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 interface UiComponentStyles {
     val button: Style
@@ -20,7 +19,7 @@ interface UiComponentStyles {
 }
 
 class CoreUiComponentStyles(
-    tokens: io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens,
+    tokens: UiColorTokens,
     typography: UiTypography = UiTypography.Default
 ) : UiComponentStyles {
     override val button: Style = tokens.neutralStyle() then Style {
