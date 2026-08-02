@@ -50,7 +50,7 @@ private inline fun UiScope.buttonSlotInternal(
         selected = false,
         enabled = enabled
     )
-    val baseFill = surface.resolved.background ?: theme.tokens.background
+    val baseFill = surface.resolved.background ?: theme.colors.background
     val fillColor = variant.resolveFill(baseFill, surface.interaction.hovered, surface.interaction.active)
     // Reference's `disabled:opacity-50` treatment (shadcn-compose's `disabledDim()`), applied
     // here as a single [withGraphicsLayerAlpha] group covering the fill/border paint and the
@@ -130,7 +130,7 @@ fun UiScope.buttonSlot(
                 label = label,
                 slot = contentSlot.toBounds(),
                 font = context.currentFont,
-                color = resolved.foreground ?: theme.tokens.foreground,
+                color = resolved.foreground ?: theme.colors.foreground,
                 centered = centered,
                 verticallyCentered = verticallyCentered,
                 overflow = UiTextOverflow.Ellipsis,

@@ -39,7 +39,7 @@ private fun shadcnAvatarStyle(theme: UiTheme, size: ShadcnAvatarSize, style: Sty
     val shadcnTheme = theme.asShadcnTheme()
     return Style {
         background(shadcnTheme.palette.muted)
-        foreground(shadcnTheme.tokens.foreground)
+        foreground(shadcnTheme.colors.foreground)
         textSize(size.textSize)
     } then style
 }
@@ -96,7 +96,7 @@ fun BoxScope.shadcnAvatarBadge(
         style = Style {
             background(shadcnTheme.palette.primary)
             borderWidth(2f.dp)
-            borderColor(shadcnTheme.tokens.background)
+            borderColor(shadcnTheme.colors.background)
         }
     ) { }
 }
@@ -133,7 +133,7 @@ fun RowScope.shadcnAvatarGroup(
                 size = size,
                 style = Style {
                     borderWidth(2f.dp)
-                    borderColor(shadcnTheme.tokens.background)
+                    borderColor(shadcnTheme.colors.background)
                 }
             )
         }

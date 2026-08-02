@@ -16,7 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
  * intentionally generic. Named authored themes belong in `ui-designsystem`.
  */
 object UiFallbackTheme : UiTheme {
-    override val tokens = object : UiColorTokens {
+    override val colors = object : UiColorTokens {
         override val background = Color(0.25f, 0.25f, 0.28f, 0.9f)
         override val foreground = Color.White
         override val primary = Color(0.5f, 0.5f, 0.6f, 0.9f)
@@ -32,5 +32,5 @@ object UiFallbackTheme : UiTheme {
         override val border = Color(0.4f, 0.4f, 0.45f, 0.9f)
     }
     override val typography: UiTypography = UiTypography.Default
-    override val components: UiComponentStyles = CoreUiComponentStyles(tokens, typography)
+    override val components: UiComponentStyles = CoreUiComponentStyles(colors, typography)
 }

@@ -6,14 +6,13 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun UiScope.supportingLines(
     lines: Iterable<String>,
     modifier: UiModifier = Modifier,
     style: Style = Style.Companion {
-        foreground(theme.tokens.mutedForeground)
+        foreground(theme.colors.mutedForeground)
     },
     maxLines: Int = Int.MAX_VALUE
 ) {

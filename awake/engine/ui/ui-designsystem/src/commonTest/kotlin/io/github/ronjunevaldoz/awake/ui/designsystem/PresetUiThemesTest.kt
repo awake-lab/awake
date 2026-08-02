@@ -10,7 +10,7 @@ class PresetUiThemesTest {
 
     @Test
     fun defaultPresetDelegatesToCoreFallbackPalette() {
-        assertEquals(DefaultUiTheme.tokens.background, DarkUiTheme.tokens.background)
+        assertEquals(DefaultUiTheme.colors.background, DarkUiTheme.colors.background)
         assertEquals(
             DefaultUiTheme.components.button.resolve().background!!,
             DarkUiTheme.components.button.resolve().background!!
@@ -20,12 +20,12 @@ class PresetUiThemesTest {
     @Test
     fun lightPresetSwapsBackgroundLuminance() {
         assertNotEquals(
-            DefaultUiTheme.tokens.background,
-            LightUiTheme.tokens.background
+            DefaultUiTheme.colors.background,
+            LightUiTheme.colors.background
         )
         assertNotEquals(
-            DefaultUiTheme.tokens.foreground,
-            LightUiTheme.tokens.foreground
+            DefaultUiTheme.colors.foreground,
+            LightUiTheme.colors.foreground
         )
     }
 }

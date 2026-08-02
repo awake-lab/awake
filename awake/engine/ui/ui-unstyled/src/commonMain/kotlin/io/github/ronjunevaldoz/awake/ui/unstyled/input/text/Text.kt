@@ -49,7 +49,7 @@ internal fun UiScope.drawResolvedText(
             fillColor = resolvedStyle.background ?: Color.Transparent,
             radiusPx = resolvedStyle.shape.toPx(),
             borderWidth = resolvedStyle.borderWidth,
-            borderColor = resolvedStyle.borderColor ?: theme.tokens.border,
+            borderColor = resolvedStyle.borderColor ?: theme.colors.border,
             shapeSpec = resolvedStyle.shapeSpec
         )
     }
@@ -57,7 +57,7 @@ internal fun UiScope.drawResolvedText(
         label = label,
         slot = slot.inset(resolvedStyle.contentPadding),
         font = resolvedFont,
-        color = color ?: resolvedStyle.foreground ?: textStyle.color ?: context.currentTextStyle.color ?: theme.tokens.foreground,
+        color = color ?: resolvedStyle.foreground ?: textStyle.color ?: context.currentTextStyle.color ?: theme.colors.foreground,
         centered = centered,
         verticallyCentered = verticallyCentered,
         wrap = wrap,
@@ -93,7 +93,7 @@ fun UiScope.text(
         style = style,
         defaults = Style {
             if (context.currentTextStyle.color == null) {
-                foreground(theme.tokens.foreground)
+                foreground(theme.colors.foreground)
             }
         },
         state = MutableStyleState(
@@ -159,7 +159,7 @@ fun UiScope.text(
             style = style,
             defaults = Style {
                 if (context.currentTextStyle.color == null) {
-                    foreground(theme.tokens.foreground)
+                    foreground(theme.colors.foreground)
                 }
             },
             state = state

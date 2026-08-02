@@ -16,7 +16,7 @@ fun UiScope.border(
     color: Color? = null,
     overlay: Boolean = false
 ) {
-    val strokeColor = color ?: context.currentTheme.tokens.border
+    val strokeColor = color ?: context.currentTheme.colors.border
     val w = width.toPx()
     if (w <= 0f) return
     emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, w, strokeColor), overlay)

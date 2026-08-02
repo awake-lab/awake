@@ -49,7 +49,7 @@ fun ColumnScope.shadcnAlert(
     style = style
 ) {
     val titleColor = when (variant) {
-        ShadcnAlertVariant.Default -> theme.asShadcnTheme().tokens.foreground
+        ShadcnAlertVariant.Default -> theme.asShadcnTheme().colors.foreground
         ShadcnAlertVariant.Destructive -> theme.asShadcnTheme().palette.destructive
     }
     shadcnBodyText(title, style = Style { foreground(titleColor) })

@@ -88,11 +88,11 @@ fun UiScope.textarea(
     )
 
     val borderColor =
-        if (isError) theme.tokens.destructive else (resolvedWithInteraction.borderColor
-            ?: theme.tokens.border)
+        if (isError) theme.colors.destructive else (resolvedWithInteraction.borderColor
+            ?: theme.colors.border)
     emitFillAndBorder(
         slot = interaction.slot,
-        fillColor = resolvedWithInteraction.background ?: theme.tokens.background,
+        fillColor = resolvedWithInteraction.background ?: theme.colors.background,
         radiusPx = resolvedWithInteraction.shape.toPx(),
         borderWidth = if (focused || isError) 1.5f.dp else resolvedWithInteraction.borderWidth,
         borderColor = borderColor,
@@ -189,8 +189,8 @@ fun UiScope.textarea(
                 label = displayed,
                 slot = contentSlot.toBounds(),
                 font = resolvedFont,
-                color = if (showingPlaceholder) theme.tokens.mutedForeground else (resolvedWithInteraction.foreground
-                    ?: theme.tokens.foreground),
+                color = if (showingPlaceholder) theme.colors.mutedForeground else (resolvedWithInteraction.foreground
+                    ?: theme.colors.foreground),
                 verticallyCentered = false,
                 overflow = UiTextOverflow.Clip,
                 wrap = UiTextWrap.Word,
@@ -220,7 +220,7 @@ fun UiScope.textarea(
                         TEXT_FIELD_CARET_WIDTH_PX,
                         glyphPx
                     ).toSlot(),
-                    fillColor = resolvedWithInteraction.foreground ?: theme.tokens.foreground,
+                    fillColor = resolvedWithInteraction.foreground ?: theme.colors.foreground,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent

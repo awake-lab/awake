@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.SeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** [separator] with Shadcn tokens. Real shadcn's `Separator` has a horizontal/vertical axis
  * (used e.g. between toolbar buttons or sidebar items); [orientation] threads straight through
@@ -23,6 +22,6 @@ fun UiScope.shadcnSeparator(
 ): UiBounds = separator(
     thickness = thickness,
     modifier = modifier,
-    color = theme.tokens.border,
+    color = theme.colors.border,
     orientation = orientation
 )

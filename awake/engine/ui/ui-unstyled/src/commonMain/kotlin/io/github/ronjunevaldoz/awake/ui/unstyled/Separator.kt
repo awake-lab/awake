@@ -22,7 +22,7 @@ enum class SeparatorOrientation { Horizontal, Vertical }
 fun UiScope.separator(
     thickness: Dp = 1f.dp,
     modifier: UiModifier = Modifier,
-    color: Color = context.currentTheme.tokens.border,
+    color: Color = context.currentTheme.colors.border,
     orientation: SeparatorOrientation = SeparatorOrientation.Horizontal
 ): UiBounds {
     val fallback = when (orientation) {

@@ -52,7 +52,7 @@ fun ColumnScope.shadcnBreadcrumb(
             text(
                 label = label,
                 style = Style {
-                    foreground(if (isCurrent) shadcnTheme.tokens.foreground else shadcnTheme.tokens.mutedForeground)
+                    foreground(if (isCurrent) shadcnTheme.colors.foreground else shadcnTheme.colors.mutedForeground)
                     textSize(shadcnTheme.typography.caption)
                 }
             )
@@ -60,7 +60,7 @@ fun ColumnScope.shadcnBreadcrumb(
                 text(
                     label = separator,
                     style = Style {
-                        foreground(shadcnTheme.tokens.mutedForeground)
+                        foreground(shadcnTheme.colors.mutedForeground)
                         textSize(shadcnTheme.typography.caption)
                     }
                 )
@@ -89,7 +89,7 @@ fun RowScope.shadcnBreadcrumbLink(
         label = text,
         modifier = resolvedModifier,
         style = Style {
-            foreground(shadcnTheme.tokens.mutedForeground)
+            foreground(shadcnTheme.colors.mutedForeground)
             textSize(shadcnTheme.typography.caption)
         } then style
     )
@@ -108,7 +108,7 @@ fun RowScope.shadcnBreadcrumbPage(
         label = text,
         modifier = modifier,
         style = Style {
-            foreground(shadcnTheme.tokens.foreground)
+            foreground(shadcnTheme.colors.foreground)
             textSize(shadcnTheme.typography.caption)
         } then style
     )
@@ -125,7 +125,7 @@ fun RowScope.shadcnBreadcrumbSeparator(
         label = glyph,
         modifier = modifier,
         style = Style {
-            foreground(shadcnTheme.tokens.mutedForeground)
+            foreground(shadcnTheme.colors.mutedForeground)
             textSize(shadcnTheme.typography.caption)
         }
     )
@@ -139,7 +139,7 @@ fun RowScope.shadcnBreadcrumbEllipsis(modifier: UiModifier = Modifier): UiBounds
         label = "...",
         modifier = modifier,
         style = Style {
-            foreground(shadcnTheme.tokens.mutedForeground)
+            foreground(shadcnTheme.colors.mutedForeground)
             textSize(shadcnTheme.typography.caption)
         }
     )

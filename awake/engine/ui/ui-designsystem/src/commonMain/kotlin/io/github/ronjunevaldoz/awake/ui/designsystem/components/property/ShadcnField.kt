@@ -80,7 +80,7 @@ fun UiScope.shadcnFieldError(text: String, modifier: UiModifier = Modifier): UiB
         text,
         modifier = modifier,
         style = Style {
-            foreground(shadcnTheme.tokens.destructive)
+            foreground(shadcnTheme.colors.destructive)
             textSize(shadcnTheme.typography.caption)
         }
     )
@@ -119,7 +119,7 @@ fun ColumnScope.shadcnFieldGroup(
  * centered label flanked by two hairlines that share the remaining width via `weight(1f)`.
  */
 fun ColumnScope.shadcnFieldSeparator(modifier: UiModifier = Modifier, label: String? = null) {
-    val borderColor = theme.asShadcnTheme().tokens.border
+    val borderColor = theme.asShadcnTheme().colors.border
     if (label == null) {
         separator(modifier = modifier, color = borderColor)
     } else {

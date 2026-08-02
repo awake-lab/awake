@@ -56,11 +56,11 @@ private inline fun UiScope.toggleInternal(
                 borderWidth(1f.dp)
             }
             if (checked) {
-                background(theme.tokens.secondary)
-                foreground(theme.tokens.secondaryForeground)
+                background(theme.colors.secondary)
+                foreground(theme.colors.secondaryForeground)
             } else {
                 background(Color.Transparent)
-                foreground(theme.tokens.mutedForeground)
+                foreground(theme.colors.mutedForeground)
             }
         },
         selected = newChecked,
@@ -110,7 +110,7 @@ fun UiScope.toggle(
             label = label,
             slot = contentSlot.toBounds(),
             font = context.currentFont,
-            color = resolved.foreground ?: context.currentTheme.tokens.foreground,
+            color = resolved.foreground ?: context.currentTheme.colors.foreground,
             centered = true,
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,

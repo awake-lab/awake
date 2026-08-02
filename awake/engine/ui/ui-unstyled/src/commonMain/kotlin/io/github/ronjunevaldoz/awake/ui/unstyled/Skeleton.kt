@@ -44,7 +44,7 @@ fun UiScope.skeleton(
     state.set("skeletonElapsed", elapsed)
     val phase = (elapsed / SKELETON_PULSE_PERIOD_SECONDS) * (2f * PI.toFloat())
     val pulse = SKELETON_PULSE_MIN_ALPHA + (SKELETON_PULSE_MAX_ALPHA - SKELETON_PULSE_MIN_ALPHA) * ((sin(phase) + 1f) / 2f)
-    val baseColor = resolved.background ?: theme.tokens.muted
+    val baseColor = resolved.background ?: theme.colors.muted
     emitFillAndBorder(
         slot = slot,
         fillColor = baseColor.withAlpha(baseColor.a * pulse),

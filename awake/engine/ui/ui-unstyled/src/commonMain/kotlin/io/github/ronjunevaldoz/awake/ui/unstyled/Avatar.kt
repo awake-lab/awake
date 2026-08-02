@@ -48,10 +48,10 @@ fun UiScope.avatarFallback(
     )
     emitFillAndBorder(
         slot = slot,
-        fillColor = resolved.background ?: theme.tokens.muted,
+        fillColor = resolved.background ?: theme.colors.muted,
         radiusPx = 0f,
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border,
+        borderColor = resolved.borderColor ?: theme.colors.border,
         shapeSpec = UiShapeSpec.Circle
     )
     childBox(slot).content(slot.toBounds())
@@ -76,7 +76,7 @@ fun UiScope.avatarFallback(
             initials,
             slot = slot,
             font = context.currentFont,
-            color = resolved.foreground ?: theme.tokens.foreground,
+            color = resolved.foreground ?: theme.colors.foreground,
             textStyle = resolved.textStyle,
             centered = true
         )

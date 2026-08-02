@@ -177,7 +177,7 @@ fun UiScope.surface(
         fillColor = resolved.background ?: Color.Transparent,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: context.currentTheme.tokens.border,
+        borderColor = resolved.borderColor ?: context.currentTheme.colors.border,
         shapeSpec = resolved.shapeSpec
     )
     recordSemantic(

@@ -81,8 +81,8 @@ fun UiScope.dropdown(
         options.forEachIndexed { index, option ->
             val optionStyle = if (index == selectedIndex) {
                 Style.Companion {
-                    background(theme.tokens.accent)
-                    foreground(theme.tokens.accentForeground)
+                    background(theme.colors.accent)
+                    foreground(theme.colors.accentForeground)
                 }
             } else {
                 Style.Empty
@@ -132,7 +132,7 @@ fun UiScope.drawDropdownTriggerContent(
             active = expanded
         )
     )
-    val textColor = if (isPlaceholder) theme.tokens.mutedForeground else (resolved.foreground ?: theme.tokens.foreground)
+    val textColor = if (isPlaceholder) theme.colors.mutedForeground else (resolved.foreground ?: theme.colors.foreground)
     // Raw px, not Dp -- `slot` (like every other widget's width/height param in this file)
     // is already raw-pixel space; subtracting a `.dp.toPx()` value here would density-scale
     // ONLY this padding and not `slot.width` itself, silently starving the label's available

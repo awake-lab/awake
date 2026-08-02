@@ -79,7 +79,7 @@ internal fun UiScope.renderTextBlock(
         lineCount = layout.lines.size
     )
 
-    val textColor = color ?: context.currentTextStyle.color ?: context.currentTheme.tokens.foreground
+    val textColor = color ?: context.currentTextStyle.color ?: context.currentTheme.colors.foreground
 
     fun emitLinesInternal(drawColor: Color, shimmerGradient: UiLinearGradient? = null, shimmerX: Float? = null, shimmerWidth: Float? = null) {
         var penY = if (verticallyCentered) {

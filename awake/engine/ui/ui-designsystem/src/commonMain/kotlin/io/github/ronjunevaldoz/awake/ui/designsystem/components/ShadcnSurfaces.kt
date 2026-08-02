@@ -38,7 +38,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  * [gap] sized by [ShadcnCardSize]. */
 private fun ColumnScope.shadcnCardDivider(gap: Dp) {
     spacer(Modifier.height(gap))
-    separator(color = theme.tokens.border.withAlpha(0.72f))
+    separator(color = theme.colors.border.withAlpha(0.72f))
     spacer(Modifier.height(gap))
 }
 
@@ -315,7 +315,7 @@ internal fun popoverStyle(theme: ShadcnResolvedTheme): Style = Style {
     background(theme.popover)
     foreground(theme.onPopover)
     borderWidth(1f.dp)
-    borderColor(theme.tokens.border)
+    borderColor(theme.colors.border)
     shape(theme.radii.xl)
     contentPadding(theme.metrics.panelPadding)
 }

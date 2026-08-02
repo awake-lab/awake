@@ -46,7 +46,7 @@ fun AwakeUiPreviewMetadata.componentStateMatrix(
             titleSuffix = idSuffix.replaceFirstChar { it.uppercase() },
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
-                background = resolvedTheme.tokens.background,
+                background = resolvedTheme.colors.background,
                 font = font,
                 semantics = frameOutput.semantics
             )

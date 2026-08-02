@@ -65,7 +65,7 @@ fun UiScope.emitFillAndBorder(
     fillColor: Color,
     radiusPx: Float,
     borderWidth: Dp,
-    borderColor: Color = context.currentTheme.tokens.border,
+    borderColor: Color = context.currentTheme.colors.border,
     shapeSpec: UiShapeSpec? = null,
     overlay: Boolean = emitsToOverlay
 ) {
@@ -145,7 +145,7 @@ fun UiScope.emitInsetAccent(
     val h = slot.height - inset * 2
     emitFillShape(
         slot = UiBounds(x, y, w, h),
-        color = context.currentTheme.tokens.primary,
+        color = context.currentTheme.colors.primary,
         radiusPx = (radiusPx - inset).coerceAtLeast(0f),
         shapeSpec = shapeSpec
     )
@@ -168,7 +168,7 @@ fun UiScope.emitInsetDash(
             innerW,
             thickness
         ),
-        color = context.currentTheme.tokens.primary,
+        color = context.currentTheme.colors.primary,
         radiusPx = thickness / 2f,
         shapeSpec = null
     )

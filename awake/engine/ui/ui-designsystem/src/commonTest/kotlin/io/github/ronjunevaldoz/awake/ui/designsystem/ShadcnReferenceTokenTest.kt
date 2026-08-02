@@ -39,7 +39,7 @@ class ShadcnReferenceTokenTest {
         // shadcn-compose ShadcnColors.kt, ShadcnDarkColors.primary = TwColors.neutral200,
         // doc comment: "verified against ui.shadcn.com/docs/theming's dark oklch(0.922 0 0)".
         val reference = oklch(0.922f, 0f, 0f)
-        val actual = shadcnTheme(dark = true).tokens.primary
+        val actual = shadcnTheme(dark = true).colors.primary
         assertColorClose("dark primary", reference, actual)
     }
 
@@ -48,7 +48,7 @@ class ShadcnReferenceTokenTest {
         // shadcn-compose ShadcnColors.kt, ShadcnLightColors.primary = TwColors.neutral900,
         // doc comment: "verified byte-for-byte ... match real shadcn's oklch(0.205 0 0)".
         val reference = oklch(0.205f, 0f, 0f)
-        val actual = shadcnTheme(dark = false).tokens.primary
+        val actual = shadcnTheme(dark = false).colors.primary
         assertColorClose("light primary", reference, actual)
     }
 
@@ -57,7 +57,7 @@ class ShadcnReferenceTokenTest {
         // shadcn-compose ShadcnColors.kt, ShadcnDarkColors.destructive = TwColors.red400,
         // doc comment: "Verified against dark oklch(0.704 0.191 22.216)".
         val reference = oklch(0.704f, 0.191f, 22.216f)
-        val actual = shadcnTheme(dark = true).tokens.destructive
+        val actual = shadcnTheme(dark = true).colors.destructive
         assertColorClose("dark destructive", reference, actual)
     }
 
@@ -66,7 +66,7 @@ class ShadcnReferenceTokenTest {
         // shadcn-compose ShadcnColors.kt, ShadcnLightColors.destructive = TwColors.red600,
         // doc comment: "Verified against oklch(0.577 0.245 27.325)".
         val reference = oklch(0.577f, 0.245f, 27.325f)
-        val actual = shadcnTheme(dark = false).tokens.destructive
+        val actual = shadcnTheme(dark = false).colors.destructive
         assertColorClose("light destructive", reference, actual)
     }
 

@@ -14,7 +14,7 @@ fun UiScope.supportingText(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Companion {
-        foreground(theme.tokens.mutedForeground)
+        foreground(theme.colors.mutedForeground)
         textSize(theme.typography.caption)
     },
     maxLines: Int = Int.MAX_VALUE

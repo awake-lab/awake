@@ -78,7 +78,7 @@ private fun ColumnScope.shadcnCollapsible(
                 .height(32f.dp),
             variant = ShadcnButtonVariant.Ghost,
             style = Style {
-                foreground(shadcnTheme.tokens.foreground)
+                foreground(shadcnTheme.colors.foreground)
                 contentPadding(4f.dp, 0f.dp)
             },
             onClick = { toggle() }

@@ -142,7 +142,7 @@ fun UiScope.scrollPanel(
         fillColor = resolved.background ?: Color.Transparent,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: currentTheme.tokens.border,
+        borderColor = resolved.borderColor ?: currentTheme.colors.border,
         shapeSpec = resolved.shapeSpec
     )
 
@@ -213,14 +213,14 @@ fun UiScope.scrollPanel(
             } else {
                 emitFillAndBorder(
                     slot = thumb.track,
-                    fillColor = currentTheme.tokens.muted.withAlpha(0.4f),
+                    fillColor = currentTheme.colors.muted.withAlpha(0.4f),
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent
                 )
                 emitFillAndBorder(
                     slot = thumb.thumb,
-                    fillColor = currentTheme.tokens.primary,
+                    fillColor = currentTheme.colors.primary,
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent
@@ -244,14 +244,14 @@ fun UiScope.scrollPanel(
             } else {
                 emitFillAndBorder(
                     slot = thumb.track,
-                    fillColor = currentTheme.tokens.muted.withAlpha(0.4f),
+                    fillColor = currentTheme.colors.muted.withAlpha(0.4f),
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent
                 )
                 emitFillAndBorder(
                     slot = thumb.thumb,
-                    fillColor = currentTheme.tokens.primary,
+                    fillColor = currentTheme.colors.primary,
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent

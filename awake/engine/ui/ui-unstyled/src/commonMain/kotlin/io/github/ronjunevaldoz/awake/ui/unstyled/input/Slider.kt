@@ -85,7 +85,7 @@ fun UiScope.slider(
             emitFillAndBorder(
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(trackSlot.x, trackSlot.y, handleWidth, trackSlot.height)
                     .toSlot(),
-                fillColor = theme.tokens.primary,
+                fillColor = theme.colors.primary,
                 radiusPx = 0f,
                 borderWidth = UiShape.none,
                 borderColor = Color.Transparent,
@@ -103,8 +103,8 @@ fun UiScope.slider(
                 borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
                 shapeSpec = UiShapeSpec.Pill
             ),
-            fillColor = theme.tokens.background,
-            borderColor = theme.tokens.primary
+            fillColor = theme.colors.background,
+            borderColor = theme.colors.primary
         )
         if (label != null) {
             // Previously this drew centered over the whole slot, which shares its vertical
@@ -134,7 +134,7 @@ fun UiScope.slider(
                     slot.height
                 ),
                 font = font,
-                color = surface.resolved.foreground ?: theme.tokens.foreground,
+                color = surface.resolved.foreground ?: theme.colors.foreground,
                 centered = true,
                 overflow = UiTextOverflow.Ellipsis,
                 textStyle = surface.resolved.textStyle,

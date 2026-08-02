@@ -48,7 +48,7 @@ fun UiScope.switch(
     // real render: falling back to resolved.background/theme.tokens.background left the
     // unchecked track literally invisible whenever a style plumbed in a background matching
     // the page, e.g. shadcnSwitch borrowing a text-field style).
-    val trackFill = if (newChecked) theme.tokens.primary else theme.tokens.muted
+    val trackFill = if (newChecked) theme.colors.primary else theme.colors.muted
     // See `ShadcnButtons.kt`'s `buttonSlotInternal` doc for why this is one group alpha
     // around the whole painted widget, not a per-color tweak.
     withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
@@ -59,7 +59,7 @@ fun UiScope.switch(
             slot = surface.interaction.slot,
             resolved = surface.resolved,
             fillColor = trackFill,
-            borderColor = surface.resolved.borderColor ?: theme.tokens.border,
+            borderColor = surface.resolved.borderColor ?: theme.colors.border,
             shapeSpec = UiShapeSpec.Pill
         )
         val knobDiameter = surface.interaction.slot.height - TOGGLE_KNOB_INSET_PX * 2f
@@ -71,7 +71,7 @@ fun UiScope.switch(
         emitFillAndBorder(
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, surface.interaction.slot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter)
                 .toSlot(),
-            fillColor = theme.tokens.background,
+            fillColor = theme.colors.background,
             radiusPx = 0f,
             borderWidth = UiShape.none,
             borderColor = Color.Transparent,
@@ -89,7 +89,7 @@ fun UiScope.switch(
                     surface.interaction.slot.height
                 ),
                 font = context.currentFont,
-                color = surface.resolved.foreground ?: theme.tokens.foreground,
+                color = surface.resolved.foreground ?: theme.colors.foreground,
                 centered = false,
                 verticallyCentered = true,
                 overflow = UiTextOverflow.Ellipsis,

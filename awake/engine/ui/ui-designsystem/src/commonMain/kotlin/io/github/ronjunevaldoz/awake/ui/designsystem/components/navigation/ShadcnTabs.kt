@@ -83,10 +83,10 @@ fun ColumnScope.shadcnTabs(
                 val tabStyle: Style = if (active) {
                     Style {
                         background(shadcnTheme.card)
-                        foreground(shadcnTheme.tokens.foreground)
+                        foreground(shadcnTheme.colors.foreground)
                     }
                 } else {
-                    Style { foreground(shadcnTheme.tokens.mutedForeground) }
+                    Style { foreground(shadcnTheme.colors.mutedForeground) }
                 }
                 val tabWidthPx = context.currentFont.measureTextWidth(item.label, glyphPx) + horizontalPaddingPx
                 val tabModifier = UiModifier(

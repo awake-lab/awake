@@ -75,7 +75,7 @@ fun UiScope.checkbox(
             label,
             slot = labelSlot.toBounds(),
             font = resolvedFont,
-            color = surface.resolved.foreground ?: theme.tokens.foreground,
+            color = surface.resolved.foreground ?: theme.colors.foreground,
             centered = false,
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,

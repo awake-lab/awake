@@ -18,7 +18,7 @@ object DefaultUiTheme : UiTheme by UiFallbackTheme
 object DarkUiTheme : UiTheme by DefaultUiTheme
 
 object LightUiTheme : UiTheme {
-    override val tokens: UiColorTokens = object : UiColorTokens {
+    override val colors: UiColorTokens = object : UiColorTokens {
         override val background = oklch(1f, 0f)
         override val foreground = oklch(0.145f, 0f)
         override val primary = oklch(0.205f, 0f)
@@ -34,5 +34,5 @@ object LightUiTheme : UiTheme {
         override val border = oklch(0.922f, 0f)
     }
 
-    override val components = CoreUiComponentStyles(tokens)
+    override val components = CoreUiComponentStyles(colors)
 }

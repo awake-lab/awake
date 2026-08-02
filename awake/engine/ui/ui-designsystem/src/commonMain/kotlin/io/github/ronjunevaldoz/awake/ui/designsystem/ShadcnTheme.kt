@@ -183,7 +183,7 @@ private class ConfiguredShadcnTheme(
     override val palette: ShadcnPalette = createPalette(config)
     override val typography: UiTypography = createTypography(config)
 
-    override val tokens: UiColorTokens = object : UiColorTokens {
+    override val colors: UiColorTokens = object : UiColorTokens {
         override val background = palette.background
         override val foreground = palette.foreground
         override val primary = palette.primary

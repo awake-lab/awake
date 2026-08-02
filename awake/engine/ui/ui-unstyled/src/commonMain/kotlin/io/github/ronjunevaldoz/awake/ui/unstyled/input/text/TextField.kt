@@ -82,7 +82,7 @@ fun UiScope.textField(
         focused = focused
     )
     val borderColor =
-        if (isError) theme.tokens.destructive else (surface.resolved.borderColor ?: theme.tokens.border)
+        if (isError) theme.colors.destructive else (surface.resolved.borderColor ?: theme.colors.border)
     paintSurface(
         slot = surface.interaction.slot,
         resolved = surface.resolved.copy(
@@ -187,8 +187,8 @@ fun UiScope.textField(
                 label = displayed,
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(textContentSlot.x, textContentSlot.y, textContentSlot.width, textContentSlot.height),
                 font = resolvedFont,
-                color = if (showingPlaceholder) theme.tokens.mutedForeground else (surface.resolved.foreground
-                    ?: theme.tokens.foreground),
+                color = if (showingPlaceholder) theme.colors.mutedForeground else (surface.resolved.foreground
+                    ?: theme.colors.foreground),
                 verticallyCentered = true,
                 overflow = UiTextOverflow.Clip,
                 textStyle = surface.resolved.textStyle,
@@ -209,7 +209,7 @@ fun UiScope.textField(
                         TEXT_FIELD_CARET_WIDTH_PX,
                         textContentSlot.height
                     ).toSlot(),
-                    fillColor = surface.resolved.foreground ?: theme.tokens.foreground,
+                    fillColor = surface.resolved.foreground ?: theme.colors.foreground,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent

@@ -325,7 +325,7 @@ class UiPopupCompositionsTest {
         val theme = ShadcnTheme
         ui.pushFont(BitmapFont())
         ui.pushTheme(theme)
-        ui.pushTextStyle(TextStyle(color = theme.tokens.foreground))
+        ui.pushTextStyle(TextStyle(color = theme.colors.foreground))
         ui.beginFrame(320f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
@@ -342,7 +342,7 @@ class UiPopupCompositionsTest {
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
         assertTrue(glyphs.isNotEmpty(), "dialog action button label should render glyphs")
-        val primaryForeground = theme.tokens.primaryForeground
+        val primaryForeground = theme.colors.primaryForeground
         glyphs.forEach { glyph ->
             assertEquals(
                 primaryForeground,

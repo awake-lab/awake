@@ -143,10 +143,10 @@ internal fun UiScope.paintSurface(
     val theme = context.currentTheme
     emitFillAndBorder(
         slot = slot,
-        fillColor = fillColor ?: resolved.background ?: theme.tokens.background,
+        fillColor = fillColor ?: resolved.background ?: theme.colors.background,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = borderColor ?: resolved.borderColor ?: theme.tokens.border,
+        borderColor = borderColor ?: resolved.borderColor ?: theme.colors.border,
         shapeSpec = shapeSpec
     )
 }

@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -58,10 +57,10 @@ class ShadcnDesignSystemTest {
 
     @Test
     fun shadcnThemeTracksOfficialNeutralDarkRoles() {
-        assertColorClose(Color(0.039388f, 0.039388f, 0.039388f, 1f), ShadcnTheme.tokens.background)
-        assertColorClose(Color(0.980256f, 0.980256f, 0.980256f, 1f), ShadcnTheme.tokens.foreground)
-        assertColorClose(Color(0.898161f, 0.898161f, 0.898161f, 1f), ShadcnTheme.tokens.primary)
-        assertColorClose(Color(1f, 1f, 1f, 0.1f), ShadcnTheme.tokens.border)
+        assertColorClose(Color(0.039388f, 0.039388f, 0.039388f, 1f), ShadcnTheme.colors.background)
+        assertColorClose(Color(0.980256f, 0.980256f, 0.980256f, 1f), ShadcnTheme.colors.foreground)
+        assertColorClose(Color(0.898161f, 0.898161f, 0.898161f, 1f), ShadcnTheme.colors.primary)
+        assertColorClose(Color(1f, 1f, 1f, 0.1f), ShadcnTheme.colors.border)
         assertColorClose(oklch(0.168f, 0f), ShadcnTheme.card)
         assertColorClose(oklch(0.205f, 0f), ShadcnTheme.popover)
         assertColorClose(oklch(0.158f, 0f), ShadcnTheme.sidebar)
@@ -79,8 +78,8 @@ class ShadcnDesignSystemTest {
 
     @Test
     fun shadcnThemeKeepsInteractiveRolesDistinct() {
-        assertTrue(ShadcnTheme.tokens.secondary != ShadcnTheme.tokens.muted)
-        assertTrue(ShadcnTheme.tokens.accent != ShadcnTheme.tokens.secondary)
+        assertTrue(ShadcnTheme.colors.secondary != ShadcnTheme.colors.muted)
+        assertTrue(ShadcnTheme.colors.accent != ShadcnTheme.colors.secondary)
         assertTrue(ShadcnTheme.sidebarAccent != ShadcnTheme.sidebar)
     }
 
@@ -97,8 +96,8 @@ class ShadcnDesignSystemTest {
         assertEquals(ShadcnBaseColor.Neutral, theme.config.baseColor)
         assertEquals(ShadcnAccent.Base, theme.config.accent)
         assertTrue(abs(theme.radii.lg.value - 6f) <= 0.0001f)
-        assertColorClose(hex(0x09090b), theme.tokens.background)
-        assertTrue(theme.tokens.background != Color.White)
+        assertColorClose(hex(0x09090b), theme.colors.background)
+        assertTrue(theme.colors.background != Color.White)
     }
 
     @Test
@@ -137,7 +136,7 @@ class ShadcnDesignSystemTest {
             .shadcnBadge(label = "LIVE", variant = ShadcnBadgeVariant.Primary)
 
         val firstQuad = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>().first()
-        assertColorClose(theme.tokens.primary, firstQuad.color)
+        assertColorClose(theme.colors.primary, firstQuad.color)
     }
 
     @Test
@@ -370,7 +369,7 @@ class ShadcnDesignSystemTest {
         ui.pushTheme(theme)
         // Ensure the context's base text style uses the theme's foreground,
         // otherwise it stays at the UiFallbackTheme's default (white).
-        ui.pushTextStyle(TextStyle(color = theme.tokens.foreground))
+        ui.pushTextStyle(TextStyle(color = theme.colors.foreground))
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
 
@@ -387,7 +386,7 @@ class ShadcnDesignSystemTest {
         val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
         assertTrue(glyphs.isNotEmpty(), "Slot content should render glyphs")
 
-        val primaryForeground = theme.tokens.primaryForeground
+        val primaryForeground = theme.colors.primaryForeground
         glyphs.forEach { glyph ->
             // In Vega dark theme, primary is light and primaryForeground is dark (0.09)
             assertColorClose(primaryForeground, glyph.color)
@@ -548,7 +547,7 @@ class ShadcnDesignSystemTest {
         }
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
-        val destructive = ShadcnTheme.tokens.destructive
+        val destructive = ShadcnTheme.colors.destructive
         assertTrue(
             glyphs.any { abs(it.color.r - destructive.r) < 0.01f && abs(it.color.g - destructive.g) < 0.01f },
             "shadcnFieldError text should render in the theme's destructive color"

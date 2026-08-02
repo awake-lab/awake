@@ -103,12 +103,12 @@ private fun UiScope.badge(
     val resolved = resolveStyle(
         style = style,
         defaults = Style {
-            background(theme.tokens.background)
-            foreground(theme.tokens.foreground)
+            background(theme.colors.background)
+            foreground(theme.colors.foreground)
             shape(UiShape.sm)
             borderWidth(1f.dp)
-            borderColor(theme.tokens.border)
-            hovered { background(theme.tokens.muted) }
+            borderColor(theme.colors.border)
+            hovered { background(theme.colors.muted) }
             state(BadgeToneKey, true) { borderWidth(2f.dp) }
         },
         state = MutableStyleState(hovered = hovered, active = active).set(BadgeToneKey, emphasized)
@@ -118,10 +118,10 @@ private fun UiScope.badge(
         fillColor = resolved.background ?: Color.Transparent,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.tokens.border
+        borderColor = resolved.borderColor ?: theme.colors.border
     )
     if (font != null) {
-        text(label, slot.toBounds(), font = font, color = resolved.foreground ?: theme.tokens.foreground, centered = true)
+        text(label, slot.toBounds(), font = font, color = resolved.foreground ?: theme.colors.foreground, centered = true)
     }
 }
 

@@ -8,14 +8,13 @@ import io.github.ronjunevaldoz.awake.ui.theme.neutralStyle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 class UiThemeTest {
 
     @Test
     fun neutralStyleResolvesDistinctColorsPerState() {
-        val tokens = UiFallbackTheme.tokens
+        val tokens = UiFallbackTheme.colors
         val idle = tokens.neutralStyle().resolve(MutableStyleState(hovered = false, active = false)).background!!
         val hovered = tokens.neutralStyle().resolve(
             MutableStyleState(
@@ -31,7 +30,7 @@ class UiThemeTest {
 
     @Test
     fun neutralStyleIsStableAcrossRepeatedCalls() {
-        val tokens = UiFallbackTheme.tokens
+        val tokens = UiFallbackTheme.colors
         val first = tokens.neutralStyle().resolve(MutableStyleState(hovered = true, active = false)).background!!
         val second = tokens.neutralStyle().resolve(
             MutableStyleState(
@@ -52,7 +51,7 @@ class UiThemeTest {
 
     @Test
     fun destructiveStyleVariesByStateInsteadOfReturningOneFlatColor() {
-        val tokens = UiFallbackTheme.tokens
+        val tokens = UiFallbackTheme.colors
         val idle = tokens.destructiveStyle().resolve(
             MutableStyleState(
                 hovered = false,
@@ -79,10 +78,10 @@ class UiThemeTest {
     @Test
     fun uiThemeSeparatesTokensFromComponentDefaults() {
         val custom = object : UiTheme {
-            override val tokens = UiFallbackTheme.tokens
+            override val colors = UiFallbackTheme.colors
             override val components = UiFallbackTheme.components
         }
-        assertEquals(UiFallbackTheme.tokens.background, custom.tokens.background)
+        assertEquals(UiFallbackTheme.colors.background, custom.colors.background)
         assertEquals(
             UiFallbackTheme.components.button.resolve().background!!,
             custom.components.button.resolve().background!!

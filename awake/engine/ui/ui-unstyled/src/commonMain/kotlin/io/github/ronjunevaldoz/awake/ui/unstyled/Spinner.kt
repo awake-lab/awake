@@ -39,7 +39,7 @@ fun UiScope.spinner(
 ) {
     val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.Fixed(24f.dp), Dimension.Fixed(24f.dp)))
     val resolved = resolveStyle(style = style)
-    val dotColor = resolved.foreground ?: theme.tokens.foreground
+    val dotColor = resolved.foreground ?: theme.colors.foreground
     val state = widgetState(id)
     val elapsed = state.get("spinnerElapsed", 0f) + frameDeltaSeconds()
     state.set("spinnerElapsed", elapsed)

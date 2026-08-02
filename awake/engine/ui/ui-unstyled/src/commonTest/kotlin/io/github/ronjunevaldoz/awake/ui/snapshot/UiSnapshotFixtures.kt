@@ -95,7 +95,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
             width = 160,
             height = 40,
             primitives = ui.endFrame(),
-            background = UiFallbackTheme.tokens.background,
+            background = UiFallbackTheme.colors.background,
             font = font
         )
     }
@@ -118,7 +118,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
         modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(140f.px)),
         style = Style { borderWidth(1f.dp) }
     ) {
-        text("CAMERA", color = UiFallbackTheme.tokens.mutedForeground)
+        text("CAMERA", color = UiFallbackTheme.colors.mutedForeground)
         dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = Modifier.width(180f.px).height(24f.px))
         checkbox("debug", checked = true, label = "DEBUG", modifier = Modifier.width(180f.px).height(24f.px))
     }
@@ -157,7 +157,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
                 width = 160,
                 height = 40,
                 primitives = darkThemeUi.endFrame(),
-                background = UiFallbackTheme.tokens.background,
+                background = UiFallbackTheme.colors.background,
                 font = font
             )
         )
@@ -167,7 +167,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
                 width = 160,
                 height = 40,
                 primitives = lightThemeUi.endFrame(),
-                background = SnapshotLightUiTheme.tokens.background,
+                background = SnapshotLightUiTheme.colors.background,
                 font = font
             )
         )
@@ -186,7 +186,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
                 width = 240,
                 height = 40,
                 primitives = fieldErrorUi.endFrame(),
-                background = ShadcnTheme.tokens.background,
+                background = ShadcnTheme.colors.background,
                 font = font
             )
         )
@@ -226,7 +226,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-button-variants",
             width = 620,
             height = 200,
-            background = ShadcnTheme.tokens.background,
+            background = ShadcnTheme.colors.background,
             title = "Button Variants",
             summary = "The Awake shadcn layer keeps the same shared widget runtime while giving buttons a sharper, darker design language."
         ) { snapshotFont ->
@@ -258,7 +258,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-shaped-panel",
             width = 300,
             height = 180,
-            background = UiFallbackTheme.tokens.background,
+            background = UiFallbackTheme.colors.background,
             title = "Shaped Panel Composition",
             summary = "Panels can opt into a custom shape and content clipping, which gives the DSL a reusable way to compose containers and controls."
         ) { snapshotFont ->
@@ -266,12 +266,12 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 id = "shape-panel",
                 style = Style {
                     shape(UiShapeSpec.CutCorner(12f.dp))
-                    border(1f.dp, UiFallbackTheme.tokens.border)
+                    border(1f.dp, UiFallbackTheme.colors.border)
                     contentPadding(12f.dp)
                 },
                 clipContent = true
             , modifier = Modifier.width(Dimension.Fixed(260f.px)).height(Dimension.Fixed(120f.px))) { slot ->
-                text("Shaped Panel", color = UiFallbackTheme.tokens.mutedForeground)
+                text("Shaped Panel", color = UiFallbackTheme.colors.mutedForeground)
                 context.createAbsolute(
                     modifier = Modifier.offset((slot.x + 12f).dp, (slot.y + 44f).dp),
                     font = snapshotFont,
@@ -284,7 +284,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-panel-controls",
             width = 430,
             height = 360,
-            background = ShadcnTheme.tokens.background,
+            background = ShadcnTheme.colors.background,
             title = "Panel Controls",
             summary = "The same property-form scaffolds can be skinned by the shared shadcn layer, so tool surfaces look authored without moving logic into the sample."
         ) { snapshotFont ->
@@ -312,7 +312,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-alert-dialog",
             width = 360,
             height = 260,
-            background = ShadcnTheme.tokens.background,
+            background = ShadcnTheme.colors.background,
             title = "Alert Dialog",
             summary = "A long title must wrap and stay clipped inside the dialog panel instead of overflowing past its bounds."
         ) { snapshotFont ->
@@ -332,7 +332,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-component-state-matrix",
             width = 460,
             height = 360,
-            background = ShadcnTheme.tokens.background,
+            background = ShadcnTheme.colors.background,
             title = "Component State Matrix",
             summary = "Every state a component can be in, side by side under the shadcn theme -- not just its default rest look. This is the gallery page that would have shown the toggle/slider/checkbox color-inversion bug and the dropdown-row styling bug at a glance instead of requiring a live click-through."
         ) { snapshotFont ->
@@ -367,7 +367,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-rounded-clip-vector",
             width = 340,
             height = 220,
-            background = UiFallbackTheme.tokens.background,
+            background = UiFallbackTheme.colors.background,
             title = "Rounded Clip And Vector",
             summary = "Rounded surfaces, colored borders, Box-style alignment, and vector-path icons all compose through the same widget surface, with shape clipping trimming intentional overflow."
         ) { snapshotFont ->
@@ -385,7 +385,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 text("Rounded + Clip + Vector", color = Color(0.94f, 0.96f, 1f, 1f))
                 text(
                     "The icon intentionally overflows and gets clipped by the cut-corner shell.",
-                    color = UiFallbackTheme.tokens.mutedForeground,
+                    color = UiFallbackTheme.colors.mutedForeground,
                     wrap = UiTextWrap.Word
                 )
 
@@ -423,7 +423,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-awake-shadcn-showcase",
             width = 560,
             height = 360,
-            background = ShadcnTheme.tokens.background,
+            background = ShadcnTheme.colors.background,
             title = "Awake Shadcn Showcase",
             summary = "The starter design-system layer can already express a recognizable shadcn-style component set while staying fully inside Awake's owned widget stack."
         ) { snapshotFont ->
@@ -486,7 +486,7 @@ private fun buttonVariantId(variant: UiButtonVariant): String = when (variant) {
 }
 
 private object SnapshotLightUiTheme : UiTheme {
-    override val tokens: UiColorTokens = object : UiColorTokens {
+    override val colors: UiColorTokens = object : UiColorTokens {
         override val background = Color(0.98f, 0.98f, 0.99f, 1f)
         override val foreground = Color(0.1f, 0.1f, 0.12f, 1f)
         override val primary = Color(0.2f, 0.2f, 0.24f, 1f)
@@ -502,7 +502,7 @@ private object SnapshotLightUiTheme : UiTheme {
         override val border = Color(0.8f, 0.8f, 0.83f, 1f)
     }
 
-    override val components = CoreUiComponentStyles(tokens)
+    override val components = CoreUiComponentStyles(colors)
 }
 
 private val tutorialSparkleIcon: UiImageVector = uiImageVector(

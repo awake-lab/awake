@@ -12,7 +12,7 @@ fun UiScope.sectionTitle(
     title: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Companion {
-        foreground(theme.tokens.mutedForeground)
+        foreground(theme.colors.mutedForeground)
         textSize(theme.typography.label)
     }
 ): UiBounds = text(title, modifier = modifier, style = style)

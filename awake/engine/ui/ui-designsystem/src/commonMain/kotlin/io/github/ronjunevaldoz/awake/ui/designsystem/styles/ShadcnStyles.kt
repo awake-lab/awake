@@ -31,10 +31,10 @@ object ShadcnStyles {
             active { background(theme.palette.secondaryPressed) }
         }
         ShadcnButtonVariant.Outline -> Style {
-            background(theme.tokens.background)
-            foreground(theme.tokens.foreground)
+            background(theme.colors.background)
+            foreground(theme.colors.foreground)
             borderWidth(1f.dp)
-            borderColor(theme.tokens.border)
+            borderColor(theme.colors.border)
             shape(theme.radii.lg)
             textSize(theme.typography.label)
             hovered {
@@ -48,7 +48,7 @@ object ShadcnStyles {
         }
         ShadcnButtonVariant.Ghost -> Style {
             background(ShadcnTransparent)
-            foreground(theme.tokens.foreground)
+            foreground(theme.colors.foreground)
             shape(theme.radii.lg)
             textSize(theme.typography.label)
             hovered {
@@ -105,7 +105,7 @@ object ShadcnStyles {
         }
         ShadcnBadgeVariant.Outline -> Style {
             background(ShadcnTransparent)
-            foreground(theme.tokens.foreground)
+            foreground(theme.colors.foreground)
             shape(theme.radii.full)
             borderWidth(1f.dp)
             borderColor(theme.input)
@@ -136,7 +136,7 @@ object ShadcnStyles {
     ): Style = when (variant) {
         ShadcnSurfaceVariant.Muted -> Style {
             background(theme.palette.muted)
-            foreground(theme.tokens.foreground)
+            foreground(theme.colors.foreground)
             borderWidth(1f.dp)
             borderColor(theme.input)
             shape(theme.radii.lg)
@@ -152,8 +152,8 @@ object ShadcnStyles {
 
     internal fun field(theme: ShadcnResolvedTheme, variant: ShadcnTextFieldVariant): Style = when (variant) {
         ShadcnTextFieldVariant.Default -> Style {
-            background(theme.tokens.background)
-            foreground(theme.tokens.foreground)
+            background(theme.colors.background)
+            foreground(theme.colors.foreground)
             borderWidth(1f.dp)
             borderColor(theme.input)
             shape(theme.radii.lg)
@@ -161,7 +161,7 @@ object ShadcnStyles {
             textSize(theme.typography.label)
             hovered {
                 background(theme.card)
-                borderColor(theme.tokens.border)
+                borderColor(theme.colors.border)
             }
             active {
                 background(theme.card)
@@ -178,7 +178,7 @@ object ShadcnStyles {
         // 1dp default border for any property this style doesn't set, it doesn't start blank.
         ShadcnTextFieldVariant.Filled -> Style {
             background(theme.palette.muted)
-            foreground(theme.tokens.foreground)
+            foreground(theme.colors.foreground)
             borderWidth(UiShape.none)
             shape(theme.radii.lg)
             contentPadding(theme.metrics.fieldPaddingX, theme.metrics.fieldPaddingY)
@@ -189,7 +189,7 @@ object ShadcnStyles {
         // only once focused so the user still gets an affordance while typing.
         ShadcnTextFieldVariant.Ghost -> Style {
             background(ShadcnTransparent)
-            foreground(theme.tokens.foreground)
+            foreground(theme.colors.foreground)
             // Border width is reserved at rest (transparent, invisible) so focusing only swaps
             // borderColor instead of introducing a border width that wasn't there before --
             // avoids a focus-triggered re-measure/shift while keeping the "chrome appears only
@@ -208,15 +208,15 @@ object ShadcnStyles {
     val checkbox: Style get() = checkbox(ShadcnTheme)
 
     internal fun checkbox(theme: ShadcnResolvedTheme): Style = Style {
-        background(theme.tokens.background)
-        foreground(theme.tokens.foreground)
+        background(theme.colors.background)
+        foreground(theme.colors.foreground)
         borderWidth(1f.dp)
         borderColor(theme.input)
         shape(theme.radii.md)
         textSize(theme.typography.label)
         hovered {
             background(theme.card)
-            borderColor(theme.tokens.border)
+            borderColor(theme.colors.border)
         }
         active {
             background(theme.card)
@@ -228,7 +228,7 @@ object ShadcnStyles {
 
     internal fun slider(theme: ShadcnResolvedTheme): Style = Style {
         background(theme.input)
-        foreground(theme.tokens.foreground)
+        foreground(theme.colors.foreground)
         borderWidth(1f.dp)
         borderColor(theme.input)
         shape(theme.radii.full)
@@ -245,9 +245,9 @@ object ShadcnStyles {
     // padding, sm radius (not badge's full pill).
     internal fun kbd(theme: ShadcnResolvedTheme): Style = Style {
         background(theme.palette.muted)
-        foreground(theme.tokens.mutedForeground)
+        foreground(theme.colors.mutedForeground)
         borderWidth(1f.dp)
-        borderColor(theme.tokens.border)
+        borderColor(theme.colors.border)
         shape(theme.radii.sm)
         contentPadding(theme.metrics.badgePaddingX, theme.metrics.badgePaddingY)
         textSize(theme.typography.caption)
@@ -259,15 +259,15 @@ object ShadcnStyles {
     // interactive control, so this is the only style call in this file with no state rules.
     internal fun alert(theme: ShadcnResolvedTheme, variant: ShadcnAlertVariant): Style = when (variant) {
         ShadcnAlertVariant.Default -> Style {
-            background(theme.tokens.background)
-            foreground(theme.tokens.foreground)
+            background(theme.colors.background)
+            foreground(theme.colors.foreground)
             borderWidth(1f.dp)
-            borderColor(theme.tokens.border)
+            borderColor(theme.colors.border)
             shape(theme.radii.lg)
             contentPadding(theme.metrics.panelPadding)
         }
         ShadcnAlertVariant.Destructive -> Style {
-            background(theme.tokens.background)
+            background(theme.colors.background)
             foreground(theme.palette.destructive)
             borderWidth(1f.dp)
             borderColor(theme.palette.destructive)

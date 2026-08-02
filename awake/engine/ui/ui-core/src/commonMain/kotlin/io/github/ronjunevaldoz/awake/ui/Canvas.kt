@@ -214,7 +214,7 @@ class CanvasScope internal constructor(
         text: String,
         x: Float,
         y: Float,
-        color: Color = context.currentTextStyle.color ?: context.currentTheme.tokens.foreground,
+        color: Color = context.currentTextStyle.color ?: context.currentTheme.colors.foreground,
         font: UiFont = context.currentFont,
         textStyle: TextStyle = context.currentTextStyle,
         overlay: Boolean = false

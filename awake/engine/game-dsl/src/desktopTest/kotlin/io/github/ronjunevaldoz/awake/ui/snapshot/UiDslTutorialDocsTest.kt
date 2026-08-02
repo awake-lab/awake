@@ -29,7 +29,6 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
 import kotlin.test.Test
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** Builds a one-off [UiInputState] for a test frame -- [Input] is a per-session instance
@@ -109,7 +108,7 @@ class UiDslTutorialDocsTest {
             primitives = ui.endFrame(),
             width = 320,
             height = 250,
-            background = UiFallbackTheme.tokens.background,
+            background = UiFallbackTheme.colors.background,
             font = font
         )
     }
@@ -197,7 +196,7 @@ class UiDslTutorialDocsTest {
             primitives = ui.endFrame(),
             width = 360,
             height = 240,
-            background = UiFallbackTheme.tokens.background,
+            background = UiFallbackTheme.colors.background,
             font = font
         )
     }

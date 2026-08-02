@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 fun UiScope.icon(
     imageVector: UiImageVector,
     modifier: UiModifier = Modifier,
-    tint: Color = context.currentTheme.tokens.foreground,
+    tint: Color = context.currentTheme.colors.foreground,
     overlay: Boolean = false
 ): UiBounds {
     val slot = claimModifiedSlot(

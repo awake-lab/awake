@@ -80,7 +80,7 @@ fun UiScope.shadcnDropdownMenu(
                         spacer(Modifier.height(4f.dp))
                         separator(
                             thickness = 1f.dp,
-                            color = theme.tokens.border.withAlpha(0.72f)
+                            color = theme.colors.border.withAlpha(0.72f)
                         )
                         spacer(Modifier.height(4f.dp))
                     }
@@ -88,15 +88,15 @@ fun UiScope.shadcnDropdownMenu(
                         val currentActionIndex = actionIndex
                         val menuItemStyle = when {
                             !entry.enabled -> Style.Companion {
-                                foreground(theme.tokens.mutedForeground)
-                                background(theme.tokens.background.withAlpha(0.86f))
+                                foreground(theme.colors.mutedForeground)
+                                background(theme.colors.background.withAlpha(0.86f))
                             }
                             currentActionIndex == selectedIndex -> Style.Companion {
-                                background(theme.tokens.accent)
-                                foreground(theme.tokens.accentForeground)
+                                background(theme.colors.accent)
+                                foreground(theme.colors.accentForeground)
                             }
                             entry.destructive -> Style.Companion {
-                                foreground(theme.tokens.destructive)
+                                foreground(theme.colors.destructive)
                             }
                             else -> Style.Empty
                         }
@@ -172,10 +172,10 @@ private fun ColumnScope.dropdownMenuItem(
         variant = if (selected) UiButtonVariant.Filled else UiButtonVariant.Ghost
     ) { contentSlot ->
         val textColor = when {
-            !item.enabled -> theme.tokens.mutedForeground
-            selected -> theme.tokens.accentForeground
-            item.destructive -> theme.tokens.destructive
-            else -> theme.tokens.foreground
+            !item.enabled -> theme.colors.mutedForeground
+            selected -> theme.colors.accentForeground
+            item.destructive -> theme.colors.destructive
+            else -> theme.colors.foreground
         }
 
         val verticalPadding = if (supportingLayout == null) 0f.dp else 8f.dp
@@ -208,7 +208,7 @@ private fun ColumnScope.dropdownMenuItem(
 
             // --- 2. Trailing Shortcut ---
             item.trailingLabel?.let { label ->
-                val trailingColor = if (!item.enabled) theme.tokens.mutedForeground else if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground
+                val trailingColor = if (!item.enabled) theme.colors.mutedForeground else if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground
                 text(
                     label = label,
                     // No overflow/wrap here on purpose: either one makes text()'s own sizing
@@ -237,7 +237,7 @@ private fun ColumnScope.dropdownMenuItem(
                 text(
                     label = item.supportingText!!,
                     modifier = Modifier.padding(start = 12f.dp, top = (8f + glyphPx + 4f).px, end = 12f.dp, bottom = 0f.dp).align(UiAlignment.TopStart),
-                    color = if (selected) theme.tokens.accentForeground.withAlpha(0.82f) else theme.tokens.mutedForeground,
+                    color = if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground,
                     font = resolvedFont,
                     wrap = UiTextWrap.Word,
                     overflow = UiTextOverflow.Ellipsis,

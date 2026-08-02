@@ -45,7 +45,7 @@ fun UiScope.progressBar(
         emitFillAndBorder(
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(surface.slot.x, surface.slot.y, fillWidth, surface.slot.height)
                 .toSlot(),
-            fillColor = surface.resolved.foreground ?: theme.tokens.primary,
+            fillColor = surface.resolved.foreground ?: theme.colors.primary,
             radiusPx = 0f,
             borderWidth = UiShape.none,
             borderColor = Color.Transparent,

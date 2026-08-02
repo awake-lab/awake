@@ -36,7 +36,7 @@ fun ColumnScope.shadcnSectionTitle(
     style = Style {
         val shadcnTheme = theme.asShadcnTheme()
         if (context.currentTextStyle.color == null) {
-            foreground(shadcnTheme.tokens.foreground)
+            foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.title)
     } then style
@@ -53,7 +53,7 @@ fun ColumnScope.shadcnHeadline(
     style = Style {
         val shadcnTheme = theme.asShadcnTheme()
         if (context.currentTextStyle.color == null) {
-            foreground(shadcnTheme.tokens.foreground)
+            foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.headline)
     } then style
@@ -71,7 +71,7 @@ fun ColumnScope.shadcnBodyText(
     style = Style {
         val shadcnTheme = theme.asShadcnTheme()
         if (context.currentTextStyle.color == null) {
-            foreground(shadcnTheme.tokens.foreground)
+            foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.body)
     } then style,
@@ -90,7 +90,7 @@ fun ColumnScope.shadcnSupportingText(
     style = Style {
         val shadcnTheme = theme.asShadcnTheme()
         if (context.currentTextStyle.color == null) {
-            foreground(shadcnTheme.tokens.mutedForeground)
+            foreground(shadcnTheme.colors.mutedForeground)
         }
         textSize(shadcnTheme.typography.caption)
     } then style,
@@ -110,9 +110,9 @@ fun UiScope.shadcnText(
     style = Style {
         val shadcnTheme = theme.asShadcnTheme()
         if (muted) {
-            foreground(shadcnTheme.tokens.mutedForeground)
+            foreground(shadcnTheme.colors.mutedForeground)
         } else if (context.currentTextStyle.color == null) {
-            foreground(shadcnTheme.tokens.foreground)
+            foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.body)
     } then style,
@@ -154,7 +154,7 @@ fun UiScope.shadcnLabel(
             shadcnText(
                 " *",
                 style = Style {
-                    foreground(shadcnTheme.tokens.destructive)
+                    foreground(shadcnTheme.colors.destructive)
                     textSize(shadcnTheme.typography.label)
                 }
             )
