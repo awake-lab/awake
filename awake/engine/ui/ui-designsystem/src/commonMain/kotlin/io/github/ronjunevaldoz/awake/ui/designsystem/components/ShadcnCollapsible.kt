@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
@@ -18,10 +21,10 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /**
@@ -91,11 +94,23 @@ fun ColumnScope.shadcnCollapsible(
                 horizontalArrangement = Arrangement.spacedBy(8f.dp),
                 verticalAlignment = UiAlignment.Vertical.Center
             , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))) {
-                 icon(
-                     imageVector = if (isOpen) UiIcons.chevronUp else UiIcons.chevronDown,
-                     modifier = Modifier.width(12f.dp),
-                     tint = shadcnTheme.tokens.mutedForeground
+                 // icon()'s own row-child claim + row's crossAxis centering did not visually
+                 // center the chevron against the adjacent text (confirmed via rendered pixel
+                 // proof) -- mirroring drawDropdownTriggerContent's proven approach instead:
+                 // claim a slot for layout spacing, then compute the chevron's centered bounds
+                 // directly and emit it, rather than trusting the row's automatic alignment for
+                 // this specific shape.
+                 val chevronSlot = claimSlot(Dimension.Fixed(12f.dp), Dimension.Fixed(slot.height.dp))
+                 val chevronSize = 8f.dp.toPx()
+                 val chevronBounds = UiBounds(
+                     x = chevronSlot.x + (chevronSlot.width - chevronSize) / 2f,
+                     y = chevronSlot.y + (chevronSlot.height - chevronSize * 0.6f) / 2f,
+                     width = chevronSize,
+                     height = chevronSize * 0.6f
                  )
+                 (if (isOpen) UiIcons.chevronUp else UiIcons.chevronDown).fitTo(chevronBounds).forEach { vectorPath ->
+                     emit(UiDrawPrimitive.FilledPath(vectorPath.path, vectorPath.fill ?: shadcnTheme.tokens.mutedForeground))
+                 }
                  header()
             }
         }
