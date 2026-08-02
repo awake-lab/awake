@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
+import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childColumn
@@ -41,6 +42,12 @@ internal fun UiScope.smartColumn(
     // own Start default. Thread it through those too if a scrollable/surfaced column ever needs
     // a non-default cross-axis alignment.
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
+    // Opt-in cross-frame hasWeightedChild cache -- see UiScope.column()'s doc comment. Only
+    // resolveMeasuredColumn()'s plain-measured strategy below consults this; the scrollable/
+    // visual-surface strategies delegate to scrollPanel()/surface(), a separate widget surface
+    // out of this task's row()/column() scope, so cacheKey is simply unused (not incorrect) on
+    // those paths.
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds {
     if (modifier.scrollState != null && id != null) {
@@ -52,7 +59,7 @@ internal fun UiScope.smartColumn(
         return resolveVisualSurface(id, modifier, effectiveStyle, verticalArrangement, clipContent, content)
     }
 
-    return resolveMeasuredColumn(id, modifier, effectiveStyle, verticalArrangement, role, horizontalAlignment, content)
+    return resolveMeasuredColumn(id, modifier, effectiveStyle, verticalArrangement, role, horizontalAlignment, cacheKey, content)
 }
 
 /** True if [effectiveStyle] (merged with this role's theme defaults) resolves to a real
@@ -118,6 +125,7 @@ private fun UiScope.resolveMeasuredColumn(
     verticalArrangement: Arrangement,
     role: UiSemanticRole,
     horizontalAlignment: UiAlignment.Horizontal,
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds {
     val insets = modifier.insets
@@ -188,6 +196,8 @@ private fun UiScope.resolveMeasuredColumn(
         // one turns out to actually need plannedSlots -- that path's math depends on the final
         // resolved width, not this trial's (possibly wider) available-width bound.
         precomputedMeasured = measured,
+        id = id,
+        cacheKey = cacheKey,
         content = content
     )
     if (role != UiSemanticRole.None && id != null) {
@@ -202,6 +212,10 @@ fun ColumnScope.column(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    // Opt-in cross-frame hasWeightedChild cache -- forwarded to smartColumn()/
+    // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
+    // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds = (this as UiScope).smartColumn(
     id,
@@ -211,6 +225,7 @@ fun ColumnScope.column(
     modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent),
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
+    cacheKey = cacheKey,
     content = content
 )
 
@@ -220,6 +235,10 @@ fun RowScope.column(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    // Opt-in cross-frame hasWeightedChild cache -- forwarded to smartColumn()/
+    // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
+    // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds = (this as UiScope).smartColumn(
     id,
@@ -239,6 +258,7 @@ fun RowScope.column(
     ),
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
+    cacheKey = cacheKey,
     content = content
 )
 
@@ -248,6 +268,10 @@ fun AbsoluteScope.column(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    // Opt-in cross-frame hasWeightedChild cache -- forwarded to smartColumn()/
+    // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
+    // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds = (this as UiScope).smartColumn(
     id,
@@ -257,6 +281,7 @@ fun AbsoluteScope.column(
     modifier.withSizeFallback(Dimension.WrapContent, Dimension.WrapContent),
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
+    cacheKey = cacheKey,
     content = content
 )
 
@@ -266,6 +291,10 @@ fun BoxScope.column(
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    // Opt-in cross-frame hasWeightedChild cache -- forwarded to smartColumn()/
+    // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
+    // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds = (this as UiScope).smartColumn(
     id,
@@ -275,6 +304,7 @@ fun BoxScope.column(
     modifier.withSizeFallback(Dimension.WrapContent, Dimension.WrapContent),
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
+    cacheKey = cacheKey,
     content = content
 )
 
@@ -288,6 +318,15 @@ fun UiScope.column(
     // this WrapContent column -- see the call site comment there. Every other caller leaves this
     // null and pays the same unconditional trial this function has always run.
     precomputedMeasured: UiMeasuredContent? = null,
+    // Opt-in cross-frame cache for the hasWeightedChild trial below (see
+    // docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md). Both default to null, meaning
+    // every existing call site is completely unaffected. Supply a caller-stable [id] and a
+    // [cacheKey] that changes whenever this content's `.weight()`-usage structure could change
+    // (e.g. a selected-page enum) -- NOT a per-frame value like scroll offset/animation progress,
+    // that reintroduces the exact staleness risk this cache's debug consistency check
+    // (UiWeightCacheConsistencyCheck) exists to catch -- to skip the trial on cache hits.
+    id: String? = null,
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds {
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
@@ -314,14 +353,18 @@ fun UiScope.column(
     // forces the plannedSlots branch below regardless of hasWeightedChild's value, so `||`
     // short-circuits the trial to the right whenever it does, skipping a full throwaway
     // execution of [content] the branch decision below never needed anyway.
-    val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() || (precomputedMeasured ?: run {
-        context.measureColumnContent(
-            width = slot.width,
-            gap = effectiveArrangement.baseSpacingPx(),
-            height = slot.height,
-            content = content
-        )
-    }).weights.any { it != null }
+    val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() || if (precomputedMeasured != null) {
+        precomputedMeasured.weights.any { it != null }
+    } else {
+        context.resolveHasWeightedChild(id, cacheKey) {
+            context.measureColumnContent(
+                width = slot.width,
+                gap = effectiveArrangement.baseSpacingPx(),
+                height = slot.height,
+                content = content
+            ).weights.any { it != null }
+        }
+    }
     val scope = if (hasWeightedChild) {
         // The plannedSlots branch below positions children using real, final pixel sizes --
         // unlike the hasWeightedChild check above, this genuinely needs a trial at this column's

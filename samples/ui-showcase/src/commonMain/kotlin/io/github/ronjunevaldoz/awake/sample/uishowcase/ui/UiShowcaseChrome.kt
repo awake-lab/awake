@@ -159,6 +159,13 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
 ) {
     var showCode by context.rememberStateValue("ui-showcase-page", "${page.id}.show-code") { false }
     row(
+        id = "ui-showcase-preview-code-tabs",
+        // Pilot cross-frame hasWeightedChild cache (see
+        // docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md): this row's two direct
+        // children (the Preview/Code shadcnButton calls below) never call .weight() regardless of
+        // `page`/`showCode` -- only their label/variant/id change per page, never their
+        // weight()-usage -- so a constant cacheKey is safe here too.
+        cacheKey = "static",
         modifier = Modifier.height(36.dp),
         horizontalArrangement = Arrangement.spacedBy(8f.dp)
     ) {

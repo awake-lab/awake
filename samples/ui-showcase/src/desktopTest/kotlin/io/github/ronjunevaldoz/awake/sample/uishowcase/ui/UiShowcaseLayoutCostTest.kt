@@ -57,6 +57,81 @@ class UiShowcaseLayoutCostTest {
         check(heavy.totalNanos > 0) { "heavy frame measured zero time -- instrumentation broken" }
     }
 
+    /**
+     * Real before/after numbers for the shell/sidebar `id`/`cacheKey` migration landed in
+     * UiShowcaseUi.kt's non-compact `row(id = "ui-showcase-shell-row", cacheKey = "static", ...)`
+     * (docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md). [drawRealShowcaseShell]'s outer
+     * row now goes through `BoxScope.row()` (via `ui.createBox(...)`, matching the real
+     * `canvas { ... }`/`BoxScope` receiver production actually uses) instead of the earlier
+     * `UiContext.row()` root helper, which bypassed the hasWeightedChild trial entirely and so
+     * could never have exercised this cache either way.
+     *
+     * Honest scope note: this isolates the *outer shell row's own* hasWeightedChild trial only --
+     * the content-viewport `column(id = "ui-showcase-*-content-viewport", ...)` calls set
+     * `verticalScroll`, which routes through `smartColumn`'s scrollable-container branch
+     * (`scrollPanel`), not `resolveMeasuredColumn` -- the only strategy this cache's `cacheKey`
+     * param is wired into -- so those two columns get zero benefit from `cacheKey` regardless of
+     * whether it's supplied (that's exactly why they were left unmigrated in production, per the
+     * migration's "only where you can construct a real argument for safety/benefit" discipline).
+     */
+    @Test
+    fun measureShellRowCacheImpact() {
+        val before = measureShellRowTrials(cached = false)
+        val after = measureShellRowTrials(cached = true)
+
+        val report = buildString {
+            appendLine("ui-showcase shell-row hasWeightedChild-trial cache impact (steady-state, per frame):")
+            appendLine("  before (no id/cacheKey): trials=$before")
+            appendLine("  after  (id/cacheKey=\"static\"): trials=$after")
+            val delta = before - after
+            appendLine(
+                "  delta: $delta fewer trial passes/frame" +
+                    if (before > 0) " (${"%.1f".format(delta * 100.0 / before)}% reduction)" else ""
+            )
+        }
+        println(report)
+
+        // Report the real numbers above rather than assert a specific magnitude -- this is a
+        // single row (two direct, unweighted children: shadcnSidebar + a scroll column), not the
+        // whole shell tree, so the absolute savings here are small; the only thing worth gating on
+        // is that caching never *increases* trial cost and that instrumentation actually ran.
+        check(before > 0) { "uncached frame measured zero trials -- instrumentation broken" }
+        check(after <= before) {
+            "cached frame ($after trials) must never exceed the uncached baseline ($before trials)"
+        }
+    }
+
+    /** Steady-state (JIT-warmed, cache-warmed) trial count for just [drawRealShowcaseShell]'s
+     * outer shell row, isolated from the rest of the real shell's cost. */
+    private fun measureShellRowTrials(cached: Boolean, warmupFrames: Int = 5, measuredFrames: Int = 3): Int {
+        val state = UiShowcaseRuntimeState()
+        val theme = state.showcaseTheme()
+        val ui = UiContext()
+        val input = Input()
+        input.setPointer(down = false, x = -100f, y = -100f)
+
+        var trials = 0
+        repeat(warmupFrames + measuredFrames) { frameIndex ->
+            val measured = frameIndex >= warmupFrames
+            ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
+            ui.pushTheme(theme)
+            ui.rememberStateValue<String>("ui-showcase-page", "entry") { "field-demo" }.value = "field-demo"
+
+            if (measured) {
+                UiMeasureTrialStats.reset()
+                UiMeasureTrialStats.enabled = true
+            }
+            drawRealShowcaseShell(ui, state, cacheShellRow = cached)
+            ui.endFrame()
+            if (measured) {
+                trials += UiMeasureTrialStats.trialCount
+                UiMeasureTrialStats.enabled = false
+                UiMeasureTrialStats.reset()
+            }
+        }
+        return trials / measuredFrames
+    }
+
     private data class FrameCost(
         val totalNanos: Long,
         val trialNanos: Long,
@@ -151,17 +226,26 @@ class UiShowcaseLayoutCostTest {
     /**
      * Mirrors UiShowcaseUi.kt's `drawUiShowcaseOverlay` non-compact ("desktop") branch exactly --
      * the real persistent sidebar + full page content tree the "laggy on web" report is about --
-     * minus the GameUiRuntime/canvas() indirection, which just adds a viewport-constraints
-     * callback around the same content and isn't part of what's being measured here.
+     * including the real `BoxScope` receiver `canvas { ... }` production actually provides (via
+     * `ui.createBox(...)` here instead of a full `GameUiRuntime`/`canvas()` round-trip, which just
+     * adds a viewport-constraints callback around the same content) -- this matters because
+     * `row()`/`column()` resolve to different overloads (`BoxScope.row()` vs. the root
+     * `UiContext.row()`) depending on receiver, and only the `BoxScope` one runs the
+     * hasWeightedChild trial this cache targets. [cacheShellRow] mirrors the real
+     * `id = "ui-showcase-shell-row", cacheKey = "static"` migration landed in production, so this
+     * function can measure the real before/after trial-count delta (see
+     * [measureShellRowCacheImpact]) without needing to physically revert production code.
      */
-    private fun drawRealShowcaseShell(ui: UiContext, state: UiShowcaseRuntimeState) {
+    private fun drawRealShowcaseShell(ui: UiContext, state: UiShowcaseRuntimeState, cacheShellRow: Boolean = true) {
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side")
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
         val outerPadding = 24f.dp
         val sidebarWidth = 264f.dp.toDimension()
         val railGap = 20f.dp
 
-        ui.row(
+        ui.createBox(x = 0f, y = 0f, width = 1440f, height = 900f).row(
+            id = if (cacheShellRow) "ui-showcase-shell-row" else null,
+            cacheKey = if (cacheShellRow) "static" else null,
             horizontalArrangement = Arrangement.spacedBy(railGap),
             modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax)
         ) {

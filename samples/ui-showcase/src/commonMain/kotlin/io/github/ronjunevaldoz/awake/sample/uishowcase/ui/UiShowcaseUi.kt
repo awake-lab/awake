@@ -54,6 +54,16 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
 
         if (compact) {
             column(
+                id = "ui-showcase-mobile-shell",
+                // Pilot cross-frame hasWeightedChild cache (see
+                // docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md): this outer shell
+                // column's two direct children (shadcnSidebar, the content-viewport column) never
+                // call .weight() anywhere in this fixed source -- the weight()-usage answer for
+                // THIS column can never change at runtime, so a constant cacheKey is genuinely
+                // safe, not a guess. Does not need to vary with `compact`/selected page/scroll
+                // offset -- none of those affect whether a direct child of *this* column uses
+                // weight().
+                cacheKey = "static",
                 verticalArrangement = Arrangement.spacedBy(12f.dp),
                 modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax)) {
                 shadcnSidebar(
@@ -76,6 +86,12 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
             }
         } else {
             row(
+                id = "ui-showcase-shell-row",
+                // Same reasoning as the compact column above: this row's two direct children
+                // (shadcnSidebar, the content-viewport column) never call .weight() in this fixed
+                // source, so the weight()-usage answer can never change -- a constant cacheKey is
+                // safe.
+                cacheKey = "static",
                 horizontalArrangement = Arrangement.spacedBy(railGap),
                 modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax)) {
                 shadcnSidebar(
