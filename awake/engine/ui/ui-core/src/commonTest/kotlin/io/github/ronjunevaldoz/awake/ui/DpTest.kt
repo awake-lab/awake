@@ -8,6 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 
 class DpTest {
 
@@ -64,7 +65,7 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(font = font, theme = UiFallbackTheme).resolveGlyphPx(
+        val glyphPx = ui.createAbsolute(font = font, theme = UiDefaultTheme).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 10.sp)
         )
@@ -80,7 +81,7 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(font = font, theme = UiFallbackTheme).resolveGlyphPx(
+        val glyphPx = ui.createAbsolute(font = font, theme = UiDefaultTheme).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 13f.sp)
         )

@@ -368,7 +368,7 @@ class ShadcnDesignSystemTest {
         ui.pushFont(BitmapFont())
         ui.pushTheme(theme)
         // Ensure the context's base text style uses the theme's foreground,
-        // otherwise it stays at the UiFallbackTheme's default (white).
+        // otherwise it stays at the UiDefaultTheme's default (white).
         ui.pushTextStyle(TextStyle(color = theme.colors.foreground))
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))

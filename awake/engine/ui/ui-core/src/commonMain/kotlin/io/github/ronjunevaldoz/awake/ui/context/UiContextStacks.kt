@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.context
 
-import io.github.ronjunevaldoz.awake.ui.UiFallbackTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 internal class UiContextStacks {
-    private val themeStack = mutableListOf<UiTheme>(UiFallbackTheme)
+    private val themeStack = mutableListOf<UiTheme>(UiDefaultTheme)
     private val textStyleStack = mutableListOf(TextStyle.Default)
     private val fontStack = mutableListOf(UiFonts.default())
     private val shapeStack = mutableListOf<UiShapeSpec?>(null)

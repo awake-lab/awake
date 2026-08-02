@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiFallbackTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
@@ -227,7 +227,7 @@ class UiPopupCompositionsTest {
     fun popupMeasurementDoesNotInflateWrapContentLayouts() {
         val ui = UiContext()
         ui.pushFont(UiFonts.bitmap())
-        ui.pushTheme(UiFallbackTheme)
+        ui.pushTheme(UiDefaultTheme)
         val measured = ui.measureColumnContent(width = 220f) { _ ->
             text("Popup proof")
             shadcnAlertDialog(

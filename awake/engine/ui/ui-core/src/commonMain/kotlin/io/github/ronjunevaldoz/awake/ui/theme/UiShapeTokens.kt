@@ -21,12 +21,11 @@ interface UiShapeTokens {
     val full: Dp
 }
 
-/** Neutral fallback shape scale -- same role as [CoreUiTheme]'s* generic color tokens, a
+/** Neutral fallback shape scale -- same role as [UiDefaultTheme]'s generic color tokens, a
  * reasonable default with no branded opinion. Named authored radius scales (e.g. shadcn's
  * `ShadcnRadiusScale`) belong in `ui-designsystem`, same placement rule as themes/tokens.
- *
- * *[UiFallbackTheme], see that file for the "why ui-core, not ui-designsystem" rationale --
- * applies identically here.
+ * See [UiDefaultTheme] for the "why ui-core, not ui-designsystem" rationale -- applies
+ * identically here.
  */
 object UiFallbackShapeTokens : UiShapeTokens {
     override val xs: Dp = 2f.dp

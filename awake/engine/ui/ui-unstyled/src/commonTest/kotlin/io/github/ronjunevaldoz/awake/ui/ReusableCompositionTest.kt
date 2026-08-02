@@ -20,6 +20,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 
 class ReusableCompositionTest {
 
@@ -40,7 +41,7 @@ class ReusableCompositionTest {
         val ui = UiContext()
         ui.beginFrame(240f, 120f, testSnapshot())
         ui.pushFont(BitmapFont())
-        ui.pushTheme(UiFallbackTheme)
+        ui.pushTheme(UiDefaultTheme)
 
         val scope = DiagonalScope(ui, startX = 10f, startY = 20f, stepX = 15f, stepY = 10f)
         val first = scope.buttonSlot("one", label = "ONE", modifier = Modifier.width(100f.px).height(30f.px))

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
-import io.github.ronjunevaldoz.awake.ui.UiFallbackTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
@@ -32,7 +32,7 @@ fun gameUi(block: GameUiDsl.() -> Unit): GameUiSpec {
 }
 
 class GameUiDsl internal constructor() {
-    private var defaultTheme: UiTheme = UiFallbackTheme
+    private var defaultTheme: UiTheme = UiDefaultTheme
     private var defaultFont: UiFont = UiFonts.default()
     private val overlays = mutableListOf<GameUiOverlayBlock>()
     private var onReadyBlock: GameUiReadyBlock = {}

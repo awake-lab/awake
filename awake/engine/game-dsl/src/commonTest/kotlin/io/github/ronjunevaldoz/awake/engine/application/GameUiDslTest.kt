@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
-import io.github.ronjunevaldoz.awake.ui.UiFallbackTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
@@ -137,7 +137,7 @@ class GameUiDslTest {
                 override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
             },
             spec = GameUiSpec(
-                theme = UiFallbackTheme,
+                theme = UiDefaultTheme,
                 font = UiFonts.default(),
                 overlays = emptyList(),
                 onReadyBlock = {},
@@ -190,7 +190,7 @@ class GameUiDslTest {
     }
 }
 
-private object TestUiTheme : UiTheme by UiFallbackTheme
+private object TestUiTheme : UiTheme by UiDefaultTheme
 
 private class RecordingUiRenderer : Renderer {
     var uiDrawCalls = 0

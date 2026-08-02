@@ -2,19 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.theme.destructiveStyle
 import io.github.ronjunevaldoz.awake.ui.theme.neutralStyle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class UiThemeTest {
 
     @Test
     fun neutralStyleResolvesDistinctColorsPerState() {
-        val tokens = UiFallbackTheme.colors
+        val tokens = UiDefaultTheme.colors
         val idle = tokens.neutralStyle().resolve(MutableStyleState(hovered = false, active = false)).background!!
         val hovered = tokens.neutralStyle().resolve(
             MutableStyleState(
@@ -30,7 +31,7 @@ class UiThemeTest {
 
     @Test
     fun neutralStyleIsStableAcrossRepeatedCalls() {
-        val tokens = UiFallbackTheme.colors
+        val tokens = UiDefaultTheme.colors
         val first = tokens.neutralStyle().resolve(MutableStyleState(hovered = true, active = false)).background!!
         val second = tokens.neutralStyle().resolve(
             MutableStyleState(
@@ -44,14 +45,14 @@ class UiThemeTest {
     @Test
     fun coreUiThemeSharesOneNeutralStyleAcrossWidgetKinds() {
         val state = MutableStyleState(hovered = true, active = false)
-        val a = UiFallbackTheme.components.button.resolve(state).background!!
-        val b = UiFallbackTheme.components.slider.resolve(state).background!!
+        val a = UiDefaultTheme.components.button.resolve(state).background!!
+        val b = UiDefaultTheme.components.slider.resolve(state).background!!
         assertEquals(a, b)
     }
 
     @Test
     fun destructiveStyleVariesByStateInsteadOfReturningOneFlatColor() {
-        val tokens = UiFallbackTheme.colors
+        val tokens = UiDefaultTheme.colors
         val idle = tokens.destructiveStyle().resolve(
             MutableStyleState(
                 hovered = false,
@@ -78,12 +79,12 @@ class UiThemeTest {
     @Test
     fun uiThemeSeparatesTokensFromComponentDefaults() {
         val custom = object : UiTheme {
-            override val colors = UiFallbackTheme.colors
-            override val components = UiFallbackTheme.components
+            override val colors = UiDefaultTheme.colors
+            override val components = UiDefaultTheme.components
         }
-        assertEquals(UiFallbackTheme.colors.background, custom.colors.background)
+        assertEquals(UiDefaultTheme.colors.background, custom.colors.background)
         assertEquals(
-            UiFallbackTheme.components.button.resolve().background!!,
+            UiDefaultTheme.components.button.resolve().background!!,
             custom.components.button.resolve().background!!
         )
     }

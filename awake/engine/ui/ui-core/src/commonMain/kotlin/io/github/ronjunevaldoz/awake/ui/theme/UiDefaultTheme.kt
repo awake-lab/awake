@@ -1,13 +1,8 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui
+package io.github.ronjunevaldoz.awake.ui.theme
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.theme.CoreUiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
-import io.github.ronjunevaldoz.awake.ui.theme.UiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
 
 /**
  * Neutral fallback theme for low-level UI APIs.
@@ -15,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
  * This lives in `ui-core` because root scopes need a no-extra-dependency default, but it is
  * intentionally generic. Named authored themes belong in `ui-designsystem`.
  */
-object UiFallbackTheme : UiTheme {
+object UiDefaultTheme : UiTheme {
     override val colors = object : UiColorTokens {
         override val background = Color(0.25f, 0.25f, 0.28f, 0.9f)
         override val foreground = Color.White
