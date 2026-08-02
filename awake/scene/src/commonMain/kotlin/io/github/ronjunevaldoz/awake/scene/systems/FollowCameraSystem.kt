@@ -2,31 +2,41 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.systems
 
-import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Camera
-import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.components.FollowControl
+import kotlin.math.exp
 
 /**
- * MVP1a's first real per-frame writer of [Camera.camera]'s `eye`/`center` -- every other
- * scene today authors these once in `scenes/mvp.scene.json` and never touches them again.
- * Fixed third-person offset, no collision/occlusion handling (matches [PlayerMovementSystem]'s
- * "deliberately simple" scope for this slice).
+ * Third-person/POV camera mode (see docs/MVP_PLAN.md's model-viewer/camera-catalog decision
+ * log, matching [OrbitCameraSystem]/[FreeFlyCameraSystem]'s shape): keeps any [Camera] that
+ * has a [FollowControl] component trailing behind its target at a fixed offset, smoothed with
+ * frame-rate-independent exponential decay so `delta` spikes don't cause overshoot.
+ *
+ * Decoupled from hardware input: [FollowControl] carries the target/offset/smoothing, nothing
+ * here reads WASD directly (see PlayerMovementSystem/PlayerControlSystem for moving the
+ * followed target itself).
  */
-class CameraFollowSystem(
-    private val playerTransform: Transform,
-    private val cameraComponent: Camera,
-    private val offset: Vec3 = Vec3(0f, 3f, 6f)
-) : System {
+class FollowCameraSystem : System {
+
     override fun update(world: World, delta: Float) {
-        val playerPosition = playerTransform.position
-        val camera = cameraComponent.camera
-        camera.eye.x = playerPosition.x + offset.x
-        camera.eye.y = playerPosition.y + offset.y
-        camera.eye.z = playerPosition.z + offset.z
-        camera.center.x = playerPosition.x
-        camera.center.y = playerPosition.y
-        camera.center.z = playerPosition.z
+        world.queryEach(Camera::class, FollowControl::class) { entity, camera, control ->
+            val target = control.target ?: return@queryEach
+
+            val desiredX = target.position.x + control.offset.x
+            val desiredY = target.position.y + control.offset.y
+            val desiredZ = target.position.z + control.offset.z
+
+            val factor = (1f - exp(-control.smoothing * delta)).coerceIn(0f, 1f)
+            val coreCamera = camera.camera
+            coreCamera.eye.x += (desiredX - coreCamera.eye.x) * factor
+            coreCamera.eye.y += (desiredY - coreCamera.eye.y) * factor
+            coreCamera.eye.z += (desiredZ - coreCamera.eye.z) * factor
+
+            coreCamera.center.x = target.position.x
+            coreCamera.center.y = target.position.y
+            coreCamera.center.z = target.position.z
+        }
     }
 }

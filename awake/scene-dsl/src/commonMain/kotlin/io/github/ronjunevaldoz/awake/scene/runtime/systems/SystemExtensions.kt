@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime.systems
 
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameDsl
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemHandle
+import io.github.ronjunevaldoz.awake.scene.systems.FollowCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.PlayerControlSystem
@@ -44,6 +46,27 @@ fun SceneGameDsl.freeFlyCameraSystem(
     }
     return system(name) {
         FreeFlyCameraSystem().also(configure)
+    }
+}
+
+fun SceneGameDsl.followCameraSystem(
+    name: String = "follow",
+    target: String,
+    camera: String,
+    offset: Vec3 = Vec3(0f, 3f, 6f),
+    smoothing: Float = 8f,
+    configure: FollowCameraSystem.() -> Unit = {}
+): SceneSystemHandle<FollowCameraSystem> {
+    onReady {
+        val cameraEntity = requireEntity(camera)
+        world.add(cameraEntity, io.github.ronjunevaldoz.awake.scene.components.FollowControl().apply {
+            this.target = requireTransform(target)
+            this.offset = offset
+            this.smoothing = smoothing
+        })
+    }
+    return system(name) {
+        FollowCameraSystem().also(configure)
     }
 }
 

@@ -6,43 +6,79 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Camera
+import io.github.ronjunevaldoz.awake.scene.components.FollowControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.scene.systems.CameraFollowSystem
+import io.github.ronjunevaldoz.awake.scene.systems.FollowCameraSystem
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-class CameraFollowSystemTest {
+/**
+ * FollowCameraSystem is decoupled from hardware input -- it only reads target/offset/smoothing
+ * already set on [FollowControl] (see PlayerMovementSystem/PlayerControlSystem for how the
+ * followed target itself gets moved by WASD in a real frame).
+ */
+class FollowCameraSystemTest {
+    private fun newCamera() = Camera(
+        camera = CoreCamera(eye = Vec3(0f, 0f, 0f), center = Vec3(0f, 0f, 0f), fovYRadians = 1f, near = 0.1f, far = 100f)
+    )
+
     @Test
-    fun cameraTracksPlayerPositionWithFixedOffset() {
+    fun cameraAlwaysLooksAtTarget() {
         val world = World()
-        val playerTransform = Transform(position = Vec3(2f, 0f, 4f))
-        val coreCamera = CoreCamera(
-            eye = Vec3(0f, 0f, 0f),
-            center = Vec3(0f, 0f, 0f),
-            fovYRadians = 1f,
-            near = 0.1f,
-            far = 100f
+        val target = Transform(position = Vec3(2f, 0f, 3f))
+        val entity = world.create()
+        world.add(entity, newCamera())
+        world.add(entity, FollowControl().apply { this.target = target })
+        val system = FollowCameraSystem()
+
+        system.update(world, 1f / 60f)
+
+        val camera = world.get(entity, Camera::class)!!
+        assertEquals(2f, camera.camera.center.x)
+        assertEquals(0f, camera.camera.center.y)
+        assertEquals(3f, camera.camera.center.z)
+    }
+
+    @Test
+    fun entityWithoutTargetIsSkippedWithoutThrowing() {
+        val world = World()
+        val entity = world.create()
+        world.add(entity, newCamera())
+        world.add(entity, FollowControl())
+        val system = FollowCameraSystem()
+
+        system.update(world, 1f / 60f)
+    }
+
+    @Test
+    fun cameraConvergesTowardMovingTargetOverSeveralFrames() {
+        val world = World()
+        val target = Transform(position = Vec3(0f, 0f, 0f))
+        val entity = world.create()
+        world.add(entity, newCamera())
+        val offset = Vec3(0f, 3f, 6f)
+        world.add(entity, FollowControl().apply {
+            this.target = target
+            this.offset = offset
+            this.smoothing = 8f
+        })
+        val system = FollowCameraSystem()
+        val camera = world.get(entity, Camera::class)!!
+
+        // Drive several frames while the target keeps moving away, like WASD-driven movement.
+        repeat(120) {
+            target.position.x += 0.05f
+            system.update(world, 1f / 60f)
+        }
+
+        val desiredX = target.position.x + offset.x
+        assertTrue(
+            abs(camera.camera.eye.x - desiredX) < 0.5f,
+            "expected eye.x (${camera.camera.eye.x}) to converge near desired ($desiredX)"
         )
-        val cameraComponent = Camera(camera = coreCamera)
-        val system = CameraFollowSystem(
-            playerTransform,
-            cameraComponent,
-            offset = Vec3(0f, 3f, 6f)
-        )
-
-        system.update(world, 0f)
-
-        assertEquals(2f, coreCamera.eye.x)
-        assertEquals(3f, coreCamera.eye.y)
-        assertEquals(10f, coreCamera.eye.z)
-        assertEquals(2f, coreCamera.center.x)
-        assertEquals(0f, coreCamera.center.y)
-        assertEquals(4f, coreCamera.center.z)
-
-        // Camera keeps tracking after the player moves.
-        playerTransform.position.x = 5f
-        system.update(world, 0f)
-        assertEquals(5f, coreCamera.eye.x)
-        assertEquals(5f, coreCamera.center.x)
+        // Still trailing behind, not teleported exactly onto the target.
+        assertTrue(camera.camera.eye.x < desiredX)
     }
 }

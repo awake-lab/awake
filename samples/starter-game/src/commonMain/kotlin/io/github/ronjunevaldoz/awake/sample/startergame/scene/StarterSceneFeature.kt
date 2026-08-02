@@ -25,6 +25,11 @@ internal fun starterSceneModule(): GameModule {
                 label = "Playground",
                 spec = starterPlaygroundSceneSpec()
             )
+            scene(
+                id = STARTER_SCENE_FOLLOW,
+                label = "Follow Camera",
+                spec = starterFollowSceneSpec()
+            )
         }
     }
 }

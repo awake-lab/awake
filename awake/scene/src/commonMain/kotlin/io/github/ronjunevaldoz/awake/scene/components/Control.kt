@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.components
 
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.Poolable
 
 /**
@@ -51,6 +52,23 @@ class FreeFlyControl : Poolable {
         moveX = 0f
         moveY = 0f
         moveZ = 0f
+    }
+}
+
+/**
+ * Stores the target/offset/smoothing for a third-person follow (POV) camera.
+ */
+class FollowControl : Poolable {
+    var target: Transform? = null
+    var offset: Vec3 = Vec3(0f, 3f, 6f)
+
+    /** Exponential-decay rate (higher = snappier). See [FollowCameraSystem]. */
+    var smoothing: Float = 8f
+
+    override fun reset() {
+        target = null
+        offset = Vec3(0f, 3f, 6f)
+        smoothing = 8f
     }
 }
 

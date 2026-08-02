@@ -2,17 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.startergame.scene
 
+import io.github.ronjunevaldoz.awake.scene.components.MovementControl
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameSpec
 import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.followCameraSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.freeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.orbitCameraSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.playerControlSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.sceneGame
+import io.github.ronjunevaldoz.awake.scene.systems.PlayerMovementSystem
 
 internal const val STARTER_SCENE_OVERVIEW = "overview"
 internal const val STARTER_SCENE_EDITOR = "editor"
 internal const val STARTER_SCENE_PLAYGROUND = "playground"
+internal const val STARTER_SCENE_FOLLOW = "follow"
 
 internal fun starterOverviewSceneSpec(): SceneGameSpec = sceneGame {
     name(STARTER_SCENE_OVERVIEW)
@@ -118,6 +122,38 @@ internal fun starterPlaygroundSceneSpec(): SceneGameSpec = sceneGame {
     sharedStarterAssets()
     playerControlSystem()
     freeFlyCameraSystem(camera = "camera")
+}
+
+/**
+ * Third-person/POV camera demo (see followCameraSystem/FollowControl): WASD moves the "hero"
+ * entity via [PlayerMovementSystem] + [MovementControl] -- PlayerControlSystem already fans
+ * WASD out to MovementControl for any entity that has one, same mechanism as the starter
+ * playground scene's kinematic movement -- and the camera trails behind it.
+ */
+internal fun starterFollowSceneSpec(): SceneGameSpec = sceneGame {
+    name(STARTER_SCENE_FOLLOW)
+    cameraEntity(
+        name = "camera",
+        transform = { position(0f, 3f, 6f) },
+        camera = {
+            eye(0f, 3f, 6f)
+            center(0f, 0f, 0f)
+            primary(true)
+        }
+    )
+    meshEntity(
+        name = "hero",
+        mesh = "cube",
+        material = "default",
+        transform = { scale(1f, 1f, 1f) }
+    )
+    sharedStarterAssets()
+    onReady {
+        world.add(requireEntity("hero"), MovementControl())
+    }
+    playerControlSystem()
+    system("heroMovement") { PlayerMovementSystem(requireTransform("hero")) }
+    followCameraSystem(target = "hero", camera = "camera")
 }
 
 private fun io.github.ronjunevaldoz.awake.scene.runtime.SceneGameDsl.sharedStarterAssets() {
