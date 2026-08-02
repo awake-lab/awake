@@ -235,7 +235,11 @@ fun UiScope.row(
     // wrapper above already ran an equivalent trial to size a WrapContent row) -- weighted-ness
     // is structural (which children called weight()), not dependent on the width/height bound a
     // trial measured against, so it's always safe to reuse for this check alone.
-    val hasWeightedChild = (precomputedMeasured ?: run {
+    // requiresMeasuredDistribution() alone already forces the plannedSlots branch below
+    // regardless of hasWeightedChild's value -- `||` short-circuits, so the trial to the right
+    // never runs in that case, skipping a full throwaway execution of [content] that the branch
+    // decision below never needed anyway.
+    val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() || (precomputedMeasured ?: run {
         context.measureRowContent(
             height = slot.height,
             gap = effectiveArrangement.baseSpacingPx(),
@@ -243,7 +247,7 @@ fun UiScope.row(
             content = content
         )
     }).weights.any { it != null }
-    val scope = if (effectiveArrangement.requiresMeasuredDistribution() || hasWeightedChild) {
+    val scope = if (hasWeightedChild) {
         // The plannedSlots branch below positions children using real, final pixel sizes --
         // unlike the hasWeightedChild check above, this genuinely needs a trial at this row's
         // actual resolved [slot] (not the wrapper's provisional available-size bound), so always

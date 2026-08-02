@@ -310,7 +310,11 @@ fun UiScope.column(
     // the width/height bound a trial measured against, so it's always safe to reuse for this
     // check alone, even though it was measured against resolveMeasuredColumn's wider
     // available-width bound rather than this column's real, tightened [slot].
-    val hasWeightedChild = (precomputedMeasured ?: run {
+    // See the matching comment in UiScope.row() -- requiresMeasuredDistribution() alone already
+    // forces the plannedSlots branch below regardless of hasWeightedChild's value, so `||`
+    // short-circuits the trial to the right whenever it does, skipping a full throwaway
+    // execution of [content] the branch decision below never needed anyway.
+    val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() || (precomputedMeasured ?: run {
         context.measureColumnContent(
             width = slot.width,
             gap = effectiveArrangement.baseSpacingPx(),
@@ -318,7 +322,7 @@ fun UiScope.column(
             content = content
         )
     }).weights.any { it != null }
-    val scope = if (effectiveArrangement.requiresMeasuredDistribution() || hasWeightedChild) {
+    val scope = if (hasWeightedChild) {
         // The plannedSlots branch below positions children using real, final pixel sizes --
         // unlike the hasWeightedChild check above, this genuinely needs a trial at this column's
         // actual resolved [slot] (not resolveMeasuredColumn's provisional available-width bound),
