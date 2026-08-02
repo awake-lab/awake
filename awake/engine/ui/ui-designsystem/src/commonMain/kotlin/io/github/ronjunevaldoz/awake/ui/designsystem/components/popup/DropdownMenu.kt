@@ -53,6 +53,7 @@ fun UiScope.shadcnDropdownMenu(
     val theme = context.currentTheme
     var picked: Int? = null
     val popupResult = popup(
+        id = id,
         anchorSlot = anchorSlot,
         expanded = expanded,
         width = width,

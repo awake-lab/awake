@@ -179,6 +179,35 @@ script, etc.), reserve the next free port in this range, wire it into the module
 `build.gradle.kts` (or the tool's own config) so it's real rather than aspirational, add the
 matching entry to `.claude/launch.json`, and update this table in the same change.
 
+## Live Layout Debug Overlay
+
+Every game built with `ui { ... }` (including `samples/ui-showcase`, both desktop and wasmJs)
+ships a toggleable wireframe overlay for live layout debugging -- no rebuild or flag needed,
+just press the key while the app is running:
+
+- **F3** toggles it on/off. It's edge-detected in `GameUiRuntime.render()` so holding the key
+  down doesn't rapid-flicker the toggle.
+- When on, every UI node drawn that frame gets an outline appended on top: **blue** = the
+  node's own bounds, **green** = its content bounds (inside padding, if any), **red** = its
+  clipped/scissor bounds (if the node is inside a scroll container or other clip region).
+- When off (the default), the overlay computation does not run at all -- `GameUiRuntime.render()`
+  only calls `UiContext.debugOverlayPrimitives()` inside the `if (debugOverlayEnabled)` branch,
+  so there's no per-frame cost from the feature unless it's actually toggled on.
+
+This is the fastest way to diagnose a layout/inset bug (an asymmetric padding, an unexpectedly
+clipped node, a bounds rect that doesn't match what a component's modifier requested) without
+manually cropping pixels out of a screenshot: toggle F3, take one screenshot, read the outlines.
+
+The underlying primitives live in
+`awake/engine/ui/ui-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/UiDebugOverlay.kt`;
+the toggle wiring (key state, the append-after-`finishFrame()` step) lives in
+`awake/engine/game-dsl/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/engine/application/GameUiRuntime.kt`.
+F3 is mapped to `Key.F3` in both input backends -- GLFW (desktop,
+`awake/backend/vulkan/src/desktopMain/kotlin/io/github/ronjunevaldoz/awake/vulkan/application/GlfwInputBridge.kt`)
+and DOM keyboard events (wasmJs,
+`awake/backend/webgpu/src/wasmJsMain/kotlin/io/github/ronjunevaldoz/awake/webgpu/application/WebGpuCanvasHost.kt`)
+so it works identically on both.
+
 ## Adding a UI Tutorial
 
 1. Add or update a curated test in either:

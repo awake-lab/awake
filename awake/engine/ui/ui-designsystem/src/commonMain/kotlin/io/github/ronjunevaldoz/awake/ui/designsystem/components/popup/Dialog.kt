@@ -58,6 +58,7 @@ fun UiScope.shadcnDialog(
     }
 
     val popupResult = popup(
+        id = id,
         anchorSlot = DetachedPopupAnchor,
         expanded = true,
         width = width,

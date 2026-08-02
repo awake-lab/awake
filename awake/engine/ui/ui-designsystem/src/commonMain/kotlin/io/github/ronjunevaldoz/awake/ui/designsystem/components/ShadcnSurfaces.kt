@@ -298,6 +298,7 @@ fun UiScope.shadcnPopover(
 ): UiPopoverResult {
     val resolvedTheme = theme.asShadcnTheme()
     val popupResult = popup(
+        id = id,
         anchorSlot = anchorSlot,
         expanded = expanded,
         width = width,

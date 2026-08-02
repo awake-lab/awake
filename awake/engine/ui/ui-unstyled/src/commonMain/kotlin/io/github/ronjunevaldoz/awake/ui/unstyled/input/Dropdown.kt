@@ -70,6 +70,7 @@ fun UiScope.dropdown(
     )
     var picked: Int? = null
     val popupResult = popup(
+        id = id,
         anchorSlot = slot,
         expanded = expandedState.expanded,
         width = Dimension.Fixed(slot.width.px),

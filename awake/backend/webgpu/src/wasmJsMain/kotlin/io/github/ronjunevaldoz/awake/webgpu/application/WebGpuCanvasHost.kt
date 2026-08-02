@@ -90,7 +90,8 @@ val DefaultDomGameplayKeys: Map<String, io.github.ronjunevaldoz.awake.core.input
     "arrowright" to io.github.ronjunevaldoz.awake.core.input.Key.ArrowRight,
     " " to io.github.ronjunevaldoz.awake.core.input.Key.Space,
     "spacebar" to io.github.ronjunevaldoz.awake.core.input.Key.Space,
-    "escape" to io.github.ronjunevaldoz.awake.core.input.Key.Escape
+    "escape" to io.github.ronjunevaldoz.awake.core.input.Key.Escape,
+    "f3" to io.github.ronjunevaldoz.awake.core.input.Key.F3
 )
 
 fun bindWindowPointerInput(input: Input) {

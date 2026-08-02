@@ -3,9 +3,11 @@
 package io.github.ronjunevaldoz.awake.engine.application
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
+import io.github.ronjunevaldoz.awake.ui.debugOverlayPrimitives
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
@@ -40,6 +42,12 @@ class GameUiRuntime(
     var viewportHeight: Float = 0f
         private set
 
+    /** Toggled by [Key.F3] (see [render]) -- when on, [debugOverlayPrimitives]'s blue/green/red
+     * bounds/contentBounds/clippedBounds wireframe is appended on top of every frame's real
+     * primitives. Off by default so the overlay's per-node pass never runs unless requested. */
+    var debugOverlayEnabled: Boolean = false
+    private var debugOverlayKeyWasDown: Boolean = false
+
     fun theme(theme: UiTheme) {
         this.theme = theme
     }
@@ -61,6 +69,10 @@ class GameUiRuntime(
         val input = services.requireService<Input>()
         val snapshot = input.currentSnapshot
 
+        val debugOverlayKeyDown = Key.F3 in snapshot.keysDown
+        if (debugOverlayKeyDown && !debugOverlayKeyWasDown) debugOverlayEnabled = !debugOverlayEnabled
+        debugOverlayKeyWasDown = debugOverlayKeyDown
+
         uiContext.beginFrame(
             UiFrameInput(
                 viewportWidth = viewportWidth,
@@ -78,7 +90,12 @@ class GameUiRuntime(
         val frame = uiContext.finishFrame()
         input.textInputFocused = frame.effects.requestKeyboard
 
-        renderer.drawUi(frame.primitives, font)
+        val primitives = if (debugOverlayEnabled) {
+            frame.primitives + uiContext.debugOverlayPrimitives()
+        } else {
+            frame.primitives
+        }
+        renderer.drawUi(primitives, font)
     }
 
 
