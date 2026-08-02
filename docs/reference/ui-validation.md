@@ -88,6 +88,23 @@ Use these first:
 - `inspectSemanticOverlaps(...)` for sibling-control collision checks
 - snapshot signature tests for locked visual baselines
 - layout signature tests for page-level semantic layout baselines
+- `ShadcnParityScreenshotTest` (`samples/ui-showcase`) for pixel-baseline parity against the
+  shadcn reference — `./gradlew :samples:ui-showcase:desktopTest --tests
+  "*ShadcnParityScreenshotTest*"`. Regenerate goldens with `-DAWAKE_RECORD_SNAPSHOTS=true`
+  only after inspecting the recorded diff PNG confirms the drift is an intended change, never
+  blind
+- the `RendererHeadlessPixelBaselineTest`-style pattern (`awake:backend:vulkan:desktopTest`)
+  for headlessly rendering a real frame and dumping it as a PNG when no live window/browser is
+  available — the go-to for "does this actually render right" questions on 3D/backend work
+- `UiShowcaseLayoutCostTest` (`samples/ui-showcase:desktopTest`) for frame-cost/perf
+  regressions — measures real trial-measure pass counts and wall-clock time, not estimates
+- the throwaway-probe-test idiom: build the real widget/scene through the real `UiContext`/
+  renderer and read its actual `UiBounds`/pixels, instead of reasoning about spacing,
+  centering, or collapse behavior from source alone. This is the highest-leverage tool in this
+  list — used to settle real "is X actually centered/tighter/regressed" questions with numbers
+  instead of guesses (see `RowCrossAxisCenterProbeTest`, `UiShowcaseSidebarGapProbeTest`,
+  `TypographyPaddingProbeTest` for the pattern). Keep the probe as permanent regression
+  coverage when it proves something worth locking in, delete it when it was purely diagnostic
 
 ## Allowed Exceptions
 

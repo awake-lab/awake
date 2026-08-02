@@ -37,6 +37,11 @@ You work on Awake's UI validation surface. Read
 
 ## Working Rules
 
+- start from `docs/reference/ui-validation.md`'s "Canonical Test Surfaces" list — it names the
+  actual tools (`ShadcnParityScreenshotTest`, the headless-render-and-dump-PNG pattern, the
+  frame-cost harness, the throwaway-probe-measuring-real-bounds idiom) and when to reach for
+  each. Don't invent a new verification mechanism before checking whether one of these already
+  fits
 - prefer machine-checkable assertions before manual screenshot review
 - treat snapshots as one layer of proof, not the only proof
 - add structural inspections for overlap, out-of-bounds content, clip-stack correctness, and text-fit before expanding golden-image coverage
