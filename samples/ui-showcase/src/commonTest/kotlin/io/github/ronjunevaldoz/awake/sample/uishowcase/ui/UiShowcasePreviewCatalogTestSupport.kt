@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
-import io.github.ronjunevaldoz.awake.ui.column
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -787,7 +786,7 @@ private fun renderUiShowcaseEasingPreviewFrame(
 
         AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -851,7 +850,7 @@ private fun renderUiShowcaseCardPreviewFrame(
 
         AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -1070,7 +1069,7 @@ private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
                 overflow = UiTextOverflow.Ellipsis,
                 maxLines = 1,
                 style = Style {
-                    foreground(theme.tokens.foreground)
+                    foreground(theme.colors.foreground)
                     textSize(theme.typography.body)
                 }
             )

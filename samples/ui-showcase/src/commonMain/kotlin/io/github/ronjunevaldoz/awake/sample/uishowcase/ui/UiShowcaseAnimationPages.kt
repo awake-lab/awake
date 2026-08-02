@@ -114,7 +114,7 @@ private fun RowScope.drawUiShowcaseEasingThumbnail(
         modifier = modifier
     ) { slot ->
         canvas(slot.toSlot()) {
-            val tokens = context.currentTheme.tokens
+            val tokens = context.currentTheme.colors
             val margin = bounds.width * 0.18f
             val innerWidth = bounds.width - margin * 2f
             val innerHeight = bounds.height - margin * 2f
@@ -168,7 +168,7 @@ private fun RowScope.drawUiShowcaseEasingTrack(
     modifier: UiModifier
 ) {
     canvas(modifier) {
-        val tokens = context.currentTheme.tokens
+        val tokens = context.currentTheme.colors
         val trackY = bounds.height / 2f
         val thumbSize = 14f
         val trackInset = thumbSize / 2f

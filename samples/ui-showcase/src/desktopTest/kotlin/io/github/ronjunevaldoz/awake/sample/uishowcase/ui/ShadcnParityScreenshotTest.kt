@@ -51,7 +51,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -193,7 +192,7 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
             }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -249,7 +248,7 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
             }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -285,7 +284,7 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -329,7 +328,7 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -365,7 +364,7 @@ internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -398,7 +397,7 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -433,7 +432,7 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -468,7 +467,7 @@ internal object AwakeKbdLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -501,7 +500,7 @@ internal object AwakeSkeletonLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -537,7 +536,7 @@ internal object AwakeTabsLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -569,7 +568,7 @@ internal object AwakeBreadcrumbLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -603,7 +602,7 @@ internal object AwakeCollapsibleLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -635,7 +634,7 @@ internal object AwakeSpinnerLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -669,7 +668,7 @@ internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -702,7 +701,7 @@ internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -738,7 +737,7 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -873,7 +872,7 @@ internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -909,7 +908,7 @@ internal object AwakeSelectClosedLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -944,7 +943,7 @@ internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -992,7 +991,7 @@ internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -1040,7 +1039,7 @@ internal object AwakeDropdownMenuStatesLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )
@@ -1087,7 +1086,7 @@ internal object AwakePopoverStatesLightPreview : AwakeUiPreviewEntry {
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
-            background = theme.tokens.background,
+            background = theme.colors.background,
             font = font,
             semantics = ui.semanticNodes()
         )

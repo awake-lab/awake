@@ -132,23 +132,23 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
     )
     specimenScope.text(
         label = "Awake UI",
-        color = theme.tokens.foreground,
+        color = theme.colors.foreground,
         textStyle = TextStyle(size = 18f.sp)
     )
     specimenScope.text(
         label = "Sphinx 123",
-        color = theme.tokens.foreground,
+        color = theme.colors.foreground,
         textStyle = TextStyle(size = 16f.sp)
     )
     specimenScope.text(
         label = "THE QUICK BROWN FOX",
-        color = theme.tokens.foreground,
+        color = theme.colors.foreground,
         textStyle = TextStyle(size = 12.sp)
     )
     specimenScope.text(
         label = detail,
         slot = specimenScope.claimSlot(Dimension.FillMax, Dimension.Fixed(44f.dp)).toBounds(),
-        color = theme.tokens.mutedForeground,
+        color = theme.colors.mutedForeground,
         wrap = UiTextWrap.Word,
         overflow = UiTextOverflow.Ellipsis,
         maxLines = 3,

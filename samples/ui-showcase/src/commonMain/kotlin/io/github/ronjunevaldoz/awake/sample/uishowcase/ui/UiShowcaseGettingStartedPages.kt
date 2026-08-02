@@ -317,7 +317,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
     shimmerPhase: Float,
     dangerMode: Boolean,
 ) {
-    val tokens = theme.tokens
+    val tokens = theme.colors
     val headerHeight = 40f
 
     val themeGradient = UiLinearGradient.horizontal(

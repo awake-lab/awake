@@ -149,9 +149,9 @@ class UiShowcaseGameTest {
 
         val theme = state.showcaseTheme()
 
-        assertTrue(theme.tokens.primary != theme.tokens.secondary)
-        assertTrue(theme.tokens.background != state.showcaseTheme().tokens.primary)
-        assertTrue(theme.tokens.border != state.showcaseTheme().tokens.primary)
+        assertTrue(theme.colors.primary != theme.colors.secondary)
+        assertTrue(theme.colors.background != state.showcaseTheme().colors.primary)
+        assertTrue(theme.colors.border != state.showcaseTheme().colors.primary)
     }
 
     @Test

@@ -210,7 +210,7 @@ private fun ColumnScope.drawUiShowcaseCodeBlock(code: String) {
     textLines(
         lines = code.trimIndent().lines(),
         style = Style {
-            foreground(theme.tokens.foreground)
+            foreground(theme.colors.foreground)
             textSize(theme.typography.label)
         },
         wrap = UiTextWrap.Word,

@@ -44,17 +44,17 @@ internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
     ) {
         surface(
             id = "layout-row-a",
-            style = Style { background(theme.tokens.primary) },
+            style = Style { background(theme.colors.primary) },
             modifier = Modifier.width(Dimension.Fixed(80f.dp)).height(Dimension.FillMax)
         ) { }
         surface(
             id = "layout-row-b",
-            style = Style { background(theme.tokens.secondary) },
+            style = Style { background(theme.colors.secondary) },
             modifier = Modifier.width(Dimension.Fixed(120f.dp)).height(Dimension.FillMax)
         ) { }
         surface(
             id = "layout-row-c",
-            style = Style { background(theme.tokens.muted) },
+            style = Style { background(theme.colors.muted) },
             modifier = Modifier.width(Dimension.Fixed(160f.dp)).height(Dimension.FillMax)
         ) { }
     }
@@ -67,17 +67,17 @@ internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
     ) {
         surface(
             id = "layout-col-a",
-            style = Style { background(theme.tokens.primary) },
+            style = Style { background(theme.colors.primary) },
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(28f.dp))
         ) { }
         surface(
             id = "layout-col-b",
-            style = Style { background(theme.tokens.secondary) },
+            style = Style { background(theme.colors.secondary) },
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(28f.dp))
         ) { }
         surface(
             id = "layout-col-c",
-            style = Style { background(theme.tokens.muted) },
+            style = Style { background(theme.colors.muted) },
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(28f.dp))
         ) { }
     }
@@ -147,7 +147,7 @@ internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
 }
 
 private fun CanvasScope.drawShowcaseCanvasScene() {
-    val tokens = context.currentTheme.tokens
+    val tokens = context.currentTheme.colors
     val headerGradient = UiLinearGradient.horizontal(
         start = tokens.primary.withAlpha(0.16f),
         end = tokens.accent.withAlpha(0.22f)

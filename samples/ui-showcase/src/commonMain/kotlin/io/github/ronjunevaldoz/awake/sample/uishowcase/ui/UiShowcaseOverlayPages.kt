@@ -212,7 +212,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         message = "This sample does not really delete anything. It exists to prove the alert dialog composition and confirm or dismiss flow.",
         confirmLabel = "Delete",
         confirmVariant = ShadcnButtonVariant.Danger,
-        confirmStyle = theme.tokens.destructiveStyle()
+        confirmStyle = theme.colors.destructiveStyle()
     )
     when (dialogResult.action) {
         UiAlertDialogAction.Confirm -> {
@@ -295,7 +295,7 @@ internal fun ColumnScope.drawUiShowcasePopoverPreview() {
                 overflow = UiTextOverflow.Ellipsis,
                 maxLines = 1,
                 style = Style {
-                    foreground(theme.tokens.foreground)
+                    foreground(theme.colors.foreground)
                     textSize(theme.typography.body)
                 }
             )
