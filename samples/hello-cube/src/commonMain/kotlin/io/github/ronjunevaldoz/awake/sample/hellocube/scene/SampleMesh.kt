@@ -30,3 +30,51 @@ private val cubeIndices = intArrayOf(
 )
 
 val sampleCubeGeometry = MeshGeometry(cubeVertices, cubeIndices)
+
+/**
+ * Flat checkerboard ground plane at local y=0 -- gives the physics demo's falling box a
+ * visually legible reference surface (alternating light/dark cells make position and scale
+ * readable at a glance, the same reason level editors default to a checkered ground) without
+ * introducing a new mesh topology: same interleaved position/color/uv triangle-list layout
+ * [sampleCubeGeometry] already uses, just a subdivided quad instead of a cube.
+ */
+fun sampleGridGeometry(halfSize: Float = 5f, cells: Int = 10): MeshGeometry {
+    val cellSize = (halfSize * 2f) / cells
+    val vertices = mutableListOf<Float>()
+    val indices = mutableListOf<Int>()
+    var nextVertexIndex = 0
+    for (row in 0 until cells) {
+        for (col in 0 until cells) {
+            val x0 = -halfSize + col * cellSize
+            val z0 = -halfSize + row * cellSize
+            val x1 = x0 + cellSize
+            val z1 = z0 + cellSize
+            val light = (row + col) % 2 == 0
+            val shade = if (light) 0.75f else 0.35f
+            val corners = listOf(
+                Triple(x0, 0f, z0) to (0f to 0f),
+                Triple(x1, 0f, z0) to (1f to 0f),
+                Triple(x1, 0f, z1) to (1f to 1f),
+                Triple(x0, 0f, z1) to (0f to 1f)
+            )
+            corners.forEach { (position, uv) ->
+                vertices += position.first
+                vertices += position.second
+                vertices += position.third
+                vertices += shade
+                vertices += shade
+                vertices += shade
+                vertices += uv.first
+                vertices += uv.second
+            }
+            indices += nextVertexIndex
+            indices += nextVertexIndex + 1
+            indices += nextVertexIndex + 2
+            indices += nextVertexIndex + 2
+            indices += nextVertexIndex + 3
+            indices += nextVertexIndex
+            nextVertexIndex += 4
+        }
+    }
+    return MeshGeometry(vertices.toFloatArray(), indices.toIntArray())
+}

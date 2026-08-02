@@ -24,7 +24,7 @@ internal class HelloCubeDebugController(
     fun switchDemo(index: Int) {
         state.mode = when (index) {
             1 -> HelloCubeCameraMode.FREE_FLY
-            else -> HelloCubeCameraMode.ORBIT
+            else -> HelloCubeCameraMode.STATIC
         }
     }
 

@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 internal enum class HelloCubeCameraMode {
-    ORBIT,
+    STATIC,
     FREE_FLY
 }
 
 internal data class HelloCubeUiState(
-    val mode: HelloCubeCameraMode = HelloCubeCameraMode.ORBIT,
+    val mode: HelloCubeCameraMode = HelloCubeCameraMode.STATIC,
     val minimapEnabled: Boolean = false
 )
 

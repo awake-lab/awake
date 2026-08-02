@@ -158,7 +158,9 @@ class HelloCubeGameTest {
     }
 }
 
-private object FakeRenderer : Renderer {
+// internal, not private: reused by HelloCubePhysicsSceneTest.kt (desktopTest) to build a
+// real game against a fake renderer without duplicating this whole Renderer stub.
+internal object FakeRenderer : Renderer {
     override val flipYForClipSpace: Boolean = false
 
     override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
