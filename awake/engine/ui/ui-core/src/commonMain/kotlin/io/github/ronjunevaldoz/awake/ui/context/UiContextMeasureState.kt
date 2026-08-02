@@ -122,7 +122,7 @@ internal class UiContextMeasureState {
             verticalArrangement = Arrangement.spacedBy(gap.px),
             insets = insets
         )
-        measureScope.content(outerSlot)
+        UiMeasureTrialStats.record { measureScope.content(outerSlot) }
         return measureContext.measuredContentSnapshot()
     }
 
@@ -143,7 +143,7 @@ internal class UiContextMeasureState {
             horizontalArrangement = Arrangement.spacedBy(gap.px),
             insets = insets
         )
-        measureScope.content(outerSlot)
+        UiMeasureTrialStats.record { measureScope.content(outerSlot) }
         return measureContext.measuredContentSnapshot()
     }
 
