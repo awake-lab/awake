@@ -20,8 +20,12 @@ flowchart TD
     core["awake:core"]
     ecs["awake:ecs"]
     scene["awake:scene"]
+    sceneDsl["awake:scene-dsl"]
     render["awake:engine:render-api"]
     game["awake:engine:game"]
+    gameDsl["awake:engine:game-dsl"]
+    physicsApi["awake:physics:api"]
+    jolt["awake:backend:jolt"]
     uiCore["awake:engine:ui:ui-core"]
     uiWidgets["awake:engine:ui:ui-unstyled"]
     ui["awake:engine:ui"]
@@ -34,9 +38,14 @@ flowchart TD
     base --> ecs
     base --> scene
     base --> render
+    base --> physicsApi
     ecs --> scene
+    scene --> sceneDsl
     render --> game
     scene --> game
+    game --> gameDsl
+    sceneDsl --> gameDsl
+    physicsApi --> jolt
     uiCore --> uiWidgets
     uiWidgets --> ui
     ui --> uiDs
@@ -56,9 +65,13 @@ flowchart TD
 | `:awake-opengl` | Legacy OpenGL rendering backend | `awake-opengl` |
 | `:awake-ecs` | Sparse-set ECS runtime: entities, stores, queries, systems | `awake-ecs` |
 | `:awake-scene` | Scene components and systems on top of ECS | `awake-scene` |
+| `:awake-scene-dsl` | Authored scene DSL (`sceneGame { ... }`, entities/assets/systems) on top of `awake:scene` | not published |
 | `:awake-backend:vulkan` | Vulkan KMP bindings and JNI bridge | `awake-vulkan` |
 | `:awake-engine:game` | Backend-neutral game bootstrap and runtime glue | not published |
+| `:awake-engine:game-dsl` | Authored `game { ... }`/`gameSpec { ... }` entrypoint for assembling a game from `awake:engine:game` contracts | not published |
 | `:awake-engine:render-api` | Renderer-facing abstractions and draw orchestration | not published |
+| `:awake-physics:api` | Backend-agnostic physics contracts: `PhysicsWorld`, `BodyHandle`, `BodyTransform`, `PhysicsShape`, `MotionType`, `RaycastHit` | not published |
+| `:awake-backend:jolt` | Jolt Physics binding (JNI on desktop/Android via `jolt-jni`, JoltC cinterop on iOS) implementing `awake:physics:api` | not published |
 | `:awake-engine:ui:ui-core` | Foundational UI drawing and layout primitives | not published |
 | `:awake-engine:ui:ui-unstyled` | Reusable widget-level primitives built on `ui-core` | not published |
 | `:awake-engine:ui` | Style-agnostic UI composition templates and DSL surfaces | not published |

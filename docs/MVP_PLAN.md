@@ -1497,6 +1497,13 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
 
 ## Phase 7 — Compose-Style Scene API (post-decision, see D2)
 
+**Correction (2026-08-03):** this section previously described a placeholder pending D2.
+D2 has since been decided and shipped (option 2, custom Kotlin DSL — see D2 below); the
+placeholder candidate shape below is superseded by the real `awake:scene-dsl` module
+(`AwakeSceneDsl.kt`, `SceneNodeDsl.kt`, `SceneTransformDsl.kt`, `SceneCameraDsl.kt`,
+`SceneLightDsl.kt`, `SceneDocumentDsl.kt`) plus `awake:engine:game-dsl`'s `game { ... }`/
+`gameSpec { ... }` entrypoint. Left as-is below for history.
+
 Placeholder until D2 is decided. Candidate shape:
 
 ```kotlin
@@ -1509,21 +1516,39 @@ fun GameScene() {
 }
 ```
 
-- [ ] Decide layer: Compose runtime reuse vs. custom DSL (D2)
-- [ ] Prototype: declarative tree → ECS world diffing
-- [ ] State-driven updates (`remember`, `mutableStateOf` interop)
+- [x] Decide layer: Compose runtime reuse vs. custom DSL (D2) — **custom DSL**, see D2
+- [x] Prototype: declarative tree → ECS world diffing — shipped as `awake:scene-dsl`
+      (`sceneGame { ... }`) building `SceneGameSpec`, no incremental diffing (matches D2's
+      option 2 tradeoff: rebuild, not recomposition)
+- [ ] State-driven updates (`remember`, `mutableStateOf` interop) — not applicable; option 2
+      has no Compose runtime, so no `remember`/recomposition semantics exist to interop with
 
 ## Phase 8 — Physics (post-MVP, see D5)
+
+**Correction (2026-08-03):** this phase was previously framed as "not started." It is not:
+`awake:physics:api` (`PhysicsWorld`/`BodyHandle`/`BodyTransform`/`PhysicsShape`/`MotionType`/
+`RaycastHit`, zero `TODO()`s) and `awake:backend:jolt` (real Jolt JNI binding on desktop +
+Android via `stephengold/jolt-jni`, real iOS binding via JoltC cinterop, zero `TODO()`s,
+covered by `JoltPhysicsWorldTest.kt` against real hardware — see D5 slices 1–2 below) both
+exist and are substantial. Correct framing: **API + binding complete, sample/ECS integration
+pending** (separate, in-progress work as of this correction).
 
 3D via **Jolt Physics** (C++, MIT), same binding split as Vulkan: JNI (Android/Desktop),
 cinterop static lib (iOS). 2D via **kbox2d** (pure Kotlin) as a separate artifact when needed.
 
-- [ ] `awake-physics` common API: `PhysicsWorld`, `RigidBody`, `Collider` ECS components
-- [ ] Jolt CMake build for Android / macOS / Windows / Linux (+ iOS static lib later)
-- [ ] **Coarse-grained binding** (~20 hand-designed functions, NOT a generated 1:1 mirror):
+- [x] `awake-physics` common API: `PhysicsWorld`, `BodyHandle`, `BodyTransform`,
+      `PhysicsShape`, `MotionType`, `RaycastHit` — landed as `awake:physics:api` (see D5)
+- [x] Jolt binding for Android / Desktop (JVM, via `jolt-jni`) and iOS (JoltC cinterop) —
+      landed as `awake:backend:jolt` (see D5); wasmJs still a stub
+- [x] **Coarse-grained binding** (~20 hand-designed functions, NOT a generated 1:1 mirror):
       `world.step(dt)` = one JNI call; simulation stays native
 - [ ] Batched transform sync: shared direct `ByteBuffer` (JVM) / pinned memory (Native)
-      written by C++ per step, read by `PhysicsSyncSystem` — no per-body JNI getters
+      written by C++ per step, read by `PhysicsSyncSystem` — no per-body JNI getters.
+      **Correction (2026-08-03):** the shipped `syncTransforms()` in `awake:backend:jolt`
+      does one JNI `getPositionAndRotation` call per tracked body per frame (still one
+      Kotlin-side call per frame, per its own doc comment), not a shared-buffer bulk read —
+      jolt-jni exposes no bulk query across an arbitrary body-id list. Left unchecked; the
+      original buffer-batching design isn't what's implemented.
 - [ ] `PhysicsSystem` integration with Phase 3 ECS
 - [ ] Demo: falling boxes onto a ground plane on Android + desktop
 - [ ] (Optional, later) `awake-physics-2d` with kbox2d in `commonMain`
@@ -1543,8 +1568,8 @@ cinterop static lib (iOS). 2D via **kbox2d** (pure Kotlin) as a separate artifac
 | 5 Editor | parallel | 3 |
 | 6 iOS | 2–3 wk | 2 |
 | **MVP total** | **10–14 wk** (2.5 additive, see D7) | |
-| 7 Compose scene API | post-MVP | 3, 4, D2 |
-| 8 Physics (Jolt) | post-MVP, 2–3 wk | 3, D5 |
+| 7 Compose scene API | post-MVP, **done** (see D2 correction) | 3, 4, D2 |
+| 8 Physics (Jolt) | post-MVP, API + binding **done**, ECS/sample integration pending | 3, D5 |
 | 9 Audio (OpenAL Soft) | post-MVP, 1–2 wk | 4, D8 |
 
 ## Risks
@@ -1571,6 +1596,15 @@ multi-threaded scheduling, treat that as scope growth and revisit the decision i
 silently adding a general-purpose ECS library.
 
 ### D2 — Compose-style scene API
+**Correction (2026-08-03):** this entry was left marked "OPEN — under discussion" after the
+decision had already shipped in code. **Decided: option 2, custom Kotlin DSL.** Real,
+tested modules exist: `awake:scene-dsl` (`AwakeSceneDsl.kt`, `SceneNodeDsl.kt`,
+`SceneTransformDsl.kt`, `SceneCameraDsl.kt`, `SceneLightDsl.kt`, `SceneDocumentDsl.kt` —
+`sceneGame { ... }` builder syntax over `awake:scene`) and `awake:engine:game-dsl`
+(`game { ... }`/`gameSpec { ... }` entrypoint over `awake:engine:game`). No Compose runtime
+dependency, no incremental recomposition — matches option 2's known tradeoff exactly
+(rebuild/manual diff, not diffing). See Phase 7 above for the checklist reconciliation.
+
 **OPEN — under discussion.** Options:
 1. **Reuse the Compose runtime** (`compose.runtime` only, no UI): custom `Applier` that
    materializes the composition into ECS entities. True `@Composable` scenes, `remember`/
