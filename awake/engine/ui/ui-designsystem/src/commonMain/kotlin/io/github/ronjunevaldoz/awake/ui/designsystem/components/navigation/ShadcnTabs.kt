@@ -38,12 +38,10 @@ fun ColumnScope.shadcnTabs(
     // Real shadcn's TabsList reserves a p-1 (4px) inset so the active trigger's raised
     // background sits inside the track, not flush against its edges -- previously the row
     // filled the track's full height with no inset, so the active highlight's own rounded
-    // corners poked past the track's rounded corners at the top/bottom. contentPadding on
-    // the track's own style (not a padding()/insets modifier on the nested row) is the
-    // reliable way to get this inset: UiScope.row()'s fast (non-weighted) path forwards
-    // only testTag to childRow(), silently dropping modifier.insets -- a ui-core layout
-    // gap, not something to patch from this design-system-layer component -- while
-    // Surface's own contentPadding->slot.inset() plumbing already works correctly.
+    // corners poked past the track's rounded corners at the top/bottom. Applied via
+    // contentPadding on the track's own Style rather than padding() on the nested row,
+    // since Surface already exposes this as an explicit content-padding concept distinct
+    // from the row's own outer placement.
     val trackInset = 4f.dp
     surface(
         id = "$id.track",
