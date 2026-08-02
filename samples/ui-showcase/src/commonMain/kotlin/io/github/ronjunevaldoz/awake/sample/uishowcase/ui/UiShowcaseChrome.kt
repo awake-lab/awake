@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.suppo
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.textLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -117,7 +118,12 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                 onExpandedChange = { expanded = it }
             ) {
                 pages.forEach { page ->
-                    drawUiShowcaseSidebarPageButton(page, selectedPageId, onSelect)
+                    // shadcnCollapsible's header text starts at contentPadding(4dp) +
+                    // "+/-" icon width(12dp) + row gap(8dp) = 24dp from the shared left edge.
+                    // Nested items must indent to at least that point (real shadcn/Radix
+                    // Accordion content aligns under the trigger label) -- the previous 14dp
+                    // start padding put child rows to the *left* of their own group header.
+                    drawUiShowcaseSidebarPageButton(page, selectedPageId, onSelect, startPadding = 24f.dp)
                 }
             }
             spacer(Modifier.height(12f.dp))
@@ -129,6 +135,7 @@ private fun ColumnScope.drawUiShowcaseSidebarPageButton(
     page: ShowcasePage,
     selectedPageId: String,
     onSelect: (ShowcasePage) -> Unit,
+    startPadding: Dp = 14f.dp,
 ) {
     if (
         shadcnButton(
@@ -138,7 +145,7 @@ private fun ColumnScope.drawUiShowcaseSidebarPageButton(
                 .fillMaxWidth()
                 .height(36f.dp),
             style = Style {
-                contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
+                contentPadding(start = startPadding, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
             },
             variant = if (page.id == selectedPageId) {
                 ShadcnButtonVariant.Primary
