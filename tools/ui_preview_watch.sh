@@ -2,18 +2,24 @@
 # Copyright (c) Ron June Valdoz
 # SPDX-License-Identifier: Apache-2.0
 #
-# Near-real-time UI preview loop: Gradle --continuous regenerates the ui-showcase
-# preview gallery on source change (scoped to the narrow preview-writing test class,
-# not the whole desktopTest suite), and a tiny static server auto-reloads the browser
-# tab once the gallery HTML changes. See docs/reference/developer-docs.md's
+# Near-real-time UI preview loop: Gradle --continuous regenerates the unified, searchable UI
+# component lookup (merging the ui-showcase page-level preview gallery and the ui-unstyled
+# bare-widget snapshot gallery -- see the "uiComponentLookupReport" task in the root
+# build.gradle.kts) on source change, scoped to the two narrow preview/snapshot-writing test
+# classes rather than either module's whole desktopTest suite. A tiny static server auto-reloads
+# the browser tab once the merged gallery HTML changes. See docs/reference/developer-docs.md's
 # "Live Preview Loop" section.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 PORT="${1:-8090}"
-REPORT_DIR="samples/ui-showcase/build/reports/ui-previews"
+REPORT_DIR="build/reports/ui-component-lookup"
 
-./gradlew :samples:ui-showcase:desktopTest --tests "*UiShowcasePreviewDocsTest*" --continuous -q &
+./gradlew \
+    :samples:ui-showcase:desktopTest --tests "*UiShowcasePreviewDocsTest*" \
+    :awake:engine:ui:ui-unstyled:desktopTest --tests "*UiSnapshotTest*" \
+    uiComponentLookupReport \
+    --continuous -q &
 GRADLE_PID=$!
 trap 'kill "$GRADLE_PID" 2>/dev/null || true' EXIT
 

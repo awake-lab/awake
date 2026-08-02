@@ -75,7 +75,8 @@ private val expectedReviewSnapshotSignatures = mapOf(
     "button-ghost" to 0x0d0e346a89b128ebuL,
     "theme-dark" to 0x0d0e346a89b128ebuL,
     "theme-light" to 0xb1b12af74057ca57uL,
-    "panel-with-children" to 0x3cad1f48edd5edd7uL
+    "panel-with-children" to 0x3cad1f48edd5edd7uL,
+    "shadcn-field-error" to 0xacb367d4fa4bee46uL
 )
 
 private val expectedTutorialSnapshotSignatures = mapOf(

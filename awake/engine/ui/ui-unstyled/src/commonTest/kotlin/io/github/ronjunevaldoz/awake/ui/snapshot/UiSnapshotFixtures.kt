@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFiel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldError
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -122,6 +123,14 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
         checkbox("debug", checked = true, label = "DEBUG", modifier = Modifier.width(180f.px).height(24f.px))
     }
 
+    // Gap found by the unified UI component lookup audit (2026-08-02): shadcnFieldError had
+    // no showcase page or snapshot demonstrating it standalone -- cheap enough to add here
+    // rather than punt to a follow-up.
+    val fieldErrorUi = UiContext()
+    fieldErrorUi.beginFrame(240f, 40f, testSnapshot())
+    fieldErrorUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = ShadcnTheme)
+        .shadcnFieldError("This field is required.", modifier = Modifier.width(240f.px).height(24f.px))
+
     return buildList {
         add(
             UiSnapshotScene(
@@ -168,6 +177,16 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
                 width = 240,
                 height = 200,
                 primitives = panelUi.endFrame(),
+                font = font
+            )
+        )
+        add(
+            UiSnapshotScene(
+                name = "shadcn-field-error",
+                width = 240,
+                height = 40,
+                primitives = fieldErrorUi.endFrame(),
+                background = ShadcnTheme.tokens.background,
                 font = font
             )
         )
