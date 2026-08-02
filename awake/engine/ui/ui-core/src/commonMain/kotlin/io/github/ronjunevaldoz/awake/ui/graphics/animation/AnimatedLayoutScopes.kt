@@ -24,11 +24,14 @@ fun ColumnScope.animatedHeight(
     responsiveness: Float = 12f,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds? {
-    // 1. Measure the content to know the target expanded height
+    // 1. Measure the content to know the target expanded height -- only on the frame this
+    // collapses into an expanded state, not every frame it stays expanded (that used to run a
+    // full extra layout pass forever for a collapsible left open, e.g. a sidebar group).
     val state = widgetState(id)
     var cachedHeight: Float = state.get("measuredHeight", 0f)
+    val wasExpanded = state.get("wasExpanded", false)
 
-    if (expanded) {
+    if (expanded && !wasExpanded) {
         val measured = measureColumnContent(
             width = fillWidthOrNull() ?: 4096f,
             gap = gap,
@@ -37,6 +40,7 @@ fun ColumnScope.animatedHeight(
         cachedHeight = measured.height
         state.set("measuredHeight", cachedHeight)
     }
+    state.set("wasExpanded", expanded)
 
     // 2. Animate current height toward 0 (collapsed) or measured.height (expanded)
     val targetHeight = if (expanded) cachedHeight else 0f
