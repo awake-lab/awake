@@ -6,7 +6,29 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
+import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
 import kotlin.test.Test
+
+/**
+ * Preview ids that also get a pixel-baseline regression check (via [verifyAwakeUiPreview]),
+ * on top of every entry's structural [validateAwakeUiPreview] check -- deliberately a small,
+ * high-value subset (not every entry in `UiShowcasePreviewEntries`) per docs/reference/
+ * ui-validation.md's "keep the baseline set reasonably small" guidance: the card-preview-frame
+ * shell (whose double-scaled offset/width bug commit abf21b30 fixed, only reachable through
+ * this real showcase-card wrapping, not the isolated shadcn-parity layouts in
+ * ShadcnParityScreenshotTest), the field-error/field-matrix states, and all three sampled
+ * phases of an animated component (rest/in-flight/settled, per ui-validation.md's animated-
+ * component requirement).
+ */
+private val PixelBaselineIds: Set<String> = setOf(
+    "ui-showcase-collapsible",
+    "ui-showcase-collapsible-open",
+    "ui-showcase-field-demo",
+    "ui-showcase-field-matrix",
+    "ui-showcase-easing-rest",
+    "ui-showcase-easing-in-flight",
+    "ui-showcase-easing-settled"
+)
 
 /**
  * Known, pre-existing layout issues that aren't this test's job to fix -- tracked separately
@@ -42,6 +64,7 @@ class UiShowcasePreviewDocsTest {
 
     @Test
     fun writeShowcasePreviews() {
+        val record = System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.toBoolean() ?: false
         val issues = mutableListOf<String>()
         UiShowcasePreviewEntries.forEach { entry ->
             renderAnnotatedUiPreviews(entry).forEach { scene ->
@@ -50,6 +73,13 @@ class UiShowcasePreviewDocsTest {
                 val report = validateAwakeUiPreview(scene, config)
                 if (!report.isClean) {
                     issues += report.summary()
+                }
+                if (report.isClean && scene.metadata.id in PixelBaselineIds) {
+                    try {
+                        verifyAwakeUiPreview(scene, config, record = record)
+                    } catch (e: AssertionError) {
+                        issues += e.message.orEmpty()
+                    }
                 }
             }
         }

@@ -135,7 +135,17 @@ tasks.named<Test>("desktopTest") {
         delete(layout.buildDirectory.dir("ui-previews"))
         delete(layout.buildDirectory.dir("reports/ui-previews"))
     }
-    systemProperty("AWAKE_SNAPSHOT_ROOT", project.rootDir.absolutePath)
+    // project.rootDir is the *build's* root (repo root), not this subproject's directory --
+    // using it here silently pointed every snapshot read/write at a `snapshots/` folder outside
+    // this module (git-untracked, never committed), so `loadAwakeUiSnapshot` always missed and
+    // `verifyAwakeUiPreview` always fell into its "no baseline yet" auto-record-and-pass branch --
+    // the gate never actually failed a build. project.projectDir is this subproject's own
+    // directory, matching the pre-existing checked-in samples/ui-showcase/snapshots/ui/*.png.
+    systemProperty("AWAKE_SNAPSHOT_ROOT", project.projectDir.absolutePath)
+    // `-DAWAKE_RECORD_SNAPSHOTS=true` on the Gradle CLI only sets the property on Gradle's own
+    // JVM -- desktopTest runs in a forked test JVM, so forward it explicitly (same convention
+    // ShadcnParityScreenshotTest/UiShowcasePreviewDocsTest already read via System.getProperty).
+    System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.let { systemProperty("AWAKE_RECORD_SNAPSHOTS", it) }
     finalizedBy("uiShowcasePreviewReport")
 }
 
