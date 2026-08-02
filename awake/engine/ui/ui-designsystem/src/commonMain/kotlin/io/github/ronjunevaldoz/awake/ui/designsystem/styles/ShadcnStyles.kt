@@ -117,9 +117,12 @@ object ShadcnStyles {
             shape(theme.radii.full)
             textSize(theme.typography.caption)
         }
+        // Real shadcn has no "ghost" badge variant; Awake's addition should still read as a
+        // pill at rest, so it takes the muted (not fully transparent) fill rather than
+        // ShadcnTransparent, which rendered with no visible background at all.
         ShadcnBadgeVariant.Ghost -> Style {
-            background(ShadcnTransparent)
-            foreground(theme.tokens.foreground)
+            background(theme.palette.muted)
+            foreground(theme.palette.mutedForeground)
             shape(theme.radii.full)
             textSize(theme.typography.caption)
         }

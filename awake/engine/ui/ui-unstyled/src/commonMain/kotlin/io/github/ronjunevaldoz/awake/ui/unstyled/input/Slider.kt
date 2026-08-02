@@ -26,6 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 
 private const val SLIDER_TRACK_HEIGHT_PX = 10f
 private const val SLIDER_KNOB_DIAMETER_PX = 26f
+private const val SLIDER_LABEL_GAP_PX = 8f
 fun UiScope.slider(
     id: String,
     min: Float,
@@ -97,9 +98,32 @@ fun UiScope.slider(
         borderColor = theme.tokens.primary
     )
     if (label != null) {
+        // Previously this drew centered over the whole slot, which shares its vertical
+        // center with the knob (both centered in slot.height) -- the label text rendered
+        // straight through the thumb. Anchoring it *above* the slot instead would need
+        // vertical space this fixed-height widget doesn't reserve (slot.y can be 0, pushing
+        // the label off-canvas), so anchor it beside the knob instead, on whichever side
+        // has room, still vertically centered in the slot the knob already occupies.
+        val knobEdgeGap = SLIDER_KNOB_DIAMETER_PX / 2f + SLIDER_LABEL_GAP_PX
+        val rightSpace = (slot.x + slot.width) - (knobCenterX + knobEdgeGap)
+        val leftSpace = (knobCenterX - knobEdgeGap) - slot.x
+        // Whichever side of the knob has more room -- avoids an arbitrary width cap that
+        // would truncate longer labels (e.g. "Exposure 100%") when the slot is wide enough
+        // to easily fit them on either side.
+        val labelWidth = maxOf(rightSpace, leftSpace, 0f)
+        val labelX = if (rightSpace >= leftSpace) {
+            knobCenterX + knobEdgeGap
+        } else {
+            (knobCenterX - knobEdgeGap - labelWidth).coerceAtLeast(slot.x)
+        }
         text(
             label,
-            slot = slot.toBounds(),
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                labelX,
+                slot.y,
+                labelWidth,
+                slot.height
+            ),
             font = font,
             color = surface.resolved.foreground ?: theme.tokens.foreground,
             centered = true,

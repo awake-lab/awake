@@ -35,6 +35,16 @@ fun ColumnScope.shadcnTabs(
 ): Int {
     var resolved = selectedIndex
     val shadcnTheme = theme.asShadcnTheme()
+    // Real shadcn's TabsList reserves a p-1 (4px) inset so the active trigger's raised
+    // background sits inside the track, not flush against its edges -- previously the row
+    // filled the track's full height with no inset, so the active highlight's own rounded
+    // corners poked past the track's rounded corners at the top/bottom. contentPadding on
+    // the track's own style (not a padding()/insets modifier on the nested row) is the
+    // reliable way to get this inset: UiScope.row()'s fast (non-weighted) path forwards
+    // only testTag to childRow(), silently dropping modifier.insets -- a ui-core layout
+    // gap, not something to patch from this design-system-layer component -- while
+    // Surface's own contentPadding->slot.inset() plumbing already works correctly.
+    val trackInset = 4f.dp
     surface(
         id = "$id.track",
         modifier = (modifier).copy(
@@ -44,11 +54,12 @@ fun ColumnScope.shadcnTabs(
         style = Style {
             shape(shadcnTheme.radii.md)
             background(shadcnTheme.palette.muted)
+            contentPadding(trackInset)
         }
     ) {
         row(
             horizontalArrangement = Arrangement.spacedBy(2f.dp),
-            modifier = Modifier.height(height)
+            modifier = Modifier.height(Dimension.FillMax)
         ) {
             tabs.forEachIndexed { index, label ->
                 val active = index == selectedIndex
@@ -60,10 +71,9 @@ fun ColumnScope.shadcnTabs(
                 } else {
                     Style { foreground(shadcnTheme.tokens.mutedForeground) }
                 }
-                val tabHeight: Dp = (height.value - 4f).dp
                 val tabModifier = UiModifier(
                     widthDimension = Dimension.Fixed(tabWidth),
-                    heightDimension = Dimension.Fixed(tabHeight)
+                    heightDimension = Dimension.FillMax
                 )
                 // UiButtonVariant.Ghost's resolveFill hardcodes fill to transparent unless
                 // hovered/active, ignoring any style override -- so the active tab (which must
