@@ -44,12 +44,22 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupporting
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
+import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -105,7 +115,13 @@ class ShadcnParityScreenshotTest {
             AwakeTextareaMatrixLightPreview,
             AwakeToggleMatrixLightPreview,
             AwakeTextFieldMatrixLightPreview,
-            AwakeSwitchMatrixLightPreview
+            AwakeSwitchMatrixLightPreview,
+            AwakeCheckboxStatesLightPreview,
+            AwakeSelectClosedLightPreview,
+            AwakeTooltipTriggerLightPreview,
+            AwakeDialogStatesLightPreview,
+            AwakeDropdownMenuStatesLightPreview,
+            AwakePopoverStatesLightPreview
         ).forEach { entry ->
             renderAnnotatedUiPreviews(entry).forEach { scene ->
                 // Always save to build/ui-previews for report generation
@@ -824,4 +840,256 @@ internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
         }
     }
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame = error("Use renderSamples")
+}
+
+// -- Below: entries closing the "no awake-previews counterpart yet" gap this audit found for
+// checkbox/select/tooltip/dialog/dropdown-menu/popover -- these design-system components
+// already exist (shadcnCheckbox, shadcnSelect, shadcnTooltip, shadcnDialog,
+// shadcnDropdownMenu, shadcnPopover), they just hadn't been wired into this parity test yet.
+// Arrangement mirrors each real shadcn reference screenshot in docs/reference/shadcn-previews/.
+
+@AwakeUiPreview(
+    id = "awake-checkbox-states-light",
+    title = "Awake Checkbox States (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews/checkbox_states_light.png's arrangement for a direct side-by-side.",
+    width = 160,
+    height = 70
+)
+internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = shadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        ui.createColumn(
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(120f.dp)
+                .height((metadata.height.toFloat() - 24f).dp)
+        ).row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
+            shadcnCheckbox("parity-checkbox-unchecked", checked = false, modifier = Modifier.width(20f.dp).height(20f.dp))
+            shadcnCheckbox("parity-checkbox-checked", checked = true, modifier = Modifier.width(20f.dp).height(20f.dp))
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-select-closed-light",
+    title = "Awake Select Closed (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews/select_closed_light.png's arrangement for a direct side-by-side.",
+    width = 220,
+    height = 70
+)
+internal object AwakeSelectClosedLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = shadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        ui.column(
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(172f.dp)
+                .height((metadata.height.toFloat() - 24f).dp)
+        ) {
+            shadcnSelect(
+                id = "parity-select",
+                options = listOf("Vega", "Nova", "Comet"),
+                selectedIndex = 0,
+                modifier = Modifier.width(172f.dp)
+            )
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-tooltip-trigger-light",
+    title = "Awake Tooltip Trigger (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews/tooltip_trigger_light.png's arrangement -- the reference screenshot only shows the trigger, not the (hover-only) tooltip content.",
+    width = 160,
+    height = 70
+)
+internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = shadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        ui.column(
+            modifier = Modifier.offset(24f.dp, 24f.dp).width(120f.dp)
+                .height((metadata.height.toFloat() - 24f).dp)
+        ) {
+            shadcnButton(
+                "parity-tooltip-trigger",
+                "Hover me",
+                modifier = Modifier.width(110f.px).height(36f.px)
+            )
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-dialog-states-light",
+    title = "Awake Dialog States (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews/dialog_states_light.png's arrangement (title/description/action) for a direct side-by-side.",
+    width = 420,
+    height = 260
+)
+internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = shadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        ui.column(modifier = Modifier.width(metadata.width.dp).height(metadata.height.dp)) {
+            shadcnDialog(
+                id = "parity-dialog",
+                expanded = true,
+                width = Dimension.Fixed(320f.dp),
+                header = {
+                    text("Edit profile", style = Style { textSize(theme.typography.title) })
+                },
+                actions = {
+                    shadcnButton(
+                        "parity-dialog-save",
+                        "Save changes",
+                        modifier = Modifier.width(120f.px).height(32f.px)
+                    )
+                }
+            ) { _ ->
+                text(
+                    "Make changes to your profile here. Click save when you're done.",
+                    style = Style { textSize(theme.typography.body) },
+                    wrap = UiTextWrap.Word
+                )
+            }
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-dropdown-menu-states-light",
+    title = "Awake Dropdown Menu States (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews/dropdown-menu_states_light.png's arrangement (trigger + open menu) for a direct side-by-side.",
+    width = 220,
+    height = 220
+)
+internal object AwakeDropdownMenuStatesLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = shadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        ui.column(
+            modifier = Modifier.offset(24f.dp, 16f.dp).width(160f.dp)
+                .height((metadata.height.toFloat() - 16f).dp)
+        ) {
+            val trigger = buttonSlot(
+                id = "parity-dropdown-trigger",
+                label = "Open",
+                modifier = Modifier.width(80f.px).height(36f.px),
+                style = theme.components.button
+            )
+            shadcnDropdownMenu(
+                id = "parity-dropdown",
+                anchorSlot = trigger.slot,
+                expanded = true,
+                items = listOf(
+                    UiDropdownMenuItem(label = "My Account"),
+                    UiDropdownMenuItem(label = "Edit"),
+                    UiDropdownMenuItem(label = "Duplicate"),
+                    UiDropdownMenuItem(label = "Delete", destructive = true)
+                ),
+                width = Dimension.Fixed(160f.px)
+            )
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-popover-states-light",
+    title = "Awake Popover States (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews/popover_states_light.png's arrangement (trigger + open panel) for a direct side-by-side.",
+    width = 300,
+    height = 140
+)
+internal object AwakePopoverStatesLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = shadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        ui.column(
+            modifier = Modifier.offset(24f.dp, 16f.dp).width(260f.dp)
+                .height((metadata.height.toFloat() - 16f).dp)
+        ) {
+            val trigger = buttonSlot(
+                id = "parity-popover-trigger",
+                label = "Open popover",
+                modifier = Modifier.width(130f.px).height(36f.px),
+                style = theme.components.button
+            )
+            shadcnPopover(
+                id = "parity-popover",
+                anchorSlot = trigger.slot,
+                expanded = true,
+                width = Dimension.Fixed(260f.dp)
+            ) {
+                text(
+                    "Place content for the popover here.",
+                    style = Style { textSize(theme.typography.body) }
+                )
+            }
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.tokens.background,
+            font = font,
+            semantics = ui.semanticNodes()
+        )
+    }
 }
