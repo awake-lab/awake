@@ -196,6 +196,18 @@ val moltenVkIcdPath = fileTree("/opt/homebrew/Cellar/molten-vk") { include("*/et
     .files.firstOrNull()?.absolutePath
 val dyldFallbackLibraryPath = "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew/lib:/usr/local/lib"
 
+// Same native-lib/ICD/loader wiring "run" (below) uses, so desktopTest can construct a real
+// headless GraphicsDevice/Renderer (see HelloCubeGltfBoxRenderTest) instead of only ever
+// exercising FakeRenderer -- same pattern awake:backend:vulkan's own build.gradle.kts uses
+// for its desktopTest task.
+tasks.named<Test>("desktopTest") {
+    jvmArgs("-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
+    if (moltenVkIcdPath != null) {
+        environment("VK_ICD_FILENAMES", moltenVkIcdPath)
+    }
+    environment("DYLD_FALLBACK_LIBRARY_PATH", dyldFallbackLibraryPath)
+}
+
 tasks.register<JavaExec>("run") {
     group = "application"
     description = "Run the minimal hello-cube sample (a single static Vulkan cube, no texture)."

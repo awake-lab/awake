@@ -3,12 +3,14 @@
 package io.github.ronjunevaldoz.awake.sample.hellocube.scene
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.ecs.toggle
 import io.github.ronjunevaldoz.awake.physics.BoxShape
 import io.github.ronjunevaldoz.awake.physics.MotionType
 import io.github.ronjunevaldoz.awake.physics.PhysicsWorld
+import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.scene.components.PhysicsBody
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameSpec
 import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
@@ -89,12 +91,50 @@ internal fun helloCubeSceneSpec(state: HelloCubeRuntimeState): SceneGameSpec {
             material = "default",
             transform = { position(3f, 6f, 3f) }
         )
+        // Track 2 (glTF end-to-end proof, see docs/MVP_PLAN.md): a mesh sourced from a real
+        // GltfParser.parseScene() -> LoadedScene traversal, not a hand-rolled MeshGeometry
+        // like every other entity in this scene -- proves the parser's interleaved
+        // vertices/indices feed straight into renderer.createMesh() on both backends.
+        meshEntity(
+            name = "gltfQuad",
+            mesh = "gltfQuad",
+            material = "default",
+            transform = { position(-3f, 0f, -3f) }
+        )
+        // Real third-party fixture (Khronos glTF-Sample-Assets' Box.glb, see
+        // GltfBoxAsset.kt) alongside the synthetic gltfQuad above: proves GltfParser handles
+        // an actual exporter's output (explicit node `matrix`, NORMAL attribute, no COLOR_0),
+        // not just this codebase's own hand-built GLBs. Position/scale come from the parsed
+        // primitive's own localTransform (see toPositionScale()), offset so it doesn't
+        // overlap gltfQuad or the origin-anchored cube/grid/falling-box demo.
+        run {
+            val primitive = GltfParser.parseScene(gltfBoxGlb()).meshes.single().primitives.single()
+            val (position, scale) = primitive.localTransform.toPositionScale()
+            meshEntity(
+                name = "gltfBox",
+                mesh = "gltfBox",
+                material = "default",
+                transform = {
+                    position(position.x - 6f, position.y + 0.5f, position.z - 3f)
+                    scale(scale.x, scale.y, scale.z)
+                }
+            )
+        }
         assets {
             mesh("cube") {
                 renderer.createMesh(sampleCubeGeometry)
             }
             mesh("grid") {
                 renderer.createMesh(sampleGridGeometry())
+            }
+            mesh("gltfQuad") {
+                val primitive = GltfParser.parseScene(gltfSampleQuadGlb())
+                    .meshes.single().primitives.single()
+                renderer.createMesh(MeshGeometry(primitive.vertices, primitive.indices))
+            }
+            mesh("gltfBox") {
+                val primitive = GltfParser.parseScene(gltfBoxGlb()).meshes.single().primitives.single()
+                renderer.createMesh(MeshGeometry(primitive.vertices, primitive.indices))
             }
             material("default") {
                 renderer.createMaterial()
