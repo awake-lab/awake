@@ -8,7 +8,13 @@ import io.github.ronjunevaldoz.awake.core.utils.BufferUtils
 
 class ElementBufferObject : BufferObject, IndexBufferData {
     override var id: Int = -1
-    override val elements: MutableList<Byte> = mutableListOf()
+    private val _elements: MutableList<Byte> = mutableListOf()
+    override val elements: List<Byte> get() = _elements
+
+    override fun setElements(newElements: List<Byte>) {
+        _elements.clear()
+        _elements.addAll(newElements)
+    }
 
     override fun create() {
         id = AwakeContext.gl.genBuffers()

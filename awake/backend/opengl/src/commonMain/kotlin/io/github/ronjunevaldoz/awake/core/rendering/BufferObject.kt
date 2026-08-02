@@ -31,7 +31,8 @@ data class VertexBufferData(
  * Index Buffer Object
  */
 interface IndexBufferData {
-    val elements: MutableList<Byte>
+    val elements: List<Byte>
+    fun setElements(newElements: List<Byte>)
 }
 
 interface VertexArrayData {
@@ -67,8 +68,7 @@ fun VertexArrayData.addVertexBuffer(
 }
 
 fun VertexArrayData.addIndexBuffer(elements: ByteArray) {
-    indexBuffer.elements.clear()
-    indexBuffer.elements.addAll(elements.toList())
+    indexBuffer.setElements(elements.toList())
 }
 
 fun VertexArrayObject.build(): VertexArrayObject {

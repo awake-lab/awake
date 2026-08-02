@@ -35,8 +35,7 @@ internal class QueryCache(
         hasQueryCache = true
         val currentVersion = if (types.isEmpty()) emptyQueryVersion else typedQueryVersion
         if (cached.version != currentVersion) {
-            cached.entities.clear()
-            cached.entities += collector(key.types)
+            cached.replaceWith(collector(key.types))
             cached.version = currentVersion
         }
         return cached.entities
@@ -68,8 +67,14 @@ internal class QueryCache(
         val types: Set<KClass<out Any>>
     )
 
-    private data class CachedQuery(
-        val entities: MutableList<Entity> = mutableListOf(),
+    private class CachedQuery {
+        private val _entities: MutableList<Entity> = mutableListOf()
+        val entities: List<Entity> get() = _entities
         var version: Int = -1
-    )
+
+        fun replaceWith(newEntities: List<Entity>) {
+            _entities.clear()
+            _entities.addAll(newEntities)
+        }
+    }
 }
