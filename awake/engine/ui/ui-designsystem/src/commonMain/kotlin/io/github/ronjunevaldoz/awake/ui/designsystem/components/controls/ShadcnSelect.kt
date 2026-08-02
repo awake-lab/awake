@@ -81,3 +81,30 @@ fun UiScope.shadcnSelect(
     }
     return result.selectedIndex
 }
+
+/** Generic-`T` shape matching real shadcn-compose's `ShadcnSelect<T>` (callback-driven, not
+ * return-value -- the reference always resolves a picked [T] through [onValueChange], never a
+ * raw index). Wraps the [List]<String>/`Int?` overload above rather than duplicating the
+ * trigger/popup wiring: maps [value] -> index via [options].indexOf on the way in, and the
+ * resulting index -> [T] via [options].getOrNull on the way out. */
+fun <T> UiScope.shadcnSelect(
+    id: String,
+    value: T?,
+    options: List<T>,
+    onValueChange: (T) -> Unit,
+    label: (T) -> String = { it.toString() },
+    placeholder: String = "",
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty
+) {
+    val selectedIndex = value?.let { options.indexOf(it).takeIf { i -> i >= 0 } }
+    val resultIndex = shadcnSelect(
+        id = id,
+        options = options.map(label),
+        selectedIndex = selectedIndex,
+        modifier = modifier,
+        style = style,
+        placeholder = placeholder
+    )
+    resultIndex?.let { options.getOrNull(it)?.let(onValueChange) }
+}

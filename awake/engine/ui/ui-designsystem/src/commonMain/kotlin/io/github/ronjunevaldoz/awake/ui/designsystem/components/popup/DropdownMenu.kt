@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
@@ -142,7 +143,11 @@ private fun ColumnScope.dropdownMenuItem(
     val trailingWidth = item.trailingLabel?.let { label ->
         resolvedFont.measureTextWidth(label, glyphPx) + 8f
     } ?: 0f
-    val bodyWidth = (width - 24f - trailingWidth).coerceAtLeast(glyphPx)
+    // Leading icon slot: a fixed glyphPx-square reserved only when `item.icon` is set, so
+    // icon-less items keep the exact same 12dp label start they had before this field existed.
+    val iconSlotWidth = if (item.icon != null) glyphPx + 8f else 0f
+    val labelStart = 12f + iconSlotWidth
+    val bodyWidth = (width - 24f - trailingWidth - iconSlotWidth).coerceAtLeast(glyphPx)
 
     val lineGap = glyphPx * 0.25f
     val supportingLayout = item.supportingText?.takeIf { it.isNotBlank() }?.let {
@@ -199,12 +204,22 @@ private fun ColumnScope.dropdownMenuItem(
             // through/under the shortcut instead of truncating before it.
             text(
                 label = item.label,
-                modifier = Modifier.width(bodyWidth.px).padding(start = 12f.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(labelAlignment),
+                modifier = Modifier.width(bodyWidth.px).padding(start = labelStart.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(labelAlignment),
                 color = textColor,
                 font = resolvedFont,
                 overflow = UiTextOverflow.Ellipsis,
                 textStyle = resolvedTextStyle
             )
+
+            // --- 1b. Leading icon (optional) ---
+            // Only reserves space when present; icon-less items are unaffected (iconSlotWidth
+            // is 0, so labelStart/bodyWidth above collapse back to the original 12dp/24f math).
+            item.icon?.let { iconContent ->
+                val iconBounds = UiBounds(
+                    contentSlot.x + 12f, contentSlot.y, glyphPx, contentSlot.height
+                )
+                childBox(iconBounds.toSlot(), contentAlignment = UiAlignment.Center).iconContent()
+            }
 
             // --- 2. Trailing Shortcut ---
             item.trailingLabel?.let { label ->
@@ -262,7 +277,8 @@ data class UiDropdownMenuItem(
     val destructive: Boolean = false,
     val enabled: Boolean = true,
     val supportingText: String? = null,
-    val trailingLabel: String? = null
+    val trailingLabel: String? = null,
+    val icon: (BoxScope.() -> Unit)? = null
 ) : UiDropdownMenuEntry
 
 sealed interface UiDropdownMenuEntry

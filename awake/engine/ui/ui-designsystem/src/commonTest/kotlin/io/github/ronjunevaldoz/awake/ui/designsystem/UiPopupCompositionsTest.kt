@@ -313,6 +313,52 @@ class UiPopupCompositionsTest {
     }
 
     @Test
+    fun dropdownMenuItemIconRendersWithoutShiftingIconLessItems() {
+        // Proof test for the optional leading-icon slot on UiDropdownMenuItem: an icon-bearing
+        // item reserves space for its icon and shifts its label right to make room, while an
+        // icon-less item in the same menu keeps the original 12dp label start untouched.
+        val ui = UiContext()
+        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 120f, 28f)
+        ui.pushFont(BitmapFont())
+        ui.beginFrame(320f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
+            shadcnDropdownMenu(
+                id = "menu",
+                anchorSlot = anchor,
+                expanded = true,
+                items = listOf(
+                    UiDropdownMenuItem(
+                        label = "With icon",
+                        icon = { text("*") }
+                    ),
+                    UiDropdownMenuItem(label = "No icon")
+                ),
+                style = Style.Companion { contentPadding(0f.dp) }
+            )
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val iconLabel = assertNotNull(semantics.firstOrNull { it.label == "With icon" })
+        val icon = assertNotNull(semantics.firstOrNull { it.label == "*" })
+        val plainLabel = assertNotNull(semantics.firstOrNull { it.label == "No icon" })
+
+        assertTrue(
+            icon.bounds.x + icon.bounds.width <= iconLabel.bounds.x + 1f,
+            "leading icon must sit to the left of its own item's label, not overlap it"
+        )
+        assertEquals(
+            anchor.x + 12f,
+            plainLabel.bounds.x,
+            "an icon-less item's label start must be unchanged by the new optional icon slot"
+        )
+        assertTrue(
+            iconLabel.bounds.x > plainLabel.bounds.x,
+            "an icon-bearing item's label must shift right to make room for its icon"
+        )
+    }
+
+    @Test
     fun dialogActionButtonLabelInheritsThemedForeground() {
         // Regression test for the "button label not displayed" bug: a dialog action button's
         // Slot-API content lambda (`shadcnButton(id, ...) { text(...) }`) must inherit the

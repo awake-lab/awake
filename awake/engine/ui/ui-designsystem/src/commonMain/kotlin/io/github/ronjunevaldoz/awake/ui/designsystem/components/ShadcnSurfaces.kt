@@ -65,22 +65,27 @@ private fun ColumnScope.shadcnCardContent(
 }
 
 /**
- * Awake's renderer has no dedicated shadow/blur primitive yet (grepped `ui-core`/
- * `ui-designsystem`: zero hits outside this function) -- a real drop shadow would need either a
- * blurred-quad draw primitive or a render-pass-level effect, out of scope for a Card variant
- * flag. This is the simplest defensible approximation: two thin flat semi-transparent quads
- * hugging the bottom and right edges, entirely OUTSIDE [slot]'s own rect, so they never paint
- * over the card's fill/border/content (no z-order primitive to place them "behind" the card
- * exists in this immediate-mode model -- see [UiDrawPrimitive], primitives just draw in emit
- * order). Upgrade path: a real [UiDrawPrimitive] blurred/soft-shadow quad type, threaded through
- * every backend's UI shader, the same shape of work [UiDrawPrimitive.RoundedQuad]'s doc comment
- * describes for corner rounding.
+ * Awake's renderer has no dedicated blur primitive (grepped `ui-core`/`ui-designsystem` and both
+ * the Vulkan and WebGPU backends: zero blur/gaussian shader hits) -- a real soft-edged drop
+ * shadow needs an offscreen blur pass, out of scope for a Card variant flag. This model is also
+ * strictly immediate-mode -- [UiScope.emit] appends straight to the frame's primitive list with
+ * no z-order/re-sort step (see [UiContext.emitInternal]), so a shadow can never paint "behind" a
+ * rect that's already been emitted; it can only ever be emitted BEFORE and kept entirely outside
+ * that rect. [shadcnCard] calls this only after its own [surface] has already emitted, so the
+ * shadow bands below are laid out strictly outside [slot] (bottom + right edges only, like a
+ * dropped shadow peeking out from behind a raised card) -- multiple bands at increasing offset
+ * and decreasing alpha fake a soft gradient falloff via banding, a real visual upgrade over the
+ * single flat strip this replaces without needing an offscreen blur pass or emission reordering.
+ * Upgrade path: a real blurred-quad draw primitive backed by an offscreen blur pass, threaded
+ * through every backend's UI shader, if a soft (not banded) falloff is ever needed.
  */
 private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
-    val offset = 3f.dp.toPx()
-    val shadowColor = Color.Black.withAlpha(0.16f)
-    emit(UiDrawPrimitive.Quad(slot.x + offset, slot.y + slot.height, slot.width, offset, shadowColor))
-    emit(UiDrawPrimitive.Quad(slot.x + slot.width, slot.y + offset, offset, slot.height, shadowColor))
+    val bands = listOf(2f.dp.toPx() to 0.20f, 4f.dp.toPx() to 0.13f, 6f.dp.toPx() to 0.07f)
+    for ((offset, alpha) in bands) {
+        val shadowColor = Color.Black.withAlpha(alpha)
+        emit(UiDrawPrimitive.Quad(slot.x, slot.y + slot.height, slot.width + offset, offset, shadowColor))
+        emit(UiDrawPrimitive.Quad(slot.x + slot.width, slot.y, offset, slot.height + offset, shadowColor))
+    }
 }
 
 /** Real shadcn's `Surface`: a contained region (Card, Popover, Dialog) that owns its
