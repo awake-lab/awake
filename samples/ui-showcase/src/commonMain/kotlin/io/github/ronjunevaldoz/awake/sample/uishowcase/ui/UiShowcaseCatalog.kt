@@ -651,6 +651,29 @@ internal val ShowcasePages = listOf(
         renderPreview = { _ -> drawUiShowcaseEasingPreview() }
     ),
     ShowcasePage(
+        id = "fade-visibility",
+        title = "Fade Visibility",
+        category = ShowcaseCategory.Animations,
+        description = "Real alpha compositing for graphicsLayer -- fades a subtree in/out instead of instantly unmounting it.",
+        usageCode = """
+            animatedVisibility(
+                id = "panel",
+                visible = visible,
+                durationMs = 300f,
+                easing = EaseInOut
+            ) {
+                shadcnSurface(id = "panel-surface") { text("Fading in and out") }
+            }
+        """.trimIndent(),
+        notes = listOf(
+            "Alpha-only -- no rotation/scale, unlike Compose's full AnimatedVisibility.",
+            "Content keeps rendering (dimmed) through the exit fade instead of unmounting the frame visible flips false.",
+            "Built on graphicsLayer's UiAlphaEffect, applied once at UiContext's own primitive-emission choke point -- no per-widget changes needed.",
+            "popup()'s own show/hide now fades the same way -- see the Dropdown/Popover pages."
+        ),
+        renderPreview = { _ -> drawUiShowcaseFadeVisibilityPreview() }
+    ),
+    ShowcasePage(
         id = "field-demo",
         title = "Checkout Form",
         category = ShowcaseCategory.Patterns,

@@ -9,10 +9,13 @@ import io.github.ronjunevaldoz.awake.ui.Easing
 import io.github.ronjunevaldoz.awake.ui.LinearEasing
 import io.github.ronjunevaldoz.awake.ui.RepeatMode
 import io.github.ronjunevaldoz.awake.ui.animateFloatRepeatable
+import io.github.ronjunevaldoz.awake.ui.animatedVisibility
 import io.github.ronjunevaldoz.awake.ui.canvas
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -22,8 +25,10 @@ import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.shadcnShimmer
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.layout.*
@@ -125,6 +130,35 @@ private fun RowScope.drawUiShowcaseEasingThumbnail(
                 previousX = x
                 previousY = y
             }
+        }
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseFadeVisibilityPreview() {
+    var visible by context.rememberStateValue("ui-showcase-fade-visibility", "visible") { true }
+
+    shadcnSectionHeader(
+        title = "Fade Visibility",
+        description = "Real alpha compositing, not an instant snap -- content keeps rendering " +
+            "(dimmed) through the exit fade instead of unmounting the frame visible flips false."
+    )
+    spacer(Modifier.height(16f.dp))
+
+    shadcnButton(
+        id = "showcase-fade-toggle",
+        label = if (visible) "Hide" else "Show",
+        variant = ShadcnButtonVariant.Secondary,
+        onClick = { visible = !visible }
+    )
+    spacer(Modifier.height(12f.dp))
+
+    animatedVisibility(id = "showcase-fade-panel", visible = visible, durationMs = 300f, easing = EaseInOut) {
+        shadcnSurface(
+            id = "showcase-fade-surface",
+            style = Style { shape(10f.dp) },
+            modifier = Modifier.width(220f.dp).height(64f.dp)
+        ) { _ ->
+            shadcnText(label = "Fading in and out", modifier = Modifier.padding(12f.dp))
         }
     }
 }
