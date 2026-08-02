@@ -82,7 +82,7 @@ the time, not a foregone conclusion.
 |---|---|---|
 | `awake:engine:ui:ui-core` | Foundational drawing, layout, and surface primitives | low-level layout, drawing, clipping, slots, style plumbing, `UiTheme`, `CoreUiTheme` |
 | `awake:engine:ui:ui-unstyled` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
-| `awake:engine:ui:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
+| `awake:engine:ui:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
 | `samples:*` or game modules | Sample/game adapters and authored usage | scene inspector bindings, demo-specific overlays, debug HUD wiring |
 
 ## Primitive Vs Composition
@@ -146,7 +146,7 @@ Where a color/token comes from depends on the module:
 | `button`, `checkbox`, `slider` | `ui-unstyled` | generic reusable leaf widgets |
 | `CoreUiTheme`, `UiTheme`, `UiColorTokens` | `ui-core` | theme contract and neutral fallback only |
 | `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-unstyled` (or a scoped-for-purpose new module, see Neutral composition note above) | reusable compositions of primitives/widgets |
-| `DefaultUiTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
+| `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
 | `ShadcnPanelStyle`, branded variants | `ui-designsystem` | visual opinion, not engine primitive |
 | hardcoded `Color(...)` token values | `ui-designsystem` theme-definition files only | everywhere else reads `theme.tokens.*` |
 | `HelloCubeHud`, `SceneInspectorBindings`, demo overlays | sample/game module | runtime-bound authored usage |
@@ -158,7 +158,7 @@ These API shapes are specifically discouraged in reusable UI modules:
 - `anchoredPanel(...)`
 - `propertyRow(...)` in `ui-unstyled`
 - `propertyCheckbox(...)` in `ui-unstyled`
-- `DefaultUiTheme` in `ui-core`
+- `ShadcnDefaultTheme` in `ui-core`
 - `DarkUiTheme` in `ui-core`
 - `LightUiTheme` in `ui-core`
 - `HelloCube*`
@@ -300,7 +300,7 @@ run a `verifyUiOwnership` task that rejects:
 
 - container-bound anchored helper names such as `anchoredColumn`
 - `propertyRow` and `propertyCheckbox` in `ui-core`/`ui-unstyled`
-- `DefaultUiTheme`, `DarkUiTheme`, and `LightUiTheme` in `ui-core`
+- `ShadcnDefaultTheme`, `DarkUiTheme`, and `LightUiTheme` in `ui-core`
 - direct sample/runtime-bound references such as `SceneGameRuntime` or `HelloCube*`
 
 The check is intentionally lightweight and curated. It is not a theorem prover. When the

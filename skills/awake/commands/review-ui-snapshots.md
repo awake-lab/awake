@@ -100,7 +100,7 @@ For each WARNING or FAIL, tie it to the actual widget code, not a generic sugges
 |---|---|---|
 | Label occluded by a state-fill quad | Draw the state-fill quad BEFORE the label glyph (reorder `emit()` calls), or shrink/reposition the fill so it doesn't overlap the label's centered region | `Widgets.kt` |
 | Low-contrast label vs background | Pick a `foreground`/`labelColor` token with better contrast against that specific `UiStyle`'s resolved background for that state | `UiTheme.kt` |
-| Two variants look identical | Confirm the theme/style parameter is actually threaded into the widget call in the snapshot test, not defaulting to `DefaultUiTheme` | the snapshot test itself (`UiSnapshotTest.kt` or its successor) |
+| Two variants look identical | Confirm the theme/style parameter is actually threaded into the widget call in the snapshot test, not defaulting to `ShadcnDefaultTheme` | the snapshot test itself (`UiSnapshotTest.kt` or its successor) |
 
 ---
 

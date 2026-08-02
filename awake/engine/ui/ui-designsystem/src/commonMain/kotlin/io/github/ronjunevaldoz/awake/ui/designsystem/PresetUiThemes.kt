@@ -13,9 +13,9 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
  * These remain visually conservative, but they live in `ui-designsystem` so `ui-core` stays
  * limited to theme contracts plus a low-level fallback.
  */
-object DefaultUiTheme : UiTheme by UiDefaultTheme
+object ShadcnDefaultTheme : UiTheme by UiDefaultTheme
 
-object DarkUiTheme : UiTheme by DefaultUiTheme
+object DarkUiTheme : UiTheme by ShadcnDefaultTheme
 
 object LightUiTheme : UiTheme {
     override val colors: UiColorTokens = object : UiColorTokens {
