@@ -26,7 +26,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
@@ -117,7 +116,6 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                     )
                 }
             }
-            spacer(Modifier.height(8f.dp))
         } else {
             var expanded by context.rememberStateValue("ui-showcase-sidebar-category", category.name) { true }
             shadcnCollapsible(
@@ -144,7 +142,6 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                     }
                 }
             }
-            spacer(Modifier.height(12f.dp))
         }
     }
 }
