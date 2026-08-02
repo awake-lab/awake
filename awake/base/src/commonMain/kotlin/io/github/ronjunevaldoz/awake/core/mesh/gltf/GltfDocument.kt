@@ -17,7 +17,31 @@ data class GltfDocument(
     val buffers: List<GltfBuffer> = emptyList(),
     val bufferViews: List<GltfBufferView> = emptyList(),
     val accessors: List<GltfAccessor> = emptyList(),
-    val meshes: List<GltfMeshDef> = emptyList()
+    val meshes: List<GltfMeshDef> = emptyList(),
+    /** Index into [scenes] of the scene to load when none is explicitly requested -- glTF
+     * default is `0` when the document has any scenes at all. */
+    val scene: Int? = null,
+    val scenes: List<GltfScene> = emptyList(),
+    val nodes: List<GltfNode> = emptyList()
+)
+
+@Serializable
+data class GltfScene(
+    val nodes: List<Int> = emptyList()
+)
+
+@Serializable
+data class GltfNode(
+    val name: String? = null,
+    val mesh: Int? = null,
+    /** 16 column-major floats -- mutually exclusive with [translation]/[rotation]/[scale]
+     * per the glTF 2.0 spec; when absent, TRS is composed instead. */
+    val matrix: List<Float>? = null,
+    val translation: List<Float>? = null,
+    /** Quaternion `[x, y, z, w]`. */
+    val rotation: List<Float>? = null,
+    val scale: List<Float>? = null,
+    val children: List<Int> = emptyList()
 )
 
 @Serializable
