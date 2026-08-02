@@ -40,7 +40,7 @@ class ReusableCompositionTest {
         val ui = UiContext()
         ui.beginFrame(240f, 120f, testSnapshot())
         ui.pushFont(BitmapFont())
-        ui.pushTheme(CoreUiTheme)
+        ui.pushTheme(UiFallbackTheme)
 
         val scope = DiagonalScope(ui, startX = 10f, startY = 20f, stepX = 15f, stepY = 10f)
         val first = scope.buttonSlot("one", label = "ONE", modifier = Modifier.width(100f.px).height(30f.px))

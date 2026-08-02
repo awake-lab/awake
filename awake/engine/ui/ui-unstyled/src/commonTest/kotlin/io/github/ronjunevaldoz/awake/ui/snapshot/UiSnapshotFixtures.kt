@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.CoreUiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
+import io.github.ronjunevaldoz.awake.ui.UiFallbackTheme
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
@@ -76,26 +76,26 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
 
     val uncheckedUi = UiContext()
     uncheckedUi.beginFrame(160f, 40f, testSnapshot())
-    uncheckedUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
+    uncheckedUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = UiFallbackTheme)
         .toggle("toggle-unchecked", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
 
     val checkedUi = UiContext()
     checkedUi.beginFrame(160f, 40f, testSnapshot())
-    checkedUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
+    checkedUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = UiFallbackTheme)
         .toggle("toggle-checked", checked = true, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
 
     val buttonVariants = UiButtonVariant.entries.map { variant ->
         val variantId = buttonVariantId(variant)
         val ui = UiContext()
         ui.beginFrame(160f, 40f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
+        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = UiFallbackTheme)
             .button("button-$variantId", label = "BUTTON", modifier = Modifier.width(160f.px).height(40f.px), variant = variant, radius = UiShape.md)
         UiSnapshotScene(
             name = "button-$variantId",
             width = 160,
             height = 40,
             primitives = ui.endFrame(),
-            background = CoreUiTheme.tokens.background,
+            background = UiFallbackTheme.tokens.background,
             font = font
         )
     }
@@ -107,18 +107,18 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
 
     val darkThemeUi = UiContext()
     darkThemeUi.beginFrame(160f, 40f, testSnapshot())
-    darkThemeUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = CoreUiTheme)
+    darkThemeUi.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font, theme = UiFallbackTheme)
         .button("theme-dark", label = "BUTTON", modifier = Modifier.width(160f.px).height(40f.px))
 
     val panelUi = UiContext()
     panelUi.beginFrame(240f, 200f, testSnapshot())
-    val panelColumn = panelUi.createColumn(modifier = Modifier.offset((20f).dp, (20f).dp).width((200f).dp), font = font, theme = CoreUiTheme)
+    val panelColumn = panelUi.createColumn(modifier = Modifier.offset((20f).dp, (20f).dp).width((200f).dp), font = font, theme = UiFallbackTheme)
     panelColumn.surface(
         "inspector",
         modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(140f.px)),
         style = Style { borderWidth(1f.dp) }
     ) {
-        text("CAMERA", color = CoreUiTheme.tokens.mutedForeground)
+        text("CAMERA", color = UiFallbackTheme.tokens.mutedForeground)
         dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = Modifier.width(180f.px).height(24f.px))
         checkbox("debug", checked = true, label = "DEBUG", modifier = Modifier.width(180f.px).height(24f.px))
     }
@@ -157,7 +157,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
                 width = 160,
                 height = 40,
                 primitives = darkThemeUi.endFrame(),
-                background = CoreUiTheme.tokens.background,
+                background = UiFallbackTheme.tokens.background,
                 font = font
             )
         )
@@ -258,24 +258,24 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-shaped-panel",
             width = 300,
             height = 180,
-            background = CoreUiTheme.tokens.background,
+            background = UiFallbackTheme.tokens.background,
             title = "Shaped Panel Composition",
             summary = "Panels can opt into a custom shape and content clipping, which gives the DSL a reusable way to compose containers and controls."
         ) { snapshotFont ->
-            createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = snapshotFont, theme = CoreUiTheme).surface(
+            createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = snapshotFont, theme = UiFallbackTheme).surface(
                 id = "shape-panel",
                 style = Style {
                     shape(UiShapeSpec.CutCorner(12f.dp))
-                    border(1f.dp, CoreUiTheme.tokens.border)
+                    border(1f.dp, UiFallbackTheme.tokens.border)
                     contentPadding(12f.dp)
                 },
                 clipContent = true
             , modifier = Modifier.width(Dimension.Fixed(260f.px)).height(Dimension.Fixed(120f.px))) { slot ->
-                text("Shaped Panel", color = CoreUiTheme.tokens.mutedForeground)
+                text("Shaped Panel", color = UiFallbackTheme.tokens.mutedForeground)
                 context.createAbsolute(
                     modifier = Modifier.offset((slot.x + 12f).dp, (slot.y + 44f).dp),
                     font = snapshotFont,
-                    theme = CoreUiTheme
+                    theme = UiFallbackTheme
                 )
                     .button("launch", label = "Launch Scene", modifier = Modifier.width(180f.px).height(36f.dp), radius = UiShape.md)
             }
@@ -367,11 +367,11 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             name = "ui-rounded-clip-vector",
             width = 340,
             height = 220,
-            background = CoreUiTheme.tokens.background,
+            background = UiFallbackTheme.tokens.background,
             title = "Rounded Clip And Vector",
             summary = "Rounded surfaces, colored borders, Box-style alignment, and vector-path icons all compose through the same widget surface, with shape clipping trimming intentional overflow."
         ) { snapshotFont ->
-            val panelScope = createAbsolute(modifier = Modifier.offset(24f.dp, 24f.dp), font = snapshotFont, theme = CoreUiTheme)
+            val panelScope = createAbsolute(modifier = Modifier.offset(24f.dp, 24f.dp), font = snapshotFont, theme = UiFallbackTheme)
             panelScope.surface(
                 id = "vector-showcase",
                 style = Style {
@@ -385,7 +385,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 text("Rounded + Clip + Vector", color = Color(0.94f, 0.96f, 1f, 1f))
                 text(
                     "The icon intentionally overflows and gets clipped by the cut-corner shell.",
-                    color = CoreUiTheme.tokens.mutedForeground,
+                    color = UiFallbackTheme.tokens.mutedForeground,
                     wrap = UiTextWrap.Word
                 )
 
@@ -395,7 +395,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         .width((slot.width - 32f).dp)
                         .height(78f.dp),
                     font = snapshotFont,
-                    theme = CoreUiTheme,
+                    theme = UiFallbackTheme,
                     contentAlignment = UiAlignment.Center
                 ).apply {
                     surface(

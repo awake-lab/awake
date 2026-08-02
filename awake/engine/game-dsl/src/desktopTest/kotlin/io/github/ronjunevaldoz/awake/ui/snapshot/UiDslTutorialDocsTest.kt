@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
+import io.github.ronjunevaldoz.awake.ui.UiFallbackTheme
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
@@ -55,7 +55,7 @@ class UiDslTutorialDocsTest {
         var showFrustum = false
 
         ui.pushFont(font)
-        ui.pushTheme(CoreUiTheme)
+        ui.pushTheme(UiFallbackTheme)
         ui.pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp).height(210f.dp)) {
             surface(
@@ -109,7 +109,7 @@ class UiDslTutorialDocsTest {
             primitives = ui.endFrame(),
             width = 320,
             height = 250,
-            background = CoreUiTheme.tokens.background,
+            background = UiFallbackTheme.tokens.background,
             font = font
         )
     }
@@ -121,7 +121,7 @@ class UiDslTutorialDocsTest {
         ui.beginFrame(360f, 240f, testSnapshot())
 
         ui.pushFont(font)
-        ui.pushTheme(CoreUiTheme)
+        ui.pushTheme(UiFallbackTheme)
         ui.pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(320f.dp).height(200f.dp)) {
             surface(
@@ -197,7 +197,7 @@ class UiDslTutorialDocsTest {
             primitives = ui.endFrame(),
             width = 360,
             height = 240,
-            background = CoreUiTheme.tokens.background,
+            background = UiFallbackTheme.tokens.background,
             font = font
         )
     }

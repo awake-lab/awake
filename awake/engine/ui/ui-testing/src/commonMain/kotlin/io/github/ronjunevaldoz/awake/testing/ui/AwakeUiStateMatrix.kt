@@ -31,7 +31,7 @@ fun AwakeUiPreviewMetadata.componentStateMatrix(
 
     return states.map { (idSuffix, forcedModifier) ->
         val ui = UiContext()
-        val resolvedTheme = theme ?: io.github.ronjunevaldoz.awake.ui.CoreUiTheme
+        val resolvedTheme = theme ?: io.github.ronjunevaldoz.awake.ui.UiFallbackTheme
         ui.beginFrame(width.toFloat(), height.toFloat(), UiInputState())
         ui.pushFont(font)
         ui.pushTheme(resolvedTheme)

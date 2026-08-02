@@ -64,7 +64,7 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(font = font, theme = CoreUiTheme).resolveGlyphPx(
+        val glyphPx = ui.createAbsolute(font = font, theme = UiFallbackTheme).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 10.sp)
         )
@@ -80,7 +80,7 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(font = font, theme = CoreUiTheme).resolveGlyphPx(
+        val glyphPx = ui.createAbsolute(font = font, theme = UiFallbackTheme).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 13f.sp)
         )

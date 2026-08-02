@@ -15,7 +15,7 @@ class UiThemeTest {
 
     @Test
     fun neutralStyleResolvesDistinctColorsPerState() {
-        val tokens = CoreUiTheme.tokens
+        val tokens = UiFallbackTheme.tokens
         val idle = tokens.neutralStyle().resolve(MutableStyleState(hovered = false, active = false)).background!!
         val hovered = tokens.neutralStyle().resolve(
             MutableStyleState(
@@ -31,7 +31,7 @@ class UiThemeTest {
 
     @Test
     fun neutralStyleIsStableAcrossRepeatedCalls() {
-        val tokens = CoreUiTheme.tokens
+        val tokens = UiFallbackTheme.tokens
         val first = tokens.neutralStyle().resolve(MutableStyleState(hovered = true, active = false)).background!!
         val second = tokens.neutralStyle().resolve(
             MutableStyleState(
@@ -45,14 +45,14 @@ class UiThemeTest {
     @Test
     fun coreUiThemeSharesOneNeutralStyleAcrossWidgetKinds() {
         val state = MutableStyleState(hovered = true, active = false)
-        val a = CoreUiTheme.components.button.resolve(state).background!!
-        val b = CoreUiTheme.components.slider.resolve(state).background!!
+        val a = UiFallbackTheme.components.button.resolve(state).background!!
+        val b = UiFallbackTheme.components.slider.resolve(state).background!!
         assertEquals(a, b)
     }
 
     @Test
     fun destructiveStyleVariesByStateInsteadOfReturningOneFlatColor() {
-        val tokens = CoreUiTheme.tokens
+        val tokens = UiFallbackTheme.tokens
         val idle = tokens.destructiveStyle().resolve(
             MutableStyleState(
                 hovered = false,
@@ -79,12 +79,12 @@ class UiThemeTest {
     @Test
     fun uiThemeSeparatesTokensFromComponentDefaults() {
         val custom = object : UiTheme {
-            override val tokens = CoreUiTheme.tokens
-            override val components = CoreUiTheme.components
+            override val tokens = UiFallbackTheme.tokens
+            override val components = UiFallbackTheme.components
         }
-        assertEquals(CoreUiTheme.tokens.background, custom.tokens.background)
+        assertEquals(UiFallbackTheme.tokens.background, custom.tokens.background)
         assertEquals(
-            CoreUiTheme.components.button.resolve().background!!,
+            UiFallbackTheme.components.button.resolve().background!!,
             custom.components.button.resolve().background!!
         )
     }

@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.CoreUiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.CoreUiTheme
+import io.github.ronjunevaldoz.awake.ui.UiFallbackTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
  * These remain visually conservative, but they live in `ui-designsystem` so `ui-core` stays
  * limited to theme contracts plus a low-level fallback.
  */
-object DefaultUiTheme : UiTheme by CoreUiTheme
+object DefaultUiTheme : UiTheme by UiFallbackTheme
 
 object DarkUiTheme : UiTheme by DefaultUiTheme
 

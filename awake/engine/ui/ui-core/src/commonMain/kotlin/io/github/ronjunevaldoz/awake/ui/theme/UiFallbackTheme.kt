@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
  * This lives in `ui-core` because root scopes need a no-extra-dependency default, but it is
  * intentionally generic. Named authored themes belong in `ui-designsystem`.
  */
-object CoreUiTheme : UiTheme {
+object UiFallbackTheme : UiTheme {
     override val tokens = object : UiColorTokens {
         override val background = Color(0.25f, 0.25f, 0.28f, 0.9f)
         override val foreground = Color.White
