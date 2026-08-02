@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -76,6 +77,38 @@ class UiRasterizerTest {
 
         assertEquals(0, alphaAt(4, 4), "rounded corner should not paint the extreme corner pixel")
         assertTrue(alphaAt(16, 16) > 0, "the interior should remain filled")
+    }
+
+    /** Real coverage for `graphicsLayer(scale(...))`'s scale-only transform (see
+     * docs/tasks/2026-08-02-graphicslayer-rotation-scale.md) -- proves [UiDrawPrimitive.transform]
+     * actually changes the rasterized footprint the same way the GPU vertex shaders'
+     * `pivot + (pos - pivot) * scale` math does (see `ui_quad.vert`/`.wgsl`'s comment). */
+    @Test
+    fun quadWithScaleTransformGrowsAroundItsPivot() {
+        fun alphaAt(pixels: ByteArray, width: Int, x: Int, y: Int): Int =
+            pixels[(y * width + x) * 4 + 3].toInt() and 0xFF
+
+        val unscaled = listOf(
+            UiDrawPrimitive.Quad(x = 8f, y = 8f, w = 8f, h = 8f, color = Color(1f, 0f, 0f, 1f))
+        ).rasterize(32, 32, background = Color.Transparent)
+
+        // 2x scale around the quad's own center (pivot = 12,12) -- doubles the footprint to
+        // 16x16 centered on the same point, so a corner well outside the original 8x8 quad
+        // (but inside the doubled one) should now be painted.
+        val scaled = listOf(
+            UiDrawPrimitive.Quad(
+                x = 8f,
+                y = 8f,
+                w = 8f,
+                h = 8f,
+                color = Color(1f, 0f, 0f, 1f),
+                transform = UiPrimitiveTransform(scaleX = 2f, scaleY = 2f, pivotX = 12f, pivotY = 12f)
+            )
+        ).rasterize(32, 32, background = Color.Transparent)
+
+        assertEquals(0, alphaAt(unscaled, 32, 5, 5), "unscaled quad should not reach (5,5)")
+        assertTrue(alphaAt(scaled, 32, 5, 5) > 0, "2x-scaled quad around its center should now cover (5,5)")
+        assertTrue(alphaAt(scaled, 32, 12, 12) > 0, "the pivot point itself should stay covered after scaling")
     }
 }
 

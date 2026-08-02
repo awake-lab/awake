@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.containsPoint
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -257,6 +258,18 @@ fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
+    /** Applies [transform]'s scale-around-pivot to an axis-aligned rect -- mirrors the GPU
+     * vertex shaders' `pivot + (position - pivot) * scale` math (see `ui_quad.vert`/`.wgsl`),
+     * so this CPU rasterizer produces the same footprint the real backends draw for a scaled
+     * [UiDrawPrimitive.Quad]/`RoundedQuad`/`Glyph`/`Texture`. `transform == null` (the common
+     * case, no active `graphicsLayer` scale) returns the rect unchanged. */
+    fun scaledRect(x: Float, y: Float, w: Float, h: Float, transform: UiPrimitiveTransform?): FloatArray {
+        if (transform == null) return floatArrayOf(x, y, w, h)
+        val scaledX = transform.pivotX + (x - transform.pivotX) * transform.scaleX
+        val scaledY = transform.pivotY + (y - transform.pivotY) * transform.scaleY
+        return floatArrayOf(scaledX, scaledY, w * transform.scaleX, h * transform.scaleY)
+    }
+
     fun fillTriangleMesh(path: io.github.ronjunevaldoz.awake.ui.UiTriangleMesh, color: Color) {
         var index = 0
         while (index + 2 < path.indices.size) {
@@ -270,25 +283,36 @@ fun List<UiDrawPrimitive>.rasterize(
 
     for (primitive in this) {
         when (primitive) {
-            is UiDrawPrimitive.Quad -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.color)
+            is UiDrawPrimitive.Quad -> {
+                val (x, y, w, h) = scaledRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.transform)
+                fillRect(x, y, w, h, primitive.color)
+            }
             is UiDrawPrimitive.GradientQuad -> fillGradientRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.gradient)
-            is UiDrawPrimitive.RoundedQuad -> fillTriangleMesh(
-                UiShapeSpec.RoundedRectangle(primitive.radius.px)
-                    .toPath(UiBounds(primitive.x, primitive.y, primitive.w, primitive.h))
-                    .tessellateFill(),
-                primitive.color
-            )
+            is UiDrawPrimitive.RoundedQuad -> {
+                val (x, y, w, h) = scaledRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.transform)
+                fillTriangleMesh(
+                    UiShapeSpec.RoundedRectangle((primitive.radius * min(primitive.transform?.scaleX ?: 1f, primitive.transform?.scaleY ?: 1f)).px)
+                        .toPath(UiBounds(x, y, w, h))
+                        .tessellateFill(),
+                    primitive.color
+                )
+            }
             is UiDrawPrimitive.FilledPath -> fillTriangleMesh(primitive.path.tessellateFill(), primitive.color)
             is UiDrawPrimitive.StrokedPath -> fillTriangleMesh(primitive.path.tessellateStroke(primitive.stroke), primitive.color)
             is UiDrawPrimitive.Glyph -> {
+                val (x, y, w, h) = scaledRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.transform)
+                val scaledGlyph = if (primitive.transform == null) primitive else primitive.copy(x = x, y = y, w = w, h = h)
                 if (font != null) {
-                    drawGlyph(primitive, font)
+                    drawGlyph(scaledGlyph, font)
                 } else {
-                    val inset = min(primitive.w, primitive.h) * 0.25f
-                    fillRect(primitive.x + inset, primitive.y + inset, primitive.w - inset * 2, primitive.h - inset * 2, primitive.color)
+                    val inset = min(w, h) * 0.25f
+                    fillRect(x + inset, y + inset, w - inset * 2, h - inset * 2, primitive.color)
                 }
             }
-            is UiDrawPrimitive.Texture -> fillRect(primitive.x, primitive.y, primitive.w, primitive.h, Color(0.5f, 0.5f, 0.5f, 1f))
+            is UiDrawPrimitive.Texture -> {
+                val (x, y, w, h) = scaledRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.transform)
+                fillRect(x, y, w, h, Color(0.5f, 0.5f, 0.5f, 1f))
+            }
             is UiDrawPrimitive.ClipPathPush -> {
                 clipStack.addLast(ClipSnapshot(floatArrayOf(clipX0, clipY0, clipX1, clipY1), activePathClips.size))
                 clipX0 = max(clipX0, primitive.boundsRect.x)

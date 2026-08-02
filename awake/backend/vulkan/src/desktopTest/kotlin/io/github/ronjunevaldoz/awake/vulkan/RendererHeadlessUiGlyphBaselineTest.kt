@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.testing.comparePixels
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
@@ -118,6 +119,71 @@ class RendererHeadlessUiGlyphBaselineTest {
             assertTrue(
                 pixels.data.any { it.toInt() != 0 },
                 "large headless glyph runs should render non-empty output instead of tripping the mesh capacity guard"
+            )
+        }
+    }
+
+    /**
+     * Real GPU coverage for `graphicsLayer(scale(...))`'s scale-only transform (see
+     * docs/tasks/2026-08-02-graphicslayer-rotation-scale.md) -- proves `ui_glyph.vert`'s
+     * `pivot + (inPosition - pivot) * scale` vertex math actually moves rendered pixels on real
+     * Vulkan hardware/MoltenVK, not just in the CPU rasterizer (`UiRasterizerTest`'s
+     * `quadWithScaleTransformGrowsAroundItsPivot` covers the CPU path; this covers the GPU
+     * shader independently since the two are hand-written and can drift, per this repo's own
+     * `ui_quad.vert`'s Y-flip precedent for backend-specific shader bugs).
+     */
+    @Test
+    fun headlessUiGlyphRenderAppliesGraphicsLayerScale() {
+        withHeadlessUiRenderer { renderer ->
+            val font = BitmapFont()
+            val target = renderer.createRenderTarget(TARGET_SIZE, TARGET_SIZE)
+            val glyph = glyphRun("A", font, x = 8f, y = 8f, scale = 2f, color = Color(1f, 1f, 1f, 1f))
+            // 2x scale around the glyph's own top-left (pivot = 8,8) -- doubles its footprint
+            // to the same size as an un-scaled glyph twice as big, growing away from (8,8).
+            val scaledGlyph = glyph.map {
+                it.copy(
+                    transform = UiPrimitiveTransform(
+                        scaleX = 2f,
+                        scaleY = 2f,
+                        pivotX = 8f,
+                        pivotY = 8f
+                    )
+                )
+            }
+
+            renderer.renderUiGlyphsToTexture(target, scaledGlyph, font)
+            val scaledPixels = runBlocking { renderer.readPixels(target) }
+
+            renderer.renderUiGlyphsToTexture(target, glyph, font)
+            val unscaledPixels = runBlocking { renderer.readPixels(target) }
+
+            // renderUiGlyphsToTexture clears to opaque black (see Renderer.clearColorValue),
+            // not a transparent background -- so "painted" here means "the white glyph ink
+            // blended in and lifted this pixel's red channel above black", not alpha (which is
+            // 255 everywhere thanks to the opaque clear).
+            fun maxPaintedX(pixels: ByteArray): Int {
+                var max = -1
+                for (y in 0 until TARGET_SIZE) {
+                    for (x in 0 until TARGET_SIZE) {
+                        val red = pixels[(y * TARGET_SIZE + x) * 4].toInt() and 0xFF
+                        if (red > 0 && x > max) max = x
+                    }
+                }
+                return max
+            }
+
+            val unscaledMaxX = maxPaintedX(unscaledPixels.data)
+            val scaledMaxX = maxPaintedX(scaledPixels.data)
+            assertTrue(unscaledMaxX >= 0, "the un-scaled glyph should render some non-transparent pixels")
+            // Bounding-box comparison (not a single probe pixel) -- robust regardless of the
+            // font's actual glyph-interior coverage: whatever "A" looks like, scaling its quad
+            // 2x around its own top-left MUST push its rightmost painted pixel further right,
+            // since (pivot + (pos - pivot) * scale) with pivot=(8,8) and scale=2 doubles the
+            // quad's on-screen width from the same origin.
+            assertTrue(
+                scaledMaxX > unscaledMaxX,
+                "2x-scaled glyph (rightmost painted x=$scaledMaxX) should extend further right than " +
+                    "the un-scaled glyph (rightmost painted x=$unscaledMaxX)"
             )
         }
     }

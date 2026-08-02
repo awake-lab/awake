@@ -10,19 +10,37 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
  * these into its own dynamic vertex/index buffer. Pixel-space coordinates (screen-space,
  * Y-down), not NDC -- the NDC transform is the shader's job (see `ui_quad.vert`/`.wgsl`).
  */
+/**
+ * Per-primitive GPU-applied scale, threaded from a `graphicsLayer(scale(...))` block (see
+ * `modifier/GraphicsLayer.kt`'s `UiScaleEffect`) all the way to the backend's draw call --
+ * unlike alpha, scale changes geometry so it can't be resolved as a CPU-side field multiply.
+ * [pivotX]/[pivotY] are in the same pixel-space coordinates as the carrying primitive's own
+ * `x`/`y`. Applied in the vertex shader as `pivot + (position - pivot) * scale`, BEFORE the
+ * screen-to-NDC transform (see `ui_quad.vert`/`.wgsl` and its 3 siblings) -- rotation is
+ * explicitly out of scope for this first pass (see
+ * docs/tasks/2026-08-02-graphicslayer-rotation-scale.md).
+ */
+data class UiPrimitiveTransform(
+    val scaleX: Float,
+    val scaleY: Float,
+    val pivotX: Float,
+    val pivotY: Float
+)
+
 sealed class UiDrawPrimitive {
     data class Quad(
         val x: Float,
         val y: Float,
         val w: Float,
         val h: Float,
-        val color: Color
+        val color: Color,
+        val transform: UiPrimitiveTransform? = null
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Quad) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
-                color == other.color
+                color == other.color && transform == other.transform
         }
 
         override fun hashCode(): Int {
@@ -31,6 +49,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + w.hashCode()
             result = 31 * result + h.hashCode()
             result = 31 * result + color.hashCode()
+            result = 31 * result + transform.hashCode()
             return result
         }
     }
@@ -71,13 +90,14 @@ sealed class UiDrawPrimitive {
         val w: Float,
         val h: Float,
         val color: Color,
-        val radius: Float
+        val radius: Float,
+        val transform: UiPrimitiveTransform? = null
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is RoundedQuad) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
-                radius == other.radius && color == other.color
+                radius == other.radius && color == other.color && transform == other.transform
         }
 
         override fun hashCode(): Int {
@@ -87,6 +107,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + h.hashCode()
             result = 31 * result + radius.hashCode()
             result = 31 * result + color.hashCode()
+            result = 31 * result + transform.hashCode()
             return result
         }
     }
@@ -103,14 +124,15 @@ sealed class UiDrawPrimitive {
         val v0: Float,
         val u1: Float,
         val v1: Float,
-        val color: Color
+        val color: Color,
+        val transform: UiPrimitiveTransform? = null
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Glyph) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
                 u0 == other.u0 && v0 == other.v0 && u1 == other.u1 && v1 == other.v1 &&
-                color == other.color
+                color == other.color && transform == other.transform
         }
 
         override fun hashCode(): Int {
@@ -123,6 +145,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + u1.hashCode()
             result = 31 * result + v1.hashCode()
             result = 31 * result + color.hashCode()
+            result = 31 * result + transform.hashCode()
             return result
         }
     }
@@ -186,7 +209,8 @@ sealed class UiDrawPrimitive {
         val y: Float,
         val w: Float,
         val h: Float,
-        val material: Any
+        val material: Any,
+        val transform: UiPrimitiveTransform? = null
     ) : UiDrawPrimitive()
 
     /** Path-based clip sibling of [ClipPush]. [boundsRect] is already intersected against
@@ -241,5 +265,29 @@ internal fun UiDrawPrimitive.scaledByAlpha(factor: Float): UiDrawPrimitive {
         )
         is UiDrawPrimitive.Texture, is UiDrawPrimitive.ClipPathPush,
         is UiDrawPrimitive.ClipPush, is UiDrawPrimitive.ClipPop -> this
+    }
+}
+
+/**
+ * Real scale-compositing mechanism for `graphicsLayer` (see `modifier/GraphicsLayer.kt`'s
+ * [io.github.ronjunevaldoz.awake.ui.modifier.UiScaleEffect]) -- attaches [transform] to every
+ * geometry-carrying primitive that has a dedicated GPU vertex-transform touch point ([Quad],
+ * [RoundedQuad], [Glyph], [Texture]), applied once at
+ * [io.github.ronjunevaldoz.awake.ui.context.UiContext]'s own emission choke point, same as
+ * [scaledByAlpha]. [FilledPath]/[StrokedPath]/[GradientQuad] and the clip markers pass through
+ * untransformed -- narrowing this first pass to the 4 primitive types whose shaders actually
+ * gained the transform attribute (see the 8-shader-file touch-point list in
+ * docs/tasks/2026-08-02-graphicslayer-rotation-scale.md); tessellated path geometry has no
+ * dedicated shader of its own to extend. `transform == null` (no active scale effect, the
+ * overwhelmingly common case) returns `this` unchanged, so the hot path pays no allocation cost.
+ */
+internal fun UiDrawPrimitive.withTransform(transform: UiPrimitiveTransform?): UiDrawPrimitive {
+    if (transform == null) return this
+    return when (this) {
+        is UiDrawPrimitive.Quad -> copy(transform = transform)
+        is UiDrawPrimitive.RoundedQuad -> copy(transform = transform)
+        is UiDrawPrimitive.Glyph -> copy(transform = transform)
+        is UiDrawPrimitive.Texture -> copy(transform = transform)
+        else -> this
     }
 }

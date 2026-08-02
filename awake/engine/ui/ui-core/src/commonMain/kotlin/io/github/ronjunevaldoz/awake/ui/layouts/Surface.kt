@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.resolveClickable
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -170,6 +171,7 @@ fun UiScope.surface(
         else -> height
     }
     val slot = initialSlot ?: claimModifiedSlot(modifier.width(resolvedWidth).height(resolvedHeight))
+    resolveClickable(id = id, slot = slot, modifier = modifier)
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: Color.Transparent,

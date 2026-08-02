@@ -243,6 +243,13 @@ class UiRenderPipeline(
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
                         offset = 2 * Float.SIZE_BYTES
+                    ),
+                    // scale(xy) + pivot(zw) -- see ui_quad.vert's inTransform.
+                    VkVertexInputAttributeDescription(
+                        location = 2,
+                        binding = 0,
+                        format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
+                        offset = 6 * Float.SIZE_BYTES
                     )
                 )
             )

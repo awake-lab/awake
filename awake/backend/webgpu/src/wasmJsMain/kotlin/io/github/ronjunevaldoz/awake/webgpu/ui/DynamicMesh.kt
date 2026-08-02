@@ -72,16 +72,18 @@ class DynamicMesh(
     }
 
     companion object {
-        /** pos (vec2) + color (vec4) -- see `ui_quad.wgsl`'s input layout. */
-        const val FLOATS_PER_VERTEX = 6
+        /** pos (vec2) + color (vec4) + transform (vec4: scale.xy + pivot.xy, see
+         * `UiPrimitiveTransform`) -- see `ui_quad.wgsl`'s input layout. */
+        const val FLOATS_PER_VERTEX = 10
 
-        /** pos (vec2) + uv (vec2) + color (vec4) -- see `ui_glyph.wgsl`'s input layout. */
-        const val GLYPH_FLOATS_PER_VERTEX = 8
+        /** pos (vec2) + uv (vec2) + color (vec4) + transform (vec4) -- see `ui_glyph.wgsl`'s
+         * input layout. */
+        const val GLYPH_FLOATS_PER_VERTEX = 12
 
-        /** pos (vec2) + localPos (vec2) + halfSize (vec2) + radius (float) + color (vec4) --
-         * see `ui_rounded_quad.wgsl`'s input layout, mirrors Vulkan's
+        /** pos (vec2) + localPos (vec2) + halfSize (vec2) + radius (float) + color (vec4) +
+         * transform (vec4) -- see `ui_rounded_quad.wgsl`'s input layout, mirrors Vulkan's
          * `DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX`. */
-        const val ROUNDED_QUAD_FLOATS_PER_VERTEX = 11
+        const val ROUNDED_QUAD_FLOATS_PER_VERTEX = 15
         const val VERTICES_PER_QUAD = 4
         const val INDICES_PER_QUAD = 6
         val indexFormat = GPUIndexFormat.Uint32

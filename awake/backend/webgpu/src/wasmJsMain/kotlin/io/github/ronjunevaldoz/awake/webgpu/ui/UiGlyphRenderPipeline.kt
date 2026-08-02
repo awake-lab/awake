@@ -86,6 +86,12 @@ class UiGlyphRenderPipeline(
                                     shaderLocation = 2u,
                                     offset = (4 * Float.SIZE_BYTES).toULong(),
                                     format = GPUVertexFormat.Float32x4
+                                ),
+                                // scale(xy) + pivot(zw) -- see ui_glyph.wgsl's `transform` field.
+                                VertexAttribute(
+                                    shaderLocation = 3u,
+                                    offset = (8 * Float.SIZE_BYTES).toULong(),
+                                    format = GPUVertexFormat.Float32x4
                                 )
                             )
                         )

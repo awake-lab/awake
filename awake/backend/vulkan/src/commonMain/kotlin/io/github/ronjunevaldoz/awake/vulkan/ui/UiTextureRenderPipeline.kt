@@ -221,6 +221,13 @@ class UiTextureRenderPipeline(
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
                         offset = 4 * Float.SIZE_BYTES
+                    ),
+                    // scale(xy) + pivot(zw) -- see ui_texture.vert's inTransform.
+                    VkVertexInputAttributeDescription(
+                        location = 3,
+                        binding = 0,
+                        format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
+                        offset = 8 * Float.SIZE_BYTES
                     )
                 )
             )

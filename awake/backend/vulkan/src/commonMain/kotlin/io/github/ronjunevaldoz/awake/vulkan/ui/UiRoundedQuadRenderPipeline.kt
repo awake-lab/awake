@@ -175,7 +175,9 @@ class UiRoundedQuadRenderPipeline(
                     VkVertexInputAttributeDescription(location = 1, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 2 * Float.SIZE_BYTES),
                     VkVertexInputAttributeDescription(location = 2, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 4 * Float.SIZE_BYTES),
                     VkVertexInputAttributeDescription(location = 3, binding = 0, format = VkFormat.VK_FORMAT_R32_SFLOAT, offset = 6 * Float.SIZE_BYTES),
-                    VkVertexInputAttributeDescription(location = 4, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 7 * Float.SIZE_BYTES)
+                    VkVertexInputAttributeDescription(location = 4, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 7 * Float.SIZE_BYTES),
+                    // scale(xy) + pivot(zw) -- see ui_rounded_quad.vert's inTransform.
+                    VkVertexInputAttributeDescription(location = 5, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 11 * Float.SIZE_BYTES)
                 )
             )
         )

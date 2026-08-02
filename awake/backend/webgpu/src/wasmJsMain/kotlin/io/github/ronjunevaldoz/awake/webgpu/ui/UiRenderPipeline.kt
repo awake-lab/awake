@@ -67,6 +67,12 @@ class UiRenderPipeline(
                                     shaderLocation = 1u,
                                     offset = (2 * Float.SIZE_BYTES).toULong(),
                                     format = GPUVertexFormat.Float32x4
+                                ),
+                                // scale(xy) + pivot(zw) -- see ui_quad.wgsl's `transform` field.
+                                VertexAttribute(
+                                    shaderLocation = 2u,
+                                    offset = (6 * Float.SIZE_BYTES).toULong(),
+                                    format = GPUVertexFormat.Float32x4
                                 )
                             )
                         )

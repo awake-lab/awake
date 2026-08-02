@@ -8,7 +8,11 @@ struct VertexIn {
     @location(1) localPos: vec2<f32>,
     @location(2) halfSize: vec2<f32>,
     @location(3) radius: f32,
-    @location(4) color: vec4<f32>
+    @location(4) color: vec4<f32>,
+    // scale(xy) + pivot(zw) -- see ui_quad.wgsl's identical field. Only `pos` is transformed;
+    // see the matching comment in ui_rounded_quad.vert for why leaving localPos/halfSize/
+    // radius untouched still produces a proportionally-scaled rounded rect.
+    @location(5) transform: vec4<f32>
 };
 
 struct VertexOut {
@@ -21,8 +25,11 @@ struct VertexOut {
 
 @vertex
 fn vertexMain(in: VertexIn) -> VertexOut {
+    let scale = in.transform.xy;
+    let pivot = in.transform.zw;
+    let scaledPos = pivot + (in.pos - pivot) * scale;
     // Same pixel-space -> NDC mapping as ui_quad.wgsl (pixel-space is Y-down, NDC is Y-up).
-    var ndc = (in.pos / uniforms.screenSize) * 2.0 - 1.0;
+    var ndc = (scaledPos / uniforms.screenSize) * 2.0 - 1.0;
     ndc.y = -ndc.y;
     var out: VertexOut;
     out.position = vec4<f32>(ndc, 0.0, 1.0);

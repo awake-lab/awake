@@ -46,7 +46,8 @@ data class UiModifier(
     val scrollState: UiScrollState? = null,
     val scrollConfig: UiScrollConfig = UiScrollConfig.Default,
     val graphicsLayer: UiGraphicsLayer? = null,
-    val styleable: Style? = null
+    val styleable: Style? = null,
+    val clickAction: UiClickable? = null
 )
 
 val Modifier: UiModifier

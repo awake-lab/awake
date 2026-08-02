@@ -82,6 +82,12 @@ class UiRoundedQuadRenderPipeline(
                                     shaderLocation = 4u,
                                     offset = (7 * Float.SIZE_BYTES).toULong(),
                                     format = GPUVertexFormat.Float32x4
+                                ),
+                                // scale(xy) + pivot(zw) -- see ui_rounded_quad.wgsl's `transform` field.
+                                VertexAttribute(
+                                    shaderLocation = 5u,
+                                    offset = (11 * Float.SIZE_BYTES).toULong(),
+                                    format = GPUVertexFormat.Float32x4
                                 )
                             )
                         )

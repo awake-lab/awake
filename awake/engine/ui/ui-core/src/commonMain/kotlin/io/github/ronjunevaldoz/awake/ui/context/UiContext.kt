@@ -3,7 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.scaledByAlpha
+import io.github.ronjunevaldoz.awake.ui.withTransform
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
@@ -364,12 +366,31 @@ class UiContext internal constructor(
 
     internal fun popGraphicsLayerAlphaInternal() = stacks.popAlpha()
 
+    /** The innermost active [io.github.ronjunevaldoz.awake.ui.modifier.UiScaleEffect]'s
+     * transform (see [pushGraphicsLayerScaleInternal]), or `null` if none is active. */
+    val currentGraphicsLayerTransform: UiPrimitiveTransform? get() = stacks.currentTransform
+
+    /**
+     * Pushes [transform] onto the graphics-layer scale stack -- every geometry-carrying
+     * primitive ([io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad]/`RoundedQuad`/`Glyph`/
+     * `Texture`) emitted via [emitInternal]/[emitOverlayInternal] anywhere inside the matching
+     * [popGraphicsLayerScaleInternal] window carries [transform] through to the backend's draw
+     * call (see [io.github.ronjunevaldoz.awake.ui.withTransform]). Unlike alpha, nested scale
+     * blocks do NOT compose multiplicatively (see [UiContextStacks.pushTransform]'s doc) -- the
+     * real application point for [io.github.ronjunevaldoz.awake.ui.modifier.UiScaleEffect], see
+     * `UiGraphicsLayerScope.kt`'s `withGraphicsLayerScale` for the public scoped-block API.
+     */
+    internal fun pushGraphicsLayerScaleInternal(transform: UiPrimitiveTransform) =
+        stacks.pushTransform(transform)
+
+    internal fun popGraphicsLayerScaleInternal() = stacks.popTransform()
+
     internal fun emitInternal(p: UiDrawPrimitive) {
-        if (!measuring) runtime.emit(p.scaledByAlpha(stacks.currentAlpha))
+        if (!measuring) runtime.emit(p.scaledByAlpha(stacks.currentAlpha).withTransform(stacks.currentTransform))
     }
 
     internal fun emitOverlayInternal(p: UiDrawPrimitive) {
-        if (!measuring) runtime.emitOverlay(p.scaledByAlpha(stacks.currentAlpha))
+        if (!measuring) runtime.emitOverlay(p.scaledByAlpha(stacks.currentAlpha).withTransform(stacks.currentTransform))
     }
 
     internal fun widgetStateInternal(id: String): WidgetState = runtime.widgetState(id)

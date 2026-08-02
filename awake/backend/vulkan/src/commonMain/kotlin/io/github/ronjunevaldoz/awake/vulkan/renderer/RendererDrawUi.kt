@@ -209,10 +209,10 @@ internal fun Renderer.stageQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitiv
         val quad = quads[quadIndex]
         val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.FLOATS_PER_VERTEX
         // Triangle-list quad, corners in TL/TR/BR/BL order (pixel space, Y-down).
-        writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.color)
-        writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.color)
-        writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.color)
-        writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.color)
+        writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.color, quad.transform)
+        writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.color, quad.transform)
+        writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.color, quad.transform)
+        writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.color, quad.transform)
 
         val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
         val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
@@ -344,10 +344,10 @@ internal fun Renderer.stageRoundedQuadRun(mesh: DynamicMesh, quads: List<UiDrawP
         // quad itself would make the SDF math produce a self-intersecting shape.
         val radius = quad.radius.coerceAtMost(minOf(halfW, halfH))
         val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * floatsPerVertex
-        writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.color)
-        writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color)
-        writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color)
-        writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color)
+        writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)
+        writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)
+        writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)
+        writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)
 
         val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
         val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
@@ -387,10 +387,10 @@ internal fun Renderer.stageGlyphRun(mesh: DynamicMesh, glyphs: List<UiDrawPrimit
     while (glyphIndex < glyphs.size) {
         val glyph = glyphs[glyphIndex]
         val vertexBase = glyphIndex * DynamicMesh.VERTICES_PER_QUAD * DynamicMesh.GLYPH_FLOATS_PER_VERTEX
-        writeGlyphVertex(glyphVertices, vertexBase + 0 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y, glyph.u0, glyph.v0, glyph.color)
-        writeGlyphVertex(glyphVertices, vertexBase + 1 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y, glyph.u1, glyph.v0, glyph.color)
-        writeGlyphVertex(glyphVertices, vertexBase + 2 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y + glyph.h, glyph.u1, glyph.v1, glyph.color)
-        writeGlyphVertex(glyphVertices, vertexBase + 3 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y + glyph.h, glyph.u0, glyph.v1, glyph.color)
+        writeGlyphVertex(glyphVertices, vertexBase + 0 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y, glyph.u0, glyph.v0, glyph.color, glyph.transform)
+        writeGlyphVertex(glyphVertices, vertexBase + 1 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y, glyph.u1, glyph.v0, glyph.color, glyph.transform)
+        writeGlyphVertex(glyphVertices, vertexBase + 2 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y + glyph.h, glyph.u1, glyph.v1, glyph.color, glyph.transform)
+        writeGlyphVertex(glyphVertices, vertexBase + 3 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y + glyph.h, glyph.u0, glyph.v1, glyph.color, glyph.transform)
 
         val vertexOffset = glyphIndex * DynamicMesh.VERTICES_PER_QUAD
         val indexBase = glyphIndex * DynamicMesh.INDICES_PER_QUAD
@@ -408,7 +408,7 @@ internal fun Renderer.stageGlyphRun(mesh: DynamicMesh, glyphs: List<UiDrawPrimit
 internal fun Renderer.stageTextureRun(textures: List<UiDrawPrimitive.Texture>, activePathClips: List<UiPath>): List<Renderer.TexturedPrimitiveRun> =
     textures.map { primitive ->
         val clipped = exactClip(texturedQuadMesh(primitive.x, primitive.y, primitive.w, primitive.h), activePathClips)
-        val (vertices, indices) = texturedGeometryBuffers(clipped, Renderer.WHITE_RGBA)
+        val (vertices, indices) = texturedGeometryBuffers(clipped, Renderer.WHITE_RGBA, primitive.transform)
         Renderer.TexturedPrimitiveRun(primitive.material, vertices, indices)
     }
 
@@ -467,11 +467,15 @@ internal fun texturedQuadMesh(
     indices = intArrayOf(0, 1, 2, 2, 3, 0)
 )
 
-internal fun texturedGeometryBuffers(mesh: UiTexturedTriangleMesh, color: Color): Pair<FloatArray, IntArray> {
+internal fun texturedGeometryBuffers(
+    mesh: UiTexturedTriangleMesh,
+    color: Color,
+    transform: io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform? = null
+): Pair<FloatArray, IntArray> {
     val vertices = FloatArray(mesh.vertices.size * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
     var offset = 0
     mesh.vertices.forEach { vertex ->
-        writeGlyphVertex(vertices, offset, vertex.position.x, vertex.position.y, vertex.u, vertex.v, color)
+        writeGlyphVertex(vertices, offset, vertex.position.x, vertex.position.y, vertex.u, vertex.v, color, transform)
         offset += DynamicMesh.GLYPH_FLOATS_PER_VERTEX
     }
     return vertices to mesh.indices
