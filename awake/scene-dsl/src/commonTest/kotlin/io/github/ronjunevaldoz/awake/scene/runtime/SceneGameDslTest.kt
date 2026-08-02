@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.application.game
 import io.github.ronjunevaldoz.awake.engine.application.gameModule
 import io.github.ronjunevaldoz.awake.engine.application.module
@@ -156,90 +155,6 @@ class SceneGameDslTest {
         assertNotNull(runtime.findCamera("camera"))
         assertTrue(runtime.system("orbit") is io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem)
         assertTrue(runtime.system("freeFly") is io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem)
-    }
-
-    @Test
-    fun ecsGameSpecComposesWindowSceneUiAndInstallers() = runTest {
-        val renderer = RecordingRenderer()
-        val spec = ecsGameSpec {
-            window {
-                title = "Facade"
-                size(1280, 720)
-                backend.vulkan()
-            }
-            scene("facade-scene") {
-                cameraEntity("camera", camera = { primary(true) })
-                meshEntity(
-                    name = "cube",
-                    mesh = "cube",
-                    material = "default"
-                )
-                assets {
-                    mesh("cube") { renderer.createMesh(EmptyGeometry) }
-                    material("default") { renderer.createMaterial() }
-                }
-            }
-            ui {
-                overlay {
-                    val scene = requireService<SceneGameRuntime>()
-                    rootColumn(modifier = Modifier.offset(16f.dp, 16f.dp).size(180f.dp, 120f.dp)) {
-                        text(scene.sceneName)
-                    }
-                }
-            }
-            install(
-                io.github.ronjunevaldoz.awake.engine.application.gameInstaller {
-                    service(String::class, "facade-ready")
-                }
-            )
-        }
-
-        val game = spec.createGame()
-        game.ready(renderer)
-        game.render(0.016f, 320f, 240f)
-
-        assertEquals("Facade", game.windowConfig.title)
-        assertEquals(1280, game.windowConfig.width)
-        assertEquals(720, game.windowConfig.height)
-        assertEquals(GameWindowBackend.VULKAN, game.windowConfig.backend)
-        assertEquals("facade-ready", game.requireService(String::class))
-        assertEquals("facade-scene", game.requireService<SceneGameRuntime>().sceneName)
-        assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
-    }
-
-    @Test
-    fun ecsGameSpecCanComposeRoutedSceneFlow() = runTest {
-        val renderer = RecordingRenderer()
-        val spec = ecsGameSpec {
-            window {
-                title = "Flow"
-                size(1280, 720)
-                backend.vulkan()
-            }
-            flow {
-                start("overview")
-                scene("overview", label = "Overview") {
-                    cameraEntity("camera", camera = { primary(true) })
-                    meshEntity("cube", mesh = "cube", material = "default")
-                    assets {
-                        mesh("cube") { renderer.createMesh(EmptyGeometry) }
-                        material("default") { renderer.createMaterial() }
-                    }
-                }
-                scene("editor", label = "Editor") {
-                    cameraEntity("camera", camera = { primary(true) })
-                }
-            }
-        }
-
-        val game = spec.createGame()
-        game.ready(renderer)
-
-        val router = game.requireService<SceneRouterRuntime>()
-        assertEquals("overview", router.activeSceneId)
-        router.switchTo("editor")
-        game.render(0.016f, 320f, 240f)
-        assertEquals("editor", router.activeSceneId)
     }
 
     @Test

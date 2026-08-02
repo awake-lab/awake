@@ -3,30 +3,21 @@
 package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.engine.application.GameDsl
-import io.github.ronjunevaldoz.awake.engine.application.GameModuleDsl
+import io.github.ronjunevaldoz.awake.engine.application.GameSpecDsl
 import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneDocumentDsl
 import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneNodeDsl
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.installInfrastructureSystems
 import kotlin.reflect.KClass
 
-fun GameDsl.ecs(block: SceneGameDsl.() -> Unit) {
+fun GameSpecDsl.ecs(block: SceneGameDsl.() -> Unit) {
     install(sceneGame(block))
 }
 
-fun GameDsl.ecs(spec: SceneGameSpec) {
+fun GameSpecDsl.ecs(spec: SceneGameSpec) {
     install(spec)
 }
 
-fun GameModuleDsl.ecs(block: SceneGameDsl.() -> Unit) {
-    install(sceneGame(block))
-}
-
-fun GameModuleDsl.ecs(spec: SceneGameSpec) {
-    install(spec)
-}
-
-fun GameDsl.scene(
+fun GameSpecDsl.scene(
     name: String? = null,
     block: SceneGameDsl.() -> Unit
 ) {
@@ -40,25 +31,7 @@ fun GameDsl.scene(
     )
 }
 
-fun GameDsl.scene(spec: SceneGameSpec) {
-    install(spec)
-}
-
-fun GameModuleDsl.scene(
-    name: String? = null,
-    block: SceneGameDsl.() -> Unit
-) {
-    install(
-        sceneGame {
-            if (name != null) {
-                this.name(name)
-            }
-            block()
-        }
-    )
-}
-
-fun GameModuleDsl.scene(spec: SceneGameSpec) {
+fun GameSpecDsl.scene(spec: SceneGameSpec) {
     install(spec)
 }
 

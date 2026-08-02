@@ -12,21 +12,14 @@ typealias GameUiReadyBlock = suspend GameUiRuntime.() -> Unit
 typealias GameUiDisposeBlock = GameUiRuntime.() -> Unit
 
 
-fun GameDsl.ui(block: GameUiDsl.() -> Unit) {
+fun GameSpecDsl.ui(block: GameUiDsl.() -> Unit) {
     install(gameUi(block))
 }
 
-fun GameDsl.ui(spec: GameUiSpec) {
+fun GameSpecDsl.ui(spec: GameUiSpec) {
     install(spec)
 }
 
-fun GameModuleDsl.ui(block: GameUiDsl.() -> Unit) {
-    install(gameUi(block))
-}
-
-fun GameModuleDsl.ui(spec: GameUiSpec) {
-    install(spec)
-}
 fun gameUi(block: GameUiDsl.() -> Unit): GameUiSpec {
     return GameUiDsl().apply(block).build()
 }

@@ -76,7 +76,7 @@ When a game owns multiple authored scenes, prefer `flow { ... }` or `sceneFlow {
 instead of a sample-local router:
 
 ```kotlin
-val spec = ecsGameSpec {
+val spec = gameSpec {
     window {
         title = "Starter"
         size(1600, 900)

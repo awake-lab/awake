@@ -27,14 +27,14 @@ fun gameInstaller(block: GameDsl.() -> Unit): GameInstaller {
     }
 }
 
+// Shared forwarding surface for both GameDsl and GameModuleDsl -- they wrap the same
+// GameSpecBuilder and expose the same install/lifecycle/service methods. GameDsl adds
+// `window(...)` on top since only the top-level game {} block owns window configuration;
+// a GameModule installs into an already-windowed spec.
 @AwakeGameDsl
-class GameDsl internal constructor(
-    private val builder: GameSpecBuilder
+sealed class GameSpecDsl(
+    protected val builder: GameSpecBuilder
 ) {
-    fun window(block: WindowDsl.() -> Unit) {
-        WindowDsl(builder.windowBuilder()).apply(block)
-    }
-
     fun install(installer: GameInstaller) {
         builder.install(installer)
     }
@@ -72,6 +72,15 @@ class GameDsl internal constructor(
     fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = builder.requireService(type)
 
     fun serviceLookup(): GameServiceLookup = builder.serviceLookup()
+}
+
+@AwakeGameDsl
+class GameDsl internal constructor(
+    builder: GameSpecBuilder
+) : GameSpecDsl(builder) {
+    fun window(block: WindowDsl.() -> Unit) {
+        WindowDsl(builder.windowBuilder()).apply(block)
+    }
 }
 
 @AwakeGameDsl
