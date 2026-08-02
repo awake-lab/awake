@@ -31,8 +31,12 @@ fun UiScope.shadcnTooltip(
     ),
     properties: UiPopupProperties = UiPopupProperties(),
     style: Style = Style.Empty,
+    // Also used as the popup's own id so multiple tooltips rendered together (e.g. a preview
+    // page open-state proof) don't collide on the same "tooltip" semantic id.
+    id: String = "tooltip",
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiPopupResult = popup(
+    id = id,
     anchorSlot = anchorSlot,
     expanded = visible,
     width = width,
@@ -42,7 +46,7 @@ fun UiScope.shadcnTooltip(
     properties = properties
 ) { _ ->
     surface(
-        id = "tooltip",
+        id = id,
         style = Style { shape(UiShape.sm) } then theme.components.surface then style,
         modifier = Modifier.width(width).height(height)
     ) { slot ->

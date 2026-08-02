@@ -31,6 +31,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -628,7 +629,7 @@ internal object UiShowcasePopoverOpenPreview : AwakeUiPreviewEntry {
     group = "Overlays",
     summary = "Open tooltip proof for anchored placement, wrap, and popover chrome.",
     width = 920,
-    height = 360,
+    height = 460,
     reportScale = 2
 )
 internal object UiShowcaseTooltipOpenPreview : AwakeUiPreviewEntry {
@@ -1115,6 +1116,27 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
             label = "Reference",
             modifier = Modifier.width(120f.dp).height(36f.dp),
             variant = ShadcnButtonVariant.Secondary
+        )
+    }
+    spacer(Modifier.height(12f.dp))
+    shadcnSupportingText("shadcnTooltipText is the text-only convenience wrapper: same anchor/popup composition, no custom content lambda.")
+    spacer(Modifier.height(8f.dp))
+    row(
+        horizontalArrangement = Arrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp.toDimension())
+    ) {
+        val textTrigger = buttonSlot(
+            id = "showcase-matrix-tooltip-text-trigger",
+            label = "Text-only tooltip",
+            modifier = Modifier.width(200f.px).height(36f.dp),
+            style = theme.components.button
+        )
+        shadcnTooltipText(
+            id = "tooltip-text",
+            anchorSlot = textTrigger.slot,
+            visible = true,
+            text = "shadcnTooltipText skips the custom content lambda for a plain wrapped label.",
+            positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
         )
     }
 }

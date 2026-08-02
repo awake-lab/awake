@@ -23,13 +23,15 @@ fun UiScope.shadcnTooltipText(
         offsetY = theme.asShadcnTheme().spacing.xs
     ),
     properties: UiPopupProperties = UiPopupProperties(),
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    id: String = "tooltip"
 ): UiPopupResult = shadcnTooltip(
     anchorSlot = anchorSlot,
     visible = visible,
     positionProvider = positionProvider,
     properties = properties,
-    style = style
+    style = style,
+    id = id
 ) {
     text(
         label = text,
