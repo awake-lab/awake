@@ -93,9 +93,25 @@ fun UiScope.popup(
     modifier: UiModifier = Modifier,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
     properties: UiPopupProperties = UiPopupProperties(),
+    id: String? = null,
+    fadeDurationMs: Float = 150f,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiPopupResult {
-    if (!expanded) {
+    // Real AnimatedVisibility-equivalent (see UiAnimatedVisibility.kt) instead of the previous
+    // bare `if (!expanded) return` instant-unmount: keep computing position/content -- wrapped in
+    // a fading graphics-layer alpha -- until the exit tween settles at zero, so show/hide fades
+    // instead of snapping. stateId falls back through [id]/[modifier.testTag] so callers that
+    // already pass a stable testTag (or the new [id]) get correctly independent fade state per
+    // popup instance instead of colliding on one shared, unlabeled key.
+    val stateId = id ?: modifier.testTag ?: "popup"
+    val alpha = animateFloatTween(
+        id = "__popup_alpha__$stateId",
+        target = if (expanded) 1f else 0f,
+        initial = if (expanded) 1f else 0f,
+        durationMs = fadeDurationMs
+    )
+    val visuallyActive = expanded || alpha > 0.001f
+    if (!visuallyActive) {
         return UiPopupResult(slot = null, dismissed = false)
     }
 
@@ -129,7 +145,11 @@ fun UiScope.popup(
         placedSlot
     }
 
-    val dismissed = properties.dismissOnClickOutside &&
+    // Outside-click dismissal only makes sense while genuinely expanded -- during the exit fade
+    // window (expanded already false, still visuallyActive) the caller already decided to close
+    // it, so this must not re-report a dismiss every frame of the fade.
+    val dismissed = expanded &&
+        properties.dismissOnClickOutside &&
         pointerDown() &&
         !hitTest(anchorBoundsSlot) &&
         !hitTest(popupSlot)
@@ -142,13 +162,15 @@ fun UiScope.popup(
         return UiPopupResult(slot = popupSlot, dismissed = false)
     }
 
-    context.createColumn(
-        slot = popupSlot,
-        insets = insets,
-        verticalArrangement = verticalArrangement,
-        testTag = modifier.testTag,
-        overlayOnly = true
-    ).content(popupSlot)
+    withGraphicsLayerAlpha(alpha) {
+        context.createColumn(
+            slot = popupSlot,
+            insets = insets,
+            verticalArrangement = verticalArrangement,
+            testTag = modifier.testTag,
+            overlayOnly = true
+        ).content(popupSlot)
+    }
 
     return UiPopupResult(slot = popupSlot, dismissed = false)
 }

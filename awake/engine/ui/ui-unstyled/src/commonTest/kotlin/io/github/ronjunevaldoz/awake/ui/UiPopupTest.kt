@@ -56,6 +56,75 @@ class UiPopupTest {
     }
 
     @Test
+    fun popupKeepsRenderingWhileFadingOutInsteadOfSnappingAway() {
+        // Regression coverage for the "bare conditional collapse" audit finding: popup() used to
+        // `if (!expanded) return UiPopupResult(slot = null, ...)` instantly on the very frame
+        // expanded flips false. It must now keep drawing (dimmed) through the exit fade instead.
+        val ui = UiContext()
+        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f)
+
+        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        scope.popup(
+            id = "regression-popup",
+            anchorSlot = anchor,
+            expanded = true,
+            width = Dimension.Fixed(120f.px),
+            height = Dimension.Fixed(64f.px),
+            fadeDurationMs = 200f
+        ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
+        ui.endFrame()
+
+        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        val firstExitFrame = scope.popup(
+            id = "regression-popup",
+            anchorSlot = anchor,
+            expanded = false,
+            width = Dimension.Fixed(120f.px),
+            height = Dimension.Fixed(64f.px),
+            fadeDurationMs = 200f
+        ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
+        ui.endFrame()
+
+        assertNotNull(firstExitFrame.slot, "the first frame after collapsing must still be rendering (fading), not already gone")
+        assertFalse(firstExitFrame.dismissed, "the fade window closing itself is not a click-outside dismissal")
+    }
+
+    @Test
+    fun popupReallyStopsRenderingOnceItsExitFadeSettles() {
+        val ui = UiContext()
+        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f)
+
+        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        scope.popup(
+            id = "settle-popup",
+            anchorSlot = anchor,
+            expanded = true,
+            width = Dimension.Fixed(120f.px),
+            height = Dimension.Fixed(64f.px),
+            fadeDurationMs = 100f
+        ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
+        ui.endFrame()
+
+        var lastResult: UiPopupResult? = null
+        repeat(20) { // 20 frames * 1/60s ~= 333ms, well past a 100ms fade.
+            ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+            lastResult = scope.popup(
+                id = "settle-popup",
+                anchorSlot = anchor,
+                expanded = false,
+                width = Dimension.Fixed(120f.px),
+                height = Dimension.Fixed(64f.px),
+                fadeDurationMs = 100f
+            ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
+            ui.endFrame()
+        }
+
+        assertEquals(null, lastResult?.slot, "once the exit fade has settled, the popup must really stop rendering")
+    }
+
+    @Test
     fun dropdownUsesSharedPopupAndClosesAfterPickingOption() {
         val ui = UiContext()
         ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").set("expanded", true)
