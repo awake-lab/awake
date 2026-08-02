@@ -765,9 +765,9 @@ private fun renderUiShowcaseEasingPreviewFrame(
         ui.pushTheme(theme)
         ui.column(
             modifier = Modifier
-                .offset(insetPx.dp, insetPx.dp)
-                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).dp)
-                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).dp),
+                .offset(insetPx.px, insetPx.px)
+                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).px)
+                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).px),
             verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp)
         ) {
             shadcnSurface(
@@ -826,9 +826,9 @@ private fun renderUiShowcaseCardPreviewFrame(
         ui.pushTheme(theme)
         ui.column(
             modifier = Modifier
-                .offset(insetPx.dp, insetPx.dp)
-                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).dp)
-                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).dp),
+                .offset(insetPx.px, insetPx.px)
+                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).px)
+                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).px),
             verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp)
         ) {
             shadcnSurface(
