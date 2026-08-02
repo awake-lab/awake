@@ -133,7 +133,7 @@ fun UiScope.text(
     wrap: UiTextWrap = UiTextWrap.None,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
-    textStyle: TextStyle? = context.currentTextStyle,
+    textStyle: TextStyle? = null,
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text
 ): UiBounds {
@@ -164,7 +164,7 @@ fun UiScope.text(
             },
             state = state
         )
-        val textStyle = resolved.textStyle
+        val textStyle = textStyle ?: resolved.textStyle
         val glyphPx = resolveGlyphPx(resolvedFont, textStyle)
         val labelWidthPx = resolvedFont.measureTextWidth(label, glyphPx)
         return resolved to labelWidthPx
@@ -173,7 +173,7 @@ fun UiScope.text(
     val (initialResolved, initialLabelWidthPx) = resolveAndMeasure(styleState)
     var resolved = initialResolved
     var labelWidthPx = initialLabelWidthPx
-    var textStyle = resolved.textStyle
+    var textStyle = textStyle ?: resolved.textStyle
     var glyphPx = resolveGlyphPx(resolvedFont, textStyle)
     val defaultWidth: Dimension = when {
         modifier.widthDimension != null -> requireNotNull(modifier.widthDimension)
@@ -220,7 +220,7 @@ fun UiScope.text(
             val (newResolved, newLabelWidthPx) = resolveAndMeasure(styleState)
             resolved = newResolved
             labelWidthPx = newLabelWidthPx
-            textStyle = resolved.textStyle
+            textStyle = textStyle ?: resolved.textStyle
             glyphPx = resolveGlyphPx(resolvedFont, textStyle)
             // re-measure layout with updated text metrics
             val newAvailableTextWidth = when (defaultWidth) {
