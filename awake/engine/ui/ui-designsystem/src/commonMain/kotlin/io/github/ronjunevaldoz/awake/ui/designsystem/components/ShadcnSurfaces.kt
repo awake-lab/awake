@@ -400,7 +400,12 @@ fun ColumnScope.shadcnSidebarMenuItem(
     return shadcnButton(
         id = id,
         modifier = modifier.fillMaxWidth().height(36f.dp),
-        variant = ShadcnButtonVariant.Ghost,
+        // Ghost's resolveFill hardcodes fill to transparent unless hovered/pressed, ignoring
+        // any style override entirely -- same problem shadcnTabs' active-tab highlight hit.
+        // Primary (-> UiButtonVariant.Filled) always honors the resolved background, so the
+        // active item switches variant rather than relying on Ghost to paint a persistent
+        // background it structurally can't.
+        variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
         style = (
             if (active) {
                 Style {
