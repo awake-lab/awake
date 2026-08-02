@@ -105,6 +105,35 @@ Use snapshot-backed guides for:
 These docs should answer: "How do I actually build this?" rather than "What is the
 signature?"
 
+## Live Preview Loop
+
+For fast iteration on `samples/ui-showcase` pages or the `ui-designsystem`/`ui-unstyled`
+components they render, don't run the full `desktopTest` suite -- it runs every test in the
+module, including unrelated pre-existing failures. Instead, scope to the single test class
+that writes the preview gallery:
+
+```bash
+./gradlew :samples:ui-showcase:desktopTest --tests "*UiShowcasePreviewDocsTest*" --continuous
+```
+
+`--continuous` is Gradle's own file-watch mode: it watches the inputs of every task in the
+graph (so edits to `ui-designsystem`/`ui-unstyled` sources that the showcase depends on
+trigger a rebuild too, not just edits inside `samples/ui-showcase` itself) and reruns on
+change -- regenerating `samples/ui-showcase/build/reports/ui-previews/index.html` in a few
+seconds per change, since `uiShowcasePreviewReport` is `finalizedBy` the test task.
+
+To also auto-reload an open browser tab, run the wrapper script instead, which pairs the
+same `--continuous` task with a tiny static file server that injects a reload-on-change poll
+into the served HTML:
+
+```bash
+./tools/ui_preview_watch.sh 8090
+# open http://127.0.0.1:8090
+```
+
+This is also wired into `.claude/launch.json` as the `ui-preview-watch` configuration,
+matching the `wasmjs-*` entries' launch pattern.
+
 ## Adding a UI Tutorial
 
 1. Add or update a curated test in either:
