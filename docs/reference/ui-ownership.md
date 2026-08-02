@@ -315,3 +315,29 @@ Awake also build-enforces authored-unit usage in:
 
 Those modules run `verifyUiAuthoredUnits`, which currently rejects numeric `.px` literals in
 `*Main` source so shared/sample UI stays authored in `Dp`/`Sp`.
+
+## Identity Params: `id` vs `testTag` vs `cacheKey`
+
+Three different string-identity params exist across the UI API. They look similar but serve
+unrelated purposes -- never treat one as a substitute for another.
+
+| Param | Type | Required? | Purpose | Lifetime |
+|---|---|---|---|---|
+| `id: String` | positional widget param | required, no default | Cross-frame `WidgetState` lookup key -- dropdown open/close, animation progress, any per-widget state that must survive frame-to-frame | Stable for the widget's lifetime; changing it resets its state |
+| `testTag: String?` | `UiModifier` field | optional, `null` default | Debug/test identification only -- has zero effect on rendering, state, or measurement | N/A -- cosmetic |
+| `id` / `cacheKey` (on `row()`/`column()`) | opt-in perf params | optional, both `null` | Cross-frame trial-measure cache key (see `docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md`) -- `cacheKey` must change whenever the weighted-child structure could change | Opt-in; omitting both means no caching, safest default |
+
+Rule: if a widget owns state (open/closed, progress, selection), it takes a required
+`id: String`. If you only need to find/assert on a node in a test, use `testTag` via the
+modifier -- don't repurpose `id` for that. If you're opting a `row()`/`column()` into the
+trial-measure cache, that's a third, unrelated `id`/`cacheKey` pair -- supplying it does not
+give the row/column any `WidgetState`.
+
+Anti-pattern: adding a new `id`-like param to a widget "just in case" without deciding which
+of the three jobs it does. Pick one, name it for that job, document why.
+
+Composite ids (a container building its children's ids from its own, e.g.
+`id = "$id.track"`, `id = "$id.$index"`) are the existing convention -- see
+`ShadcnTabs.kt` -- and stay plain string interpolation. A wrapper function for this was
+considered and rejected: the interpolation is already one line and self-explanatory: adding
+an indirection for it is a net increase in concepts-to-learn for no real gain.
