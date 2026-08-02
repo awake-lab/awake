@@ -66,6 +66,12 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
                     .padding(16f.dp)).width(Dimension.FillMax).height(Dimension.WrapContent)) {
                 shadcnSidebar(
                     id = "starter-nav-compact",
+                    // Unlike ui-showcase's docked full-height rail, this sidebar is a floating
+                    // top-left card (align + padding, WrapContent height) alongside other rounded
+                    // shadcnSurface cards -- shadcnSidebar's base style dropped its default
+                    // rounding to match real shadcn's flush docked-rail look, so this sample opts
+                    // back into rounding explicitly to keep matching its neighbor cards.
+                    style = Style { shape(ShadcnTheme.shapes.xl) },
                     modifier = Modifier.width(navWidth).height(Dimension.WrapContent)) { _ ->
                     drawStarterNavigation(model, router)
                 }
@@ -85,6 +91,8 @@ internal fun GameUiRuntime.drawStarterGameOverlay(
         } else {
             shadcnSidebar(
                 id = "starter-nav",
+                // Same floating-card rationale as the compact branch above.
+                style = Style { shape(ShadcnTheme.shapes.xl) },
                 modifier = (Modifier
                     .align(UiAlignment.TopStart)
                     .padding(start = 20f.dp, top = 20f.dp, end = 0f.dp, bottom = 0f.dp)).width(navWidth).height(Dimension.WrapContent)) { _ ->

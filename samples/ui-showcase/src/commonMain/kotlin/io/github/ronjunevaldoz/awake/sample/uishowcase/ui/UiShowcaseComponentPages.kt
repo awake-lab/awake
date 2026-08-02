@@ -21,6 +21,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTit
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSkeleton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSpinner
@@ -384,8 +387,9 @@ internal fun ColumnScope.drawUiShowcaseCardPreview() {
 }
 
 internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
-    shadcnSupportingText("Header and footer are each independently optional, same as Card -- a fixed nav-rail width keeps it from stretching full-width.")
+    shadcnSupportingText("Header and footer are each independently optional, same as Card -- a fixed nav-rail width keeps it from stretching full-width. Groups/menu items use the dedicated sidebarAccent tokens for the active highlight, not the generic primary/accent tokens.")
     spacer(Modifier.height(8f.dp))
+    var activeItem by rememberStateValue("showcase-sidebar-active", "showcase-sidebar") { "lighting" }
     row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(Dimension.WrapContent)) {
         shadcnSidebar(
             id = "showcase-sidebar-full",
@@ -393,9 +397,29 @@ internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
             header = { shadcnBadge("STARTER", variant = ShadcnBadgeVariant.Primary) },
             footer = { shadcnButton("showcase-sidebar-full-signout", label = "Sign out", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Outline) }
         ) { _ ->
-            shadcnButton("showcase-sidebar-full-lighting", label = "Lighting", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Primary)
-            shadcnButton("showcase-sidebar-full-camera", label = "Camera", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Secondary)
-            shadcnButton("showcase-sidebar-full-exposure", label = "Exposure", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Secondary)
+            shadcnSidebarGroup(label = "Scene") {
+                shadcnSidebarMenu {
+                    shadcnSidebarMenuItem(
+                        id = "showcase-sidebar-full-lighting",
+                        label = "Lighting",
+                        active = activeItem == "lighting",
+                        badge = "New",
+                        onClick = { activeItem = "lighting" }
+                    )
+                    shadcnSidebarMenuItem(
+                        id = "showcase-sidebar-full-camera",
+                        label = "Camera",
+                        active = activeItem == "camera",
+                        onClick = { activeItem = "camera" }
+                    )
+                    shadcnSidebarMenuItem(
+                        id = "showcase-sidebar-full-exposure",
+                        label = "Exposure",
+                        active = activeItem == "exposure",
+                        onClick = { activeItem = "exposure" }
+                    )
+                }
+            }
         }
         shadcnSidebar(
             id = "showcase-sidebar-content-only",
@@ -407,6 +431,28 @@ internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
     }
     spacer(Modifier.height(8f.dp))
     shadcnSupportingText("No header/footer here -- neither divider renders, matching shadcnCard's body-only case.")
+    spacer(Modifier.height(16f.dp))
+    shadcnSupportingText("expanded animates width toward 0 on collapse (real shadcn's SidebarProvider expand/collapse), caller-hoisted like every other stateful recipe in this module -- toggle from any ordinary button, there's no dedicated trigger/provider type.")
+    spacer(Modifier.height(8f.dp))
+    var sidebarExpanded by rememberStateValue("showcase-sidebar-expanded", "showcase-sidebar-collapsible") { true }
+    row(horizontalArrangement = Arrangement.spacedBy(16f.dp), verticalAlignment = UiAlignment.Vertical.Top, modifier = Modifier.height(Dimension.WrapContent)) {
+        shadcnSidebar(
+            id = "showcase-sidebar-collapsible",
+            modifier = Modifier.width(220f.dp).height(Dimension.WrapContent),
+            expanded = sidebarExpanded
+        ) { _ ->
+            shadcnSidebarMenu {
+                shadcnSidebarMenuItem(id = "showcase-sidebar-collapsible-lighting", label = "Lighting", active = true)
+                shadcnSidebarMenuItem(id = "showcase-sidebar-collapsible-camera", label = "Camera", active = false)
+            }
+        }
+        shadcnButton(
+            id = "showcase-sidebar-collapsible-toggle",
+            label = if (sidebarExpanded) "Collapse" else "Expand",
+            variant = ShadcnButtonVariant.Outline,
+            modifier = Modifier.width(120f.dp).height(32f.dp)
+        ) { sidebarExpanded = !sidebarExpanded }
+    }
 }
 
 internal fun ColumnScope.drawUiShowcaseAlertPreview() {

@@ -10,13 +10,15 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibl
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnHeadline
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.textLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -105,8 +107,15 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
 ) {
     ShowcasePagesByCategory.forEach { (category, pages) ->
         if (compact) {
-            pages.forEach { page ->
-                drawUiShowcaseSidebarPageButton(page, selectedPageId, onSelect)
+            shadcnSidebarMenu {
+                pages.forEach { page ->
+                    shadcnSidebarMenuItem(
+                        id = "ui-showcase-page-${page.id}",
+                        label = page.title,
+                        active = page.id == selectedPageId,
+                        onClick = { onSelect(page) }
+                    )
+                }
             }
             spacer(Modifier.height(8f.dp))
         } else {
@@ -117,46 +126,26 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                 expanded = expanded,
                 onExpandedChange = { expanded = it }
             ) {
-                pages.forEach { page ->
-                    // shadcnCollapsible's header text starts at contentPadding(4dp) +
-                    // "+/-" icon width(12dp) + row gap(8dp) = 24dp from the shared left edge.
-                    // Nested items must indent to at least that point (real shadcn/Radix
-                    // Accordion content aligns under the trigger label) -- the previous 14dp
-                    // start padding put child rows to the *left* of their own group header.
-                    drawUiShowcaseSidebarPageButton(page, selectedPageId, onSelect, startPadding = 24f.dp)
+                shadcnSidebarGroup {
+                    shadcnSidebarMenu {
+                        pages.forEach { page ->
+                            // shadcnCollapsible's header text starts at contentPadding(4dp) +
+                            // "+/-" icon width(12dp) + row gap(8dp) = 24dp from the shared left
+                            // edge. Nested items indent to at least that point (real shadcn/Radix
+                            // Accordion content aligns under the trigger label).
+                            shadcnSidebarMenuItem(
+                                id = "ui-showcase-page-${page.id}",
+                                label = page.title,
+                                active = page.id == selectedPageId,
+                                style = Style { contentPadding(start = 24f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp) },
+                                onClick = { onSelect(page) }
+                            )
+                        }
+                    }
                 }
             }
             spacer(Modifier.height(12f.dp))
         }
-    }
-}
-
-private fun ColumnScope.drawUiShowcaseSidebarPageButton(
-    page: ShowcasePage,
-    selectedPageId: String,
-    onSelect: (ShowcasePage) -> Unit,
-    startPadding: Dp = 14f.dp,
-) {
-    if (
-        shadcnButton(
-            id = "ui-showcase-page-${page.id}",
-            label = page.title,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(36f.dp),
-            style = Style {
-                contentPadding(start = startPadding, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
-            },
-            variant = if (page.id == selectedPageId) {
-                ShadcnButtonVariant.Primary
-            } else {
-                ShadcnButtonVariant.Ghost
-            },
-            centered = false,
-            verticallyCentered = true
-        )
-    ) {
-        onSelect(page)
     }
 }
 

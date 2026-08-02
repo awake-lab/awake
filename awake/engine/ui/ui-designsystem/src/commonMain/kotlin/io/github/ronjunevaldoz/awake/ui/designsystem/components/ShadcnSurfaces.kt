@@ -10,16 +10,23 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
+import io.github.ronjunevaldoz.awake.ui.animateFloat
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
+import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -237,33 +244,62 @@ fun BoxScope.shadcnCard(
 
 /** Own visual style for real shadcn's `Sidebar`: the dedicated sidebar background/border
  * tokens, not routed through [ShadcnSurfaceVariant] -- same "no shared enum" call as
- * [shadcnCard]'s `components.surface`. */
+ * [shadcnCard]'s `components.surface`. Real shadcn's Sidebar has no shape/clip at all (a flush
+ * docked rail, confirmed against `docs/previews/sidebar_expanded_light.png` in the reference
+ * clone) -- unlike [shadcnCard]/[shadcnSurface]'s `radii.xl`, this deliberately applies no
+ * `shape(...)`. A caller that wants a rounded floating-card look (e.g. `samples/starter-game`'s
+ * top-left nav rail, which isn't a docked full-height sidebar) opts in via its own `style`. */
 private fun sidebarStyle(theme: ShadcnResolvedTheme): Style = Style {
     background(theme.sidebar)
     foreground(theme.onSidebar)
     borderWidth(1f.dp)
     borderColor(theme.sidebarBorder)
-    shape(theme.radii.xl)
     contentPadding(theme.metrics.surfacePadding)
+}
+
+/** Target width (dp) [shadcnSidebar] animates toward when [expanded]. Read off the caller's own
+ * `modifier.width(...)` so there's no second `width`-shaped param duplicating what `UiModifier`
+ * already expresses (see `docs/reference/ui-ownership.md`'s modifier-first rule) -- falls back to
+ * shadcn's own 240dp default only when the caller left width unset. */
+private fun UiModifier.sidebarExpandedWidth(): Dp = (widthDimension as? Dimension.Fixed)?.dp ?: 240f.dp
+
+/** Animates [shadcnSidebar]'s width toward 0 when collapsed, matching real shadcn's
+ * `animateDpAsState(if (expanded) width else 0.dp)`. Content itself is gated on the raw
+ * [expanded] boolean (not the animated width) the same way real shadcn's `Box { if
+ * (state.expanded) Column(...) }` does -- content disappears immediately on toggle while the
+ * rail keeps animating shut, rather than laying out at fractional widths mid-animation. */
+private fun UiScope.animatedSidebarWidthModifier(id: String, modifier: UiModifier, expanded: Boolean): UiModifier {
+    val fullWidth = modifier.sidebarExpandedWidth()
+    val animatedWidth = animateFloat("$id.expanded", if (expanded) fullWidth.value else 0f, initial = fullWidth.value)
+    return modifier.width(Dimension.Fixed(Dp(animatedWidth)))
 }
 
 /** Real shadcn's `Sidebar`: a navigation shell with optional header/footer slots around a
  * required, typically scrollable nav [content] area (see `SidebarHeader`/`SidebarContent`/
  * `SidebarFooter`). Header/footer share the same divider convention as [shadcnCard]. Scrolling
  * is wired the same way every other surface in this module wires it: apply
- * `Modifier.verticalScroll(state)` to [modifier], there's no bespoke scroll plumbing here. */
+ * `Modifier.verticalScroll(state)` to [modifier], there's no bespoke scroll plumbing here.
+ *
+ * [expanded] matches real shadcn's `SidebarProvider`/`useSidebar()` expand/collapse state, but
+ * adapted to Awake's own idiom instead of a ported Compose `CompositionLocal` provider (Awake's
+ * UI stack has no `CompositionLocal` equivalent -- see [shadcnCollapsible] for the same
+ * caller-owned-state shape already used elsewhere in this module): the caller hoists a plain
+ * `Boolean` (however it likes -- `rememberStateValue`, a view-model field, ...) and toggles it
+ * from any ordinary `shadcnButton` onClick; there is no dedicated trigger/provider composable
+ * here because a plain button already covers it. */
 fun UiScope.shadcnSidebar(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    expanded: Boolean = true,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds = surface(
     id = id,
-    modifier = modifier,
+    modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
+    content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
 ).toBounds()
 
 /** [shadcnSidebar] override for [ColumnScope]. */
@@ -271,14 +307,15 @@ fun ColumnScope.shadcnSidebar(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    expanded: Boolean = true,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds = surface(
     id = id,
-    modifier = modifier,
+    modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
+    content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
 ).toBounds()
 
 /** [shadcnSidebar] override for [RowScope]. */
@@ -286,14 +323,15 @@ fun RowScope.shadcnSidebar(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    expanded: Boolean = true,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds = surface(
     id = id,
-    modifier = modifier,
+    modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
+    content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
 ).toBounds()
 
 /** [shadcnSidebar] override for [BoxScope]. */
@@ -301,15 +339,92 @@ fun BoxScope.shadcnSidebar(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    expanded: Boolean = true,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds = surface(
     id = id,
-    modifier = modifier,
+    modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
+    content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
 ).toBounds()
+
+/** A labeled section within a [shadcnSidebar]'s body, matching real shadcn's `SidebarGroup`/
+ * `SidebarGroupLabel`. Real shadcn's `SidebarGroup` doesn't itself collapse -- per-category
+ * collapse (what `samples/ui-showcase`'s nav needs) stays layered on top via the existing
+ * [shadcnCollapsible] wrapping this, rather than a second collapse mechanism baked in here. */
+fun ColumnScope.shadcnSidebarGroup(
+    modifier: UiModifier = Modifier,
+    label: String? = null,
+    content: ColumnScope.() -> Unit
+) {
+    column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(ShadcnSpacing.xs)) {
+        if (label != null) {
+            shadcnSupportingText(label)
+        }
+        content()
+    }
+}
+
+/** A vertical list container for [shadcnSidebarMenuItem] entries, matching real shadcn's
+ * `SidebarMenu`. Callers add items as ordinary [shadcnSidebarMenuItem] calls inside [content]
+ * rather than a fixed items-list param, so mixed rendering (e.g. this session's ui-showcase nav
+ * nesting a whole group inside a [shadcnCollapsible]) stays expressible. */
+fun ColumnScope.shadcnSidebarMenu(
+    modifier: UiModifier = Modifier,
+    content: ColumnScope.() -> Unit
+) {
+    column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(ShadcnSpacing.xs)) {
+        content()
+    }
+}
+
+/** One clickable destination inside a [shadcnSidebarMenu], matching real shadcn's
+ * `SidebarMenuItem`. Built on [shadcnButton] rather than a bespoke clickable row -- same
+ * "reuse the existing widget" call as [shadcnCollapsible]'s trigger convenience wrapper. [active]
+ * highlights using the dedicated [ShadcnResolvedTheme.sidebarAccent]/[ShadcnResolvedTheme.onSidebarAccent]
+ * tokens (not the generic `primary`/`accent` tokens shadcn's other selected states use) --
+ * matching real shadcn's own separate sidebar-accent palette entry. [badge] renders as a
+ * trailing [shadcnBadge], e.g. "New". Returns true if clicked this frame. */
+fun ColumnScope.shadcnSidebarMenuItem(
+    id: String,
+    label: String,
+    active: Boolean,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty,
+    badge: String? = null,
+    onClick: () -> Unit = {}
+): Boolean {
+    val resolvedTheme = theme.asShadcnTheme()
+    return shadcnButton(
+        id = id,
+        modifier = modifier.fillMaxWidth().height(36f.dp),
+        variant = ShadcnButtonVariant.Ghost,
+        style = (
+            if (active) {
+                Style {
+                    background(resolvedTheme.sidebarAccent)
+                    foreground(resolvedTheme.onSidebarAccent)
+                }
+            } else {
+                Style.Empty
+            }
+        ) then style,
+        centered = false,
+        verticallyCentered = true,
+        onClick = onClick
+    ) { slot ->
+        row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = UiAlignment.Vertical.Center,
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))
+        ) {
+            shadcnText(label, muted = !active)
+            badge?.let { shadcnBadge(it) }
+        }
+    }
+}
 
 /** Own visual style for real shadcn's `Popover` panel chrome -- the dedicated popover
  * background/border tokens pulled straight off [ShadcnResolvedTheme], not routed through
