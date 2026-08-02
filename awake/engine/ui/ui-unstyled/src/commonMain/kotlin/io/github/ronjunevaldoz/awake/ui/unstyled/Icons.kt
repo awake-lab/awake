@@ -24,4 +24,23 @@ object UiIcons {
             close()
         }
     }
+
+    /** Same triangle as [chevronDown], mirrored vertically -- used for a collapsible/accordion
+     * trigger's expanded state. No rotation support exists for [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.FilledPath]
+     * yet (only [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad]/`RoundedQuad`/`Glyph`/`Texture`
+     * carry a `transform`, see `docs/tasks/2026-08-02-graphicslayer-rotation-scale.md`), so this is a
+     * static direction-swap, not an animated 180-degree rotation of [chevronDown]. */
+    val chevronUp: UiImageVector = uiImageVector(
+        defaultWidth = 10f.dp,
+        defaultHeight = 6f.dp,
+        viewportWidth = 10f,
+        viewportHeight = 6f
+    ) {
+        path {
+            moveTo(0f, 6f)
+            lineTo(10f, 6f)
+            lineTo(5f, 0f)
+            close()
+        }
+    }
 }

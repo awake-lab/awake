@@ -2,24 +2,27 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /**
  * Real shadcn's `Collapsible` (and `Accordion`, a group of these with only one open at a
@@ -76,7 +79,7 @@ fun ColumnScope.shadcnCollapsible(
             id = "$id.header",
             modifier = modifier.fillMaxWidth()
                 .height(32f.dp),
-            variant = UiButtonVariant.Ghost,
+            variant = UiButtonVariant.Outline,
             style = Style {
                 foreground(shadcnTheme.tokens.foreground)
                 contentPadding(4f.dp, 0f.dp)
@@ -88,11 +91,10 @@ fun ColumnScope.shadcnCollapsible(
                 horizontalArrangement = Arrangement.spacedBy(8f.dp),
                 verticalAlignment = UiAlignment.Vertical.Center
             , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))) {
-                 text(
-                     label = if (isOpen) "-" else "+",
+                 icon(
+                     imageVector = if (isOpen) UiIcons.chevronUp else UiIcons.chevronDown,
                      modifier = Modifier.width(12f.dp),
-                     centered = true,
-                     verticallyCentered = true
+                     tint = shadcnTheme.tokens.mutedForeground
                  )
                  header()
             }
