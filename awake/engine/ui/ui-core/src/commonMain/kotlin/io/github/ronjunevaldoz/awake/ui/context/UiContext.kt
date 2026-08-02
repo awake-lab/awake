@@ -492,12 +492,28 @@ class UiContext internal constructor(
     // shadcnCard sizing itself around a nested row's own buttons).
     private var recordingSuppressionDepth = 0
 
+    // Unlike recordingSuppressionDepth above (which deliberately still lets a composite child's
+    // grandchildren dictate an ancestor's WrapContent hugging -- e.g. a card sizing around a
+    // nested row's buttons), a *scroll* viewport's children are a different case entirely: they
+    // are deliberately laid out beyond the viewport's own bounds (that's the whole point of
+    // scrolling) and positioned using the current, ephemeral scroll offset. If those claims were
+    // allowed to reach measuredMaxRight/measuredMaxBottom during a WrapContent ancestor's own
+    // trial-measurement pass, that ancestor's resolved height would swing with the CURRENT
+    // scroll offset every frame -- exactly the "parent container expands on initial scroll, then
+    // fully wraps when scrolled down" live report this depth counter exists to fix. Wrap a
+    // scrollable viewport's own content dispatch with [withMeasuredSubtreeIsolated] so its
+    // children's claims never reach any tracker (max-right/bottom, excluding-fill variants, or
+    // the measuredSlots/measuredWeights lists) -- only the scroll viewport's own already-resolved
+    // slot (recorded separately, before this block runs) should ever count toward an ancestor's
+    // WrapContent size.
+    private var wrapContributionSuppressionDepth = 0
+
     internal fun recordMeasuredSlot(
         slot: UiBounds,
         contributesToWrapWidth: Boolean = true,
         contributesToWrapHeight: Boolean = true
     ) {
-        if (measuring) {
+        if (measuring && wrapContributionSuppressionDepth == 0) {
             measurement.record(
                 slot,
                 contributesToWrapWidth,
@@ -508,14 +524,30 @@ class UiContext internal constructor(
     }
 
     internal fun recordMeasuredWeight(weight: LayoutWeight?) {
-        if (measuring) measurement.recordWeight(weight, contributesToChildList = recordingSuppressionDepth == 0)
+        if (measuring && wrapContributionSuppressionDepth == 0) {
+            measurement.recordWeight(weight, contributesToChildList = recordingSuppressionDepth == 0)
+        }
     }
 
     /** Records whether a just-claimed slot filled the row/column's own main axis -- see
      * [UiMeasuredContent.fillsMainAxis]. */
     internal fun recordMeasuredMainAxisFill(fillsMainAxis: Boolean) {
-        if (measuring) {
+        if (measuring && wrapContributionSuppressionDepth == 0) {
             measurement.recordMainAxisFill(fillsMainAxis, contributesToChildList = recordingSuppressionDepth == 0)
+        }
+    }
+
+    /** See [wrapContributionSuppressionDepth]'s doc comment -- fully isolates [block]'s slot/
+     * weight/main-axis-fill claims from every ancestor WrapContent tracker (not just the
+     * measuredSlots/measuredWeights list [withMeasuredRecordingSuppressed] isolates). Use this
+     * for a scroll viewport's own content dispatch, not ordinary composite widgets -- those
+     * still want their descendants to dictate an ancestor's WrapContent hugging. */
+    internal inline fun <T> withMeasuredSubtreeIsolated(block: () -> T): T {
+        wrapContributionSuppressionDepth++
+        try {
+            return block()
+        } finally {
+            wrapContributionSuppressionDepth--
         }
     }
 

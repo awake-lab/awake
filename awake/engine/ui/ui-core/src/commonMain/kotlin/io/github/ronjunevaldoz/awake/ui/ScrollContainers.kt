@@ -194,8 +194,17 @@ fun UiScope.scrollPanel(
         verticalArrangement = verticalArrangement,
         modifier = UiModifier(testTag = containerLabel),
     )
-    clip(viewport) {
-        contentScope.content(viewport)
+    // The viewport's own already-resolved [slot] (recorded above via claimModifiedSlot) is the
+    // only thing that should ever count toward an ancestor's WrapContent hugging -- these
+    // children are deliberately positioned beyond the viewport using the current scroll offset
+    // (that's the whole point of scrolling), so during a WrapContent ancestor's own trial-
+    // measurement pass their claims must not leak into that ancestor's size, or the ancestor's
+    // resolved height would swing with wherever the scroll thumb currently sits. See
+    // UiContext.withMeasuredSubtreeIsolated's doc comment for the live report this fixes.
+    context.withMeasuredSubtreeIsolated {
+        clip(viewport) {
+            contentScope.content(viewport)
+        }
     }
 
     // Vertical Scrollbar
