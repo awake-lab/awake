@@ -106,6 +106,31 @@ Use these first:
   `TypographyPaddingProbeTest` for the pattern). Keep the probe as permanent regression
   coverage when it proves something worth locking in, delete it when it was purely diagnostic
 
+## Investigating "Extra Space" Reports
+
+A real miss this session: a sidebar spacing complaint was investigated three times (layout
+bounds, paint-level rendering, typography line-height) and all three came back clean, because
+every investigation was framed as "did this change relative to before" — a regression diff.
+The actual cause was two `spacer()` calls that existed unchanged both before and after the
+change under investigation, so a before/after diff correctly reported them as identical and
+moved on. "Unchanged" is not the same as "correct" — a spacer that was always too generous is
+invisible to regression framing no matter how many times you re-measure it.
+
+When investigating a spacing/layout complaint, do both, not just the first:
+
+1. **Regression check** — did this specific change alter the spacing? (before/after `UiBounds`
+   diff, the throwaway-probe idiom above.)
+2. **Absolute check** — is the spacing *right*, independent of whether it changed? Grep the
+   affected file for hardcoded `spacer(...)`/`padding(...)`/fixed `height(...)` literals near
+   the reported area — cheap, and catches exactly this class of longstanding-but-still-wrong
+   gap. Compare the absolute dp value against the shadcn reference (`/tmp/shadcn-compose-ref`
+   or wherever it's cloned) or the token scale (`ShadcnSpacing`/`UiSpacing`) it should be using
+   instead of a hardcoded literal.
+
+A hardcoded spacing literal sitting next to a token-driven layout (`Arrangement.spacedBy(...)`)
+is itself a signal worth flagging even before measuring anything — it's the kind of thing that
+accumulates unnoticed specifically because it never shows up in a diff.
+
 ## Allowed Exceptions
 
 Exceptions must be explicit in the test, not implicit in the UI:
