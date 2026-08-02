@@ -51,15 +51,16 @@ internal fun helloCubeSceneSpec(state: HelloCubeRuntimeState): SceneGameSpec {
         name("hello-cube")
         cameraEntity(
             "camera",
-            transform = { position(6f, 5f, 9f) },
+            transform = { position(0f, 9f, 13f) },
             camera = {
-                // Static, framed to see the whole scene at once: the cube at the origin, the
-                // 10x10 grid ground plane, and the falling box's full drop arc from (3, 6, 3)
-                // down to its resting height near the ground -- the old orbit camera auto-
-                // rotated by default (autoRotateSpeed), which made it hard to actually watch
-                // the physics demo land.
-                eye(6f, 5f, 9f)
-                center(1f, 1f, 1f)
+                // Static, framed to see the whole scene at once. Aimed at (0, 1, 0) -- the
+                // actual center of the 10x10 grid and origin cube, not an arbitrary offset --
+                // and pulled back/up far enough to fit every entity's extent: the falling
+                // box's drop arc up to y=6, and the gltf demo meshes out at roughly x=-6..5,
+                // z=-5..5. The old orbit camera auto-rotated by default (autoRotateSpeed),
+                // which made it hard to watch the physics demo land at all.
+                eye(0f, 9f, 13f)
+                center(0f, 1f, 0f)
                 up(0f, 1f, 0f)
                 perspective(fovYDegrees = 45f, near = 0.1f, far = 100f)
                 primary(true)
