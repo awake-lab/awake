@@ -53,6 +53,12 @@ class UiContext internal constructor(
     fun pushShapeSpec(spec: io.github.ronjunevaldoz.awake.ui.UiShapeSpec?) = stacks.pushShapeSpec(spec)
     fun popShapeSpec() = stacks.popShapeSpec()
 
+    /** See [UiContextStacks.resetForTrial] -- used only by a reused trial [UiContext]
+     * (see [UiContextMeasureState.createMeasureContext]) to seed its theme/font/textStyle before
+     * each trial pass without growing the stacks across reuses. */
+    internal fun resetStacksForTrialInternal(theme: UiTheme, textStyle: TextStyle, font: UiFont) =
+        stacks.resetForTrial(theme, textStyle, font)
+
     /**
      * Resets the context for a new frame. Accepts [UiInputState] to remain
      * decoupled from hardware input modules.

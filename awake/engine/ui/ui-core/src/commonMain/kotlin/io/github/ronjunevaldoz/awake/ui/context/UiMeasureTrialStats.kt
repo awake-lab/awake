@@ -26,14 +26,33 @@ object UiMeasureTrialStats {
     var trialNanos: Long = 0L
         private set
 
+    /** Wall-clock time spent inside [UiContextMeasureState.createMeasureContext]'s own
+     * construction/`beginFrame`/theme-font-textStyle-reset work specifically -- a subset of, not
+     * additional to, [trialNanos] (that work happens at the start of every trial pass). Lets a
+     * profiling test isolate "fixed per-trial setup cost" from "the trial content's own layout
+     * work" instead of guessing at the split; see [UiContextMeasureState.createMeasureContext]'s
+     * doc comment for real measured numbers from this counter. */
+    var contextCtorNanos: Long = 0L
+
     private var depth = 0
     private var outerStart: TimeSource.Monotonic.ValueTimeMark? = null
 
     fun reset() {
         trialCount = 0
         trialNanos = 0L
+        contextCtorNanos = 0L
         depth = 0
         outerStart = null
+    }
+
+    internal inline fun <T> recordCtor(block: () -> T): T {
+        if (!enabled) return block()
+        val start = TimeSource.Monotonic.markNow()
+        try {
+            return block()
+        } finally {
+            contextCtorNanos += start.elapsedNow().inWholeNanoseconds
+        }
     }
 
     internal inline fun <T> record(block: () -> T): T {

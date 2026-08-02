@@ -36,4 +36,22 @@ internal class UiContextStacks {
     fun popShapeSpec() {
         if (shapeStack.size > 1) shapeStack.removeAt(shapeStack.size - 1)
     }
+
+    /**
+     * Resets all four stacks back to a single base entry carrying [theme]/[textStyle]/[font] --
+     * used by a *reused* trial [UiContext] (see [UiContextMeasureState.createMeasureContext])
+     * instead of push/pop, since a trial context that's reused across many trial passes within a
+     * frame is never explicitly popped back to empty the way a real widget's push/pop pair is.
+     * Clearing to size 1 each time keeps the stacks from growing unbounded across reuses while
+     * still handing back exactly the same effective top-of-stack value a fresh
+     * `UiContextStacks()` + one `pushTextStyle`/`pushFont`/`pushTheme` call would have produced
+     * (`TextStyle.Default then style == style`, so resetting directly to [textStyle] instead of
+     * merging onto a fresh `Default` base is behavior-identical -- see `TextStyle.then`).
+     */
+    fun resetForTrial(theme: UiTheme, textStyle: TextStyle, font: UiFont) {
+        themeStack.clear(); themeStack.add(theme)
+        textStyleStack.clear(); textStyleStack.add(textStyle)
+        fontStack.clear(); fontStack.add(font)
+        shapeStack.clear(); shapeStack.add(null)
+    }
 }

@@ -147,12 +147,42 @@ internal class UiContextMeasureState {
         return measureContext.measuredContentSnapshot()
     }
 
-    private fun createMeasureContext(sourceContext: UiContext): UiContext {
+    // Reused across every trial pass issued through this UiContextMeasureState instance -- see
+    // createMeasureContext() below. One UiContextMeasureState instance is owned 1:1 by exactly
+    // one real (or trial) UiContext (via its UiMeasurementRuntime), and
+    // measureRowContent/measureColumnContent always pass that same owning UiContext as
+    // [sourceContext] on every call (UiContext.measureRowContentInternal/
+    // measureColumnContentInternal always pass sourceContext = this) -- so caching one trial
+    // UiContext per UiContextMeasureState instance is exactly scoped to "same owner => same
+    // reusable trial context", with no risk of two different owners sharing one cached instance.
+    // Trial passes never run reentrantly against the same UiContextMeasureState instance either:
+    // nested trials triggered from *within* a trial's own content dispatch through that trial
+    // context's own (separate) UiContextMeasureState, not back through this one.
+    private var cachedMeasureContext: UiContext? = null
+
+    // UiMeasureTrialStats.recordCtor wraps only the construction/beginFrame/stack-reset cost
+    // below (not the trial's own content execution, timed separately by
+    // measureRowContent/measureColumnContent's UiMeasureTrialStats.record) -- a no-op timer
+    // unless UiMeasureTrialStats.enabled, same zero-cost-when-disabled contract as the rest of
+    // that file. Real measured numbers on ui-showcase's Checkout Form page (7,696 trial passes/
+    // frame): pre-cache 4.516ms of ctor cost inside a 48.064ms trial-measure total (~9.4%);
+    // post-cache 1.197ms inside 44.670ms (~2.7%) -- confirms construction/beginFrame/push was a
+    // real but minority cost, not the dominant one (most trial time is the content lambda's own
+    // layout/arrangement/text-measurement work, which this fix does not and cannot touch).
+    private fun createMeasureContext(sourceContext: UiContext): UiContext = UiMeasureTrialStats.recordCtor {
         // Share the real state store rather than a fresh one -- a WrapContent/scroll trial pass
         // re-executes the same content, and any persisted (rememberStateValue) branch inside
         // that content (e.g. "which page is selected") must see the real current value, not
-        // reset to its default. See RepoBugTest for the regression this fixes.
-        val measureContext = UiContext(measuring = true, stateStore = sourceContext.stateStoreInternal())
+        // reset to its default. See WrapContentMeasurementStateTest for the regression this
+        // fixes. Reusing the cached trial UiContext across calls does not weaken this: the cache
+        // is only ever populated with `sourceContext.stateStoreInternal()` the first time, and
+        // sourceContext (hence its state store) is always the same object for every call on this
+        // UiContextMeasureState instance (see the field doc above), so every reuse still reads
+        // the same real, live state store the un-cached code did.
+        val measureContext = cachedMeasureContext ?: UiContext(
+            measuring = true,
+            stateStore = sourceContext.stateStoreInternal()
+        ).also { cachedMeasureContext = it }
         measureContext.beginFrame(
             UiFrameInput(
                 viewportWidth = 100_000f,
@@ -161,9 +191,17 @@ internal class UiContextMeasureState {
                 deltaSeconds = 0f
             )
         )
-        measureContext.pushTextStyle(sourceContext.currentTextStyle)
-        measureContext.pushFont(sourceContext.currentFont)
-        measureContext.pushTheme(sourceContext.currentTheme)
-        return measureContext
+        // Reset (not push) theme/font/textStyle -- this context is reused across many trial
+        // passes within (and across) frames, and is never explicitly popped back to empty the
+        // way a real widget's push/pop pair is, so pushing every call would grow the stacks
+        // unboundedly. See UiContextStacks.resetForTrial's doc for why resetting directly to
+        // sourceContext's current values is behavior-identical to the old fresh-context
+        // push-once sequence.
+        measureContext.resetStacksForTrialInternal(
+            theme = sourceContext.currentTheme,
+            textStyle = sourceContext.currentTextStyle,
+            font = sourceContext.currentFont
+        )
+        measureContext
     }
 }

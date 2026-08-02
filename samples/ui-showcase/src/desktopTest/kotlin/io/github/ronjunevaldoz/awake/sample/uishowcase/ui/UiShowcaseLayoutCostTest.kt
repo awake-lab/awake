@@ -61,14 +61,15 @@ class UiShowcaseLayoutCostTest {
         val totalNanos: Long,
         val trialNanos: Long,
         val trialCount: Int,
-        val primitiveCount: Int
+        val primitiveCount: Int,
+        val ctorNanos: Long = 0L
     ) {
         fun describe(label: String): String {
             val totalMs = totalNanos / 1_000_000.0
             val trialMs = trialNanos / 1_000_000.0
             val trialPct = if (totalNanos > 0) (trialNanos * 100.0 / totalNanos) else 0.0
-            return "  $label: total=%.3fms trial-measure=%.3fms (%.1f%%, %d passes) primitives=%d"
-                .format(totalMs, trialMs, trialPct, trialCount, primitiveCount)
+            return "  $label: total=%.3fms trial-measure=%.3fms (%.1f%%, %d passes) primitives=%d ctor=%.3fms"
+                .format(totalMs, trialMs, trialPct, trialCount, primitiveCount, ctorNanos / 1_000_000.0)
         }
     }
 
@@ -100,6 +101,7 @@ class UiShowcaseLayoutCostTest {
             var trialNanos = 0L
             var trialCount = 0
             var primitiveCount = 0
+            var ctorNanos = 0L
 
             repeat(warmupFrames + measuredFrames) { frameIndex ->
                 val measured = frameIndex >= warmupFrames
@@ -127,6 +129,7 @@ class UiShowcaseLayoutCostTest {
                     trialNanos += UiMeasureTrialStats.trialNanos
                     trialCount += UiMeasureTrialStats.trialCount
                     primitiveCount = primitives.size
+                    ctorNanos += UiMeasureTrialStats.contextCtorNanos
                     UiMeasureTrialStats.enabled = false
                     UiMeasureTrialStats.reset()
                 }
@@ -136,7 +139,8 @@ class UiShowcaseLayoutCostTest {
                 totalNanos = totalNanos / measuredFrames,
                 trialNanos = trialNanos / measuredFrames,
                 trialCount = trialCount / measuredFrames,
-                primitiveCount = primitiveCount
+                primitiveCount = primitiveCount,
+                ctorNanos = ctorNanos / measuredFrames
             )
         } finally {
             UiDensity.scale = previousScale
