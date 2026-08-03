@@ -120,14 +120,55 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 // require(glyphs.size <= MAX_UI_QUADS) guard and throw.
                 @Suppress("UNCHECKED_CAST")
                 val glyphSlice = slice as List<UiDrawPrimitive.Glyph>
-                var chunkStart = 0
-                while (chunkStart < glyphSlice.size) {
-                    val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, glyphSlice.size)
-                    val mesh = glyphMeshForRun(glyphRunCount)
-                    stageGlyphRun(mesh, glyphSlice.subList(chunkStart, chunkEnd), activePathClips)
-                    runs += Renderer.UiRun.GlyphRun(mesh)
-                    glyphRunCount += 1
-                    chunkStart = chunkEnd
+                if (canExactClip(activePathClips)) {
+                    // Clipping a glyph quad against a convex path can add vertices beyond the
+                    // fixed 4-per-glyph the fast path below assumes -- chunking by raw glyph
+                    // count alone can overflow DynamicMesh capacity once enough glyphs land
+                    // inside a clipped/rounded surface. Clip once, then bin into chunks by the
+                    // actual resulting vertex/index budget instead of glyph count. Mirrors the
+                    // identical fix on Vulkan's RendererDrawUi.kt.
+                    val clipped = glyphSlice.map { glyph ->
+                        exactClip(
+                            texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1),
+                            activePathClips
+                        ) to glyph.color
+                    }
+                    val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
+                    val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
+                    var chunk = mutableListOf<Pair<UiTexturedTriangleMesh, AwakeColor>>()
+                    var chunkVertices = 0
+                    var chunkIndices = 0
+                    fun flushChunk() {
+                        if (chunk.isEmpty()) return
+                        val mesh = glyphMeshForRun(glyphRunCount)
+                        stageTexturedTriangleMeshes(mesh, chunk, "glyph")
+                        runs += Renderer.UiRun.GlyphRun(mesh)
+                        glyphRunCount += 1
+                        chunk = mutableListOf()
+                        chunkVertices = 0
+                        chunkIndices = 0
+                    }
+                    for (pair in clipped) {
+                        val vertexCount = pair.first.vertices.size
+                        val indexCount = pair.first.indices.size
+                        if (chunk.isNotEmpty() && (chunkVertices + vertexCount > maxVertices || chunkIndices + indexCount > maxIndices)) {
+                            flushChunk()
+                        }
+                        chunk += pair
+                        chunkVertices += vertexCount
+                        chunkIndices += indexCount
+                    }
+                    flushChunk()
+                } else {
+                    var chunkStart = 0
+                    while (chunkStart < glyphSlice.size) {
+                        val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, glyphSlice.size)
+                        val mesh = glyphMeshForRun(glyphRunCount)
+                        stageGlyphRun(mesh, glyphSlice.subList(chunkStart, chunkEnd), activePathClips)
+                        runs += Renderer.UiRun.GlyphRun(mesh)
+                        glyphRunCount += 1
+                        chunkStart = chunkEnd
+                    }
                 }
             }
             is UiDrawPrimitive.Texture -> {
