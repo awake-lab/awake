@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.gradle.api.tasks.JavaExec
-import java.util.Base64
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -12,6 +11,7 @@ plugins {
     id("awake.detekt-convention")
     id("awake.spotless-convention")
     id("awake.ui-authored-units-convention")
+    id("awake.ui-preview-report-convention")
 }
 
 kotlin {
@@ -130,23 +130,8 @@ kotlin {
     }
 }
 
-tasks.named<Test>("desktopTest") {
-    doFirst {
-        delete(layout.buildDirectory.dir("ui-previews"))
-        delete(layout.buildDirectory.dir("reports/ui-previews"))
-    }
-    // project.rootDir is the *build's* root (repo root), not this subproject's directory --
-    // using it here silently pointed every snapshot read/write at a `snapshots/` folder outside
-    // this module (git-untracked, never committed), so `loadAwakeUiSnapshot` always missed and
-    // `verifyAwakeUiPreview` always fell into its "no baseline yet" auto-record-and-pass branch --
-    // the gate never actually failed a build. project.projectDir is this subproject's own
-    // directory, matching the pre-existing checked-in samples/ui-showcase/snapshots/ui/*.png.
-    systemProperty("AWAKE_SNAPSHOT_ROOT", project.projectDir.absolutePath)
-    // `-DAWAKE_RECORD_SNAPSHOTS=true` on the Gradle CLI only sets the property on Gradle's own
-    // JVM -- desktopTest runs in a forked test JVM, so forward it explicitly (same convention
-    // ShadcnParityScreenshotTest/UiShowcasePreviewDocsTest already read via System.getProperty).
-    System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.let { systemProperty("AWAKE_RECORD_SNAPSHOTS", it) }
-    finalizedBy("uiShowcasePreviewReport")
+tasks.named<UiPreviewReportTask>("uiPreviewReport") {
+    reportTitle.set("Awake UI Showcase Previews")
 }
 
 val desktopNativeLibDir = project(":awake:backend:vulkan").layout.buildDirectory.dir("desktop-native-libs")
@@ -187,98 +172,3 @@ tasks.register("validateUiShowcasePlatforms") {
     )
 }
 
-tasks.register("uiShowcasePreviewReport") {
-    group = "documentation"
-    description = "Generate an HTML gallery for the Awake UI showcase previews."
-    val previewsDir = layout.buildDirectory.dir("ui-previews")
-    val manifestFile = layout.buildDirectory.file("ui-previews/previews.tsv")
-    val reportFile = layout.buildDirectory.file("reports/ui-previews/index.html")
-    doLast {
-        val root = previewsDir.get().asFile
-        val manifest = manifestFile.get().asFile
-        val previews = if (manifest.exists()) {
-            manifest.readLines()
-                .filter { it.isNotBlank() }
-                .mapNotNull { line ->
-                    val columns = line.split('\t')
-                    if (columns.size < 7) null else columns
-                }
-                .sortedWith(compareBy({ it[2] }, { it[0] }))
-        } else {
-            emptyList()
-        }
-
-        fun escapeHtml(value: String): String = buildString(value.length) {
-            value.forEach { char ->
-                append(
-                    when (char) {
-                        '&' -> "&amp;"
-                        '<' -> "&lt;"
-                        '>' -> "&gt;"
-                        '"' -> "&quot;"
-                        else -> char
-                    }
-                )
-            }
-        }
-
-        val cards = previews.joinToString("\n") { columns ->
-            val id = columns[0]
-            val title = columns[1]
-            val group = columns[2].ifBlank { "General" }
-            val summary = columns[3]
-            val width = columns[4]
-            val height = columns[5]
-            val reportScale = columns[6].toIntOrNull()?.coerceAtLeast(1) ?: 1
-            val png = root.resolve("$id.png")
-            val image = if (png.exists()) {
-                val base64 = Base64.getEncoder().encodeToString(png.readBytes())
-                """<img src="data:image/png;base64,$base64" alt="${escapeHtml(title)}" width="${escapeHtml(width)}" height="${escapeHtml(height)}" style="display:block;border:1px solid #2f2f2f;border-radius:12px;max-width:100%;width:min(100%, ${escapeHtml(width)}px);height:auto" />"""
-            } else {
-                """<p style="color:#f88">Missing preview image: ${escapeHtml(id)}.png</p>"""
-            }
-            """
-            <article style="display:grid;gap:1rem;margin:0 0 1.5rem 0;padding:1.25rem;border:1px solid #262626;border-radius:16px;background:#09090b">
-                <div>
-                    <p style="margin:0 0 0.35rem 0;color:#a1a1aa;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em">${escapeHtml(group)}</p>
-                    <h2 style="margin:0 0 0.5rem 0">${escapeHtml(title)}</h2>
-                    <p style="margin:0 0 0.5rem 0;color:#d4d4d8">${escapeHtml(summary)}</p>
-                    <p style="margin:0;color:#71717a;font-size:0.9rem">${escapeHtml(width)}x${escapeHtml(height)}${if (reportScale > 1) " @ ${reportScale}x export" else ""}</p>
-                </div>
-                $image
-            </article>
-            """.trimIndent()
-        }
-
-        val body = if (cards.isBlank()) {
-            """
-            <p>No previews recorded yet.</p>
-            <p>Run <code>./gradlew :samples:ui-showcase:desktopTest</code> to regenerate them.</p>
-            """.trimIndent()
-        } else {
-            """
-            <p style="color:#d4d4d8">Curated Awake preview entries for the shadcn-style showcase. Each card is generated from executable desktop tests, so docs and rendering stay in sync.</p>
-            $cards
-            """.trimIndent()
-        }
-
-        val html = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <title>Awake UI Showcase Previews</title>
-            </head>
-            <body style="font-family:Inter,system-ui,sans-serif;background:#020617;color:#fafafa;padding:2rem;max-width:1080px;margin:0 auto">
-                <h1 style="margin-top:0">Awake UI Showcase Previews</h1>
-                $body
-            </body>
-            </html>
-        """.trimIndent()
-
-        val out = reportFile.get().asFile
-        out.parentFile.mkdirs()
-        out.writeText(html)
-        println("UI showcase preview report: file://${out.absolutePath}")
-    }
-}
