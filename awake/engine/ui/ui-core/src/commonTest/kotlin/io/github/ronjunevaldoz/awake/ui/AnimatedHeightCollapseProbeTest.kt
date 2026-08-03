@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -58,5 +59,47 @@ class AnimatedHeightCollapseProbeTest {
         // fixed frame count, only asymptotically approaching it -- 30 frames at the default
         // responsiveness=12f already gets well under 1px, which is the real thing that matters.
         check(heights.last() < 1f) { "collapse did not converge toward 0 within 30 frames: $heights" }
+    }
+
+    @Test
+    fun collapseConvergesQuicklyAtShadcnCollapsibleRealResponsiveness() {
+        // Regression for the live "extra space lingers, then suddenly clears" report:
+        // animatedHeight's old default snapDistance (0.001px, a fixed absolute epsilon) meant
+        // convergence time scaled with ln(startHeight), so shadcnCollapsible's real
+        // responsiveness=8f + a real 120px content height took ~70 frames (~1.2s) to cross the
+        // render gate (animatedHeight > 0.01f) even though content itself was fully clipped
+        // away and invisible after ~10 frames. This asserts the fixed slot returns null (fully
+        // collapsed, matching the container's real render-gate check) well before that.
+        val ui = UiContext()
+        var expanded = true
+
+        fun frame(): UiBounds? {
+            ui.beginFrame(400f, 800f, testSnapshot())
+            val slot = ui.createColumn(x = 0f, y = 0f, width = 300f).animatedHeight(
+                id = "shadcn-collapsible-probe",
+                expanded = expanded,
+                responsiveness = 8f // shadcnCollapsible's real value, not animatedHeight's 12f default.
+            ) {
+                spacer(Modifier.height(120f.dp))
+            }
+            ui.endFrame()
+            return slot
+        }
+
+        repeat(60) { frame() }
+        expanded = false
+
+        var framesToFullyCollapse = -1
+        repeat(50) { i ->
+            val slot = frame()
+            if (framesToFullyCollapse < 0 && slot == null) {
+                framesToFullyCollapse = i
+            }
+        }
+
+        check(framesToFullyCollapse in 0..40) {
+            "expected shadcnCollapsible's real 120px/responsiveness=8f collapse to fully clip " +
+                "within 40 frames (was ~70 before the snapDistance fix), took $framesToFullyCollapse"
+        }
     }
 }
