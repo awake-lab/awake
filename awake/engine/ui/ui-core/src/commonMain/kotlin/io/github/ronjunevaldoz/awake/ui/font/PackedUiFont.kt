@@ -39,8 +39,23 @@ class PackedUiFont internal constructor(
 
     override fun uvFor(char: Char): GlyphRect? = glyphsByChar[char] ?: glyphsByChar[data.fallbackChar]
 
-    override fun advanceFor(char: Char, glyphPx: Float): Float =
-        glyphPx * (advancesByChar[char] ?: advancesByChar[data.fallbackChar] ?: 1f)
+    /**
+     * The embedded Roboto data's declared advance is supposed to trail the glyph's own quad
+     * right edge (`offsetXEm + widthEm`) by only "a few percent" (see [measureTextWidth]'s
+     * doc), just enough that the *next* glyph's quad redraws over the sliver of overhang.
+     * In practice several common letters ('t', 'r', 'f', 'k', ...) declare an advance
+     * 20-40% narrower than their own ink -- e.g. 'f' overhangs by 42% of its advance width --
+     * which at real UI text sizes reads as adjacent glyphs visibly touching/merging (the
+     * per-character misalignment this was reported as). Clamping the pen step to never be
+     * smaller than the glyph's own right edge keeps every glyph's ink inside its own advance,
+     * eliminating the collision while leaving glyphs with correctly-tight metrics untouched.
+     */
+    override fun advanceFor(char: Char, glyphPx: Float): Float {
+        val advanceEm = advancesByChar[char] ?: advancesByChar[data.fallbackChar] ?: 1f
+        val glyph = glyphsByChar[char] ?: glyphsByChar[data.fallbackChar]
+        val rightEdgeEm = if (glyph != null) glyph.offsetXEm + glyph.widthEm else 0f
+        return glyphPx * maxOf(advanceEm, rightEdgeEm)
+    }
 
     private fun decodeAtlasPixels(): ByteArray {
         val normalizedBase64 = data.encodedAlphaBase64.filterNot(Char::isWhitespace)

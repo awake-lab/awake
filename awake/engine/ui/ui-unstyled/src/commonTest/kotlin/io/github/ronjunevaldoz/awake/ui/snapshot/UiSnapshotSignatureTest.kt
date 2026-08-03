@@ -67,26 +67,31 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
     return hash
 }
 
+// 2026-08-03: PackedUiFont.advanceFor() now clamps the pen step to the glyph's own quad right
+// edge (see PackedUiFont.kt) -- the embedded Roboto data declared several letters' advances up
+// to 42% narrower than their own ink, which rendered as adjacent glyphs visibly touching/merging
+// at real UI text sizes. Every text-bearing scene's rasterized pixels shifted as a result, so
+// every signature below was re-recorded against the fixed, non-overlapping glyph spacing.
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0x388cb5c4aece7c3euL,
-    "toggle-checked" to 0xa9ed4b0c614cd5fduL,
-    "button-filled" to 0x0d0e346a89b128ebuL,
-    "button-outline" to 0x8b7771db93b66c88uL,
-    "button-ghost" to 0x0d0e346a89b128ebuL,
-    "theme-dark" to 0x0d0e346a89b128ebuL,
-    "theme-light" to 0xb1b12af74057ca57uL,
-    "panel-with-children" to 0x3cad1f48edd5edd7uL,
-    "shadcn-field-error" to 0xacb367d4fa4bee46uL
+    "toggle-unchecked" to 0x93f3c9c7f86dc7e6uL,
+    "toggle-checked" to 0x248c5758ceb019f9uL,
+    "button-filled" to 0xa9d6aab03ea5efebuL,
+    "button-outline" to 0x2d17580f713d10d8uL,
+    "button-ghost" to 0xa9d6aab03ea5efebuL,
+    "theme-dark" to 0xa9d6aab03ea5efebuL,
+    "theme-light" to 0x477edd757ade548buL,
+    "panel-with-children" to 0x571a361d85f32e67uL,
+    "shadcn-field-error" to 0x2661959fe977c56euL
 )
 
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0xf3992fdfc39afa0cuL,
-    "ui-shaped-panel" to 0x0b3b98a1f52a409fuL,
-    "ui-panel-controls" to 0xe8db207ab2c39d11uL,
-    "ui-alert-dialog" to 0x33478bacc04c56f0uL,
-    "ui-component-state-matrix" to 0xef2873ddf28087c9uL,
-    "ui-rounded-clip-vector" to 0xb1499bdec8e1e4a7uL,
-    "ui-awake-shadcn-showcase" to 0xc0712b7704f3f194uL
+    "ui-button-variants" to 0x19fd8e6a9fff7bcbuL,
+    "ui-shaped-panel" to 0xc7edba140939cfffuL,
+    "ui-panel-controls" to 0x844f286cb71fbb8buL,
+    "ui-alert-dialog" to 0xa61a89d522f968c1uL,
+    "ui-component-state-matrix" to 0x00e16c92cd1cf29fuL,
+    "ui-rounded-clip-vector" to 0x6252fcda705461c1uL,
+    "ui-awake-shadcn-showcase" to 0x83e0b9359aabc803uL
 )
 
 private fun ULong.toHexString(): String {
