@@ -15,6 +15,11 @@ internal fun scene3DPlaygroundModule(): GameModule {
     return gameModule {
         ui {
             overlay {
+                // Always on for this playground -- unlike ui-showcase (a UI catalog where the
+                // F3 perf HUD is opt-in debug info), frame stats are core to what a 3D demo
+                // playground is for, not something to hunt for behind a hidden key binding.
+                debugOverlayEnabled = true
+
                 // Only [RotatingCubeDemo] currently has real 3D geometry to submit through
                 // [io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime.provideDrawCalls] --
                 // gated on it being the active demo so its cube/grid don't keep drawing (and
