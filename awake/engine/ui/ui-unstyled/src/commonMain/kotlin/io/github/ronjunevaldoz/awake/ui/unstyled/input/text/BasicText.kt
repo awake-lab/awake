@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.util.LruCache
 
 /** Draws [label] as a row of glyph quads. */
 enum class UiTextWrap {
@@ -46,14 +47,14 @@ internal fun UiScope.renderTextBlock(
     shimmer: Boolean = false
 ) : UiBounds {
     val glyphPx = resolveGlyphPx(font, textStyle)
-    val layout = layoutBitmapText(
+    val layout = cachedLayoutBitmapText(
         label = label,
         glyphPx = glyphPx,
         maxWidthPx = slot.width,
         wrap = wrap,
         overflow = overflow,
         maxLines = maxLines,
-        advanceOf = { char -> font.advanceFor(char, glyphPx) }
+        font = font
     )
     val lineGap = glyphPx * 0.25f
     val blockMetrics = measureTextBlock(layout, font, glyphPx, lineGap)
@@ -211,6 +212,54 @@ private fun resolveTextContentBounds(
         width = (right - left).coerceAtLeast(0f),
         height = blockHeight.coerceAtLeast(0f)
     ).toSlot()
+}
+
+/**
+ * Memoizes [layoutBitmapText] for [renderTextBlock]'s call shape specifically (the one call site
+ * with direct access to a [UiFont] rather than an opaque `advanceOf` closure). Pure function of
+ * its parameters -- see docs/tasks/2026-08-03-text-layout-measure-cache.md -- so a plain
+ * process-lifetime LRU is safe: no closures, no state reads, no per-`UiContext`/per-frame lifetime
+ * needed. Bounded so unbounded/dynamic `label`s (text field input, live counters) can't grow this
+ * without limit; those naturally miss every frame anyway since their key changes every frame.
+ *
+ * Relies on [UiFont] instances being stable/shared across callers asking for "the same" font
+ * (true for `UiFonts.default()` since it was memoized per `cellSize` -- see commit `3f51404a`);
+ * a `UiFont` implementation that hands out a fresh instance per call would silently defeat this
+ * cache (safe, just a permanent miss, not a correctness bug).
+ */
+private data class TextLayoutCacheKey(
+    val label: String,
+    val glyphPx: Float,
+    val maxWidthPx: Float,
+    val wrap: UiTextWrap,
+    val overflow: UiTextOverflow,
+    val maxLines: Int,
+    val font: UiFont
+)
+
+private val textLayoutCache = LruCache<TextLayoutCacheKey, UiBitmapTextLayout>(maxSize = 256)
+
+private fun cachedLayoutBitmapText(
+    label: String,
+    glyphPx: Float,
+    maxWidthPx: Float,
+    wrap: UiTextWrap,
+    overflow: UiTextOverflow,
+    maxLines: Int,
+    font: UiFont
+): UiBitmapTextLayout {
+    val key = TextLayoutCacheKey(label, glyphPx, maxWidthPx, wrap, overflow, maxLines, font)
+    return textLayoutCache.getOrPut(key) {
+        layoutBitmapText(
+            label = label,
+            glyphPx = glyphPx,
+            maxWidthPx = maxWidthPx,
+            wrap = wrap,
+            overflow = overflow,
+            maxLines = maxLines,
+            advanceOf = { char -> font.advanceFor(char, glyphPx) }
+        )
+    }
 }
 
 data class UiBitmapTextLayout(
