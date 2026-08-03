@@ -163,16 +163,19 @@ private fun CanvasScope.drawShowcaseCanvasScene() {
         height = 56f,
         gradient = headerGradient
     )
+    // Header title/subtitle need a baseline gap of roughly one glyph height (~28px at this
+    // preview's 2x density body size) to not overlap -- the old 16px gap (18 -> 34) was
+    // smaller than the glyph height itself, so the subtitle painted right through the title.
     drawText(
         text = "Canvas",
         x = 20f,
-        y = 18f,
+        y = 8f,
         color = tokens.foreground
     )
     drawText(
         text = "Local drawing inside a surfaced slot",
         x = 20f,
-        y = 34f,
+        y = 48f,
         color = tokens.mutedForeground
     )
 
@@ -186,24 +189,26 @@ private fun CanvasScope.drawShowcaseCanvasScene() {
         borderWidth = 1f.dp,
         borderColor = tokens.border
     )
-    drawText("Shapes", x = 34f, y = 94f, color = tokens.foreground)
+    // "Shapes" label moved closer to the box's top edge (94 -> 88) and every shape below it
+    // shifted down by 12px so the label's own glyph height no longer overlaps the circle.
+    drawText("Shapes", x = 34f, y = 88f, color = tokens.foreground)
     drawLine(
         startX = 34f,
-        startY = 152f,
+        startY = 164f,
         endX = 126f,
-        endY = 112f,
+        endY = 124f,
         color = tokens.primary
     )
     drawCircle(
         x = 38f,
-        y = 110f,
+        y = 122f,
         diameter = 22f,
         color = tokens.primary.withAlpha(0.85f)
     )
     drawShape(
         shape = UiShapeSpec.CutCorner(10f.dp),
         x = 84f,
-        y = 106f,
+        y = 118f,
         width = 46f,
         height = 30f,
         color = tokens.secondary.withAlpha(0.88f),
@@ -212,9 +217,9 @@ private fun CanvasScope.drawShowcaseCanvasScene() {
     )
     fillPath(
         path = uiPath(fillRule = UiFillRule.NonZero) {
-            moveTo(42f, 166f)
-            lineTo(66f, 138f)
-            lineTo(92f, 166f)
+            moveTo(42f, 178f)
+            lineTo(66f, 150f)
+            lineTo(92f, 178f)
             close()
         },
         color = tokens.accent.withAlpha(0.82f)
@@ -234,8 +239,10 @@ private fun CanvasScope.drawShowcaseCanvasScene() {
             height = 82f,
             gradient = badgeGradient
         )
-        drawText("HUD", x = 21f, y = 31f, color = Color.White)
-        drawText("ART", x = 23f, y = 49f, color = Color.White)
+        // Same too-tight baseline gap as the header title/subtitle above (18px, smaller than
+        // the ~28px glyph height at this density) -- widened so "ART" doesn't paint through "HUD".
+        drawText("HUD", x = 21f, y = 20f, color = Color.White)
+        drawText("ART", x = 23f, y = 48f, color = Color.White)
     }
 
     nested(

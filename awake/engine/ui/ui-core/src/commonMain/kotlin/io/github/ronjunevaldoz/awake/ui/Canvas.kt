@@ -297,11 +297,17 @@ class CanvasScope internal constructor(
         content: CanvasScope.() -> Unit
     ) {
         if (width <= 0f || height <= 0f) return
+        val clipRect = UiBounds(bounds.x + x, bounds.y + y, width, height)
         scope.clip(
             shape = shape,
-            rect = UiBounds(bounds.x + x, bounds.y + y, width, height)
+            rect = clipRect
         ) {
-            CanvasScope(this, this@CanvasScope.bounds).content()
+            // Must match [nested]'s local-coordinate-frame translation: the clip mask is
+            // anchored at [clipRect], but the old code re-based the inner CanvasScope on the
+            // *outer*, untranslated bounds -- content drawn at its own local (0, 0) landed at
+            // the outer canvas's top-left corner, entirely outside the (x, y)-offset clip mask,
+            // so every clipShape { ... } block silently clipped its own content away to nothing.
+            CanvasScope(this, clipRect).content()
         }
     }
 }
