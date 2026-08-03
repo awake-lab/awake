@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.math.PI
@@ -44,7 +44,7 @@ import kotlin.math.sin
  */
 internal object RotatingCubeDemo {
     private var orbitDegrees = 35f
-    private var pitchDegrees = 70f
+    private var pitchDegrees = 45f
     private var zoom = 6f
     private var near = 0.1f
     private var far = 100f
@@ -80,17 +80,17 @@ internal object RotatingCubeDemo {
             // lays out a center pane for it; the demo has nothing UI-authored to put here.
         },
         renderControls = {
-            orbitDegrees = shadcnSlider(id = "cube-orbit", min = 0f, max = 360f, value = orbitDegrees, label = "Orbit")
-            pitchDegrees = shadcnSlider(id = "cube-pitch", min = 0f, max = 89f, value = pitchDegrees, label = "Pitch")
-            zoom = shadcnSlider(id = "cube-zoom", min = 2f, max = 15f, value = zoom, label = "Zoom")
-            rollDegrees = shadcnSlider(id = "cube-roll", min = -180f, max = 180f, value = rollDegrees, label = "Roll")
-            near = shadcnSlider(id = "cube-near", min = 0.01f, max = 5f, value = near, label = "Near")
-            far = shadcnSlider(id = "cube-far", min = 10f, max = 500f, value = far, label = "Far")
-            fovDegrees = shadcnSlider(id = "cube-fov", min = 10f, max = 120f, value = fovDegrees, label = "FOV")
+            orbitDegrees = shadcnFieldSliderWithValue(id = "cube-orbit", label = "Orbit", min = 0f, max = 360f, value = orbitDegrees)
+            pitchDegrees = shadcnFieldSliderWithValue(id = "cube-pitch", label = "Pitch", min = 0f, max = 89f, value = pitchDegrees)
+            zoom = shadcnFieldSliderWithValue(id = "cube-zoom", label = "Zoom", min = 2f, max = 15f, value = zoom)
+            rollDegrees = shadcnFieldSliderWithValue(id = "cube-roll", label = "Roll", min = -180f, max = 180f, value = rollDegrees)
+            near = shadcnFieldSliderWithValue(id = "cube-near", label = "Near", min = 0.01f, max = 5f, value = near)
+            far = shadcnFieldSliderWithValue(id = "cube-far", label = "Far", min = 10f, max = 500f, value = far)
+            fovDegrees = shadcnFieldSliderWithValue(id = "cube-fov", label = "FOV", min = 10f, max = 120f, value = fovDegrees)
             lockTarget = shadcnSwitch(id = "cube-lock-target", checked = lockTarget, label = "Lock target")
-            panX = shadcnSlider(id = "cube-pan-x", min = -5f, max = 5f, value = panX, label = "Pan X", enabled = !lockTarget)
-            panZ = shadcnSlider(id = "cube-pan-z", min = -5f, max = 5f, value = panZ, label = "Pan Z", enabled = !lockTarget)
-            elevation = shadcnSlider(id = "cube-elevation", min = -3f, max = 5f, value = elevation, label = "Elevation", enabled = !lockTarget)
+            panX = shadcnFieldSliderWithValue(id = "cube-pan-x", label = "Pan X", min = -5f, max = 5f, value = panX, enabled = !lockTarget)
+            panZ = shadcnFieldSliderWithValue(id = "cube-pan-z", label = "Pan Z", min = -5f, max = 5f, value = panZ, enabled = !lockTarget)
+            elevation = shadcnFieldSliderWithValue(id = "cube-elevation", label = "Elevation", min = -3f, max = 5f, value = elevation, enabled = !lockTarget)
             wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
             text(label = "Cube spins automatically; sliders move the camera (Pitch 0 = side-on, 89 = top-down).")
         }
