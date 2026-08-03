@@ -43,16 +43,16 @@ import kotlin.math.sin
  * only once a slider is dragged.
  */
 internal object RotatingCubeDemo {
-    private var orbitDegrees = 35f
-    private var pitchDegrees = 45f
-    private var zoom = 6f
+    private var orbitDegrees = 0f
+    private var pitchDegrees = 0f
+    private var zoom = 15f
     private var near = 0.1f
     private var far = 100f
     private var fovDegrees = 45f
     private var rollDegrees = 0f
     private var panX = 0f
     private var panZ = 0f
-    private var elevation = 0.5f
+    private var elevation = 2.2f
     private var lockTarget = false
     private var wireframe = false
     private var spinRadians = 0f
