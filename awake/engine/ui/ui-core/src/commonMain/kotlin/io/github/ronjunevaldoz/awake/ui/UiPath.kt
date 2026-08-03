@@ -413,6 +413,105 @@ fun UiPath.tessellateFill(): UiTriangleMesh {
     return UiTriangleMesh(points, indices.toIntArray())
 }
 
+/** Default AA fringe width in pixels for [tessellateFillAa] -- ~1px matches the rounded-quad
+ * SDF pipeline's smoothstep band (see `ui_rounded_quad.frag`/`.wgsl`'s `smoothstep(-1.0, 1.0,
+ * dist)`), so a plain [UiPath] fill's diagonal/curved edges get a comparable amount of
+ * softening to what [UiDrawPrimitive.RoundedQuad] already gets for free from its SDF. */
+private const val AA_FRINGE_PX = 1f
+
+/**
+ * Antialiased sibling of [tessellateFill] -- identical interior centroid-fan triangulation,
+ * plus a thin (~1px) "fringe" ring of triangles along each contour's boundary whose OUTER
+ * edge fades [color]'s alpha to 0. This is the standard vector-graphics AA technique used by
+ * e.g. NanoVG ("feathering"): a solid interior plus a soft ~1px border, blended through the UI
+ * quad pipeline's EXISTING src-alpha/one-minus-src-alpha blend state
+ * ([io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline]'s `blendEnable = true`, mirrored
+ * on WebGPU) -- gives every diagonal/curved [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+ * .FilledPath] edge (e.g. the dropdown chevron icon) real antialiasing with zero new render
+ * pass, framebuffer attachment, or per-pipeline multisample state. A general MSAA setup would
+ * touch the shared swapchain/offscreen render pass AND every pipeline in both backends just to
+ * fix hard triangle edges on an already-flat-shaded 2D overlay -- not worth it here.
+ *
+ * Returns [UiColoredTriangleMesh] (not the plain [UiTriangleMesh] [tessellateFill] returns)
+ * since the fringe ring needs a PER-VERTEX alpha, not one flat color for the whole mesh. Both
+ * backends already have the plumbing for this from [UiDrawPrimitive.GradientQuad]'s exact-clip
+ * path ([clipToConvexPaths] on [UiColoredTriangleMesh], `stageColoredVertexTriangleMeshes`) --
+ * this only reuses it, it adds no new backend machinery.
+ */
+fun UiPath.tessellateFillAa(color: Color, fringePx: Float = AA_FRINGE_PX): UiColoredTriangleMesh {
+    val contours = flattenContours()
+    if (contours.isEmpty()) return UiColoredTriangleMesh(emptyList(), IntArray(0))
+
+    val vertices = ArrayList<UiColoredVertex>()
+    val indices = ArrayList<Int>()
+    val transparent = color.withAlpha(0f)
+
+    contours.forEach { contour ->
+        val polygon = contour.points
+        if (polygon.size < 3) return@forEach
+
+        // Interior fan -- same centroid-fan shape as tessellateFill (see its doc comment for
+        // why centroid, not vertex 0), full-alpha color throughout.
+        var centroidX = 0f
+        var centroidY = 0f
+        polygon.forEach { centroidX += it.x; centroidY += it.y }
+        centroidX /= polygon.size
+        centroidY /= polygon.size
+
+        val fanBase = vertices.size
+        vertices += UiColoredVertex(UiPoint(centroidX, centroidY), color)
+        polygon.forEach { vertices += UiColoredVertex(it, color) }
+        for (i in polygon.indices) {
+            indices += fanBase
+            indices += fanBase + 1 + i
+            indices += fanBase + 1 + (i + 1) % polygon.size
+        }
+
+        // Fringe ring -- one quad per edge, offset outward along that edge's normal, alpha
+        // fading from color's own alpha (at the true polygon boundary) to fully transparent
+        // (at the offset outer edge). Per-edge (not mitered) normals leave an invisible
+        // sub-pixel gap/overlap at convex corners -- fine at a ~1px fringe width, and
+        // correctness-safe since overlapping alpha-blended fringe triangles at a corner can
+        // only ever shift a sub-pixel sliver's alpha, never break the interior fill itself.
+        //
+        // Outward direction depends on winding: every UiShapeSpec path in this file (rect,
+        // rounded-rect, circle/pill, cut-corner) winds clockwise in this screen's Y-down space
+        // (top-left -> top-right -> bottom-right -> bottom-left), which is a positive
+        // polygonSignedArea -- verified against rectanglePath: edge (top-left -> top-right)
+        // needs outward normal (0, -1) (up), and (dy, -dx) with this edge's direction (1, 0)
+        // gives exactly (0, -1). A negative-area (counter-clockwise) contour needs the sign
+        // flipped so custom caller-built [UiPath]s with the opposite winding still fringe
+        // outward, not inward.
+        val orientation = polygonSignedArea(polygon)
+        val outwardSign = if (orientation >= 0f) 1f else -1f
+        for (i in polygon.indices) {
+            val a = polygon[i]
+            val b = polygon[(i + 1) % polygon.size]
+            var dx = b.x - a.x
+            var dy = b.y - a.y
+            val length = hypot(dx, dy)
+            if (length <= 0f) continue
+            dx /= length
+            dy /= length
+            val nx = dy * fringePx * outwardSign
+            val ny = -dx * fringePx * outwardSign
+
+            val base = vertices.size
+            vertices += UiColoredVertex(a, color)
+            vertices += UiColoredVertex(b, color)
+            vertices += UiColoredVertex(UiPoint(b.x + nx, b.y + ny), transparent)
+            vertices += UiColoredVertex(UiPoint(a.x + nx, a.y + ny), transparent)
+            indices += base
+            indices += base + 1
+            indices += base + 2
+            indices += base + 2
+            indices += base + 3
+            indices += base
+        }
+    }
+    return UiColoredTriangleMesh(vertices, indices.toIntArray())
+}
+
 fun UiPath.tessellateStroke(stroke: UiStroke): UiTriangleMesh {
     val contours = flattenContours()
     if (contours.isEmpty()) return UiTriangleMesh(emptyList(), IntArray(0))

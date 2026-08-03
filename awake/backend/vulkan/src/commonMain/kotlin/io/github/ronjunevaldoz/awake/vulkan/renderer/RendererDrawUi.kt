@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.contains
 import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.bounds
-import io.github.ronjunevaldoz.awake.ui.tessellateFill
+import io.github.ronjunevaldoz.awake.ui.tessellateFillAa
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
@@ -352,14 +352,18 @@ internal fun Renderer.stageFilledPathRun(
     activePathClips: List<UiPath>,
     safeInteriorRect: UiBounds? = null
 ) {
+    // tessellateFillAa (not tessellateFill) -- see its doc comment: this is what gives
+    // diagonal/curved FilledPath edges (e.g. the dropdown chevron icon) real antialiasing via
+    // a per-vertex-alpha fringe ring, reusing the SAME stageColoredVertexTriangleMeshes/
+    // exactClipColored plumbing GradientQuad's exact-clip path already uses.
     val tessellated = paths.map { primitive ->
         val bounds = primitive.path.bounds()
-        val triangleMesh = primitive.path.tessellateFill()
+        val triangleMesh = primitive.path.tessellateFillAa(primitive.color)
         val clipped = if (canSkipExactClip(safeInteriorRect, bounds.x, bounds.y, bounds.width, bounds.height)) triangleMesh
-        else exactClip(triangleMesh, activePathClips)
-        primitive to clipped
+        else exactClipColored(triangleMesh, activePathClips)
+        clipped
     }
-    stageColoredTriangleMeshes(mesh, tessellated.map { (primitive, triangleMesh) -> triangleMesh to primitive.color }, "filled-path")
+    stageColoredVertexTriangleMeshes(mesh, tessellated, "filled-path")
 }
 
 internal fun Renderer.stageGradientQuadRun(
@@ -448,13 +452,16 @@ internal fun Renderer.stageRoundedQuadFillRun(
     activePathClips: List<UiPath>,
     safeInteriorRect: UiBounds? = null
 ) {
-    stageColoredTriangleMeshes(
+    // tessellateFillAa mirrors stageFilledPathRun's fix -- this is the exact-clip fallback
+    // path (the dedicated SDF pipeline already antialiases its own curved corners for free,
+    // see ui_rounded_quad.frag's roundedBoxSdf/smoothstep, but that pipeline can't express an
+    // arbitrary convex-path clip, so this tessellated fallback needs its own AA fringe too).
+    stageColoredVertexTriangleMeshes(
         mesh,
         quads.map { quad ->
-            val triangleMesh = UiShapeSpec.RoundedRectangle(quad.radius.px).toPath(UiBounds(quad.x, quad.y, quad.w, quad.h)).tessellateFill()
-            val clipped = if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) triangleMesh
-            else exactClip(triangleMesh, activePathClips)
-            clipped to quad.color
+            val triangleMesh = UiShapeSpec.RoundedRectangle(quad.radius.px).toPath(UiBounds(quad.x, quad.y, quad.w, quad.h)).tessellateFillAa(quad.color)
+            if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) triangleMesh
+            else exactClipColored(triangleMesh, activePathClips)
         },
         "rounded-quad-clipped"
     )
