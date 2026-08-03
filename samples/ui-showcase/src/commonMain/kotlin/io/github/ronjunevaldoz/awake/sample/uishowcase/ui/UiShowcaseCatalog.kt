@@ -268,6 +268,29 @@ internal val ShowcasePages = listOf(
         renderPreview = { drawUiShowcaseSliderPreview() }
     ),
     ShowcasePage(
+        id = "range-slider",
+        title = "Range Slider",
+        category = ShowcaseCategory.Inputs,
+        description = "Dual-thumb variant of Slider -- two independently draggable knobs on one track, with the fill spanning only between them.",
+        usageCode = """
+            var temperature by rememberStateValue("scene", "temperature") { 0.3f to 0.7f }
+            temperature = shadcnFieldRangeSlider(
+                id = "temperature",
+                label = "Temperature",
+                min = 0f,
+                max = 1f,
+                valueStart = temperature.first,
+                valueEnd = temperature.second,
+                modifier = Modifier.width(360f.dp)
+            )
+        """.trimIndent(),
+        notes = listOf(
+            "Dragging one thumb past the other clamps instead of crossing -- a small minimum gap between start and end is enforced.",
+            "shadcnFieldRangeSlider is the label-above/value-above layout shadcn's own range demo uses; the bare shadcnRangeSlider control has no label row of its own since two knobs have no single 'beside the knob' spot."
+        ),
+        renderPreview = { drawUiShowcaseRangeSliderPreview() }
+    ),
+    ShowcasePage(
         id = "selection",
         title = "Selection Controls",
         category = ShowcaseCategory.Inputs,

@@ -75,6 +75,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseCardPreview,
     UiShowcaseSidebarPreview,
     UiShowcaseSelectionPreview,
+    UiShowcaseRangeSliderPreview,
     UiShowcaseTabsPreview,
     UiShowcaseSelectPreview,
     UiShowcaseKbdSeparatorPreview,
@@ -319,6 +320,20 @@ internal object UiShowcaseSidebarPreview : AwakeUiPreviewEntry {
 internal object UiShowcaseSelectionPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
         renderUiShowcasePagePreviewFrame(metadata, pageId = "selection")
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-range-slider",
+    title = "Range Slider",
+    group = "Inputs",
+    summary = "Dual-thumb variant of Slider -- two draggable knobs sharing one track, fill spanning only between them.",
+    width = 900,
+    height = 380,
+    reportScale = 2
+)
+internal object UiShowcaseRangeSliderPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "range-slider")
 }
 
 @AwakeUiPreview(

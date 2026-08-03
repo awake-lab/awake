@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldRangeSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
@@ -206,6 +207,23 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
         )
         text("2x", modifier = Modifier.width(28f.dp))
     }
+    spacer(Modifier.height(8f.dp))
+}
+
+internal fun ColumnScope.drawUiShowcaseRangeSliderPreview() {
+    var temperature by context.rememberStateValue("ui-showcase-range-slider", "temperature") { 0.3f to 0.7f }
+
+    shadcnSupportingText("Two independent thumbs share one track, with the fill spanning only between them -- shadcn's range-mode Slider.")
+    spacer(Modifier.height(8f.dp))
+    temperature = shadcnFieldRangeSlider(
+        id = "showcase-range-slider-temperature",
+        label = "Temperature",
+        min = 0f,
+        max = 1f,
+        valueStart = temperature.first,
+        valueEnd = temperature.second,
+        modifier = Modifier.width(360f.dp)
+    )
     spacer(Modifier.height(8f.dp))
 }
 
