@@ -62,7 +62,7 @@ class UiShowcaseLayoutCostTest {
      * UiShowcaseUi.kt's non-compact `row(id = "ui-showcase-shell-row", cacheKey = "static", ...)`
      * (docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md). [drawRealShowcaseShell]'s outer
      * row now goes through `BoxScope.row()` (via `ui.createBox(...)`, matching the real
-     * `canvas { ... }`/`BoxScope` receiver production actually uses) instead of the earlier
+     * `frame { ... }`/`BoxScope` receiver production actually uses) instead of the earlier
      * `UiContext.row()` root helper, which bypassed the hasWeightedChild trial entirely and so
      * could never have exercised this cache either way.
      *
@@ -226,8 +226,8 @@ class UiShowcaseLayoutCostTest {
     /**
      * Mirrors UiShowcaseUi.kt's `drawUiShowcaseOverlay` non-compact ("desktop") branch exactly --
      * the real persistent sidebar + full page content tree the "laggy on web" report is about --
-     * including the real `BoxScope` receiver `canvas { ... }` production actually provides (via
-     * `ui.createBox(...)` here instead of a full `GameUiRuntime`/`canvas()` round-trip, which just
+     * including the real `BoxScope` receiver `frame { ... }` production actually provides (via
+     * `ui.createBox(...)` here instead of a full `GameUiRuntime`/`frame()` round-trip, which just
      * adds a viewport-constraints callback around the same content) -- this matters because
      * `row()`/`column()` resolve to different overloads (`BoxScope.row()` vs. the root
      * `UiContext.row()`) depending on receiver, and only the `BoxScope` one runs the

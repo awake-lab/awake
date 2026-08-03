@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
 import io.github.ronjunevaldoz.awake.engine.application.GameUiSpec
-import io.github.ronjunevaldoz.awake.engine.application.canvas
+import io.github.ronjunevaldoz.awake.engine.application.frame
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
@@ -46,7 +46,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
     val sidebarScroll = uiContext.rememberScrollState("ui-showcase-scroll-side")
     val contentScroll = uiContext.rememberScrollState("ui-showcase-scroll-content")
     uiContext.pushTheme(showcaseTheme)
-    canvas { constraints ->
+    frame { constraints ->
         val compact = constraints.isCompact
         val outerPadding = if (compact) 16f.dp else 24f.dp
         val sidebarWidth = 264f.dp.toDimension()

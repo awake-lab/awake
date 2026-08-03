@@ -110,7 +110,7 @@ class GameUiDslTest {
                 theme(TestUiTheme)
                 overlay {
                     runtime = this
-                    canvas {
+                    frame {
                         surface(
                             id = "theme-proof",
                             modifier = (Modifier.align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)).width(180f.toDimension()).height(96f.toDimension())) {

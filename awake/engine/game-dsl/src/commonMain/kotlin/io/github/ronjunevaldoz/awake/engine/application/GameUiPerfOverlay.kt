@@ -36,7 +36,7 @@ internal fun GameUiRuntime.drawPerfStatsOverlay() {
         "text cache: $cacheHitRatePercent% hit ($cacheHits/$cacheTotal)"
     )
 
-    canvas {
+    frame {
         column(
             id = "awake-perf-stats-overlay",
             modifier = Modifier.offset(8f.dp, 8f.dp)

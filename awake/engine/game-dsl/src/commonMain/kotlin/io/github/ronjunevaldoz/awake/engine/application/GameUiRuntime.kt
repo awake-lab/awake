@@ -187,7 +187,7 @@ class GameUiRuntime(
     }
 
     @Deprecated(
-        message = "Use rootColumn(slot = ..., modifier = ...) or canvas { column(...) } for runtime-owned root layout.",
+        message = "Use rootColumn(slot = ..., modifier = ...) or frame { column(...) } for runtime-owned root layout.",
         level = DeprecationLevel.HIDDEN
     )
     fun column(
@@ -197,7 +197,7 @@ class GameUiRuntime(
     ) = rootColumn(modifier, verticalArrangement, block)
 
     @Deprecated(
-        message = "Use rootColumn(modifier = ...) or canvas { column(...) } for runtime-owned root layout.",
+        message = "Use rootColumn(modifier = ...) or frame { column(...) } for runtime-owned root layout.",
         level = DeprecationLevel.HIDDEN
     )
     fun column(
@@ -232,7 +232,10 @@ data class GameUiSpec(
     }
 }
 
-fun GameUiRuntime.canvas(
+/** Root-level full-viewport box for a [GameUiRuntime] overlay -- named `frame`, not `canvas`,
+ * to avoid colliding with [io.github.ronjunevaldoz.awake.ui.graphics] `CanvasScope`'s unrelated
+ * raw-primitive drawing API (a real naming collision this project hit in practice). */
+fun GameUiRuntime.frame(
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     block: BoxScope.(constraints: UiBoxConstraints) -> Unit
 ) {

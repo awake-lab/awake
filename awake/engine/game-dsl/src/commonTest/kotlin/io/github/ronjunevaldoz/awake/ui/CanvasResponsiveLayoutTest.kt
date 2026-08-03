@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
-import io.github.ronjunevaldoz.awake.engine.application.canvas
+import io.github.ronjunevaldoz.awake.engine.application.frame
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
@@ -36,7 +36,7 @@ class CanvasResponsiveLayoutTest {
         var widthClass: UiWidthSizeClass? = null
         var panelSlot: UiBounds? = null
 
-        runtime.canvas { constraints ->
+        runtime.frame { constraints ->
             widthClass = constraints.widthSizeClass
             panelSlot = surface(
                 id = "overlay-panel",
@@ -63,7 +63,7 @@ class CanvasResponsiveLayoutTest {
         var widthClass: UiWidthSizeClass? = null
         var columnSlot: UiBounds? = null
 
-        runtime.canvas { constraints ->
+        runtime.frame { constraints ->
             widthClass = constraints.widthSizeClass
             columnSlot = column(
                 modifier = (Modifier
@@ -97,7 +97,7 @@ class CanvasResponsiveLayoutTest {
             var maxWidth: Float? = null
             var maxWidthPx: Float? = null
 
-            runtime.canvas { constraints ->
+            runtime.frame { constraints ->
                 widthClass = constraints.widthSizeClass
                 maxWidth = constraints.maxWidth
                 maxWidthPx = constraints.maxWidthPx
