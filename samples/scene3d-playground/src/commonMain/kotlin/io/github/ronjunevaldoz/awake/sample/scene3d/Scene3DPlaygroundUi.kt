@@ -19,8 +19,10 @@ import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /** Three-column playground shell: demo menu (left) | live viewport (center) | per-demo controls
@@ -77,9 +79,11 @@ internal fun GameUiRuntime.drawScene3DPlaygroundOverlay(state: Scene3DPlayground
                 id = "scene3d-controls-panel",
                 modifier = Modifier.width(220f.dp).height(Dimension.FillMax)
             ) {
+                val controlsScroll = runtime.uiContext.rememberScrollState("scene3d-controls-scroll")
                 column(
                     id = "scene3d-controls-column",
-                    verticalArrangement = Arrangement.spacedBy(16f.dp)
+                    verticalArrangement = Arrangement.spacedBy(16f.dp),
+                    modifier = Modifier.verticalScroll(controlsScroll).height(Dimension.FillMax)
                 ) {
                     activeDemo.renderControls(this)
                 }

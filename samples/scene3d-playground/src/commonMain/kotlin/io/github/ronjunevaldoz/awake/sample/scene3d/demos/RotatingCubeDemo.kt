@@ -14,6 +14,10 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.math.PI
 import kotlin.math.cos
@@ -72,6 +76,12 @@ internal object RotatingCubeDemo {
     private var wireframe = false
     private var spinRadians = 0f
 
+    // Controls panel grouping -- default expanded so nothing looks like it went missing.
+    private var cameraGroupExpanded = true
+    private var projectionGroupExpanded = true
+    private var targetGroupExpanded = true
+    private var displayGroupExpanded = true
+
     private var cubeMesh: Mesh? = null
     private var material: Material? = null
 
@@ -95,19 +105,55 @@ internal object RotatingCubeDemo {
             // lays out a center pane for it; the demo has nothing UI-authored to put here.
         },
         renderControls = {
-            orbitDegrees = shadcnFieldSliderWithValue(id = "cube-orbit", label = "Orbit", min = 0f, max = 360f, value = orbitDegrees)
-            pitchDegrees = shadcnFieldSliderWithValue(id = "cube-pitch", label = "Pitch", min = 0f, max = 89f, value = pitchDegrees)
-            rollDegrees = shadcnFieldSliderWithValue(id = "cube-roll", label = "Roll", min = -180f, max = 180f, value = rollDegrees)
-            near = shadcnFieldSliderWithValue(id = "cube-near", label = "Near", min = 0.01f, max = 5f, value = near)
-            far = shadcnFieldSliderWithValue(id = "cube-far", label = "Far", min = 10f, max = 500f, value = far)
-            fovDegrees = shadcnFieldSliderWithValue(id = "cube-fov", label = "FOV", min = 10f, max = 120f, value = fovDegrees)
-            freeLook = shadcnSwitch(id = "cube-free-look", checked = freeLook, label = "Free look")
-            zoom = shadcnFieldSliderWithValue(id = "cube-zoom", label = "Zoom", min = 2f, max = 15f, value = zoom, enabled = !freeLook)
-            panX = shadcnFieldSliderWithValue(id = "cube-pan-x", label = "Pan X", min = -5f, max = 5f, value = panX)
-            panZ = shadcnFieldSliderWithValue(id = "cube-pan-z", label = "Pan Z", min = -5f, max = 5f, value = panZ)
-            elevation = shadcnFieldSliderWithValue(id = "cube-elevation", label = "Elevation", min = -3f, max = 5f, value = elevation)
-            wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
-            text(label = "Cube spins automatically; sliders move the camera (Pitch 0 = side-on, 89 = top-down).")
+            shadcnCard(id = "cube-controls-camera-card", modifier = Modifier.fillMaxWidth()) {
+                cameraGroupExpanded = shadcnCollapsible(
+                    id = "cube-controls-camera",
+                    title = "Camera",
+                    expanded = cameraGroupExpanded,
+                    onExpandedChange = { cameraGroupExpanded = it }
+                ) {
+                    orbitDegrees = shadcnFieldSliderWithValue(id = "cube-orbit", label = "Orbit", min = 0f, max = 360f, value = orbitDegrees)
+                    pitchDegrees = shadcnFieldSliderWithValue(id = "cube-pitch", label = "Pitch", min = 0f, max = 89f, value = pitchDegrees)
+                    rollDegrees = shadcnFieldSliderWithValue(id = "cube-roll", label = "Roll", min = -180f, max = 180f, value = rollDegrees)
+                    freeLook = shadcnSwitch(id = "cube-free-look", checked = freeLook, label = "Free look")
+                    zoom = shadcnFieldSliderWithValue(id = "cube-zoom", label = "Zoom", min = 2f, max = 15f, value = zoom, enabled = !freeLook)
+                }
+            }
+            shadcnCard(id = "cube-controls-target-card", modifier = Modifier.fillMaxWidth()) {
+                targetGroupExpanded = shadcnCollapsible(
+                    id = "cube-controls-target",
+                    title = "Target",
+                    expanded = targetGroupExpanded,
+                    onExpandedChange = { targetGroupExpanded = it }
+                ) {
+                    panX = shadcnFieldSliderWithValue(id = "cube-pan-x", label = "Pan X", min = -5f, max = 5f, value = panX)
+                    panZ = shadcnFieldSliderWithValue(id = "cube-pan-z", label = "Pan Z", min = -5f, max = 5f, value = panZ)
+                    elevation = shadcnFieldSliderWithValue(id = "cube-elevation", label = "Elevation", min = -3f, max = 5f, value = elevation)
+                }
+            }
+            shadcnCard(id = "cube-controls-projection-card", modifier = Modifier.fillMaxWidth()) {
+                projectionGroupExpanded = shadcnCollapsible(
+                    id = "cube-controls-projection",
+                    title = "Projection",
+                    expanded = projectionGroupExpanded,
+                    onExpandedChange = { projectionGroupExpanded = it }
+                ) {
+                    near = shadcnFieldSliderWithValue(id = "cube-near", label = "Near", min = 0.01f, max = 5f, value = near)
+                    far = shadcnFieldSliderWithValue(id = "cube-far", label = "Far", min = 10f, max = 500f, value = far)
+                    fovDegrees = shadcnFieldSliderWithValue(id = "cube-fov", label = "FOV", min = 10f, max = 120f, value = fovDegrees)
+                }
+            }
+            shadcnCard(id = "cube-controls-display-card", modifier = Modifier.fillMaxWidth()) {
+                displayGroupExpanded = shadcnCollapsible(
+                    id = "cube-controls-display",
+                    title = "Display",
+                    expanded = displayGroupExpanded,
+                    onExpandedChange = { displayGroupExpanded = it }
+                ) {
+                    wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
+                    text(label = "Cube spins automatically; sliders move the camera (Pitch 0 = side-on, 89 = top-down).")
+                }
+            }
         }
     )
 
