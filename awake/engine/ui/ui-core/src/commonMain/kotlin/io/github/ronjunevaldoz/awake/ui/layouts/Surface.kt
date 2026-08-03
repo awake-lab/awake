@@ -196,7 +196,12 @@ fun UiScope.surface(
         hasBoundedFillWidth = width != Dimension.WrapContent,
         hasBoundedFillHeight = height != Dimension.WrapContent
     )
-    if (clipContent) {
+    // Any non-zero shape/radius must clip its own children, not just round the background
+    // paint -- otherwise square-cornered content (a badge, a button row) can visibly poke
+    // out past the curve at large radii. `clipContent` remains available for callers that
+    // want clipping on an otherwise-square surface (e.g. Dialog/DropdownMenu clip *and* have
+    // a real corner radius, so this condition already covers them too).
+    if (clipContent || resolved.shape.toPx() > 0f || resolved.shapeSpec != null) {
         clip(effectiveShape, slot) { contentScope.content(slot) }
     } else {
         contentScope.content(slot)
