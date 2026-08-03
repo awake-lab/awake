@@ -112,7 +112,7 @@ internal object RotatingCubeDemo {
 
         val gridLines = Grid.lines(size = GRID_SIZE, divisions = GRID_DIVISIONS)
             .map { (a, b) -> LineSegment(a, b, GRID_COLOR) }
-        val lines = if (wireframe) gridLines + wireframeCubeEdges() else gridLines
+        val lines = axisLines() + gridLines + if (wireframe) wireframeCubeEdges() else emptyList()
         renderer.drawDebugLines(lines)
     }
 
@@ -177,6 +177,16 @@ internal object RotatingCubeDemo {
         return (trueUp * cos(rollRad)) + (right * sin(rollRad))
     }
 
+    // Standard red/green/blue X/Y/Z axis convention (Blender/Unity/three.js all use this),
+    // drawn from the grid's own origin so orientation is legible at a glance. Plain colored
+    // lines, not full 3D arrowheads -- an arrowhead needs real cone/triangle mesh geometry per
+    // axis, which is real modeling work this reference gizmo doesn't need to justify yet.
+    private fun axisLines(): List<LineSegment> = listOf(
+        LineSegment(Vec3(0f, 0.01f, 0f), Vec3(AXIS_LENGTH, 0.01f, 0f), AXIS_COLOR_X),
+        LineSegment(Vec3(0f, 0.01f, 0f), Vec3(0f, AXIS_LENGTH, 0f), AXIS_COLOR_Y),
+        LineSegment(Vec3(0f, 0.01f, 0f), Vec3(0f, 0.01f, AXIS_LENGTH), AXIS_COLOR_Z)
+    )
+
     private fun wireframeCubeEdges(): List<LineSegment> {
         val sin = sin(spinRadians)
         val cos = cos(spinRadians)
@@ -192,5 +202,9 @@ internal object RotatingCubeDemo {
 
     private val WIREFRAME_COLOR = floatArrayOf(1f, 1f, 1f, 1f)
     private val GRID_COLOR = floatArrayOf(0.55f, 0.55f, 0.6f, 1f)
+    private val AXIS_COLOR_X = floatArrayOf(0.9f, 0.15f, 0.15f, 1f)
+    private val AXIS_COLOR_Y = floatArrayOf(0.15f, 0.75f, 0.15f, 1f)
+    private val AXIS_COLOR_Z = floatArrayOf(0.15f, 0.35f, 0.9f, 1f)
+    private const val AXIS_LENGTH = 2f
     private const val DEGREES_TO_RADIANS = (PI / 180.0).toFloat()
 }
