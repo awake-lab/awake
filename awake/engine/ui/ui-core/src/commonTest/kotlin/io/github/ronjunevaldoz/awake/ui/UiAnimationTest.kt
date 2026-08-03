@@ -285,6 +285,49 @@ class UiAnimationTest {
     }
 
     @Test
+    fun shimmerSweepPhaseIsAOneDirectionalLoopNotAPingPongBounce() {
+        // Regression for a live screenshot report: BasicText.kt's shimmer used to manually flip a
+        // `shimmerForward` boolean on a spring-style animateFloat, producing a literal 0->1->0->1
+        // ping-pong bounce instead of a continuous sweep. It now drives the exact same
+        // animateFloatRepeatable(durationMs = 1200f, repeatMode = RepeatMode.Restart) call BasicText
+        // uses for its shimmer phase; sample real frames across more than two full cycles and prove
+        // the sequence only ever goes forward, snapping cleanly back to ~0 at cycle boundaries
+        // instead of gradually descending back down like a bounce would.
+        val ui = UiContext()
+        val durationMs = 1200f
+        val frameDeltaSeconds = 1f / 60f
+        val totalFrames = ((durationMs / 1000f) * 60f * 2.5f).toInt() // ~2.5 cycles worth of frames
+
+        val samples = mutableListOf<Float>()
+        repeat(totalFrames) {
+            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = frameDeltaSeconds)
+            samples += ui.animateFloatRepeatable(
+                id = "shimmer-probe",
+                initialValue = 0f,
+                targetValue = 1f,
+                durationMs = durationMs,
+                repeatMode = RepeatMode.Restart
+            )
+            ui.endFrame()
+        }
+
+        var resetCount = 0
+        for (i in 1 until samples.size) {
+            val prev = samples[i - 1]
+            val next = samples[i]
+            if (next < prev) {
+                // Only legal decrease is a clean cycle-boundary snap: was nearly at the end,
+                // instantly back near the start -- never a gradual reverse-direction descent.
+                assertTrue(prev > 0.9f, "a decrease must only happen right at a completed cycle, prev was $prev")
+                assertTrue(next < 0.1f, "a cycle reset must snap straight back near 0, not partway down, was $next")
+                resetCount++
+            }
+        }
+
+        assertTrue(resetCount >= 2, "expected at least two clean forward-restart boundaries across ~2.5 cycles, saw $resetCount")
+    }
+
+    @Test
     fun uiContextAnimateFloatRepeatableAdvancesTheAccumulatorOncePerFrame() {
         val ui = UiContext()
         val durationMs = 300f

@@ -7,12 +7,12 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.animateFloat
+import io.github.ronjunevaldoz.awake.ui.RepeatMode
+import io.github.ronjunevaldoz.awake.ui.animateFloatRepeatable
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.intersect
@@ -148,16 +148,15 @@ internal fun UiScope.renderTextBlock(
         // shadcnShimmer in modifier/StyleModifiers.kt) -- callers resolve the effect there and
         // pass the resulting boolean down into this low-level glyph emitter.
         if (shimmer && semanticId != null) {
-            var shimmerForward by rememberBooleanState("__shimmer_dir__$semanticId", initial = true)
-            val shimmerPhase = animateFloat(
+            // One-directional sweep loop (0 -> 1, jump back to 0, repeat) -- not a ping-pong
+            // bounce. See UiAnimation.kt's animateFloatRepeatable/RepeatMode.Restart.
+            val shimmerPhase = animateFloatRepeatable(
                 id = "__shimmer_phase__$semanticId",
-                target = if (shimmerForward) 1f else 0f,
-                initial = 0f,
-                responsiveness = 3f,
-                snapDistance = 0.01f
+                initialValue = 0f,
+                targetValue = 1f,
+                durationMs = 1200f,
+                repeatMode = RepeatMode.Restart
             )
-            if (shimmerForward && shimmerPhase >= 0.99f) shimmerForward = false
-            if (!shimmerForward && shimmerPhase <= 0.01f) shimmerForward = true
 
             val highlightColor = Color.White.withAlpha(0.6f)
             val shimmerWidth = (slot.width * 1.5f).coerceAtLeast(160f)
