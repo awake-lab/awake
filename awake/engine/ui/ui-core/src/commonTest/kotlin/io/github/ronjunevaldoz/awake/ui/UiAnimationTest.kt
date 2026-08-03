@@ -99,6 +99,17 @@ class UiAnimationTest {
     }
 
     @Test
+    fun largeDeltaSpikeDoesNotSnapMostOfTheWayToTarget() {
+        // Regression for a live "still snapping on collapse" report: every other test in this
+        // file drives a fixed 1/60f delta, which never exercises a real frame-time spike (a GC
+        // pause, a dropped frame, a window resize). Unclamped, responsiveness=8's exponential
+        // factor at delta=0.3s is ~0.91 -- the animated value would jump 91% of the way to
+        // target in a single step, reading as a visible snap.
+        val next = animateFloatStep(current = 0f, target = 120f, deltaSeconds = 0.3f, responsiveness = 8f)
+        assertTrue(next < 60f, "a single frame-time spike must not jump the value most of the way to target, was $next")
+    }
+
+    @Test
     fun zeroResponsivenessSnapsToTarget() {
         assertEquals(
             expected = 8f,

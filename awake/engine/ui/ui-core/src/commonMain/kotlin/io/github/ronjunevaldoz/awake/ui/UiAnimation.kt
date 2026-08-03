@@ -40,6 +40,16 @@ fun UiScope.animateFloat(
     snapDistance: Float = 0.001f
 ): Float = context.animateFloat(id, target, initial, responsiveness, snapDistance)
 
+/** Frame-time spikes (a GC pause, a dropped frame, a window resize) feed a large [deltaSeconds]
+ * into the exponential-decay factor below -- e.g. `responsiveness=8`, a normal 60fps frame gives
+ * `t≈0.13`, but a single 0.3s stall gives `t≈0.91`, jumping the animated value most of the way
+ * to [target] in one step, which reads as a visible snap. Real game loops clamp per-step delta
+ * for exactly this reason; every test in this codebase drives a fixed 1/60f delta, so this path
+ * was never exercised despite it being the likely explanation for a live-only "snapping"
+ * report. Clamping here (not globally in the frame loop) keeps the fix scoped to spring-style
+ * animation without touching physics/other real-delta consumers. */
+private const val MAX_ANIMATE_FLOAT_DELTA_SECONDS = 1f / 20f
+
 internal fun animateFloatStep(
     current: Float,
     target: Float,
@@ -50,7 +60,8 @@ internal fun animateFloatStep(
     if (responsiveness <= 0f || deltaSeconds <= 0f) {
         return target
     }
-    val t = 1f - exp(-responsiveness * deltaSeconds)
+    val clampedDeltaSeconds = deltaSeconds.coerceAtMost(MAX_ANIMATE_FLOAT_DELTA_SECONDS)
+    val t = 1f - exp(-responsiveness * clampedDeltaSeconds)
     val next = current + (target - current) * t
     return if (abs(target - next) <= snapDistance) target else next
 }
