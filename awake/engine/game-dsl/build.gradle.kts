@@ -40,6 +40,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":awake:engine:game"))
+            implementation(project(":awake:engine:ui:ui-unstyled"))
         }
         commonTest.dependencies {
             implementation(project(":awake:base"))

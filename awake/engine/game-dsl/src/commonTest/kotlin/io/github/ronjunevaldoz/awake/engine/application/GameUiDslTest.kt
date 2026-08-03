@@ -188,6 +188,35 @@ class GameUiDslTest {
             "nested column(slot = ...) inside a GameUiRuntime receiver must inherit the current UiScope overlay pass instead of falling back to the runtime root receiver"
         )
     }
+    @Test
+    fun debugOverlayEnabledDrawsThePerfStatsHudAsGlyphPrimitives() = runTest {
+        val renderer = RecordingUiRenderer()
+        var runtime: GameUiRuntime? = null
+        val game = game {
+            ui {
+                overlay {
+                    runtime = this
+                }
+            }
+        }
+
+        game.ready(renderer)
+        game.render(0.016f, 320f, 240f)
+        assertNotNull(runtime)
+        assertTrue(
+            renderer.lastUiPrimitives.none { it is UiDrawPrimitive.Glyph },
+            "perf HUD must not draw anything while debugOverlayEnabled is off (the default)"
+        )
+
+        runtime.debugOverlayEnabled = true
+        game.render(0.016f, 320f, 240f)
+
+        assertTrue(
+            renderer.lastUiPrimitives.any { it is UiDrawPrimitive.Glyph },
+            "perf HUD must draw glyph primitives (its fps/frame-time/cache-stat text) once " +
+                "debugOverlayEnabled is on"
+        )
+    }
 }
 
 private object TestUiTheme : UiTheme by UiDefaultTheme

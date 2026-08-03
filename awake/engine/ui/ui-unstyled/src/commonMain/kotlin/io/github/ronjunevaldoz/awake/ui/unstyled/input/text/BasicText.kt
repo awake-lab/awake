@@ -239,6 +239,17 @@ private data class TextLayoutCacheKey(
 
 private val textLayoutCache = LruCache<TextLayoutCacheKey, UiBitmapTextLayout>(maxSize = 256)
 
+// Hit/miss counters live here, not inside LruCache itself -- LruCache stays a plain, stats-free
+// mechanism; only this specific cache's callers (a debug perf overlay) care about its
+// effectiveness. See LruCache.containsKey's doc comment for why this is observable without
+// LruCache tracking anything itself.
+private var textLayoutCacheHits = 0
+private var textLayoutCacheMisses = 0
+
+/** For a debug perf overlay (`GameUiRuntime.drawPerfStatsOverlay`) to report cache
+ * effectiveness -- not used by any rendering path itself. */
+fun textLayoutCacheStats(): Pair<Int, Int> = textLayoutCacheHits to textLayoutCacheMisses
+
 private fun cachedLayoutBitmapText(
     label: String,
     glyphPx: Float,
@@ -249,6 +260,7 @@ private fun cachedLayoutBitmapText(
     font: UiFont
 ): UiBitmapTextLayout {
     val key = TextLayoutCacheKey(label, glyphPx, maxWidthPx, wrap, overflow, maxLines, font)
+    if (textLayoutCache.containsKey(key)) textLayoutCacheHits++ else textLayoutCacheMisses++
     return textLayoutCache.getOrPut(key) {
         layoutBitmapText(
             label = label,

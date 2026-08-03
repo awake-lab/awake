@@ -131,11 +131,43 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 quadRunCount += 1
             }
             is UiDrawPrimitive.StrokedPath -> {
+                // Chunk by actual vertex/index budget, not primitive count -- mirrors the
+                // Glyph branch above (and the identical WebGPU-backend fix). Stroke
+                // tessellation produces a variable vertex count per primitive (depends on
+                // stroke width and path point count), so a fixed-size chunk of primitives can
+                // still overflow DynamicMesh's capacity -- confirmed by a real crash from the
+                // F3 debug wireframe overlay (UiDebugOverlayColors, 3 stroked rects per
+                // semantic node) on a content-heavy page: "UI stroked-path run vertex count
+                // (4192) exceeds DynamicMesh capacity (1024 vertices)".
                 @Suppress("UNCHECKED_CAST")
-                val mesh = quadMeshForRun(quadRunCount)
-                stageStrokedPathRun(mesh, slice as List<UiDrawPrimitive.StrokedPath>, activePathClips, safeInteriorRect)
-                runs += Renderer.UiRun.QuadRun(mesh)
-                quadRunCount += 1
+                val strokedSlice = slice as List<UiDrawPrimitive.StrokedPath>
+                val tessellated = strokedSlice.map { tessellateStrokedPath(it, activePathClips, safeInteriorRect) }
+                val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
+                val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
+                var chunk = mutableListOf<Pair<UiTriangleMesh, Color>>()
+                var chunkVertices = 0
+                var chunkIndices = 0
+                fun flushChunk() {
+                    if (chunk.isEmpty()) return
+                    val mesh = quadMeshForRun(quadRunCount)
+                    stageColoredTriangleMeshes(mesh, chunk, "stroked-path")
+                    runs += Renderer.UiRun.QuadRun(mesh)
+                    quadRunCount += 1
+                    chunk = mutableListOf()
+                    chunkVertices = 0
+                    chunkIndices = 0
+                }
+                for (pair in tessellated) {
+                    val vertexCount = pair.first.points.size
+                    val indexCount = pair.first.indices.size
+                    if (chunk.isNotEmpty() && (chunkVertices + vertexCount > maxVertices || chunkIndices + indexCount > maxIndices)) {
+                        flushChunk()
+                    }
+                    chunk += pair
+                    chunkVertices += vertexCount
+                    chunkIndices += indexCount
+                }
+                flushChunk()
             }
             is UiDrawPrimitive.Glyph -> {
                 @Suppress("UNCHECKED_CAST")
@@ -383,31 +415,31 @@ internal fun Renderer.stageGradientQuadRun(
     mesh.update(vertices, indices)
 }
 
-internal fun Renderer.stageStrokedPathRun(
-    mesh: DynamicMesh,
-    paths: List<UiDrawPrimitive.StrokedPath>,
+/** Tessellates+clips a single [UiDrawPrimitive.StrokedPath] -- extracted so `performDrawUi`'s
+ * `StrokedPath` branch can chunk by actual vertex/index budget (see its doc comment) instead of
+ * tessellating a whole run at once before knowing whether it fits one [DynamicMesh]. Mirrors
+ * the identical WebGPU-backend fix. */
+internal fun Renderer.tessellateStrokedPath(
+    primitive: UiDrawPrimitive.StrokedPath,
     activePathClips: List<UiPath>,
-    safeInteriorRect: UiBounds? = null
-) {
-    val tessellated = paths.map { primitive ->
-        // Stroke geometry extends up to a full stroke-width beyond the raw path's own point
-        // bounds (perpendicular offset on each side, plus square-cap extension along the
-        // tangent at open-contour ends) -- widen the containment check by the full width
-        // (not just half) to stay conservative rather than exactly modeling miter joins.
-        val rawBounds = primitive.path.bounds()
-        val strokeMargin = primitive.stroke.width.toPx()
-        val paintedBounds = UiBounds(
-            rawBounds.x - strokeMargin,
-            rawBounds.y - strokeMargin,
-            rawBounds.width + 2f * strokeMargin,
-            rawBounds.height + 2f * strokeMargin
-        )
-        val triangleMesh = primitive.path.tessellateStroke(primitive.stroke)
-        val clipped = if (canSkipExactClip(safeInteriorRect, paintedBounds.x, paintedBounds.y, paintedBounds.width, paintedBounds.height)) triangleMesh
-        else exactClip(triangleMesh, activePathClips)
-        primitive to clipped
-    }
-    stageColoredTriangleMeshes(mesh, tessellated.map { (primitive, triangleMesh) -> triangleMesh to primitive.color }, "stroked-path")
+    safeInteriorRect: UiBounds?
+): Pair<UiTriangleMesh, Color> {
+    // Stroke geometry extends up to a full stroke-width beyond the raw path's own point
+    // bounds (perpendicular offset on each side, plus square-cap extension along the
+    // tangent at open-contour ends) -- widen the containment check by the full width
+    // (not just half) to stay conservative rather than exactly modeling miter joins.
+    val rawBounds = primitive.path.bounds()
+    val strokeMargin = primitive.stroke.width.toPx()
+    val paintedBounds = UiBounds(
+        rawBounds.x - strokeMargin,
+        rawBounds.y - strokeMargin,
+        rawBounds.width + 2f * strokeMargin,
+        rawBounds.height + 2f * strokeMargin
+    )
+    val triangleMesh = primitive.path.tessellateStroke(primitive.stroke)
+    val clipped = if (canSkipExactClip(safeInteriorRect, paintedBounds.x, paintedBounds.y, paintedBounds.width, paintedBounds.height)) triangleMesh
+    else exactClip(triangleMesh, activePathClips)
+    return clipped to primitive.color
 }
 
 internal fun Renderer.stageRoundedQuadFillRun(

@@ -36,6 +36,12 @@ class LruCache<K, V : Any>(private val maxSize: Int) {
         return value
     }
 
+    /** True if [key] would currently be served without computing -- lets a caller that wants
+     * hit/miss stats (see `textLayoutCacheStats` in `ui-unstyled`) observe that without this
+     * generic cache needing to track it itself. Does not affect LRU order (unlike [getOrPut]'s
+     * hit path) -- call [getOrPut] itself to actually record the access. */
+    fun containsKey(key: K): Boolean = map.containsKey(key)
+
     val size: Int get() = map.size
 
     fun clear() = map.clear()

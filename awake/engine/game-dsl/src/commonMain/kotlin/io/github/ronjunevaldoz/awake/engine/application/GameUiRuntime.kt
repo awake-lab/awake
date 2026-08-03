@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
 import io.github.ronjunevaldoz.awake.ui.debugOverlayPrimitives
+import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
@@ -44,15 +45,36 @@ class GameUiRuntime(
 
     /** Toggled by [Key.F3] (see [render]) -- when on, [debugOverlayPrimitives]'s blue/green/red
      * bounds/contentBounds/clippedBounds wireframe is appended on top of every frame's real
-     * primitives. Off by default so the overlay's per-node pass never runs unless requested. */
+     * primitives, and [drawPerfStatsOverlay] draws a small live stats HUD (frame time/fps,
+     * row/column trial-measure count, text-layout cache hit rate). Off by default so neither
+     * overlay's per-frame work runs unless requested. */
     var debugOverlayEnabled: Boolean = false
     private var debugOverlayKeyWasDown: Boolean = false
+
+    /** Rolling window backing [averageFrameTimeMs]/[fps] -- see [recordFrameTime]. Bounded so
+     * this never grows past [FRAME_TIME_HISTORY_SIZE] regardless of how long the app runs. */
+    private val frameTimesMs = ArrayDeque<Float>()
+
+    private fun recordFrameTime(deltaSeconds: Float) {
+        frameTimesMs.addLast(deltaSeconds * 1000f)
+        while (frameTimesMs.size > FRAME_TIME_HISTORY_SIZE) frameTimesMs.removeFirst()
+    }
+
+    val averageFrameTimeMs: Float
+        get() = if (frameTimesMs.isEmpty()) 0f else frameTimesMs.sum() / frameTimesMs.size
+
+    val fps: Float
+        get() = averageFrameTimeMs.takeIf { it > 0f }?.let { 1000f / it } ?: 0f
 
     fun theme(theme: UiTheme) {
         this.theme = theme
     }
 
     private lateinit var renderer: Renderer
+
+    private companion object {
+        const val FRAME_TIME_HISTORY_SIZE = 30
+    }
 
     suspend fun ready(renderer: Renderer) {
         this.renderer = renderer
@@ -73,6 +95,12 @@ class GameUiRuntime(
         if (debugOverlayKeyDown && !debugOverlayKeyWasDown) debugOverlayEnabled = !debugOverlayEnabled
         debugOverlayKeyWasDown = debugOverlayKeyDown
 
+        recordFrameTime(deltaSeconds)
+        // Opt-in instrumentation (see UiMeasureTrialStats's own doc comment): only pay its
+        // per-trial counting/timing cost while the HUD that displays it is actually visible.
+        UiMeasureTrialStats.enabled = debugOverlayEnabled
+        if (debugOverlayEnabled) UiMeasureTrialStats.reset()
+
         uiContext.beginFrame(
             UiFrameInput(
                 viewportWidth = viewportWidth,
@@ -86,6 +114,8 @@ class GameUiRuntime(
         spec.overlays.forEach { overlay ->
             overlay(this)
         }
+
+        if (debugOverlayEnabled) drawPerfStatsOverlay()
 
         val frame = uiContext.finishFrame()
         input.textInputFocused = frame.effects.requestKeyboard
