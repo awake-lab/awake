@@ -105,6 +105,24 @@ Use these first:
   instead of guesses (see `RowCrossAxisCenterProbeTest`, `UiShowcaseSidebarGapProbeTest`,
   `TypographyPaddingProbeTest` for the pattern). Keep the probe as permanent regression
   coverage when it proves something worth locking in, delete it when it was purely diagnostic
+- `UiAnimationFrameCapture` (`awake:backend:vulkan:desktopTest`,
+  `io.github.ronjunevaldoz.awake.vulkan.UiAnimationFrameCapture`) for "does this animation
+  actually render right, frame by frame, through the real backend" questions -- the gap none of
+  the tools above can close: a throwaway `UiBounds` probe (like the one above) proves the
+  *logical* sequence is smooth, but never asks a renderer to draw anything, so it structurally
+  cannot see a render-backend artifact (frame-pacing/dirty-rect lag between computed clip
+  bounds and what actually gets presented). Builds the same real headless Vulkan renderer
+  `RendererHeadlessUiGlyphBaselineTest` uses (`Renderer.renderUiToTexture`, backed by real
+  `ui_quad`/`ui_rounded_quad`/`ui_glyph` pipelines against an `OffscreenRenderTarget`, not the
+  CPU rasterizer `saveAwakeUiPreview`/`AwakeUiPreviewScene` use), drives a real animated
+  `UiContext` scene for N real frames, and writes each frame as a numbered PNG for direct
+  visual/pixel inspection. See `ShadcnCollapsibleRealRenderCollapseFrameCaptureTest`
+  (`awake:backend:vulkan:desktopTest`) for the pattern -- real `shadcnSidebar`/
+  `shadcnCollapsible` driven through a real collapse, 20 real rendered frames dumped and
+  inspected for a jump/snap the logical-bounds probes couldn't have caught. Texture-backed
+  primitives (render-target composites, e.g. a minimap) aren't supported yet -- add an
+  offscreen texture-quad pipeline the same way `ensureOffscreenQuadPipeline` was added if a
+  captured animation ever needs one
 
 ## Investigating "Extra Space" Reports
 

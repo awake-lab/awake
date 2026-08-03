@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
+import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
@@ -479,6 +480,97 @@ internal fun texturedGeometryBuffers(
         offset += DynamicMesh.GLYPH_FLOATS_PER_VERTEX
     }
     return vertices to mesh.indices
+}
+
+/**
+ * Headless/offscreen test hook: renders a full frame's worth of [UiDrawPrimitive]s (quads,
+ * rounded quads, glyphs, clip-rect scissors) into [target] through the real Vulkan UI
+ * pipelines, not the CPU rasterizer ([io.github.ronjunevaldoz.awake.testing.ui
+ * .saveAwakeUiPreview]'s path). Exists so a real animation can be captured frame-by-frame
+ * exactly as the live app's Vulkan backend actually draws it (frame pacing, clip-scissor
+ * timing, and all) instead of only ever sampling logical [UiBounds] -- see
+ * `UiAnimationFrameCapture` (`desktopTest`) for the reusable N-frame recording loop built on
+ * top of this.
+ *
+ * Deliberately narrower than [performDrawUi]/[recordCommandBuffer]'s swapchain UI pass:
+ * [UiDrawPrimitive.Texture] runs are skipped (no offscreen texture-quad pipeline exists yet --
+ * add one the same way [ensureOffscreenQuadPipeline] was added if a captured animation ever
+ * needs to show a render-target-backed texture, e.g. a minimap). Every shadcn widget this was
+ * built to investigate (cards, buttons, collapsibles, text) only emits quads/rounded
+ * quads/glyphs/clips, so that gap doesn't block real use yet.
+ *
+ * Reuses [target]'s own framebuffer/render pass ([Renderer.renderPipeline]'s, same as
+ * [Renderer.renderToTexture]/[renderUiGlyphsToTexture]) rather than the swapchain UI pass's
+ * private render pass -- see [Renderer.offscreenQuadRenderPipeline]'s doc comment for why the
+ * swapchain pipeline can't be reused directly headless.
+ */
+fun Renderer.renderUiToTexture(target: RenderTarget, primitives: List<UiDrawPrimitive>, font: UiFont?) {
+    val offscreen = target as OffscreenRenderTarget
+    performDrawUi(primitives, font)
+
+    ensureOffscreenQuadPipeline()
+    if (font != null) ensureOffscreenGlyphPipeline(font)
+    if (primitives.any { it is UiDrawPrimitive.RoundedQuad }) ensureOffscreenRoundedQuadPipeline()
+
+    val quadPipeline = requireNotNull(offscreenQuadRenderPipeline)
+    quadPipeline.writeScreenSize(offscreen.width.toFloat(), offscreen.height.toFloat())
+    offscreenRoundedQuadRenderPipeline?.writeScreenSize(offscreen.width.toFloat(), offscreen.height.toFloat())
+    offscreenGlyphRenderPipeline?.writeScreenSize(offscreen.width.toFloat(), offscreen.height.toFloat())
+
+    runOffscreenCommands { commandBuffer ->
+        val renderPassInfo = VkRenderPassBeginInfo(
+            renderPass = renderPipeline.renderPass,
+            framebuffer = offscreen.framebuffer,
+            renderArea = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height)),
+            pClearValues = arrayOf(Renderer.clearColorValue, Renderer.clearDepthValue)
+        )
+        Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
+        val viewport = VkViewport(width = offscreen.width.toFloat(), height = offscreen.height.toFloat())
+        Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
+        val fullScissor = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height))
+        Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(fullScissor))
+
+        var runIndex = 0
+        while (runIndex < uiRuns.size) {
+            when (val run = uiRuns[runIndex]) {
+                is Renderer.UiRun.QuadRun -> {
+                    quadPipeline.bind(commandBuffer)
+                    run.mesh.bind(commandBuffer)
+                    run.mesh.draw(commandBuffer)
+                }
+                is Renderer.UiRun.RoundedQuadRun -> {
+                    offscreenRoundedQuadRenderPipeline?.let { pipeline ->
+                        pipeline.bind(commandBuffer)
+                        run.mesh.bind(commandBuffer)
+                        run.mesh.draw(commandBuffer)
+                    }
+                }
+                is Renderer.UiRun.GlyphRun -> {
+                    offscreenGlyphRenderPipeline?.let { pipeline ->
+                        pipeline.bind(commandBuffer)
+                        run.mesh.bind(commandBuffer)
+                        run.mesh.draw(commandBuffer)
+                    }
+                }
+                is Renderer.UiRun.ClipRun -> {
+                    // Same defensive clamp recordCommandBuffer's swapchain UI pass applies.
+                    val maxX = offscreen.width
+                    val maxY = offscreen.height
+                    val x = run.rect.x.toInt().coerceIn(0, maxX)
+                    val y = run.rect.y.toInt().coerceIn(0, maxY)
+                    val width = run.rect.width.toInt().coerceAtLeast(0).coerceAtMost(maxX - x)
+                    val height = run.rect.height.toInt().coerceAtLeast(0).coerceAtMost(maxY - y)
+                    val scissor = VkRect2D(offset = VkOffset2D(x, y), extent = VkExtent2D(width, height))
+                    Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+                }
+                is Renderer.UiRun.TextureRun -> Unit // see doc comment above: not supported yet.
+            }
+            runIndex += 1
+        }
+
+        Vulkan.vkCmdEndRenderPass(commandBuffer)
+        offscreen.transitionToShaderReadOnly(commandBuffer)
+    }
 }
 
 /**

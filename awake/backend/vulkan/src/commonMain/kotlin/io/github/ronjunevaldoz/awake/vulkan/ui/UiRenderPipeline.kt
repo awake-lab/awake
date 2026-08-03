@@ -72,7 +72,15 @@ class UiRenderPipeline(
     graphicsDevice: GraphicsDevice,
     private val swapchainManager: SwapchainManager,
     vertShaderCode: ByteArray,
-    fragShaderCode: ByteArray
+    fragShaderCode: ByteArray,
+    // Offscreen headless capture (Renderer.renderUiToTexture) passes in
+    // renderPipeline.renderPass here instead of letting this pipeline create its own --
+    // that internal render pass is hardcoded for swapchain compositing (LOAD op, final
+    // layout PRESENT_SRC_KHR), which is the wrong layout contract for an OffscreenRenderTarget
+    // framebuffer. Same "externally injected render pass" shape UiGlyphRenderPipeline/
+    // UiRoundedQuadRenderPipeline already use; kept as an optional trailing param (default
+    // null) so the swapchain-owning caller (ensureUiQuadPipeline) is unchanged.
+    private val externalRenderPass: Long? = null
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -88,9 +96,12 @@ class UiRenderPipeline(
     private var pipelineLayout: Long = 0
     private var pipelineCache: Long = 0
     private var graphicsPipeline: LongArray = longArrayOf()
+    // Only destroy renderPass if this pipeline itself created it -- an externally-owned
+    // render pass (offscreen case above) is torn down by whoever owns it instead.
+    private var ownsRenderPass: Boolean = externalRenderPass == null
 
     init {
-        renderPass = createRenderPass()
+        renderPass = externalRenderPass ?: createRenderPass()
         descriptorSetLayout = createDescriptorSetLayout()
         createScreenSizeUniformBuffer()
         createDescriptorSet()
@@ -346,7 +357,7 @@ class UiRenderPipeline(
         VulkanBuffers.vkFreeMemory(device, screenSizeBufferMemory)
         VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool)
         VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout)
-        Vulkan.vkDestroyRenderPass(device, renderPass)
+        if (ownsRenderPass) Vulkan.vkDestroyRenderPass(device, renderPass)
     }
 
     private companion object {

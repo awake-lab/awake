@@ -158,3 +158,31 @@ internal fun Renderer.ensureRoundedQuadPipeline() {
         uiRoundedQuadShaders.fragment
     )
 }
+
+/** Offscreen counterpart of [ensureUiQuadPipeline], bound to [Renderer.renderPipeline]'s
+ * render pass instead of the swapchain UI pass -- see [Renderer.offscreenQuadRenderPipeline]'s
+ * doc comment. Used by [Renderer.renderUiToTexture]. */
+internal fun Renderer.ensureOffscreenQuadPipeline() {
+    if (offscreenQuadRenderPipeline != null) return
+    offscreenQuadRenderPipeline = UiRenderPipeline(
+        graphicsDevice,
+        swapchainManager,
+        uiShaders.vertex,
+        uiShaders.fragment,
+        externalRenderPass = renderPipeline.renderPass
+    )
+}
+
+/** Offscreen counterpart of [ensureRoundedQuadPipeline], bound to [Renderer.renderPipeline]'s
+ * render pass -- see [Renderer.offscreenRoundedQuadRenderPipeline]'s doc comment. Used by
+ * [Renderer.renderUiToTexture]. */
+internal fun Renderer.ensureOffscreenRoundedQuadPipeline() {
+    if (offscreenRoundedQuadRenderPipeline != null) return
+    offscreenRoundedQuadRenderPipeline = UiRoundedQuadRenderPipeline(
+        graphicsDevice,
+        swapchainManager,
+        renderPipeline.renderPass,
+        uiRoundedQuadShaders.vertex,
+        uiRoundedQuadShaders.fragment
+    )
+}

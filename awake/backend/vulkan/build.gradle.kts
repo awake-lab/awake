@@ -143,6 +143,12 @@ kotlin {
             // Headless-renderer pixel-baseline regression test (desktopTest only, see
             // RendererHeadlessPixelBaselineTest) needs comparePixels().
             implementation(project(":awake:engine:ui:ui-testing"))
+            // Real-widget real-render investigations (see UiAnimationFrameCapture /
+            // ShadcnCollapsibleRealRenderCollapseFrameCaptureTest, desktopTest only) need
+            // actual shadcn widgets (shadcnSidebar/shadcnCollapsible), not just raw
+            // UiDrawPrimitives -- test-only, no cycle (ui-designsystem doesn't depend on this
+            // module).
+            implementation(project(":awake:engine:ui:ui-designsystem"))
         }
         androidMain.dependencies {
             // CMake/NDK build + bundled validation layers (AGP 9 KMP plugin

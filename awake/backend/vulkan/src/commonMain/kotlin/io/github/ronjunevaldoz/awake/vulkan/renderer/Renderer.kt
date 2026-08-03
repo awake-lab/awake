@@ -131,6 +131,14 @@ class Renderer(
     internal var fontTexture: Texture? = null
     internal var currentUiFont: UiFont? = null
 
+    // Offscreen counterparts of uiRenderPipeline/uiRoundedQuadRenderPipeline, bound to
+    // renderPipeline.renderPass (same pass OffscreenRenderTarget's framebuffer is built
+    // against, see createRenderTarget()) instead of the swapchain UI pass -- used by
+    // Renderer.renderUiToTexture()'s headless/offscreen full-UI capture path, which has no
+    // swapchain UI pipeline to reuse. Same reasoning as offscreenGlyphRenderPipeline.
+    internal var offscreenQuadRenderPipeline: UiRenderPipeline? = null
+    internal var offscreenRoundedQuadRenderPipeline: UiRoundedQuadRenderPipeline? = null
+
     // Lazily built on the first drawUi() call that has any Texture primitives -- see
     // ensureTextureQuadPipeline()'s doc comment. Reused every frame after that; a game that
     // never composites a RenderTarget never pays for this pipeline or textureQuadMesh.
@@ -383,6 +391,8 @@ class Renderer(
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
         offscreenGlyphRenderPipeline?.destroy()
+        offscreenQuadRenderPipeline?.destroy()
+        offscreenRoundedQuadRenderPipeline?.destroy()
         uiTextureRenderPipeline?.destroy()
         uiRoundedQuadRenderPipeline?.destroy()
         textureQuadMesh?.destroy()
