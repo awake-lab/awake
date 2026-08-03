@@ -815,7 +815,7 @@ fun Renderer.renderUiToTexture(target: RenderTarget, primitives: List<UiDrawPrim
             renderPass = renderPipeline.renderPass,
             framebuffer = offscreen.framebuffer,
             renderArea = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height)),
-            pClearValues = arrayOf(Renderer.clearColorValue, Renderer.clearDepthValue)
+            pClearValues = arrayOf(clearColorValue, Renderer.clearDepthValue)
         )
         Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
         val viewport = VkViewport(width = offscreen.width.toFloat(), height = offscreen.height.toFloat())
@@ -896,7 +896,7 @@ fun Renderer.renderUiGlyphsToTexture(target: RenderTarget, glyphs: List<UiDrawPr
             renderPass = renderPipeline.renderPass,
             framebuffer = offscreen.framebuffer,
             renderArea = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height)),
-            pClearValues = arrayOf(Renderer.clearColorValue, Renderer.clearDepthValue)
+            pClearValues = arrayOf(clearColorValue, Renderer.clearDepthValue)
         )
         Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
         val viewport = VkViewport(width = offscreen.width.toFloat(), height = offscreen.height.toFloat())

@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
-import io.ygdrasil.webgpu.Color as GpuColor
 import io.ygdrasil.webgpu.GPULoadOp
 import io.ygdrasil.webgpu.GPURenderPipeline
 import io.ygdrasil.webgpu.GPUStoreOp
@@ -55,7 +54,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
                 RenderPassColorAttachment(
                     view = colorView,
                     loadOp = GPULoadOp.Clear,
-                    clearValue = GpuColor(0.0, 0.0, 0.0, 1.0),
+                    clearValue = clearColorValue,
                     storeOp = GPUStoreOp.Store
                 )
             ),

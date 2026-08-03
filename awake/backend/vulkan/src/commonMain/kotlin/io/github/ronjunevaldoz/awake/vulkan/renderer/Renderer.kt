@@ -94,6 +94,13 @@ class Renderer(
 ) : RenderRenderer {
     override val flipYForClipSpace: Boolean = true
 
+    override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
+
+    /** [clearColor] converted to this backend's clear-value type -- read fresh every render
+     * pass (not cached), so a [clearColor] mutation takes effect on the very next frame. */
+    internal val clearColorValue: VkClearColorValue
+        get() = VkClearColorValue.rgba(clearColor[0], clearColor[1], clearColor[2], clearColor[3])
+
     internal val graphicsDevice = graphicsDevice
     internal val swapchainManager = swapchainManager
     internal val renderPipeline = renderPipeline
@@ -413,7 +420,6 @@ class Renderer(
         internal const val DEPTH_FORMAT = 126 // VkFormat.VK_FORMAT_D32_SFLOAT.value
         internal const val MAX_UI_QUADS = 256
         internal const val MAX_DEBUG_LINES = 64
-        internal val clearColorValue = VkClearColorValue.rgba(0f, 0f, 0f, 1f)
         internal val clearDepthValue = VkClearDepthStencilValue(depth = 1f, stencil = 0)
 
         internal val WHITE_RGBA = Color.White

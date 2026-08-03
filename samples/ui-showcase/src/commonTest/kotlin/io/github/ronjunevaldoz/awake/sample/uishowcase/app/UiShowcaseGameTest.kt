@@ -578,6 +578,7 @@ private class RecordingRenderer : Renderer {
     var lastUiPrimitives: List<UiDrawPrimitive> = emptyList()
 
     override val flipYForClipSpace: Boolean = false
+    override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
     override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
         override fun bind(commandBuffer: Long) = Unit

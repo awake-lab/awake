@@ -91,6 +91,13 @@ class Renderer(
     // is Y-down, NDC is Y-up"). Unlike Vulkan (+Y down NDC), no flip is needed here.
     override val flipYForClipSpace: Boolean = false
 
+    override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
+
+    /** [clearColor] converted to this backend's clear-value type -- see the Vulkan `Renderer`'s
+     * own `clearColorValue` for why this is a fresh-read `get()`, not a cached field. */
+    internal val clearColorValue: GpuColor
+        get() = GpuColor(clearColor[0].toDouble(), clearColor[1].toDouble(), clearColor[2].toDouble(), clearColor[3].toDouble())
+
     internal val graphicsDevice = graphicsDevice
     internal val swapchainManager = swapchainManager
     internal val renderPipeline = renderPipeline
@@ -225,7 +232,7 @@ class Renderer(
                     RenderPassColorAttachment(
                         view = offscreen.colorView,
                         loadOp = GPULoadOp.Clear,
-                        clearValue = GpuColor(0.0, 0.0, 0.0, 1.0),
+                        clearValue = clearColorValue,
                         storeOp = GPUStoreOp.Store
                     )
                 ),

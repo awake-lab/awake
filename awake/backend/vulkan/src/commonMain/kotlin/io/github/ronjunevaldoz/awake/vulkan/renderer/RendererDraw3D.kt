@@ -165,7 +165,7 @@ internal fun Renderer.recordCommandBuffer(commandBuffer: Long, acquiredImageInde
         renderArea = VkRect2D(
             extent = swapchainManager.extent
         ),
-        pClearValues = arrayOf(Renderer.clearColorValue, Renderer.clearDepthValue)
+        pClearValues = arrayOf(clearColorValue, Renderer.clearDepthValue)
     )
     Vulkan.vkCmdBeginRenderPass(
         commandBuffer,

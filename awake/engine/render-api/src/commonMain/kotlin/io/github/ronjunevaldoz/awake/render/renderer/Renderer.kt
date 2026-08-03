@@ -28,6 +28,16 @@ interface Renderer {
      * JSON) should read this rather than hardcoding `true` for every backend. */
     val flipYForClipSpace: Boolean
 
+    /** RGBA (each `0f..1f`) color the 3D render pass clears to before every frame's
+     * [draw] call -- defaults to opaque black on every backend, so any app that never sets
+     * this sees exactly what it always did. A game with real 3D content whose camera can see
+     * past its scene geometry (e.g. a sky above a ground plane) sets this once it becomes
+     * relevant, mirroring the "optional per-game override, set from an `overlay`/`onReady`
+     * block" pattern [io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime.provideDrawCalls]
+     * already established -- a plain `var`, not a per-frame parameter of [draw] itself, since
+     * one solid background color rarely needs to change every single frame. */
+    var clearColor: FloatArray
+
     /** Uploads [geometry] as a GPU mesh, on demand -- a game calls this itself for whatever
      * assets it wants, whenever it wants (not something the render bootstrap decides upfront
      * from a constructor-supplied asset list). */

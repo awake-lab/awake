@@ -10,6 +10,14 @@ import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
 /** The whole app -- this module's `app/Main.kt`/`app/main.kt` platform entry points install
  * this directly (see [io.github.ronjunevaldoz.awake.engine.application.gameDefinition]'s
  * `module(...)` call). */
+/** Soft sky blue -- [RotatingCubeDemo]'s camera can orbit/pitch above its ground grid into
+ * empty space with nothing drawn there, which otherwise reads as stark solid black (a real
+ * repro, not a hypothetical). Only set while that demo is active (see below); every other
+ * page/demo leaves [io.github.ronjunevaldoz.awake.render.renderer.Renderer.clearColor] at its
+ * [DEFAULT_CLEAR_COLOR] default. */
+private val SKY_CLEAR_COLOR = floatArrayOf(0.53f, 0.81f, 0.92f, 1f)
+private val DEFAULT_CLEAR_COLOR = floatArrayOf(0f, 0f, 0f, 1f)
+
 internal fun scene3DPlaygroundModule(): GameModule {
     val state = Scene3DPlaygroundState()
     return gameModule {
@@ -27,9 +35,11 @@ internal fun scene3DPlaygroundModule(): GameModule {
                 // gated on it being the active demo so its cube/grid don't keep drawing (and
                 // wasting a lazy-build call) on every other playground page.
                 if (RotatingCubeDemo.isActive(state.activeDemoId)) {
+                    renderer.clearColor = SKY_CLEAR_COLOR
                     RotatingCubeDemo.update(renderer, deltaSeconds)
                     provideDrawCalls = { RotatingCubeDemo.cameraAndDrawCalls() }
                 } else {
+                    renderer.clearColor = DEFAULT_CLEAR_COLOR
                     provideDrawCalls = null
                 }
                 drawScene3DPlaygroundOverlay(state)
