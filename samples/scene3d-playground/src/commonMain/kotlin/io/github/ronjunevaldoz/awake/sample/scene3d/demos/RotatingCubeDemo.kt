@@ -64,6 +64,13 @@ internal object RotatingCubeDemo {
     private const val GRID_SIZE = 10f
     private const val GRID_DIVISIONS = 10
 
+    // Half the unit cube's height (rotatingCubeGeometry spans -0.5..0.5 on every axis) --
+    // rests the cube's bottom face exactly on the grid's y=0 plane instead of centering the
+    // cube AT y=0, which sank it half beneath the floor. Also why 0.5f is targetCenter()'s
+    // and elevation's own default: the camera's orbit target now genuinely matches where the
+    // cube actually sits, not an arbitrary offset that happened to look plausible.
+    private const val CUBE_REST_HEIGHT = 0.5f
+
     val entry = Scene3DDemo(
         id = "rotating-cube",
         title = "Rotating cube",
@@ -144,7 +151,11 @@ internal object RotatingCubeDemo {
             far = far
         )
         val cube = if (!wireframe) {
-            cubeMesh?.let { mesh -> material?.let { mat -> DrawCall(mesh, mat, Mat4().rotateY(spinRadians)) } }
+            cubeMesh?.let { mesh ->
+                material?.let { mat ->
+                    DrawCall(mesh, mat, Mat4().translate(0f, CUBE_REST_HEIGHT, 0f).rotateY(spinRadians))
+                }
+            }
         } else {
             null
         }
@@ -170,10 +181,9 @@ internal object RotatingCubeDemo {
         val sin = sin(spinRadians)
         val cos = cos(spinRadians)
         val worldCorners = rotatingCubeLocalCorners.map { (x, y, z) ->
-            // Same rotateY convention as cameraAndDrawCalls' cube model matrix (both rotate
-            // the unit cube in place around the origin -- no translation, so the cube sits
-            // half-embedded in the y=0 grid, same as its solid-mesh counterpart would).
-            Vec3(x * cos + z * sin, y, -x * sin + z * cos)
+            // Same rotateY + CUBE_REST_HEIGHT convention as cameraAndDrawCalls' cube model
+            // matrix -- both rotate the unit cube in place then lift it to rest on the grid.
+            Vec3(x * cos + z * sin, y + CUBE_REST_HEIGHT, -x * sin + z * cos)
         }
         return rotatingCubeEdgeIndices.map { (startIndex, endIndex) ->
             LineSegment(worldCorners[startIndex], worldCorners[endIndex], WIREFRAME_COLOR)
