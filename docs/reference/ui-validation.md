@@ -145,6 +145,30 @@ When investigating a spacing/layout complaint, do both, not just the first:
    or wherever it's cloned) or the token scale (`ShadcnSpacing`/`UiSpacing`) it should be using
    instead of a hardcoded literal.
 
+## Default-Behavior Changes In Hot Paths Need A Performance Check, Not Just A Correctness Check
+
+Real incident: a correctness fix (making `surface()` clip content to its own rounded shape,
+previously opt-in and unused by any real caller) changed a *default* — from "never runs" to
+"runs for virtually every rounded surface" — inside `performDrawUi`'s per-primitive staging
+loop, a genuine hot path. It shipped with full correctness proof (pixel-baseline diffs, a
+targeted regression test) and zero performance proof. The result: every glyph inside every
+rounded surface started paying Sutherland-Hodgman polygon clipping against a 29-point contour,
+every frame, regardless of whether it was anywhere near a corner — a measured ~7.7x cost
+increase on a real page. This shipped clean (tests green, no visual drift) and surfaced later
+only as a vague, hard-to-pin-down "still lagging" report, chased through multiple dead-end
+investigations before landing on the actual commit.
+
+The rule: any change that flips a *default* (opt-in → always-on, or the reverse) inside code
+that runs **per-primitive or per-frame** — draw-call staging, clip resolution, animation
+stepping, layout measurement — needs a before/after performance measurement using this
+project's own frame-cost tooling (`UiShowcaseLayoutCostTest`, `RendererHeadlessFrameTimingTest`,
+or a direct microbenchmark of the changed function against a realistic input size) *before* it
+ships, not after a lag report forces someone to go find it. Pixel-baseline tests catch "does
+this look the same" — they cannot catch "does this now cost 8x as much to look the same."
+`docs/reference/agent-catalog.md`'s render-backend/perf-owning agents should treat this as a
+required step alongside pixel-diff review for any change matching that shape, the same way
+`ShadcnParityScreenshotTest` is already a required step for anything touching rendered output.
+
 A hardcoded spacing literal sitting next to a token-driven layout (`Arrangement.spacedBy(...)`)
 is itself a signal worth flagging even before measuring anything — it's the kind of thing that
 accumulates unnoticed specifically because it never shows up in a diff.
