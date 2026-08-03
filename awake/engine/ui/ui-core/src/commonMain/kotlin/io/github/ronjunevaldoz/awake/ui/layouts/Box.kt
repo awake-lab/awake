@@ -31,7 +31,15 @@ fun UiScope.box(
 
     context.pushTextStyle(textStyle)
     val scope = childBox(slot, contentAlignment = contentAlignment)
-    scope.content(slot)
+    // Matches UiScope.row()/column()/surface()'s own withMeasuredRecordingSuppressed { scope.
+    // content(slot) } -- box() is just as much a composite widget as those, so its children's
+    // claimSlot() calls must not leak into an ancestor row/column's in-progress measuredSlots/
+    // measuredWeights trial when this box sits next to (or, as here, itself IS) a weight()-
+    // tagged sibling that forces the ancestor into its trial-measurement path. Without this, a
+    // box with real content (e.g. a stats badge sharing a box with the demo's own viewport
+    // content) desyncs resolveWeightedMainAxis()'s index pairing and the ancestor's slot
+    // consumption order, corrupting sibling layout the same way the pre-fix surface() bug did.
+    context.withMeasuredRecordingSuppressed { scope.content(slot) }
     context.popTextStyle()
     return slot
 }
