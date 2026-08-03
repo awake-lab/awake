@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.math.PI
 import kotlin.math.abs
@@ -57,6 +58,19 @@ data class UiTexturedVertex(
 
 data class UiTexturedTriangleMesh(
     val vertices: List<UiTexturedVertex>,
+    val indices: IntArray
+)
+
+/** Per-vertex-colored analog of [UiTexturedVertex]/[UiTexturedTriangleMesh] -- backs
+ * [UiDrawPrimitive.GradientQuad]'s exact convex-path clip (mirrors how [UiTexturedVertex]
+ * interpolates u/v across a clipped edge, but interpolates [Color] instead). */
+data class UiColoredVertex(
+    val position: UiPoint,
+    val color: Color
+)
+
+data class UiColoredTriangleMesh(
+    val vertices: List<UiColoredVertex>,
     val indices: IntArray
 )
 
@@ -462,6 +476,15 @@ fun UiTexturedTriangleMesh.clipToConvexPaths(paths: List<UiPath>): UiTexturedTri
     return current
 }
 
+fun UiColoredTriangleMesh.clipToConvexPaths(paths: List<UiPath>): UiColoredTriangleMesh {
+    var current = this
+    paths.forEach { path ->
+        val contour = path.convexClipContour() ?: return current
+        current = current.clipToConvexContour(contour)
+    }
+    return current
+}
+
 private fun UiTriangleMesh.clipToConvexContour(clipContour: List<UiPoint>): UiTriangleMesh {
     if (points.isEmpty() || indices.isEmpty()) return this
 
@@ -514,6 +537,33 @@ private fun UiTexturedTriangleMesh.clipToConvexContour(clipContour: List<UiPoint
         index += 3
     }
     return UiTexturedTriangleMesh(clippedVertices, clippedIndices.toIntArray())
+}
+
+private fun UiColoredTriangleMesh.clipToConvexContour(clipContour: List<UiPoint>): UiColoredTriangleMesh {
+    if (vertices.isEmpty() || indices.isEmpty()) return this
+
+    val clippedVertices = ArrayList<UiColoredVertex>()
+    val clippedIndices = ArrayList<Int>()
+    var index = 0
+    while (index + 2 < indices.size) {
+        val triangle = listOf(
+            vertices[indices[index]],
+            vertices[indices[index + 1]],
+            vertices[indices[index + 2]]
+        )
+        val clippedPolygon = clipColoredPolygonToConvexContour(triangle, clipContour)
+        if (clippedPolygon.size >= 3) {
+            val base = clippedVertices.size
+            clippedVertices += clippedPolygon
+            for (i in 1 until clippedPolygon.lastIndex) {
+                clippedIndices += base
+                clippedIndices += base + i
+                clippedIndices += base + i + 1
+            }
+        }
+        index += 3
+    }
+    return UiColoredTriangleMesh(clippedVertices, clippedIndices.toIntArray())
 }
 
 fun UiPath.containsPoint(x: Float, y: Float): Boolean {
@@ -623,6 +673,36 @@ private fun clipTexturedPolygonToConvexContour(subject: List<UiTexturedVertex>, 
     return output
 }
 
+private fun clipColoredPolygonToConvexContour(subject: List<UiColoredVertex>, clip: List<UiPoint>): List<UiColoredVertex> {
+    if (subject.isEmpty()) return emptyList()
+    var output = subject
+    val orientation = polygonSignedArea(clip)
+    if (orientation == 0f) return subject
+    val isCounterClockwise = orientation > 0f
+
+    for (i in clip.indices) {
+        val a = clip[i]
+        val b = clip[(i + 1) % clip.size]
+        if (output.isEmpty()) break
+        val input = output
+        output = buildList {
+            var prev = input.last()
+            input.forEach { curr ->
+                val currInside = isInsideConvexEdge(curr.position, a, b, isCounterClockwise)
+                val prevInside = isInsideConvexEdge(prev.position, a, b, isCounterClockwise)
+                if (currInside) {
+                    if (!prevInside) add(lineIntersection(prev, curr, a, b))
+                    add(curr)
+                } else if (prevInside) {
+                    add(lineIntersection(prev, curr, a, b))
+                }
+                prev = curr
+            }
+        }
+    }
+    return output
+}
+
 private fun polygonSignedArea(points: List<UiPoint>): Float {
     var area = 0f
     for (i in points.indices) {
@@ -662,6 +742,21 @@ private fun lineIntersection(p1: UiTexturedVertex, p2: UiTexturedVertex, a: UiPo
         position = intersection,
         u = p1.u + (p2.u - p1.u) * t,
         v = p1.v + (p2.v - p1.v) * t
+    )
+}
+
+private fun lineIntersection(p1: UiColoredVertex, p2: UiColoredVertex, a: UiPoint, b: UiPoint): UiColoredVertex {
+    val intersection = lineIntersection(p1.position, p2.position, a, b)
+    val dx = p2.position.x - p1.position.x
+    val dy = p2.position.y - p1.position.y
+    val t = when {
+        abs(dx) >= abs(dy) && dx != 0f -> (intersection.x - p1.position.x) / dx
+        dy != 0f -> (intersection.y - p1.position.y) / dy
+        else -> 0f
+    }.coerceIn(0f, 1f)
+    return UiColoredVertex(
+        position = intersection,
+        color = p1.color.lerp(p2.color, t)
     )
 }
 

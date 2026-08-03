@@ -4,6 +4,8 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
+import io.github.ronjunevaldoz.awake.ui.UiColoredTriangleMesh
+import io.github.ronjunevaldoz.awake.ui.UiColoredVertex
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
 import io.github.ronjunevaldoz.awake.ui.UiPoint
@@ -91,7 +93,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
             is UiDrawPrimitive.GradientQuad -> {
                 @Suppress("UNCHECKED_CAST")
                 val mesh = quadMeshForRun(quadRunCount)
-                stageGradientQuadRun(mesh, slice as List<UiDrawPrimitive.GradientQuad>)
+                stageGradientQuadRun(mesh, slice as List<UiDrawPrimitive.GradientQuad>, activePathClips)
                 runs += Renderer.UiRun.QuadRun(mesh)
                 quadRunCount += 1
             }
@@ -233,7 +235,28 @@ internal fun Renderer.stageFilledPathRun(mesh: DynamicMesh, paths: List<UiDrawPr
     stageColoredTriangleMeshes(mesh, tessellated.map { (primitive, triangleMesh) -> triangleMesh to primitive.color }, "filled-path")
 }
 
-internal fun Renderer.stageGradientQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.GradientQuad>) {
+internal fun Renderer.stageGradientQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.GradientQuad>, activePathClips: List<UiPath> = emptyList()) {
+    if (canExactClip(activePathClips)) {
+        stageColoredVertexTriangleMeshes(
+            mesh,
+            quads.map { quad ->
+                exactClipColored(
+                    UiColoredTriangleMesh(
+                        vertices = listOf(
+                            UiColoredVertex(UiPoint(quad.x, quad.y), quad.gradient.topLeft),
+                            UiColoredVertex(UiPoint(quad.x + quad.w, quad.y), quad.gradient.topRight),
+                            UiColoredVertex(UiPoint(quad.x + quad.w, quad.y + quad.h), quad.gradient.bottomRight),
+                            UiColoredVertex(UiPoint(quad.x, quad.y + quad.h), quad.gradient.bottomLeft)
+                        ),
+                        indices = intArrayOf(0, 1, 2, 2, 3, 0)
+                    ),
+                    activePathClips
+                )
+            },
+            "gradient-quad"
+        )
+        return
+    }
     require(quads.size <= Renderer.MAX_UI_QUADS) {
         "UI gradient quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity (${Renderer.MAX_UI_QUADS})."
     }
@@ -322,6 +345,49 @@ internal fun exactClip(mesh: UiTriangleMesh, activePathClips: List<UiPath>): UiT
 
 internal fun exactClip(mesh: UiTexturedTriangleMesh, activePathClips: List<UiPath>): UiTexturedTriangleMesh =
     if (canExactClip(activePathClips)) mesh.clipToConvexPaths(activePathClips) else mesh
+
+internal fun exactClipColored(mesh: UiColoredTriangleMesh, activePathClips: List<UiPath>): UiColoredTriangleMesh =
+    if (canExactClip(activePathClips)) mesh.clipToConvexPaths(activePathClips) else mesh
+
+/** Per-vertex-colored sibling of [stageColoredTriangleMeshes] -- [UiDrawPrimitive.GradientQuad]'s
+ * exact-clip path needs each vertex's OWN color (its corner of the gradient, or an interpolated
+ * color at a clip-cut edge), not one flat color per mesh like every other exact-clipped
+ * primitive. */
+internal fun Renderer.stageColoredVertexTriangleMeshes(
+    mesh: DynamicMesh,
+    meshes: List<UiColoredTriangleMesh>,
+    label: String
+) {
+    val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
+    val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
+    val totalVertices = meshes.sumOf { it.vertices.size }
+    val totalIndices = meshes.sumOf { it.indices.size }
+    require(totalVertices <= maxVertices) {
+        "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices vertices)."
+    }
+    require(totalIndices <= maxIndices) {
+        "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices indices)."
+    }
+
+    val vertices = FloatArray(totalVertices * DynamicMesh.FLOATS_PER_VERTEX)
+    val indices = IntArray(totalIndices)
+    var vertexCursor = 0
+    var indexCursor = 0
+    var vertexOffset = 0
+
+    meshes.forEach { triangleMesh ->
+        triangleMesh.vertices.forEach { vertex ->
+            writeVertex(vertices, vertexCursor, vertex.position.x, vertex.position.y, vertex.color)
+            vertexCursor += DynamicMesh.FLOATS_PER_VERTEX
+        }
+        triangleMesh.indices.forEach { index ->
+            indices[indexCursor] = vertexOffset + index
+            indexCursor += 1
+        }
+        vertexOffset += triangleMesh.vertices.size
+    }
+    mesh.update(vertices, indices)
+}
 
 /** Writes [quads] (one run's worth) into [mesh] using the rounded-quad vertex layout --
  * pos(vec2) + localPos(vec2, pixels relative to the quad's own center) + halfSize(vec2) +
