@@ -399,14 +399,14 @@ class UiContext internal constructor(
         if (!measuring) runtime.recordSemantic(node)
     }
 
-    internal fun pushClipInternal(rect: UiBounds): UiBounds = runtime.pushClip(rect)
+    internal fun pushClipInternal(rect: UiBounds, overlay: Boolean = false): UiBounds = runtime.pushClip(rect, overlay)
 
     @Deprecated(
         message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly."
     )
     fun pushClip(rect: UiBounds): UiBounds = pushClipInternal(rect)
 
-    internal fun popClipInternal(): UiBounds = runtime.popClip()
+    internal fun popClipInternal(overlay: Boolean = false): UiBounds = runtime.popClip(overlay)
 
     @Deprecated(
         message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly."

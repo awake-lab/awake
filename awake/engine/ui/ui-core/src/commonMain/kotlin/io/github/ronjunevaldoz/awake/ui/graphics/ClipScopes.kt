@@ -10,10 +10,10 @@ import io.github.ronjunevaldoz.awake.ui.safeInteriorMargin
 import io.github.ronjunevaldoz.awake.ui.toPath
 
 fun UiScope.clip(rect: UiBounds, content: UiScope.() -> Unit) {
-    val resolved = context.pushClipInternal(rect)
+    val resolved = context.pushClipInternal(rect, overlay = emitsToOverlay)
     emit(UiDrawPrimitive.ClipPush(resolved))
     content()
-    val restore = context.popClipInternal()
+    val restore = context.popClipInternal(overlay = emitsToOverlay)
     emit(UiDrawPrimitive.ClipPop(restore))
 }
 
@@ -31,9 +31,9 @@ fun UiScope.clip(shape: UiShapeSpec, rect: UiBounds, content: UiScope.() -> Unit
 }
 
 private fun UiScope.clipPath(path: UiPath, safeInteriorRect: UiBounds?, content: UiScope.() -> Unit) {
-    val resolvedBounds = context.pushClipInternal(path.bounds())
+    val resolvedBounds = context.pushClipInternal(path.bounds(), overlay = emitsToOverlay)
     emit(UiDrawPrimitive.ClipPathPush(path, resolvedBounds, safeInteriorRect))
     content()
-    val restore = context.popClipInternal()
+    val restore = context.popClipInternal(overlay = emitsToOverlay)
     emit(UiDrawPrimitive.ClipPop(restore))
 }

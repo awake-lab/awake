@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.test.Test
@@ -77,6 +78,50 @@ class UiOverlayLayerTest {
             UiDrawPrimitive.Quad(0f, 0f, 10f, 10f, Color(0f, 0f, 1f, 1f)),
             primitives.last(),
             "the overlay-scope fill must sort after the base-layer marker"
+        )
+    }
+
+    /**
+     * Regression coverage for the "dialog wrap-height content clipped/missing" bug: a dialog/
+     * popup's overlay content is always painted last, independent of the base layer -- but
+     * before this fix, `clip()`'s [UiScope.pushClipInternal] resolved every clip rect against ONE
+     * shared stack regardless of [UiScope.emitsToOverlay]. A popup's own composition still runs
+     * synchronously nested inside whatever base-layer ancestor's content lambda called it (e.g. a
+     * WrapContent card with rounded corners, auto-clipped per Surface.kt), so that ancestor's own
+     * (possibly much smaller -- it's sized only around its normal-flow content, which never
+     * includes a nested popup's real height) clip rect got baked into the popup's own clip via
+     * `current.intersect(rect)`, permanently truncating the popup no matter how correctly its own
+     * wrap-height was measured.
+     */
+    @Test
+    fun overlayClipIsIndependentOfAmbientBaseLayerClip() {
+        val ui = UiContext()
+        ui.beginFrame(200f, 100f, testSnapshot())
+
+        // A small base-layer ancestor clip -- e.g. a WrapContent card only tall enough for its
+        // own normal-flow content, textually wrapping a nested popup call.
+        val baseColumn = ui.createColumn(x = 0f, y = 0f, width = 100f)
+        baseColumn.clip(UiBounds(0f, 0f, 100f, 10f)) {
+            // The popup's own overlay content, composed synchronously nested inside the base
+            // ancestor's still-active (10px-tall) clip -- but its OWN clip is much taller (its
+            // real, correctly-measured wrap height).
+            val overlayColumn = ui.createColumn(x = 0f, y = 0f, width = 100f, overlayOnly = true)
+            overlayColumn.clip(UiBounds(0f, 0f, 100f, 80f)) {
+                overlayColumn.emit(UiDrawPrimitive.Quad(0f, 60f, 10f, 10f, Color(0f, 0f, 1f, 1f)))
+            }
+        }
+
+        val primitives = ui.endFrame()
+        val overlayClipPush = primitives
+            .filterIsInstance<UiDrawPrimitive.ClipPush>()
+            .last()
+        assertEquals(
+            80f,
+            overlayClipPush.rect.height,
+            "a popup/dialog's own clip must resolve against its own (overlay) clip stack, not " +
+                "intersect down to whatever ambient clip a synchronously-nesting base-layer " +
+                "ancestor happens to have active -- otherwise a WrapContent card only tall enough " +
+                "for its own normal-flow content silently truncates every popup composed inside it."
         )
     }
 }

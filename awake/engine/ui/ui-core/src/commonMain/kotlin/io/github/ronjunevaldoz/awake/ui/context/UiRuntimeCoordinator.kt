@@ -96,9 +96,9 @@ internal class UiRuntimeCoordinator(
         frameState.recordSemantic(node)
     }
 
-    fun pushClip(rect: UiBounds): UiBounds = frameState.pushClip(rect)
+    fun pushClip(rect: UiBounds, overlay: Boolean = false): UiBounds = frameState.pushClip(rect, overlay)
 
-    fun popClip(): UiBounds = frameState.popClip()
+    fun popClip(overlay: Boolean = false): UiBounds = frameState.popClip(overlay)
 
     fun pointerDownEdge(): Boolean = interaction.pointerDownEdge()
 
