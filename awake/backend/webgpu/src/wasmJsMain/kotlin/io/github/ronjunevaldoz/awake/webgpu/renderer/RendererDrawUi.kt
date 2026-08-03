@@ -79,44 +79,122 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
         val safeInteriorRect = safeInteriorRectStack.lastOrNull()
         when (first) {
             is UiDrawPrimitive.Quad -> {
+                // Chunk by actual vertex/index budget under exact-clip (a clip-cut corner can
+                // add vertices beyond the fixed 4-per-quad the fast path assumes), else by
+                // primitive count -- mirrors the RoundedQuad/GradientQuad/FilledPath fix below,
+                // the pre-existing Glyph/StrokedPath fix, and Vulkan's identical fix. Real
+                // crash this guards against: "UI rounded-quad-clipped run vertex count (1026)
+                // exceeds DynamicMesh capacity (1024 vertices)" from 10 shadcn sliders' rounded
+                // -track quads inside one rounded-clip container -- the identical unchunked
+                // assumption applied here too.
                 @Suppress("UNCHECKED_CAST")
-                val mesh = quadMeshForRun(quadRunCount)
-                stageQuadRun(mesh, slice as List<UiDrawPrimitive.Quad>, activePathClips, safeInteriorRect)
-                runs += Renderer.UiRun.QuadRun(mesh)
-                quadRunCount += 1
+                val quadSlice = slice as List<UiDrawPrimitive.Quad>
+                if (canExactClip(activePathClips)) {
+                    val tessellated = quadSlice.map { quad ->
+                        val raw = UiTriangleMesh(
+                            points = listOf(
+                                UiPoint(quad.x, quad.y),
+                                UiPoint(quad.x + quad.w, quad.y),
+                                UiPoint(quad.x + quad.w, quad.y + quad.h),
+                                UiPoint(quad.x, quad.y + quad.h)
+                            ),
+                            indices = intArrayOf(0, 1, 2, 2, 3, 0)
+                        )
+                        val clipped = if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) raw
+                        else exactClip(raw, activePathClips)
+                        clipped to quad.color
+                    }
+                    quadRunCount = stageChunkedColoredTriangleMeshes(runs, quadRunCount, tessellated, "quad")
+                } else {
+                    var chunkStart = 0
+                    while (chunkStart < quadSlice.size) {
+                        val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, quadSlice.size)
+                        val mesh = quadMeshForRun(quadRunCount)
+                        stageQuadRun(mesh, quadSlice.subList(chunkStart, chunkEnd))
+                        runs += Renderer.UiRun.QuadRun(mesh)
+                        quadRunCount += 1
+                        chunkStart = chunkEnd
+                    }
+                }
             }
             is UiDrawPrimitive.GradientQuad -> {
+                // See the Quad branch's doc comment for why both the exact-clip and fast paths
+                // need chunking, not just the exact-clip one.
                 @Suppress("UNCHECKED_CAST")
-                val mesh = quadMeshForRun(quadRunCount)
-                stageGradientQuadRun(mesh, slice as List<UiDrawPrimitive.GradientQuad>, activePathClips, safeInteriorRect)
-                runs += Renderer.UiRun.QuadRun(mesh)
-                quadRunCount += 1
+                val gradientSlice = slice as List<UiDrawPrimitive.GradientQuad>
+                if (canExactClip(activePathClips)) {
+                    val tessellated = gradientSlice.map { quad ->
+                        val raw = UiColoredTriangleMesh(
+                            vertices = listOf(
+                                UiColoredVertex(UiPoint(quad.x, quad.y), quad.gradient.topLeft),
+                                UiColoredVertex(UiPoint(quad.x + quad.w, quad.y), quad.gradient.topRight),
+                                UiColoredVertex(UiPoint(quad.x + quad.w, quad.y + quad.h), quad.gradient.bottomRight),
+                                UiColoredVertex(UiPoint(quad.x, quad.y + quad.h), quad.gradient.bottomLeft)
+                            ),
+                            indices = intArrayOf(0, 1, 2, 2, 3, 0)
+                        )
+                        if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) raw
+                        else exactClipColored(raw, activePathClips)
+                    }
+                    quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "gradient-quad")
+                } else {
+                    var chunkStart = 0
+                    while (chunkStart < gradientSlice.size) {
+                        val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, gradientSlice.size)
+                        val mesh = quadMeshForRun(quadRunCount)
+                        stageGradientQuadRun(mesh, gradientSlice.subList(chunkStart, chunkEnd))
+                        runs += Renderer.UiRun.QuadRun(mesh)
+                        quadRunCount += 1
+                        chunkStart = chunkEnd
+                    }
+                }
             }
             is UiDrawPrimitive.RoundedQuad -> {
                 // Exact-clip case: tessellate a real rounded-rect path (same as the
-                // FilledPath/StrokedPath branches). Non-clipped case: dedicated SDF
-                // UiRoundedQuadRenderPipeline (mirrors Vulkan's uiRoundedQuadRenderPipeline)
-                // instead of the old flat-Quad fallback that dropped the radius entirely.
+                // FilledPath/StrokedPath branches), chunked by actual vertex/index budget --
+                // real crash this guards against: "UI rounded-quad-clipped run vertex count
+                // (1026) exceeds DynamicMesh capacity (1024 vertices)" -- 10 shadcn slider
+                // controls' rounded tracks landing inside one rounded-clip container pushed
+                // this exact-clip tessellated run over one DynamicMesh's budget. Non-clipped
+                // case: dedicated SDF UiRoundedQuadRenderPipeline (mirrors Vulkan's
+                // uiRoundedQuadRenderPipeline), chunked by primitive count -- it previously had
+                // neither chunking.
                 @Suppress("UNCHECKED_CAST")
                 val roundedSlice = slice as List<UiDrawPrimitive.RoundedQuad>
                 if (canExactClip(activePathClips)) {
-                    val mesh = quadMeshForRun(quadRunCount)
-                    stageRoundedQuadFillRun(mesh, roundedSlice, activePathClips, safeInteriorRect)
-                    runs += Renderer.UiRun.QuadRun(mesh)
-                    quadRunCount += 1
+                    val tessellated = roundedSlice.map { quad ->
+                        val triangleMesh = UiShapeSpec.RoundedRectangle(quad.radius.px)
+                            .toPath(UiBounds(quad.x, quad.y, quad.w, quad.h))
+                            .tessellateFillAa(quad.color)
+                        if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) triangleMesh
+                        else exactClipColored(triangleMesh, activePathClips)
+                    }
+                    quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "rounded-quad-clipped")
                 } else {
-                    val mesh = roundedQuadMeshForRun(roundedQuadRunCount)
-                    stageRoundedQuadRun(mesh, roundedSlice)
-                    runs += Renderer.UiRun.RoundedQuadRun(mesh)
-                    roundedQuadRunCount += 1
+                    var chunkStart = 0
+                    while (chunkStart < roundedSlice.size) {
+                        val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, roundedSlice.size)
+                        val mesh = roundedQuadMeshForRun(roundedQuadRunCount)
+                        stageRoundedQuadRun(mesh, roundedSlice.subList(chunkStart, chunkEnd))
+                        runs += Renderer.UiRun.RoundedQuadRun(mesh)
+                        roundedQuadRunCount += 1
+                        chunkStart = chunkEnd
+                    }
                 }
             }
             is UiDrawPrimitive.FilledPath -> {
+                // Path tessellation always produces a variable vertex count (unlike Quad's
+                // fixed 4), so this needs vertex-budget chunking regardless of whether a clip
+                // is active -- see the RoundedQuad branch's doc comment above.
                 @Suppress("UNCHECKED_CAST")
-                val mesh = quadMeshForRun(quadRunCount)
-                stageFilledPathRun(mesh, slice as List<UiDrawPrimitive.FilledPath>, activePathClips, safeInteriorRect)
-                runs += Renderer.UiRun.QuadRun(mesh)
-                quadRunCount += 1
+                val pathSlice = slice as List<UiDrawPrimitive.FilledPath>
+                val tessellated = pathSlice.map { primitive ->
+                    val bounds = primitive.path.bounds()
+                    val triangleMesh = primitive.path.tessellateFillAa(primitive.color)
+                    if (canSkipExactClip(safeInteriorRect, bounds.x, bounds.y, bounds.width, bounds.height)) triangleMesh
+                    else exactClipColored(triangleMesh, activePathClips)
+                }
+                quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "filled-path")
             }
             is UiDrawPrimitive.StrokedPath -> {
                 // Chunk by actual vertex/index budget, not primitive count -- mirrors the
@@ -130,32 +208,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 @Suppress("UNCHECKED_CAST")
                 val strokedSlice = slice as List<UiDrawPrimitive.StrokedPath>
                 val tessellated = strokedSlice.map { tessellateStrokedPath(it, activePathClips, safeInteriorRect) }
-                val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
-                val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
-                var chunk = mutableListOf<Pair<UiTriangleMesh, AwakeColor>>()
-                var chunkVertices = 0
-                var chunkIndices = 0
-                fun flushChunk() {
-                    if (chunk.isEmpty()) return
-                    val mesh = quadMeshForRun(quadRunCount)
-                    stageColoredTriangleMeshes(mesh, chunk, "stroked-path")
-                    runs += Renderer.UiRun.QuadRun(mesh)
-                    quadRunCount += 1
-                    chunk = mutableListOf()
-                    chunkVertices = 0
-                    chunkIndices = 0
-                }
-                for (pair in tessellated) {
-                    val vertexCount = pair.first.points.size
-                    val indexCount = pair.first.indices.size
-                    if (chunk.isNotEmpty() && (chunkVertices + vertexCount > maxVertices || chunkIndices + indexCount > maxIndices)) {
-                        flushChunk()
-                    }
-                    chunk += pair
-                    chunkVertices += vertexCount
-                    chunkIndices += indexCount
-                }
-                flushChunk()
+                quadRunCount = stageChunkedColoredTriangleMeshes(runs, quadRunCount, tessellated, "stroked-path")
             }
             is UiDrawPrimitive.Glyph -> {
                 // Chunk a same-type glyph run into MAX_UI_QUADS-sized sub-runs -- mirrors
@@ -273,31 +326,8 @@ private fun canSkipExactClip(safeInteriorRect: UiBounds?, x: Float, y: Float, w:
  * `drawUi` body, unchanged vertex/index layout. */
 private fun stageQuadRun(
     mesh: DynamicMesh,
-    quads: List<UiDrawPrimitive.Quad>,
-    activePathClips: List<UiPath> = emptyList(),
-    safeInteriorRect: UiBounds? = null
+    quads: List<UiDrawPrimitive.Quad>
 ) {
-    if (canExactClip(activePathClips)) {
-        stageColoredTriangleMeshes(
-            mesh,
-            quads.map { quad ->
-                val raw = UiTriangleMesh(
-                    points = listOf(
-                        UiPoint(quad.x, quad.y),
-                        UiPoint(quad.x + quad.w, quad.y),
-                        UiPoint(quad.x + quad.w, quad.y + quad.h),
-                        UiPoint(quad.x, quad.y + quad.h)
-                    ),
-                    indices = intArrayOf(0, 1, 2, 2, 3, 0)
-                )
-                val clipped = if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) raw
-                else exactClip(raw, activePathClips)
-                clipped to quad.color
-            },
-            "quad"
-        )
-        return
-    }
     require(quads.size <= Renderer.MAX_UI_QUADS) {
         "UI quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity (${Renderer.MAX_UI_QUADS})."
     }
@@ -325,50 +355,10 @@ private fun stageQuadRun(
     mesh.update(vertices, indices)
 }
 
-private fun stageFilledPathRun(
-    mesh: DynamicMesh,
-    paths: List<UiDrawPrimitive.FilledPath>,
-    activePathClips: List<UiPath>,
-    safeInteriorRect: UiBounds? = null
-) {
-    // tessellateFillAa (not tessellateFill) -- mirrors Vulkan's identical fix. See its doc
-    // comment: a per-vertex-alpha AA fringe ring reusing the SAME stageColoredVertexTriangleMeshes
-    // /exactClipColored plumbing GradientQuad's exact-clip path already uses on this backend.
-    val tessellated = paths.map { primitive ->
-        val bounds = primitive.path.bounds()
-        val triangleMesh = primitive.path.tessellateFillAa(primitive.color)
-        if (canSkipExactClip(safeInteriorRect, bounds.x, bounds.y, bounds.width, bounds.height)) triangleMesh
-        else exactClipColored(triangleMesh, activePathClips)
-    }
-    stageColoredVertexTriangleMeshes(mesh, tessellated, "filled-path")
-}
-
 private fun stageGradientQuadRun(
     mesh: DynamicMesh,
-    quads: List<UiDrawPrimitive.GradientQuad>,
-    activePathClips: List<UiPath> = emptyList(),
-    safeInteriorRect: UiBounds? = null
+    quads: List<UiDrawPrimitive.GradientQuad>
 ) {
-    if (canExactClip(activePathClips)) {
-        stageColoredVertexTriangleMeshes(
-            mesh,
-            quads.map { quad ->
-                val raw = UiColoredTriangleMesh(
-                    vertices = listOf(
-                        UiColoredVertex(UiPoint(quad.x, quad.y), quad.gradient.topLeft),
-                        UiColoredVertex(UiPoint(quad.x + quad.w, quad.y), quad.gradient.topRight),
-                        UiColoredVertex(UiPoint(quad.x + quad.w, quad.y + quad.h), quad.gradient.bottomRight),
-                        UiColoredVertex(UiPoint(quad.x, quad.y + quad.h), quad.gradient.bottomLeft)
-                    ),
-                    indices = intArrayOf(0, 1, 2, 2, 3, 0)
-                )
-                if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) raw
-                else exactClipColored(raw, activePathClips)
-            },
-            "gradient-quad"
-        )
-        return
-    }
     require(quads.size <= Renderer.MAX_UI_QUADS) {
         "UI gradient quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity (${Renderer.MAX_UI_QUADS})."
     }
@@ -423,24 +413,83 @@ private fun tessellateStrokedPath(
     return clipped to primitive.color
 }
 
-private fun stageRoundedQuadFillRun(
-    mesh: DynamicMesh,
-    quads: List<UiDrawPrimitive.RoundedQuad>,
-    activePathClips: List<UiPath>,
-    safeInteriorRect: UiBounds? = null
-) {
-    // tessellateFillAa mirrors Vulkan's identical fix -- exact-clip fallback path only (the
-    // dedicated SDF pipeline, ui_rounded_quad.wgsl, already antialiases its own curved corners
-    // via smoothstep but can't express an arbitrary convex-path clip).
-    stageColoredVertexTriangleMeshes(
-        mesh,
-        quads.map { quad ->
-            val triangleMesh = UiShapeSpec.RoundedRectangle(quad.radius.px).toPath(UiBounds(quad.x, quad.y, quad.w, quad.h)).tessellateFillAa(quad.color)
-            if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) triangleMesh
-            else exactClipColored(triangleMesh, activePathClips)
-        },
-        "rounded-quad-clipped"
-    )
+/** Chunks already-tessellated [geometries] by actual vertex/index budget (not primitive
+ * count) across as many pooled quad meshes as needed, appending one [Renderer.UiRun.QuadRun]
+ * per chunk to [runs] -- mirrors Vulkan's identical `stageChunkedColoredTriangleMeshes`.
+ * Returns the updated running `quadRunCount` for the caller to keep threading through its
+ * `var`. */
+private fun Renderer.stageChunkedColoredTriangleMeshes(
+    runs: MutableList<Renderer.UiRun>,
+    quadRunCount: Int,
+    geometries: List<Pair<UiTriangleMesh, AwakeColor>>,
+    label: String
+): Int {
+    val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
+    val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
+    var count = quadRunCount
+    var chunk = mutableListOf<Pair<UiTriangleMesh, AwakeColor>>()
+    var chunkVertices = 0
+    var chunkIndices = 0
+    fun flushChunk() {
+        if (chunk.isEmpty()) return
+        val mesh = quadMeshForRun(count)
+        stageColoredTriangleMeshes(mesh, chunk, label)
+        runs += Renderer.UiRun.QuadRun(mesh)
+        count += 1
+        chunk = mutableListOf()
+        chunkVertices = 0
+        chunkIndices = 0
+    }
+    for (pair in geometries) {
+        val vertexCount = pair.first.points.size
+        val indexCount = pair.first.indices.size
+        if (chunk.isNotEmpty() && (chunkVertices + vertexCount > maxVertices || chunkIndices + indexCount > maxIndices)) {
+            flushChunk()
+        }
+        chunk += pair
+        chunkVertices += vertexCount
+        chunkIndices += indexCount
+    }
+    flushChunk()
+    return count
+}
+
+/** Per-vertex-colored sibling of [stageChunkedColoredTriangleMeshes] -- mirrors Vulkan's
+ * identical `stageChunkedColoredVertexTriangleMeshes`. */
+private fun Renderer.stageChunkedColoredVertexTriangleMeshes(
+    runs: MutableList<Renderer.UiRun>,
+    quadRunCount: Int,
+    meshes: List<UiColoredTriangleMesh>,
+    label: String
+): Int {
+    val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
+    val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
+    var count = quadRunCount
+    var chunk = mutableListOf<UiColoredTriangleMesh>()
+    var chunkVertices = 0
+    var chunkIndices = 0
+    fun flushChunk() {
+        if (chunk.isEmpty()) return
+        val mesh = quadMeshForRun(count)
+        stageColoredVertexTriangleMeshes(mesh, chunk, label)
+        runs += Renderer.UiRun.QuadRun(mesh)
+        count += 1
+        chunk = mutableListOf()
+        chunkVertices = 0
+        chunkIndices = 0
+    }
+    for (m in meshes) {
+        val vertexCount = m.vertices.size
+        val indexCount = m.indices.size
+        if (chunk.isNotEmpty() && (chunkVertices + vertexCount > maxVertices || chunkIndices + indexCount > maxIndices)) {
+            flushChunk()
+        }
+        chunk += m
+        chunkVertices += vertexCount
+        chunkIndices += indexCount
+    }
+    flushChunk()
+    return count
 }
 
 /** Writes [quads] (one run's worth) into [mesh] using the rounded-quad vertex layout --
