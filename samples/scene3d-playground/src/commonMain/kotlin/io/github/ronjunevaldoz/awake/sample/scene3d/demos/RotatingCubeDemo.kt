@@ -31,16 +31,19 @@ import kotlin.math.sin
  * (a UI-only game runtime, with no 3D scene/camera of its own) still submit real geometry to
  * the one [Renderer.draw] call that drives the swapchain frame every frame.
  *
- * Every camera parameter is a live-draggable slider in real spherical coordinates -- see
- * [cameraAndDrawCalls] -- rather than a hand-picked eye-position ratio someone has to
- * edit-compile-run-screenshot to retune: "Orbit"/"Pitch"/"Zoom" orbit/tilt/dolly around
- * [targetCenter]; "Pan X"/"Pan Z"/"Elevation" move that orbit target itself; "Near"/"Far"/"FOV"
- * are the projection's clip planes and vertical field of view; "Roll" tilts the camera's up
- * vector around its own view axis. "Lock Target" freezes [targetCenter] at the origin default
- * (ignoring Pan X/Z/Elevation) so the other sliders can be tuned without the target drifting.
- * The cube's own spin is a separate, continuous auto-rotation advanced every frame by [update]
- * -- independent of any slider, so the demo is visibly "rotating" the moment it's selected, not
- * only once a slider is dragged.
+ * Every camera parameter is a live-draggable slider -- see [cameraAndDrawCalls] -- rather than
+ * a hand-picked eye-position ratio someone has to edit-compile-run-screenshot to retune. Two
+ * distinct camera modes, both driven by the same sliders with different meanings (see
+ * [freeLook]'s own doc comment for why "Free look" -- not "Look At Target" -- is the accurate
+ * name for the second mode): by default, "Orbit"/"Pitch"/"Zoom" orbit/tilt/dolly the eye around
+ * a look-at target positioned by "Pan X"/"Pan Z"/"Elevation". With "Free look" on, the eye
+ * itself is fixed at "Pan X"/"Pan Z"/"Elevation" instead, and "Orbit"/"Pitch" rotate which
+ * direction that fixed eye is looking (an FPS-style look-around instead of an orbit) --
+ * "Zoom" has no meaning in this mode and is disabled. "Near"/"Far"/"FOV" are the projection's
+ * clip planes and vertical field of view in both modes; "Roll" tilts the camera's up vector
+ * around its own view axis. The cube's own spin is a separate, continuous auto-rotation
+ * advanced every frame by [update] -- independent of any slider, so the demo is visibly
+ * "rotating" the moment it's selected, not only once a slider is dragged.
  */
 internal object RotatingCubeDemo {
     private var orbitDegrees = 0f
@@ -53,7 +56,19 @@ internal object RotatingCubeDemo {
     private var panX = 0f
     private var panZ = 0f
     private var elevation = 2.2f
-    private var lockTarget = false
+
+    /** `false` (default): orbit mode -- [orbitDegrees]/[pitchDegrees]/[zoom] orbit the eye
+     * around a look-at target positioned by [panX]/[panZ]/[elevation]; the target stays fixed
+     * regardless of where the eye orbits to.
+     *
+     * `true`: free-look mode -- the eye itself is fixed at [panX]/[panZ]/[elevation] instead
+     * of a look-at target, and [orbitDegrees]/[pitchDegrees] instead rotate which direction
+     * that fixed eye looks (an FPS-style look-around). Named "Free look", not "Look At Target"
+     * -- despite `Camera` always having a `center` field the view matrix looks at (every mode
+     * is technically "look-at"), this mode has no fixed point being looked AT; the eye is what's
+     * fixed, and the look direction rotates freely around it. [zoom] has no meaning here (no
+     * orbit radius to control) and is disabled in the controls panel while this is on. */
+    private var freeLook = false
     private var wireframe = false
     private var spinRadians = 0f
 
@@ -82,15 +97,15 @@ internal object RotatingCubeDemo {
         renderControls = {
             orbitDegrees = shadcnFieldSliderWithValue(id = "cube-orbit", label = "Orbit", min = 0f, max = 360f, value = orbitDegrees)
             pitchDegrees = shadcnFieldSliderWithValue(id = "cube-pitch", label = "Pitch", min = 0f, max = 89f, value = pitchDegrees)
-            zoom = shadcnFieldSliderWithValue(id = "cube-zoom", label = "Zoom", min = 2f, max = 15f, value = zoom)
             rollDegrees = shadcnFieldSliderWithValue(id = "cube-roll", label = "Roll", min = -180f, max = 180f, value = rollDegrees)
             near = shadcnFieldSliderWithValue(id = "cube-near", label = "Near", min = 0.01f, max = 5f, value = near)
             far = shadcnFieldSliderWithValue(id = "cube-far", label = "Far", min = 10f, max = 500f, value = far)
             fovDegrees = shadcnFieldSliderWithValue(id = "cube-fov", label = "FOV", min = 10f, max = 120f, value = fovDegrees)
-            lockTarget = shadcnSwitch(id = "cube-lock-target", checked = lockTarget, label = "Lock target")
-            panX = shadcnFieldSliderWithValue(id = "cube-pan-x", label = "Pan X", min = -5f, max = 5f, value = panX, enabled = !lockTarget)
-            panZ = shadcnFieldSliderWithValue(id = "cube-pan-z", label = "Pan Z", min = -5f, max = 5f, value = panZ, enabled = !lockTarget)
-            elevation = shadcnFieldSliderWithValue(id = "cube-elevation", label = "Elevation", min = -3f, max = 5f, value = elevation, enabled = !lockTarget)
+            freeLook = shadcnSwitch(id = "cube-free-look", checked = freeLook, label = "Free look")
+            zoom = shadcnFieldSliderWithValue(id = "cube-zoom", label = "Zoom", min = 2f, max = 15f, value = zoom, enabled = !freeLook)
+            panX = shadcnFieldSliderWithValue(id = "cube-pan-x", label = "Pan X", min = -5f, max = 5f, value = panX)
+            panZ = shadcnFieldSliderWithValue(id = "cube-pan-z", label = "Pan Z", min = -5f, max = 5f, value = panZ)
+            elevation = shadcnFieldSliderWithValue(id = "cube-elevation", label = "Elevation", min = -3f, max = 5f, value = elevation)
             wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
             text(label = "Cube spins automatically; sliders move the camera (Pitch 0 = side-on, 89 = top-down).")
         }
@@ -116,32 +131,45 @@ internal object RotatingCubeDemo {
         renderer.drawDebugLines(lines)
     }
 
-    /** The orbit target -- what [orbitDegrees]/[pitchDegrees]/[zoom] orbit around. Frozen at
-     * the origin default while [lockTarget] is on, ignoring [panX]/[panZ]/[elevation] so the
-     * other sliders can be tuned without the target drifting underneath them. */
-    private fun targetCenter(): Vec3 =
-        if (lockTarget) Vec3(0f, 0.5f, 0f) else Vec3(panX, elevation, panZ)
+    /** Orbit mode's look-at target -- see [freeLook]'s doc comment. */
+    private fun targetCenter(): Vec3 = Vec3(panX, elevation, panZ)
 
-    /** Camera orbiting [targetCenter] in real spherical coordinates -- [orbitDegrees] is yaw
-     * (compass direction around the target), [pitchDegrees] is the angle up from the horizon
-     * (0 = eye-level side-on, 90 = straight down), [zoom] is the distance from the target.
-     * Live-draggable, unlike a hand-picked eye-position ratio: dragging Pitch to 89 gives a
-     * true top-down view, dragging it to 0 gives a side-on view, with everything in between
-     * actually reachable. [rollDegrees] tilts the camera's up vector around its own view axis
-     * (the eye-to-target line) rather than the world's; [near]/[far]/[fovDegrees] are the
-     * projection's clip planes and vertical field of view. The solid cube draw call is included
-     * only when [wireframe] is off (its edges are drawn as debug lines instead, see [update]);
-     * the ground grid has no solid draw call at all, see [update]. */
-    fun cameraAndDrawCalls(): Pair<Camera, List<DrawCall>> {
+    /** Unit look direction for free-look mode -- [orbitDegrees] is yaw (compass heading),
+     * [pitchDegrees] is elevation angle above the horizon, matching the same slider ranges
+     * orbit mode uses so switching modes doesn't require re-tuning the sliders to sane values. */
+    private fun freeLookDirection(): Vec3 {
         val orbitRad = orbitDegrees * DEGREES_TO_RADIANS
         val pitchRad = pitchDegrees * DEGREES_TO_RADIANS
-        val horizontalRadius = zoom * cos(pitchRad)
-        val center = targetCenter()
-        val eye = center + Vec3(
-            horizontalRadius * sin(orbitRad),
-            zoom * sin(pitchRad),
-            horizontalRadius * cos(orbitRad)
+        return Vec3(
+            cos(pitchRad) * sin(orbitRad),
+            sin(pitchRad),
+            cos(pitchRad) * cos(orbitRad)
         )
+    }
+
+    /** Builds this frame's [Camera] in whichever mode [freeLook] selects (see its own doc
+     * comment for the two modes) -- [rollDegrees] tilts the camera's up vector around its own
+     * view axis (the eye-to-center line) rather than the world's in either mode; [near]/[far]/
+     * [fovDegrees] are the projection's clip planes and vertical field of view. The solid cube
+     * draw call is included only when [wireframe] is off (its edges are drawn as debug lines
+     * instead, see [update]); the ground grid has no solid draw call at all, see [update]. */
+    fun cameraAndDrawCalls(): Pair<Camera, List<DrawCall>> {
+        val eye: Vec3
+        val center: Vec3
+        if (freeLook) {
+            eye = Vec3(panX, elevation, panZ)
+            center = eye + freeLookDirection() * FREE_LOOK_DISTANCE
+        } else {
+            val orbitRad = orbitDegrees * DEGREES_TO_RADIANS
+            val pitchRad = pitchDegrees * DEGREES_TO_RADIANS
+            val horizontalRadius = zoom * cos(pitchRad)
+            center = targetCenter()
+            eye = center + Vec3(
+                horizontalRadius * sin(orbitRad),
+                zoom * sin(pitchRad),
+                horizontalRadius * cos(orbitRad)
+            )
+        }
         val camera = Camera(
             eye = eye,
             center = center,
@@ -206,5 +234,10 @@ internal object RotatingCubeDemo {
     private val AXIS_COLOR_Y = floatArrayOf(0.15f, 0.75f, 0.15f, 1f)
     private val AXIS_COLOR_Z = floatArrayOf(0.15f, 0.35f, 0.9f, 1f)
     private const val AXIS_LENGTH = 2f
+
+    // Arbitrary nonzero distance from eye to Camera's `center` field in free-look mode --
+    // Camera's view matrix only needs eye/center/up to determine direction, this magnitude
+    // has no visual effect (unlike orbit mode's zoom, which IS the eye-to-target distance).
+    private const val FREE_LOOK_DISTANCE = 10f
     private const val DEGREES_TO_RADIANS = (PI / 180.0).toFloat()
 }
