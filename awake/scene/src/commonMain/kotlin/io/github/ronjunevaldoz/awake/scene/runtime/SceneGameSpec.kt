@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
+import io.github.ronjunevaldoz.awake.engine.application.GameModule
 import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
 import kotlin.reflect.KClass
 
@@ -17,7 +17,7 @@ class SceneGameSpec(
     val onReadyBlock: SceneReadyBlock,
     val onDisposeBlock: SceneDisposeBlock,
     internal val serviceRegistrations: List<SceneServiceRegistration<*>>
-) : GameInstaller {
+) : GameModule {
     override fun install(into: GameSpecBuilder) {
         installInto(into)
     }
