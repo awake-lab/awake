@@ -16,3 +16,12 @@ fun UiBounds.intersect(other: UiBounds): UiBounds {
 
 fun UiBounds.toBounds(): UiBounds = this
 fun UiBounds.toSlot(): UiBounds = this
+
+/** True when [other] lies entirely within this rect (on-edge counts as contained) -- backs
+ * the backend "safe interior" skip-check for exact convex-path clipping (see
+ * `RendererDrawUi.kt`'s `stage*Run` helpers): a primitive whose own bounds are contained in a
+ * clip's safe-interior rect provably cannot touch that clip's rounded/cut corner region. */
+fun UiBounds.contains(other: UiBounds): Boolean =
+    other.x >= x && other.y >= y &&
+        other.x + other.width <= x + width &&
+        other.y + other.height <= y + height

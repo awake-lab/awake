@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.bounds
+import io.github.ronjunevaldoz.awake.ui.safeInteriorMargin
 import io.github.ronjunevaldoz.awake.ui.toPath
 
 fun UiScope.clip(rect: UiBounds, content: UiScope.() -> Unit) {
@@ -16,14 +17,23 @@ fun UiScope.clip(rect: UiBounds, content: UiScope.() -> Unit) {
     emit(UiDrawPrimitive.ClipPop(restore))
 }
 
-fun UiScope.clip(path: UiPath, content: UiScope.() -> Unit) {
+fun UiScope.clip(path: UiPath, content: UiScope.() -> Unit) = clipPath(path, safeInteriorRect = null, content)
+
+fun UiScope.clip(shape: UiShapeSpec, rect: UiBounds, content: UiScope.() -> Unit) {
+    val margin = shape.safeInteriorMargin(rect)
+    val safeInteriorRect = UiBounds(
+        x = rect.x + margin,
+        y = rect.y + margin,
+        width = (rect.width - 2f * margin).coerceAtLeast(0f),
+        height = (rect.height - 2f * margin).coerceAtLeast(0f)
+    )
+    clipPath(shape.toPath(rect), safeInteriorRect, content)
+}
+
+private fun UiScope.clipPath(path: UiPath, safeInteriorRect: UiBounds?, content: UiScope.() -> Unit) {
     val resolvedBounds = context.pushClipInternal(path.bounds())
-    emit(UiDrawPrimitive.ClipPathPush(path, resolvedBounds))
+    emit(UiDrawPrimitive.ClipPathPush(path, resolvedBounds, safeInteriorRect))
     content()
     val restore = context.popClipInternal()
     emit(UiDrawPrimitive.ClipPop(restore))
-}
-
-fun UiScope.clip(shape: UiShapeSpec, rect: UiBounds, content: UiScope.() -> Unit) {
-    clip(shape.toPath(rect), content)
 }

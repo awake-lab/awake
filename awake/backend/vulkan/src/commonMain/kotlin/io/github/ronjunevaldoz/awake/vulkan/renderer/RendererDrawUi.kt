@@ -17,10 +17,14 @@ import io.github.ronjunevaldoz.awake.ui.clipToConvexPaths
 import io.github.ronjunevaldoz.awake.ui.convexClipContour
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.contains
+import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
@@ -75,6 +79,12 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
     var glyphRunCount = 0
     val activePathClips = ArrayList<UiPath>()
     val clipKindStack = ArrayDeque<ClipKind>()
+    // Per active ClipPathPush, the running intersection of every active clip's OWN
+    // safeInteriorRect -- null means "at least one active clip has no known safe interior"
+    // (e.g. pushed via the raw path-only `clip()` overload), so the exact-clip fast path
+    // must always run for the whole stack, same as before this optimization existed. See
+    // canSkipExactClip's doc comment for how this is consumed per primitive.
+    val safeInteriorRectStack = ArrayDeque<UiBounds?>()
     var index = 0
     while (index < primitives.size) {
         val runStart = index
@@ -82,18 +92,19 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
         index += 1
         while (index < primitives.size && primitives[index]::class == first::class) index += 1
         val slice = primitives.subList(runStart, index)
+        val safeInteriorRect = safeInteriorRectStack.lastOrNull()
         when (first) {
             is UiDrawPrimitive.Quad -> {
                 @Suppress("UNCHECKED_CAST")
                 val mesh = quadMeshForRun(quadRunCount)
-                stageQuadRun(mesh, slice as List<UiDrawPrimitive.Quad>, activePathClips)
+                stageQuadRun(mesh, slice as List<UiDrawPrimitive.Quad>, activePathClips, safeInteriorRect)
                 runs += Renderer.UiRun.QuadRun(mesh)
                 quadRunCount += 1
             }
             is UiDrawPrimitive.GradientQuad -> {
                 @Suppress("UNCHECKED_CAST")
                 val mesh = quadMeshForRun(quadRunCount)
-                stageGradientQuadRun(mesh, slice as List<UiDrawPrimitive.GradientQuad>, activePathClips)
+                stageGradientQuadRun(mesh, slice as List<UiDrawPrimitive.GradientQuad>, activePathClips, safeInteriorRect)
                 runs += Renderer.UiRun.QuadRun(mesh)
                 quadRunCount += 1
             }
@@ -102,7 +113,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 val roundedSlice = slice as List<UiDrawPrimitive.RoundedQuad>
                 if (canExactClip(activePathClips)) {
                     val mesh = quadMeshForRun(quadRunCount)
-                    stageRoundedQuadFillRun(mesh, roundedSlice, activePathClips)
+                    stageRoundedQuadFillRun(mesh, roundedSlice, activePathClips, safeInteriorRect)
                     runs += Renderer.UiRun.QuadRun(mesh)
                     quadRunCount += 1
                 } else {
@@ -115,14 +126,14 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
             is UiDrawPrimitive.FilledPath -> {
                 @Suppress("UNCHECKED_CAST")
                 val mesh = quadMeshForRun(quadRunCount)
-                stageFilledPathRun(mesh, slice as List<UiDrawPrimitive.FilledPath>, activePathClips)
+                stageFilledPathRun(mesh, slice as List<UiDrawPrimitive.FilledPath>, activePathClips, safeInteriorRect)
                 runs += Renderer.UiRun.QuadRun(mesh)
                 quadRunCount += 1
             }
             is UiDrawPrimitive.StrokedPath -> {
                 @Suppress("UNCHECKED_CAST")
                 val mesh = quadMeshForRun(quadRunCount)
-                stageStrokedPathRun(mesh, slice as List<UiDrawPrimitive.StrokedPath>, activePathClips)
+                stageStrokedPathRun(mesh, slice as List<UiDrawPrimitive.StrokedPath>, activePathClips, safeInteriorRect)
                 runs += Renderer.UiRun.QuadRun(mesh)
                 quadRunCount += 1
             }
@@ -137,12 +148,15 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                     // once enough glyphs land inside a clipped/rounded surface (real crash:
                     // "glyph run vertex count (1134) exceeds DynamicMesh capacity (1024)").
                     // Clip once, then bin into chunks by the actual resulting vertex/index
-                    // budget instead of glyph count.
+                    // budget instead of glyph count. Glyphs whose own bounds are already
+                    // safely inside every active clip's safeInteriorRect skip the polygon
+                    // clip entirely (see canSkipExactClip) -- their quad always stays the
+                    // fixed 4 vertices, same as the un-clipped fast path below.
                     val clipped = glyphSlice.map { glyph ->
-                        exactClip(
-                            texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1),
-                            activePathClips
-                        ) to glyph.color
+                        val raw = texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1)
+                        val mesh = if (canSkipExactClip(safeInteriorRect, glyph.x, glyph.y, glyph.w, glyph.h)) raw
+                        else exactClip(raw, activePathClips)
+                        mesh to glyph.color
                     }
                     val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
                     val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
@@ -175,7 +189,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                     while (chunkStart < glyphSlice.size) {
                         val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, glyphSlice.size)
                         val mesh = glyphMeshForRun(glyphRunCount)
-                        stageGlyphRun(mesh, glyphSlice.subList(chunkStart, chunkEnd), activePathClips)
+                        stageGlyphRun(mesh, glyphSlice.subList(chunkStart, chunkEnd), activePathClips, safeInteriorRect)
                         runs += Renderer.UiRun.GlyphRun(mesh)
                         glyphRunCount += 1
                         chunkStart = chunkEnd
@@ -184,7 +198,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
             }
             is UiDrawPrimitive.Texture -> {
                 @Suppress("UNCHECKED_CAST")
-                runs += Renderer.UiRun.TextureRun(stageTextureRun(slice as List<UiDrawPrimitive.Texture>, activePathClips))
+                runs += Renderer.UiRun.TextureRun(stageTextureRun(slice as List<UiDrawPrimitive.Texture>, activePathClips, safeInteriorRect))
             }
             is UiDrawPrimitive.ClipPathPush -> {
                 // Keep the resolved bounds scissor even when exact convex path clipping
@@ -193,6 +207,10 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 (slice as List<UiDrawPrimitive.ClipPathPush>).forEach {
                     clipKindStack.addLast(ClipKind.Path)
                     activePathClips += it.path
+                    val parentSafeInteriorRect = safeInteriorRectStack.lastOrNull() ?: UNBOUNDED_SAFE_INTERIOR_RECT
+                    safeInteriorRectStack.addLast(
+                        it.safeInteriorRect?.let { own -> parentSafeInteriorRect?.intersect(own) }
+                    )
                     runs += Renderer.UiRun.ClipRun(it.boundsRect)
                 }
             }
@@ -209,7 +227,10 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
             is UiDrawPrimitive.ClipPop -> {
                 (slice as List<UiDrawPrimitive.ClipPop>).forEach {
                     when (clipKindStack.removeLastOrNull()) {
-                        ClipKind.Path -> if (activePathClips.isNotEmpty()) activePathClips.removeAt(activePathClips.lastIndex)
+                        ClipKind.Path -> {
+                            if (activePathClips.isNotEmpty()) activePathClips.removeAt(activePathClips.lastIndex)
+                            safeInteriorRectStack.removeLastOrNull()
+                        }
                         ClipKind.Rect, null -> Unit
                     }
                     runs += Renderer.UiRun.ClipRun(it.restoreRect)
@@ -220,26 +241,46 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
     uiRuns = runs
 }
 
+/** Effectively-infinite rect used as the "no ancestor constraint yet" starting point when
+ * intersecting [UiDrawPrimitive.ClipPathPush.safeInteriorRect]s down the active clip stack
+ * (see [performDrawUi]'s `safeInteriorRectStack`) -- intersecting any real rect against this
+ * returns that rect unchanged. */
+private val UNBOUNDED_SAFE_INTERIOR_RECT = UiBounds(-1e9f, -1e9f, 2e9f, 2e9f)
+
+/** True when a primitive at [x]/[y] sized [w]x[h] is provably fully inside [safeInteriorRect]
+ * (see [UiDrawPrimitive.ClipPathPush.safeInteriorRect]'s doc comment) -- when true, the
+ * caller can skip the expensive exact convex-path clip for this ONE primitive entirely and
+ * emit its plain unclipped geometry instead, since it geometrically cannot touch any active
+ * clip's rounded/cut corner region. `safeInteriorRect == null` (no active clip, or at least
+ * one active clip has no known safe interior) is always conservative -- never skips. */
+internal fun canSkipExactClip(safeInteriorRect: UiBounds?, x: Float, y: Float, w: Float, h: Float): Boolean =
+    safeInteriorRect != null && safeInteriorRect.contains(UiBounds(x, y, w, h))
+
 /** Writes [quads] (one run's worth, not necessarily this frame's whole quad count) into
  * [mesh] -- extracted from the old single-mesh `drawUi` body, unchanged vertex/index
  * layout. */
-internal fun Renderer.stageQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.Quad>, activePathClips: List<UiPath> = emptyList()) {
+internal fun Renderer.stageQuadRun(
+    mesh: DynamicMesh,
+    quads: List<UiDrawPrimitive.Quad>,
+    activePathClips: List<UiPath> = emptyList(),
+    safeInteriorRect: UiBounds? = null
+) {
     if (canExactClip(activePathClips)) {
         stageColoredTriangleMeshes(
             mesh,
             quads.map { quad ->
-                exactClip(
-                    UiTriangleMesh(
-                        points = listOf(
-                            UiPoint(quad.x, quad.y),
-                            UiPoint(quad.x + quad.w, quad.y),
-                            UiPoint(quad.x + quad.w, quad.y + quad.h),
-                            UiPoint(quad.x, quad.y + quad.h)
-                        ),
-                        indices = intArrayOf(0, 1, 2, 2, 3, 0)
+                val raw = UiTriangleMesh(
+                    points = listOf(
+                        UiPoint(quad.x, quad.y),
+                        UiPoint(quad.x + quad.w, quad.y),
+                        UiPoint(quad.x + quad.w, quad.y + quad.h),
+                        UiPoint(quad.x, quad.y + quad.h)
                     ),
-                    activePathClips
-                ) to quad.color
+                    indices = intArrayOf(0, 1, 2, 2, 3, 0)
+                )
+                val clipped = if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) raw
+                else exactClip(raw, activePathClips)
+                clipped to quad.color
             },
             "quad"
         )
@@ -273,28 +314,43 @@ internal fun Renderer.stageQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitiv
     mesh.update(vertices, indices)
 }
 
-internal fun Renderer.stageFilledPathRun(mesh: DynamicMesh, paths: List<UiDrawPrimitive.FilledPath>, activePathClips: List<UiPath>) {
-    val tessellated = paths.map { it to exactClip(it.path.tessellateFill(), activePathClips) }
+internal fun Renderer.stageFilledPathRun(
+    mesh: DynamicMesh,
+    paths: List<UiDrawPrimitive.FilledPath>,
+    activePathClips: List<UiPath>,
+    safeInteriorRect: UiBounds? = null
+) {
+    val tessellated = paths.map { primitive ->
+        val bounds = primitive.path.bounds()
+        val triangleMesh = primitive.path.tessellateFill()
+        val clipped = if (canSkipExactClip(safeInteriorRect, bounds.x, bounds.y, bounds.width, bounds.height)) triangleMesh
+        else exactClip(triangleMesh, activePathClips)
+        primitive to clipped
+    }
     stageColoredTriangleMeshes(mesh, tessellated.map { (primitive, triangleMesh) -> triangleMesh to primitive.color }, "filled-path")
 }
 
-internal fun Renderer.stageGradientQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.GradientQuad>, activePathClips: List<UiPath> = emptyList()) {
+internal fun Renderer.stageGradientQuadRun(
+    mesh: DynamicMesh,
+    quads: List<UiDrawPrimitive.GradientQuad>,
+    activePathClips: List<UiPath> = emptyList(),
+    safeInteriorRect: UiBounds? = null
+) {
     if (canExactClip(activePathClips)) {
         stageColoredVertexTriangleMeshes(
             mesh,
             quads.map { quad ->
-                exactClipColored(
-                    UiColoredTriangleMesh(
-                        vertices = listOf(
-                            UiColoredVertex(UiPoint(quad.x, quad.y), quad.gradient.topLeft),
-                            UiColoredVertex(UiPoint(quad.x + quad.w, quad.y), quad.gradient.topRight),
-                            UiColoredVertex(UiPoint(quad.x + quad.w, quad.y + quad.h), quad.gradient.bottomRight),
-                            UiColoredVertex(UiPoint(quad.x, quad.y + quad.h), quad.gradient.bottomLeft)
-                        ),
-                        indices = intArrayOf(0, 1, 2, 2, 3, 0)
+                val raw = UiColoredTriangleMesh(
+                    vertices = listOf(
+                        UiColoredVertex(UiPoint(quad.x, quad.y), quad.gradient.topLeft),
+                        UiColoredVertex(UiPoint(quad.x + quad.w, quad.y), quad.gradient.topRight),
+                        UiColoredVertex(UiPoint(quad.x + quad.w, quad.y + quad.h), quad.gradient.bottomRight),
+                        UiColoredVertex(UiPoint(quad.x, quad.y + quad.h), quad.gradient.bottomLeft)
                     ),
-                    activePathClips
+                    indices = intArrayOf(0, 1, 2, 2, 3, 0)
                 )
+                if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) raw
+                else exactClipColored(raw, activePathClips)
             },
             "gradient-quad"
         )
@@ -327,19 +383,46 @@ internal fun Renderer.stageGradientQuadRun(mesh: DynamicMesh, quads: List<UiDraw
     mesh.update(vertices, indices)
 }
 
-internal fun Renderer.stageStrokedPathRun(mesh: DynamicMesh, paths: List<UiDrawPrimitive.StrokedPath>, activePathClips: List<UiPath>) {
-    val tessellated = paths.map { it to exactClip(it.path.tessellateStroke(it.stroke), activePathClips) }
+internal fun Renderer.stageStrokedPathRun(
+    mesh: DynamicMesh,
+    paths: List<UiDrawPrimitive.StrokedPath>,
+    activePathClips: List<UiPath>,
+    safeInteriorRect: UiBounds? = null
+) {
+    val tessellated = paths.map { primitive ->
+        // Stroke geometry extends up to a full stroke-width beyond the raw path's own point
+        // bounds (perpendicular offset on each side, plus square-cap extension along the
+        // tangent at open-contour ends) -- widen the containment check by the full width
+        // (not just half) to stay conservative rather than exactly modeling miter joins.
+        val rawBounds = primitive.path.bounds()
+        val strokeMargin = primitive.stroke.width.toPx()
+        val paintedBounds = UiBounds(
+            rawBounds.x - strokeMargin,
+            rawBounds.y - strokeMargin,
+            rawBounds.width + 2f * strokeMargin,
+            rawBounds.height + 2f * strokeMargin
+        )
+        val triangleMesh = primitive.path.tessellateStroke(primitive.stroke)
+        val clipped = if (canSkipExactClip(safeInteriorRect, paintedBounds.x, paintedBounds.y, paintedBounds.width, paintedBounds.height)) triangleMesh
+        else exactClip(triangleMesh, activePathClips)
+        primitive to clipped
+    }
     stageColoredTriangleMeshes(mesh, tessellated.map { (primitive, triangleMesh) -> triangleMesh to primitive.color }, "stroked-path")
 }
 
-internal fun Renderer.stageRoundedQuadFillRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.RoundedQuad>, activePathClips: List<UiPath>) {
+internal fun Renderer.stageRoundedQuadFillRun(
+    mesh: DynamicMesh,
+    quads: List<UiDrawPrimitive.RoundedQuad>,
+    activePathClips: List<UiPath>,
+    safeInteriorRect: UiBounds? = null
+) {
     stageColoredTriangleMeshes(
         mesh,
         quads.map { quad ->
-            exactClip(
-                UiShapeSpec.RoundedRectangle(quad.radius.px).toPath(UiBounds(quad.x, quad.y, quad.w, quad.h)).tessellateFill(),
-                activePathClips
-            ) to quad.color
+            val triangleMesh = UiShapeSpec.RoundedRectangle(quad.radius.px).toPath(UiBounds(quad.x, quad.y, quad.w, quad.h)).tessellateFill()
+            val clipped = if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) triangleMesh
+            else exactClip(triangleMesh, activePathClips)
+            clipped to quad.color
         },
         "rounded-quad-clipped"
     )
@@ -474,15 +557,20 @@ internal fun Renderer.stageRoundedQuadRun(mesh: DynamicMesh, quads: List<UiDrawP
 
 /** Writes [glyphs] (one run's worth) into [mesh] -- extracted from the old single-mesh
  * `drawUi` body, unchanged vertex/index layout unless exact path clipping is active. */
-internal fun Renderer.stageGlyphRun(mesh: DynamicMesh, glyphs: List<UiDrawPrimitive.Glyph>, activePathClips: List<UiPath> = emptyList()) {
+internal fun Renderer.stageGlyphRun(
+    mesh: DynamicMesh,
+    glyphs: List<UiDrawPrimitive.Glyph>,
+    activePathClips: List<UiPath> = emptyList(),
+    safeInteriorRect: UiBounds? = null
+) {
     if (canExactClip(activePathClips)) {
         stageTexturedTriangleMeshes(
             mesh,
             glyphs.map { glyph ->
-                exactClip(
-                    texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1),
-                    activePathClips
-                ) to glyph.color
+                val raw = texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1)
+                val clipped = if (canSkipExactClip(safeInteriorRect, glyph.x, glyph.y, glyph.w, glyph.h)) raw
+                else exactClip(raw, activePathClips)
+                clipped to glyph.color
             },
             "glyph"
         )
@@ -515,9 +603,15 @@ internal fun Renderer.stageGlyphRun(mesh: DynamicMesh, glyphs: List<UiDrawPrimit
     mesh.update(glyphVertices, glyphIndices)
 }
 
-internal fun Renderer.stageTextureRun(textures: List<UiDrawPrimitive.Texture>, activePathClips: List<UiPath>): List<Renderer.TexturedPrimitiveRun> =
+internal fun Renderer.stageTextureRun(
+    textures: List<UiDrawPrimitive.Texture>,
+    activePathClips: List<UiPath>,
+    safeInteriorRect: UiBounds? = null
+): List<Renderer.TexturedPrimitiveRun> =
     textures.map { primitive ->
-        val clipped = exactClip(texturedQuadMesh(primitive.x, primitive.y, primitive.w, primitive.h), activePathClips)
+        val raw = texturedQuadMesh(primitive.x, primitive.y, primitive.w, primitive.h)
+        val clipped = if (canSkipExactClip(safeInteriorRect, primitive.x, primitive.y, primitive.w, primitive.h)) raw
+        else exactClip(raw, activePathClips)
         val (vertices, indices) = texturedGeometryBuffers(clipped, Renderer.WHITE_RGBA, primitive.transform)
         Renderer.TexturedPrimitiveRun(primitive.material, vertices, indices)
     }

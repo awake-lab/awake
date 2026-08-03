@@ -216,10 +216,21 @@ sealed class UiDrawPrimitive {
     /** Path-based clip sibling of [ClipPush]. [boundsRect] is already intersected against
      * the active clip stack, so backends without stencil/mask support can still conservatively
      * fall back to plain scissor clipping on that rect. Consumers that do understand shape
-     * clipping can use [path] for the exact mask. */
+     * clipping can use [path] for the exact mask.
+     *
+     * [safeInteriorRect], when non-null, is [path]'s own bounds inset by its shape's corner
+     * radius/cut-size on all four sides (see [io.github.ronjunevaldoz.awake.ui.safeInteriorMargin]) --
+     * any primitive whose OWN bounds fit entirely inside it provably cannot touch [path]'s
+     * curved/cut corner region, so a backend's exact-clip fast path can skip the expensive
+     * per-primitive polygon clip for it and emit the primitive's plain unclipped geometry
+     * instead (the coarse [boundsRect] scissor, already applied regardless, still trims it).
+     * Null for clips pushed via the raw [io.github.ronjunevaldoz.awake.ui.graphics.clip]
+     * (path-only) overload, where no shape/radius is known -- backends must always take the
+     * exact-clip path in that case, same as before this field existed. */
     data class ClipPathPush(
         val path: UiPath,
-        val boundsRect: UiBounds
+        val boundsRect: UiBounds,
+        val safeInteriorRect: UiBounds? = null
     ) : UiDrawPrimitive()
 
     /** Marks the start of a clipped region -- [rect] is always already-intersected against

@@ -168,6 +168,25 @@ fun UiShapeSpec.toPath(bounds: UiBounds, fillRule: UiFillRule = UiFillRule.NonZe
     is UiShapeSpec.CutCorner -> cutCornerPath(bounds, size, fillRule)
 }
 
+/**
+ * Max inset that's safe to shrink a shape's own [bounds] by such that ANY primitive whose own
+ * (axis-aligned) bounds fit entirely inside the shrunk rect provably cannot touch this shape's
+ * rounded/cut corner region -- backs the "skip exact convex-path clipping" fast path in each
+ * backend's `RendererDrawUi.kt`. Uses the exact same clamp each shape's own path-building
+ * function ([roundedRectanglePath]/[cutCornerPath] et al, this file) applies to its own
+ * radius/cut-size, so the margin here always matches the real geometry, never over-claims.
+ * [UiShapeSpec.Rectangle] has no curved/cut corner at all, so its margin is 0 -- the shape's
+ * whole bounds are already safe.
+ */
+fun UiShapeSpec.safeInteriorMargin(bounds: UiBounds): Float = when (this) {
+    UiShapeSpec.Rectangle -> 0f
+    is UiShapeSpec.RoundedRectangle -> radius.toPx().coerceIn(0f, min(bounds.width, bounds.height) / 2f)
+    // Both built from roundedRectanglePath with radius == min(w, h) / 2 (see circlePath/
+    // pillPath below) -- same margin formula, not a separate derivation.
+    UiShapeSpec.Circle, UiShapeSpec.Pill -> min(bounds.width, bounds.height) / 2f
+    is UiShapeSpec.CutCorner -> size.toPx().coerceIn(0f, min(bounds.width, bounds.height) / 2f)
+}
+
 fun UiPath.bounds(): UiBounds {
     if (commands.isEmpty()) return UiBounds(0f, 0f, 0f, 0f)
 
