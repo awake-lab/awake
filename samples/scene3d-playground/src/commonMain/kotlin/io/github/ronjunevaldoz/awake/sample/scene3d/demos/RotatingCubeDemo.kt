@@ -31,14 +31,29 @@ import kotlin.math.sin
  * (a UI-only game runtime, with no 3D scene/camera of its own) still submit real geometry to
  * the one [Renderer.draw] call that drives the swapchain frame every frame.
  *
- * "Orbit"/"Zoom" control the *camera* (it orbits/dollies around the cube); the cube's own spin
- * is a separate, continuous auto-rotation advanced every frame by [update] -- independent of
- * either slider, so the demo is visibly "rotating" the moment it's selected, not only once a
- * slider is dragged.
+ * Every camera parameter is a live-draggable slider in real spherical coordinates -- see
+ * [cameraAndDrawCalls] -- rather than a hand-picked eye-position ratio someone has to
+ * edit-compile-run-screenshot to retune: "Orbit"/"Pitch"/"Zoom" orbit/tilt/dolly around
+ * [targetCenter]; "Pan X"/"Pan Z"/"Elevation" move that orbit target itself; "Near"/"Far"/"FOV"
+ * are the projection's clip planes and vertical field of view; "Roll" tilts the camera's up
+ * vector around its own view axis. "Lock Target" freezes [targetCenter] at the origin default
+ * (ignoring Pan X/Z/Elevation) so the other sliders can be tuned without the target drifting.
+ * The cube's own spin is a separate, continuous auto-rotation advanced every frame by [update]
+ * -- independent of any slider, so the demo is visibly "rotating" the moment it's selected, not
+ * only once a slider is dragged.
  */
 internal object RotatingCubeDemo {
     private var orbitDegrees = 35f
+    private var pitchDegrees = 70f
     private var zoom = 6f
+    private var near = 0.1f
+    private var far = 100f
+    private var fovDegrees = 45f
+    private var rollDegrees = 0f
+    private var panX = 0f
+    private var panZ = 0f
+    private var elevation = 0.5f
+    private var lockTarget = false
     private var wireframe = false
     private var spinRadians = 0f
 
@@ -59,9 +74,18 @@ internal object RotatingCubeDemo {
         },
         renderControls = {
             orbitDegrees = shadcnSlider(id = "cube-orbit", min = 0f, max = 360f, value = orbitDegrees, label = "Orbit")
+            pitchDegrees = shadcnSlider(id = "cube-pitch", min = 0f, max = 89f, value = pitchDegrees, label = "Pitch")
             zoom = shadcnSlider(id = "cube-zoom", min = 2f, max = 15f, value = zoom, label = "Zoom")
+            rollDegrees = shadcnSlider(id = "cube-roll", min = -180f, max = 180f, value = rollDegrees, label = "Roll")
+            near = shadcnSlider(id = "cube-near", min = 0.01f, max = 5f, value = near, label = "Near")
+            far = shadcnSlider(id = "cube-far", min = 10f, max = 500f, value = far, label = "Far")
+            fovDegrees = shadcnSlider(id = "cube-fov", min = 10f, max = 120f, value = fovDegrees, label = "FOV")
+            lockTarget = shadcnSwitch(id = "cube-lock-target", checked = lockTarget, label = "Lock target")
+            panX = shadcnSlider(id = "cube-pan-x", min = -5f, max = 5f, value = panX, label = "Pan X", enabled = !lockTarget)
+            panZ = shadcnSlider(id = "cube-pan-z", min = -5f, max = 5f, value = panZ, label = "Pan Z", enabled = !lockTarget)
+            elevation = shadcnSlider(id = "cube-elevation", min = -3f, max = 5f, value = elevation, label = "Elevation", enabled = !lockTarget)
             wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
-            text(label = "Cube spins automatically; sliders move the camera.")
+            text(label = "Cube spins automatically; sliders move the camera (Pitch 0 = side-on, 89 = top-down).")
         }
     )
 
@@ -85,22 +109,39 @@ internal object RotatingCubeDemo {
         renderer.drawDebugLines(lines)
     }
 
-    /** Camera orbiting the cube per [orbitDegrees]/[zoom]; the solid cube draw call, only when
-     * [wireframe] is off (its edges are drawn as debug lines instead, see [update]). The
-     * ground grid has no solid draw call at all -- it's debug lines only, see [update]. */
+    /** The orbit target -- what [orbitDegrees]/[pitchDegrees]/[zoom] orbit around. Frozen at
+     * the origin default while [lockTarget] is on, ignoring [panX]/[panZ]/[elevation] so the
+     * other sliders can be tuned without the target drifting underneath them. */
+    private fun targetCenter(): Vec3 =
+        if (lockTarget) Vec3(0f, 0.5f, 0f) else Vec3(panX, elevation, panZ)
+
+    /** Camera orbiting [targetCenter] in real spherical coordinates -- [orbitDegrees] is yaw
+     * (compass direction around the target), [pitchDegrees] is the angle up from the horizon
+     * (0 = eye-level side-on, 90 = straight down), [zoom] is the distance from the target.
+     * Live-draggable, unlike a hand-picked eye-position ratio: dragging Pitch to 89 gives a
+     * true top-down view, dragging it to 0 gives a side-on view, with everything in between
+     * actually reachable. [rollDegrees] tilts the camera's up vector around its own view axis
+     * (the eye-to-target line) rather than the world's; [near]/[far]/[fovDegrees] are the
+     * projection's clip planes and vertical field of view. The solid cube draw call is included
+     * only when [wireframe] is off (its edges are drawn as debug lines instead, see [update]);
+     * the ground grid has no solid draw call at all, see [update]. */
     fun cameraAndDrawCalls(): Pair<Camera, List<DrawCall>> {
         val orbitRad = orbitDegrees * DEGREES_TO_RADIANS
-        // Top-down POV: eye sits mostly overhead (tall Y term) with only a small horizontal
-        // radius, so "Orbit" reads as a slight compass-direction tilt around the cube rather
-        // than the eye-level, steeply-foreshortened view a large horizontal-to-vertical ratio
-        // gives (the grid used to look almost edge-on instead of a floor plan).
-        val eye = Vec3(zoom * 0.35f * sin(orbitRad), zoom * 1.6f, zoom * 0.35f * cos(orbitRad))
+        val pitchRad = pitchDegrees * DEGREES_TO_RADIANS
+        val horizontalRadius = zoom * cos(pitchRad)
+        val center = targetCenter()
+        val eye = center + Vec3(
+            horizontalRadius * sin(orbitRad),
+            zoom * sin(pitchRad),
+            horizontalRadius * cos(orbitRad)
+        )
         val camera = Camera(
             eye = eye,
-            center = Vec3(0f, 0.5f, 0f),
-            fovYRadians = 45f * DEGREES_TO_RADIANS,
-            near = 0.1f,
-            far = 100f
+            center = center,
+            up = rolledUpVector(eye, center),
+            fovYRadians = fovDegrees * DEGREES_TO_RADIANS,
+            near = near,
+            far = far
         )
         val cube = if (!wireframe) {
             cubeMesh?.let { mesh -> material?.let { mat -> DrawCall(mesh, mat, Mat4().rotateY(spinRadians)) } }
@@ -108,6 +149,21 @@ internal object RotatingCubeDemo {
             null
         }
         return camera to listOfNotNull(cube)
+    }
+
+    /** World-up `(0, 1, 0)` rotated by [rollDegrees] around the eye-to-[center] view axis --
+     * standard camera-roll construction (right = forward x worldUp, trueUp = right x forward,
+     * rolledUp = trueUp*cos(roll) + right*sin(roll)). Degenerates gracefully to whatever
+     * `Camera`'s own view-matrix construction does with a near-parallel up/forward pair at the
+     * extreme top-down Pitch (89) -- an existing, pre-this-feature limitation of a look-at
+     * camera in general, not something this roll addition introduces. */
+    private fun rolledUpVector(eye: Vec3, center: Vec3): Vec3 {
+        val forward = (center - eye).normalize()
+        val worldUp = Vec3(0f, 1f, 0f)
+        val right = forward.cross(worldUp).normalize()
+        val trueUp = right.cross(forward).normalize()
+        val rollRad = rollDegrees * DEGREES_TO_RADIANS
+        return (trueUp * cos(rollRad)) + (right * sin(rollRad))
     }
 
     private fun wireframeCubeEdges(): List<LineSegment> {
