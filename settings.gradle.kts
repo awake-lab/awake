@@ -38,11 +38,8 @@ include(":awake:backend:webgpu")
 include(":awake:backend:vulkan-generator")
 include(":awake:physics:api")
 include(":awake:backend:jolt")
-include(":samples:hello-cube")
-include(":samples:hello-cube:androidApp")
 include(":samples:ui-showcase")
-include(":samples:starter-game")
-include(":samples:starter-game:androidApp")
+include(":samples:scene3d-playground")
 include(":samples:server")
 
 

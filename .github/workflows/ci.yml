@@ -39,21 +39,19 @@ jobs:
       - name: Detekt (all modules, baselined)
         run: ./gradlew detekt
 
+      # hello-cube (retired) had a dedicated :androidApp wrapper module producing a real
+      # installable APK, uploaded below as a regression artifact. ui-showcase only has a KMP
+      # `android {}` library target (no application-plugin wrapper module), so this currently
+      # builds the Android library AAR, not an installable APK -- a real gap versus hello-cube's
+      # old coverage, left open until ui-showcase gets its own :androidApp wrapper.
       - name: Build Android demo (Vulkan JNI regression gate)
-        run: ./gradlew :samples:hello-cube:androidApp:assembleDebug
+        run: ./gradlew :samples:ui-showcase:assembleDebug
 
       - name: Build desktop demo
-        run: ./gradlew :samples:hello-cube:desktopJar
+        run: ./gradlew :samples:ui-showcase:desktopJar
 
       - name: Build vulkan generator
         run: ./gradlew :awake:backend:vulkan-generator:assemble
-
-      - name: Upload demo APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: awake-demo-debug-apk
-          path: samples/hello-cube/androidApp/build/outputs/apk/debug/*.apk
-          retention-days: 7
 
   # Runner GPUs aren't available on GitHub-hosted runners, so this uses Mesa's lavapipe
   # (a real, fully-conformant software Vulkan implementation -- not a stub) to run the
