@@ -34,6 +34,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -680,6 +681,69 @@ class ShadcnDesignSystemTest {
 
         val outsideClick = frame(pointerX = 5f, pointerY = 5f, down = true)
         assertTrue(outsideClick.dismissed, "clicking outside the anchor and content must dismiss the popover")
+    }
+
+    @Test
+    fun rowWithFixedWeightFixedShadcnSurfaceSiblingsLaysOutSideBySide() {
+        // Reproduces samples/scene3d-playground's live shell bug: a row of
+        // shadcnSidebar(fixed) | column(weight(1f)) | shadcnSurface(fixed), where the fixed
+        // siblings are real shadcn composite widgets with actual content (not raw claimSlot()
+        // calls, and not plain unstyled column()/row() -- see RowColumnWeightCacheTest /
+        // LayoutTest's existing weight() coverage for those simpler shapes). Root cause: the
+        // shared ui-core surface() widget (which shadcnSidebar/shadcnSurface/shadcnCard all
+        // route through) didn't suppress its own children's claimSlot() recording during its
+        // content dispatch -- unlike row()/column(), which already do (see
+        // UiContext.withMeasuredRecordingSuppressed). When a fixed-width surface() sibling with
+        // real content sits next to a weight()-tagged sibling, forcing this row into its
+        // trial-measurement (hasWeightedChild/plannedSlots) path, the surface's own children's
+        // claims used to leak into this row's measuredSlots/measuredWeights/fillsMainAxis
+        // trial, desyncing resolveWeightedMainAxis()'s index pairing and this row's
+        // plannedSlots consumption order -- silently handing the weighted and trailing-fixed
+        // sibling the wrong slot (see Surface.kt's fix).
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(1200f, 800f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        var sidebarBounds: UiBounds? = null
+        var viewportBounds: UiBounds? = null
+        var controlsBounds: UiBounds? = null
+        ui.createColumn(x = 0f, y = 0f, width = 1200f, height = 800f).row(
+            id = "scene3d-playground-shell",
+            horizontalArrangement = Arrangement.spacedBy(0f.dp),
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
+        ) {
+            sidebarBounds = shadcnSidebar(id = "scene3d-demo-menu", modifier = Modifier.width(200f.dp).height(Dimension.FillMax)) {
+                text("Skinned mesh")
+            }
+            viewportBounds = column(id = "scene3d-viewport", modifier = Modifier.weight(1f).height(Dimension.FillMax)) {
+                text("Skinned mesh -- no skeleton")
+            }
+            controlsBounds = shadcnSurface(id = "scene3d-controls-panel", modifier = Modifier.width(220f.dp).height(Dimension.FillMax)) {
+                text("Root")
+            }
+        }
+        ui.finishFrame()
+
+        val sidebar = requireNotNull(sidebarBounds)
+        val viewport = requireNotNull(viewportBounds)
+        val controls = requireNotNull(controlsBounds)
+
+        assertTrue(
+            viewport.x >= sidebar.x + sidebar.width - 1f,
+            "viewport must start after the sidebar, not overlap it -- sidebar=$sidebar viewport=$viewport"
+        )
+        assertTrue(
+            controls.x >= viewport.x + viewport.width - 1f,
+            "controls must start after the viewport, not overlap it -- viewport=$viewport controls=$controls"
+        )
+        assertTrue(
+            viewport.width > 300f,
+            "viewport must occupy the large remaining middle area (not get starved by a " +
+                "grandchild's leaked slot), got width=${viewport.width}"
+        )
+        assertEquals(220f.dp.toPx(), controls.width, "controls must keep its own fixed 220dp width")
+        assertEquals(1200f - 220f.dp.toPx(), controls.x, "controls must sit flush against the row's right edge")
     }
 
     @Test

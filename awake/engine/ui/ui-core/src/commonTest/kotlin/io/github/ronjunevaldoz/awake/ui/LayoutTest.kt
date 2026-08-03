@@ -23,8 +23,55 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 class LayoutTest {
+
+    @Test
+    fun rowWeightIsNotStarvedByFixedSurfaceSiblingsWithRealContent() {
+        // Reproduces samples/scene3d-playground's live shell bug: fixed surface() sibling |
+        // weight(1f) column | fixed surface() sibling, where the fixed surface() siblings have
+        // real content of their own (not empty `{}` bodies -- every pre-existing weight() test
+        // either used raw claimSlot() calls or empty-content column()/surface() siblings, which
+        // this shape's own root cause never triggers). Root cause: surface() (the shared widget
+        // shadcnSidebar/shadcnSurface/shadcnCard all route through) didn't suppress its own
+        // children's claimSlot() recording during its content dispatch the way row()/column()
+        // already do for theirs (see UiContext.withMeasuredRecordingSuppressed) -- so once a
+        // fixed surface() sibling with real content forced this row into its trial-measurement
+        // (hasWeightedChild/plannedSlots) path, that content's own claims leaked into this row's
+        // measuredSlots/measuredWeights/fillsMainAxis trial, desyncing resolveWeightedMainAxis()'s
+        // index pairing and this row's plannedSlots consumption order.
+        val ui = UiContext()
+        ui.beginFrame(1200f, 800f, testSnapshot())
+        var sidebar: UiBounds? = null
+        var viewport: UiBounds? = null
+        var controls: UiBounds? = null
+        val visualStyle = Style { background(io.github.ronjunevaldoz.awake.core.colors.Color(0f, 0f, 0f, 1f)) }
+
+        ui.createColumn(x = 0f, y = 0f, width = 1200f, height = 800f).row(
+            id = "shell",
+            horizontalArrangement = Arrangement.spacedBy(0f.px),
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
+        ) {
+            sidebar = surface(id = "sidebar", style = visualStyle, modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.FillMax)) {
+                claimSlot(Dimension.Fixed(60f.px), Dimension.Fixed(20f.px))
+            }
+            viewport = column(id = "viewport", modifier = Modifier.weight(1f).height(Dimension.FillMax)) {
+                claimSlot(Dimension.Fixed(90f.px), Dimension.Fixed(20f.px))
+            }
+            controls = surface(id = "controls", style = visualStyle, modifier = Modifier.width(Dimension.Fixed(220f.px)).height(Dimension.FillMax)) {
+                claimSlot(Dimension.Fixed(70f.px), Dimension.Fixed(20f.px))
+            }
+        }
+        ui.endFrame()
+
+        assertEquals(200f, sidebar?.width)
+        assertEquals(0f, sidebar?.x)
+        assertEquals(220f, controls?.width, "a fixed sibling's own width must not be starved by a leaked grandchild slot")
+        assertEquals(1200f - 220f, controls?.x, "controls must sit flush against the row's right edge, not overlap the viewport")
+        assertEquals(1200f - 420f, viewport?.width, "the weighted middle child must get the real remaining share, not a leaked grandchild's slot")
+        assertEquals(200f, viewport?.x)
+    }
 
     @Test
     fun columnScopeAdvancesCursorByHeightPlusGap() {

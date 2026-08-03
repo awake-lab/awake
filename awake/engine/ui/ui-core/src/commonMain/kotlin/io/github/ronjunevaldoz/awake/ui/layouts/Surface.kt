@@ -201,10 +201,23 @@ fun UiScope.surface(
     // out past the curve at large radii. `clipContent` remains available for callers that
     // want clipping on an otherwise-square surface (e.g. Dialog/DropdownMenu clip *and* have
     // a real corner radius, so this condition already covers them too).
-    if (clipContent || resolved.shape.toPx() > 0f || resolved.shapeSpec != null) {
-        clip(effectiveShape, slot) { contentScope.content(slot) }
-    } else {
-        contentScope.content(slot)
+    //
+    // Matches UiScope.row()/UiScope.column()'s own `withMeasuredRecordingSuppressed { scope.
+    // content(slot) }` (see the comment there) -- surface() is just as much a composite widget
+    // as a plain row()/column(), so its own real children's claimSlot() calls must not leak
+    // into an ancestor row/column's in-progress measuredSlots/measuredWeights/fillsMainAxis
+    // trial when a fixed-width surface() (shadcnSidebar/shadcnSurface/shadcnCard, all route
+    // through here) sits next to a weight()-tagged sibling that forces the ancestor into its
+    // trial-measurement (hasWeightedChild/plannedSlots) path. Without this, real content inside
+    // the surface (e.g. a `text()` call) adds an extra, spurious entry to those parallel lists,
+    // desyncing resolveWeightedMainAxis()'s index pairing and -- worse -- the ancestor's
+    // plannedSlots consumption order, silently handing later siblings the wrong slot.
+    context.withMeasuredRecordingSuppressed {
+        if (clipContent || resolved.shape.toPx() > 0f || resolved.shapeSpec != null) {
+            clip(effectiveShape, slot) { contentScope.content(slot) }
+        } else {
+            contentScope.content(slot)
+        }
     }
     context.popShapeSpec()
     context.popTextStyle()
