@@ -4,6 +4,8 @@ package io.github.ronjunevaldoz.awake.engine.application
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
+import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
@@ -74,6 +76,17 @@ class GameUiRuntime(
 
     private companion object {
         const val FRAME_TIME_HISTORY_SIZE = 30
+
+        /** Unused for any real 3D transform (a UI-only game has no scene/camera of its own) --
+         * see [render]'s doc comment for why an otherwise-unused [Renderer.draw] call is still
+         * required every frame. */
+        val EMPTY_UI_ONLY_CAMERA = Camera(
+            eye = Vec3(0f, 0f, 1f),
+            center = Vec3(0f, 0f, 0f),
+            fovYRadians = 1f,
+            near = 0.1f,
+            far = 10f
+        )
     }
 
     suspend fun ready(renderer: Renderer) {
@@ -125,6 +138,15 @@ class GameUiRuntime(
         } else {
             frame.primitives
         }
+        // A UI-only game has no `RenderSystem`/3D scene calling `Renderer.draw()` (the only
+        // call that actually acquires/records/submits/presents a swapchain frame -- see
+        // that method's own doc comment: `drawUi` only stages a second render pass on TOP
+        // of whatever `draw()` already wrote). Without this, `drawUi()` alone stages CPU-side
+        // primitives into a pooled mesh that nothing ever submits to the GPU, so the window
+        // shows its OS-default backing (a real desktop repro: blank pale-gray window, no
+        // crash, no error, confirmed by a live GLFW/MoltenVK run). `drawCalls` stays empty --
+        // a UI-only game has no 3D geometry to draw, just needs the frame driven.
+        renderer.draw(EMPTY_UI_ONLY_CAMERA, emptyList())
         renderer.drawUi(primitives, font)
     }
 
