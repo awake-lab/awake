@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
@@ -103,7 +104,8 @@ fun UiScope.shadcnText(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     muted: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: UiTextOverflow = UiTextOverflow.Visible
 ): UiBounds = text(
     label = label,
     modifier = modifier,
@@ -116,7 +118,8 @@ fun UiScope.shadcnText(
         }
         textSize(shadcnTheme.typography.body)
     } then style,
-    maxLines = maxLines
+    maxLines = maxLines,
+    overflow = overflow
 )
 
 /** Real shadcn's `Label` -- a purely presentational field label. Compose has no HTML `for`

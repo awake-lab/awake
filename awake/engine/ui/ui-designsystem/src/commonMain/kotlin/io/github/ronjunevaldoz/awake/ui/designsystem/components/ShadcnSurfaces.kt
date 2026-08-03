@@ -28,7 +28,9 @@ import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.core.colors.Color
@@ -425,7 +427,13 @@ fun ColumnScope.shadcnSidebarMenuItem(
             verticalAlignment = UiAlignment.Vertical.Center,
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))
         ) {
-            shadcnText(label, muted = !active)
+            shadcnText(
+                label,
+                modifier = Modifier.weight(1f),
+                muted = !active,
+                maxLines = 1,
+                overflow = UiTextOverflow.Ellipsis
+            )
             badge?.let { shadcnBadge(it) }
         }
     }
