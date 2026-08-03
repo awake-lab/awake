@@ -13,27 +13,54 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textLayoutCacheStats
 import kotlin.math.roundToInt
 
 /**
- * Minimal live perf HUD, toggled by [GameUiRuntime.debugOverlayEnabled] alongside the F3
- * wireframe overlay (see [GameUiRuntime.render]). Shows frame time/fps, the row/column
- * trial-measure count for the frame just composed ([UiMeasureTrialStats]), and the text-layout
- * cache's cumulative hit rate ([textLayoutCacheStats]) -- the two known "redundant per-frame
- * work" categories this session's WebGPU-lag investigation surfaced (see
- * docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md and
+ * Raw numbers behind [drawPerfStatsOverlay]'s built-in HUD, for a game that wants its own
+ * custom display instead (e.g. a different layout/subset, or styled to match its own theme)
+ * -- read this directly rather than being stuck with the built-in green-text HUD. Always
+ * computable regardless of [GameUiRuntime.perfStatsEnabled]/[GameUiRuntime.debugOverlayEnabled];
+ * [trialPasses] just reads `0` when [io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats]
+ * tracking isn't enabled, since nothing incremented it that frame.
+ */
+data class GameFrameStats(
+    val frameTimeMs: Float,
+    val fps: Float,
+    val trialPasses: Int,
+    val textCacheHits: Int,
+    val textCacheMisses: Int
+) {
+    val textCacheTotal: Int get() = textCacheHits + textCacheMisses
+    val textCacheHitRatePercent: Int get() = if (textCacheTotal > 0) (textCacheHits * 100 / textCacheTotal) else 0
+}
+
+fun GameUiRuntime.frameStats(): GameFrameStats {
+    val (cacheHits, cacheMisses) = textLayoutCacheStats()
+    return GameFrameStats(
+        frameTimeMs = averageFrameTimeMs.roundToTenth(),
+        fps = fps,
+        trialPasses = UiMeasureTrialStats.trialCount,
+        textCacheHits = cacheHits,
+        textCacheMisses = cacheMisses
+    )
+}
+
+/**
+ * Minimal live perf HUD, toggled by [GameUiRuntime.perfStatsEnabled] (F3 also flips this
+ * alongside the wireframe overlay by default, see [GameUiRuntime.render]). Shows [frameStats]'
+ * frame time/fps, row/column trial-measure count, and text-layout cache hit rate -- the two
+ * known "redundant per-frame work" categories this session's WebGPU-lag investigation surfaced
+ * (see docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md and
  * docs/tasks/2026-08-03-text-layout-measure-cache.md).
  *
  * Deliberately minimal: no history graph, no per-widget breakdown, no persistence -- just the
  * current numbers, redrawn every frame like any other overlay content. A v2 (frame-time history
- * graph, GC/memory stats, per-widget cost) is real follow-up work, not part of this pass.
+ * graph, GC/memory stats, per-widget cost) is real follow-up work, not part of this pass. A game
+ * that wants a different look can skip this entirely and read [frameStats] itself instead.
  */
 internal fun GameUiRuntime.drawPerfStatsOverlay() {
-    val (cacheHits, cacheMisses) = textLayoutCacheStats()
-    val cacheTotal = cacheHits + cacheMisses
-    val cacheHitRatePercent = if (cacheTotal > 0) (cacheHits * 100f / cacheTotal).roundToInt() else 0
-
+    val stats = frameStats()
     val lines = listOf(
-        "${averageFrameTimeMs.roundToTenth()}ms  ${fps.roundToInt()} fps",
-        "trial passes: ${UiMeasureTrialStats.trialCount}",
-        "text cache: $cacheHitRatePercent% hit ($cacheHits/$cacheTotal)"
+        "${stats.frameTimeMs}ms  ${stats.fps.roundToInt()} fps",
+        "trial passes: ${stats.trialPasses}",
+        "text cache: ${stats.textCacheHitRatePercent}% hit (${stats.textCacheHits}/${stats.textCacheTotal})"
     )
 
     frame {

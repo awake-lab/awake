@@ -189,7 +189,7 @@ class GameUiDslTest {
         )
     }
     @Test
-    fun debugOverlayEnabledDrawsThePerfStatsHudAsGlyphPrimitives() = runTest {
+    fun perfStatsEnabledDrawsTheHudAsGlyphPrimitivesIndependentlyOfWireframe() = runTest {
         val renderer = RecordingUiRenderer()
         var runtime: GameUiRuntime? = null
         val game = game {
@@ -205,16 +205,21 @@ class GameUiDslTest {
         assertNotNull(runtime)
         assertTrue(
             renderer.lastUiPrimitives.none { it is UiDrawPrimitive.Glyph },
-            "perf HUD must not draw anything while debugOverlayEnabled is off (the default)"
+            "perf HUD must not draw anything while perfStatsEnabled is off (the default)"
         )
 
-        runtime.debugOverlayEnabled = true
+        runtime.perfStatsEnabled = true
         game.render(0.016f, 320f, 240f)
 
         assertTrue(
             renderer.lastUiPrimitives.any { it is UiDrawPrimitive.Glyph },
             "perf HUD must draw glyph primitives (its fps/frame-time/cache-stat text) once " +
-                "debugOverlayEnabled is on"
+                "perfStatsEnabled is on, independent of debugOverlayEnabled (the wireframe " +
+                "bounds overlay, which this test never touches)"
+        )
+        assertTrue(
+            !runtime.debugOverlayEnabled,
+            "perfStatsEnabled must not implicitly flip debugOverlayEnabled -- only F3 links them"
         )
     }
 }

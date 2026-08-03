@@ -45,13 +45,17 @@ fun ColumnScope.shadcnFieldRangeSlider(
 ): Pair<Float, Float> {
     var resolved = valueStart to valueEnd
     column(
-        verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
+        verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xs),
         modifier = modifier
     ) {
         row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             shadcnFieldLabel(label)
             shadcnText(valueLabel(valueStart, valueEnd), muted = true)
         }
+        // 32dp (rangeSlider's own withSizeFallback height, not shadcnFieldSlider's 40dp) --
+        // that single-slider height is generous because its label sits inline beside the knob
+        // in the same row (needs headroom for the label's own line height); this component's
+        // label is a separate row above, so the track itself only needs room for its 26px knob.
         resolved = shadcnRangeSlider(
             id = id,
             min = min,
@@ -59,7 +63,7 @@ fun ColumnScope.shadcnFieldRangeSlider(
             valueStart = valueStart,
             valueEnd = valueEnd,
             label = label,
-            modifier = Modifier.fillMaxWidth().height(40f.dp),
+            modifier = Modifier.fillMaxWidth().height(32f.dp),
             style = style
         )
     }

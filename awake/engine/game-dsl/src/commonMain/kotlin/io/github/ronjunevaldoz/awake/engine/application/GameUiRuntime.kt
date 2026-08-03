@@ -46,13 +46,22 @@ class GameUiRuntime(
     var viewportHeight: Float = 0f
         private set
 
-    /** Toggled by [Key.F3] (see [render]) -- when on, [debugOverlayPrimitives]'s blue/green/red
-     * bounds/contentBounds/clippedBounds wireframe is appended on top of every frame's real
-     * primitives, and [drawPerfStatsOverlay] draws a small live stats HUD (frame time/fps,
-     * row/column trial-measure count, text-layout cache hit rate). Off by default so neither
-     * overlay's per-frame work runs unless requested. */
+    /** Toggled by [Key.F3] (see [render], which also flips [perfStatsEnabled] to match) --
+     * when on, [debugOverlayPrimitives]'s blue/green/red bounds/contentBounds/clippedBounds
+     * wireframe is appended on top of every frame's real primitives. Independent of
+     * [perfStatsEnabled]: a game can show frame stats without this wireframe (or vice versa)
+     * by setting that flag directly, only F3 links the two as a convenience default. Off by
+     * default so its per-frame work doesn't run unless requested. */
     var debugOverlayEnabled: Boolean = false
     private var debugOverlayKeyWasDown: Boolean = false
+
+    /** Independent of [debugOverlayEnabled] -- gates [UiMeasureTrialStats] tracking and the
+     * built-in [drawPerfStatsOverlay] HUD only, not the wireframe bounds overlay. A game that
+     * wants its own custom stats display (reading [frameStats] directly) instead of the
+     * built-in HUD can leave this false and just read [frameStats] every frame; it costs
+     * nothing extra since [averageFrameTimeMs]/[fps] are always tracked regardless -- only
+     * [UiMeasureTrialStats]'s row/column trial-pass counting is actually gated by this flag. */
+    var perfStatsEnabled: Boolean = false
 
     /** Rolling window backing [averageFrameTimeMs]/[fps] -- see [recordFrameTime]. Bounded so
      * this never grows past [FRAME_TIME_HISTORY_SIZE] regardless of how long the app runs. */
@@ -130,14 +139,17 @@ class GameUiRuntime(
         val snapshot = input.currentSnapshot
 
         val debugOverlayKeyDown = Key.F3 in snapshot.keysDown
-        if (debugOverlayKeyDown && !debugOverlayKeyWasDown) debugOverlayEnabled = !debugOverlayEnabled
+        if (debugOverlayKeyDown && !debugOverlayKeyWasDown) {
+            debugOverlayEnabled = !debugOverlayEnabled
+            perfStatsEnabled = debugOverlayEnabled
+        }
         debugOverlayKeyWasDown = debugOverlayKeyDown
 
         recordFrameTime(deltaSeconds)
         // Opt-in instrumentation (see UiMeasureTrialStats's own doc comment): only pay its
-        // per-trial counting/timing cost while the HUD that displays it is actually visible.
-        UiMeasureTrialStats.enabled = debugOverlayEnabled
-        if (debugOverlayEnabled) UiMeasureTrialStats.reset()
+        // per-trial counting/timing cost while something that displays it is actually enabled.
+        UiMeasureTrialStats.enabled = perfStatsEnabled
+        if (perfStatsEnabled) UiMeasureTrialStats.reset()
 
         uiContext.beginFrame(
             UiFrameInput(
@@ -153,7 +165,7 @@ class GameUiRuntime(
             overlay(this)
         }
 
-        if (debugOverlayEnabled) drawPerfStatsOverlay()
+        if (perfStatsEnabled) drawPerfStatsOverlay()
 
         val frame = uiContext.finishFrame()
         input.textInputFocused = frame.effects.requestKeyboard
