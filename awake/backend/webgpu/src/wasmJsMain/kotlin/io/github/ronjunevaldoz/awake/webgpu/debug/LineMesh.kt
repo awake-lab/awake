@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.webgpu.debug
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
-import io.ygdrasil.webgpu.ArrayBuffer
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
@@ -43,7 +43,7 @@ class LineMesh(
                 "raise maxLines or draw fewer lines this frame."
         }
         val device = graphicsDevice.wgpuContext.device
-        device.queue.writeBuffer(vertexBuffer, 0uL, ArrayBuffer.of(vertices))
+        device.queue.writeBuffer(vertexBuffer, 0uL, fastArrayBufferOf(vertices))
         vertexCount = vertices.size / FLOATS_PER_VERTEX
     }
 

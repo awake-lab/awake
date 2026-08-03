@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.webgpu.handles.DeviceMemoryHandle
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
-import io.ygdrasil.webgpu.ArrayBuffer
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
@@ -43,7 +43,7 @@ class Mesh(
                 usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst
             )
         )
-        device.queue.writeBuffer(rawVertexBuffer, 0uL, ArrayBuffer.of(vertices))
+        device.queue.writeBuffer(rawVertexBuffer, 0uL, fastArrayBufferOf(vertices))
         val vertexHandle = WebGpuHandles.register(rawVertexBuffer)
         vertexBuffer = BufferHandle(vertexHandle)
         vertexBufferMemory = DeviceMemoryHandle(vertexHandle)
@@ -54,7 +54,7 @@ class Mesh(
                 usage = GPUBufferUsage.Index or GPUBufferUsage.CopyDst
             )
         )
-        device.queue.writeBuffer(rawIndexBuffer, 0uL, ArrayBuffer.of(indices))
+        device.queue.writeBuffer(rawIndexBuffer, 0uL, fastArrayBufferOf(indices))
         val indexHandle = WebGpuHandles.register(rawIndexBuffer)
         indexBuffer = BufferHandle(indexHandle)
         indexBufferMemory = DeviceMemoryHandle(indexHandle)

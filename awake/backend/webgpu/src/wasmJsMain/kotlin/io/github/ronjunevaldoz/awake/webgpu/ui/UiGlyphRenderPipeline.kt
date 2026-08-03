@@ -5,8 +5,8 @@ package io.github.ronjunevaldoz.awake.webgpu.ui
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
-import io.ygdrasil.webgpu.ArrayBuffer
 import io.ygdrasil.webgpu.BindGroupDescriptor
 import io.ygdrasil.webgpu.BindGroupEntry
 import io.ygdrasil.webgpu.BlendComponent
@@ -142,7 +142,7 @@ class UiGlyphRenderPipeline(
         )
         device.queue.writeTexture(
             destination = TexelCopyTextureInfo(texture = fontTexture),
-            data = ArrayBuffer.of(font.atlasPixelsRgba),
+            data = fastArrayBufferOf(font.atlasPixelsRgba),
             dataLayout = TexelCopyBufferLayout(bytesPerRow = (font.atlasWidth * 4).toUInt()),
             size = Extent3D(width = font.atlasWidth.toUInt(), height = font.atlasHeight.toUInt())
         )
@@ -178,7 +178,7 @@ class UiGlyphRenderPipeline(
         device.queue.writeBuffer(
             screenSizeBuffer,
             0uL,
-            ArrayBuffer.of(
+            fastArrayBufferOf(
                 floatArrayOf(
                     width,
                     height,

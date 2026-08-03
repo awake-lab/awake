@@ -3,8 +3,8 @@
 package io.github.ronjunevaldoz.awake.webgpu.debug
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
-import io.ygdrasil.webgpu.ArrayBuffer
 import io.ygdrasil.webgpu.BindGroupDescriptor
 import io.ygdrasil.webgpu.BindGroupEntry
 import io.ygdrasil.webgpu.BufferBinding
@@ -97,7 +97,7 @@ class LineRenderPipeline(
     /** Lines are already in world space (no per-line model matrix), so their MVP is exactly
      * the frame's viewProjection. */
     fun writeMvp(mvp: FloatArray) {
-        device.queue.writeBuffer(mvpBuffer, 0uL, ArrayBuffer.of(mvp))
+        device.queue.writeBuffer(mvpBuffer, 0uL, fastArrayBufferOf(mvp))
     }
 
     fun destroy() {

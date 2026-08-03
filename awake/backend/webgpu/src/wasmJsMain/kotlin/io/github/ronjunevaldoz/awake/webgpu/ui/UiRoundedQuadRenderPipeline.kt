@@ -3,8 +3,8 @@
 package io.github.ronjunevaldoz.awake.webgpu.ui
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
-import io.ygdrasil.webgpu.ArrayBuffer
 import io.ygdrasil.webgpu.BindGroupDescriptor
 import io.ygdrasil.webgpu.BindGroupEntry
 import io.ygdrasil.webgpu.BlendComponent
@@ -136,7 +136,7 @@ class UiRoundedQuadRenderPipeline(
 
     /** Call once at construction and again whenever the canvas resizes. */
     fun writeScreenSize(width: Float, height: Float) {
-        device.queue.writeBuffer(screenSizeBuffer, 0uL, ArrayBuffer.of(floatArrayOf(width, height)))
+        device.queue.writeBuffer(screenSizeBuffer, 0uL, fastArrayBufferOf(floatArrayOf(width, height)))
     }
 
     fun destroy() {

@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.webgpu.ui
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
-import io.ygdrasil.webgpu.ArrayBuffer
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
@@ -58,8 +58,8 @@ class DynamicMesh(
                 "raise maxQuads or reduce widgets drawn this frame."
         }
         val device = graphicsDevice.wgpuContext.device
-        device.queue.writeBuffer(vertexBuffer, 0uL, ArrayBuffer.of(vertices))
-        device.queue.writeBuffer(indexBuffer, 0uL, ArrayBuffer.of(indices))
+        device.queue.writeBuffer(vertexBuffer, 0uL, fastArrayBufferOf(vertices))
+        device.queue.writeBuffer(indexBuffer, 0uL, fastArrayBufferOf(indices))
         drawIndexCount = indices.size
     }
 

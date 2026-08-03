@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.webgpu.ui
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
-import io.ygdrasil.webgpu.ArrayBuffer
 import io.ygdrasil.webgpu.BindGroupDescriptor
 import io.ygdrasil.webgpu.BindGroupEntry
 import io.ygdrasil.webgpu.BufferBinding
@@ -107,7 +107,7 @@ class UiTextureRenderPipeline(
 
     /** Call once at construction and again whenever the canvas resizes. */
     fun writeScreenSize(width: Float, height: Float) {
-        device.queue.writeBuffer(screenSizeBuffer, 0uL, ArrayBuffer.of(floatArrayOf(width, height)))
+        device.queue.writeBuffer(screenSizeBuffer, 0uL, fastArrayBufferOf(floatArrayOf(width, height)))
     }
 
     /** Builds (once) and returns the bind group for [material]'s `previewTextureView`/

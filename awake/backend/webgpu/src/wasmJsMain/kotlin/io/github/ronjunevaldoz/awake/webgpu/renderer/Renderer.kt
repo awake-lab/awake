@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
@@ -31,7 +32,6 @@ import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRoundedQuadRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiTextureRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
-import io.ygdrasil.webgpu.ArrayBuffer
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.Color as GpuColor
 import io.ygdrasil.webgpu.Extent3D
@@ -242,7 +242,7 @@ class Renderer(
             while (drawIndex < drawCalls.size) {
                 val drawCall = drawCalls[drawIndex]
                 val mvp = drawCall.model * viewProjection
-                device.queue.writeBuffer(uniformBuffer!!, 0uL, ArrayBuffer.of(mvp.data))
+                device.queue.writeBuffer(uniformBuffer!!, 0uL, fastArrayBufferOf(mvp.data))
                 setBindGroup(0u, uniformBindGroup!!)
                 val mesh = drawCall.mesh as Mesh
                 setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))

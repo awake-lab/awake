@@ -8,11 +8,11 @@ import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
-import io.ygdrasil.webgpu.ArrayBuffer
 import io.ygdrasil.webgpu.Color as GpuColor
 import io.ygdrasil.webgpu.GPULoadOp
 import io.ygdrasil.webgpu.GPURenderPipeline
@@ -74,7 +74,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
             // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
             // Camera.viewProjectionMatrix's docs), matching vulkanMain's Renderer.
             val mvp = drawCall.model * viewProjection
-            device.queue.writeBuffer(uniformBuffer!!, 0uL, ArrayBuffer.of(mvp.data))
+            device.queue.writeBuffer(uniformBuffer!!, 0uL, fastArrayBufferOf(mvp.data))
             setBindGroup(0u, uniformBindGroup!!)
             // drawCall.mesh is the render-api interface (only bind()/draw()/destroy()) --
             // cast to this backend's own concrete Mesh for vertexBuffer/indexBuffer/
