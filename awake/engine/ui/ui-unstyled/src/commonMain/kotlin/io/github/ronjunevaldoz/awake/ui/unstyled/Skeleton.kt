@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.emitShimmerOverlay
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -35,7 +36,8 @@ private const val SKELETON_PULSE_MAX_ALPHA = 1f
 fun UiScope.skeleton(
     id: String,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
+    shimmer: Boolean = false
 ) {
     val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(16f.dp)))
     val resolved = resolveStyle(style = style, defaults = theme.components.slider)
@@ -45,13 +47,17 @@ fun UiScope.skeleton(
     val phase = (elapsed / SKELETON_PULSE_PERIOD_SECONDS) * (2f * PI.toFloat())
     val pulse = SKELETON_PULSE_MIN_ALPHA + (SKELETON_PULSE_MAX_ALPHA - SKELETON_PULSE_MIN_ALPHA) * ((sin(phase) + 1f) / 2f)
     val baseColor = resolved.background ?: theme.colors.muted
+    val radiusPx = resolved.shape.toPx()
     emitFillAndBorder(
         slot = slot,
         fillColor = baseColor.withAlpha(baseColor.a * pulse),
-        radiusPx = resolved.shape.toPx(),
+        radiusPx = radiusPx,
         borderWidth = UiShape.none,
         borderColor = Color.Transparent
     )
+    if (shimmer) {
+        emitShimmerOverlay(id = id, slot = slot, radiusPx = radiusPx)
+    }
 
     recordSemantic(
         role = UiSemanticRole.Skeleton,

@@ -7,9 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.RepeatMode
-import io.github.ronjunevaldoz.awake.ui.animateFloatRepeatable
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
+import io.github.ronjunevaldoz.awake.ui.graphics.shimmerBand
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.recordSemantic
@@ -148,19 +147,13 @@ internal fun UiScope.renderTextBlock(
         // shadcnShimmer in modifier/StyleModifiers.kt) -- callers resolve the effect there and
         // pass the resulting boolean down into this low-level glyph emitter.
         if (shimmer && semanticId != null) {
-            // One-directional sweep loop (0 -> 1, jump back to 0, repeat) -- not a ping-pong
-            // bounce. See UiAnimation.kt's animateFloatRepeatable/RepeatMode.Restart.
-            val shimmerPhase = animateFloatRepeatable(
-                id = "__shimmer_phase__$semanticId",
-                initialValue = 0f,
-                targetValue = 1f,
-                durationMs = 1200f,
-                repeatMode = RepeatMode.Restart
-            )
+            // Phase/band math now lives in the widget-agnostic
+            // io.github.ronjunevaldoz.awake.ui.graphics.shimmerBand (one-directional sweep loop,
+            // 0 -> 1, snap back to 0, repeat -- not a ping-pong bounce). The per-glyph 3-point
+            // lerp below stays text-specific.
+            val band = shimmerBand(id = semanticId, slot = slot)
 
             val highlightColor = Color.White.withAlpha(0.6f)
-            val shimmerWidth = (slot.width * 1.5f).coerceAtLeast(160f)
-            val shimmerX = slot.x - shimmerWidth + (slot.width + shimmerWidth) * shimmerPhase
 
             // High-contrast white-ish shimmer for visibility over any text color
             val gradient = UiLinearGradient(
@@ -170,7 +163,7 @@ internal fun UiScope.renderTextBlock(
                 bottomLeft = Color.Transparent
             )
 
-            emitLinesInternal(textColor, gradient, shimmerX, shimmerWidth)
+            emitLinesInternal(textColor, gradient, band.x, band.width)
         }
     }
 

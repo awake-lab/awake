@@ -5,7 +5,7 @@ import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
-internal fun UiScope.gradientRect(
+fun UiScope.gradientRect(
     slot: UiBounds,
     gradient: UiLinearGradient,
     overlay: Boolean = false
