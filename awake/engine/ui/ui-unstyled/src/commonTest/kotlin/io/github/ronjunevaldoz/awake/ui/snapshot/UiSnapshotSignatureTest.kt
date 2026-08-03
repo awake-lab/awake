@@ -84,14 +84,21 @@ private val expectedReviewSnapshotSignatures = mapOf(
     "shadcn-field-error" to 0x2661959fe977c56euL
 )
 
+// 2026-08-03: quads/rounded-quads/borders (surface fills, buttons, dialogs, separators) now
+// pixel-snap their emitted position/size the same way BasicText.kt's glyph emission already
+// did (see ShapePainter.kt/BorderPrimitives.kt/Separator.kt) -- previously only glyphs snapped
+// to whole device pixels, so a bordered/panel-shaped widget at a sub-pixel layout position
+// rendered a visibly softer/antialiased edge than the crisp text sitting right next to it.
+// Every scene with a border/panel/button shifted its rasterized pixels by sub-pixel rounding as
+// a result; re-recorded against the now-pixel-snapped primitives.
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0x19fd8e6a9fff7bcbuL,
+    "ui-button-variants" to 0x7d2dfacc9565f26buL,
     "ui-shaped-panel" to 0xc7edba140939cfffuL,
-    "ui-panel-controls" to 0x844f286cb71fbb8buL,
-    "ui-alert-dialog" to 0xa61a89d522f968c1uL,
-    "ui-component-state-matrix" to 0x00e16c92cd1cf29fuL,
+    "ui-panel-controls" to 0x2184d73b1f3eaadduL,
+    "ui-alert-dialog" to 0x91c88d40e4db9a39uL,
+    "ui-component-state-matrix" to 0xa0ce9ac5a33e5887uL,
     "ui-rounded-clip-vector" to 0x6252fcda705461c1uL,
-    "ui-awake-shadcn-showcase" to 0x83e0b9359aabc803uL
+    "ui-awake-shadcn-showcase" to 0x475f0c7766de5f75uL
 )
 
 private fun ULong.toHexString(): String {

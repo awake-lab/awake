@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.layout.*
 
@@ -30,16 +31,19 @@ fun UiScope.separator(
         SeparatorOrientation.Vertical -> Dimension.Fixed(thickness) to Dimension.FillMax
     }
     val slot = claimModifiedSlot(modifier.withSizeFallback(fallback.first, fallback.second))
+    // Pixel-snap the drawn line, the same way BasicText.kt's glyph emission already snaps every
+    // glyph -- a 1px-nominal divider at a sub-pixel y/x position renders as a soft 2px
+    // antialiased smear instead of a crisp hairline.
     when (orientation) {
         SeparatorOrientation.Horizontal -> {
-            val lineHeight = thickness.toPx().coerceAtLeast(1f)
-            val lineY = slot.y + (slot.height - lineHeight) / 2f
-            emit(UiDrawPrimitive.Quad(slot.x, lineY, slot.width, lineHeight, color))
+            val lineHeight = pixelPerfectPixel(thickness.toPx()).coerceAtLeast(1f)
+            val lineY = pixelPerfectPixel(slot.y + (slot.height - lineHeight) / 2f)
+            emit(UiDrawPrimitive.Quad(pixelPerfectPixel(slot.x), lineY, pixelPerfectPixel(slot.width).coerceAtLeast(1f), lineHeight, color))
         }
         SeparatorOrientation.Vertical -> {
-            val lineWidth = thickness.toPx().coerceAtLeast(1f)
-            val lineX = slot.x + (slot.width - lineWidth) / 2f
-            emit(UiDrawPrimitive.Quad(lineX, slot.y, lineWidth, slot.height, color))
+            val lineWidth = pixelPerfectPixel(thickness.toPx()).coerceAtLeast(1f)
+            val lineX = pixelPerfectPixel(slot.x + (slot.width - lineWidth) / 2f)
+            emit(UiDrawPrimitive.Quad(lineX, pixelPerfectPixel(slot.y), lineWidth, pixelPerfectPixel(slot.height).coerceAtLeast(1f), color))
         }
     }
     return slot.toBounds()

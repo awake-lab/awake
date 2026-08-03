@@ -125,6 +125,10 @@ fun UiScope.textField(
     val cursorState = widgetState(id)
     var cursor = cursorState.get("cursor", value.length).coerceIn(0, value.length)
 
+    // Read last frame's applied horizontal scroll before this frame's click hit-testing -- a
+    // click lands on whatever was actually rendered (last frame's scrolled position).
+    val lastScrollOffsetX = cursorState.get("scrollOffsetX", 0f)
+
     var nextValue = value
     if (focused) {
         val clickIndex =
@@ -137,7 +141,7 @@ fun UiScope.textField(
                     visualTransformation(value),
                     resolvedFont,
                     glyphPx,
-                    textContentSlot.x,
+                    textContentSlot.x - lastScrollOffsetX,
                     inputState.pointerX
                 )
             } else {
@@ -177,15 +181,40 @@ fun UiScope.textField(
     }
     cursorState.set("cursor", cursor)
 
+    // Horizontal scroll: content wider than the field's fixed viewport used to just clip
+    // silently with no way to reach the hidden characters. Auto-follow the caret, same
+    // "cursor scrolls into view" behavior a native single-line text input gives you.
+    val displayedForMeasure = visualTransformation(nextValue)
+    val totalTextWidth = cursorAdvancePx(displayedForMeasure, resolvedFont, glyphPx, displayedForMeasure.length)
+    val maxScrollX = (totalTextWidth - textContentSlot.width).coerceAtLeast(0f)
+    var scrollOffsetX = lastScrollOffsetX.coerceIn(0f, maxScrollX)
+    if (focused) {
+        val caretAdvance = cursorAdvancePx(displayedForMeasure, resolvedFont, glyphPx, cursor)
+        if (caretAdvance - scrollOffsetX < 0f) {
+            scrollOffsetX = caretAdvance
+        } else if (caretAdvance - scrollOffsetX > textContentSlot.width) {
+            scrollOffsetX = caretAdvance - textContentSlot.width
+        }
+        scrollOffsetX = scrollOffsetX.coerceIn(0f, maxScrollX)
+    }
+    cursorState.set("scrollOffsetX", scrollOffsetX)
+    val drawTextX = textContentSlot.x - scrollOffsetX
+
     clip(textContentSlot) {
         val showingPlaceholder = nextValue.isEmpty() && !focused
         // visualTransformation only ever touches what's drawn here -- `nextValue`, the return
         // value, and everything stored in WidgetState above stay the real typed text.
-        val displayed = if (showingPlaceholder) placeholder else visualTransformation(nextValue)
+        val displayed = if (showingPlaceholder) placeholder else displayedForMeasure
         if (displayed.isNotEmpty()) {
+            // overflow=Clip truncates `displayed` to whatever prefix fits the slot's own
+            // width -- pass a slot at least as wide as the full string so scrolled-into-view
+            // characters past the field's visible width never get truncated away before the
+            // shifted drawTextX has a chance to bring them on-screen; the surrounding clip()
+            // still hides everything outside textContentSlot regardless of this slot's width.
+            val measureWidth = if (showingPlaceholder) textContentSlot.width else totalTextWidth.coerceAtLeast(textContentSlot.width)
             text(
                 label = displayed,
-                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(textContentSlot.x, textContentSlot.y, textContentSlot.width, textContentSlot.height),
+                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(drawTextX, textContentSlot.y, measureWidth, textContentSlot.height),
                 font = resolvedFont,
                 color = if (showingPlaceholder) theme.colors.mutedForeground else (surface.resolved.foreground
                     ?: theme.colors.foreground),
@@ -201,7 +230,7 @@ fun UiScope.textField(
                 (elapsed % TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS) < TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS / 2f
             if (caretVisible) {
                 val caretX =
-                    textContentSlot.x + cursorAdvancePx(visualTransformation(nextValue), resolvedFont, glyphPx, cursor)
+                    drawTextX + cursorAdvancePx(visualTransformation(nextValue), resolvedFont, glyphPx, cursor)
                 emitFillAndBorder(
                     slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
                         caretX,

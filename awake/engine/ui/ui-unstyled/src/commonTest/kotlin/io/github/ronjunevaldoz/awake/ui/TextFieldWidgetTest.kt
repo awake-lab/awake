@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -71,6 +72,42 @@ class TextFieldWidgetTest {
             value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
         assertEquals("hello", value, "typed text must be ignored once focus has moved elsewhere")
+    }
+
+    @Test
+    fun longValueScrollsHorizontallyInsteadOfTruncatingBehindTheClip() {
+        // Regression test for "text input not scrollable": a value wider than the field's
+        // fixed width used to just clip -- worse, overflow=Clip's own prefix-fit truncation
+        // meant only the *first* few characters were ever laid out at all, so typing past the
+        // visible width produced glyphs that were silently dropped, not merely off-screen.
+        val ui = UiContext()
+        val input = Input()
+        var value = ""
+        val longValue = "abcdefghijklmnopqrstuvwxyz0123456789"
+        ui.simulateClick(x = 100f, y = 20f, screenHeight = 100f, input = input) {
+            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+                .textField("field", value, modifier = Modifier.width(80f.px).height(36f.px))
+        }
+        input.pushTypedText(longValue)
+        ui.simulateFrame(pointerDown = false, x = 100f, y = 20f, screenHeight = 100f, input = input) {
+            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+                .textField("field", value, modifier = Modifier.width(80f.px).height(36f.px))
+        }
+        assertEquals(longValue, value, "typed characters past the visible field width must not be lost")
+
+        // Render one more frame (nothing typed this time) and prove every character of the
+        // stored value actually got laid out as a glyph -- not truncated to whatever prefix
+        // fit the field's own narrow width.
+        input.setPointer(down = false, x = 100f, y = 20f)
+        ui.beginFrame(200f, 100f, input.updateSnapshot().toUiInputState())
+        value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+            .textField("field", value, modifier = Modifier.width(80f.px).height(36f.px))
+        val glyphCount = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
+        assertEquals(
+            longValue.length,
+            glyphCount,
+            "every character of a scrolled-past-view value must still be laid out, not clipped away by truncation"
+        )
     }
 
     @Test

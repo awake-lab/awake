@@ -6,10 +6,13 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Draws a [color] outline of [width] around an already-claimed [slot] as four thin
- * [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad] strips (top/right/bottom/left). */
+ * [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad] strips (top/right/bottom/left).
+ * Every strip is pixel-snapped the same way [BasicText.kt]'s glyph emission already is -- a
+ * sub-pixel border position/thickness reads as a soft/antialiased edge next to crisp text. */
 fun UiScope.border(
     slot: UiBounds,
     width: Dp = 1f.dp,
@@ -19,14 +22,19 @@ fun UiScope.border(
     val strokeColor = color ?: context.currentTheme.colors.border
     val w = width.toPx()
     if (w <= 0f) return
-    emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, w, strokeColor), overlay)
+    val x = pixelPerfectPixel(slot.x)
+    val y = pixelPerfectPixel(slot.y)
+    val width_ = pixelPerfectPixel(slot.width).coerceAtLeast(1f)
+    val height_ = pixelPerfectPixel(slot.height).coerceAtLeast(1f)
+    val strokeWidth = pixelPerfectPixel(w).coerceAtLeast(1f)
+    emitPrimitive(UiDrawPrimitive.Quad(x, y, width_, strokeWidth, strokeColor), overlay)
     emitPrimitive(
-        UiDrawPrimitive.Quad(slot.x, slot.y + slot.height - w, slot.width, w, strokeColor),
+        UiDrawPrimitive.Quad(x, y + height_ - strokeWidth, width_, strokeWidth, strokeColor),
         overlay
     )
-    emitPrimitive(UiDrawPrimitive.Quad(slot.x, slot.y, w, slot.height, strokeColor), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(x, y, strokeWidth, height_, strokeColor), overlay)
     emitPrimitive(
-        UiDrawPrimitive.Quad(slot.x + slot.width - w, slot.y, w, slot.height, strokeColor),
+        UiDrawPrimitive.Quad(x + width_ - strokeWidth, y, strokeWidth, height_, strokeColor),
         overlay
     )
 }

@@ -117,6 +117,12 @@ fun UiScope.textarea(
         advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
     )
 
+    // Read last frame's applied scroll offset before this frame's click hit-testing -- a click
+    // lands on whatever was actually rendered (last frame's scrolled position), not this frame's
+    // not-yet-recomputed one.
+    val lastScrollOffsetY = cursorState.get("scrollOffsetY", 0f)
+    val lastDrawSlot = UiBounds(contentSlot.x, contentSlot.y - lastScrollOffsetY, contentSlot.width, contentSlot.height)
+
     var nextValue = value
     if (focused) {
         val clickIndex =
@@ -127,7 +133,7 @@ fun UiScope.textarea(
                     resolvedFont,
                     glyphPx,
                     lineGap,
-                    contentSlot,
+                    lastDrawSlot,
                     inputState.pointerX,
                     inputState.pointerY
                 )
@@ -181,13 +187,35 @@ fun UiScope.textarea(
     }
     cursorState.set("cursor", cursor)
 
+    // Vertical scroll: content taller than the box's fixed viewport (contentSlot) used to just
+    // clip silently with no way to reach the hidden lines. Auto-follow the caret's line instead
+    // -- the same "cursor scrolls into view" behavior a native multi-line text input gives you,
+    // simpler than wiring a draggable scrollbar for a field whose scroll is driven by typing/
+    // arrow-key position, not by dragging.
+    val contentHeight = layout.blockHeight(glyphPx, lineGap)
+    val maxScrollY = (contentHeight - contentSlot.height).coerceAtLeast(0f)
+    var scrollOffsetY = lastScrollOffsetY.coerceIn(0f, maxScrollY)
+    if (focused) {
+        val (caretLineIdx, _) = cursorToLineAndCol(layout, nextValue, cursor)
+        val caretTop = caretLineIdx * (glyphPx + lineGap)
+        val caretBottom = caretTop + glyphPx
+        if (caretTop - scrollOffsetY < 0f) {
+            scrollOffsetY = caretTop
+        } else if (caretBottom - scrollOffsetY > contentSlot.height) {
+            scrollOffsetY = caretBottom - contentSlot.height
+        }
+        scrollOffsetY = scrollOffsetY.coerceIn(0f, maxScrollY)
+    }
+    cursorState.set("scrollOffsetY", scrollOffsetY)
+    val drawSlot = UiBounds(contentSlot.x, contentSlot.y - scrollOffsetY, contentSlot.width, contentSlot.height)
+
     clip(contentSlot) {
         val showingPlaceholder = nextValue.isEmpty() && !focused
         val displayed = if (showingPlaceholder) placeholder else nextValue
         if (displayed.isNotEmpty()) {
             text(
                 label = displayed,
-                slot = contentSlot.toBounds(),
+                slot = drawSlot.toBounds(),
                 font = resolvedFont,
                 color = if (showingPlaceholder) theme.colors.mutedForeground else (resolvedWithInteraction.foreground
                     ?: theme.colors.foreground),
@@ -210,7 +238,7 @@ fun UiScope.textarea(
                     resolvedFont,
                     glyphPx,
                     lineGap,
-                    contentSlot,
+                    drawSlot,
                     cursor
                 )
                 emitFillAndBorder(

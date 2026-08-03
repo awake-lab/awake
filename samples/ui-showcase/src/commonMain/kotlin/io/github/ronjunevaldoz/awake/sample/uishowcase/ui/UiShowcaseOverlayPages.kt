@@ -137,6 +137,11 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
             anchorSlot = menuTrigger.slot,
             expanded = actionMenuState.expanded,
             items = ShowcaseActionMenuItems,
+            // Default width mirrors the anchor (112dp trigger) -- too narrow for these items'
+            // trailing shortcuts/supporting text, which truncated labels down to near nothing.
+            // shadcn's own richer menus (with icons/shortcuts) use a fixed w-56 (224px)-class
+            // width instead of matching the trigger; do the same here.
+            width = Dimension.Fixed(224f.dp),
             style = Style { contentPadding(4f.dp) }
         )
         when (menuResult.selectedIndex) {

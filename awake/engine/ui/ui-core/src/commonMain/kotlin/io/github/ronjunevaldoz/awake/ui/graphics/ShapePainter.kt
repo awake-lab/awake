@@ -9,9 +9,22 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.UiStroke
+import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
+
+/** Snaps a [UiBounds] to whole device pixels the same way [BasicText.kt]'s glyph emission
+ * already does for every glyph -- position rounds to the nearest pixel, size rounds and never
+ * drops below 1px. Without this, quads/rounded-quads (panels, dividers, icon backgrounds) draw
+ * at sub-pixel coordinates that glyphs never do, reading as blurrier/softer-edged than text at
+ * non-integer DPI scales or fractional layout positions. */
+private fun UiBounds.pixelSnapped(): UiBounds = UiBounds(
+    pixelPerfectPixel(x),
+    pixelPerfectPixel(y),
+    pixelPerfectPixel(width).coerceAtLeast(1f),
+    pixelPerfectPixel(height).coerceAtLeast(1f)
+)
 
 
 fun UiScope.emitPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
@@ -51,10 +64,11 @@ private fun UiScope.emitFillShape(
         return
     }
     val resolvedRadius = roundedRadiusFor(slot, radiusPx, shapeSpec)
+    val snapped = slot.pixelSnapped()
     val primitive = if (resolvedRadius > 0f) {
-        UiDrawPrimitive.RoundedQuad(slot.x, slot.y, slot.width, slot.height, color, resolvedRadius)
+        UiDrawPrimitive.RoundedQuad(snapped.x, snapped.y, snapped.width, snapped.height, color, resolvedRadius)
     } else {
-        UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, color)
+        UiDrawPrimitive.Quad(snapped.x, snapped.y, snapped.width, snapped.height, color)
     }
     emitPrimitive(primitive, overlay)
 }
@@ -105,23 +119,30 @@ fun UiScope.emitFillAndBorder(
             )
             return
         }
+        val snapped = slot.pixelSnapped()
         emitPrimitive(
             UiDrawPrimitive.RoundedQuad(
-                slot.x,
-                slot.y,
-                slot.width,
-                slot.height,
+                snapped.x,
+                snapped.y,
+                snapped.width,
+                snapped.height,
                 borderColor,
                 resolvedRadius
             ), overlay
         )
         val innerRadius = (resolvedRadius - borderPx).coerceAtLeast(0f)
+        val innerSnapped = UiBounds(
+            slot.x + borderPx,
+            slot.y + borderPx,
+            slot.width - 2 * borderPx,
+            slot.height - 2 * borderPx
+        ).pixelSnapped()
         emitPrimitive(
             UiDrawPrimitive.RoundedQuad(
-                slot.x + borderPx,
-                slot.y + borderPx,
-                slot.width - 2 * borderPx,
-                slot.height - 2 * borderPx,
+                innerSnapped.x,
+                innerSnapped.y,
+                innerSnapped.width,
+                innerSnapped.height,
                 fillColor,
                 innerRadius
             ),

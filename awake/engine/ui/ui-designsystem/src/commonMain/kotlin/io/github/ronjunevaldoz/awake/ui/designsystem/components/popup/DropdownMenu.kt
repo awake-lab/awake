@@ -23,6 +23,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
@@ -52,6 +54,13 @@ fun UiScope.shadcnDropdownMenu(
     itemStyle: Style = Style.Empty
 ): UiDropdownMenuResult {
     val theme = context.currentTheme
+    // Wired the same way every other scrollable surface in this module wires it (see
+    // shadcnSidebar's doc comment): a plain Modifier.verticalScroll(state) on the menu surface.
+    // Only applied when the caller constrains [height] -- the default WrapContent already grows
+    // to fit every item (never needs scroll), and unconditionally attaching a scrollState would
+    // route even the WrapContent case through scrollPanel()'s claimSlot(), which cannot resolve
+    // WrapContent while it's still inside popup()'s own WrapContent-sizing measure pass.
+    val scrollState = if (height != Dimension.WrapContent) context.rememberScrollState("$id.scroll") else null
     var picked: Int? = null
     val popupResult = popup(
         id = id,
@@ -69,6 +78,7 @@ fun UiScope.shadcnDropdownMenu(
             modifier = Modifier
                 .width(Dimension.Fixed(popupSlot.width.px))
                 .height(height)
+                .let { if (scrollState != null) it.verticalScroll(scrollState) else it }
                 .styleable(theme.components.surface then style then Style {
                     shape(UiShape.sm)
                 }),

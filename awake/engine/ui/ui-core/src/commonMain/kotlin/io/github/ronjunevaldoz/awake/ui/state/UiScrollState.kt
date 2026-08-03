@@ -18,10 +18,14 @@ enum class UiScrollbarVisibility {
     Never
 }
 
-/** Styling and behavior configuration for a scrollable container. */
+/** Styling and behavior configuration for a scrollable container. Both [width] and [gap]
+ * describe an *overlay* scrollbar (shadcn/ui's own `scroll-area.tsx` convention) -- it is
+ * painted on top of the last few content pixels at the container's edge, it never reserves
+ * a permanent width/height slice that would shrink the usable content area. */
 data class UiScrollConfig(
     val width: Dp = 6f.dp,
-    val gap: Dp = 8f.dp,
+    /** Inset between the thumb and the container's own edge. */
+    val gap: Dp = 2f.dp,
     val verticalVisibility: UiScrollbarVisibility = UiScrollbarVisibility.Auto,
     val horizontalVisibility: UiScrollbarVisibility = UiScrollbarVisibility.Auto,
     val verticalScrollbar: UiScrollbarSlot? = null,

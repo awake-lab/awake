@@ -141,6 +141,53 @@ class UiPopupCompositionsTest {
     }
 
     @Test
+    fun dropdownMenuWithConstrainedHeightScrollsInsteadOfClippingSilently() {
+        // Regression test for the reported "dropdown menu items not scrollable" bug: a menu
+        // with more items than fit its (caller-constrained) height used to clip the overflow
+        // with no way to reach it -- shadcnDropdownMenu's surface never wired a scrollState.
+        val ui = UiContext()
+        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 160f, 28f)
+        ui.pushFont(BitmapFont())
+        ui.beginFrame(320f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        val items = (1..10).map { UiDropdownMenuItem("Option $it") }
+        ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(300f.dp)) {
+            shadcnDropdownMenu(
+                id = "menu",
+                anchorSlot = anchor,
+                expanded = true,
+                items = items,
+                // 10 items * 32px = 320px of content, well beyond this 96px-tall menu.
+                height = Dimension.Fixed(96f.px),
+                style = Style.Companion { contentPadding(0f.dp) }
+            )
+        }
+        val frame = ui.finishFrame()
+
+        assertTrue(
+            frame.primitives.filterIsInstance<UiDrawPrimitive.ClipPush>().isNotEmpty(),
+            "a height-constrained menu with overflowing items must clip its viewport"
+        )
+        // The menu surface itself must stay pinned to the constrained height, not grow to fit
+        // all 10 items -- proof the container is actually height-bounded, not silently
+        // expanding (the pre-fix WrapContent-shaped clip-without-scroll symptom).
+        val menuSemanticsBounds = assertNotNull(frame.semantics.firstOrNull { it.id == "menu.menu" }).bounds
+        assertEquals(96f, menuSemanticsBounds.height, "a Fixed-height menu must not grow to fit overflowing items")
+        // A scrollbar thumb (a small quad/rounded-quad near the menu's right edge) must be
+        // present -- the actual affordance that makes the rest of the list reachable.
+        val menuBounds = assertNotNull(frame.semantics.firstOrNull { it.id == "menu.menu" }).bounds
+        val hasScrollThumb = frame.primitives.any { primitive ->
+            val (x, w) = when (primitive) {
+                is UiDrawPrimitive.Quad -> primitive.x to primitive.w
+                is UiDrawPrimitive.RoundedQuad -> primitive.x to primitive.w
+                else -> return@any false
+            }
+            w <= 8f && x >= menuBounds.x + menuBounds.width - 12f
+        }
+        assertTrue(hasScrollThumb, "a height-constrained overflowing menu must render a scroll thumb")
+    }
+
+    @Test
     fun dialogCentersContentAndDrawsScrim() {
         val ui = UiContext()
         ui.pushFont(BitmapFont())

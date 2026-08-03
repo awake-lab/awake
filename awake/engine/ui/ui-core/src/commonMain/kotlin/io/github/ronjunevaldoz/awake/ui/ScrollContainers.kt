@@ -51,9 +51,15 @@ fun UiScope.scrollPanel(
     )
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
+    // Overlay scrollbar (shadcn/ui's own scroll-area.tsx convention, see the reference's
+    // ShadcnScrollArea.kt: content fills the full box, the thumb is drawn on top via
+    // Modifier.align, never narrowing the content) -- the scrollbar is painted directly over
+    // the last few content pixels instead of reserving a permanent width/height slice, so it
+    // never shrinks usable content area the way a space-reserving scrollbar would.
     val scrollbarWidthPx = config.width.toPx().coerceAtLeast(0f)
-    val scrollbarGapPx = config.gap.toPx().coerceAtLeast(0f)
-    val scrollbarReservePx = if (scrollbarWidthPx > 0f) scrollbarWidthPx + scrollbarGapPx else 0f
+    // Repurposed for the overlay thumb: the inset between the thumb and the container's own
+    // edge, instead of the old space-reserving gap between the scrollbar and narrowed content.
+    val scrollbarEdgeInsetPx = config.gap.toPx().coerceAtLeast(0f)
     val gap = verticalArrangement.baseSpacingPx()
 
     fun requireBoundedAxis(axis: String): Float {
@@ -82,41 +88,30 @@ fun UiScope.scrollPanel(
 
     val maxInnerWidth = (availableOuterWidth() - paddingWidth).coerceAtLeast(0f)
 
-    // Phase 1: Measure content assuming no vertical scrollbar
-    val initialMeasure = measureColumnContent(
+    // Overlay scrollbar: content is always measured/laid out at the container's full width --
+    // no narrowed re-measure pass, since the scrollbar never claims its own content-shrinking
+    // width/height slice (it paints on top of the content's own last few pixels instead).
+    val measured = measureColumnContent(
         width = maxInnerWidth,
         gap = gap,
         content = content
     )
 
-    // Check if vertical scroll is needed
     val containerHeight = when (requestedHeight) {
         is Dimension.Fixed -> (requestedHeight.dp.toPx() - paddingHeight).coerceAtLeast(0f)
         Dimension.FillMax -> (requireBoundedAxis(axis = "height") - paddingHeight).coerceAtLeast(0f)
-        else -> initialMeasure.height // WrapContent
+        else -> measured.height // WrapContent
     }
-
     val verticalNeeded = when (config.verticalVisibility) {
         UiScrollbarVisibility.Always -> true
         UiScrollbarVisibility.Never -> false
-        UiScrollbarVisibility.Auto -> initialMeasure.height > containerHeight
-    }
-    var measured = initialMeasure
-
-    // Phase 2: If vertical needed, re-measure with narrowed width for the scrollbar
-    if (verticalNeeded && scrollbarReservePx > 0f) {
-        measured = measureColumnContent(
-            width = (maxInnerWidth - scrollbarReservePx).coerceAtLeast(0f),
-            gap = gap,
-            content = content
-        )
+        UiScrollbarVisibility.Auto -> measured.height > containerHeight
     }
 
-    // Check horizontal after potential narrowing
     val containerWidth = when (requestedWidth) {
         is Dimension.Fixed -> (requestedWidth.dp.toPx() - paddingWidth).coerceAtLeast(0f)
         Dimension.FillMax -> (requireBoundedAxis(axis = "width") - paddingWidth).coerceAtLeast(0f)
-        else -> initialMeasure.width // WrapContent
+        else -> measured.width // WrapContent
     }
     val horizontalNeeded = when (config.horizontalVisibility) {
         UiScrollbarVisibility.Always -> true
@@ -124,15 +119,12 @@ fun UiScope.scrollPanel(
         UiScrollbarVisibility.Auto -> measured.width > containerWidth
     }
 
-    val vScrollReservePx = if (verticalNeeded) scrollbarReservePx else 0f
-    val hScrollReservePx = if (horizontalNeeded) scrollbarReservePx else 0f
-
     val resolvedWidth = when (requestedWidth) {
-        Dimension.WrapContent -> Dimension.Fixed((measured.width + paddingWidth + vScrollReservePx).px)
+        Dimension.WrapContent -> Dimension.Fixed((measured.width + paddingWidth).px)
         else -> requestedWidth
     }
     val resolvedHeight = when (requestedHeight) {
-        Dimension.WrapContent -> Dimension.Fixed((measured.height + paddingHeight + hScrollReservePx).px)
+        Dimension.WrapContent -> Dimension.Fixed((measured.height + paddingHeight).px)
         else -> requestedHeight
     }
 
@@ -147,11 +139,13 @@ fun UiScope.scrollPanel(
     )
 
     val innerSlot = slot.inset(resolved.contentPadding)
+    // Overlay scrollbar: the viewport is the full inner slot -- the scrollbar paints on top of
+    // its last few pixels (see the thumb slots below), it does not carve out its own space.
     val viewport = UiBounds(
         x = innerSlot.x,
         y = innerSlot.y,
-        width = (innerSlot.width - vScrollReservePx).coerceAtLeast(0f),
-        height = (innerSlot.height - hScrollReservePx).coerceAtLeast(0f)
+        width = innerSlot.width,
+        height = innerSlot.height
     )
     recordSemantic(
         role = UiSemanticRole.ScrollPanel,
@@ -207,10 +201,14 @@ fun UiScope.scrollPanel(
         }
     }
 
-    // Vertical Scrollbar
+    // Vertical Scrollbar -- overlay thumb only, no separate track fill (matches the shadcn-
+    // compose reference's ScrollThumb: a bare thumb aligned to the container's edge, not a
+    // painted track). Uses theme.colors.border, the same token the reference's own
+    // `shadcnTheme.colors.border` thumb color resolves to -- not a hardcoded gray, and not
+    // `primary` (too strong an accent for a passive scroll indicator).
     val vThumb = if (verticalNeeded && config.verticalVisibility != UiScrollbarVisibility.Never) {
         val vTrackSlot = UiBounds(
-            x = innerSlot.x + innerSlot.width - scrollbarWidthPx,
+            x = innerSlot.x + innerSlot.width - scrollbarWidthPx - scrollbarEdgeInsetPx,
             y = innerSlot.y,
             width = scrollbarWidthPx,
             height = viewport.height
@@ -221,15 +219,8 @@ fun UiScope.scrollPanel(
                 childAbsolute(thumb.track).custom(thumb)
             } else {
                 emitFillAndBorder(
-                    slot = thumb.track,
-                    fillColor = currentTheme.colors.muted.withAlpha(0.4f),
-                    radiusPx = scrollbarWidthPx / 2f,
-                    borderWidth = UiShape.none,
-                    borderColor = Color.Transparent
-                )
-                emitFillAndBorder(
                     slot = thumb.thumb,
-                    fillColor = currentTheme.colors.primary,
+                    fillColor = currentTheme.colors.border,
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent
@@ -238,11 +229,11 @@ fun UiScope.scrollPanel(
         }
     } else null
 
-    // Horizontal Scrollbar
+    // Horizontal Scrollbar -- same overlay-thumb-only treatment as vertical, above.
     val hThumb = if (horizontalNeeded && config.horizontalVisibility != UiScrollbarVisibility.Never) {
         val hTrackSlot = UiBounds(
             x = innerSlot.x,
-            y = innerSlot.y + innerSlot.height - scrollbarWidthPx,
+            y = innerSlot.y + innerSlot.height - scrollbarWidthPx - scrollbarEdgeInsetPx,
             width = viewport.width,
             height = scrollbarWidthPx
         )
@@ -252,15 +243,8 @@ fun UiScope.scrollPanel(
                 childAbsolute(thumb.track).custom(thumb)
             } else {
                 emitFillAndBorder(
-                    slot = thumb.track,
-                    fillColor = currentTheme.colors.muted.withAlpha(0.4f),
-                    radiusPx = scrollbarWidthPx / 2f,
-                    borderWidth = UiShape.none,
-                    borderColor = Color.Transparent
-                )
-                emitFillAndBorder(
                     slot = thumb.thumb,
-                    fillColor = currentTheme.colors.primary,
+                    fillColor = currentTheme.colors.border,
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent
