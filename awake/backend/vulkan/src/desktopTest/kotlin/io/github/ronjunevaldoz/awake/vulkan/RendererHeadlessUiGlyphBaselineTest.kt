@@ -227,7 +227,15 @@ class RendererHeadlessUiGlyphBaselineTest {
         }
     }
 
-    private companion object {
+    companion object {
+        /** Reuses this class's shared headless fixture for other test classes that need a real
+         * headless Vulkan [Renderer] but don't otherwise belong in this file -- see
+         * `RendererHeadlessStrokedPathChunkingTest` for the motivating case (avoids duplicating
+         * the ~40 lines of GraphicsDevice/SwapchainManager/pipeline setup [sharedFixture] does). */
+        fun withSharedHeadlessRenderer(block: (Renderer) -> Unit) {
+            block(sharedFixture().renderer)
+        }
+
         const val TARGET_SIZE = 128
         const val MAX_FRAMES_IN_FLIGHT = 1
         const val SAMPLE_VERTEX_STRIDE = 8 * Float.SIZE_BYTES
@@ -242,7 +250,7 @@ class RendererHeadlessUiGlyphBaselineTest {
          * tearing down and recreating a validation-enabled headless instance twice in one JVM
          * test class has been flaky on macOS.
          */
-        fun sharedFixture(): HeadlessUiRendererFixture {
+        private fun sharedFixture(): HeadlessUiRendererFixture {
             cachedFixture?.let { return it }
 
             val graphicsDevice = GraphicsDevice()
