@@ -79,6 +79,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":awake:engine:game-dsl"))
+            implementation(project(":awake:engine:render-api"))
+            implementation(project(":awake:base"))
             implementation(project(":awake:engine:ui:ui-core"))
             implementation(project(":awake:engine:ui:ui-designsystem"))
             implementation(libs.kotlinx.coroutines.core)

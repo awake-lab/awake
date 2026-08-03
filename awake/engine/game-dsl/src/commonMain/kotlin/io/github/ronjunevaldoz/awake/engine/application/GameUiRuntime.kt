@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
+import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
 import io.github.ronjunevaldoz.awake.ui.debugOverlayPrimitives
@@ -72,7 +73,30 @@ class GameUiRuntime(
         this.theme = theme
     }
 
-    private lateinit var renderer: Renderer
+    /** Public (not private-set) so an installing [GameModule] -- see [provideDrawCalls]'s doc
+     * comment -- can build its own [io.github.ronjunevaldoz.awake.render.mesh.Mesh]/
+     * [io.github.ronjunevaldoz.awake.render.material.Material] via `createMesh`/`createMaterial`
+     * from inside its own `onReady`/`overlay` block, the same lazy-on-demand pattern
+     * [Renderer.createMesh]'s own doc comment describes. */
+    lateinit var renderer: Renderer
+        private set
+
+    /** Real per-frame delta, mirrored out of [render]'s own parameter so an `overlay` block
+     * (a `GameUiRuntime.() -> Unit`, no delta parameter of its own) can still advance
+     * time-based state -- e.g. a spinning demo mesh's rotation angle -- without this runtime
+     * inventing a separate update phase for a UI-only game. */
+    var deltaSeconds: Float = 0f
+        private set
+
+    /** Optional per-frame hook an installing [GameModule] sets (from its own `overlay`/
+     * `onReady` block, which has `this: GameUiRuntime` access) to route real 3D geometry into
+     * the one [Renderer.draw] call [render] already makes every frame to drive the swapchain
+     * (see [EMPTY_UI_ONLY_CAMERA]'s doc comment) -- a UI-only game has no scene/camera of its
+     * own, so this is the only way a demo/game built on [GameUiRuntime] gets real mesh geometry
+     * on screen. Null (the default) keeps today's UI-only behavior: [EMPTY_UI_ONLY_CAMERA] with
+     * no draw calls. Whatever sets this is responsible for deciding when its own draw calls
+     * should actually be included (e.g. only while its own demo/page is the active one). */
+    var provideDrawCalls: (() -> Pair<Camera, List<DrawCall>>)? = null
 
     private companion object {
         const val FRAME_TIME_HISTORY_SIZE = 30
@@ -101,6 +125,7 @@ class GameUiRuntime(
     ) {
         this.viewportWidth = viewportWidth
         this.viewportHeight = viewportHeight
+        this.deltaSeconds = deltaSeconds
         val input = services.requireService<Input>()
         val snapshot = input.currentSnapshot
 
@@ -144,9 +169,11 @@ class GameUiRuntime(
         // of whatever `draw()` already wrote). Without this, `drawUi()` alone stages CPU-side
         // primitives into a pooled mesh that nothing ever submits to the GPU, so the window
         // shows its OS-default backing (a real desktop repro: blank pale-gray window, no
-        // crash, no error, confirmed by a live GLFW/MoltenVK run). `drawCalls` stays empty --
-        // a UI-only game has no 3D geometry to draw, just needs the frame driven.
-        renderer.draw(EMPTY_UI_ONLY_CAMERA, emptyList())
+        // crash, no error, confirmed by a live GLFW/MoltenVK run). `drawCalls` stays empty
+        // (falls back to `EMPTY_UI_ONLY_CAMERA`/no draw calls) unless [provideDrawCalls] is
+        // set -- see its own doc comment.
+        val (camera, drawCalls) = provideDrawCalls?.invoke() ?: (EMPTY_UI_ONLY_CAMERA to emptyList())
+        renderer.draw(camera, drawCalls)
         renderer.drawUi(primitives, font)
     }
 
