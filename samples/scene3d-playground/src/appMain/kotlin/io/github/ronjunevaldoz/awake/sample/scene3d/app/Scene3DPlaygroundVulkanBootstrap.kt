@@ -14,7 +14,7 @@ fun createScene3DPlaygroundVulkanApplication(
 ): VulkanGameApplication {
     return VulkanGameApplication(
         shaderSet = Scene3DPlaygroundShaders,
-        vertexFormat = VertexFormat.PositionColorUv,
+        vertexFormat = VertexFormat.PositionNormalColor,
         game = game
     )
 }

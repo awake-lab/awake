@@ -29,5 +29,20 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
                 VertexAttribute(VertexSemantic.Uv, VertexAttributeFormat.Float2, location = 2)
             )
         )
+
+        /** Position vec3 @ 0, normal vec3 @ 12, color vec3 @ 24, stride 36 -- for a shader that
+         * shades with real per-vertex normals (Lambertian diffuse) instead of flat unlit vertex
+         * color. Not the [MeshGeometry] default -- opt in per bootstrap (see
+         * `Scene3DPlaygroundVulkanBootstrap.kt`'s own `vertexFormat` choice) since every mesh
+         * drawn through one [io.github.ronjunevaldoz.awake.render.renderer.Renderer] shares its
+         * one bound pipeline's vertex layout; switching this changes every mesh in that renderer,
+         * not just one. */
+        val PositionNormalColor = VertexFormat(
+            listOf(
+                VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
+                VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
+                VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2)
+            )
+        )
     }
 }

@@ -3,21 +3,25 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 
-// Same interleaved position(vec3) + color(vec3) + uv(vec2) layout the (now-retired)
-// hello-cube sample's own SampleMesh.kt used -- copied here rather than promoted to a shared
-// module since [RotatingCubeDemo] is still this geometry's only consumer (see
-// docs/reference/dsl-modules.md's scene-module ownership notes); promote if a second demo
-// needs the same cube/grid geometry.
+// Interleaved position(vec3) + normal(vec3) + color(vec3) layout -- matches
+// VertexFormat.PositionNormalColor, which this sample's own triangle.wgsl shades with
+// (Lambertian diffuse, see that shader's own doc comment). Each corner's normal is just its
+// own normalized position -- a centered unit cube's corner vector already points radially
+// outward, so this is a cheap "rounded corner" shading approximation shared across the 3 faces
+// that meet there, not true per-face flat shading (which would need 24 verts, one trio per
+// face, instead of these 8 shared corners). Good enough for a demo cube's curvature cue; swap
+// to duplicated per-face verts if flat-shaded faces are ever wanted instead.
 private val cubeVertices = floatArrayOf(
-    -0.5f, -0.5f, -0.5f, 0f, 0f, 0f, 0f, 0f, // v0
-    0.5f, -0.5f, -0.5f, 1f, 0f, 0f, 1f, 0f, // v1
-    0.5f, 0.5f, -0.5f, 1f, 1f, 0f, 1f, 1f, // v2
-    -0.5f, 0.5f, -0.5f, 0f, 1f, 0f, 0f, 1f, // v3
-    -0.5f, -0.5f, 0.5f, 0f, 0f, 1f, 0f, 0f, // v4
-    0.5f, -0.5f, 0.5f, 1f, 0f, 1f, 1f, 0f, // v5
-    0.5f, 0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f, // v6
-    -0.5f, 0.5f, 0.5f, 0f, 1f, 1f, 0f, 1f, // v7
+    -0.5f, -0.5f, -0.5f, -0.577f, -0.577f, -0.577f, 0f, 0f, 0f, // v0
+    0.5f, -0.5f, -0.5f, 0.577f, -0.577f, -0.577f, 1f, 0f, 0f, // v1
+    0.5f, 0.5f, -0.5f, 0.577f, 0.577f, -0.577f, 1f, 1f, 0f, // v2
+    -0.5f, 0.5f, -0.5f, -0.577f, 0.577f, -0.577f, 0f, 1f, 0f, // v3
+    -0.5f, -0.5f, 0.5f, -0.577f, -0.577f, 0.577f, 0f, 0f, 1f, // v4
+    0.5f, -0.5f, 0.5f, 0.577f, -0.577f, 0.577f, 1f, 0f, 1f, // v5
+    0.5f, 0.5f, 0.5f, 0.577f, 0.577f, 0.577f, 1f, 1f, 1f, // v6
+    -0.5f, 0.5f, 0.5f, -0.577f, 0.577f, 0.577f, 0f, 1f, 1f, // v7
 )
 private val cubeIndices = intArrayOf(
     0, 1, 2, 2, 3, 0, // back
@@ -29,7 +33,7 @@ private val cubeIndices = intArrayOf(
 )
 
 /** Unit cube (-0.5..0.5 on every axis). */
-internal val rotatingCubeGeometry = MeshGeometry(cubeVertices, cubeIndices)
+internal val rotatingCubeGeometry = MeshGeometry(cubeVertices, cubeIndices, format = VertexFormat.PositionNormalColor)
 
 /** Local-space corners of [rotatingCubeGeometry], in the same winding order the mesh itself
  * uses -- reused by [RotatingCubeDemo] to build wireframe [io.github.ronjunevaldoz.awake.render.renderer.LineSegment]

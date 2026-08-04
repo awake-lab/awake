@@ -56,10 +56,52 @@ data class GltfMesh(
         return result
     }
 
+    /**
+     * Interleaves into the position(vec3)+normal(vec3)+color(vec3) -- 9 floats/vertex --
+     * layout [io.github.ronjunevaldoz.awake.render.mesh.VertexFormat.PositionNormalColor]
+     * describes, for a shader that shades with real per-vertex normals instead of flat unlit
+     * vertex color. Missing [normals] default to world-up (`0, 1, 0`) -- an arbitrary but
+     * harmless fallback (no glTF exporter omits `NORMAL` on a mesh meant to be shaded, so this
+     * mainly guards a malformed/synthetic file); missing [colors] default to white, same as
+     * [toInterleavedPositionColorUv].
+     */
+    fun toInterleavedPositionNormalColor(): FloatArray {
+        val result = FloatArray(vertexCount * NORMAL_VERTEX_STRIDE_COMPONENTS)
+        for (i in 0 until vertexCount) {
+            val out = i * NORMAL_VERTEX_STRIDE_COMPONENTS
+            result[out] = positions[i * POSITION_COMPONENTS]
+            result[out + 1] = positions[i * POSITION_COMPONENTS + 1]
+            result[out + 2] = positions[i * POSITION_COMPONENTS + 2]
+
+            if (normals != null) {
+                result[out + 3] = normals[i * NORMAL_COMPONENTS]
+                result[out + 4] = normals[i * NORMAL_COMPONENTS + 1]
+                result[out + 5] = normals[i * NORMAL_COMPONENTS + 2]
+            } else {
+                result[out + 3] = 0f
+                result[out + 4] = 1f
+                result[out + 5] = 0f
+            }
+
+            if (colors != null) {
+                result[out + 6] = colors[i * COLOR_COMPONENTS]
+                result[out + 7] = colors[i * COLOR_COMPONENTS + 1]
+                result[out + 8] = colors[i * COLOR_COMPONENTS + 2]
+            } else {
+                result[out + 6] = 1f
+                result[out + 7] = 1f
+                result[out + 8] = 1f
+            }
+        }
+        return result
+    }
+
     private companion object {
         const val POSITION_COMPONENTS = 3
+        const val NORMAL_COMPONENTS = 3
         const val COLOR_COMPONENTS = 3
         const val UV_COMPONENTS = 2
         const val VERTEX_STRIDE_COMPONENTS = 8
+        const val NORMAL_VERTEX_STRIDE_COMPONENTS = 9
     }
 }

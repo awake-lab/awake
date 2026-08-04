@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
 import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCamera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
@@ -98,7 +99,7 @@ internal object GltfViewerDemo {
     private fun ensureSpawned(runtime: SceneGameRuntime) {
         if (meshEntity != null) return
         val mesh = loadedMesh ?: return
-        val geometry = MeshGeometry(mesh.toInterleavedPositionColorUv(), mesh.indices)
+        val geometry = MeshGeometry(mesh.toInterleavedPositionNormalColor(), mesh.indices, format = VertexFormat.PositionNormalColor)
         val mesh3d = runtime.renderer.createMesh(geometry)
         val material = runtime.renderer.createMaterial()
         val entity = runtime.world.create()

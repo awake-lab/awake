@@ -11,7 +11,7 @@ private val Scene3DPlaygroundShaders = gameShaderSet("triangle")
 fun createScene3DPlaygroundWebGpuApplication(): WebGpuGameApplication {
     return WebGpuGameApplication(
         shaderSet = Scene3DPlaygroundShaders,
-        vertexFormat = VertexFormat.PositionColorUv,
+        vertexFormat = VertexFormat.PositionNormalColor,
         game = scene3DPlayground()
     )
 }
