@@ -59,12 +59,14 @@ internal object RotatingCubeDemo {
     private var elevation = 2.2f
 
     /** `false` (default): orbit mode -- [orbitDegrees]/[pitchDegrees]/[zoom] orbit the eye
-     * around a look-at target positioned by [panX]/[panZ]/[elevation] (or, while
-     * [lockTargetToCube] is on, the cube's own fixed world position); the target stays fixed
-     * regardless of where the eye orbits to.
+     * around a fixed anchor point ([orbitAnchor], positioned by [panX]/[panZ]/[elevation]);
+     * the eye's position depends only on that anchor and these three params, never on
+     * [lockTargetToCube] -- toggling what the camera looks at must never move the eye itself
+     * (a real reported bug from an earlier version of this toggle, where the look-at target
+     * *was* the orbit anchor, so retargeting it silently dragged the eye along with it).
      *
      * `true`: free-look mode -- the eye itself is fixed at [panX]/[panZ]/[elevation] instead
-     * of a look-at target, and [orbitDegrees]/[pitchDegrees] instead rotate which direction
+     * of orbiting an anchor, and [orbitDegrees]/[pitchDegrees] instead rotate which direction
      * that fixed eye looks (an FPS-style look-around). Named "Free look", not "Look At Target"
      * -- despite `Camera` always having a `center` field the view matrix looks at (every mode
      * is technically "look-at"), this mode has no fixed point being looked AT; the eye is what's
@@ -73,12 +75,13 @@ internal object RotatingCubeDemo {
      * look-at target in this mode) -- both are disabled in the controls panel while this is on. */
     private var freeLook = false
 
-    /** `true` (default): orbit mode's look-at target ([targetCenter]) is the cube's own fixed
-     * world position, not [panX]/[panZ]/[elevation] -- matches the sliders' own defaults
-     * (`elevation = CUBE_REST_HEIGHT`, `panX = panZ = 0`), so this is simply naming what those
-     * defaults already meant. Disabling this lets [panX]/[panZ]/[elevation] freely aim the
-     * orbit target somewhere other than the cube. Meaningless in [freeLook] mode (see its own
-     * doc comment) -- disabled in the controls panel while that's on. */
+    /** `true` (default): orbit mode's look-at `center` ([cameraAndDrawCalls]) is the cube's own
+     * fixed world position; `false`: the look-at `center` is [orbitAnchor] instead (the same
+     * point the eye orbits around, so the eye stays centered in view without needing a separate
+     * target concept). Either way the eye's own position ([orbitAnchor] + the orbit offset) is
+     * unaffected by this toggle -- only what the already-positioned camera is aimed at changes,
+     * not where it is. Meaningless in [freeLook] mode (see its own doc comment) -- disabled in
+     * the controls panel while that's on. */
     private var lockTargetToCube = true
     private var wireframe = false
     private var spinRadians = 0f
@@ -183,12 +186,17 @@ internal object RotatingCubeDemo {
         renderer.drawDebugLines(lines)
     }
 
-    /** Orbit mode's look-at target -- see [freeLook]'s and [lockTargetToCube]'s doc comments.
-     * The cube never translates (only [wireframeCubeEdges]/[cameraAndDrawCalls]'s model matrix
-     * rotates it in place), so its world position is always the same fixed point the cube's
-     * own rest-height translate uses. */
-    private fun targetCenter(): Vec3 =
-        if (lockTargetToCube) Vec3(0f, CUBE_REST_HEIGHT, 0f) else Vec3(panX, elevation, panZ)
+    /** Orbit mode's eye *anchor* -- [orbitDegrees]/[pitchDegrees]/[zoom] always orbit the eye
+     * around this exact point, regardless of [lockTargetToCube]. Keeping the anchor fixed to
+     * [panX]/[panZ]/[elevation] (never swapped for the cube's position) is what keeps the eye
+     * itself from jumping when [lockTargetToCube] is toggled -- only [cameraAndDrawCalls]'s
+     * separate look-at `center` changes, re-aiming the same eye position instead of moving it. */
+    private fun orbitAnchor(): Vec3 = Vec3(panX, elevation, panZ)
+
+    /** The cube never translates (only [wireframeCubeEdges]/[cameraAndDrawCalls]'s model matrix
+     * rotates it in place), so its world position is always this fixed point -- the same one
+     * the cube's own rest-height translate uses. */
+    private fun cubeWorldPosition(): Vec3 = Vec3(0f, CUBE_REST_HEIGHT, 0f)
 
     /** Unit look direction for free-look mode -- [orbitDegrees] is yaw (compass heading),
      * [pitchDegrees] is elevation angle above the horizon, matching the same slider ranges
@@ -219,12 +227,13 @@ internal object RotatingCubeDemo {
             val orbitRad = orbitDegrees * DEGREES_TO_RADIANS
             val pitchRad = pitchDegrees * DEGREES_TO_RADIANS
             val horizontalRadius = zoom * cos(pitchRad)
-            center = targetCenter()
-            eye = center + Vec3(
+            val anchor = orbitAnchor()
+            eye = anchor + Vec3(
                 horizontalRadius * sin(orbitRad),
                 zoom * sin(pitchRad),
                 horizontalRadius * cos(orbitRad)
             )
+            center = if (lockTargetToCube) cubeWorldPosition() else anchor
         }
         val camera = Camera(
             eye = eye,
