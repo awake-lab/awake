@@ -47,7 +47,14 @@ fun UiScope.scrollPanel(
     val currentTheme = theme
     val resolved = resolveStyle(
         style = style then (modifier.styleable ?: Style.Empty),
-        defaults = currentTheme.components.surface
+        // Neutral, not currentTheme.components.surface -- unlike [resolveVisualSurface]'s
+        // non-scroll path (which only paints a background/border when [style] itself resolves
+        // one, via smartColumn's hasResolvedVisuals gate), this ran unconditionally: any plain
+        // `column(...).verticalScroll(...)` with no [style] at all silently rendered as a
+        // themed card (border + card background), a real bug -- a bare scroll container should
+        // stay invisible by default, exactly like a bare non-scroll column, and only paint
+        // when the caller's own [style] asks for it.
+        defaults = Style { shape(UiShape.md); borderWidth(UiShape.none) }
     )
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
