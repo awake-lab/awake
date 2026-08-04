@@ -85,6 +85,14 @@ internal object RotatingCubeDemo {
     private var wireframe = false
     private var spinRadians = 0f
 
+    /** `true` (default): [spinRadians] auto-advances every frame in `onUpdate`, same as before
+     * this toggle existed. `false`: [spinDegrees] drives [spinRadians] directly instead --
+     * freezes the cube at an exact, hand-picked angle so a visual bug (e.g. a warped/domed
+     * face) can be inspected at a fixed frame instead of chasing it through a live 60fps spin
+     * and a screenshot tool with no frame-accurate timing. */
+    private var autoSpin = true
+    private var spinDegrees = 0f
+
     // Controls panel grouping -- default expanded so nothing looks like it went missing.
     private var cameraGroupExpanded = true
     private var projectionGroupExpanded = true
@@ -162,13 +170,23 @@ internal object RotatingCubeDemo {
                 bordered = true
             ) {
                 wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
-                text(label = "Cube spins automatically; sliders move the camera (Pitch 0 = side-on, 89 = top-down).")
+                autoSpin = shadcnSwitch(id = "cube-auto-spin", checked = autoSpin, label = "Auto-spin")
+                spinDegrees = shadcnFieldSliderWithValue(
+                    id = "cube-spin",
+                    label = "Spin",
+                    min = 0f,
+                    max = 360f,
+                    value = spinDegrees,
+                    enabled = !autoSpin
+                )
+                text(label = "Turn off Auto-spin to freeze the cube at an exact angle for inspection.")
             }
         },
         onActivate = {
             if (cubeMesh == null) cubeMesh = renderer.createMesh(rotatingCubeGeometry)
             if (material == null) material = renderer.createMaterial()
             spinRadians = 0f
+            spinDegrees = 0f
             val cube = world.create()
             world.add(cube, Transform(worldMatrix = cubeModelMatrix()))
             if (!wireframe) world.add(cube, MeshRenderer(cubeMesh!!, material!!))
@@ -184,7 +202,12 @@ internal object RotatingCubeDemo {
             cameraEntity = null
         },
         onUpdate = { delta ->
-            spinRadians += delta * SPIN_RADIANS_PER_SECOND
+            if (autoSpin) {
+                spinRadians += delta * SPIN_RADIANS_PER_SECOND
+                spinDegrees = (spinRadians * RADIANS_TO_DEGREES) % 360f
+            } else {
+                spinRadians = spinDegrees * DEGREES_TO_RADIANS
+            }
 
             val gridLines = Grid.lines(size = GRID_SIZE, divisions = GRID_DIVISIONS)
                 .map { (a, b) -> LineSegment(a, b, GRID_COLOR) }
@@ -313,4 +336,5 @@ internal object RotatingCubeDemo {
     // has no visual effect (unlike orbit mode's zoom, which IS the eye-to-target distance).
     private const val FREE_LOOK_DISTANCE = 10f
     private const val DEGREES_TO_RADIANS = (PI / 180.0).toFloat()
+    private const val RADIANS_TO_DEGREES = (180.0 / PI).toFloat()
 }
