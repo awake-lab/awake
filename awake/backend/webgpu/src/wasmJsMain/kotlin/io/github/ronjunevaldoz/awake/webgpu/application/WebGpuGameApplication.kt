@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
 import io.github.ronjunevaldoz.awake.engine.application.GenericGameApplication
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
@@ -28,24 +29,24 @@ import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
 class WebGpuGameApplication(
     vertexShaderResourcePath: String,
     fragmentShaderResourcePath: String,
-    vertexStride: Int,
+    vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     game: Game,
     private val vertexShaderEntryPoint: String = DEFAULT_VERTEX_SHADER_ENTRY_POINT,
     private val fragmentShaderEntryPoint: String = DEFAULT_FRAGMENT_SHADER_ENTRY_POINT
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
-    vertexStride,
+    vertexFormat,
     game
 ) {
     constructor(
         shaderSet: GameShaderSet,
-        vertexStride: Int,
+        vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
         game: Game
     ) : this(
         vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
-        vertexStride = vertexStride,
+        vertexFormat = vertexFormat,
         game = game,
         vertexShaderEntryPoint = shaderSet.webGpu.vertexEntryPoint,
         fragmentShaderEntryPoint = shaderSet.webGpu.fragmentEntryPoint
@@ -67,7 +68,7 @@ class WebGpuGameApplication(
             DescriptorSetLayoutHandle(0),
             readResourceBytes(vertexShaderResourcePath),
             ByteArray(0),
-            vertexStride,
+            vertexFormat.strideBytes,
             vertexShaderEntryPoint,
             fragmentShaderEntryPoint
         )

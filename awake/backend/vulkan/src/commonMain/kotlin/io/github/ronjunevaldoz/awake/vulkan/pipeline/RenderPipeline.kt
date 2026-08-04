@@ -46,6 +46,8 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineViewp
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAttributeDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
+import io.github.ronjunevaldoz.awake.render.mesh.VertexAttributeFormat
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 
 /**
  * Phase 2 (renderer abstraction): owns the render pass + graphics pipeline -- extracted
@@ -65,20 +67,20 @@ import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
  * `Material`/`Shader` system with more than one descriptor set layout would change this
  * signature, but there's only one material in this demo today.
  *
- * The vertex attribute layout (position vec3 + color vec3) is still hardcoded here. The
- * shared cube meshes currently keep an unused trailing uv vec2 in their interleaved stride so
- * Vulkan and WebGPU can stay aligned while the shared shader pipeline matures, but the active
- * sample shader only consumes locations 0 and 1. A real vertex-format abstraction (so
- * different meshes could use different layouts) is out of scope for this pass; only
- * [vertexStride] is parameterized so this class isn't hardcoded to the demo cube's specific
- * stride constant.
+ * The vertex attribute layout is driven by [vertexFormat]
+ * ([io.github.ronjunevaldoz.awake.render.mesh.VertexFormat]) -- each of its entries becomes one
+ * [VkVertexInputAttributeDescription], location/offset/format read straight off the entry
+ * instead of a hand-written table. Defaults to
+ * [VertexFormat.PositionColorUv][io.github.ronjunevaldoz.awake.render.mesh.VertexFormat.PositionColorUv],
+ * bit-for-bit the layout this class hardcoded before the abstraction existed, so every
+ * pre-existing caller/shader pair keeps working unchanged.
  */
 class RenderPipeline(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     descriptorSetLayout: DescriptorSetLayoutHandle,
     shaders: ShaderPair,
-    vertexStride: Int,
+    vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     vertexEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
     fragmentEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT
 ) {
@@ -97,7 +99,7 @@ class RenderPipeline(
             descriptorSetLayout = descriptorSetLayout,
             vertShaderCode = shaders.vertex,
             fragShaderCode = shaders.fragment,
-            vertexStride = vertexStride,
+            vertexFormat = vertexFormat,
             vertexEntryPoint = vertexEntryPoint,
             fragmentEntryPoint = fragmentEntryPoint
         )
@@ -177,7 +179,7 @@ class RenderPipeline(
         descriptorSetLayout: DescriptorSetLayoutHandle,
         vertShaderCode: ByteArray,
         fragShaderCode: ByteArray,
-        vertexStride: Int,
+        vertexFormat: VertexFormat,
         vertexEntryPoint: String,
         fragmentEntryPoint: String
     ) {
@@ -203,30 +205,18 @@ class RenderPipeline(
                 pVertexBindingDescriptions = arrayOf(
                     VkVertexInputBindingDescription(
                         binding = 0,
-                        stride = vertexStride,
+                        stride = vertexFormat.strideBytes,
                         inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX
                     )
                 ),
-                pVertexAttributeDescriptions = arrayOf(
+                pVertexAttributeDescriptions = vertexFormat.entries.map { entry ->
                     VkVertexInputAttributeDescription(
-                        location = 0,
+                        location = entry.attribute.location,
                         binding = 0,
-                        format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
-                        offset = 0
-                    ),
-                    VkVertexInputAttributeDescription(
-                        location = 1,
-                        binding = 0,
-                        format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
-                        offset = 3 * Float.SIZE_BYTES
-                    ),
-                    VkVertexInputAttributeDescription(
-                        location = 2,
-                        binding = 0,
-                        format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
-                        offset = 6 * Float.SIZE_BYTES
-                    ),
-                )
+                        format = entry.attribute.format.toVkFormat(),
+                        offset = entry.offsetBytes
+                    )
+                }.toTypedArray()
             )
         )
 
@@ -349,4 +339,11 @@ class RenderPipeline(
     private companion object {
         const val DEFAULT_SHADER_ENTRY_POINT = "main"
     }
+}
+
+private fun VertexAttributeFormat.toVkFormat(): VkFormat = when (this) {
+    VertexAttributeFormat.Float2 -> VkFormat.VK_FORMAT_R32G32_SFLOAT
+    VertexAttributeFormat.Float3 -> VkFormat.VK_FORMAT_R32G32B32_SFLOAT
+    VertexAttributeFormat.Float4 -> VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT
+    VertexAttributeFormat.UInt4 -> VkFormat.VK_FORMAT_R32G32B32A32_UINT
 }

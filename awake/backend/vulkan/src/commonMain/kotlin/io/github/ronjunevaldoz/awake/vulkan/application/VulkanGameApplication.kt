@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
 import io.github.ronjunevaldoz.awake.engine.application.GenericGameApplication
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
@@ -27,24 +28,24 @@ import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 class VulkanGameApplication(
     vertexShaderResourcePath: String,
     fragmentShaderResourcePath: String,
-    vertexStride: Int,
+    vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     game: Game,
     private val vertexShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
     private val fragmentShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
-    vertexStride,
+    vertexFormat,
     game
 ) {
     constructor(
         shaderSet: GameShaderSet,
-        vertexStride: Int,
+        vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
         game: Game
     ) : this(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
-        vertexStride = vertexStride,
+        vertexFormat = vertexFormat,
         game = game,
         vertexShaderEntryPoint = shaderSet.vulkan.vertexEntryPoint,
         fragmentShaderEntryPoint = shaderSet.vulkan.fragmentEntryPoint
@@ -75,7 +76,7 @@ class VulkanGameApplication(
             swapchainManager,
             pipelineLayoutMaterial.descriptorSetLayout,
             loadShaderPair(vertexShaderResourcePath, fragmentShaderResourcePath),
-            vertexStride,
+            vertexFormat,
             vertexShaderEntryPoint,
             fragmentShaderEntryPoint
         )

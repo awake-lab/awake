@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.vulkan
 
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -101,7 +102,6 @@ class HeadlessUiRendererFixture(
 }
 
 private const val UI_ANIMATION_MAX_FRAMES_IN_FLIGHT = 1
-private const val UI_ANIMATION_SAMPLE_VERTEX_STRIDE = 8 * Float.SIZE_BYTES
 
 private suspend fun loadUiAnimationShaderPair(vertexPath: String, fragmentPath: String): ShaderPair =
     ShaderPair(readResourceBytes(vertexPath), readResourceBytes(fragmentPath))
@@ -119,7 +119,7 @@ fun buildHeadlessUiRendererFixture(width: Int, height: Int): HeadlessUiRendererF
         runBlocking {
             loadUiAnimationShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv")
         },
-        UI_ANIMATION_SAMPLE_VERTEX_STRIDE
+        VertexFormat.PositionColorUv
     )
     val lineRenderPipeline = LineRenderPipeline(
         graphicsDevice,

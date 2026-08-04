@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.testing.comparePixels
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
@@ -85,7 +86,7 @@ class RendererHeadlessPixelBaselineTest {
             swapchainManager,
             pipelineLayoutMaterial.descriptorSetLayout,
             runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
-            sampleVertexStride
+            VertexFormat.PositionColorUv
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
@@ -169,11 +170,6 @@ class RendererHeadlessPixelBaselineTest {
         const val TARGET_SIZE = 128
         const val MAX_FRAMES_IN_FLIGHT = 1
         const val BASELINE_RESOURCE_PATH = "baselines/cube-headless.rgba"
-
-        // Same interleaved position(vec3) + color(vec3) + uv(vec2) layout triangle.vert/.frag
-        // expects -- copied verbatim from samples/hello-cube/src/commonMain/kotlin/SampleMesh.kt
-        // (see this class's doc comment for why this is a copy, not an import).
-        const val sampleVertexStride = 8 * Float.SIZE_BYTES
 
         val cubeVertices = floatArrayOf(
             -0.5f, -0.5f, -0.5f, 0f, 0f, 0f, 0f, 0f, // v0

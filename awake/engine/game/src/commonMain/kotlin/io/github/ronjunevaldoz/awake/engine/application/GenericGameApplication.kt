@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.engine.application
 
 import io.github.ronjunevaldoz.awake.core.graphics.Application
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
 abstract class GenericGameApplication(
     protected val vertexShaderResourcePath: String,
     protected val fragmentShaderResourcePath: String,
-    protected val vertexStride: Int,
+    protected val vertexFormat: VertexFormat,
     protected val game: Game
 ) : Application {
 

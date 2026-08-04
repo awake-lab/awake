@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.vulkan
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
@@ -137,7 +138,7 @@ class RendererHeadlessGradientClipTest {
             swapchainManager,
             pipelineLayoutMaterial.descriptorSetLayout,
             runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
-            SAMPLE_VERTEX_STRIDE
+            VertexFormat.PositionColorUv
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
@@ -166,6 +167,5 @@ class RendererHeadlessGradientClipTest {
     private companion object {
         const val TARGET_SIZE = 128
         const val MAX_FRAMES_IN_FLIGHT = 1
-        const val SAMPLE_VERTEX_STRIDE = 8 * Float.SIZE_BYTES
     }
 }
