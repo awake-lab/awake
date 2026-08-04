@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.engine.application.GameModule
 import io.github.ronjunevaldoz.awake.engine.application.gameModule
 import io.github.ronjunevaldoz.awake.engine.application.ui
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 
 /** The whole app -- this module's `app/Main.kt`/`app/main.kt` platform entry points install
  * this directly (see [io.github.ronjunevaldoz.awake.engine.application.gameDefinition]'s
@@ -26,6 +27,11 @@ internal fun scene3DPlaygroundModule(): GameModule {
     val state = Scene3DPlaygroundState()
     return gameModule {
         ui {
+            // shadcn-compose's own library default is dark = true; every other Awake sample
+            // (ui-showcase) explicitly opts into light instead of inheriting that default.
+            // This playground never set a theme at all, so it silently inherited dark -- not
+            // an intentional choice, just an omission.
+            theme(shadcnTheme(dark = false))
             overlay {
                 // Frame stats are always visible here (see Scene3DPlaygroundUi.kt's own badge,
                 // pinned to the viewport pane's corner via frameStats()) -- NOT via

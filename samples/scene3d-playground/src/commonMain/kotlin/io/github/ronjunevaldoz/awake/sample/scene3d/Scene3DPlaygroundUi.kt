@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.engine.application.frameStats
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -25,11 +25,21 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
+/** Same light theme [Scene3DPlaygroundFeature.kt] declares via `theme(shadcnTheme(dark =
+ * false))` -- that DSL call only sets [GameUiRuntime.theme], an inert property nothing in
+ * rendering actually reads. The real per-frame ambient theme lives on [GameUiRuntime.uiContext]'s
+ * own theme stack (defaults to [io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme]) and has
+ * to be pushed explicitly every frame -- the same [io.github.ronjunevaldoz.awake.ui.context.UiContext.pushTheme]
+ * call `UiShowcaseUi.kt`'s `drawUiShowcaseOverlay` already makes; without it, this shell
+ * silently rendered in the library's dark default no matter what `theme(...)` was told. */
+private val PlaygroundTheme = shadcnTheme(dark = false)
+
 /** Three-column playground shell: demo menu (left) | live viewport (center) | per-demo controls
  * (right). Only lays out chrome and delegates to whichever [Scene3DDemo] is active for both the
  * center and right panes -- see [Scene3DDemos]'s doc comment for how to add a new demo. */
 internal fun GameUiRuntime.drawScene3DPlaygroundOverlay(state: Scene3DPlaygroundState) {
     val runtime = this
+    uiContext.pushTheme(PlaygroundTheme)
     frame {
         row(
             id = "scene3d-playground-shell",
@@ -75,18 +85,13 @@ internal fun GameUiRuntime.drawScene3DPlaygroundOverlay(state: Scene3DPlayground
                 )
             }
 
-            shadcnSurface(
-                id = "scene3d-controls-panel",
-                modifier = Modifier.width(220f.dp).height(Dimension.FillMax)
+            val controlsScroll = runtime.uiContext.rememberScrollState("scene3d-controls-scroll")
+            column(
+                id = "scene3d-controls-column",
+                verticalArrangement = Arrangement.spacedBy(16f.dp),
+                modifier = Modifier.width(220f.dp).height(Dimension.FillMax).verticalScroll(controlsScroll)
             ) {
-                val controlsScroll = runtime.uiContext.rememberScrollState("scene3d-controls-scroll")
-                column(
-                    id = "scene3d-controls-column",
-                    verticalArrangement = Arrangement.spacedBy(16f.dp),
-                    modifier = Modifier.verticalScroll(controlsScroll).height(Dimension.FillMax)
-                ) {
-                    activeDemo.renderControls(this)
-                }
+                activeDemo.renderControls(this)
             }
         }
     }

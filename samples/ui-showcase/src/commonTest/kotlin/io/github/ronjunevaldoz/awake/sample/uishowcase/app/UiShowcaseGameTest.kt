@@ -34,6 +34,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiPathCommand
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.createColumn
@@ -460,7 +461,7 @@ class UiShowcaseGameTest {
         ).run {
             drawUiShowcaseSidebar(compact = false)
         }
-        ui.endFrame()
+        val primitives = ui.endFrame()
 
         val semantics = ui.semanticNodes()
         val header = requireSemanticNode(
@@ -470,14 +471,24 @@ class UiShowcaseGameTest {
         )
         val headerCenterY = header.bounds.y + header.bounds.height / 2f
 
-        val icon = requireNotNull(
-            semantics.firstOrNull {
-                it.role == UiSemanticRole.Text &&
-                    (it.label == "-" || it.label == "+") &&
-                    it.bounds.y >= header.bounds.y &&
-                    it.bounds.y <= header.bounds.y + header.bounds.height
+        // The expand/collapse glyph is now a chevron icon (a FilledPath), not a "-"/"+" Text
+        // node -- see ShadcnCollapsible.kt's trigger rebuild to match real shadcn's chevron
+        // affordance. Its vertical center is read straight from the path's own command
+        // coordinates instead of a semantic node's contentBounds.
+        val chevron = requireNotNull(
+            primitives.filterIsInstance<UiDrawPrimitive.FilledPath>().firstOrNull { primitive ->
+                val ys = primitive.path.commands.mapNotNull { command ->
+                    when (command) {
+                        is UiPathCommand.MoveTo -> command.y
+                        is UiPathCommand.LineTo -> command.y
+                        else -> null
+                    }
+                }
+                ys.isNotEmpty() &&
+                    ys.min() >= header.bounds.y &&
+                    ys.max() <= header.bounds.y + header.bounds.height
             }
-        ) { "expected the collapsible header's expand/collapse glyph as a Text semantic node" }
+        ) { "expected the collapsible header's chevron glyph as a FilledPath primitive" }
         val title = requireNotNull(
             semantics.firstOrNull {
                 it.role == UiSemanticRole.Text &&
@@ -487,12 +498,19 @@ class UiShowcaseGameTest {
             }
         ) { "expected the collapsible header's category title as a Text semantic node" }
 
-        val iconContentCenterY = requireNotNull(icon.contentBounds).let { it.y + it.height / 2f }
+        val chevronYs = chevron.path.commands.mapNotNull { command ->
+            when (command) {
+                is UiPathCommand.MoveTo -> command.y
+                is UiPathCommand.LineTo -> command.y
+                else -> null
+            }
+        }
+        val iconContentCenterY = (chevronYs.min() + chevronYs.max()) / 2f
         val titleContentCenterY = requireNotNull(title.contentBounds).let { it.y + it.height / 2f }
 
         assertTrue(
             abs(iconContentCenterY - headerCenterY) <= 1f,
-            "expected the collapsible header's +/- glyph to be vertically centered in the header row: " +
+            "expected the collapsible header's chevron glyph to be vertically centered in the header row: " +
                 "iconCenterY=$iconContentCenterY headerCenterY=$headerCenterY"
         )
         assertTrue(

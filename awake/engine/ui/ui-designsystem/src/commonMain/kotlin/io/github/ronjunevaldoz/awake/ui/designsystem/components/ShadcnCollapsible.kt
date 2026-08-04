@@ -19,6 +19,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /**
@@ -54,53 +56,66 @@ fun ColumnScope.shadcnCollapsible(
 }
 
 /**
- * [shadcnCollapsible] convenience with the previous fixed trigger: a Ghost-variant button
- * showing a "-"/"+" icon plus caller-supplied [header] content. Kept for callers that only
+ * [shadcnCollapsible] convenience with the previous fixed trigger: caller-supplied [header]
+ * content on the left, a chevron affordance on the right (down when collapsed, up when
+ * expanded, matching real shadcn's `ChevronsUpDown`-style trigger). Kept for callers that only
  * need to customize the header's inner content, not swap the trigger widget itself.
+ *
+ * [bordered] wraps the trigger *and* content together in one [shadcnSurface] panel -- real
+ * shadcn's own reference `Collapsible` (e.g. a "Product details" panel) is a single bordered
+ * box containing both, not a bordered card with a borderless collapsible nested inside it.
+ * Getting that by wrapping a *caller's* `shadcnCard { shadcnCollapsible { ... } }` produces two
+ * stacked visual boxes instead of one -- an outer static card border plus an inner trigger
+ * that has no border of its own, reading as "nested cards". [bordered] fixes that at the
+ * source: one component that is both the border and the collapse behavior. Defaults to
+ * `false` so existing borderless callers (sidebar nav category groups, the plain showcase
+ * demo) keep their current look untouched.
  */
 private fun ColumnScope.shadcnCollapsible(
     id: String,
     expanded: Boolean,
     modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
+    bordered: Boolean = false,
     header: RowScope.() -> Unit,
     content: ColumnScope.() -> Unit
-): Boolean = shadcnCollapsible(
-    id = id,
-    expanded = expanded,
-    modifier = modifier,
-    onExpandedChange = onExpandedChange,
-    trigger = { isOpen, toggle ->
-        val shadcnTheme = theme.asShadcnTheme()
-        shadcnButton(
-            id = "$id.header",
-            modifier = modifier.fillMaxWidth()
-                .height(32f.dp),
-            variant = ShadcnButtonVariant.Ghost,
-            style = Style {
-                foreground(shadcnTheme.colors.foreground)
-                contentPadding(4f.dp, 0f.dp)
-            },
-            onClick = { toggle() }
-        ) { slot ->
-            // We use a simple row with fixed dimensions or predictable scaling logic.
-            // To avoid WrapContent issues, we ensure children don't force unmeasured constraints.
-            row(
-                horizontalArrangement = Arrangement.spacedBy(8f.dp),
-                verticalAlignment = UiAlignment.Vertical.Center
-            , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))) {
-                 text(
-                     label = if (isOpen) "-" else "+",
-                     modifier = Modifier.width(12f.dp),
-                     centered = true,
-                     verticallyCentered = true
-                 )
-                 header()
+): Boolean {
+    val shadcnTheme = theme.asShadcnTheme()
+    fun ColumnScope.triggerAndContent(triggerModifier: UiModifier): Boolean = shadcnCollapsible(
+        id = id,
+        expanded = expanded,
+        onExpandedChange = onExpandedChange,
+        trigger = { isOpen, toggle ->
+            shadcnButton(
+                id = "$id.header",
+                modifier = triggerModifier.fillMaxWidth().height(40f.dp),
+                variant = ShadcnButtonVariant.Ghost,
+                style = Style {
+                    foreground(shadcnTheme.colors.foreground)
+                    contentPadding(if (bordered) 0f.dp else shadcnTheme.spacing.sm, 0f.dp)
+                },
+                centered = false,
+                onClick = { toggle() }
+            ) { slot ->
+                row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = UiAlignment.Vertical.Center,
+                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))
+                ) {
+                    header()
+                    icon(if (isOpen) UiIcons.chevronUp else UiIcons.chevronDown)
+                }
             }
-        }
-    },
-    content = content
-)
+        },
+        content = content
+    )
+    if (!bordered) return triggerAndContent(modifier)
+    var result = expanded
+    shadcnSurface(id = "$id.panel", modifier = modifier.fillMaxWidth()) {
+        result = triggerAndContent(Modifier)
+    }
+    return result
+}
 
 /** [shadcnCollapsible] convenience with a plain string title. */
 fun ColumnScope.shadcnCollapsible(
@@ -109,12 +124,14 @@ fun ColumnScope.shadcnCollapsible(
     expanded: Boolean,
     modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
+    bordered: Boolean = false,
     content: ColumnScope.() -> Unit
 ): Boolean = shadcnCollapsible(
     id = id,
     expanded = expanded,
     modifier = modifier,
     onExpandedChange = onExpandedChange,
+    bordered = bordered,
     header = { text(title, verticallyCentered = true) },
     content = content
 )

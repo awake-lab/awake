@@ -24,4 +24,20 @@ object UiIcons {
             close()
         }
     }
+
+    /** [chevronDown] flipped vertically -- the collapsed/expanded toggle affordance for
+     * [io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible]'s trigger. */
+    val chevronUp: UiImageVector = uiImageVector(
+        defaultWidth = 10f.dp,
+        defaultHeight = 6f.dp,
+        viewportWidth = 10f,
+        viewportHeight = 6f
+    ) {
+        path {
+            moveTo(0f, 6f)
+            lineTo(10f, 6f)
+            lineTo(5f, 0f)
+            close()
+        }
+    }
 }
