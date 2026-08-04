@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
+import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfMesh
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
@@ -14,6 +15,7 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCamera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -48,17 +50,31 @@ import kotlin.math.sqrt
  * registration order). Retrying from [onUpdate] instead of only [onActivate] makes this
  * self-healing once [preload] actually finishes, regardless of activation timing. */
 internal object GltfViewerDemo {
-    private val camera = OrbitCameraController(zoom = DEFAULT_ZOOM, zoomMin = DEFAULT_ZOOM, zoomMax = DEFAULT_ZOOM)
+    private val camera = OrbitCameraController()
 
     private var loadedMesh: GltfMesh? = null
     private var autoRotate = true
 
+    /** `true` (default): the loaded mesh is scaled down so its bounding radius is ~1 unit
+     * (`1 / [modelRadius] * [scaleMultiplier]`), and [camera] uses the same small, friendly
+     * zoom range every other demo's viewport uses (2..15, [OrbitCameraController]'s own
+     * defaults) -- a raw glTF file's units are whatever its authoring tool used (Duck.gltf's
+     * own ~170-unit bounding radius, since [GltfParser.parse] reads only raw mesh data, no
+     * scene-graph node transform to apply glTF's usual corrective scale -- see [modelRadius]'s
+     * own doc comment), so without this every new model would need its own hand-tuned zoom
+     * range instead of just working. `false`: the model renders at its real raw scale, and
+     * [applyScaleMode] widens [camera]'s zoom/pan/far range to match instead. */
+    private var normalizeScale = true
+
+    /** Fine-tune on top of the automatic `1 / [modelRadius]` normalization -- 1x is "exactly
+     * fills the same ~1-unit bounding sphere every other demo's content uses". */
+    private var scaleMultiplier = 1f
+
     /** Bounding-sphere radius of [loadedMesh]'s raw positions -- [GltfParser.parse] reads only
      * raw mesh/primitive attributes, no scene-graph node transform (glTF's usual place for a
-     * corrective scale, e.g. Duck.gltf's own node scales its ~100-unit-tall raw mesh down to
-     * roughly 1 unit) -- so [camera]'s zoom default/range is fit to whatever scale the mesh
-     * data actually is, rather than assuming a roughly-unit-sized model like [DEFAULT_ZOOM]
-     * would. */
+     * corrective scale, e.g. Duck.gltf's own node scales its ~170-unit-radius raw mesh down to
+     * roughly 1 unit) -- [normalizeScale] redoes that same correction generically, and
+     * [applyScaleMode] fits [camera] to whichever mode is active. */
     private var modelRadius = 1f
 
     private var meshEntity: Entity? = null
@@ -75,15 +91,30 @@ internal object GltfViewerDemo {
         val mesh = GltfParser.parse(bytes.decodeToString())
         loadedMesh = mesh
         modelRadius = boundingRadius(mesh.positions)
-        camera.zoomMin = modelRadius * 0.5f
-        camera.zoomMax = modelRadius * 20f
-        camera.zoom = modelRadius * ZOOM_FIT_FACTOR
-        camera.panRange = modelRadius * 2f
-        // OrbitCameraController's own `far = 100f` default only suits a roughly-unit-scale
-        // model (matches RotatingCubeDemo's small zoom range) -- Duck's own auto-fit zoom
-        // (~424 units) sits well past that, so the model was clipped by the far plane entirely
-        // (fully blank viewport, no error) until this scaled it to the model's real size.
-        camera.far = camera.zoomMax * 2f
+        applyScaleMode()
+    }
+
+    /** Fits [camera]'s zoom/pan/far range to whichever of [normalizeScale]'s two modes is
+     * active -- called once after [preload] resolves [modelRadius], and again any time
+     * [normalizeScale] itself is toggled from the controls panel. */
+    private fun applyScaleMode() {
+        if (normalizeScale) {
+            camera.zoomMin = 2f
+            camera.zoomMax = 15f
+            camera.zoom = 6f
+            camera.panRange = 5f
+            camera.far = 100f
+        } else {
+            camera.zoomMin = modelRadius * 0.5f
+            camera.zoomMax = modelRadius * 20f
+            camera.zoom = modelRadius * ZOOM_FIT_FACTOR
+            camera.panRange = modelRadius * 2f
+            // OrbitCameraController's own `far = 100f` default only suits a roughly-unit-scale
+            // model -- Duck's own raw-scale auto-fit zoom (~424 units) sits well past that, so
+            // the model was clipped by the far plane entirely (fully blank viewport, no error)
+            // until this scaled it to the model's real size.
+            camera.far = camera.zoomMax * 2f
+        }
     }
 
     /** Largest distance from the origin across every vertex position -- a cheap bounding-sphere
@@ -113,6 +144,17 @@ internal object GltfViewerDemo {
         renderControls = {
             shadcnSurface(id = "gltf-controls-panel", modifier = Modifier.fillMaxWidth()) {
                 autoRotate = shadcnSwitch(id = "gltf-auto-rotate", checked = autoRotate, label = "Auto-rotate")
+                val previousNormalizeScale = normalizeScale
+                normalizeScale = shadcnSwitch(id = "gltf-normalize-scale", checked = normalizeScale, label = "Normalize scale")
+                if (normalizeScale != previousNormalizeScale) applyScaleMode()
+                scaleMultiplier = shadcnFieldSliderWithValue(
+                    id = "gltf-scale",
+                    label = "Scale",
+                    min = 0.25f,
+                    max = 4f,
+                    value = scaleMultiplier,
+                    enabled = normalizeScale
+                )
             }
             renderOrbitCameraControls(camera, idPrefix = "gltf", targetLabel = "model")
         },
@@ -126,6 +168,10 @@ internal object GltfViewerDemo {
         onUpdate = { delta ->
             ensureSpawned(this)
             if (autoRotate) camera.orbitDegrees = (camera.orbitDegrees + delta * ORBIT_DEGREES_PER_SECOND) % 360f
+            meshEntity?.let { entity ->
+                val effectiveScale = if (normalizeScale) (1f / modelRadius) * scaleMultiplier else 1f
+                world.get(entity, Transform::class)?.worldMatrix = Mat4().scale(effectiveScale, effectiveScale, effectiveScale)
+            }
             cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true)) }
         }
     )
@@ -149,11 +195,8 @@ internal object GltfViewerDemo {
 
     private const val ORBIT_DEGREES_PER_SECOND = 15f
 
-    /** Pre-[preload] fallback only -- overwritten with `modelRadius * ZOOM_FIT_FACTOR` the
-     * moment real bounding data is available. */
-    private const val DEFAULT_ZOOM = 200f
-
-    /** How many bounding-sphere radii away the camera sits by default -- far enough that a
-     * roughly-spherical model (like Duck) doesn't clip the near plane at default pitch/orbit. */
+    /** How many bounding-sphere radii away the camera sits by default in raw-scale mode --
+     * far enough that a roughly-spherical model (like Duck) doesn't clip the near plane at
+     * default pitch/orbit. */
     private const val ZOOM_FIT_FACTOR = 2.5f
 }
