@@ -86,12 +86,16 @@ internal object RotatingCubeDemo {
     private var spinRadians = 0f
 
     /** `true` (default): [spinRadians] auto-advances every frame in `onUpdate`, same as before
-     * this toggle existed. `false`: [spinDegrees] drives [spinRadians] directly instead --
+     * this toggle existed. `false`: [timeHours] drives [spinRadians] directly instead --
      * freezes the cube at an exact, hand-picked angle so a visual bug (e.g. a warped/domed
      * face) can be inspected at a fixed frame instead of chasing it through a live 60fps spin
      * and a screenshot tool with no frame-accurate timing. */
     private var autoSpin = true
-    private var spinDegrees = 0f
+
+    /** 0..24 "hours" -- a clock-face framing of the same 0..360 degree rotation ([HOURS_TO_DEGREES]
+     * converts one to the other), since scrubbing a plain angle reads less naturally than
+     * scrubbing a time-of-day. */
+    private var timeHours = 0f
 
     // Controls panel grouping -- default expanded so nothing looks like it went missing.
     private var cameraGroupExpanded = true
@@ -171,22 +175,22 @@ internal object RotatingCubeDemo {
             ) {
                 wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
                 autoSpin = shadcnSwitch(id = "cube-auto-spin", checked = autoSpin, label = "Auto-spin")
-                spinDegrees = shadcnFieldSliderWithValue(
-                    id = "cube-spin",
-                    label = "Spin",
+                timeHours = shadcnFieldSliderWithValue(
+                    id = "cube-time",
+                    label = "Time",
                     min = 0f,
-                    max = 360f,
-                    value = spinDegrees,
+                    max = 24f,
+                    value = timeHours,
                     enabled = !autoSpin
                 )
-                text(label = "Turn off Auto-spin to freeze the cube at an exact angle for inspection.")
+                text(label = "Turn off Auto-spin to freeze the cube at an exact time (0-24h = one full turn).")
             }
         },
         onActivate = {
             if (cubeMesh == null) cubeMesh = renderer.createMesh(rotatingCubeGeometry)
             if (material == null) material = renderer.createMaterial()
             spinRadians = 0f
-            spinDegrees = 0f
+            timeHours = 0f
             val cube = world.create()
             world.add(cube, Transform(worldMatrix = cubeModelMatrix()))
             if (!wireframe) world.add(cube, MeshRenderer(cubeMesh!!, material!!))
@@ -204,9 +208,9 @@ internal object RotatingCubeDemo {
         onUpdate = { delta ->
             if (autoSpin) {
                 spinRadians += delta * SPIN_RADIANS_PER_SECOND
-                spinDegrees = (spinRadians * RADIANS_TO_DEGREES) % 360f
+                timeHours = (spinRadians * RADIANS_TO_DEGREES / HOURS_TO_DEGREES) % 24f
             } else {
-                spinRadians = spinDegrees * DEGREES_TO_RADIANS
+                spinRadians = timeHours * HOURS_TO_DEGREES * DEGREES_TO_RADIANS
             }
 
             val gridLines = Grid.lines(size = GRID_SIZE, divisions = GRID_DIVISIONS)
@@ -337,4 +341,7 @@ internal object RotatingCubeDemo {
     private const val FREE_LOOK_DISTANCE = 10f
     private const val DEGREES_TO_RADIANS = (PI / 180.0).toFloat()
     private const val RADIANS_TO_DEGREES = (180.0 / PI).toFloat()
+
+    // 24 "hours" = one full 360-degree turn -- see [timeHours]'s own doc comment.
+    private const val HOURS_TO_DEGREES = 360f / 24f
 }
