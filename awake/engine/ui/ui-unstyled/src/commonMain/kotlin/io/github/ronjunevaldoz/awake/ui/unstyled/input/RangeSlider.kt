@@ -68,10 +68,14 @@ fun UiScope.rangeSlider(
         val px = pointerX()
         val epsilon = (max - min) * RANGE_SLIDER_MIN_GAP_FRACTION
 
+        // Inset by half the knob diameter on each side -- see [slider]'s identical fix: a knob
+        // centered at fraction 0 or 1 on a full-width track extends past the widget's own
+        // bounds and gets clipped by any parent that clips content.
+        val trackInsetPx = RANGE_SLIDER_KNOB_DIAMETER_PX / 2f
         val trackSlot = UiBounds(
-            boxSlot.x,
+            boxSlot.x + trackInsetPx,
             boxSlot.y + (boxSlot.height - RANGE_SLIDER_TRACK_HEIGHT_PX) / 2f,
-            boxSlot.width,
+            (boxSlot.width - trackInsetPx * 2f).coerceAtLeast(0f),
             RANGE_SLIDER_TRACK_HEIGHT_PX
         ).toSlot()
 

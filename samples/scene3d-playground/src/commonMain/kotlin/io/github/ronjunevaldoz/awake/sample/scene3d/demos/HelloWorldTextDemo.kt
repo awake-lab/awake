@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -32,18 +33,20 @@ internal object HelloWorldTextDemo {
             )
         },
         renderControls = {
-            fontSizeDp = shadcnSlider(
-                id = "hello-world-font-size",
-                min = 12f,
-                max = 64f,
-                value = fontSizeDp,
-                label = "Font size"
-            )
-            centered = shadcnSwitch(
-                id = "hello-world-centered",
-                checked = centered,
-                label = "Centered"
-            )
+            shadcnSurface(id = "hello-world-controls-panel", modifier = Modifier.fillMaxWidth()) {
+                fontSizeDp = shadcnSlider(
+                    id = "hello-world-font-size",
+                    min = 12f,
+                    max = 64f,
+                    value = fontSizeDp,
+                    label = "Font size"
+                )
+                centered = shadcnSwitch(
+                    id = "hello-world-centered",
+                    checked = centered,
+                    label = "Centered"
+                )
+            }
         }
     )
 }

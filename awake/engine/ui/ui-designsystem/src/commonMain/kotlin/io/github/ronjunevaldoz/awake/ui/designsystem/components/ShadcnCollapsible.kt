@@ -92,7 +92,7 @@ private fun ColumnScope.shadcnCollapsible(
                 variant = ShadcnButtonVariant.Ghost,
                 style = Style {
                     foreground(shadcnTheme.colors.foreground)
-                    contentPadding(if (bordered) 0f.dp else shadcnTheme.spacing.sm, 0f.dp)
+                    contentPadding(shadcnTheme.spacing.sm, 0f.dp)
                 },
                 centered = false,
                 onClick = { toggle() }

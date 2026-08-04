@@ -45,14 +45,23 @@ fun UiScope.slider(
     )
     val slot = interaction.slot
     val pointerDown = pointerDown()
+    // Track (and thus the knob's travel range) is inset by half the knob's own diameter on
+    // each side -- a knob centered at fraction 0 or 1 on a *full-width* track would extend
+    // SLIDER_KNOB_DIAMETER_PX/2 past the widget's own slot bounds and get clipped by any
+    // parent that clips content (a real reported bug: "knob cut when reach start or end").
+    // Drag mapping below uses this same inset range so the pointer-to-value conversion matches
+    // where the knob is actually drawn.
+    val trackInsetPx = SLIDER_KNOB_DIAMETER_PX / 2f
+    val trackX = slot.x + trackInsetPx
+    val trackWidth = (slot.width - trackInsetPx * 2f).coerceAtLeast(0f)
     // `isActive(id)` can only ever be true here if `interact()` above claimed it, which it
     // never does while `enabled` is false -- same single-gate shape as `interact()`'s own doc,
     // no separate `enabled` check needed to suppress dragging.
     val dragging = isActive(id) && pointerDown
     val newValue = if (dragging) sliderValueFromPointerX(
         pointerX(),
-        slot.x,
-        slot.width,
+        trackX,
+        trackWidth,
         min,
         max
     ) else value
@@ -66,9 +75,9 @@ fun UiScope.slider(
         focused = false
     )
     val trackSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-        slot.x,
+        trackX,
         slot.y + (slot.height - SLIDER_TRACK_HEIGHT_PX) / 2f,
-        slot.width,
+        trackWidth,
         SLIDER_TRACK_HEIGHT_PX
     ).toSlot()
     val fraction = ((newValue - min) / (max - min)).coerceIn(0f, 1f)

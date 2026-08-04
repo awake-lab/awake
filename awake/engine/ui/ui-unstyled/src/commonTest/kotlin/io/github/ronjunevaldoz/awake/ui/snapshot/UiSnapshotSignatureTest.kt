@@ -94,9 +94,9 @@ private val expectedReviewSnapshotSignatures = mapOf(
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x7d2dfacc9565f26buL,
     "ui-shaped-panel" to 0xc7edba140939cfffuL,
-    "ui-panel-controls" to 0x2184d73b1f3eaadduL,
+    "ui-panel-controls" to 0x843b3ec0de2dd0a4uL,
     "ui-alert-dialog" to 0x91c88d40e4db9a39uL,
-    "ui-component-state-matrix" to 0xa0ce9ac5a33e5887uL,
+    "ui-component-state-matrix" to 0xeb8e460e55572192uL,
     "ui-rounded-clip-vector" to 0x6252fcda705461c1uL,
     "ui-awake-shadcn-showcase" to 0x475f0c7766de5f75uL
 )
