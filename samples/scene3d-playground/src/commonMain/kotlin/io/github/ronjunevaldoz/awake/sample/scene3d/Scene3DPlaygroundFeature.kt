@@ -14,14 +14,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 /** Dark neutral gray, the standard 3D-editor viewport background (Blender/Unity/Maya all use
  * a dark gray, not a light one) -- gives [RotatingCubeDemo]'s lighter gray grid lines and the
  * cube's own bright per-vertex colors actual contrast to pop against, unlike a light-gray
- * background sitting right next to light-gray grid lines (or the stark solid black this replaced
- * outright -- [RotatingCubeDemo]'s camera can orbit/pitch above its ground grid into empty
- * space with nothing else drawn there, a real repro, not a hypothetical). Only set while that
- * demo is active (see below); every other page/demo leaves
- * [io.github.ronjunevaldoz.awake.render.renderer.Renderer.clearColor] at its
- * [DEFAULT_CLEAR_COLOR] default. */
-private val SKY_CLEAR_COLOR = floatArrayOf(0.14f, 0.14f, 0.16f, 1f)
-private val DEFAULT_CLEAR_COLOR = floatArrayOf(0f, 0f, 0f, 1f)
+ * background sitting right next to light-gray grid lines. Applied unconditionally to every
+ * demo's viewport pane (not just while [RotatingCubeDemo] is active) so the playground shell
+ * looks consistent across pages instead of flashing to stark black on every other one. */
+private val VIEWPORT_CLEAR_COLOR = floatArrayOf(0.14f, 0.14f, 0.16f, 1f)
 
 internal fun scene3DPlaygroundModule(): GameModule {
     val state = Scene3DPlaygroundState()
@@ -40,16 +36,15 @@ internal fun scene3DPlaygroundModule(): GameModule {
                 // viewport in this 3-column shell, plus drags in UiMeasureTrialStats/text-cache
                 // debug numbers this playground's simple fps/frame-time badge doesn't want.
 
+                renderer.clearColor = VIEWPORT_CLEAR_COLOR
                 // Only [RotatingCubeDemo] currently has real 3D geometry to submit through
                 // [io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime.provideDrawCalls] --
                 // gated on it being the active demo so its cube/grid don't keep drawing (and
                 // wasting a lazy-build call) on every other playground page.
                 if (RotatingCubeDemo.isActive(state.activeDemoId)) {
-                    renderer.clearColor = SKY_CLEAR_COLOR
                     RotatingCubeDemo.update(renderer, deltaSeconds)
                     provideDrawCalls = { RotatingCubeDemo.cameraAndDrawCalls() }
                 } else {
-                    renderer.clearColor = DEFAULT_CLEAR_COLOR
                     provideDrawCalls = null
                 }
                 drawScene3DPlaygroundOverlay(state)

@@ -59,7 +59,8 @@ internal object RotatingCubeDemo {
     private var elevation = 2.2f
 
     /** `false` (default): orbit mode -- [orbitDegrees]/[pitchDegrees]/[zoom] orbit the eye
-     * around a look-at target positioned by [panX]/[panZ]/[elevation]; the target stays fixed
+     * around a look-at target positioned by [panX]/[panZ]/[elevation] (or, while
+     * [lockTargetToCube] is on, the cube's own fixed world position); the target stays fixed
      * regardless of where the eye orbits to.
      *
      * `true`: free-look mode -- the eye itself is fixed at [panX]/[panZ]/[elevation] instead
@@ -68,15 +69,23 @@ internal object RotatingCubeDemo {
      * -- despite `Camera` always having a `center` field the view matrix looks at (every mode
      * is technically "look-at"), this mode has no fixed point being looked AT; the eye is what's
      * fixed, and the look direction rotates freely around it. [zoom] has no meaning here (no
-     * orbit radius to control) and is disabled in the controls panel while this is on. */
+     * orbit radius to control) and [lockTargetToCube] has no meaning either (there is no
+     * look-at target in this mode) -- both are disabled in the controls panel while this is on. */
     private var freeLook = false
+
+    /** `true` (default): orbit mode's look-at target ([targetCenter]) is the cube's own fixed
+     * world position, not [panX]/[panZ]/[elevation] -- matches the sliders' own defaults
+     * (`elevation = CUBE_REST_HEIGHT`, `panX = panZ = 0`), so this is simply naming what those
+     * defaults already meant. Disabling this lets [panX]/[panZ]/[elevation] freely aim the
+     * orbit target somewhere other than the cube. Meaningless in [freeLook] mode (see its own
+     * doc comment) -- disabled in the controls panel while that's on. */
+    private var lockTargetToCube = true
     private var wireframe = false
     private var spinRadians = 0f
 
     // Controls panel grouping -- default expanded so nothing looks like it went missing.
     private var cameraGroupExpanded = true
     private var projectionGroupExpanded = true
-    private var targetGroupExpanded = true
     private var displayGroupExpanded = true
 
     private var cubeMesh: Mesh? = null
@@ -121,17 +130,14 @@ internal object RotatingCubeDemo {
                 rollDegrees = shadcnFieldSliderWithValue(id = "cube-roll", label = "Roll", min = -180f, max = 180f, value = rollDegrees)
                 freeLook = shadcnSwitch(id = "cube-free-look", checked = freeLook, label = "Free look")
                 zoom = shadcnFieldSliderWithValue(id = "cube-zoom", label = "Zoom", min = 2f, max = 15f, value = zoom, enabled = !freeLook)
-            }
-            shadcnCollapsible(
-                id = "cube-controls-target",
-                title = "Target",
-                expanded = targetGroupExpanded,
-                onExpandedChange = { targetGroupExpanded = it },
-                bordered = true
-            ) {
-                panX = shadcnFieldSliderWithValue(id = "cube-pan-x", label = "Pan X", min = -5f, max = 5f, value = panX)
-                panZ = shadcnFieldSliderWithValue(id = "cube-pan-z", label = "Pan Z", min = -5f, max = 5f, value = panZ)
-                elevation = shadcnFieldSliderWithValue(id = "cube-elevation", label = "Elevation", min = -3f, max = 5f, value = elevation)
+                lockTargetToCube = shadcnSwitch(id = "cube-lock-target", checked = lockTargetToCube, label = "Look at cube", enabled = !freeLook)
+                // Meaningless combined with lockTargetToCube only in orbit mode (the target is
+                // forced to the cube, these fields have nothing to affect); in freeLook they're
+                // always live since they're the *eye* position there, not a look-at target.
+                val targetFieldsEnabled = freeLook || !lockTargetToCube
+                panX = shadcnFieldSliderWithValue(id = "cube-pan-x", label = "Pan X", min = -5f, max = 5f, value = panX, enabled = targetFieldsEnabled)
+                panZ = shadcnFieldSliderWithValue(id = "cube-pan-z", label = "Pan Z", min = -5f, max = 5f, value = panZ, enabled = targetFieldsEnabled)
+                elevation = shadcnFieldSliderWithValue(id = "cube-elevation", label = "Elevation", min = -3f, max = 5f, value = elevation, enabled = targetFieldsEnabled)
             }
             shadcnCollapsible(
                 id = "cube-controls-projection",
@@ -177,8 +183,12 @@ internal object RotatingCubeDemo {
         renderer.drawDebugLines(lines)
     }
 
-    /** Orbit mode's look-at target -- see [freeLook]'s doc comment. */
-    private fun targetCenter(): Vec3 = Vec3(panX, elevation, panZ)
+    /** Orbit mode's look-at target -- see [freeLook]'s and [lockTargetToCube]'s doc comments.
+     * The cube never translates (only [wireframeCubeEdges]/[cameraAndDrawCalls]'s model matrix
+     * rotates it in place), so its world position is always the same fixed point the cube's
+     * own rest-height translate uses. */
+    private fun targetCenter(): Vec3 =
+        if (lockTargetToCube) Vec3(0f, CUBE_REST_HEIGHT, 0f) else Vec3(panX, elevation, panZ)
 
     /** Unit look direction for free-look mode -- [orbitDegrees] is yaw (compass heading),
      * [pitchDegrees] is elevation angle above the horizon, matching the same slider ranges
