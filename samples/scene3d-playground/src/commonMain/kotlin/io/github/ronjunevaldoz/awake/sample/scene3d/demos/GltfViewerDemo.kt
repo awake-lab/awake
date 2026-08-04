@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * Real glTF viewer -- loads Khronos's own `Duck.gltf` reference sample (`assets/models/
@@ -56,7 +57,14 @@ internal object GltfViewerDemo {
     private var autoRotate = true
     private var orbitDegrees = 20f
     private var pitchDegrees = 15f
-    private var zoom = 200f
+    private var zoom = DEFAULT_ZOOM
+
+    /** Bounding-sphere radius of [loadedMesh]'s raw positions -- [GltfParser.parse] reads only
+     * raw mesh/primitive attributes, no scene-graph node transform (glTF's usual place for a
+     * corrective scale, e.g. Duck.gltf's own node scales its ~100-unit-tall raw mesh down to
+     * roughly 1 unit) -- so [zoom]'s default/range is fit to whatever scale the mesh data
+     * actually is, rather than assuming a roughly-unit-sized model like [DEFAULT_ZOOM] would. */
+    private var modelRadius = 1f
 
     private var meshEntity: Entity? = null
     private var cameraEntity: Entity? = null
@@ -64,7 +72,27 @@ internal object GltfViewerDemo {
     suspend fun preload() {
         if (loadedMesh != null) return
         val bytes = readResourceBytes("assets/models/Duck.gltf")
-        loadedMesh = GltfParser.parse(bytes.decodeToString())
+        val mesh = GltfParser.parse(bytes.decodeToString())
+        loadedMesh = mesh
+        modelRadius = boundingRadius(mesh.positions)
+        zoom = modelRadius * ZOOM_FIT_FACTOR
+    }
+
+    /** Largest distance from the origin across every vertex position -- a cheap bounding-sphere
+     * radius, good enough to pick a zoom that frames the whole model without computing a real
+     * AABB. */
+    private fun boundingRadius(positions: FloatArray): Float {
+        var maxDistanceSquared = 0f
+        var i = 0
+        while (i < positions.size) {
+            val x = positions[i]
+            val y = positions[i + 1]
+            val z = positions[i + 2]
+            val distanceSquared = x * x + y * y + z * z
+            if (distanceSquared > maxDistanceSquared) maxDistanceSquared = distanceSquared
+            i += 3
+        }
+        return if (maxDistanceSquared > 0f) sqrt(maxDistanceSquared) else 1f
     }
 
     val entry = Scene3DDemo(
@@ -79,7 +107,13 @@ internal object GltfViewerDemo {
                 autoRotate = shadcnSwitch(id = "gltf-auto-rotate", checked = autoRotate, label = "Auto-rotate")
                 orbitDegrees = shadcnFieldSliderWithValue(id = "gltf-orbit", label = "Orbit", min = 0f, max = 360f, value = orbitDegrees, enabled = !autoRotate)
                 pitchDegrees = shadcnFieldSliderWithValue(id = "gltf-pitch", label = "Pitch", min = -80f, max = 80f, value = pitchDegrees)
-                zoom = shadcnFieldSliderWithValue(id = "gltf-zoom", label = "Zoom", min = 20f, max = 500f, value = zoom)
+                zoom = shadcnFieldSliderWithValue(
+                    id = "gltf-zoom",
+                    label = "Zoom",
+                    min = modelRadius * 0.5f,
+                    max = modelRadius * 20f,
+                    value = zoom
+                )
             }
         },
         onActivate = { ensureSpawned(this) },
@@ -134,4 +168,12 @@ internal object GltfViewerDemo {
 
     private const val ORBIT_DEGREES_PER_SECOND = 15f
     private const val DEGREES_TO_RADIANS = (PI / 180.0).toFloat()
+
+    /** Pre-[preload] fallback only -- overwritten with `modelRadius * ZOOM_FIT_FACTOR` the
+     * moment real bounding data is available. */
+    private const val DEFAULT_ZOOM = 200f
+
+    /** How many bounding-sphere radii away the camera sits by default -- far enough that a
+     * roughly-spherical model (like Duck) doesn't clip the near plane at default pitch/orbit. */
+    private const val ZOOM_FIT_FACTOR = 2.5f
 }

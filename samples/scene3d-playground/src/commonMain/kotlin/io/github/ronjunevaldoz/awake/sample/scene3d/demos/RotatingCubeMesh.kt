@@ -7,37 +7,64 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 
 // Interleaved position(vec3) + normal(vec3) + color(vec3) layout -- matches
 // VertexFormat.PositionNormalColor, which this sample's own triangle.wgsl shades with
-// (Lambertian diffuse, see that shader's own doc comment). Each corner's normal is just its
-// own normalized position -- a centered unit cube's corner vector already points radially
-// outward, so this is a cheap "rounded corner" shading approximation shared across the 3 faces
-// that meet there, not true per-face flat shading (which would need 24 verts, one trio per
-// face, instead of these 8 shared corners). Good enough for a demo cube's curvature cue; swap
-// to duplicated per-face verts if flat-shaded faces are ever wanted instead.
+// (Lambertian diffuse). 24 vertices (4 per face x 6 faces), NOT the 8 shared corners the old
+// unlit version used -- each corner needs a different normal depending on which face it's
+// part of, and a shared corner can only carry one normal. An earlier version tried
+// approximating this with 8 shared corners using each corner's own normalized position as its
+// normal (pointing diagonally, not perpendicular to any face) -- it compiled and ran, but every
+// face's shading gradient curved smoothly across sharply different-facing corners, making a
+// perfectly flat cube face look domed/warped instead of flat (a real reported regression, not
+// a hypothetical one). Duplicating vertices per face and giving each face its own exact normal
+// is the standard fix -- flat per-face shading, at the cost of 24 vertices instead of 8 (cheap
+// for a demo cube).
 private val cubeVertices = floatArrayOf(
-    -0.5f, -0.5f, -0.5f, -0.577f, -0.577f, -0.577f, 0f, 0f, 0f, // v0
-    0.5f, -0.5f, -0.5f, 0.577f, -0.577f, -0.577f, 1f, 0f, 0f, // v1
-    0.5f, 0.5f, -0.5f, 0.577f, 0.577f, -0.577f, 1f, 1f, 0f, // v2
-    -0.5f, 0.5f, -0.5f, -0.577f, 0.577f, -0.577f, 0f, 1f, 0f, // v3
-    -0.5f, -0.5f, 0.5f, -0.577f, -0.577f, 0.577f, 0f, 0f, 1f, // v4
-    0.5f, -0.5f, 0.5f, 0.577f, -0.577f, 0.577f, 1f, 0f, 1f, // v5
-    0.5f, 0.5f, 0.5f, 0.577f, 0.577f, 0.577f, 1f, 1f, 1f, // v6
-    -0.5f, 0.5f, 0.5f, -0.577f, 0.577f, 0.577f, 0f, 1f, 1f, // v7
+    // back face (z = -0.5), normal (0, 0, -1)
+    -0.5f, -0.5f, -0.5f, 0f, 0f, -1f, 0f, 0f, 0f,
+    0.5f, -0.5f, -0.5f, 0f, 0f, -1f, 1f, 0f, 0f,
+    0.5f, 0.5f, -0.5f, 0f, 0f, -1f, 1f, 1f, 0f,
+    -0.5f, 0.5f, -0.5f, 0f, 0f, -1f, 0f, 1f, 0f,
+    // front face (z = 0.5), normal (0, 0, 1)
+    -0.5f, -0.5f, 0.5f, 0f, 0f, 1f, 0f, 0f, 1f,
+    0.5f, -0.5f, 0.5f, 0f, 0f, 1f, 1f, 0f, 1f,
+    0.5f, 0.5f, 0.5f, 0f, 0f, 1f, 1f, 1f, 1f,
+    -0.5f, 0.5f, 0.5f, 0f, 0f, 1f, 0f, 1f, 1f,
+    // left face (x = -0.5), normal (-1, 0, 0)
+    -0.5f, -0.5f, -0.5f, -1f, 0f, 0f, 0f, 0f, 0f,
+    -0.5f, 0.5f, -0.5f, -1f, 0f, 0f, 0f, 1f, 0f,
+    -0.5f, 0.5f, 0.5f, -1f, 0f, 0f, 0f, 1f, 1f,
+    -0.5f, -0.5f, 0.5f, -1f, 0f, 0f, 0f, 0f, 1f,
+    // right face (x = 0.5), normal (1, 0, 0)
+    0.5f, -0.5f, -0.5f, 1f, 0f, 0f, 1f, 0f, 0f,
+    0.5f, -0.5f, 0.5f, 1f, 0f, 0f, 1f, 0f, 1f,
+    0.5f, 0.5f, 0.5f, 1f, 0f, 0f, 1f, 1f, 1f,
+    0.5f, 0.5f, -0.5f, 1f, 0f, 0f, 1f, 1f, 0f,
+    // bottom face (y = -0.5), normal (0, -1, 0)
+    -0.5f, -0.5f, -0.5f, 0f, -1f, 0f, 0f, 0f, 0f,
+    -0.5f, -0.5f, 0.5f, 0f, -1f, 0f, 0f, 0f, 1f,
+    0.5f, -0.5f, 0.5f, 0f, -1f, 0f, 1f, 0f, 1f,
+    0.5f, -0.5f, -0.5f, 0f, -1f, 0f, 1f, 0f, 0f,
+    // top face (y = 0.5), normal (0, 1, 0)
+    -0.5f, 0.5f, -0.5f, 0f, 1f, 0f, 0f, 1f, 0f,
+    0.5f, 0.5f, -0.5f, 0f, 1f, 0f, 1f, 1f, 0f,
+    0.5f, 0.5f, 0.5f, 0f, 1f, 0f, 1f, 1f, 1f,
+    -0.5f, 0.5f, 0.5f, 0f, 1f, 0f, 0f, 1f, 1f,
 )
 private val cubeIndices = intArrayOf(
     0, 1, 2, 2, 3, 0, // back
     4, 5, 6, 6, 7, 4, // front
-    0, 3, 7, 7, 4, 0, // left
-    1, 5, 6, 6, 2, 1, // right
-    0, 4, 5, 5, 1, 0, // bottom
-    3, 2, 6, 6, 7, 3, // top
+    8, 9, 10, 10, 11, 8, // left
+    12, 13, 14, 14, 15, 12, // right
+    16, 17, 18, 18, 19, 16, // bottom
+    20, 21, 22, 22, 23, 20, // top
 )
 
 /** Unit cube (-0.5..0.5 on every axis). */
 internal val rotatingCubeGeometry = MeshGeometry(cubeVertices, cubeIndices, format = VertexFormat.PositionNormalColor)
 
-/** Local-space corners of [rotatingCubeGeometry], in the same winding order the mesh itself
- * uses -- reused by [RotatingCubeDemo] to build wireframe [io.github.ronjunevaldoz.awake.render.renderer.LineSegment]
- * edges when its "Wireframe" switch is on (see that switch's own wiring). */
+/** Local-space corners of the cube, in the same winding order [RotatingCubeDemo] uses to build
+ * wireframe [io.github.ronjunevaldoz.awake.render.renderer.LineSegment] edges when its
+ * "Wireframe" switch is on -- kept as the 8 unique geometric corners (not [cubeVertices]' 24
+ * face-duplicated ones), since a wireframe edge only cares about position, not per-face normals. */
 internal val rotatingCubeLocalCorners = listOf(
     Triple(-0.5f, -0.5f, -0.5f), Triple(0.5f, -0.5f, -0.5f),
     Triple(0.5f, 0.5f, -0.5f), Triple(-0.5f, 0.5f, -0.5f),

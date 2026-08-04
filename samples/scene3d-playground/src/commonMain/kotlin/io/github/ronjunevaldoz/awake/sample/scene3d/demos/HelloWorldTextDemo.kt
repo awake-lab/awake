@@ -12,8 +12,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFiel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.box
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.sp
@@ -40,18 +43,26 @@ internal object HelloWorldTextDemo {
         id = "hello-world-text",
         title = "Hello world text",
         renderViewport = {
-            text(
-                label = "Hello, Awake!",
-                modifier = Modifier.fillMaxWidth().height((fontSizeDp * 1.4f).dp),
-                color = Color(0.15f, 0.13f, 0.36f, 1f),
-                centered = centered,
-                // The modifier's height only sizes the slot text is centered within -- it never
-                // scaled the glyphs themselves, so dragging the slider just moved "Hello, Awake!"
-                // up/down inside a taller/shorter box instead of actually growing/shrinking it
-                // (the reported bug). Real size comes from textStyle.size; height above is scaled
-                // 1.4x that so there's still headroom to vertically center a tall font size.
-                textStyle = TextStyle(size = fontSizeDp.sp)
-            )
+            // The text's own modifier only sizes/centers it HORIZONTALLY within this row --
+            // without an outer box, it always sat at the column's top edge instead of the
+            // viewport's vertical center (the reported bug). Centering the whole
+            // fillMaxWidth-sized text block inside a fillMaxHeight box fixes the vertical axis
+            // without touching the existing `centered` switch's horizontal behavior.
+            box(modifier = Modifier.fillMaxWidth().fillMaxHeight(), contentAlignment = UiAlignment.Center) {
+                text(
+                    label = "Hello, Awake!",
+                    modifier = Modifier.fillMaxWidth().height((fontSizeDp * 1.4f).dp),
+                    color = Color(0.15f, 0.13f, 0.36f, 1f),
+                    centered = centered,
+                    // The modifier's height only sizes the slot text is centered within -- it
+                    // never scaled the glyphs themselves, so dragging the slider just moved
+                    // "Hello, Awake!" up/down inside a taller/shorter box instead of actually
+                    // growing/shrinking it (a separate, earlier reported bug). Real size comes
+                    // from textStyle.size; height above is scaled 1.4x that so there's still
+                    // headroom to vertically center a tall font size.
+                    textStyle = TextStyle(size = fontSizeDp.sp)
+                )
+            }
         },
         renderControls = {
             shadcnSurface(id = "hello-world-controls-panel", modifier = Modifier.fillMaxWidth()) {
