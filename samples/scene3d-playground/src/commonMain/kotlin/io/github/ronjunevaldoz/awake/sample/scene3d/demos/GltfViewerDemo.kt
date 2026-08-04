@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
 import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCamera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
@@ -38,10 +39,17 @@ import kotlin.math.sin
  *
  * The actual byte load ([readResourceBytes]) is suspend, so it can't happen in [Scene3DDemo
  * .onActivate] (a plain, non-suspend per-frame hook) -- [preload] does it once, during the
- * scene's own suspend `onReady` block (see `scene3DPlaygroundModule`), regardless of which demo
- * page is active at startup; [onActivate] below only ever touches the already-parsed
- * [loadedMesh] plus the renderer's non-suspend `createMesh`/`createMaterial`.
- */
+ * scene's own suspend `onReady` block (see `scene3DPlaygroundModule`).
+ *
+ * [ensureSpawned] (not just [onActivate]) is what actually spawns the mesh/camera entities,
+ * and is called from both [onActivate] AND every [onUpdate] tick, idempotently (no-ops once
+ * [meshEntity] exists) -- `SceneGameRuntime.ready()` runs an "initial sync pass" over every
+ * Infrastructure system (this demo's activation driver included) BEFORE `onReadyBlock`/[preload]
+ * ever runs, so if this demo happens to be the very first one active, its first [onActivate]
+ * call is guaranteed to see [loadedMesh] still `null` -- a real race this project's own demo
+ * driver hit, not a hypothetical one (see `Scene3DPlaygroundFeature.kt`'s own comment on system
+ * registration order). Retrying from [onUpdate] instead of only [onActivate] makes this
+ * self-healing once [preload] actually finishes, regardless of activation timing. */
 internal object GltfViewerDemo {
     private var loadedMesh: GltfMesh? = null
     private var autoRotate = true
@@ -73,19 +81,7 @@ internal object GltfViewerDemo {
                 zoom = shadcnFieldSliderWithValue(id = "gltf-zoom", label = "Zoom", min = 20f, max = 500f, value = zoom)
             }
         },
-        onActivate = onActivate@{
-            val mesh = loadedMesh ?: return@onActivate
-            val geometry = MeshGeometry(mesh.toInterleavedPositionColorUv(), mesh.indices)
-            val mesh3d = renderer.createMesh(geometry)
-            val material = renderer.createMaterial()
-            val entity = world.create()
-            world.add(entity, Transform())
-            world.add(entity, MeshRenderer(mesh3d, material))
-            meshEntity = entity
-            val camera = world.create()
-            world.add(camera, SceneCamera(computeCamera(), isPrimary = true))
-            cameraEntity = camera
-        },
+        onActivate = { ensureSpawned(this) },
         onDeactivate = { world ->
             meshEntity?.let { world.destroy(it) }
             meshEntity = null
@@ -93,10 +89,26 @@ internal object GltfViewerDemo {
             cameraEntity = null
         },
         onUpdate = { delta ->
+            ensureSpawned(this)
             if (autoRotate) orbitDegrees = (orbitDegrees + delta * ORBIT_DEGREES_PER_SECOND) % 360f
             cameraEntity?.let { entity -> world.add(entity, SceneCamera(computeCamera(), isPrimary = true)) }
         }
     )
+
+    private fun ensureSpawned(runtime: SceneGameRuntime) {
+        if (meshEntity != null) return
+        val mesh = loadedMesh ?: return
+        val geometry = MeshGeometry(mesh.toInterleavedPositionColorUv(), mesh.indices)
+        val mesh3d = runtime.renderer.createMesh(geometry)
+        val material = runtime.renderer.createMaterial()
+        val entity = runtime.world.create()
+        runtime.world.add(entity, Transform())
+        runtime.world.add(entity, MeshRenderer(mesh3d, material))
+        meshEntity = entity
+        val camera = runtime.world.create()
+        runtime.world.add(camera, SceneCamera(computeCamera(), isPrimary = true))
+        cameraEntity = camera
+    }
 
     /** Simple orbit around the model's origin -- [orbitDegrees]/[pitchDegrees]/[zoom] mirror
      * [RotatingCubeDemo]'s own orbit math (see that object's `computeCamera` doc comment), just
