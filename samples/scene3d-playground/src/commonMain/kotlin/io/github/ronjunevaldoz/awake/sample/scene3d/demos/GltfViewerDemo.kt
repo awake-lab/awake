@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
-import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfMesh
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
@@ -17,12 +16,8 @@ import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -53,21 +48,26 @@ import kotlin.math.sqrt
  * registration order). Retrying from [onUpdate] instead of only [onActivate] makes this
  * self-healing once [preload] actually finishes, regardless of activation timing. */
 internal object GltfViewerDemo {
+    private val camera = OrbitCameraController(zoom = DEFAULT_ZOOM, zoomMin = DEFAULT_ZOOM, zoomMax = DEFAULT_ZOOM)
+
     private var loadedMesh: GltfMesh? = null
     private var autoRotate = true
-    private var orbitDegrees = 20f
-    private var pitchDegrees = 15f
-    private var zoom = DEFAULT_ZOOM
 
     /** Bounding-sphere radius of [loadedMesh]'s raw positions -- [GltfParser.parse] reads only
      * raw mesh/primitive attributes, no scene-graph node transform (glTF's usual place for a
      * corrective scale, e.g. Duck.gltf's own node scales its ~100-unit-tall raw mesh down to
-     * roughly 1 unit) -- so [zoom]'s default/range is fit to whatever scale the mesh data
-     * actually is, rather than assuming a roughly-unit-sized model like [DEFAULT_ZOOM] would. */
+     * roughly 1 unit) -- so [camera]'s zoom default/range is fit to whatever scale the mesh
+     * data actually is, rather than assuming a roughly-unit-sized model like [DEFAULT_ZOOM]
+     * would. */
     private var modelRadius = 1f
 
     private var meshEntity: Entity? = null
     private var cameraEntity: Entity? = null
+
+    init {
+        camera.orbitDegrees = 20f
+        camera.pitchDegrees = 15f
+    }
 
     suspend fun preload() {
         if (loadedMesh != null) return
@@ -75,7 +75,15 @@ internal object GltfViewerDemo {
         val mesh = GltfParser.parse(bytes.decodeToString())
         loadedMesh = mesh
         modelRadius = boundingRadius(mesh.positions)
-        zoom = modelRadius * ZOOM_FIT_FACTOR
+        camera.zoomMin = modelRadius * 0.5f
+        camera.zoomMax = modelRadius * 20f
+        camera.zoom = modelRadius * ZOOM_FIT_FACTOR
+        camera.panRange = modelRadius * 2f
+        // OrbitCameraController's own `far = 100f` default only suits a roughly-unit-scale
+        // model (matches RotatingCubeDemo's small zoom range) -- Duck's own auto-fit zoom
+        // (~424 units) sits well past that, so the model was clipped by the far plane entirely
+        // (fully blank viewport, no error) until this scaled it to the model's real size.
+        camera.far = camera.zoomMax * 2f
     }
 
     /** Largest distance from the origin across every vertex position -- a cheap bounding-sphere
@@ -105,16 +113,8 @@ internal object GltfViewerDemo {
         renderControls = {
             shadcnSurface(id = "gltf-controls-panel", modifier = Modifier.fillMaxWidth()) {
                 autoRotate = shadcnSwitch(id = "gltf-auto-rotate", checked = autoRotate, label = "Auto-rotate")
-                orbitDegrees = shadcnFieldSliderWithValue(id = "gltf-orbit", label = "Orbit", min = 0f, max = 360f, value = orbitDegrees, enabled = !autoRotate)
-                pitchDegrees = shadcnFieldSliderWithValue(id = "gltf-pitch", label = "Pitch", min = -80f, max = 80f, value = pitchDegrees)
-                zoom = shadcnFieldSliderWithValue(
-                    id = "gltf-zoom",
-                    label = "Zoom",
-                    min = modelRadius * 0.5f,
-                    max = modelRadius * 20f,
-                    value = zoom
-                )
             }
+            renderOrbitCameraControls(camera, idPrefix = "gltf", targetLabel = "model")
         },
         onActivate = { ensureSpawned(this) },
         onDeactivate = { world ->
@@ -125,8 +125,8 @@ internal object GltfViewerDemo {
         },
         onUpdate = { delta ->
             ensureSpawned(this)
-            if (autoRotate) orbitDegrees = (orbitDegrees + delta * ORBIT_DEGREES_PER_SECOND) % 360f
-            cameraEntity?.let { entity -> world.add(entity, SceneCamera(computeCamera(), isPrimary = true)) }
+            if (autoRotate) camera.orbitDegrees = (camera.orbitDegrees + delta * ORBIT_DEGREES_PER_SECOND) % 360f
+            cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true)) }
         }
     )
 
@@ -140,34 +140,14 @@ internal object GltfViewerDemo {
         runtime.world.add(entity, Transform())
         runtime.world.add(entity, MeshRenderer(mesh3d, material))
         meshEntity = entity
-        val camera = runtime.world.create()
-        runtime.world.add(camera, SceneCamera(computeCamera(), isPrimary = true))
-        cameraEntity = camera
+        val cameraEnt = runtime.world.create()
+        runtime.world.add(cameraEnt, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true))
+        cameraEntity = cameraEnt
     }
 
-    /** Simple orbit around the model's origin -- [orbitDegrees]/[pitchDegrees]/[zoom] mirror
-     * [RotatingCubeDemo]'s own orbit math (see that object's `computeCamera` doc comment), just
-     * without the free-look/lock-target modes this single-model viewer has no use for. */
-    private fun computeCamera(): CoreCamera {
-        val orbitRad = orbitDegrees * DEGREES_TO_RADIANS
-        val pitchRad = pitchDegrees * DEGREES_TO_RADIANS
-        val horizontalRadius = zoom * cos(pitchRad)
-        val eye = Vec3(
-            horizontalRadius * sin(orbitRad),
-            zoom * sin(pitchRad),
-            horizontalRadius * cos(orbitRad)
-        )
-        return CoreCamera(
-            eye = eye,
-            center = Vec3(0f, 0f, 0f),
-            fovYRadians = 45f * DEGREES_TO_RADIANS,
-            near = 0.1f,
-            far = 10000f
-        )
-    }
+    private val MODEL_CENTER = Vec3(0f, 0f, 0f)
 
     private const val ORBIT_DEGREES_PER_SECOND = 15f
-    private const val DEGREES_TO_RADIANS = (PI / 180.0).toFloat()
 
     /** Pre-[preload] fallback only -- overwritten with `modelRadius * ZOOM_FIT_FACTOR` the
      * moment real bounding data is available. */
