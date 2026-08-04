@@ -85,17 +85,10 @@ internal object RotatingCubeDemo {
     private var wireframe = false
     private var spinRadians = 0f
 
-    /** `true` (default): [spinRadians] auto-advances every frame in `onUpdate`, same as before
-     * this toggle existed. `false`: [timeHours] drives [spinRadians] directly instead --
-     * freezes the cube at an exact, hand-picked angle so a visual bug (e.g. a warped/domed
-     * face) can be inspected at a fixed frame instead of chasing it through a live 60fps spin
-     * and a screenshot tool with no frame-accurate timing. */
-    private var autoSpin = true
-
-    /** 0..24 "hours" -- a clock-face framing of the same 0..360 degree rotation ([HOURS_TO_DEGREES]
-     * converts one to the other), since scrubbing a plain angle reads less naturally than
-     * scrubbing a time-of-day. */
-    private var timeHours = 0f
+    /** Drives [spinRadians] -- see [ManualTimeController]'s own doc comment for the auto/manual
+     * shape. Not spin-specific itself (a generic 0..24-hour clock any demo could reuse); this
+     * demo is the one that maps `hours -> a full 360-degree turn` ([HOURS_TO_DEGREES]) below. */
+    private val timeController = ManualTimeController()
 
     // Controls panel grouping -- default expanded so nothing looks like it went missing.
     private var cameraGroupExpanded = true
@@ -107,7 +100,6 @@ internal object RotatingCubeDemo {
     private var cubeEntity: Entity? = null
     private var cameraEntity: Entity? = null
 
-    private const val SPIN_RADIANS_PER_SECOND = 0.8f
     private const val GRID_SIZE = 10f
     private const val GRID_DIVISIONS = 10
 
@@ -174,14 +166,14 @@ internal object RotatingCubeDemo {
                 bordered = true
             ) {
                 wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
-                autoSpin = shadcnSwitch(id = "cube-auto-spin", checked = autoSpin, label = "Auto-spin")
-                timeHours = shadcnFieldSliderWithValue(
+                timeController.autoPlay = shadcnSwitch(id = "cube-auto-spin", checked = timeController.autoPlay, label = "Auto-spin")
+                timeController.hours = shadcnFieldSliderWithValue(
                     id = "cube-time",
                     label = "Time",
                     min = 0f,
-                    max = 24f,
-                    value = timeHours,
-                    enabled = !autoSpin
+                    max = ManualTimeController.HOURS_PER_CYCLE,
+                    value = timeController.hours,
+                    enabled = !timeController.autoPlay
                 )
                 text(label = "Turn off Auto-spin to freeze the cube at an exact time (0-24h = one full turn).")
             }
@@ -190,7 +182,7 @@ internal object RotatingCubeDemo {
             if (cubeMesh == null) cubeMesh = renderer.createMesh(rotatingCubeGeometry)
             if (material == null) material = renderer.createMaterial()
             spinRadians = 0f
-            timeHours = 0f
+            timeController.reset()
             val cube = world.create()
             world.add(cube, Transform(worldMatrix = cubeModelMatrix()))
             if (!wireframe) world.add(cube, MeshRenderer(cubeMesh!!, material!!))
@@ -206,12 +198,8 @@ internal object RotatingCubeDemo {
             cameraEntity = null
         },
         onUpdate = { delta ->
-            if (autoSpin) {
-                spinRadians += delta * SPIN_RADIANS_PER_SECOND
-                timeHours = (spinRadians * RADIANS_TO_DEGREES / HOURS_TO_DEGREES) % 24f
-            } else {
-                spinRadians = timeHours * HOURS_TO_DEGREES * DEGREES_TO_RADIANS
-            }
+            timeController.advance(delta)
+            spinRadians = timeController.hours * HOURS_TO_DEGREES * DEGREES_TO_RADIANS
 
             val gridLines = Grid.lines(size = GRID_SIZE, divisions = GRID_DIVISIONS)
                 .map { (a, b) -> LineSegment(a, b, GRID_COLOR) }
@@ -340,8 +328,7 @@ internal object RotatingCubeDemo {
     // has no visual effect (unlike orbit mode's zoom, which IS the eye-to-target distance).
     private const val FREE_LOOK_DISTANCE = 10f
     private const val DEGREES_TO_RADIANS = (PI / 180.0).toFloat()
-    private const val RADIANS_TO_DEGREES = (180.0 / PI).toFloat()
 
-    // 24 "hours" = one full 360-degree turn -- see [timeHours]'s own doc comment.
+    // 24 "hours" = one full 360-degree turn -- see [timeController]'s own doc comment.
     private const val HOURS_TO_DEGREES = 360f / 24f
 }
