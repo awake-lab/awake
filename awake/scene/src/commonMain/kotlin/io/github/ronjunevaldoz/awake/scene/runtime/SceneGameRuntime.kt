@@ -53,6 +53,22 @@ class SceneGameRuntime internal constructor(
 
     val uiContext = UiContext()
     val font: UiFont = UiFonts.default()
+
+    /** Rolling window backing [averageFrameTimeMs]/[fps] -- same shape as
+     * `GameUiRuntime.recordFrameTime`'s own tracker (see `SceneGameFrame.kt`'s `frameStats()`
+     * port, which reads these). */
+    private val frameTimesMs = ArrayDeque<Float>()
+
+    private fun recordFrameTime(deltaSeconds: Float) {
+        frameTimesMs.addLast(deltaSeconds * 1000f)
+        while (frameTimesMs.size > FRAME_TIME_HISTORY_SIZE) frameTimesMs.removeFirst()
+    }
+
+    val averageFrameTimeMs: Float
+        get() = if (frameTimesMs.isEmpty()) 0f else frameTimesMs.sum() / frameTimesMs.size
+
+    val fps: Float
+        get() = averageFrameTimeMs.takeIf { it > 0f }?.let { 1000f / it } ?: 0f
     val sceneDocument: SceneDocument
         get() = spec.sceneDocument
     val sceneName: String
@@ -95,6 +111,7 @@ class SceneGameRuntime internal constructor(
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
         val input = services.requireService(Input::class)
         val snapshot = input.currentSnapshot
+        recordFrameTime(delta)
 
         // 1. UI Pass
         uiContext.beginFrame(
@@ -211,4 +228,8 @@ class SceneGameRuntime internal constructor(
         ?: error("Entity '$name' has no Camera component")
 
     val inputState: UiInputState get() = uiContext.inputState
+
+    private companion object {
+        const val FRAME_TIME_HISTORY_SIZE = 30
+    }
 }

@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
-import io.github.ronjunevaldoz.awake.engine.application.frame
-import io.github.ronjunevaldoz.awake.engine.application.frameStats
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.frame
+import io.github.ronjunevaldoz.awake.scene.runtime.frameStats
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
@@ -25,22 +25,21 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
-/** Same light theme [Scene3DPlaygroundFeature.kt] declares via `theme(shadcnTheme(dark =
- * false))` -- that DSL call only sets [GameUiRuntime.theme], an inert property nothing in
- * rendering actually reads. The real per-frame ambient theme lives on [GameUiRuntime.uiContext]'s
- * own theme stack (defaults to [io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme]) and has
- * to be pushed explicitly every frame -- the same [io.github.ronjunevaldoz.awake.ui.context.UiContext.pushTheme]
- * call `UiShowcaseUi.kt`'s `drawUiShowcaseOverlay` already makes; without it, this shell
- * silently rendered in the library's dark default no matter what `theme(...)` was told. */
+/** shadcn-compose's own library default is dark = true; every other Awake sample (ui-showcase)
+ * explicitly opts into light instead of inheriting that default. The per-frame ambient theme
+ * lives on [SceneGameRuntime.uiContext]'s own theme stack (defaults to
+ * [io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme]) and has to be pushed explicitly every
+ * frame -- the same [io.github.ronjunevaldoz.awake.ui.context.UiContext.pushTheme] call
+ * `UiShowcaseUi.kt`'s `drawUiShowcaseOverlay` already makes. */
 private val PlaygroundTheme = shadcnTheme(dark = false)
 
 /** Three-column playground shell: demo menu (left) | live viewport (center) | per-demo controls
  * (right). Only lays out chrome and delegates to whichever [Scene3DDemo] is active for both the
  * center and right panes -- see [Scene3DDemos]'s doc comment for how to add a new demo. */
-internal fun GameUiRuntime.drawScene3DPlaygroundOverlay(state: Scene3DPlaygroundState) {
+internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(state: Scene3DPlaygroundState, viewportWidth: Float, viewportHeight: Float) {
     val runtime = this
     uiContext.pushTheme(PlaygroundTheme)
-    frame {
+    frame(viewportWidth, viewportHeight) {
         row(
             id = "scene3d-playground-shell",
             horizontalArrangement = Arrangement.spacedBy(0f.dp),

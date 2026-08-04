@@ -3,7 +3,11 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
+import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
+import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCamera
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
@@ -18,10 +22,19 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /** Simplest possible playground entry -- proves the menu/viewport/controls wiring with plain
  * 2D text instead of any real 3D content. Every other demo in this package follows this same
- * shape: local mutable state up top, [renderViewport] reads it, [renderControls] writes it. */
+ * shape: local mutable state up top, [renderViewport] reads it, [renderControls] writes it.
+ *
+ * Still spawns a trivial primary [SceneCamera] entity on activate (despite having no mesh
+ * content) -- [io.github.ronjunevaldoz.awake.scene.systems.RenderSystem] only calls
+ * `renderer.draw()` when a primary camera exists in the world; without one, the swapchain frame
+ * never gets its color pass at all this frame, and the subsequent `drawUi()` 2D pass paints onto
+ * whatever the OS left behind -- a blank pale-gray window, not a crash (same failure mode
+ * `GameUiRuntime.render`'s own doc comment describes for its `EMPTY_UI_ONLY_CAMERA` fallback,
+ * which this mirrors). */
 internal object HelloWorldTextDemo {
     private var fontSizeDp = 28f
     private var centered = true
+    private var cameraEntity: Entity? = null
 
     val entry = Scene3DDemo(
         id = "hello-world-text",
@@ -55,6 +68,26 @@ internal object HelloWorldTextDemo {
                     label = "Centered"
                 )
             }
+        },
+        onActivate = {
+            val entity = world.create()
+            world.add(entity, SceneCamera(EMPTY_CAMERA, isPrimary = true))
+            cameraEntity = entity
+        },
+        onDeactivate = { world ->
+            cameraEntity?.let { world.destroy(it) }
+            cameraEntity = null
         }
+    )
+
+    // Same values as GameUiRuntime.EMPTY_UI_ONLY_CAMERA -- unused for any real 3D transform,
+    // exists only so RenderSystem finds a primary camera and actually calls renderer.draw()
+    // this frame (see the class doc comment above).
+    private val EMPTY_CAMERA = CoreCamera(
+        eye = Vec3(0f, 0f, 1f),
+        center = Vec3(0f, 0f, 0f),
+        fovYRadians = 1f,
+        near = 0.1f,
+        far = 10f
     )
 }

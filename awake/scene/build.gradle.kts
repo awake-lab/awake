@@ -66,6 +66,9 @@ kotlin {
             api(project(":awake:ecs"))
             api(project(":awake:engine:game"))
             api(project(":awake:engine:ui:ui-core"))
+            // Needed by SceneGameFrame.kt's frameStats() port -- textLayoutCacheStats() (and
+            // GameUiRuntime's own frameStats()) live in ui-unstyled, not ui-core.
+            implementation(project(":awake:engine:ui:ui-unstyled"))
             // Module restructuring slice 1 (see docs/MVP_PLAN.md): RenderSystem/MeshRenderer
             // only ever touch the backend-neutral Mesh/Material/Renderer/DrawCall contract,
             // never awake-vulkan's concrete Vulkan bindings -- depending on just the

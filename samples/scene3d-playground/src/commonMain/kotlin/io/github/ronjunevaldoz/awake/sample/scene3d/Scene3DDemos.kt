@@ -2,22 +2,33 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.scene3d
 
+import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.GltfViewerDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.HelloWorldTextDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 
 /** Menu entry + viewport/controls renderers for one entry in the 3D playground (see
  * [Scene3DPlaygroundUi]'s shell). Each real demo owns exactly one of these -- state, viewport
  * content, and controls panel content all live together in that demo's own file under
  * `demos/`, so a demo's pieces change together instead of being scattered across a shared
- * god-file. */
+ * god-file.
+ *
+ * [onActivate]/[onDeactivate]/[onUpdate] are this demo's real-ECS lifecycle, driven by
+ * [scene3DPlaygroundModule]'s `update` block whenever [Scene3DPlaygroundState.activeDemoId]
+ * changes -- a demo spawns its own [World] entities in [onActivate] and destroys exactly those
+ * entities in [onDeactivate] so switching pages never leaves a previous demo's mesh lingering.
+ * A demo with no 3D content of its own (e.g. [HelloWorldTextDemo]) leaves all three as no-ops. */
 internal data class Scene3DDemo(
     val id: String,
     val title: String,
     val renderViewport: ColumnScope.() -> Unit,
     val renderControls: ColumnScope.() -> Unit,
+    val onActivate: SceneGameRuntime.() -> Unit = {},
+    val onDeactivate: (World) -> Unit = {},
+    val onUpdate: SceneGameRuntime.(delta: Float) -> Unit = {}
 )
 
 /** Registry of every playground demo, in menu order. Add a new demo by creating a

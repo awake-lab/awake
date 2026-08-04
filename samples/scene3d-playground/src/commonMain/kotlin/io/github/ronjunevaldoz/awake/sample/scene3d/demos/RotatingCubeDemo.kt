@@ -2,16 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
-import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Grid
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
-import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
-import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
+import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCamera
+import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
@@ -21,18 +23,15 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * A real cube spinning in place over a real reference ground grid. The cube's mesh comes from
- * [rotatingCubeGeometry] (copied out of the now-retired hello-cube sample, see that file's doc
- * comment); the ground grid is [Grid.lines] -- an existing, already-unit-tested
- * `awake-base` helper for exactly this ("a square reference/floor grid", see its own doc
- * comment) -- drawn as world-space debug lines rather than a second mesh+material, since a
- * flat reference grid has no fill to shade. Both are driven onto the screen via
- * [io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime.provideDrawCalls]/
- * `drawDebugLines`, the hooks that let a [io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime]
- * (a UI-only game runtime, with no 3D scene/camera of its own) still submit real geometry to
- * the one [Renderer.draw] call that drives the swapchain frame every frame.
+ * A real cube spinning in place over a real reference ground grid, driven entirely through the
+ * real ECS [io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime.world] -- one entity
+ * carries the cube's [Transform]/[MeshRenderer], one carries its [SceneCamera], both spawned in
+ * [Scene3DDemo.onActivate] and destroyed in [Scene3DDemo.onDeactivate] so switching playground
+ * pages never leaves a stale cube behind (see [Scene3DDemos]'s doc comment). The ground grid is
+ * still [Grid.lines] drawn as world-space debug lines via `renderer.drawDebugLines` -- unrelated
+ * to the ECS, a flat reference grid has no fill to shade so it never needed a mesh/material.
  *
- * Every camera parameter is a live-draggable slider -- see [cameraAndDrawCalls] -- rather than
+ * Every camera parameter is a live-draggable slider -- see [computeCamera] -- rather than
  * a hand-picked eye-position ratio someone has to edit-compile-run-screenshot to retune. Two
  * distinct camera modes, both driven by the same sliders with different meanings (see
  * [freeLook]'s own doc comment for why "Free look" -- not "Look At Target" -- is the accurate
@@ -43,8 +42,8 @@ import kotlin.math.sin
  * "Zoom" has no meaning in this mode and is disabled. "Near"/"Far"/"FOV" are the projection's
  * clip planes and vertical field of view in both modes; "Roll" tilts the camera's up vector
  * around its own view axis. The cube's own spin is a separate, continuous auto-rotation
- * advanced every frame by [update] -- independent of any slider, so the demo is visibly
- * "rotating" the moment it's selected, not only once a slider is dragged.
+ * advanced every frame by [Scene3DDemo.onUpdate] -- independent of any slider, so the demo is
+ * visibly "rotating" the moment it's selected, not only once a slider is dragged.
  */
 internal object RotatingCubeDemo {
     private var orbitDegrees = 0f
@@ -75,7 +74,7 @@ internal object RotatingCubeDemo {
      * look-at target in this mode) -- both are disabled in the controls panel while this is on. */
     private var freeLook = false
 
-    /** `true` (default): orbit mode's look-at `center` ([cameraAndDrawCalls]) is the cube's own
+    /** `true` (default): orbit mode's look-at `center` ([computeCamera]) is the cube's own
      * fixed world position; `false`: the look-at `center` is [orbitAnchor] instead (the same
      * point the eye orbits around, so the eye stays centered in view without needing a separate
      * target concept). Either way the eye's own position ([orbitAnchor] + the orbit offset) is
@@ -93,6 +92,8 @@ internal object RotatingCubeDemo {
 
     private var cubeMesh: Mesh? = null
     private var material: Material? = null
+    private var cubeEntity: Entity? = null
+    private var cameraEntity: Entity? = null
 
     private const val SPIN_RADIANS_PER_SECOND = 0.8f
     private const val GRID_SIZE = 10f
@@ -100,18 +101,18 @@ internal object RotatingCubeDemo {
 
     // Half the unit cube's height (rotatingCubeGeometry spans -0.5..0.5 on every axis) --
     // rests the cube's bottom face exactly on the grid's y=0 plane instead of centering the
-    // cube AT y=0, which sank it half beneath the floor. Also why 0.5f is targetCenter()'s
-    // and elevation's own default: the camera's orbit target now genuinely matches where the
-    // cube actually sits, not an arbitrary offset that happened to look plausible.
+    // cube AT y=0, which sank it half beneath the floor. Also why 0.5f is the camera's own
+    // target-center and elevation default: the camera's orbit target now genuinely matches
+    // where the cube actually sits, not an arbitrary offset that happened to look plausible.
     private const val CUBE_REST_HEIGHT = 0.5f
 
     val entry = Scene3DDemo(
         id = "rotating-cube",
         title = "Rotating cube",
         renderViewport = {
-            // Real geometry is drawn by the 3D pass Scene3DPlaygroundFeature wires up (see
-            // its own doc comment) -- this viewport column only needs to exist so the shell
-            // lays out a center pane for it; the demo has nothing UI-authored to put here.
+            // Real geometry is drawn by RenderSystem via this demo's own ECS entities (see
+            // onActivate/onUpdate below) -- this viewport column only needs to exist so the
+            // shell lays out a center pane for it; the demo has nothing UI-authored to put here.
         },
         renderControls = {
             // Reassigning from shadcnCollapsible's own return value here (`cameraGroupExpanded =
@@ -163,39 +164,58 @@ internal object RotatingCubeDemo {
                 wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
                 text(label = "Cube spins automatically; sliders move the camera (Pitch 0 = side-on, 89 = top-down).")
             }
+        },
+        onActivate = {
+            if (cubeMesh == null) cubeMesh = renderer.createMesh(rotatingCubeGeometry)
+            if (material == null) material = renderer.createMaterial()
+            spinRadians = 0f
+            val cube = world.create()
+            world.add(cube, Transform(worldMatrix = cubeModelMatrix()))
+            if (!wireframe) world.add(cube, MeshRenderer(cubeMesh!!, material!!))
+            cubeEntity = cube
+            val camera = world.create()
+            world.add(camera, SceneCamera(computeCamera(), isPrimary = true))
+            cameraEntity = camera
+        },
+        onDeactivate = { world ->
+            cubeEntity?.let { world.destroy(it) }
+            cameraEntity?.let { world.destroy(it) }
+            cubeEntity = null
+            cameraEntity = null
+        },
+        onUpdate = { delta ->
+            spinRadians += delta * SPIN_RADIANS_PER_SECOND
+
+            val gridLines = Grid.lines(size = GRID_SIZE, divisions = GRID_DIVISIONS)
+                .map { (a, b) -> LineSegment(a, b, GRID_COLOR) }
+            val lines = axisLines() + gridLines + if (wireframe) wireframeCubeEdges() else emptyList()
+            renderer.drawDebugLines(lines)
+
+            cubeEntity?.let { entity ->
+                world.get(entity, Transform::class)?.worldMatrix = cubeModelMatrix()
+                val hasMeshRenderer = world.get(entity, MeshRenderer::class) != null
+                if (wireframe && hasMeshRenderer) {
+                    world.remove(entity, MeshRenderer::class)
+                } else if (!wireframe && !hasMeshRenderer) {
+                    cubeMesh?.let { mesh -> material?.let { mat -> world.add(entity, MeshRenderer(mesh, mat)) } }
+                }
+            }
+            cameraEntity?.let { entity -> world.add(entity, SceneCamera(computeCamera(), isPrimary = true)) }
         }
     )
 
-    fun isActive(activeDemoId: String) = activeDemoId == entry.id
-
-    /** Builds this demo's mesh/material the first time it's needed (a UI-only game has no
-     * upfront asset list to build these from, see [Renderer.createMesh]'s own doc comment),
-     * advances the cube's own spin by [deltaSeconds], and stages this frame's debug lines --
-     * the ground grid always, plus (while [wireframe] is on) the cube's own edges instead of
-     * its solid mesh. Call once per frame, only while this demo is active; the solid draw
-     * calls come from [cameraAndDrawCalls] afterwards. */
-    fun update(renderer: Renderer, deltaSeconds: Float) {
-        if (cubeMesh == null) cubeMesh = renderer.createMesh(rotatingCubeGeometry)
-        if (material == null) material = renderer.createMaterial()
-
-        spinRadians += deltaSeconds * SPIN_RADIANS_PER_SECOND
-
-        val gridLines = Grid.lines(size = GRID_SIZE, divisions = GRID_DIVISIONS)
-            .map { (a, b) -> LineSegment(a, b, GRID_COLOR) }
-        val lines = axisLines() + gridLines + if (wireframe) wireframeCubeEdges() else emptyList()
-        renderer.drawDebugLines(lines)
-    }
+    private fun cubeModelMatrix(): Mat4 = Mat4().translate(0f, CUBE_REST_HEIGHT, 0f).rotateY(spinRadians)
 
     /** Orbit mode's eye *anchor* -- [orbitDegrees]/[pitchDegrees]/[zoom] always orbit the eye
      * around this exact point, regardless of [lockTargetToCube]. Keeping the anchor fixed to
      * [panX]/[panZ]/[elevation] (never swapped for the cube's position) is what keeps the eye
-     * itself from jumping when [lockTargetToCube] is toggled -- only [cameraAndDrawCalls]'s
+     * itself from jumping when [lockTargetToCube] is toggled -- only [computeCamera]'s
      * separate look-at `center` changes, re-aiming the same eye position instead of moving it. */
     private fun orbitAnchor(): Vec3 = Vec3(panX, elevation, panZ)
 
-    /** The cube never translates (only [wireframeCubeEdges]/[cameraAndDrawCalls]'s model matrix
-     * rotates it in place), so its world position is always this fixed point -- the same one
-     * the cube's own rest-height translate uses. */
+    /** The cube never translates (only [wireframeCubeEdges]/[cubeModelMatrix] rotates it in
+     * place), so its world position is always this fixed point -- the same one the cube's own
+     * rest-height translate uses. */
     private fun cubeWorldPosition(): Vec3 = Vec3(0f, CUBE_REST_HEIGHT, 0f)
 
     /** Unit look direction for free-look mode -- [orbitDegrees] is yaw (compass heading),
@@ -211,13 +231,11 @@ internal object RotatingCubeDemo {
         )
     }
 
-    /** Builds this frame's [Camera] in whichever mode [freeLook] selects (see its own doc
+    /** Builds this frame's [CoreCamera] in whichever mode [freeLook] selects (see its own doc
      * comment for the two modes) -- [rollDegrees] tilts the camera's up vector around its own
      * view axis (the eye-to-center line) rather than the world's in either mode; [near]/[far]/
-     * [fovDegrees] are the projection's clip planes and vertical field of view. The solid cube
-     * draw call is included only when [wireframe] is off (its edges are drawn as debug lines
-     * instead, see [update]); the ground grid has no solid draw call at all, see [update]. */
-    fun cameraAndDrawCalls(): Pair<Camera, List<DrawCall>> {
+     * [fovDegrees] are the projection's clip planes and vertical field of view. */
+    private fun computeCamera(): CoreCamera {
         val eye: Vec3
         val center: Vec3
         if (freeLook) {
@@ -235,7 +253,7 @@ internal object RotatingCubeDemo {
             )
             center = if (lockTargetToCube) cubeWorldPosition() else anchor
         }
-        val camera = Camera(
+        return CoreCamera(
             eye = eye,
             center = center,
             up = rolledUpVector(eye, center),
@@ -243,16 +261,6 @@ internal object RotatingCubeDemo {
             near = near,
             far = far
         )
-        val cube = if (!wireframe) {
-            cubeMesh?.let { mesh ->
-                material?.let { mat ->
-                    DrawCall(mesh, mat, Mat4().translate(0f, CUBE_REST_HEIGHT, 0f).rotateY(spinRadians))
-                }
-            }
-        } else {
-            null
-        }
-        return camera to listOfNotNull(cube)
     }
 
     /** World-up `(0, 1, 0)` rotated by [rollDegrees] around the eye-to-[center] view axis --
@@ -284,8 +292,8 @@ internal object RotatingCubeDemo {
         val sin = sin(spinRadians)
         val cos = cos(spinRadians)
         val worldCorners = rotatingCubeLocalCorners.map { (x, y, z) ->
-            // Same rotateY + CUBE_REST_HEIGHT convention as cameraAndDrawCalls' cube model
-            // matrix -- both rotate the unit cube in place then lift it to rest on the grid.
+            // Same rotateY + CUBE_REST_HEIGHT convention as cubeModelMatrix -- both rotate the
+            // unit cube in place then lift it to rest on the grid.
             Vec3(x * cos + z * sin, y + CUBE_REST_HEIGHT, -x * sin + z * cos)
         }
         return rotatingCubeEdgeIndices.map { (startIndex, endIndex) ->
