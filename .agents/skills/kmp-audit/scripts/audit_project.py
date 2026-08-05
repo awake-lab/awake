@@ -474,18 +474,81 @@ def _detect_design_system_wiring(root: Path) -> list[str]:
 
 # A class that extends a ViewModel base (ViewModel, MviViewModel, BaseViewModel, …).
 # Filename-independent: catches *Presenter.kt, coordinators, *VM.kt, etc.
-# Note: no leading \b before ViewModel — the base may be MviViewModel/BaseViewModel
-# (no word boundary inside the identifier), so we match `…ViewModel` as a suffix.
-_VM_CLASS_DECL_RE = re.compile(
-    r"\bclass\s+\w+[^:{]*:\s*[^{]*ViewModel\b",
-    re.DOTALL,
-)
+_CLASS_DECL_RE = re.compile(r"\bclass\s+(\w+)")
+
+
+def _class_header_end(text: str, name_end: int) -> int:
+    """Return the index right after a class's `<T>` generic params, optional
+    constructor annotation/`constructor` keyword, and primary constructor —
+    i.e. where a supertype clause (`: Foo`) would start if the class has one.
+
+    Skips the primary constructor by balancing parens (`_find_matching_paren`)
+    rather than stopping at the first `)`, so a lambda-typed param like
+    `val onChange: (CueSettings) -> Unit` — which has its own parens — doesn't
+    get mistaken for the constructor's own close.
+    """
+    i, n = name_end, len(text)
+    while i < n and text[i].isspace():
+        i += 1
+    if i < n and text[i] == "<":
+        close = text.find(">", i)
+        i = close + 1 if close != -1 else i
+        while i < n and text[i].isspace():
+            i += 1
+    ann = re.match(r"@\w+(?:\([^)]*\))?\s*(?:constructor\s*)?", text[i:])
+    if ann:
+        i += ann.end()
+    if i < n and text[i] == "(":
+        close = _find_matching_paren(text, i)
+        i = close + 1 if close is not None else i
+    return i
+
+
+def _class_supertype_and_body(text: str, name_end: int) -> tuple[str, int | None, int | None]:
+    """Return (supertype_clause, body_start, body_end) for one `class Name` match.
+
+    supertype_clause is '' when the class has no `: Foo` clause at all — this is
+    positional (found right after the real constructor closes), so a comment or
+    an unrelated property's type-annotation colon elsewhere in the file can never
+    be mistaken for it. body_start/body_end (brace indices, via
+    `_find_matching_brace`) are None for a class with no body (e.g. a one-line
+    data class constructor with nothing after it).
+    """
+    i = _class_header_end(text, name_end)
+    n = len(text)
+    while i < n and text[i].isspace():
+        i += 1
+    supertype = ""
+    if i < n and text[i] == ":":
+        j = i + 1
+        brace_idx = text.find("{", j)
+        end = brace_idx if brace_idx != -1 else min(n, j + 300)
+        supertype = text[j:end]
+        i = brace_idx if brace_idx != -1 else end
+
+    j = i
+    while j < n and text[j] not in "{\n":
+        j += 1
+    body_start = body_end = None
+    if j < n and text[j] == "{":
+        body_start = j
+        body_end = _find_matching_brace(text, j)
+
+    return supertype, body_start, body_end
 
 
 def _is_viewmodel_file(text: str) -> bool:
     """True if the file defines a ViewModel — by supertype or viewModelScope usage —
     regardless of filename. Hardens detectors against alternate naming conventions."""
-    return "viewModelScope" in text or bool(_VM_CLASS_DECL_RE.search(text))
+    if "viewModelScope" in text:
+        return True
+    for m in _CLASS_DECL_RE.finditer(text):
+        supertype, _, _ = _class_supertype_and_body(text, m.end())
+        # Substring, not \bViewModel\b — the base is usually MviViewModel/BaseViewModel,
+        # so "ViewModel" never starts on a word boundary.
+        if "ViewModel" in supertype:
+            return True
+    return False
 
 
 def _detect_viewmodel_size(root: Path) -> dict:
@@ -620,15 +683,8 @@ def _detect_viewmodel_as_composable_param(root: Path) -> list[str]:
     return findings
 
 
-# Matches ANY class declaration with a primary constructor and a supertype list.
-# The supertype is checked for `ViewModel` separately, so this catches coordinators
-# that extend a VM base without a *ViewModel name (e.g. `class DashboardCoordinator(...)`).
-_VM_CLASS_RE = re.compile(
-    r"class\s+(\w+)\s*(?:@\w+(?:\([^)]*\))?\s*)?\((?P<ctor>.*?)\)\s*:\s*(?P<super>[^{]+)",
-    re.DOTALL,
-)
-_VM_PARAM_RE = re.compile(r":\s*\w*ViewModel\b")
 # A ViewModel held as a property (by inject, by viewModels, type annotation) inside a VM.
+_VM_PARAM_RE = re.compile(r":\s*\w*ViewModel\b")
 _VM_PROPERTY_RE = re.compile(r"\b(?:val|var)\s+\w+\s*:\s*\w*ViewModel\b")
 # A ViewModel instantiated directly: `= FooViewModel(`
 _VM_INSTANTIATE_RE = re.compile(r"=\s*\w*ViewModel\s*\(")
@@ -645,6 +701,11 @@ def _detect_viewmodel_in_viewmodel(root: Path) -> list[str]:
     DI. The fix: demote the injected sub-unit to a State Holder (plain class taking a
     CoroutineScope) or a use case. Scans all .kt files so coordinators that don't follow
     the *ViewModel.kt naming convention are still caught.
+
+    Every check below is scoped to one class's own constructor/body span (via
+    `_class_supertype_and_body`) — never the whole file — so a local `val` inside an
+    unrelated `@Composable` function, or a comment mentioning "ViewModel", can't be
+    mistaken for a property of the ViewModel class itself.
     """
     findings: list[str] = []
     for path in root.rglob("*.kt"):
@@ -659,44 +720,123 @@ def _detect_viewmodel_in_viewmodel(root: Path) -> list[str]:
         if not _is_viewmodel_file(text):
             continue
 
-        vm_name = path.stem
-        how: str | None = None
-        pos = 0
-
-        # 1) Constructor param typed *ViewModel (precise — scoped to the ctor block)
-        for m in _VM_CLASS_RE.finditer(text):
-            if "ViewModel" in m.group("super"):
-                pm = _VM_PARAM_RE.search(m.group("ctor"))
-                if pm:
-                    vm_name, how = m.group(1), "a constructor param"
-                    pos = m.start("ctor") + pm.start()
-                    break
-
-        # 2) Property / instantiation / DI-generic anywhere in the VM file
-        if how is None:
-            for rx, desc in (
-                (_VM_PROPERTY_RE, "an injected/declared property"),
-                (_VM_INSTANTIATE_RE, "a directly instantiated property"),
-                (_VM_INJECT_GENERIC_RE, "a DI lookup (inject<…ViewModel>())"),
-            ):
-                mm = rx.search(text)
-                if mm:
-                    how, pos = desc, mm.start()
-                    break
-            if how is not None:
-                cm = re.search(r"\bclass\s+(\w+)", text)
-                if cm:
-                    vm_name = cm.group(1)
-
-        if how is not None:
-            line_no, snippet = _at(text, pos)
-            findings.append(
-                f"viewmodel in viewmodel [HIGH]: {path.relative_to(root)}:{line_no} "
-                f"— {vm_name} depends on another ViewModel via {how}; "
-                f"demote it to a State Holder (plain class + injected CoroutineScope) "
-                f"or a use case (see MVI skill → Coordinator ViewModel)\n"
-                f"    {line_no} | {snippet}"
+        for m in _CLASS_DECL_RE.finditer(text):
+            supertype, body_start, body_end = _class_supertype_and_body(text, m.end())
+            body_end = body_end if body_end is not None else len(text)
+            is_vm_class = "ViewModel" in supertype or (
+                body_start is not None and "viewModelScope" in text[body_start:body_end]
             )
+            if not is_vm_class:
+                continue
+
+            vm_name = m.group(1)
+            how: str | None = None
+            pos = 0
+
+            # 1) Constructor param typed *ViewModel (scoped to this class's own ctor)
+            ctor_text = text[m.end():_class_header_end(text, m.end())]
+            pm = _VM_PARAM_RE.search(ctor_text)
+            if pm:
+                how = "a constructor param"
+                pos = m.end() + pm.start()
+
+            # 2) Property / instantiation / DI-generic — scoped to this class's own body
+            if how is None and body_start is not None:
+                body_text = text[body_start:body_end]
+                for rx, desc in (
+                    (_VM_PROPERTY_RE, "an injected/declared property"),
+                    (_VM_INSTANTIATE_RE, "a directly instantiated property"),
+                    (_VM_INJECT_GENERIC_RE, "a DI lookup (inject<…ViewModel>())"),
+                ):
+                    mm = rx.search(body_text)
+                    if mm:
+                        how, pos = desc, body_start + mm.start()
+                        break
+
+            if how is not None:
+                line_no, snippet = _at(text, pos)
+                findings.append(
+                    f"viewmodel in viewmodel [HIGH]: {path.relative_to(root)}:{line_no} "
+                    f"— {vm_name} depends on another ViewModel via {how}; "
+                    f"demote it to a State Holder (plain class + injected CoroutineScope) "
+                    f"or a use case (see MVI skill → Coordinator ViewModel)\n"
+                    f"    {line_no} | {snippet}"
+                )
+    return findings
+
+
+# A repository injected inside a @Composable — suffix-matched (`*Repository`), same
+# convention as this file's other type-suffix checks. Injecting it and forwarding it
+# to a real ViewModel/state-holder/controller constructor is fine; the violation
+# (checked separately below) is the composable itself reading the repository's Flow.
+_COMPOSABLE_FUN_START_RE = re.compile(
+    r"@Composable\s+(?:private\s+|internal\s+|public\s+)?fun\s+(\w+)\s*\("
+)
+_REPO_INJECT_RE = re.compile(
+    r"\b(?:val|var)\s+(\w+)\s*:\s*\w*Repository\b\s*=\s*koinInject\s*(?:<[^>]*>)?\s*\("
+)
+
+
+def _composable_body_span(text: str, open_paren_idx: int) -> tuple[int | None, int | None]:
+    """Given the index of a composable function's opening '(', balance the
+    parameter list (so a lambda-typed param's own parens don't confuse the scan),
+    skip an optional `: ReturnType`, and return the function body's brace span."""
+    close_paren = _find_matching_paren(text, open_paren_idx)
+    if close_paren is None:
+        return None, None
+    brace_idx = text.find("{", close_paren + 1)
+    if brace_idx == -1:
+        return None, None
+    return brace_idx, _find_matching_brace(text, brace_idx)
+
+
+def _detect_repository_in_composable(root: Path) -> list[str]:
+    """Flag a repository injected directly inside a @Composable function and then
+    Flow-collected there — the UI layer reading the data layer with nothing in
+    between. A ViewModel (or a use case it calls) should own that read; the
+    composable should only ever see already-processed UI state.
+
+    Known gaps, by design — a textual heuristic, not a compiler:
+      - misses indirection through an intermediate local val
+        (`val flow = repo.settings; val s by flow.collectAsState()`)
+      - only matches the `*Repository` suffix convention, not a raw client/DAO
+        doing the same thing (widening that net raises false positives, since
+        some client types are legitimately UI-safe)
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.kt"):
+        if _is_excluded(path, root) or _is_test_source(path):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if not _is_compose_ui_file(text, path):
+            continue
+
+        for fm in _COMPOSABLE_FUN_START_RE.finditer(text):
+            body_start, body_end = _composable_body_span(text, fm.end() - 1)
+            if body_start is None:
+                continue
+            body_text = text[body_start:body_end if body_end is not None else len(text)]
+
+            for rm in _REPO_INJECT_RE.finditer(body_text):
+                repo_name = rm.group(1)
+                collect_re = re.compile(
+                    rf"\b{re.escape(repo_name)}\.\w+\.collect(?:AsState)?\s*\("
+                )
+                cm = collect_re.search(body_text)
+                if cm:
+                    pos = body_start + cm.start()
+                    line_no, snippet = _at(text, pos)
+                    findings.append(
+                        f"repository in composable [MEDIUM]: {path.relative_to(root)}:{line_no} "
+                        f"— '{repo_name}' (a Repository) is injected and its Flow collected "
+                        f"directly inside '{fm.group(1)}', bypassing ViewModel ownership; "
+                        f"move this read into a ViewModel (or a use case it calls) and expose "
+                        f"already-processed UI state instead (see kmp-repository-pattern)\n"
+                        f"    {line_no} | {snippet}"
+                    )
     return findings
 
 
@@ -952,6 +1092,109 @@ def _detect_compose_unstable_collection_param(root: Path) -> list[str]:
                 f"    {line_no} | {snippet}"
             )
     return findings
+
+
+# ── Library project structure (kmp-library-publishing conformance) ──────────────
+# No existing check verified whether a library project actually followed
+# kmp-library-publishing's own documented setup (vanniktech-mavenPublish,
+# binary-compatibility-validator, explicitApi(), and — once split into multiple
+# published modules — a build-logic convention plugin instead of duplicating the
+# same config per module). Gated on vanniktech-mavenPublish actually being applied
+# somewhere in the project — that's the one unambiguous "this is meant to be a
+# published library" signal; a plain internal KMP module (:core:network inside an
+# app) never applies it, so this can't false-trigger on ordinary app-internal code.
+
+_VANNIKTECH_PLUGIN_RE = re.compile(r"\bcom\.vanniktech\.maven\.publish\b")
+_MAVEN_PUBLISHING_COORDINATES_RE = re.compile(r"\bmavenPublishing\s*\{")
+_BINARY_COMPAT_VALIDATOR_RE = re.compile(
+    r"\bbinary-compatibility-validator\b|\borg\.jetbrains\.kotlinx\.binary-compatibility-validator\b"
+)
+
+
+def _vanniktech_modules(root: Path) -> list[Path]:
+    """Return every build.gradle.kts that applies the vanniktech plugin — one
+    per published artifact. Length of this list is the single/multi-module signal."""
+    modules: list[Path] = []
+    for path in root.rglob("build.gradle.kts"):
+        if _is_excluded(path, root):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if _VANNIKTECH_PLUGIN_RE.search(text) or _MAVEN_PUBLISHING_COORDINATES_RE.search(text):
+            modules.append(path)
+    return modules
+
+
+def _detect_library_missing_binary_compat_validator(root: Path) -> list[str]:
+    """Flag a library project (vanniktech applied) with no binary-compatibility-validator
+    wired anywhere and no committed `.api` dump — Step 5's tracked-API-surface gate.
+    """
+    modules = _vanniktech_modules(root)
+    if not modules:
+        return []
+    for path in root.rglob("*.gradle.kts"):
+        if _is_excluded(path, root):
+            continue
+        try:
+            if _BINARY_COMPAT_VALIDATOR_RE.search(path.read_text(encoding="utf-8", errors="ignore")):
+                return []
+        except OSError:
+            continue
+    if any(root.rglob("*.api")):
+        return []
+    line_no, snippet = _at(modules[0].read_text(encoding="utf-8", errors="ignore"), 0)
+    return [
+        f"library missing binary-compat validator [MEDIUM]: {modules[0].relative_to(root)}:1 "
+        f"— vanniktech-mavenPublish is applied but no binary-compatibility-validator plugin "
+        f"or committed .api file was found; a public API change can ship unreviewed and break "
+        f"consumers silently (see kmp-library-publishing Step 5)\n"
+        f"    1 | {snippet}"
+    ]
+
+
+def _detect_library_missing_explicit_api(root: Path) -> list[str]:
+    """Flag a library project (vanniktech applied) with no explicitApi()/
+    explicitApiWarning() anywhere — Step 3's library-only visibility discipline.
+    """
+    modules = _vanniktech_modules(root)
+    if not modules or _project_uses_explicit_api(root):
+        return []
+    line_no, snippet = _at(modules[0].read_text(encoding="utf-8", errors="ignore"), 0)
+    return [
+        f"library missing explicitApi() [MEDIUM]: {modules[0].relative_to(root)}:1 "
+        f"— vanniktech-mavenPublish is applied but no module calls explicitApi(); without it, "
+        f"every internal type Kotlin defaults to public leaks into the published API surface "
+        f"(see kmp-library-publishing Step 3)\n"
+        f"    1 | {snippet}"
+    ]
+
+
+def _detect_library_multimodule_missing_build_logic(root: Path) -> list[str]:
+    """Classify single- vs multi-module library structure, and flag the real
+    duplication problem multi-module introduces: 2+ published modules each
+    re-applying vanniktech/explicitApi directly instead of sharing one convention
+    plugin (kmp-library-publishing Step 1a — build-logic only earns its keep once
+    a library splits past one :library module).
+    """
+    modules = _vanniktech_modules(root)
+    if len(modules) < 2:
+        return []  # single-module: build-logic adds nothing, per Step 1
+    has_build_logic = (root / "build-logic").exists() and any(
+        (root / "build-logic").rglob("*.gradle.kts")
+    )
+    if has_build_logic:
+        return []
+    module_names = ", ".join(sorted(m.parent.name for m in modules))
+    line_no, snippet = _at(modules[0].read_text(encoding="utf-8", errors="ignore"), 0)
+    return [
+        f"library multi-module missing build-logic [MEDIUM]: {modules[0].relative_to(root)}:1 "
+        f"— {len(modules)} published modules ({module_names}) each apply "
+        f"vanniktech/explicitApi directly with no build-logic convention plugin; that's real, "
+        f"growing duplication a shared plugin removes (see kmp-library-publishing Step 1a)\n"
+        f"    1 | {snippet}"
+    ]
 
 
 # ── Undocumented public API (library projects only) ─────────────────────────────
@@ -2482,11 +2725,34 @@ _COMMENT_LINE_RE = re.compile(r"^\s*//")
 _DOCS_REFERENCE_POINTER_RE = re.compile(r"docs/reference/")
 _LONG_COMMENT_BLOCK_MIN_LINES = 5
 
+# A long block explaining genuine WHY (a hardware/API constraint, a workaround, a
+# non-obvious ordering requirement) reads differently than one just narrating WHAT —
+# it uses causal/justifying language. This can't be a precise classifier (it's a
+# keyword heuristic, not real language understanding), but it targets a real,
+# confirmed false-positive class: dense native/graphics rendering code (Vulkan/
+# WebGPU/OpenGL pipeline setup) legitimately needs long inline WHY explanations,
+# and moving them to docs/reference/ would separate the reasoning from the exact
+# code it explains. Require 2+ distinct signal words, not just one incidental
+# "must", to avoid exempting a block that only glancingly uses one of these words.
+_WHY_SIGNAL_RE = re.compile(
+    r"\b(because|workaround|due to|otherwise|must be|required by|"
+    r"constraint|spec(?:ification)?|per the|note:|see spec|"
+    r"driver|hardware|non-obvious)\b",
+    re.IGNORECASE,
+)
+_WHY_SIGNAL_MIN_MATCHES = 2
+
 
 def _detect_long_stacked_comment_block(root: Path) -> list[str]:
     """Flag a run of 5+ consecutive // comment lines with no docs/reference/ pointer —
     the exact shape kmp-code-quality's own rule says to split, made
     mechanically checkable instead of relying on human review to remember the rule.
+
+    Exempts a block that reads as a genuine WHY explanation (2+ causal/justifying
+    signal words — "because", "workaround", "driver", "constraint", etc.) rather than
+    WHAT-narration — a real false-positive class found in dense native/graphics
+    rendering code (Vulkan/WebGPU/OpenGL pipeline setup), where a long inline WHY
+    explanation is often warranted, not lazy.
     """
     findings: list[str] = []
     for path in root.rglob("*.kt"):
@@ -2508,7 +2774,13 @@ def _detect_long_stacked_comment_block(root: Path) -> list[str]:
                 # inline-WHY-comment-grew-too-long problem this rule targets — skip it.
                 is_file_header = all(not lines[j].strip() for j in range(block_start))
                 joined = "\n".join(block_lines)
-                if not is_file_header and not _DOCS_REFERENCE_POINTER_RE.search(joined):
+                why_signal_count = len(_WHY_SIGNAL_RE.findall(joined))
+                is_likely_why_explanation = why_signal_count >= _WHY_SIGNAL_MIN_MATCHES
+                if (
+                    not is_file_header
+                    and not is_likely_why_explanation
+                    and not _DOCS_REFERENCE_POINTER_RE.search(joined)
+                ):
                     findings.append(
                         f"long stacked comment block [LOW]: {path.relative_to(root)}:{block_start + 1} "
                         f"— {len(block_lines)} consecutive // lines with no docs/reference/ "
@@ -2528,6 +2800,63 @@ def _detect_long_stacked_comment_block(root: Path) -> list[str]:
             else:
                 flush(i)
         flush(len(lines))
+
+    return findings
+
+
+# A justification comment above a single Gradle dependency/config line is a distinct
+# smell from the long-stacked-block check above: it's often short enough (3-4 lines) to
+# duck under _LONG_COMMENT_BLOCK_MIN_LINES, and it's usually WHY-shaped (real reasoning),
+# so the WHY-signal exemption above would wave it through too. The tell isn't length or
+# tone, it's proportion: 3+ lines justifying one dependency declaration. Confirmed real —
+# a user reported an agent-written comment of this exact shape and asked for a mechanical
+# backstop, not just the "put it in the commit message" rule in kmp-code-quality.
+_SINGLE_LINE_DEPENDENCY_STATEMENT_RE = re.compile(
+    r"^\s*(?:implementation|api|compileOnly|runtimeOnly|ksp|kapt|"
+    r"testImplementation|androidTestImplementation|debugImplementation)\([^()]*\)\s*$"
+)
+_JUSTIFICATION_COMMENT_MIN_LINES = 3
+
+
+def _detect_justification_comment_above_single_statement(root: Path) -> list[str]:
+    """Flag a 3+ line // comment block directly above one single-line Gradle dependency
+    declaration — even a real, non-obvious reason doesn't need a paragraph to justify
+    adding one line; that reasoning belongs in the commit message, discoverable via
+    git blame exactly when someone needs it, not sitting in the file for every reader.
+    """
+    findings: list[str] = []
+    for path in root.rglob("*.gradle.kts"):
+        if _is_excluded(path, root):
+            continue
+        try:
+            lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        except OSError:
+            continue
+
+        block_start: int | None = None
+        block_lines: list[str] = []
+        for i, line in enumerate(lines):
+            if _COMMENT_LINE_RE.match(line):
+                if block_start is None:
+                    block_start = i
+                block_lines.append(line)
+                continue
+            if (
+                block_start is not None
+                and len(block_lines) >= _JUSTIFICATION_COMMENT_MIN_LINES
+                and _SINGLE_LINE_DEPENDENCY_STATEMENT_RE.match(line)
+            ):
+                findings.append(
+                    f"justification comment above single statement [LOW]: "
+                    f"{path.relative_to(root)}:{block_start + 1} "
+                    f"— {len(block_lines)} consecutive // lines justifying one dependency "
+                    f"line; per kmp-code-quality's Comment & KDoc Conventions, put the "
+                    f"reasoning in the commit message instead, unless it's a gotcha a "
+                    f"future maintainer will independently re-trip on\n"
+                    f"    {i + 1} | {line.strip()}"
+                )
+            block_start = None
+            block_lines = []
 
     return findings
 
@@ -2704,7 +3033,7 @@ def _detect_context_parameter_opportunity(root: Path) -> list[str]:
 # commonMain APIs should be called or composed, not extended. An abstract class with
 # only abstract members (no concrete implementation at all) forces every consumer into
 # an inheritance chain the commonMain code itself dictates — the same shape Detekt's real
-# UnnecessaryAbstractClass rule already flags ("should be an interface instead"), scoped
+# AbstractClassCanBeInterface rule already flags ("should be an interface instead"), scoped
 # here specifically to commonMain since that's where KMP's sharing advantage is lost by
 # reaching for inheritance instead of interface + injection. Not scoped to any domain
 # name (games, network clients, plugin systems, ...) — the smell is the shape, not the
@@ -2763,7 +3092,7 @@ def _detect_hardcoded_base_url(root: Path) -> list[str]:
 
 def _detect_extensible_abstract_class_in_common(root: Path) -> list[str]:
     """Flag a public abstract class in commonMain with only abstract members — the
-    exact shape Detekt's real UnnecessaryAbstractClass rule flags as "should be an
+    exact shape Detekt's real AbstractClassCanBeInterface rule flags as "should be an
     interface instead," scoped here to commonMain specifically.
     """
     findings: list[str] = []
@@ -4226,6 +4555,9 @@ def audit_project(root: Path) -> list[str]:
     # ── ViewModel passed as a composable parameter ─────────────────────────────
     findings.extend(_detect_viewmodel_as_composable_param(root))
 
+    # ── Repository injected and Flow-collected directly inside a Composable ────
+    findings.extend(_detect_repository_in_composable(root))
+
     # ── String-based (non-type-safe) navigation ────────────────────────────────
     findings.extend(_detect_string_navigation(root))
 
@@ -4276,6 +4608,7 @@ def audit_project(root: Path) -> list[str]:
     # ── WHAT-comment inside a loop or conditional ────────────────────────────────
     findings.extend(_detect_what_comment_in_control_flow(root))
     findings.extend(_detect_long_stacked_comment_block(root))
+    findings.extend(_detect_justification_comment_above_single_statement(root))
 
     # ── Destructive-read accessor (single-writer snapshot anti-pattern) ─────────
     findings.extend(_detect_destructive_read_accessor(root))
@@ -4291,6 +4624,11 @@ def audit_project(root: Path) -> list[str]:
     findings.extend(_detect_runblocking_in_shared_code(root))
     findings.extend(_detect_koin_circular_dependency(root))
     findings.extend(_detect_compose_unstable_collection_param(root))
+
+    # ── Library project structure conformance (kmp-library-publishing) ──────────
+    findings.extend(_detect_library_missing_binary_compat_validator(root))
+    findings.extend(_detect_library_missing_explicit_api(root))
+    findings.extend(_detect_library_multimodule_missing_build_logic(root))
 
     # ── Undocumented public API (library projects only) ──────────────────────────
     findings.extend(_detect_undocumented_public_api(root))

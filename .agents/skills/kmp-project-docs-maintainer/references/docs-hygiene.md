@@ -49,6 +49,7 @@ Keep these lanes short-lived and promote stable guidance out of them into
 | `architecture.md` | Reference (root) | Keep — primary, README-linked |
 | `deployment.md` | Reference (root) | Keep — primary, README-linked |
 | `stable-feature-rules.md` | Reference (root) | Keep — stable registry, updated in place |
+| `MIRROR_MAP.md` (from `kmp-api-mimicry`) | Reference (root) | Keep at `docs/MIRROR_MAP.md`, not project root — a permanent, update-in-place registry of mimicked API primitives; split by Reference API into `docs/reference/mirror-map-<reference>.md` once past the 150-line limit below |
 | `auth-flow-internals.md` | Reference (reference/) | Move to `docs/reference/` — subsystem deep-dive |
 | `reference/*.md` | Reference (reference/) | Keep in `docs/reference/` |
 | `known-blockers.md` | Task | Rename to `YYYY-MM-DD-known-blockers.md`, move to `docs/tasks/` or `docs/bugs/`; archive when resolved |
@@ -99,6 +100,26 @@ Never delete — archive. The history is evidence.
 
 If the project uses `docs/mvp/` or `docs/bugs/`, keep those lanes as the active
 working surface and use `docs/tasks.md` as the index that links into them.
+
+---
+
+## Delete vs Archive
+
+Git history already preserves every version of every file — archiving isn't what makes a
+file recoverable, `git log`/`git show` does that regardless. Archiving is for one specific
+case: a human should be able to stumble on the old content again *without* going to git
+history. Ask which case applies:
+
+| Case | Action | Why |
+|---|---|---|
+| Task-kind file, work is done (bug fixed, milestone shipped, plan completed) | Archive (`docs/tasks/archive/`, `docs/lessons/archive/`) | Future readers browsing `docs/` may want the resolution history without digging through git log |
+| Reference doc now fully superseded, zero unique information left | Delete | Nothing left to browse to — keeping it around just recreates the clutter this checklist exists to prevent; git history covers "what did this used to say" |
+| Non-doc file after it's been moved to its real home (`tests/fixtures/`, `api/`, project root) | Delete the `docs/` copy | The file lives on at its new path; leaving a stale copy in `docs/` is drift, not history |
+| File superseded by a rename (old path, content unchanged) | Delete old path | `git mv`/rename already carries the history forward; a leftover old-named file is a duplicate, not an archive |
+
+If in doubt whether a reference doc still has unique information, don't guess — grep for
+inbound links (see Clean-up Sequence step 2) and check whether anything still points at it
+before deleting.
 
 ---
 
