@@ -2,9 +2,9 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>)</ID>
+    <ID>CyclomaticComplexMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>, light: SceneLight)</ID>
     <ID>CyclomaticComplexMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
-    <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>)</ID>
+    <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>, light: SceneLight)</ID>
     <ID>LongMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
     <ID>LongParameterList:Renderer.kt$Renderer$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, renderPipeline: RenderPipeline, internal val lineRenderPipeline: LineRenderPipeline, internal val uiShaderCode: ByteArray, internal val uiGlyphShaderCode: ByteArray, internal val uiTextureShaderCode: ByteArray, internal val uiRoundedQuadShaderCode: ByteArray, commandPool: Long, maxFramesInFlight: Int )</ID>
     <ID>MagicNumber:Renderer.kt$Renderer$255</ID>

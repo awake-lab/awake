@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.render.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.material.Material
@@ -11,6 +12,18 @@ import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+
+private const val DEFAULT_LIGHT_DIRECTION_X = 0.4f
+private const val DEFAULT_LIGHT_DIRECTION_Y = 0.8f
+private const val DEFAULT_LIGHT_DIRECTION_Z = 0.4f
+
+/** The direction/color every lit shader (`triangle.wgsl` and friends) hardcoded as a WGSL
+ * `const` before [Renderer.draw]'s `light` parameter existed -- kept as the default so a scene
+ * with no `Light` entity renders identically to before this parameter was added. */
+val DEFAULT_SCENE_LIGHT = SceneLight(
+    direction = Vec3(DEFAULT_LIGHT_DIRECTION_X, DEFAULT_LIGHT_DIRECTION_Y, DEFAULT_LIGHT_DIRECTION_Z),
+    color = Vec3(1f, 1f, 1f)
+)
 
 /**
  * Module restructuring slice 1 (see docs/MVP_PLAN.md): the one real cross-backend entry
@@ -51,14 +64,16 @@ interface Renderer {
      * samples that target's own color attachment directly (no CPU round-trip), the same
      * sampling machinery [texture] already uses either way. Both null falls back to a
      * trivial 1x1 white pixel. [uniformFloatCount] is the material's per-object uniform
-     * buffer's size in floats -- `16` (a bare MVP matrix) for every material before GPU
-     * skinning existed; a skinned material passes `16 + 16 * jointCount` (MVP + joint
-     * palette) instead, since the skinned vertex shader reads the palette from the same
-     * uniform binding. */
+     * buffer's size in floats -- `24` (MVP + [SceneLight]'s direction/color, both `vec4f`) by
+     * default, since every material a [DrawCall] can reach goes through [draw]'s single lit
+     * pass (`prepareDrawCalls` always writes both, unconditionally -- a smaller buffer here
+     * would be a real out-of-bounds write, not just wasted space); a skinned material passes
+     * `16 + 16 * jointCount` instead (MVP + joint palette, no light -- `drawSkinnedMesh` is a
+     * separate staged-draw path `prepareDrawCalls` never touches). */
     fun createMaterial(
         texture: TextureAsset? = null,
         renderTarget: RenderTarget? = null,
-        uniformFloatCount: Int = 16
+        uniformFloatCount: Int = 24
     ): Material
 
     /** Creates an offscreen [width]x[height] color+depth render destination, on demand -- see
@@ -68,7 +83,12 @@ interface Renderer {
      * itself documents. */
     fun createRenderTarget(width: Int, height: Int): RenderTarget
 
-    fun draw(camera: Camera, drawCalls: List<DrawCall>)
+    /** [light] shades every [DrawCall] in this frame's pass -- defaults to
+     * [DEFAULT_SCENE_LIGHT] (the same direction/color every lit shader hardcoded before this
+     * parameter existed) so a scene with no `Light` entity looks exactly as it always did.
+     * `RenderSystem` overrides this with the scene's actual primary `Light` entity when one
+     * exists. */
+    fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight = DEFAULT_SCENE_LIGHT)
 
     /** Renders [drawCalls] against [camera] into [target] instead of the swapchain/canvas --
      * a sibling of [draw] (not an overload/parameter of it), since the two have different

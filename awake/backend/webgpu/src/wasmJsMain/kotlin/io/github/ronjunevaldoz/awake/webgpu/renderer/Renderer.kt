@@ -8,9 +8,11 @@ import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
+import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -244,12 +246,17 @@ class Renderer(
                 )
             )
         ) {
+            // vec4f (not vec3f) for both -- see triangle.wgsl's own Uniforms struct doc comment.
+            val lightFloats = floatArrayOf(
+                DEFAULT_SCENE_LIGHT.direction.x, DEFAULT_SCENE_LIGHT.direction.y, DEFAULT_SCENE_LIGHT.direction.z, 0f,
+                DEFAULT_SCENE_LIGHT.color.x, DEFAULT_SCENE_LIGHT.color.y, DEFAULT_SCENE_LIGHT.color.z, 0f
+            )
             setPipeline(pipeline)
             var drawIndex = 0
             while (drawIndex < drawCalls.size) {
                 val drawCall = drawCalls[drawIndex]
                 val mvp = drawCall.model * viewProjection
-                device.queue.writeBuffer(uniformBuffer!!, 0uL, fastArrayBufferOf(mvp.data))
+                device.queue.writeBuffer(uniformBuffer!!, 0uL, fastArrayBufferOf(mvp.data + lightFloats))
                 setBindGroup(0u, uniformBindGroup!!)
                 val mesh = drawCall.mesh as Mesh
                 setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))
@@ -318,7 +325,7 @@ class Renderer(
 
     /** Renders one frame -- delegates to [performDraw] ([RendererDraw3D.kt]). See [drawUi]'s
      * doc comment for why this can't just be the extracted body under the same name. */
-    override fun draw(camera: Camera, drawCalls: List<DrawCall>) = performDraw(camera, drawCalls)
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) = performDraw(camera, drawCalls, light)
 
     override fun destroy() {
         uniformBuffer?.close()

@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
@@ -33,7 +34,7 @@ import io.ygdrasil.webgpu.beginRenderPass
  * method) is a one-line delegate to this extension function; an extension function can't
  * share its name with a member function it's called from without the member call winning
  * resolution and recursing into itself. */
-internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
+internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) {
     swapchainManager.syncSurface()
     val device = graphicsDevice.wgpuContext.device
     val renderingContext = graphicsDevice.wgpuContext.renderingContext
@@ -44,6 +45,12 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
     val viewProjection = camera.viewProjectionMatrix(aspect)
     // Debug lines are already in world space, so their MVP is exactly viewProjection.
     lineRenderPipeline.writeMvp(viewProjection.data)
+
+    // vec4f (not vec3f) for both -- see triangle.wgsl's own Uniforms struct doc comment.
+    val lightFloats = floatArrayOf(
+        light.direction.x, light.direction.y, light.direction.z, 0f,
+        light.color.x, light.color.y, light.color.z, 0f
+    )
 
     val encoder = device.createCommandEncoder()
     val colorView = renderingContext.getCurrentTexture().createView()
@@ -73,7 +80,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
             // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
             // Camera.viewProjectionMatrix's docs), matching vulkanMain's Renderer.
             val mvp = drawCall.model * viewProjection
-            device.queue.writeBuffer(uniformBuffer!!, 0uL, fastArrayBufferOf(mvp.data))
+            device.queue.writeBuffer(uniformBuffer!!, 0uL, fastArrayBufferOf(mvp.data + lightFloats))
             setBindGroup(0u, uniformBindGroup!!)
             // drawCall.mesh is the render-api interface (only bind()/draw()/destroy()) --
             // cast to this backend's own concrete Mesh for vertexBuffer/indexBuffer/

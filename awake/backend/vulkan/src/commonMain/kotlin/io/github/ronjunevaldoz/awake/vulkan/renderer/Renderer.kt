@@ -8,9 +8,11 @@ import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
+import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -372,7 +374,8 @@ class Renderer(
         val preparedDrawCalls = prepareDrawCalls(
             frameIndex = commandBuffers.size,
             viewProjection = viewProjection,
-            drawCalls = drawCalls
+            drawCalls = drawCalls,
+            light = DEFAULT_SCENE_LIGHT
         )
 
         runOffscreenCommands { commandBuffer ->
@@ -451,7 +454,8 @@ class Renderer(
 
     /** Delegates to [performDraw] ([RendererDraw3D.kt]) -- see that function's doc comment
      * for why this can't just be the extracted body under the same name. */
-    override fun draw(camera: Camera, drawCalls: List<DrawCall>) = performDraw(camera, drawCalls)
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) =
+        performDraw(camera, drawCalls, light)
 
     /** Delegates to [performDrawUi] ([RendererDrawUi.kt]) -- see [performDraw]'s doc comment
      * for why. */

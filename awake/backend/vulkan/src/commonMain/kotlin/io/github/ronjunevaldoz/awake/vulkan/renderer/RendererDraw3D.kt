@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCommandBufferLevel
@@ -46,47 +47,12 @@ import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
  * Named `performDraw`, not `draw` -- [Renderer]'s `override fun draw(...)` (the actual
  * `RenderRenderer` interface method) is a one-line delegate to this extension function; an
  * extension function can't share its name with a member function it's called from without
- * the member call winning resolution and recursing into itself. */
-internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
+ * the member call winning resolution and recursing into itself. Frame acquisition itself
+ * is [acquireSwapchainImage] ([RendererSwapchainAcquire.kt]), split into its own file to
+ * keep both detekt's method-length limit and this file's function-count limit. */
+internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) {
     val currentFrame = swapchainManager.currentFrame
-    Vulkan.vkWaitForFences(
-        device,
-        longArrayOf(swapchainManager.inFlightFences[currentFrame]),
-        true,
-        Long.MAX_VALUE
-    )
-    // Reset only AFTER a successful acquire (not before) -- if acquire throws and this
-    // frame bails out early (see the catch below), an already-reset-but-never-submitted
-    // fence would stay unsignaled forever, hanging the NEXT draw() call's
-    // vkWaitForFences on this same frame-in-flight slot indefinitely.
-    val imageIndex: Int
-    try {
-        imageIndex = Vulkan.vkAcquireNextImageKHR(
-            device,
-            swapchainManager.swapChain,
-            Int.MAX_VALUE.toLong(),
-            swapchainManager.imageAvailableSemaphores[currentFrame],
-            0
-        )
-    } catch (e: VkResultException) {
-        when (e.result) {
-            // A resized/minimized/moved-to-another-display window makes the swapchain
-            // stale before this frame's acquire even runs (not just after present, see
-            // the catch around vkQueuePresentKHR below) -- recreate and skip this frame
-            // entirely: there's no valid acquired image to record/submit/present against.
-            VkResult.VK_SUBOPTIMAL_KHR, VkResult.VK_ERROR_OUT_OF_DATE_KHR -> {
-                recreateSwapChain()
-                return
-            }
-            else -> throw e
-        }
-    }
-    val imageFence = swapchainManager.imagesInFlight[imageIndex]
-    if (imageFence != 0L) {
-        Vulkan.vkWaitForFences(device, longArrayOf(imageFence), true, Long.MAX_VALUE)
-    }
-    swapchainManager.imagesInFlight[imageIndex] = swapchainManager.inFlightFences[currentFrame]
-    Vulkan.vkResetFences(device, longArrayOf(swapchainManager.inFlightFences[currentFrame]))
+    val imageIndex = acquireSwapchainImage(currentFrame) ?: return
 
     val aspect = swapchainManager.extent.width.toFloat() / swapchainManager.extent.height.toFloat()
     val viewProjection = camera.viewProjectionMatrix(aspect)
@@ -94,7 +60,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
     // is exactly this frame's viewProjection.
     lineRenderPipeline.writeMvp(currentFrame, viewProjection.data)
     val materialUsage = mutableMapOf<RenderMaterial, Int>()
-    val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, drawCalls, materialUsage)
+    val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, drawCalls, light, materialUsage)
     val preparedSkinnedDrawCalls = prepareSkinnedDrawCalls(currentFrame, viewProjection, materialUsage)
     val preparedTexturedDrawCalls = prepareTexturedDrawCalls(currentFrame, viewProjection, materialUsage)
 
@@ -392,9 +358,17 @@ internal fun Renderer.prepareDrawCalls(
     frameIndex: Int,
     viewProjection: Mat4,
     drawCalls: List<DrawCall>,
+    light: SceneLight,
     materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf()
 ): List<PreparedDrawCall> {
     val prepared = ArrayList<PreparedDrawCall>(drawCalls.size)
+    // `vec4f` (not `vec3f`) for both fields on the WGSL side specifically to sidestep vec3's
+    // implicit 16-byte alignment padding in a uniform-buffer struct -- see triangle.wgsl's own
+    // Uniforms struct doc comment. The unused 4th float of each is simply never read there.
+    val lightFloats = floatArrayOf(
+        light.direction.x, light.direction.y, light.direction.z, 0f,
+        light.color.x, light.color.y, light.color.z, 0f
+    )
     var drawIndex = 0
     while (drawIndex < drawCalls.size) {
         val drawCall = drawCalls[drawIndex]
@@ -404,7 +378,7 @@ internal fun Renderer.prepareDrawCalls(
         // Camera.viewProjectionMatrix's docs), so `model * viewProjection` (Kotlin
         // order) gives the conventional `projection * view * model`.
         val mvp = drawCall.model * viewProjection
-        material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data)
+        material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + lightFloats)
         prepared += PreparedDrawCall(drawCall, material, frameIndex, uniformSlotIndex)
         drawIndex += 1
     }

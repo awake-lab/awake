@@ -60,12 +60,16 @@ internal fun Renderer.ensureRoundedQuadPipeline() {
  * 3D draw paths that write the same single MVP uniform before each draw call (see
  * [Renderer]'s class doc comment for why one shared uniform buffer only actually works for a
  * single draw call per frame today). */
+// 16 (mvp) + 4 (lightDirection, vec4f) + 4 (lightColor, vec4f) -- matches triangle.wgsl's
+// Uniforms struct exactly (that file's own doc comment explains the vec4f-not-vec3f choice).
+private const val UNIFORM_FLOAT_COUNT = 24
+
 internal fun Renderer.ensureUniformResources(pipeline: GPURenderPipeline) {
     if (uniformBuffer != null) return
     val device = graphicsDevice.wgpuContext.device
     val buffer = device.createBuffer(
         BufferDescriptor(
-            size = (16 * Float.SIZE_BYTES).toULong(),
+            size = (UNIFORM_FLOAT_COUNT * Float.SIZE_BYTES).toULong(),
             usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst
         )
     )
