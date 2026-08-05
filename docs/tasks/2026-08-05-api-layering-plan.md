@@ -80,10 +80,10 @@ runtime. That is fine for iteration, but it should not be treated as final archi
 | `SceneAssetLibrary`, mesh/material factory typealiases | Runtime helper/rendering boundary | Keep for now, but likely belongs with scene rendering/asset binding if modules split. |
 | `Camera`, `Light`, `MeshRenderer`, `RenderSystem` | Rendering | Moved to `:awake:scene:rendering` behind the `:awake:scene` facade. Depends on render-api and should not define generic scene core. |
 | `TransformSystem` | Scene core/render preparation | Keep near `Transform` for now. If a rendering split happens, keep transform propagation in core and render submission in rendering. |
-| `PhysicsBody`, `PhysicsSystem` | Physics | Candidate for `:awake:scene:physics`; depends on `awake:physics:api`. |
-| `OrbitControl`, `FreeFlyControl`, `FollowControl`, `MovementControl` | Controls | Candidate for `:awake:scene:controls` if reusable; otherwise keep out of scene core. |
-| `OrbitCameraSystem`, `FreeFlyCameraSystem`, `FollowCameraSystem` | Controls | Candidate for `:awake:scene:controls`. |
-| `PlayerControlSystem` | Controls/UI boundary smell | Depends on hardware input plus UI input ownership. Candidate for controls or sample/tooling; do not keep in scene core long-term. |
+| `PhysicsBody`, `PhysicsSystem` | Physics | Moved to `:awake:scene:physics` behind the `:awake:scene` facade; depends on `awake:physics:api`. |
+| `OrbitControl`, `FreeFlyControl`, `FollowControl`, `MovementControl` | Controls | Moved to `:awake:scene:controls` behind the `:awake:scene` facade. |
+| `OrbitCameraSystem`, `FreeFlyCameraSystem`, `FollowCameraSystem` | Controls | Moved to `:awake:scene:controls` behind the `:awake:scene` facade. |
+| `PlayerControlSystem` | Controls/UI boundary smell | Depends on hardware input plus UI input ownership (`ui-core`'s `UiInputOwnership`). Stays in `:awake:scene`, not `:awake:scene:controls`, per that decision. |
 | `PlayerMovementSystem`, `ChaseAiSystem` | Authored gameplay | Moved to `samples:scene3d-playground` gameplay systems. Do not keep scenario-specific systems in scene core. |
 | `NavMesh` | Navigation | Keep as a tiny contract for now; it may deserve a small navigation contract module later. |
 | `createScene3DDemoNavMesh()` | Sample-local | Moved to `samples:scene3d-playground`; no longer reusable scene API. |

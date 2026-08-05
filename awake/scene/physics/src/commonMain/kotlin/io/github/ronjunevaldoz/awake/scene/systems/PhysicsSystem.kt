@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.physics.BodyHandle
+import io.github.ronjunevaldoz.awake.physics.BodyTransform
 import io.github.ronjunevaldoz.awake.physics.PhysicsWorld
 import io.github.ronjunevaldoz.awake.scene.components.PhysicsBody
 import io.github.ronjunevaldoz.awake.scene.components.Transform
@@ -51,14 +52,18 @@ class PhysicsSystem(
 
         val bodyTransforms = physicsWorld.syncTransforms()
         for (bodyTransform in bodyTransforms) {
-            val entity = handleToEntity[bodyTransform.handle] ?: continue
-            val transform = world.get<Transform>(entity) ?: continue
-            transform.position.x = bodyTransform.position.x
-            transform.position.y = bodyTransform.position.y
-            transform.position.z = bodyTransform.position.z
-            transform.rotation.x = bodyTransform.rotation.x
-            transform.rotation.y = bodyTransform.rotation.y
-            transform.rotation.z = bodyTransform.rotation.z
+            syncBodyTransform(world, bodyTransform)
         }
+    }
+
+    private fun syncBodyTransform(world: World, bodyTransform: BodyTransform) {
+        val entity = handleToEntity[bodyTransform.handle] ?: return
+        val transform = world.get<Transform>(entity) ?: return
+        transform.position.x = bodyTransform.position.x
+        transform.position.y = bodyTransform.position.y
+        transform.position.z = bodyTransform.position.z
+        transform.rotation.x = bodyTransform.rotation.x
+        transform.rotation.y = bodyTransform.rotation.y
+        transform.rotation.z = bodyTransform.rotation.z
     }
 }

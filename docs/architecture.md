@@ -22,6 +22,8 @@ flowchart TD
     ecs["awake:ecs"]
     scene["awake:scene"]
     sceneCore["awake:scene:core"]
+    sceneControls["awake:scene:controls"]
+    scenePhysics["awake:scene:physics"]
     sceneRendering["awake:scene:rendering"]
     sceneDsl["awake:scene-dsl"]
     render["awake:engine:render-api"]
@@ -46,9 +48,15 @@ flowchart TD
     ecs --> sceneCore
     ecs --> scene
     sceneCore --> sceneRendering
+    sceneCore --> scenePhysics
+    sceneCore --> sceneControls
+    sceneRendering --> sceneControls
     render --> sceneRendering
+    physicsApi --> scenePhysics
     sceneCore --> scene
+    scenePhysics --> scene
     sceneRendering --> scene
+    sceneControls --> scene
     scene --> sceneDsl
     render --> game
     scene --> game
@@ -75,7 +83,9 @@ flowchart TD
 | `:awake-ecs` | Sparse-set ECS runtime: entities, stores, queries, systems | `awake-ecs` |
 | `:awake-scene` | Published compatibility facade for scene runtime/components while scene internals split by capability | `awake-scene` |
 | `:awake-scene:core` | Scene core components such as `Transform`/`Name`; first internal split behind `awake-scene` | not published |
+| `:awake-scene:physics` | Physics-facing scene components and systems: `PhysicsBody`, `PhysicsSystem` | not published |
 | `:awake-scene:rendering` | Render-facing scene components and systems: `Camera`, `Light`, `MeshRenderer`, `RenderSystem` | not published |
+| `:awake-scene:controls` | Reusable camera/movement control components and systems: `OrbitControl`, `FreeFlyControl`, `FollowControl`, `MovementControl`, and their camera systems | not published |
 | `:awake-scene-dsl` | Authored scene DSL (`sceneGame { ... }`, entities/assets/systems) on top of `awake:scene` | not published |
 | `:awake-backend:vulkan` | Vulkan KMP bindings and JNI bridge | `awake-vulkan` |
 | `:awake-engine:game` | Backend-neutral game bootstrap and runtime glue | not published |

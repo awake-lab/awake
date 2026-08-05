@@ -19,6 +19,12 @@ just spread unclear ownership across more folders.
 - 2026-08-05: First scene split slice landed behind the `awake-scene` facade:
   `:awake:scene:core` owns `Transform`/`Name`, and `:awake:scene:rendering` owns
   render-facing scene components plus `RenderSystem`.
+- 2026-08-05: Physics scene leaf split landed behind the `awake-scene` facade:
+  `:awake:scene:physics` owns `PhysicsBody`/`PhysicsSystem`.
+- 2026-08-05: Controls scene leaf split landed behind the `awake-scene` facade:
+  `:awake:scene:controls` owns `OrbitControl`/`FreeFlyControl`/`FollowControl`/
+  `MovementControl` plus their camera systems. `PlayerControlSystem` stays in
+  `:awake:scene` (depends on `ui-core`).
 - 2026-07-10: `VulkanApplication` now loads `scene.json` through `SceneRuntimeHost`; next
   we peel shared code into smaller modules, starting with math/runtime/utils.
 

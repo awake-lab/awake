@@ -37,10 +37,15 @@ The first physical split has started:
 - `:awake:scene:core` exists and owns `Transform`/`Name`.
 - `:awake:scene:rendering` exists and owns `Camera`/`Light`/`MeshRenderer` plus
   `RenderSystem`.
-- `:awake:scene` still acts as the published facade and re-exports both modules.
+- `:awake:scene:physics` exists and owns `PhysicsBody`/`PhysicsSystem`.
+- `:awake:scene:controls` exists and owns `OrbitControl`/`FreeFlyControl`/`FollowControl`/
+  `MovementControl` plus `OrbitCameraSystem`/`FreeFlyCameraSystem`/`FollowCameraSystem`.
+  `PlayerControlSystem` stays in `:awake:scene` (it depends on `ui-core`'s
+  `UiInputOwnership`, per the UI-free preference below).
+- `:awake:scene` still acts as the published facade and re-exports all four modules.
 
-The document model, runtime, physics, and controls are intentionally still in
-`:awake:scene` until their seams are clearer.
+The document model and runtime are intentionally still in `:awake:scene` until their seams
+are clearer.
 
 ## Compatibility Strategy
 

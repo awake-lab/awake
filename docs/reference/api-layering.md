@@ -115,10 +115,12 @@ Likely future shape:
   Render-facing scene components and systems, such as MeshRenderer and RenderSystem.
 
 :awake:scene:physics
-  Physics-facing scene components and systems.
+  Physics-facing scene components and systems. Currently owns PhysicsBody and PhysicsSystem.
 
 :awake:scene:controls
-  Reusable camera/player control components and systems.
+  Reusable camera/player control components and systems. Currently owns OrbitControl,
+  FreeFlyControl, FollowControl, MovementControl, and their camera systems.
+  PlayerControlSystem stays in :awake:scene (depends on ui-core's UiInputOwnership).
 
 :awake:scene-dsl or :awake:scene:authoring
   Declarative authoring sugar and demo-friendly builders.

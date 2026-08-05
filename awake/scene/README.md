@@ -10,7 +10,9 @@ into live ECS entities. This is the layer between the bare ECS and a real game â
 Internally, the scene stack has started splitting by reusable capability. `awake-scene`
 still re-exports the stable public packages, while `:awake:scene:core` owns
 `Transform`/`Name` and `:awake:scene:rendering` owns `Camera`/`Light`/`MeshRenderer` plus
-`RenderSystem`.
+`RenderSystem`. `:awake:scene:physics` owns `PhysicsBody`/`PhysicsSystem`, and
+`:awake:scene:controls` owns `OrbitControl`/`FreeFlyControl`/`FollowControl`/
+`MovementControl` plus `OrbitCameraSystem`/`FreeFlyCameraSystem`/`FollowCameraSystem`.
 
 ## Installation
 
