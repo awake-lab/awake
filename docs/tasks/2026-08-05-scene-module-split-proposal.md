@@ -42,10 +42,20 @@ The first physical split has started:
   `MovementControl` plus `OrbitCameraSystem`/`FreeFlyCameraSystem`/`FollowCameraSystem`.
   `PlayerControlSystem` stays in `:awake:scene` (it depends on `ui-core`'s
   `UiInputOwnership`, per the UI-free preference below).
-- `:awake:scene` still acts as the published facade and re-exports all four modules.
+- `:awake:scene:runtime` exists and owns `SceneGameRuntime`, `SceneGameSpec`,
+  `SceneSystemPhase`/`SceneSystemHandle`, `SceneRouterSpec`, the document model
+  (`SceneDocument`/`SceneLoader`/`SceneValidator`/`SceneInstantiationAdapter`), and
+  `SceneAssetLibrary` -- moved together as one unit since `SceneGameSpec` couples them
+  directly (`sceneDocument: SceneDocument`, `assetLibraryFactory: () -> SceneAssetLibrary`),
+  not because the document model has stopped being a candidate for `:awake:scene:core`
+  later. `SceneRuntime` (the deprecated pre-`SceneGameRuntime` bootstrap) stays behind in
+  `:awake:scene` -- it depends on `TransformSystem`, which hasn't moved out of `:awake:scene`
+  yet, and moving it would have created a circular module dependency for no benefit to a
+  deprecated class.
+- `:awake:scene` still acts as the published facade and re-exports all five modules.
 
-The document model and runtime are intentionally still in `:awake:scene` until their seams
-are clearer.
+`TransformSystem`, `PlayerControlSystem`, and `NavMesh` are intentionally still in
+`:awake:scene` until their seams are clearer.
 
 ## Compatibility Strategy
 

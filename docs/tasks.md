@@ -25,6 +25,11 @@ just spread unclear ownership across more folders.
   `:awake:scene:controls` owns `OrbitControl`/`FreeFlyControl`/`FollowControl`/
   `MovementControl` plus their camera systems. `PlayerControlSystem` stays in
   `:awake:scene` (depends on `ui-core`).
+- 2026-08-05: Runtime scene split landed behind the `awake-scene` facade:
+  `:awake:scene:runtime` owns `SceneGameRuntime`/`SceneGameSpec`/`SceneRouterSpec`, the
+  scene document model, and `SceneAssetLibrary` (moved as one unit -- `SceneGameSpec`
+  couples them directly). The deprecated `SceneRuntime` bootstrap stays in `:awake:scene`
+  (depends on `TransformSystem`, which hasn't split out yet).
 - 2026-07-10: `VulkanApplication` now loads `scene.json` through `SceneRuntimeHost`; next
   we peel shared code into smaller modules, starting with math/runtime/utils.
 

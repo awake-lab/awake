@@ -108,8 +108,7 @@ Likely future shape:
   Published compatibility facade while scene internals split by capability.
 
 :awake:scene:core
-  Scene-domain core components. Currently owns Transform and Name; document/runtime
-  extraction remains staged.
+  Scene-domain core components. Currently owns Transform and Name.
 
 :awake:scene:rendering
   Render-facing scene components and systems, such as MeshRenderer and RenderSystem.
@@ -121,6 +120,14 @@ Likely future shape:
   Reusable camera/player control components and systems. Currently owns OrbitControl,
   FreeFlyControl, FollowControl, MovementControl, and their camera systems.
   PlayerControlSystem stays in :awake:scene (depends on ui-core's UiInputOwnership).
+
+:awake:scene:runtime
+  SceneGameRuntime scheduling and game-loop integration. Currently owns SceneGameRuntime,
+  SceneGameSpec, SceneSystemPhase/SceneSystemHandle, SceneRouterSpec, the scene document
+  model (SceneDocument/SceneLoader/SceneValidator/SceneInstantiationAdapter), and
+  SceneAssetLibrary -- moved as one unit since SceneGameSpec couples the runtime and
+  document model directly. The deprecated SceneRuntime bootstrap stays in :awake:scene
+  (depends on TransformSystem, which hasn't split out yet).
 
 :awake:scene-dsl or :awake:scene:authoring
   Declarative authoring sugar and demo-friendly builders.

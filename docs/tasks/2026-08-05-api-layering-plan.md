@@ -74,10 +74,10 @@ runtime. That is fine for iteration, but it should not be treated as final archi
 | Surface | Layer | Recommendation |
 |---|---|---|
 | `Transform`, `Name` | Scene core | Keep in scene core. |
-| `SceneDocument`, `SceneNode`, `SceneTransform`, `SceneCamera`, `SceneLight`, `SceneMeshRenderer` | Scene core/serialization | Keep in scene core. |
-| `SceneLoader`, `SceneValidator`, `SceneInstantiationAdapter`, `AwakeWorldSceneAdapter` | Scene core/helper | Keep in scene core; adapter is the right seam for future non-ECS/editor targets. |
-| `SceneGameRuntime`, `SceneGameSpec`, `SceneSystemPhase`, `SceneSystemHandle` | Scene runtime core | Keep in scene core. |
-| `SceneAssetLibrary`, mesh/material factory typealiases | Runtime helper/rendering boundary | Keep for now, but likely belongs with scene rendering/asset binding if modules split. |
+| `SceneDocument`, `SceneNode`, `SceneTransform`, `SceneCamera`, `SceneLight`, `SceneMeshRenderer` | Scene core/serialization | Moved to `:awake:scene:runtime` alongside `SceneGameRuntime` (not `:awake:scene:core`) -- `SceneGameSpec` couples the document model and runtime directly. A future `:awake:scene:core` extraction remains possible once that coupling is loosened. |
+| `SceneLoader`, `SceneValidator`, `SceneInstantiationAdapter`, `AwakeWorldSceneAdapter` | Scene core/helper | Moved to `:awake:scene:runtime`, same reasoning as `SceneDocument` above. |
+| `SceneGameRuntime`, `SceneGameSpec`, `SceneSystemPhase`, `SceneSystemHandle` | Scene runtime core | Moved to `:awake:scene:runtime` behind the `:awake:scene` facade. |
+| `SceneAssetLibrary`, mesh/material factory typealiases | Runtime helper/rendering boundary | Moved to `:awake:scene:runtime` -- `SceneGameSpec.assetLibraryFactory` couples it to the runtime directly. |
 | `Camera`, `Light`, `MeshRenderer`, `RenderSystem` | Rendering | Moved to `:awake:scene:rendering` behind the `:awake:scene` facade. Depends on render-api and should not define generic scene core. |
 | `TransformSystem` | Scene core/render preparation | Keep near `Transform` for now. If a rendering split happens, keep transform propagation in core and render submission in rendering. |
 | `PhysicsBody`, `PhysicsSystem` | Physics | Moved to `:awake:scene:physics` behind the `:awake:scene` facade; depends on `awake:physics:api`. |
@@ -88,8 +88,8 @@ runtime. That is fine for iteration, but it should not be treated as final archi
 | `NavMesh` | Navigation | Keep as a tiny contract for now; it may deserve a small navigation contract module later. |
 | `createScene3DDemoNavMesh()` | Sample-local | Moved to `samples:scene3d-playground`; no longer reusable scene API. |
 | `DemoNavMeshGeometry` | Sample-local | Moved to `samples:scene3d-playground`; no longer reusable scene code. |
-| `SceneRuntime` | Legacy/simple runtime | Mark for review/deprecation once `SceneGameRuntime` is the canonical path. It duplicates transform/render driving. |
-| `SceneRouterSpec`, `SceneRouterRuntime` | Runtime helper | Keep as experimental/helper. Needs stronger lifecycle story because routed `ready()` cannot suspend after startup. |
+| `SceneRuntime` | Legacy/simple runtime | Stays in `:awake:scene` (not `:awake:scene:runtime`) -- it depends on `TransformSystem`, which hasn't split out of `:awake:scene` yet; moving it would create a circular module dependency for a class already marked `@Deprecated`. Mark for removal once `SceneGameRuntime` is the canonical path. |
+| `SceneRouterSpec`, `SceneRouterRuntime` | Runtime helper | Moved to `:awake:scene:runtime` alongside `SceneGameRuntime`. Still experimental/helper; needs stronger lifecycle story because routed `ready()` cannot suspend after startup. |
 
 Key decision: split scene by capability only after moving demo/gameplay-specific concepts out
 or clearly marking them as experimental.
