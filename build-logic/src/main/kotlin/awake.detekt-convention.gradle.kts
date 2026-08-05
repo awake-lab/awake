@@ -13,7 +13,7 @@ extensions.configure<DetektExtension> {
     toolVersion = libs.findVersion("detekt").get().requiredVersion
     config.setFrom(rootProject.file("config/detekt/detekt.yml"))
     buildUponDefaultConfig = true
-    baseline = file("detekt-baseline.xml")
+    baseline = layout.projectDirectory.file("detekt-baseline.xml").asFile
 }
 
 tasks.withType<Detekt>().configureEach {

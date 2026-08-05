@@ -17,6 +17,9 @@
  * limitations under the License.
  */
 
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("awake.dokka-convention")
@@ -31,6 +34,7 @@ kotlin {
     // awake-vulkan (now awake-backend-vulkan) -- this module owns only the wgpu4k/WebGPU
     // backend, wasmJs is its sole target. No android/desktop/iOS targets, so no android
     // library plugin here (unlike awake-backend-vulkan/awake-engine-render-api).
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }

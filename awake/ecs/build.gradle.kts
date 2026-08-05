@@ -22,6 +22,8 @@ import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SourcesJar
 import java.util.Properties
 
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library.kmp)
@@ -55,6 +57,7 @@ kotlin {
     // Web demo (see docs/MVP_PLAN.md's decision log): awake-scene (SceneRuntimeHost's
     // World/Family/TransformSystem/RenderSystem) depends on this module, and
     // demo/SceneRuntimeHost.kt is reused by the wasmJs-only WebGpuApplication too.
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }

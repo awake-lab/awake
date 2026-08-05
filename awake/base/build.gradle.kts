@@ -22,6 +22,8 @@ import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SourcesJar
 import java.util.Properties
 
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library.kmp)
@@ -55,6 +57,7 @@ kotlin {
 
     // Phase 2.5 (Web/WebGPU, decision D7): needed so awake-vulkan's own wasmJs target can
     // resolve this module as a commonMain dependency -- see docs/MVP_PLAN.md.
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }

@@ -22,6 +22,8 @@ import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SourcesJar
 import java.util.Properties
 
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
@@ -56,6 +58,7 @@ kotlin {
     // Web demo (see docs/MVP_PLAN.md's decision log): demo/SceneRuntimeHost.kt
     // (awake-demo:shared, commonMain) depends on this module and is reused by the
     // wasmJs-only WebGpuApplication.
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }
