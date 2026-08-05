@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
+import io.github.ronjunevaldoz.awake.vulkan.surfaceFramebufferExtent
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 
 /**
@@ -80,7 +81,11 @@ class VulkanGameApplication(
     override suspend fun createBackendResources(window: Any): BackendResources {
         graphicsDevice = GraphicsDevice()
         graphicsDevice.create(window)
-        swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
+        swapchainManager = SwapchainManager(
+            graphicsDevice,
+            MAX_FRAMES_IN_FLIGHT,
+            surfaceExtentProvider = { surfaceFramebufferExtent(window) }
+        )
         swapchainManager.create()
         pipelineLayoutMaterial = Material(graphicsDevice)
         renderPipeline = RenderPipeline(

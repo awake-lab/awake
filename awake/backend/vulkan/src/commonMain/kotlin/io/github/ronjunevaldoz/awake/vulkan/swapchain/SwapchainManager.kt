@@ -32,8 +32,7 @@ import io.github.ronjunevaldoz.awake.vulkan.utils.querySwapChainSupport
  * and the per-frame-in-flight synchronization primitives (semaphores/fences) -- extracted
  * verbatim from `VulkanApplication`'s `swapChain`/`createImageViews`/`chooseSwap*`/
  * `cleanSwapChain`/`createSyncObjects` functions and their backing fields. Same calls, same
- * order, same TODO (extent falls back to `0x0` instead of reading the real window size when
- * `currentExtent.width == Int.MAX_VALUE` -- pre-existing, not addressed by this move).
+ * order, same synchronization ownership.
  *
  * Framebuffers are deliberately NOT owned here: they also depend on the render pass and
  * depth image view, neither of which is extracted yet -- `VulkanApplication` still owns
@@ -41,7 +40,8 @@ import io.github.ronjunevaldoz.awake.vulkan.utils.querySwapChainSupport
  */
 class SwapchainManager(
     graphicsDevice: GraphicsDevice,
-    val maxFramesInFlight: Int
+    val maxFramesInFlight: Int,
+    private val surfaceExtentProvider: (() -> VkExtent2D?)? = null
 ) {
     private val graphicsDevice = graphicsDevice
     private val physicalDevice get() = graphicsDevice.physicalDevice
@@ -64,13 +64,13 @@ class SwapchainManager(
         val presentMode = chooseSwapPresentMode(presentModes)
         val chosenExtent = chooseSwapExtent(capabilities)
 
-        val imageCount = (capabilities.minImageCount + 1).coerceIn(1, capabilities.maxImageCount)
+        val imageCount = chooseSwapchainImageCount(capabilities)
 
         val indices = findQueueFamilies(physicalDevice, surface)
         var queueFamilyIndices: Array<Int>? =
             arrayOf(indices.graphicsFamily!!, indices.presentFamily!!)
         val imageSharingMode: VkSharingMode
-        if (indices.graphicsFamily !== indices.presentFamily) {
+        if (indices.graphicsFamily != indices.presentFamily) {
             imageSharingMode = VkSharingMode.VK_SHARING_MODE_CONCURRENT
         } else {
             imageSharingMode = VkSharingMode.VK_SHARING_MODE_EXCLUSIVE
@@ -186,18 +186,30 @@ class SwapchainManager(
         } ?: return VkPresentModeKHR.VK_PRESENT_MODE_FIFO_KHR
     }
 
-    private fun chooseSwapExtent(capabilities: VkSurfaceCapabilitiesKHR): VkExtent2D {
+    internal fun chooseSwapExtent(capabilities: VkSurfaceCapabilitiesKHR): VkExtent2D {
         if (capabilities.currentExtent.width != Int.MAX_VALUE) {
             return capabilities.currentExtent
         }
-        // TODO get size from actual window
-        val width = 0
-        val height = 0
+        val surfaceExtent = requireNotNull(surfaceExtentProvider?.invoke()) {
+            "Surface reported a variable swapchain extent, but no framebuffer extent provider was supplied."
+        }
+        require(surfaceExtent.width > 0 && surfaceExtent.height > 0) {
+            "Surface framebuffer extent must be non-zero, was ${surfaceExtent.width}x${surfaceExtent.height}."
+        }
         val actualWidth =
-            width.coerceIn(capabilities.minImageExtent.width, capabilities.maxImageExtent.width)
+            surfaceExtent.width.coerceIn(capabilities.minImageExtent.width, capabilities.maxImageExtent.width)
         val actualHeight =
-            height.coerceIn(capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
+            surfaceExtent.height.coerceIn(capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
         return VkExtent2D(actualWidth, actualHeight)
+    }
+
+    internal fun chooseSwapchainImageCount(capabilities: VkSurfaceCapabilitiesKHR): Int {
+        val requestedImageCount = capabilities.minImageCount + 1
+        return if (capabilities.maxImageCount == 0) {
+            requestedImageCount.coerceAtLeast(1)
+        } else {
+            requestedImageCount.coerceIn(1, capabilities.maxImageCount)
+        }
     }
 
     /** Destroys the image views + swapchain itself. Framebuffers are the caller's

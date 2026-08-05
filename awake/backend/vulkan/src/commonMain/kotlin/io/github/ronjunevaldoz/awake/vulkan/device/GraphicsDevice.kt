@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.createSurface
 import io.github.ronjunevaldoz.awake.vulkan.destroySurfaceWindow
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPhysicalDeviceType
+import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkDebugUtilsMessageSeverityFlagBitsEXT
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkApplicationInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDeviceCreateInfo
@@ -40,6 +41,8 @@ class GraphicsDevice {
     var presentQueue: Long = 0
 
     private var nativeWindow: Any? = null
+    private var failOnValidationError = false
+    private val validationErrors = mutableListOf<String>()
 
     /** [window] is an `android.view.Surface` on Android, or a GLFW window handle (`Long`)
      * on desktop -- see [io.github.ronjunevaldoz.awake.vulkan.createSurface]. */
@@ -66,6 +69,7 @@ class GraphicsDevice {
      * [graphicsQueue]/[presentQueue] (the latter is never actually used without a swapchain
      * to present to). */
     fun createHeadless() {
+        failOnValidationError = true
         createInstance(includeGlfwExtensions = false)
         setupDebugMessenger()
         pickPhysicalDevice()
@@ -131,6 +135,10 @@ class GraphicsDevice {
                     callbackData,
                     userData
                 )
+                if (severity.isValidationError()) {
+                    validationErrors += callbackData.pMessage
+                }
+                false
             },
             pUserData = null
         )
@@ -213,10 +221,19 @@ class GraphicsDevice {
     }
 
     fun destroy() {
-        Vulkan.vkDestroySurfaceKHR(instance, surface)
-        Vulkan.vkDestroyDevice(device)
-        Vulkan.vkDestroyDebugUtilsMessengerEXT(instance, debugUtilsMessenger)
-        Vulkan.vkDestroyInstance(instance)
+        if (surface != 0L) Vulkan.vkDestroySurfaceKHR(instance, surface)
+        if (device != 0L) Vulkan.vkDestroyDevice(device)
+        if (debugUtilsMessenger != 0L) Vulkan.vkDestroyDebugUtilsMessengerEXT(instance, debugUtilsMessenger)
+        if (instance != 0L) Vulkan.vkDestroyInstance(instance)
         nativeWindow?.let { destroySurfaceWindow(it) }
+        if (failOnValidationError && validationErrors.isNotEmpty()) {
+            error(
+                "Vulkan validation errors were reported:\n" +
+                    validationErrors.joinToString(separator = "\n\n")
+            )
+        }
     }
+
+    private fun VkDebugUtilsMessageSeverityFlagBitsEXT.isValidationError(): Boolean =
+        this == VkDebugUtilsMessageSeverityFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
 }

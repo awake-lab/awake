@@ -68,7 +68,11 @@ class VulkanMetalView(
     @ObjCAction
     private fun tick(displayLink: CADisplayLink) {
         val currentTimestamp = displayLink.timestamp
-        val deltaTime = (currentTimestamp - previousTimestamp).toFloat()
+        val deltaTime = if (previousTimestamp == 0.0) {
+            0f
+        } else {
+            (currentTimestamp - previousTimestamp).toFloat()
+        }
         previousTimestamp = currentTimestamp
         textInputWasFocused = syncAwakeTextInputFocus(textInputWasFocused, input)
         onUpdate(deltaTime)

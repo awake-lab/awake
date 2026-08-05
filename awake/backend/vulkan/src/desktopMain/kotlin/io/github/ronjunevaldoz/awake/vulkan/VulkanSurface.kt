@@ -3,9 +3,18 @@
 package io.github.ronjunevaldoz.awake.vulkan
 
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
+import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 
 actual fun createSurface(instance: Long, window: Any): Long =
     VulkanWindow.glfwCreateWindowSurface(instance, window as Long)
+
+actual fun surfaceFramebufferExtent(window: Any): VkExtent2D? {
+    val handle = window as Long
+    return VkExtent2D(
+        width = VulkanWindow.glfwGetFramebufferWidth(handle),
+        height = VulkanWindow.glfwGetFramebufferHeight(handle)
+    )
+}
 
 actual fun destroySurfaceWindow(window: Any) {
     val handle = window as Long

@@ -10,6 +10,8 @@ import kotlinx.cinterop.interpretCPointer
 import kotlinx.cinterop.objcPtr
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toCPointer
+import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
+import kotlinx.cinterop.useContents
 import kotlinx.cinterop.value
 import platform.MoltenVK.VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT
 import platform.MoltenVK.VK_SUCCESS
@@ -37,6 +39,14 @@ actual fun createSurface(instance: Long, window: Any): Long = memScoped {
     val result = vkCreateMetalSurfaceEXT(instance.toCPointer(), nativeCreateInfo.ptr, null, surfaceVar.ptr)
     check(result == VK_SUCCESS) { "vkCreateMetalSurfaceEXT failed: $result" }
     surfaceVar.value!!.rawValue.toLong()
+}
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun surfaceFramebufferExtent(window: Any): VkExtent2D? {
+    val metalLayer = window as CAMetalLayer
+    return metalLayer.drawableSize.useContents {
+        VkExtent2D(width = width.toInt(), height = height.toInt())
+    }
 }
 
 actual fun destroySurfaceWindow(window: Any) {

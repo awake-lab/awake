@@ -258,7 +258,9 @@ class Renderer(
     init {
         createDepthResources()
         createFramebuffers()
-        createPresentTransitionResources()
+        if (swapchainManager.imageViews.isNotEmpty()) {
+            createPresentTransitionResources()
+        }
         createCommandBuffers(transferContext.commandPool.handle, maxFramesInFlight)
     }
 
@@ -423,7 +425,9 @@ class Renderer(
         }
         presentTransitionFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
         uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
-        Vulkan.vkDestroyRenderPass(device, presentTransitionRenderPass)
+        if (presentTransitionRenderPass != 0L) {
+            Vulkan.vkDestroyRenderPass(device, presentTransitionRenderPass)
+        }
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
         offscreenGlyphRenderPipeline?.destroy()
