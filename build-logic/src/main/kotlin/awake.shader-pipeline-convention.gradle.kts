@@ -45,3 +45,7 @@ tasks.named("check").configure {
 tasks.matching { it.name.endsWith("ProcessResources") }.configureEach {
     dependsOn(syncAwakeShaders)
 }
+
+tasks.matching { it.name == "detekt" || it.name == "detektBaseline" }.configureEach {
+    mustRunAfter(syncAwakeShaders)
+}

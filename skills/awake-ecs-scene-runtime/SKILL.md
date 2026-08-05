@@ -114,9 +114,11 @@ them together by index rather than expecting a `family.forEach { entity, a, b ->
 ```kotlin
 fun myGameModule(): GameModule = gameModule {
     scene("my-scene") {
-        // Register a system -- runs every frame per its SystemFrequency
-        // (Simulation = fixed-timestep, Infrastructure = render-rate).
-        system("render") { RenderSystem(renderer) }
+        // Register gameplay/demo systems only. The scene DSL appends built-in
+        // infrastructure systems (TransformSystem + RenderSystem) at build time.
+        // Do not hand-register another RenderSystem here, or the scene submits twice
+        // per frame and scene3d UI/viewport presentation can blink.
+        system("demo-driver") { MyDemoDriverSystem(this) }
 
         // Suspend, runs once before the first frame -- the only place to do suspend
         // work (asset loads) before entities need it.
@@ -182,23 +184,21 @@ anything inside the layout tree.
 ## Traps
 
 **`TransformSystem` overwrites a directly-set `worldMatrix`.** `awake/scene/.../systems/
-TransformSystem.kt` recomputes every entity's `Transform.worldMatrix` from
-`position`/`rotation`/`scale` (+ parent chain) every time it runs. If you set `worldMatrix`
-directly (e.g. from a parsed glTF node transform, or a hand-built `Mat4`) and also register
-`TransformSystem`, your matrix gets silently clobbered back to whatever `position`/`rotation`/
-`scale` compose to (identity, by default) on the very next frame it runs. Fix: don't register
-`TransformSystem` for entities with directly-set transforms -- either skip registering it
-entirely (fine for a scene with no position/rotation/scale-driven entities), or keep
-directly-set entities out of whatever family it targets. This isn't hypothetical -- it's exactly
-what `samples/scene3d-playground`'s glTF viewer demo has to avoid (see `GltfViewerDemo.kt`'s own
-doc comment).
+`TransformSystem.kt` recomputes every entity's `Transform.worldMatrix` from
+`position`/`rotation`/`scale` (+ parent chain) every time it runs. In the `scene {}` DSL this
+system is installed automatically as built-in infrastructure, before the built-in
+`RenderSystem`. If you set `worldMatrix` directly (e.g. from a parsed glTF node transform, or a
+hand-built `Mat4`), expect the infrastructure transform pass to recompute it from component
+fields on the next frame unless the component model explicitly preserves that authored matrix.
+This isn't hypothetical -- it is exactly what `samples/scene3d-playground`'s glTF viewer demo
+has to account for (see `GltfViewerDemo.kt`'s own doc comment).
 
-**A `RenderSystem` you don't register never draws.** `SceneGameRuntime` doesn't call
-`renderer.draw()` on its own -- only a registered `RenderSystem` (`system("render") {
-RenderSystem(renderer) }`) does, once per frame, for every entity with `Transform` +
-`MeshRenderer` and whichever `Camera` has `isPrimary = true`. Forgetting to register it means
-entities exist in the `World` but nothing ever reaches the GPU -- no crash, no error, just a
-blank/stale viewport.
+**Do not register `RenderSystem` manually inside `scene {}` DSL modules.**
+`SceneGameDsl.build()` calls `installInfrastructureSystems()`, which appends a built-in
+`TransformSystem` and `RenderSystem(renderer)` after user systems. Registering another
+`system("render") { RenderSystem(renderer) }` in a sample such as `scene3DPlaygroundModule()`
+causes two `renderer.draw()` calls per frame (`drawUi`, `draw`, `draw`) and can show up as
+scene3d UI/viewport blinking even when UI-only samples remain stable.
 
 **Components with `val` fields can't be mutated in place.** `scene.components.Camera` and
 `MeshRenderer` are `data class`es with `val` fields -- `world.get(entity, Camera::class)!!

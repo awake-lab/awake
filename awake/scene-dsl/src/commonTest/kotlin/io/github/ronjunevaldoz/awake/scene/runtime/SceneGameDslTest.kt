@@ -22,7 +22,6 @@ import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.freeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.orbitCameraSystem
-import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -201,7 +200,6 @@ class SceneGameDslTest {
         val game = game {
             scene("ordered-scene") {
                 cameraEntity("camera", camera = { primary(true) })
-                system("render") { RenderSystem(renderer) }
                 overlay { width, height ->
                     frame(width, height) {
                         text("ordered")
@@ -214,9 +212,7 @@ class SceneGameDslTest {
         renderer.frameCalls.clear()
         game.render(0.016f, 320f, 240f)
 
-        assertEquals("drawUi", renderer.frameCalls.firstOrNull())
-        assertTrue(renderer.frameCalls.drop(1).isNotEmpty())
-        assertTrue(renderer.frameCalls.drop(1).all { it == "draw" })
+        assertEquals(listOf("drawUi", "draw"), renderer.frameCalls)
     }
 }
 

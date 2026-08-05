@@ -17,13 +17,19 @@ extensions.configure<DetektExtension> {
 }
 
 tasks.withType<Detekt>().configureEach {
-    setSource(files("src"))
-    include("**/*.kt")
-    exclude("**/build/**", "**/attic/**")
+    setSource(
+        fileTree("src") {
+            include("**/*.kt")
+            exclude("**/build/**", "**/attic/**")
+        }
+    )
 }
 
 tasks.withType<DetektCreateBaselineTask>().configureEach {
-    setSource(files("src"))
-    include("**/*.kt")
-    exclude("**/build/**", "**/attic/**")
+    setSource(
+        fileTree("src") {
+            include("**/*.kt")
+            exclude("**/build/**", "**/attic/**")
+        }
+    )
 }

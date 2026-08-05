@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.scene
-import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 
 /** The whole app -- this module's `app/Main.kt`/`app/main.kt` platform entry points install
  * this directly (see [io.github.ronjunevaldoz.awake.engine.application.gameDefinition]'s
@@ -21,9 +20,9 @@ import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
  * Runs on the real ECS [io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime] (not
  * [io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime]) -- every demo page spawns
  * its own [io.github.ronjunevaldoz.awake.ecs.World] entities on activation and destroys them on
- * deactivation (see [Scene3DDemo]'s own doc comment); [RenderSystem] (registered below) is the
- * one real `renderer.draw()` call per frame this relies on, replacing `GameUiRuntime`'s old
- * `provideDrawCalls` escape hatch. */
+ * deactivation (see [Scene3DDemo]'s own doc comment); the scene DSL's built-in infrastructure
+ * render system is the one real `renderer.draw()` call per frame this relies on, replacing
+ * `GameUiRuntime`'s old `provideDrawCalls` escape hatch. */
 /** Dark neutral gray, the standard 3D-editor viewport background (Blender/Unity/Maya all use
  * a dark gray, not a light one) -- gives [RotatingCubeDemo]'s lighter gray grid lines and the
  * cube's own bright per-vertex colors actual contrast to pop against, unlike a light-gray
@@ -53,10 +52,10 @@ internal fun scene3DPlaygroundModule(): GameModule {
                 val runtime = this
                 Scene3DDemoDriverSystem(runtime, state)
             }
-            // Registered AFTER demo-driver -- infrastructure systems run in registration order
-            // (SceneGameRuntime.ready()), so RenderSystem must see this frame's freshly-updated
-            // Transform/Camera/MeshRenderer state, not the previous frame's.
-            system("render") { RenderSystem(renderer) }
+            // The scene DSL appends its built-in transform/render infrastructure systems at
+            // build time, after this demo-driver. Do not register another RenderSystem here:
+            // doing so submits/presents the same frame twice, which shows up as scene3d UI
+            // blinking even though ui-showcase (UI-only) stays stable.
             // Duck.gltf's byte load is suspend (see readResourceBytes) -- done once here,
             // regardless of which demo page is active at startup, so GltfViewerDemo.onActivate
             // (a plain non-suspend per-frame hook) only ever touches the already-parsed scene.
