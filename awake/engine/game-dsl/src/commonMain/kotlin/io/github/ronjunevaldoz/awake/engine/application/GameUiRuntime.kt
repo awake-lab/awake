@@ -176,17 +176,16 @@ class GameUiRuntime(
             frame.primitives
         }
         // A UI-only game has no `RenderSystem`/3D scene calling `Renderer.draw()` (the only
-        // call that actually acquires/records/submits/presents a swapchain frame -- see
-        // that method's own doc comment: `drawUi` only stages a second render pass on TOP
-        // of whatever `draw()` already wrote). Without this, `drawUi()` alone stages CPU-side
-        // primitives into a pooled mesh that nothing ever submits to the GPU, so the window
-        // shows its OS-default backing (a real desktop repro: blank pale-gray window, no
-        // crash, no error, confirmed by a live GLFW/MoltenVK run). `drawCalls` stays empty
-        // (falls back to `EMPTY_UI_ONLY_CAMERA`/no draw calls) unless [provideDrawCalls] is
-        // set -- see its own doc comment.
+        // call that actually acquires/records/submits/presents a swapchain frame). `drawUi`
+        // stages CPU-side primitives into pooled meshes first; the following `draw()` call
+        // records those staged runs as an overlay pass on top of the 3D/empty frame. Without
+        // this paired draw, the window shows its OS-default backing (a real desktop repro:
+        // blank pale-gray window, no crash, no error, confirmed by a live GLFW/MoltenVK run).
+        // `drawCalls` stays empty (falls back to `EMPTY_UI_ONLY_CAMERA`/no draw calls) unless
+        // [provideDrawCalls] is set -- see its own doc comment.
         val (camera, drawCalls) = provideDrawCalls?.invoke() ?: (EMPTY_UI_ONLY_CAMERA to emptyList())
-        renderer.draw(camera, drawCalls)
         renderer.drawUi(primitives, font)
+        renderer.draw(camera, drawCalls)
     }
 
 

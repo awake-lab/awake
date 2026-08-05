@@ -123,7 +123,12 @@ class SceneGameRuntime internal constructor(
         spec.overlayBlock(this, viewportWidth, viewportHeight)
         val uiFrame = uiContext.finishFrame()
 
-        // 2. Simulation & Infrastructure Pump
+        // 2. Stage UI before the infrastructure render pass. Vulkan/WebGPU consume these
+        // runs while recording the present-producing renderer.draw() call below; staging
+        // after RenderSystem would always draw the previous frame's overlay.
+        renderer.drawUi(uiFrame.primitives, font)
+
+        // 3. Simulation & Infrastructure Pump
         fixedTimestepLoop.advance(
             frameDelta = delta,
             fixedUpdate = { step -> 
@@ -135,10 +140,7 @@ class SceneGameRuntime internal constructor(
             }
         )
         
-        // 3. Final Compositing
-        renderer.drawUi(uiFrame.primitives, font)
-        
-        // Sync UI focus state back to session input
+        // 4. Sync UI focus state back to session input.
         input.textInputFocused = uiFrame.effects.requestKeyboard
     }
 

@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.freeFlyCameraSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.orbitCameraSystem
+import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -193,6 +194,30 @@ class SceneGameDslTest {
         assertEquals("module-scene", game.requireService<SceneGameRuntime>().sceneName)
         assertTrue(renderer.lastUiPrimitives.any { primitive -> primitive is UiDrawPrimitive.Glyph })
     }
+
+    @Test
+    fun sceneRuntimeStagesUiBeforeInfrastructureRender() = runTest {
+        val renderer = RecordingRenderer()
+        val game = game {
+            scene("ordered-scene") {
+                cameraEntity("camera", camera = { primary(true) })
+                system("render") { RenderSystem(renderer) }
+                overlay { width, height ->
+                    frame(width, height) {
+                        text("ordered")
+                    }
+                }
+            }
+        }
+
+        game.ready(renderer)
+        renderer.frameCalls.clear()
+        game.render(0.016f, 320f, 240f)
+
+        assertEquals("drawUi", renderer.frameCalls.firstOrNull())
+        assertTrue(renderer.frameCalls.drop(1).isNotEmpty())
+        assertTrue(renderer.frameCalls.drop(1).all { it == "draw" })
+    }
 }
 
 private class RecordingSystem : System {
@@ -213,6 +238,7 @@ private class RecordingRenderer : Renderer {
     var meshDestroyCount = 0
     var materialDestroyCount = 0
     var lastUiPrimitives: List<UiDrawPrimitive> = emptyList()
+    val frameCalls = mutableListOf<String>()
 
     override val flipYForClipSpace: Boolean = false
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
@@ -247,7 +273,9 @@ private class RecordingRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun draw(camera: Camera, drawCalls: List<DrawCall>) = Unit
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>) {
+        frameCalls += "draw"
+    }
 
     override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
 
@@ -255,6 +283,7 @@ private class RecordingRenderer : Renderer {
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)
 
     override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) {
+        frameCalls += "drawUi"
         lastUiPrimitives = primitives
     }
 

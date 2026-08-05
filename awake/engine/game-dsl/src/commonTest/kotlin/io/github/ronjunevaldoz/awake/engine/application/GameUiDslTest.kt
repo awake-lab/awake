@@ -69,6 +69,25 @@ class GameUiDslTest {
     }
 
     @Test
+    fun gameUiStagesUiBeforePresentingDraw() = runTest {
+        val renderer = RecordingUiRenderer()
+        val game = game {
+            ui {
+                overlay {
+                    frame {
+                        emit(UiDrawPrimitive.Quad(x = 0f, y = 0f, w = 8f, h = 8f, color = Color.White))
+                    }
+                }
+            }
+        }
+
+        game.ready(renderer)
+        game.render(0.016f, 320f, 240f)
+
+        assertEquals(listOf("drawUi", "draw"), renderer.frameCalls)
+    }
+
+    @Test
     fun gameModuleCanOwnUiComposition() = runTest {
         val renderer = RecordingUiRenderer()
         val feature = gameModule {
@@ -229,6 +248,7 @@ private object TestUiTheme : UiTheme by UiDefaultTheme
 private class RecordingUiRenderer : Renderer {
     var uiDrawCalls = 0
     var lastUiPrimitives: List<UiDrawPrimitive> = emptyList()
+    val frameCalls = mutableListOf<String>()
 
     override val flipYForClipSpace: Boolean = false
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
@@ -251,7 +271,9 @@ private class RecordingUiRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun draw(camera: Camera, drawCalls: List<DrawCall>) = Unit
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>) {
+        frameCalls += "draw"
+    }
 
     override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
 
@@ -259,6 +281,7 @@ private class RecordingUiRenderer : Renderer {
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)
 
     override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) {
+        frameCalls += "drawUi"
         uiDrawCalls += 1
         lastUiPrimitives = primitives
     }
