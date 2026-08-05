@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.vulkan
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
@@ -145,9 +146,44 @@ class RendererHeadlessPixelBaselineTest {
                     "Headless cube render diverged from baseline: ${result.diffPixelCount} pixels differ " +
                         "(max channel diff ${result.maxChannelDiff}). Compare ${actualPngFile.absolutePath} " +
                         "against ${baselinePngFile.absolutePath}. Re-record $BASELINE_RESOURCE_PATH if this " +
-                        "divergence is an intentional rendering change."
+                    "divergence is an intentional rendering change."
                 )
             }
+
+            // Regression coverage for DrawCall's documented "mesh/material may be shared"
+            // contract. Before materials had per-draw uniform slots, the second MVP rewrite
+            // could overwrite the first draw before the GPU consumed it, collapsing both cubes
+            // onto the last transform.
+            renderer.renderToTexture(
+                target,
+                camera,
+                listOf(
+                    DrawCall(createdMesh, createdMaterial, Mat4().translate(-SHARED_CUBE_OFFSET_X, 0f, 0f)),
+                    DrawCall(createdMesh, createdMaterial, Mat4().translate(SHARED_CUBE_OFFSET_X, 0f, 0f))
+                )
+            )
+            val sharedMaterialPixels = runBlocking { renderer.readPixels(target) }
+            val leftPainted = countPaintedPixels(
+                sharedMaterialPixels.data,
+                xRange = SHARED_MATERIAL_LEFT_X,
+                yRange = SHARED_MATERIAL_Y
+            )
+            val rightPainted = countPaintedPixels(
+                sharedMaterialPixels.data,
+                xRange = SHARED_MATERIAL_RIGHT_X,
+                yRange = SHARED_MATERIAL_Y
+            )
+
+            assertTrue(
+                leftPainted > MIN_SHARED_MATERIAL_REGION_PIXELS,
+                "left cube should render with the shared material's first transform, " +
+                    "but only $leftPainted pixels were painted"
+            )
+            assertTrue(
+                rightPainted > MIN_SHARED_MATERIAL_REGION_PIXELS,
+                "right cube should render with the shared material's second transform, " +
+                    "but only $rightPainted pixels were painted"
+            )
         } finally {
             // Symmetric with VulkanGameApplication.destroyBackend()'s own teardown order: a
             // demo/game owns createMesh()/createMaterial()'s destroy() calls (Renderer doesn't
@@ -161,16 +197,47 @@ class RendererHeadlessPixelBaselineTest {
             // descriptorSetLayout was ever used, to build renderPipeline's pipeline layout) --
             // same reasoning as VulkanGameApplication.destroyBackend()'s own pipelineLayoutMaterial
             // teardown, so only the layout itself is destroyed here, not the full Material.
-            VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)
+            VulkanDescriptors.vkDestroyDescriptorSetLayout(
+                graphicsDevice.device,
+                pipelineLayoutMaterial.descriptorSetLayout.handle
+            )
             transferContext.destroy()
             graphicsDevice.destroy()
         }
+    }
+
+    private fun countPaintedPixels(pixels: ByteArray, xRange: IntRange, yRange: IntRange): Int {
+        var count = 0
+        for (y in yRange) {
+            for (x in xRange) {
+                val offset = (y * TARGET_SIZE + x) * 4
+                val r = pixels[offset].toInt() and 0xFF
+                val g = pixels[offset + 1].toInt() and 0xFF
+                val b = pixels[offset + 2].toInt() and 0xFF
+                if (r > PAINTED_CHANNEL_THRESHOLD || g > PAINTED_CHANNEL_THRESHOLD || b > PAINTED_CHANNEL_THRESHOLD) {
+                    count += 1
+                }
+            }
+        }
+        return count
     }
 
     private companion object {
         const val TARGET_SIZE = 128
         const val MAX_FRAMES_IN_FLIGHT = 1
         const val BASELINE_RESOURCE_PATH = "baselines/cube-headless.rgba"
+        const val MIN_SHARED_MATERIAL_REGION_PIXELS = 20
+        const val PAINTED_CHANNEL_THRESHOLD = 8
+        const val SHARED_CUBE_OFFSET_X = 0.9f
+        const val SHARED_MATERIAL_LEFT_MIN_X = 18
+        const val SHARED_MATERIAL_LEFT_MAX_X = 58
+        const val SHARED_MATERIAL_RIGHT_MIN_X = 70
+        const val SHARED_MATERIAL_RIGHT_MAX_X = 110
+        const val SHARED_MATERIAL_MIN_Y = 32
+        const val SHARED_MATERIAL_MAX_Y = 96
+        val SHARED_MATERIAL_LEFT_X = SHARED_MATERIAL_LEFT_MIN_X until SHARED_MATERIAL_LEFT_MAX_X
+        val SHARED_MATERIAL_RIGHT_X = SHARED_MATERIAL_RIGHT_MIN_X until SHARED_MATERIAL_RIGHT_MAX_X
+        val SHARED_MATERIAL_Y = SHARED_MATERIAL_MIN_Y until SHARED_MATERIAL_MAX_Y
 
         val cubeVertices = floatArrayOf(
             -0.5f, -0.5f, -0.5f, 0f, 0f, 0f, 0f, 0f, // v0

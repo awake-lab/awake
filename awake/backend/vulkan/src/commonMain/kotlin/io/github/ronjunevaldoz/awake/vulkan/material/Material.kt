@@ -38,19 +38,29 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
  * created (the pipeline layout references it), while the descriptor set itself can't be
  * written until a real [Texture] exists to read `sampler`/`imageView` from. So the
  * constructor only creates the layout; [createResources] (called once the texture is ready)
- * creates the uniform buffer, descriptor pool, and descriptor set.
+ * stores the texture binding. Per-frame/per-draw uniform buffers and descriptor sets are
+ * then created lazily when the renderer knows which frame-in-flight slot and draw occurrence
+ * this material is being used for.
  */
-class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: Int = DEFAULT_UNIFORM_FLOAT_COUNT) : RenderMaterial {
+class Material(
+    graphicsDevice: GraphicsDevice,
+    private val uniformFloatCount: Int = DEFAULT_UNIFORM_FLOAT_COUNT
+) : RenderMaterial {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
-    private val physicalDevice get() = graphicsDevice.physicalDevice
 
     val descriptorSetLayout: DescriptorSetLayoutHandle
 
     var descriptorPool: DescriptorPoolHandle = DescriptorPoolHandle(0)
+        private set
     var descriptorSet: DescriptorSetHandle = DescriptorSetHandle(0)
+        private set
     var uniformBuffer: BufferHandle = BufferHandle(0)
+        private set
     var uniformBufferMemory: DeviceMemoryHandle = DeviceMemoryHandle(0)
+        private set
+
+    private val uniformSlotsByFrame = mutableListOf<MutableList<UniformSlot>>()
 
     /** The sampler/image view this material was built with -- exposed (read-only) so
      * `UiTextureRenderPipeline` can bind the SAME sampled image into its own (screen-space
@@ -105,96 +115,96 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
     private fun createResources(sampler: Long, imageView: Long) {
         samplerHandle = sampler
         imageViewHandle = imageView
-        val bufferSize = (uniformFloatCount * Float.SIZE_BYTES).toLong()
-        val rawUniformBuffer = VulkanBuffers.vkCreateBuffer(
-            device,
-            VkBufferCreateInfo(
-                size = bufferSize,
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            )
-        )
-        val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, rawUniformBuffer)
-        val memoryTypeIndex = VulkanBuffers.findMemoryType(
-            physicalDevice,
-            memRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-        )
-        val rawUniformBufferMemory = VulkanBuffers.vkAllocateMemory(
-            device,
-            VkMemoryAllocateInfo(
-                allocationSize = memRequirements.size,
-                memoryTypeIndex = memoryTypeIndex
-            )
-        )
-        VulkanBuffers.vkBindBufferMemory(device, rawUniformBuffer, rawUniformBufferMemory, 0)
-        uniformBuffer = BufferHandle(rawUniformBuffer)
-        uniformBufferMemory = DeviceMemoryHandle(rawUniformBufferMemory)
+    }
 
-        val rawDescriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
-            device,
-            VkDescriptorPoolCreateInfo(
-                maxSets = 1,
-                pPoolSizes = arrayOf(
-                    VkDescriptorPoolSize(
-                        type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                        descriptorCount = 1
-                    ),
-                    VkDescriptorPoolSize(
-                        type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                        descriptorCount = 1
-                    )
-                )
+    private fun createUniformSlot(): UniformSlot {
+        require(samplerHandle != 0L && imageViewHandle != 0L) {
+            "Material resources must be created before allocating uniform slots."
+        }
+        val (rawUniformBuffer, rawUniformBufferMemory) = createMaterialUniformBuffer(
+            graphicsDevice,
+            uniformFloatCount
+        )
+        val rawDescriptorPool = createMaterialDescriptorPool(device)
+        val rawDescriptorSet = createMaterialDescriptorSet(
+            device = device,
+            descriptorPool = rawDescriptorPool,
+            bindings = MaterialDescriptorSetBindings(
+                descriptorSetLayout = descriptorSetLayout.handle,
+                uniformBuffer = rawUniformBuffer,
+                uniformFloatCount = uniformFloatCount,
+                sampler = samplerHandle,
+                imageView = imageViewHandle
             )
         )
-        descriptorPool = DescriptorPoolHandle(rawDescriptorPool)
+        return UniformSlot(
+            descriptorPool = DescriptorPoolHandle(rawDescriptorPool),
+            descriptorSet = DescriptorSetHandle(rawDescriptorSet),
+            uniformBuffer = BufferHandle(rawUniformBuffer),
+            uniformBufferMemory = DeviceMemoryHandle(rawUniformBufferMemory)
+        )
+    }
 
-        val rawDescriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(
-            device,
-            rawDescriptorPool,
-            descriptorSetLayout.handle
-        )
-        descriptorSet = DescriptorSetHandle(rawDescriptorSet)
-        VulkanDescriptors.vkUpdateDescriptorSetBuffer(
-            device,
-            rawDescriptorSet,
-            0,
-            VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            VkDescriptorBufferInfo(
-                buffer = rawUniformBuffer,
-                range = (uniformFloatCount * Float.SIZE_BYTES).toLong()
-            )
-        )
-        VulkanDescriptors.vkUpdateDescriptorSetImage(
-            device,
-            rawDescriptorSet,
-            1,
-            VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            VkDescriptorImageInfo(
-                sampler = sampler,
-                imageView = imageView
-            )
-        )
+    private fun uniformSlot(frameIndex: Int, drawSlotIndex: Int): UniformSlot {
+        require(frameIndex >= 0) { "frameIndex must be non-negative." }
+        require(drawSlotIndex >= 0) { "drawSlotIndex must be non-negative." }
+        while (uniformSlotsByFrame.size <= frameIndex) uniformSlotsByFrame.add(mutableListOf())
+        val frameSlots = uniformSlotsByFrame[frameIndex]
+        while (frameSlots.size <= drawSlotIndex) frameSlots += createUniformSlot()
+        val slot = frameSlots[drawSlotIndex]
+        if (frameIndex == 0 && drawSlotIndex == 0) {
+            descriptorPool = slot.descriptorPool
+            descriptorSet = slot.descriptorSet
+            uniformBuffer = slot.uniformBuffer
+            uniformBufferMemory = slot.uniformBufferMemory
+        }
+        return slot
     }
 
     /** Rewrites the whole uniform buffer with a new MVP matrix (column-major `FloatArray`,
-     * as produced by `Mat4.data`). Caller is responsible for the same serialization
-     * `VulkanApplication.drawFrame` already does around this (`vkDeviceWaitIdle` after every
-     * submit) -- this is a single shared buffer, not per-frame-in-flight. */
+     * as produced by `Mat4.data`). This compatibility overload targets frame/draw slot 0;
+     * the renderer's frame path uses [updateUniformBuffer] with explicit frame/draw slots so
+     * one shared material can be drawn multiple times without later draws overwriting earlier
+     * uniforms before the GPU consumes them. */
     override fun updateUniformBuffer(mvp: FloatArray) {
-        VulkanBuffers.writeBufferMemoryFloats(device, uniformBufferMemory.handle, 0, mvp)
+        updateUniformBuffer(frameIndex = 0, drawSlotIndex = 0, values = mvp)
+    }
+
+    fun updateUniformBuffer(frameIndex: Int, drawSlotIndex: Int, values: FloatArray) {
+        val slot = uniformSlot(frameIndex, drawSlotIndex)
+        VulkanBuffers.writeBufferMemoryFloats(device, slot.uniformBufferMemory.handle, 0, values)
     }
 
     override fun bind(commandBuffer: Long, pipelineLayout: Long) {
-        VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet.handle)
+        bind(commandBuffer, pipelineLayout, frameIndex = 0, drawSlotIndex = 0)
+    }
+
+    fun bind(commandBuffer: Long, pipelineLayout: Long, frameIndex: Int, drawSlotIndex: Int) {
+        VulkanDescriptors.vkCmdBindDescriptorSet(
+            commandBuffer,
+            pipelineLayout,
+            0,
+            uniformSlot(frameIndex, drawSlotIndex).descriptorSet.handle
+        )
     }
 
     override fun destroy() {
-        VulkanBuffers.vkDestroyBuffer(device, uniformBuffer.handle)
-        VulkanBuffers.vkFreeMemory(device, uniformBufferMemory.handle)
-        VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool.handle)
+        uniformSlotsByFrame.forEach { frameSlots ->
+            frameSlots.forEach { slot ->
+                VulkanBuffers.vkDestroyBuffer(device, slot.uniformBuffer.handle)
+                VulkanBuffers.vkFreeMemory(device, slot.uniformBufferMemory.handle)
+                VulkanDescriptors.vkDestroyDescriptorPool(device, slot.descriptorPool.handle)
+            }
+        }
         VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout.handle)
     }
+
+    private data class UniformSlot(
+        val descriptorPool: DescriptorPoolHandle,
+        val descriptorSet: DescriptorSetHandle,
+        val uniformBuffer: BufferHandle,
+        val uniformBufferMemory: DeviceMemoryHandle
+    )
 
     private companion object {
         /** A bare MVP matrix -- every material before skinning existed. A skinned material
@@ -203,3 +213,88 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
         const val DEFAULT_UNIFORM_FLOAT_COUNT = 16
     }
 }
+
+private fun createMaterialUniformBuffer(graphicsDevice: GraphicsDevice, uniformFloatCount: Int): Pair<Long, Long> {
+    val device = graphicsDevice.device
+    val rawUniformBuffer = VulkanBuffers.vkCreateBuffer(
+        device,
+        VkBufferCreateInfo(
+            size = (uniformFloatCount * Float.SIZE_BYTES).toLong(),
+            usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        )
+    )
+    val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, rawUniformBuffer)
+    val memoryTypeIndex = VulkanBuffers.findMemoryType(
+        graphicsDevice.physicalDevice,
+        memRequirements.memoryTypeBits,
+        VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    )
+    val rawUniformBufferMemory = VulkanBuffers.vkAllocateMemory(
+        device,
+        VkMemoryAllocateInfo(
+            allocationSize = memRequirements.size,
+            memoryTypeIndex = memoryTypeIndex
+        )
+    )
+    VulkanBuffers.vkBindBufferMemory(device, rawUniformBuffer, rawUniformBufferMemory, 0)
+    return rawUniformBuffer to rawUniformBufferMemory
+}
+
+private fun createMaterialDescriptorPool(device: Long): Long = VulkanDescriptors.vkCreateDescriptorPool(
+    device,
+    VkDescriptorPoolCreateInfo(
+        maxSets = 1,
+        pPoolSizes = arrayOf(
+            VkDescriptorPoolSize(
+                type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                descriptorCount = 1
+            ),
+            VkDescriptorPoolSize(
+                type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                descriptorCount = 1
+            )
+        )
+    )
+)
+
+private fun createMaterialDescriptorSet(
+    device: Long,
+    descriptorPool: Long,
+    bindings: MaterialDescriptorSetBindings
+): Long {
+    val rawDescriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(
+        device,
+        descriptorPool,
+        bindings.descriptorSetLayout
+    )
+    VulkanDescriptors.vkUpdateDescriptorSetBuffer(
+        device,
+        rawDescriptorSet,
+        0,
+        VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        VkDescriptorBufferInfo(
+            buffer = bindings.uniformBuffer,
+            range = (bindings.uniformFloatCount * Float.SIZE_BYTES).toLong()
+        )
+    )
+    VulkanDescriptors.vkUpdateDescriptorSetImage(
+        device,
+        rawDescriptorSet,
+        1,
+        VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        VkDescriptorImageInfo(
+            sampler = bindings.sampler,
+            imageView = bindings.imageView
+        )
+    )
+    return rawDescriptorSet
+}
+
+private data class MaterialDescriptorSetBindings(
+    val descriptorSetLayout: Long,
+    val uniformBuffer: Long,
+    val uniformFloatCount: Int,
+    val sampler: Long,
+    val imageView: Long
+)

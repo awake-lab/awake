@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -322,13 +321,11 @@ class Renderer(
         val offscreen = target as OffscreenRenderTarget
         val aspect = offscreen.width.toFloat() / offscreen.height.toFloat()
         val viewProjection = camera.viewProjectionMatrix(aspect)
-        var drawIndex = 0
-        while (drawIndex < drawCalls.size) {
-            val drawCall = drawCalls[drawIndex]
-            val mvp = drawCall.model * viewProjection
-            drawCall.material.updateUniformBuffer(mvp.data)
-            drawIndex += 1
-        }
+        val preparedDrawCalls = prepareDrawCalls(
+            frameIndex = commandBuffers.size,
+            viewProjection = viewProjection,
+            drawCalls = drawCalls
+        )
 
         runOffscreenCommands { commandBuffer ->
             val renderPassInfo = VkRenderPassBeginInfo(
@@ -343,7 +340,7 @@ class Renderer(
             Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
             val scissor = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height))
             Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
-            recordDrawCalls(commandBuffer, drawCalls)
+            recordDrawCalls(commandBuffer, preparedDrawCalls)
             Vulkan.vkCmdEndRenderPass(commandBuffer)
             offscreen.transitionToShaderReadOnly(commandBuffer)
         }

@@ -3,7 +3,9 @@
 package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.times
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
@@ -35,13 +37,13 @@ import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
  * functions rather than as members. */
 
 /** Renders one frame: waits for this frame-in-flight slot, acquires a swapchain image,
- * writes each [DrawCall]'s MVP matrix (model combined with [camera]'s view/projection)
- * into its own material's uniform buffer, records and submits a command buffer that
- * draws every call in order, then presents. Fully serializes frames afterward (see the
- * `vkDeviceWaitIdle` call below) so each material's single (not per-frame-in-flight)
- * uniform buffer can be safely rewritten every frame -- a real engine would double-buffer
- * those per frame-in-flight instead of paying this full-pipeline stall; deferred as a
- * later Phase 2 concern, unchanged from before this extraction.
+ * prepares each [DrawCall]'s MVP matrix (model combined with [camera]'s view/projection)
+ * into a concrete material uniform slot, records and submits a command buffer that draws
+ * every call in order, then presents. Material uniforms are no longer one shared mutable
+ * buffer per material -- the prepared draw list carries the exact frame/draw slot each bind
+ * must use, so one material can safely appear multiple times in the same frame. The final
+ * `vkDeviceWaitIdle` remains until the UI/debug dynamic-buffer paths get the same per-frame
+ * treatment.
  *
  * Named `performDraw`, not `draw` -- [Renderer]'s `override fun draw(...)` (the actual
  * `RenderRenderer` interface method) is a one-line delegate to this extension function; an
@@ -88,27 +90,12 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
     // Debug lines are already in world space (no per-line model matrix), so their MVP
     // is exactly this frame's viewProjection.
     lineRenderPipeline.writeMvp(viewProjection.data)
-    var drawIndex = 0
-    val drawCount = drawCalls.size
-    while (drawIndex < drawCount) {
-        val drawCall = drawCalls[drawIndex]
-        // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
-        // Camera.viewProjectionMatrix's docs), so `model * viewProjection` (Kotlin
-        // order) gives the conventional `projection * view * model`.
-        val mvp = drawCall.model * viewProjection
-        drawCall.material.updateUniformBuffer(mvp.data)
-        drawIndex += 1
-    }
-    var skinnedDrawIndex = 0
-    while (skinnedDrawIndex < pendingSkinnedDraws.size) {
-        val skinnedDraw = pendingSkinnedDraws[skinnedDrawIndex]
-        val mvp = skinnedDraw.model * viewProjection
-        skinnedDraw.material.updateUniformBuffer(mvp.data + skinnedDraw.jointPalette)
-        skinnedDrawIndex += 1
-    }
+    val materialUsage = mutableMapOf<RenderMaterial, Int>()
+    val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, drawCalls, materialUsage)
+    val preparedSkinnedDrawCalls = prepareSkinnedDrawCalls(currentFrame, viewProjection, materialUsage)
 
     Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
-    recordCommandBuffer(commandBuffers[currentFrame], imageIndex, drawCalls)
+    recordCommandBuffer(commandBuffers[currentFrame], imageIndex, preparedDrawCalls, preparedSkinnedDrawCalls)
 
     val waitSemaphores = arrayOf(swapchainManager.imageAvailableSemaphores[currentFrame])
     val waitStages =
@@ -148,19 +135,29 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
 /** Binds+draws each [drawCalls] entry against whatever render pass/pipeline is already
  * bound on [commandBuffer] -- shared by [recordCommandBuffer] (the swapchain frame) and
  * [Renderer.renderToTexture] (an offscreen frame), so the two don't duplicate this loop. */
-internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<DrawCall>) {
+internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<PreparedDrawCall>) {
     var drawIndex = 0
     val drawCount = drawCalls.size
     while (drawIndex < drawCount) {
-        val drawCall = drawCalls[drawIndex]
-        drawCall.mesh.bind(commandBuffer)
-        drawCall.material.bind(commandBuffer, renderPipeline.pipelineLayout)
-        drawCall.mesh.draw(commandBuffer)
+        val prepared = drawCalls[drawIndex]
+        prepared.drawCall.mesh.bind(commandBuffer)
+        prepared.material.bind(
+            commandBuffer,
+            renderPipeline.pipelineLayout,
+            prepared.frameIndex,
+            prepared.uniformSlotIndex
+        )
+        prepared.drawCall.mesh.draw(commandBuffer)
         drawIndex += 1
     }
 }
 
-internal fun Renderer.recordCommandBuffer(commandBuffer: Long, acquiredImageIndex: Int, drawCalls: List<DrawCall>) {
+internal fun Renderer.recordCommandBuffer(
+    commandBuffer: Long,
+    acquiredImageIndex: Int,
+    drawCalls: List<PreparedDrawCall>,
+    skinnedDrawCalls: List<PreparedSkinnedDrawCall>
+) {
     val beginInfo = VkCommandBufferBeginInfo(
         flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value,
     )
@@ -204,11 +201,16 @@ internal fun Renderer.recordCommandBuffer(commandBuffer: Long, acquiredImageInde
     if (skinnedPipeline != null) {
         skinnedPipeline.bind(commandBuffer)
         var skinnedDrawIndex = 0
-        while (skinnedDrawIndex < pendingSkinnedDraws.size) {
-            val skinnedDraw = pendingSkinnedDraws[skinnedDrawIndex]
-            skinnedDraw.mesh.bind(commandBuffer)
-            skinnedDraw.material.bind(commandBuffer, skinnedPipeline.pipelineLayout)
-            skinnedDraw.mesh.draw(commandBuffer)
+        while (skinnedDrawIndex < skinnedDrawCalls.size) {
+            val prepared = skinnedDrawCalls[skinnedDrawIndex]
+            prepared.drawCall.mesh.bind(commandBuffer)
+            prepared.material.bind(
+                commandBuffer,
+                skinnedPipeline.pipelineLayout,
+                prepared.frameIndex,
+                prepared.uniformSlotIndex
+            )
+            prepared.drawCall.mesh.draw(commandBuffer)
             skinnedDrawIndex += 1
         }
     }
@@ -295,7 +297,11 @@ internal fun Renderer.recordCommandBuffer(commandBuffer: Long, acquiredImageInde
                         while (textureIndex < run.primitives.size) {
                             val primitive = run.primitives[textureIndex]
                             val material = primitive.material as Material
-                            texturePipeline.bindMaterial(commandBuffer, material.samplerHandle, material.imageViewHandle)
+                            texturePipeline.bindMaterial(
+                                commandBuffer,
+                                material.samplerHandle,
+                                material.imageViewHandle
+                            )
                             quadMesh.update(primitive.vertices, primitive.indices)
                             quadMesh.bind(commandBuffer)
                             quadMesh.draw(commandBuffer)
@@ -323,6 +329,68 @@ internal fun Renderer.recordCommandBuffer(commandBuffer: Long, acquiredImageInde
     }
 
     Vulkan.vkEndCommandBuffer(commandBuffer)
+}
+
+internal data class PreparedDrawCall(
+    val drawCall: DrawCall,
+    val material: Material,
+    val frameIndex: Int,
+    val uniformSlotIndex: Int
+)
+
+internal data class PreparedSkinnedDrawCall(
+    val drawCall: Renderer.SkinnedDrawCall,
+    val material: Material,
+    val frameIndex: Int,
+    val uniformSlotIndex: Int
+)
+
+internal fun Renderer.prepareDrawCalls(
+    frameIndex: Int,
+    viewProjection: Mat4,
+    drawCalls: List<DrawCall>,
+    materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf()
+): List<PreparedDrawCall> {
+    val prepared = ArrayList<PreparedDrawCall>(drawCalls.size)
+    var drawIndex = 0
+    while (drawIndex < drawCalls.size) {
+        val drawCall = drawCalls[drawIndex]
+        val material = drawCall.material as Material
+        val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
+        // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
+        // Camera.viewProjectionMatrix's docs), so `model * viewProjection` (Kotlin
+        // order) gives the conventional `projection * view * model`.
+        val mvp = drawCall.model * viewProjection
+        material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data)
+        prepared += PreparedDrawCall(drawCall, material, frameIndex, uniformSlotIndex)
+        drawIndex += 1
+    }
+    return prepared
+}
+
+internal fun Renderer.prepareSkinnedDrawCalls(
+    frameIndex: Int,
+    viewProjection: Mat4,
+    materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf()
+): List<PreparedSkinnedDrawCall> {
+    val prepared = ArrayList<PreparedSkinnedDrawCall>(pendingSkinnedDraws.size)
+    var drawIndex = 0
+    while (drawIndex < pendingSkinnedDraws.size) {
+        val drawCall = pendingSkinnedDraws[drawIndex]
+        val material = drawCall.material as Material
+        val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
+        val mvp = drawCall.model * viewProjection
+        material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + drawCall.jointPalette)
+        prepared += PreparedSkinnedDrawCall(drawCall, material, frameIndex, uniformSlotIndex)
+        drawIndex += 1
+    }
+    return prepared
+}
+
+private fun MutableMap<RenderMaterial, Int>.nextSlot(material: RenderMaterial): Int {
+    val slot = this[material] ?: 0
+    this[material] = slot + 1
+    return slot
 }
 
 /** [Renderer.renderToTexture]/[Renderer.readPixels]'s own one-time-command runner -- see
@@ -374,7 +442,14 @@ internal fun Renderer.performDrawDebugLines(lines: List<LineSegment>) {
         val line = lines[lineIndex]
         val vertexBase = lineIndex * LineMesh.VERTICES_PER_LINE * LineMesh.FLOATS_PER_VERTEX
         writeLineVertex(vertices, vertexBase, line.start.x, line.start.y, line.start.z, line.color)
-        writeLineVertex(vertices, vertexBase + LineMesh.FLOATS_PER_VERTEX, line.end.x, line.end.y, line.end.z, line.color)
+        writeLineVertex(
+            vertices,
+            vertexBase + LineMesh.FLOATS_PER_VERTEX,
+            line.end.x,
+            line.end.y,
+            line.end.z,
+            line.color
+        )
         lineIndex += 1
     }
     lineMesh.update(vertices)
