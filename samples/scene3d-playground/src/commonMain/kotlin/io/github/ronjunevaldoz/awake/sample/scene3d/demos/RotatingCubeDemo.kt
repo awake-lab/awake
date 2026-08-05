@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
+import io.github.ronjunevaldoz.awake.scene.components.Light
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
@@ -54,6 +55,7 @@ internal object RotatingCubeDemo {
     private var cubeMesh: Mesh? = null
     private var material: Material? = null
     private var cubeEntity: Entity? = null
+    private var lightEntity: Entity? = null
 
     private const val GRID_SIZE = 10f
     private const val GRID_DIVISIONS = 10
@@ -109,10 +111,16 @@ internal object RotatingCubeDemo {
             if (!wireframe) world.add(cube, MeshRenderer(cubeMesh!!, material!!))
             cubeEntity = cube
             primaryCamera.spawn(world, cubeWorldPosition())
+            // Light() with all defaults exactly matches DEFAULT_SCENE_LIGHT (RenderSystem's
+            // fallback for a Light-less scene) -- so this demo's pixel baselines don't change
+            // while still exercising the real Light-entity lookup path, not just the fallback.
+            lightEntity = world.create().also { world.add(it, Light()) }
         },
         onDeactivate = { world ->
             cubeEntity?.let { world.destroy(it) }
             cubeEntity = null
+            lightEntity?.let { world.destroy(it) }
+            lightEntity = null
             primaryCamera.destroy(world)
         },
         onUpdate = { delta ->
