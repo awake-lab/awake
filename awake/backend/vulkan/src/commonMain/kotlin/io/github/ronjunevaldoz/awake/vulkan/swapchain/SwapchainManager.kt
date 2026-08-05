@@ -56,6 +56,7 @@ class SwapchainManager(
     val imageAvailableSemaphores = LongArray(maxFramesInFlight)
     val renderFinishedSemaphores = LongArray(maxFramesInFlight)
     val inFlightFences = LongArray(maxFramesInFlight)
+    internal var imagesInFlight = LongArray(0)
     var currentFrame = 0
 
     fun create() {
@@ -114,6 +115,7 @@ class SwapchainManager(
         swapChain = Vulkan.vkCreateSwapchainKHR(device, createInfo)
         extent = chosenExtent
         createImageViews()
+        imagesInFlight = LongArray(imageViews.size)
     }
 
     /** Desktop-only headless stand-in for [create] (see `GraphicsDevice.createHeadless`'s doc
@@ -128,6 +130,7 @@ class SwapchainManager(
     fun createHeadless(width: Int, height: Int, format: VkFormat = VkFormat.VK_FORMAT_R8G8B8A8_UNORM) {
         imageFormat = format
         extent = VkExtent2D(width, height)
+        imagesInFlight = LongArray(imageViews.size)
     }
 
     private fun createImageViews() {

@@ -81,6 +81,11 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
             else -> throw e
         }
     }
+    val imageFence = swapchainManager.imagesInFlight[imageIndex]
+    if (imageFence != 0L) {
+        Vulkan.vkWaitForFences(device, longArrayOf(imageFence), true, Long.MAX_VALUE)
+    }
+    swapchainManager.imagesInFlight[imageIndex] = swapchainManager.inFlightFences[currentFrame]
     Vulkan.vkResetFences(device, longArrayOf(swapchainManager.inFlightFences[currentFrame]))
 
     val aspect = swapchainManager.extent.width.toFloat() / swapchainManager.extent.height.toFloat()

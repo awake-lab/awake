@@ -69,6 +69,14 @@ class SwapchainManagerTest {
         assertEquals(3, imageCount)
     }
 
+    @Test
+    fun headlessSwapchainHasNoTrackedImages() {
+        val manager = SwapchainManager(GraphicsDevice(), maxFramesInFlight = 2)
+        manager.createHeadless(width = 320, height = 240)
+
+        assertEquals(0, manager.imagesInFlight.size)
+    }
+
     private fun swapchainManagerWithExtent(width: Int, height: Int): SwapchainManager =
         SwapchainManager(
             GraphicsDevice(),
