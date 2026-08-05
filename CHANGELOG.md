@@ -51,7 +51,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `PhysicsBody`/`PhysicsSystem`, `:awake:scene:controls` now owns
   `OrbitControl`/`FreeFlyControl`/`FollowControl`/`MovementControl` plus their camera
   systems, and `:awake:scene:runtime` now owns `SceneGameRuntime`, `SceneGameSpec`, the
-  scene document model, and `SceneAssetLibrary`. Public package names stay stable.
+  scene document model, and `SceneAssetLibrary`. `TransformSystem` moved to
+  `:awake:scene:core`; `PlayerControlSystem` moved into `:awake:scene-dsl` (it needs
+  `ui-core`). `:awake:scene-dsl` now depends on the specific scene leaf modules it uses
+  instead of the whole `:awake:scene` facade. Public package names stay stable.
 - **Maven Central publishing migrated off Sonatype's legacy OSSRH staging API**
   (`s01.oss.sonatype.org`), which Sonatype sunset in June 2025 — publishing would have failed
   outright had it been run. Now uses the vanniktech `maven-publish` plugin targeting the

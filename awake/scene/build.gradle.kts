@@ -65,18 +65,18 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            // Re-exported for facade consumers (see docs/tasks/2026-08-05-scene-module-split-
+            // proposal.md) -- `:awake:scene`'s own remaining source (the deprecated
+            // `SceneRuntime` bootstrap, `NavMesh`) doesn't itself need controls/physics/
+            // runtime, but published `awake-scene` consumers still expect them.
             api(project(":awake:scene:core"))
             api(project(":awake:scene:controls"))
             api(project(":awake:scene:physics"))
             api(project(":awake:scene:rendering"))
             api(project(":awake:scene:runtime"))
+            // Needed directly by SceneRuntime.kt/NavMesh.kt.
             api(project(":awake:base"))
             api(project(":awake:ecs"))
-            api(project(":awake:engine:game"))
-            api(project(":awake:engine:ui:ui-core"))
-            // Needed by SceneGameFrame.kt's frameStats() port -- textLayoutCacheStats() (and
-            // GameUiRuntime's own frameStats()) live in ui-unstyled, not ui-core.
-            implementation(project(":awake:engine:ui:ui-unstyled"))
             // Module restructuring slice 1 (see docs/MVP_PLAN.md): RenderSystem/MeshRenderer
             // only ever touch the backend-neutral Mesh/Material/Renderer/DrawCall contract,
             // never awake-vulkan's concrete Vulkan bindings -- depending on just the
@@ -87,12 +87,9 @@ kotlin {
             // contract, never a concrete backend (`awake:backend:jolt`) -- same restructuring
             // rationale as the render-api dependency above.
             api(project(":awake:physics:api"))
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

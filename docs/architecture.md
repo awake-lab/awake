@@ -64,7 +64,11 @@ flowchart TD
     sceneRendering --> scene
     sceneControls --> scene
     sceneRuntime --> scene
-    scene --> sceneDsl
+    sceneCore --> sceneDsl
+    sceneRendering --> sceneDsl
+    sceneControls --> sceneDsl
+    sceneRuntime --> sceneDsl
+    uiCore --> sceneDsl
     render --> game
     scene --> game
     game --> gameDsl
@@ -89,12 +93,12 @@ flowchart TD
 | `:awake-opengl` | Legacy OpenGL rendering backend | `awake-opengl` |
 | `:awake-ecs` | Sparse-set ECS runtime: entities, stores, queries, systems | `awake-ecs` |
 | `:awake-scene` | Published compatibility facade for scene runtime/components while scene internals split by capability | `awake-scene` |
-| `:awake-scene:core` | Scene core components such as `Transform`/`Name`; first internal split behind `awake-scene` | not published |
+| `:awake-scene:core` | Scene core components/systems such as `Transform`/`Name`/`TransformSystem`; first internal split behind `awake-scene` | not published |
 | `:awake-scene:physics` | Physics-facing scene components and systems: `PhysicsBody`, `PhysicsSystem` | not published |
 | `:awake-scene:rendering` | Render-facing scene components and systems: `Camera`, `Light`, `MeshRenderer`, `RenderSystem` | not published |
 | `:awake-scene:controls` | Reusable camera/movement control components and systems: `OrbitControl`, `FreeFlyControl`, `FollowControl`, `MovementControl`, and their camera systems | not published |
 | `:awake-scene:runtime` | `SceneGameRuntime`/`SceneGameSpec`/`SceneRouterSpec`, the scene document model (`SceneDocument`, `SceneLoader`, `SceneValidator`, `SceneInstantiationAdapter`), and `SceneAssetLibrary` -- moved as one unit since `SceneGameSpec` couples the runtime and document model directly | not published |
-| `:awake-scene-dsl` | Authored scene DSL (`sceneGame { ... }`, entities/assets/systems) on top of `awake:scene` | not published |
+| `:awake-scene-dsl` | Authored scene DSL (`sceneGame { ... }`, entities/assets/systems) on top of the scene leaf modules (`core`/`rendering`/`controls`/`runtime`), not the `awake:scene` facade; also owns `PlayerControlSystem` (needs `ui-core`) | not published |
 | `:awake-backend:vulkan` | Vulkan KMP bindings and JNI bridge | `awake-vulkan` |
 | `:awake-engine:game` | Backend-neutral game bootstrap and runtime glue | not published |
 | `:awake-engine:game-dsl` | Authored `game { ... }`/`gameSpec { ... }` entrypoint for assembling a game from `awake:engine:game` contracts | not published |

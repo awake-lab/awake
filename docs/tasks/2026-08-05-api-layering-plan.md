@@ -79,11 +79,11 @@ runtime. That is fine for iteration, but it should not be treated as final archi
 | `SceneGameRuntime`, `SceneGameSpec`, `SceneSystemPhase`, `SceneSystemHandle` | Scene runtime core | Moved to `:awake:scene:runtime` behind the `:awake:scene` facade. |
 | `SceneAssetLibrary`, mesh/material factory typealiases | Runtime helper/rendering boundary | Moved to `:awake:scene:runtime` -- `SceneGameSpec.assetLibraryFactory` couples it to the runtime directly. |
 | `Camera`, `Light`, `MeshRenderer`, `RenderSystem` | Rendering | Moved to `:awake:scene:rendering` behind the `:awake:scene` facade. Depends on render-api and should not define generic scene core. |
-| `TransformSystem` | Scene core/render preparation | Keep near `Transform` for now. If a rendering split happens, keep transform propagation in core and render submission in rendering. |
+| `TransformSystem` | Scene core/render preparation | Moved to `:awake:scene:core` behind the `:awake:scene` facade -- the rendering split happened, so per this row's own original condition, transform propagation now lives in core alongside `Transform`. |
 | `PhysicsBody`, `PhysicsSystem` | Physics | Moved to `:awake:scene:physics` behind the `:awake:scene` facade; depends on `awake:physics:api`. |
 | `OrbitControl`, `FreeFlyControl`, `FollowControl`, `MovementControl` | Controls | Moved to `:awake:scene:controls` behind the `:awake:scene` facade. |
 | `OrbitCameraSystem`, `FreeFlyCameraSystem`, `FollowCameraSystem` | Controls | Moved to `:awake:scene:controls` behind the `:awake:scene` facade. |
-| `PlayerControlSystem` | Controls/UI boundary smell | Depends on hardware input plus UI input ownership (`ui-core`'s `UiInputOwnership`). Stays in `:awake:scene`, not `:awake:scene:controls`, per that decision. |
+| `PlayerControlSystem` | Controls/UI boundary smell | Moved into `:awake:scene-dsl` directly (not `:awake:scene:controls`, not `:awake:scene`) -- depends on hardware input plus UI input ownership (`ui-core`'s `UiInputOwnership`), and `:awake:scene-dsl` is the "DSL/sample tooling" home this row's own original recommendation named. |
 | `PlayerMovementSystem`, `ChaseAiSystem` | Authored gameplay | Moved to `samples:scene3d-playground` gameplay systems. Do not keep scenario-specific systems in scene core. |
 | `NavMesh` | Navigation | Keep as a tiny contract for now; it may deserve a small navigation contract module later. |
 | `createScene3DDemoNavMesh()` | Sample-local | Moved to `samples:scene3d-playground`; no longer reusable scene API. |

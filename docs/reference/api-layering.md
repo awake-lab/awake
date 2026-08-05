@@ -108,7 +108,9 @@ Likely future shape:
   Published compatibility facade while scene internals split by capability.
 
 :awake:scene:core
-  Scene-domain core components. Currently owns Transform and Name.
+  Scene-domain core components. Currently owns Transform, Name, and TransformSystem
+  (moved here once the rendering split made "keep transform propagation in core" the
+  actual state, not just the plan).
 
 :awake:scene:rendering
   Render-facing scene components and systems, such as MeshRenderer and RenderSystem.
@@ -127,10 +129,14 @@ Likely future shape:
   model (SceneDocument/SceneLoader/SceneValidator/SceneInstantiationAdapter), and
   SceneAssetLibrary -- moved as one unit since SceneGameSpec couples the runtime and
   document model directly. The deprecated SceneRuntime bootstrap stays in :awake:scene
-  (depends on TransformSystem, which hasn't split out yet).
+  (depends on TransformSystem's package, unaffected by which module physically holds it,
+  but not worth moving before its planned removal).
 
 :awake:scene-dsl or :awake:scene:authoring
-  Declarative authoring sugar and demo-friendly builders.
+  Declarative authoring sugar and demo-friendly builders. Depends on
+  :awake:scene:core/:rendering/:controls/:runtime directly, not the :awake:scene facade
+  (Phase 5). Also owns PlayerControlSystem -- moved here instead of :awake:scene:controls
+  since it needs ui-core's UiInputOwnership and :awake:scene:controls stays UI-free.
 ```
 
 Current guidance: classify and document the API first, then split modules. Splitting before

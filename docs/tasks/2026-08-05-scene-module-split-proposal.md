@@ -53,9 +53,20 @@ The first physical split has started:
   yet, and moving it would have created a circular module dependency for no benefit to a
   deprecated class.
 - `:awake:scene` still acts as the published facade and re-exports all five modules.
+- `TransformSystem` moved to `:awake:scene:core` (it only ever needed `Transform`, and the
+  rendering split had already happened -- the condition the original plan set for this move).
+  `PlayerControlSystem` moved into `:awake:scene-dsl` directly, not `:awake:scene:controls`
+  (it needs `ui-core`'s `UiInputOwnership`, and `:awake:scene-dsl` is exactly the "DSL/sample
+  tooling" home the open-decisions section below already named for it).
+- `:awake:scene-dsl` now depends on `:awake:scene:core`/`:rendering`/`:controls`/`:runtime`
+  directly instead of the `:awake:scene` facade (Phase 5, "DSL Dependency Tightening") --
+  moving `TransformSystem`/`PlayerControlSystem` out of `:awake:scene` is what made this
+  possible; before that, `:awake:scene-dsl` had no narrower path to either of them.
 
-`TransformSystem`, `PlayerControlSystem`, and `NavMesh` are intentionally still in
-`:awake:scene` until their seams are clearer.
+`NavMesh` and the deprecated `SceneRuntime` bootstrap are intentionally still in
+`:awake:scene` -- `NavMesh` until it earns a real navigation module, `SceneRuntime` because
+it depends on `TransformSystem`'s and `RenderSystem`'s stable public package (unaffected by
+which module physically holds them) and isn't worth moving before its planned removal.
 
 ## Compatibility Strategy
 
