@@ -3,6 +3,7 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ConstructorParameterNaming:VkPhysicalDeviceFeatures.kt$VkPhysicalDeviceFeatures$val textureCompressionASTC_LDR: VkBool32 = false</ID>
+    <ID>CyclomaticComplexMethod:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, skinnedDrawCalls: List&lt;PreparedSkinnedDrawCall>, texturedDrawCalls: List&lt;PreparedTexturedDrawCall> )</ID>
     <ID>CyclomaticComplexMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
     <ID>CyclomaticComplexMethod:Vulkan.kt$@OptIn(ExperimentalForeignApi::class) private fun NativeVkPhysicalDeviceFeatures.fromKotlinModel(model: VkPhysicalDeviceFeatures)</ID>
     <ID>CyclomaticComplexMethod:Vulkan.kt$Vulkan$actual fun vkCreateGraphicsPipelines( device: Long, pipelineCache: Long, createInfos: Array&lt;VkGraphicsPipelineCreateInfo> ): LongArray</ID>
@@ -10,7 +11,7 @@
     <ID>LongMethod:LineRenderPipeline.kt$LineRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
     <ID>LongMethod:RenderPipeline.kt$RenderPipeline$private fun createGraphicsPipeline( descriptorSetLayout: DescriptorSetLayoutHandle, vertShaderCode: ByteArray, fragShaderCode: ByteArray, vertexFormat: VertexFormat, vertexEntryPoint: String, fragmentEntryPoint: String )</ID>
     <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>)</ID>
-    <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, skinnedDrawCalls: List&lt;PreparedSkinnedDrawCall> )</ID>
+    <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, skinnedDrawCalls: List&lt;PreparedSkinnedDrawCall>, texturedDrawCalls: List&lt;PreparedTexturedDrawCall> )</ID>
     <ID>LongMethod:RendererDrawUi.kt$fun Renderer.renderUiToTexture(target: RenderTarget, primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
     <ID>LongMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
     <ID>LongMethod:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$@Test fun headlessCubeRenderFrameTiming()</ID>
@@ -22,9 +23,11 @@
     <ID>LongMethod:Vulkan.kt$@OptIn(ExperimentalForeignApi::class) private fun platform.MoltenVK.VkPhysicalDeviceLimits.toKotlinModel(): VkPhysicalDeviceLimits</ID>
     <ID>LongMethod:Vulkan.kt$Vulkan$actual fun vkCreateGraphicsPipelines( device: Long, pipelineCache: Long, createInfos: Array&lt;VkGraphicsPipelineCreateInfo> ): LongArray</ID>
     <ID>LongMethod:Vulkan.kt$Vulkan$actual fun vkCreateRenderPass(device: Long, createInfo: VkRenderPassCreateInfo): Long</ID>
+    <ID>LongMethod:VulkanGameApplication.kt$VulkanGameApplication$override suspend fun createBackendResources(window: Any): BackendResources</ID>
     <ID>LongMethod:VulkanImages.kt$VulkanImages$actual fun vkTransitionImageLayout( commandBuffer: Long, image: Long, oldLayout: Int, newLayout: Int, levelCount: Int )</ID>
     <ID>LongParameterList:RenderPipeline.kt$RenderPipeline$( descriptorSetLayout: DescriptorSetLayoutHandle, vertShaderCode: ByteArray, fragShaderCode: ByteArray, vertexFormat: VertexFormat, vertexEntryPoint: String, fragmentEntryPoint: String )</ID>
-    <ID>LongParameterList:Renderer.kt$Renderer$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, renderPipeline: RenderPipeline, /** A second, optional 3D pipeline for GPU-skinned meshes -- see [drawSkinnedMesh]'s doc * comment for why one fixed-vertex-format [renderPipeline] can't also draw a skinned * mesh's different vertex layout. `null` for every game that never calls * [drawSkinnedMesh] (most of them) -- built eagerly, same as [renderPipeline] itself, * by whichever `GameApplication` bootstrap opts into it (shader loading is `suspend`, * so it can't be built lazily on first [drawSkinnedMesh] call the way the UI pipelines * below are). */ internal val skinnedRenderPipeline: RenderPipeline? = null, internal val lineRenderPipeline: LineRenderPipeline, internal val transferContext: TransferContext, internal val uiShaders: ShaderPair, internal val uiGlyphShaders: ShaderPair, internal val uiTextureShaders: ShaderPair, internal val uiRoundedQuadShaders: ShaderPair, internal val maxFramesInFlight: Int )</ID>
+    <ID>LongParameterList:Renderer.kt$Renderer$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, renderPipeline: RenderPipeline, /** A second, optional 3D pipeline for GPU-skinned meshes -- see [drawSkinnedMesh]'s doc * comment for why one fixed-vertex-format [renderPipeline] can't also draw a skinned * mesh's different vertex layout. `null` for every game that never calls * [drawSkinnedMesh] (most of them) -- built eagerly, same as [renderPipeline] itself, * by whichever `GameApplication` bootstrap opts into it (shader loading is `suspend`, * so it can't be built lazily on first [drawSkinnedMesh] call the way the UI pipelines * below are). */ internal val skinnedRenderPipeline: RenderPipeline? = null, /** A third, optional 3D pipeline for meshes with a real `baseColorTexture` -- see * [drawTexturedMesh]'s doc comment. Same "built eagerly, opt-in per bootstrap" shape as * [skinnedRenderPipeline]. */ internal val texturedRenderPipeline: RenderPipeline? = null, internal val lineRenderPipeline: LineRenderPipeline, internal val transferContext: TransferContext, internal val uiShaders: ShaderPair, internal val uiGlyphShaders: ShaderPair, internal val uiTextureShaders: ShaderPair, internal val uiRoundedQuadShaders: ShaderPair, internal val maxFramesInFlight: Int )</ID>
+    <ID>LongParameterList:RendererDraw3D.kt$( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, skinnedDrawCalls: List&lt;PreparedSkinnedDrawCall>, texturedDrawCalls: List&lt;PreparedTexturedDrawCall> )</ID>
     <ID>LongParameterList:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.Companion$( label: String, font: io.github.ronjunevaldoz.awake.ui.font.UiFont, x: Float, y: Float, scale: Float, color: Color )</ID>
     <ID>LongParameterList:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.HeadlessUiRendererFixture$( val graphicsDevice: GraphicsDevice, val swapchainManager: SwapchainManager, val pipelineLayoutMaterial: Material, val renderPipeline: RenderPipeline, val lineRenderPipeline: LineRenderPipeline, val transferContext: TransferContext, val renderer: Renderer )</ID>
     <ID>LongParameterList:UiAnimationFrameCapture.kt$HeadlessUiRendererFixture$( private val graphicsDevice: GraphicsDevice, private val swapchainManager: SwapchainManager, private val pipelineLayoutMaterial: Material, private val renderPipeline: RenderPipeline, private val lineRenderPipeline: LineRenderPipeline, private val transferContext: TransferContext, val renderer: Renderer )</ID>
@@ -138,7 +141,6 @@
     <ID>MatchingDeclarationName:swapChain.kt$SwapChainSupportDetails</ID>
     <ID>MaxLineLength:GlfwWindowInput.kt$RealGlfwWindowInput$override fun isMouseButtonDown(glfwButton: Int): Boolean</ID>
     <ID>MaxLineLength:GraphicsDevice.kt$GraphicsDevice$val glfwExtensions = if (includeGlfwExtensions) VulkanWindow.glfwGetRequiredInstanceExtensions().toList() else emptyList()</ID>
-    <ID>MaxLineLength:RendererDraw3D.kt$recordCommandBuffer(commandBuffers[currentFrame], currentFrame, imageIndex, preparedDrawCalls, preparedSkinnedDrawCalls)</ID>
     <ID>MaxLineLength:RendererDrawUi.kt$if</ID>
     <ID>MaxLineLength:RendererDrawUi.kt$internal fun canExactClip(paths: List&lt;UiPath>): Boolean</ID>
     <ID>MaxLineLength:RendererDrawUi.kt$quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "gradient-quad")</ID>
@@ -198,7 +200,7 @@
     <ID>MaxLineLength:Vulkan.kt$Vulkan$pQueuePriorities = allocArray(queueInfo.pQueuePriorities.size) { i -> value = queueInfo.pQueuePriorities[i] }</ID>
     <ID>MaxLineLength:Vulkan.kt$Vulkan$val</ID>
     <ID>MaxLineLength:VulkanImages.kt$VulkanImages$/**</ID>
-    <ID>NestedBlockDepth:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, skinnedDrawCalls: List&lt;PreparedSkinnedDrawCall> )</ID>
+    <ID>NestedBlockDepth:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, skinnedDrawCalls: List&lt;PreparedSkinnedDrawCall>, texturedDrawCalls: List&lt;PreparedTexturedDrawCall> )</ID>
     <ID>NestedBlockDepth:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
     <ID>TooGenericExceptionThrown:GraphicsDevice.kt$GraphicsDevice$throw Exception("Cannot find suitable gpu!")</ID>
     <ID>TooGenericExceptionThrown:GraphicsDevice.kt$GraphicsDevice$throw Exception("GPU graphics / Presentation not supported")</ID>

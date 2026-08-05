@@ -10,7 +10,11 @@ package io.github.ronjunevaldoz.awake.core.mesh.gltf
  * values used when interleaving a primitive that's missing one. [jointIndices]/[jointWeights]
  * are `null` unless the primitive had `JOINTS_0`/`WEIGHTS_0` (a skinned mesh) -- 4 values per
  * vertex either way, `jointIndices[i*4 + k]` is vertex `i`'s `k`-th joint index (widened from
- * glTF's `ubyte4`/`ushort4`), `jointWeights[i*4 + k]` its blend weight.
+ * glTF's `ubyte4`/`ushort4`), `jointWeights[i*4 + k]` its blend weight. [baseColorImageBytes]
+ * is the primitive's material's `baseColorTexture` image, still encoded (PNG/JPEG, whatever
+ * bytes the glTF file embedded) -- `null` unless the primitive has a material with one.
+ * Decoding is deliberately not this parser's job (a platform concern, not a glTF-parsing one)
+ * -- see `io.github.ronjunevaldoz.awake.core.graphics.createBitmap`.
  */
 data class GltfMesh(
     val positions: FloatArray,
@@ -19,7 +23,8 @@ data class GltfMesh(
     val uvs: FloatArray?,
     val indices: IntArray,
     val jointIndices: IntArray? = null,
-    val jointWeights: FloatArray? = null
+    val jointWeights: FloatArray? = null,
+    val baseColorImageBytes: ByteArray? = null
 ) {
     val vertexCount: Int get() = positions.size / POSITION_COMPONENTS
 
@@ -102,6 +107,52 @@ data class GltfMesh(
     }
 
     /**
+     * Interleaves into position(vec3)+normal(vec3)+color(vec3)+uv(vec2) -- 11 floats/vertex --
+     * layout [io.github.ronjunevaldoz.awake.render.mesh.VertexFormat.PositionNormalColorUv]
+     * describes, for a shader that samples [baseColorImageBytes] using [uvs]. Missing
+     * [normals]/[colors] default the same way [toInterleavedPositionNormalColor] does; missing
+     * [uvs] default to `(0, 0)`, same as [toInterleavedPositionColorUv].
+     */
+    fun toInterleavedPositionNormalColorUv(): FloatArray {
+        val result = FloatArray(vertexCount * TEXTURED_VERTEX_STRIDE_COMPONENTS)
+        for (i in 0 until vertexCount) {
+            val out = i * TEXTURED_VERTEX_STRIDE_COMPONENTS
+            result[out] = positions[i * POSITION_COMPONENTS]
+            result[out + 1] = positions[i * POSITION_COMPONENTS + 1]
+            result[out + 2] = positions[i * POSITION_COMPONENTS + 2]
+
+            if (normals != null) {
+                result[out + 3] = normals[i * NORMAL_COMPONENTS]
+                result[out + 4] = normals[i * NORMAL_COMPONENTS + 1]
+                result[out + 5] = normals[i * NORMAL_COMPONENTS + 2]
+            } else {
+                result[out + 3] = 0f
+                result[out + 4] = 1f
+                result[out + 5] = 0f
+            }
+
+            if (colors != null) {
+                result[out + 6] = colors[i * COLOR_COMPONENTS]
+                result[out + 7] = colors[i * COLOR_COMPONENTS + 1]
+                result[out + 8] = colors[i * COLOR_COMPONENTS + 2]
+            } else {
+                result[out + 6] = 1f
+                result[out + 7] = 1f
+                result[out + 8] = 1f
+            }
+
+            if (uvs != null) {
+                result[out + 9] = uvs[i * UV_COMPONENTS]
+                result[out + 10] = uvs[i * UV_COMPONENTS + 1]
+            } else {
+                result[out + 9] = 0f
+                result[out + 10] = 0f
+            }
+        }
+        return result
+    }
+
+    /**
      * Interleaves into position(vec3)+normal(vec3)+color(vec3)+jointIndices(uint4)+
      * jointWeights(vec4) -- 17 floats/vertex, matching
      * [io.github.ronjunevaldoz.awake.render.mesh.VertexFormat.PositionNormalColorSkin]. Missing
@@ -158,6 +209,7 @@ data class GltfMesh(
         const val JOINT_COMPONENTS = 4
         const val VERTEX_STRIDE_COMPONENTS = 8
         const val NORMAL_VERTEX_STRIDE_COMPONENTS = 9
+        const val TEXTURED_VERTEX_STRIDE_COMPONENTS = 11
         const val SKINNED_VERTEX_STRIDE_COMPONENTS = 17
     }
 }

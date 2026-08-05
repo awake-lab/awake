@@ -1,23 +1,18 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.sample.scene3d.demos
+package io.github.ronjunevaldoz.awake.core.mesh.gltf
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Quat
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedAnimation
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedAnimationSampler
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedSkin
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedSkinnedScene
 
 /**
  * Samples a [LoadedAnimation] at a given time into a working copy of every node's TRS, then
  * walks [scene]'s node hierarchy to turn a [LoadedSkin]'s joints into the flat joint-matrix
  * palette a skinned material's uniform buffer expects. One player per loaded scene (holds its
- * own mutable per-node TRS state) -- see [SkinnedMeshDemo] for how [ManualTimeController]
- * drives [sample]'s `timeSeconds` the same way it already drives [RotatingCubeDemo]'s spin.
+ * own mutable per-node TRS state).
  */
-internal class SkinnedAnimationPlayer(private val scene: LoadedSkinnedScene) {
+class SkinnedAnimationPlayer(private val scene: LoadedSkinnedScene) {
     private val currentTranslation = Array(scene.nodes.size) { scene.nodes[it].translation }
     private val currentRotation = Array(scene.nodes.size) { scene.nodes[it].rotation }
     private val currentScale = Array(scene.nodes.size) { scene.nodes[it].scale }
@@ -70,9 +65,9 @@ internal class SkinnedAnimationPlayer(private val scene: LoadedSkinnedScene) {
 
     /** Every joint's current global transform (walking [scene]'s node hierarchy from its own
      * roots, multiplying local transforms along the way -- same [Mat4.multiplyColumnMajor]
-     * convention [io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.parseScene] itself
-     * uses) times that joint's own inverse-bind matrix, flattened into `16 * skin.joints.size`
-     * floats -- exactly the layout `skinned.wgsl`'s `jointPalette` uniform array expects. */
+     * convention [GltfParser.parseScene] itself uses) times that joint's own inverse-bind
+     * matrix, flattened into `16 * skin.joints.size` floats -- exactly the layout `skinned.wgsl`'s
+     * `jointPalette` uniform array expects. */
     fun jointPalette(skin: LoadedSkin): FloatArray {
         val globalTransforms = arrayOfNulls<Mat4>(scene.nodes.size)
 

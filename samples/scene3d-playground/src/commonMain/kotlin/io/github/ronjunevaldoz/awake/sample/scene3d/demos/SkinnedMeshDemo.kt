@@ -3,11 +3,15 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedAnimation
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedSkin
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedSkinnedScene
+import io.github.ronjunevaldoz.awake.core.mesh.gltf.SkinnedAnimationPlayer
+import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.material.Material
@@ -22,7 +26,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFiel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import kotlin.math.sqrt
 
 /**
  * Real GPU-skinned glTF viewer -- loads Khronos's `CesiumMan.gltf` reference sample (`assets/
@@ -89,20 +92,6 @@ internal object SkinnedMeshDemo {
         camera.zoom = modelRadius * 2.5f
         camera.panRange = modelRadius * 2f
         camera.far = camera.zoomMax * 2f
-    }
-
-    private fun boundingRadius(positions: FloatArray): Float {
-        var maxDistanceSquared = 0f
-        var i = 0
-        while (i < positions.size) {
-            val x = positions[i]
-            val y = positions[i + 1]
-            val z = positions[i + 2]
-            val distanceSquared = x * x + y * y + z * z
-            if (distanceSquared > maxDistanceSquared) maxDistanceSquared = distanceSquared
-            i += 3
-        }
-        return if (maxDistanceSquared > 0f) sqrt(maxDistanceSquared) else 1f
     }
 
     val entry = Scene3DDemo(

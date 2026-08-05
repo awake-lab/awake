@@ -48,7 +48,9 @@ class RendererHeadlessFrameTimingTest {
             swapchainManager,
             pipelineLayoutMaterial.descriptorSetLayout,
             runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
-            VertexFormat.PositionColorUv
+            VertexFormat.PositionColorUv,
+            vertexEntryPoint = "vertexMain",
+            fragmentEntryPoint = "fragmentMain"
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
@@ -62,6 +64,7 @@ class RendererHeadlessFrameTimingTest {
             graphicsDevice,
             swapchainManager,
             renderPipeline,
+            null,
             null,
             lineRenderPipeline,
             transferContext,

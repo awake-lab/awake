@@ -18,6 +18,7 @@
     <ID>MagicNumber:Frustum.kt$Frustum$5</ID>
     <ID>MagicNumber:Frustum.kt$Frustum$6</ID>
     <ID>MagicNumber:Frustum.kt$Frustum$7</ID>
+    <ID>MagicNumber:GltfMesh.kt$GltfMesh$10</ID>
     <ID>MagicNumber:GltfMesh.kt$GltfMesh$13</ID>
     <ID>MagicNumber:GltfMesh.kt$GltfMesh$3</ID>
     <ID>MagicNumber:GltfMesh.kt$GltfMesh$4</ID>
@@ -32,12 +33,18 @@
     <ID>MagicNumber:GltfParser.kt$GltfParser$3</ID>
     <ID>MagicNumber:GltfParser.kt$GltfParser$4</ID>
     <ID>MagicNumber:GltfParser.kt$GltfParser$8</ID>
+    <ID>MagicNumber:OrbitCameraController.kt$OrbitCameraController$0.1f</ID>
+    <ID>MagicNumber:OrbitCameraController.kt$OrbitCameraController$100f</ID>
+    <ID>MagicNumber:OrbitCameraController.kt$OrbitCameraController$45f</ID>
     <ID>MagicNumber:PixelProbe.kt$4</ID>
     <ID>MagicNumber:Pixmap.kt$4</ID>
     <ID>MagicNumber:Pixmap.kt$Pixmap$0xFF</ID>
     <ID>MagicNumber:Pixmap.kt$Pixmap$16</ID>
     <ID>MagicNumber:Pixmap.kt$Pixmap$24</ID>
     <ID>MagicNumber:Pixmap.kt$Pixmap$8</ID>
+    <ID>MagicNumber:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$16</ID>
+    <ID>MagicNumber:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$3</ID>
+    <ID>MagicNumber:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$4</ID>
     <ID>MagicNumber:gameloop.android.kt$AndroidGameLoop$1000</ID>
     <ID>MagicNumber:gameloop.android.kt$AndroidGameLoop$1_000_000</ID>
     <ID>MagicNumber:gameloop.android.kt$AndroidGameLoop$1e9</ID>
@@ -79,7 +86,12 @@
     <ID>MatchingDeclarationName:gameloop.kt$GameLoop</ID>
     <ID>MatchingDeclarationName:matrix.kt$Mat4</ID>
     <ID>MaxLineLength:GltfParser.kt$GltfParser$val values = readFloatAccessor(document, buffers, sampler.output, componentsPerElement = componentsPerKeyframe)</ID>
+    <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$FloatArray(comps) { i -> sampler.values[loBase + i] + (sampler.values[hiBase + i] - sampler.values[loBase + i]) * t }</ID>
+    <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$val a = Quat(sampler.values[loBase], sampler.values[loBase + 1], sampler.values[loBase + 2], sampler.values[loBase + 3])</ID>
+    <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$val b = Quat(sampler.values[hiBase], sampler.values[hiBase + 1], sampler.values[hiBase + 2], sampler.values[hiBase + 3])</ID>
+    <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$val local = node.matrix ?: Mat4.fromTrs(currentTranslation[nodeIndex], currentRotation[nodeIndex], currentScale[nodeIndex])</ID>
     <ID>ReturnCount:AndroidInputBridge.kt$fun MotionEvent.syncAwakePointerInput(input: Input): Boolean</ID>
+    <ID>ReturnCount:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$private fun sampleChannel(sampler: LoadedAnimationSampler, timeSeconds: Float): FloatArray</ID>
     <ID>TooManyFunctions:GltfParser.kt$GltfParser</ID>
     <ID>UnusedPrivateProperty:Bitmap.kt$val bytesPerRow = CGImageGetBytesPerRow(cgImage)</ID>
   </CurrentIssues>

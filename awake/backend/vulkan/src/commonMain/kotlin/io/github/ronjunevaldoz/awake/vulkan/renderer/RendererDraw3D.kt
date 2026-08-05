@@ -96,9 +96,17 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
     val materialUsage = mutableMapOf<RenderMaterial, Int>()
     val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, drawCalls, materialUsage)
     val preparedSkinnedDrawCalls = prepareSkinnedDrawCalls(currentFrame, viewProjection, materialUsage)
+    val preparedTexturedDrawCalls = prepareTexturedDrawCalls(currentFrame, viewProjection, materialUsage)
 
     Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
-    recordCommandBuffer(commandBuffers[currentFrame], currentFrame, imageIndex, preparedDrawCalls, preparedSkinnedDrawCalls)
+    recordCommandBuffer(
+        commandBuffers[currentFrame],
+        currentFrame,
+        imageIndex,
+        preparedDrawCalls,
+        preparedSkinnedDrawCalls,
+        preparedTexturedDrawCalls
+    )
 
     val waitSemaphores = arrayOf(swapchainManager.imageAvailableSemaphores[currentFrame])
     val waitStages =
@@ -158,7 +166,8 @@ internal fun Renderer.recordCommandBuffer(
     frameIndex: Int,
     acquiredImageIndex: Int,
     drawCalls: List<PreparedDrawCall>,
-    skinnedDrawCalls: List<PreparedSkinnedDrawCall>
+    skinnedDrawCalls: List<PreparedSkinnedDrawCall>,
+    texturedDrawCalls: List<PreparedTexturedDrawCall>
 ) {
     val beginInfo = VkCommandBufferBeginInfo(
         flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value,
@@ -217,6 +226,25 @@ internal fun Renderer.recordCommandBuffer(
         }
     }
     pendingSkinnedDraws.clear()
+
+    val texturedPipeline = texturedRenderPipeline
+    if (texturedPipeline != null) {
+        texturedPipeline.bind(commandBuffer)
+        var texturedDrawIndex = 0
+        while (texturedDrawIndex < texturedDrawCalls.size) {
+            val prepared = texturedDrawCalls[texturedDrawIndex]
+            prepared.drawCall.mesh.bind(commandBuffer)
+            prepared.material.bind(
+                commandBuffer,
+                texturedPipeline.pipelineLayout,
+                prepared.frameIndex,
+                prepared.uniformSlotIndex
+            )
+            prepared.drawCall.mesh.draw(commandBuffer)
+            texturedDrawIndex += 1
+        }
+    }
+    pendingTexturedDraws.clear()
 
     Vulkan.vkCmdEndRenderPass(commandBuffer)
 
@@ -397,6 +425,32 @@ internal fun Renderer.prepareSkinnedDrawCalls(
         val mvp = drawCall.model * viewProjection
         material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + drawCall.jointPalette)
         prepared += PreparedSkinnedDrawCall(drawCall, material, frameIndex, uniformSlotIndex)
+        drawIndex += 1
+    }
+    return prepared
+}
+
+internal data class PreparedTexturedDrawCall(
+    val drawCall: Renderer.TexturedDrawCall,
+    val material: Material,
+    val frameIndex: Int,
+    val uniformSlotIndex: Int
+)
+
+internal fun Renderer.prepareTexturedDrawCalls(
+    frameIndex: Int,
+    viewProjection: Mat4,
+    materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf()
+): List<PreparedTexturedDrawCall> {
+    val prepared = ArrayList<PreparedTexturedDrawCall>(pendingTexturedDraws.size)
+    var drawIndex = 0
+    while (drawIndex < pendingTexturedDraws.size) {
+        val drawCall = pendingTexturedDraws[drawIndex]
+        val material = drawCall.material as Material
+        val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
+        val mvp = drawCall.model * viewProjection
+        material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data)
+        prepared += PreparedTexturedDrawCall(drawCall, material, frameIndex, uniformSlotIndex)
         drawIndex += 1
     }
     return prepared

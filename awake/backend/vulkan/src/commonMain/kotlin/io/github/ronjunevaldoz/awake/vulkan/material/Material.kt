@@ -83,9 +83,22 @@ class Material(
                             // MVP matrix is only ever read in the vertex shader now.
                             stageFlags = VkShaderStageFlagBits.VERTEX.value
                         ),
+                        // Two separate bindings (image + sampler), not one combined-image-
+                        // sampler -- WGSL has no combined-sampler type at all, so naga always
+                        // compiles a `texture_2d` + `sampler` pair to two separate SPIR-V
+                        // bindings (confirmed via spirv-dis on textured.wgsl's own output).
+                        // Every material gets both regardless of whether its own shader
+                        // actually samples a texture (triangle.wgsl/skinned.wgsl's pipeline
+                        // layouts simply never read them) -- one shared Material shape is
+                        // simpler than a per-shader descriptor-layout variant.
                         VkDescriptorSetLayoutBinding(
                             binding = 1,
-                            descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                            descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                            stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+                        ),
+                        VkDescriptorSetLayoutBinding(
+                            binding = 2,
+                            descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
                             stageFlags = VkShaderStageFlagBits.FRAGMENT.value
                         )
                     )
@@ -251,7 +264,11 @@ private fun createMaterialDescriptorPool(device: Long): Long = VulkanDescriptors
                 descriptorCount = 1
             ),
             VkDescriptorPoolSize(
-                type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                type = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                descriptorCount = 1
+            ),
+            VkDescriptorPoolSize(
+                type = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
                 descriptorCount = 1
             )
         )
@@ -278,14 +295,27 @@ private fun createMaterialDescriptorSet(
             range = (bindings.uniformFloatCount * Float.SIZE_BYTES).toLong()
         )
     )
+    // Two separate writes -- see the descriptor set layout's own comment for why. Vulkan
+    // ignores whichever of sampler/imageView doesn't apply to a given descriptorType, so
+    // passing 0 (VK_NULL_HANDLE) for the other field each time is correct, not just harmless.
     VulkanDescriptors.vkUpdateDescriptorSetImage(
         device,
         rawDescriptorSet,
         1,
-        VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+        VkDescriptorImageInfo(
+            sampler = 0L,
+            imageView = bindings.imageView
+        )
+    )
+    VulkanDescriptors.vkUpdateDescriptorSetImage(
+        device,
+        rawDescriptorSet,
+        2,
+        VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
         VkDescriptorImageInfo(
             sampler = bindings.sampler,
-            imageView = bindings.imageView
+            imageView = 0L
         )
     )
     return rawDescriptorSet

@@ -3,7 +3,9 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
@@ -22,7 +24,6 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import kotlinx.coroutines.runBlocking
-import kotlin.math.sqrt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -84,6 +85,7 @@ class GltfViewerDeterminismTest {
             graphicsDevice,
             swapchainManager,
             renderPipeline,
+            null,
             null,
             lineRenderPipeline,
             transferContext,
@@ -147,20 +149,6 @@ class GltfViewerDeterminismTest {
             transferContext.destroy()
             graphicsDevice.destroy()
         }
-    }
-
-    private fun boundingRadius(positions: FloatArray): Float {
-        var maxDistanceSquared = 0f
-        var i = 0
-        while (i < positions.size) {
-            val x = positions[i]
-            val y = positions[i + 1]
-            val z = positions[i + 2]
-            val distanceSquared = x * x + y * y + z * z
-            if (distanceSquared > maxDistanceSquared) maxDistanceSquared = distanceSquared
-            i += 3
-        }
-        return if (maxDistanceSquared > 0f) sqrt(maxDistanceSquared) else 1f
     }
 
     private suspend fun loadShaderPair(vertexPath: String, fragmentPath: String): ShaderPair =

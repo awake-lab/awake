@@ -1,16 +1,10 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.sample.scene3d.demos
+package io.github.ronjunevaldoz.awake.core.mesh.gltf
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Quat
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedAnimation
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedAnimationChannel
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedAnimationSampler
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedNode
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedSkin
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedSkinnedScene
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

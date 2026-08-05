@@ -92,6 +92,10 @@ class Renderer(
      * so it can't be built lazily on first [drawSkinnedMesh] call the way the UI pipelines
      * below are). */
     internal val skinnedRenderPipeline: RenderPipeline? = null,
+    /** A third, optional 3D pipeline for meshes with a real `baseColorTexture` -- see
+     * [drawTexturedMesh]'s doc comment. Same "built eagerly, opt-in per bootstrap" shape as
+     * [skinnedRenderPipeline]. */
+    internal val texturedRenderPipeline: RenderPipeline? = null,
     internal val lineRenderPipeline: LineRenderPipeline,
     internal val transferContext: TransferContext,
     internal val uiShaders: ShaderPair,
@@ -182,6 +186,22 @@ class Renderer(
 
     override fun drawSkinnedMesh(mesh: RenderMesh, material: RenderMaterial, model: Mat4, jointPalette: FloatArray) {
         pendingSkinnedDraws += SkinnedDrawCall(mesh, material, model, jointPalette)
+    }
+
+    /** One [drawTexturedMesh] call's staged draw -- same "stage now, resolve at draw time"
+     * shape as [SkinnedDrawCall], minus the joint palette. */
+    internal data class TexturedDrawCall(
+        val mesh: RenderMesh,
+        val material: RenderMaterial,
+        val model: Mat4
+    )
+
+    // Staged by drawTexturedMesh(), consumed and cleared every performDraw() frame -- see
+    // pendingSkinnedDraws' own doc comment for the shared contract.
+    internal val pendingTexturedDraws = mutableListOf<TexturedDrawCall>()
+
+    override fun drawTexturedMesh(mesh: RenderMesh, material: RenderMaterial, model: Mat4) {
+        pendingTexturedDraws += TexturedDrawCall(mesh, material, model)
     }
 
     // Textures created on demand by createMaterial() -- Renderer (not Material) owns their

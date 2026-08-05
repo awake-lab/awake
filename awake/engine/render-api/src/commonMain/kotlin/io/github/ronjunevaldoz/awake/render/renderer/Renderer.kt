@@ -120,5 +120,16 @@ interface Renderer {
      * empty override. */
     fun drawSkinnedMesh(mesh: Mesh, material: Material, model: Mat4, jointPalette: FloatArray) {}
 
+    /** Draws one textured mesh this frame, through a dedicated textured pipeline -- same
+     * reason [drawSkinnedMesh] exists: a mesh with a real `baseColorTexture`
+     * ([io.github.ronjunevaldoz.awake.render.mesh.VertexFormat.PositionNormalColorUv]) doesn't
+     * match [createMesh]'s default 3D pipeline's fixed layout either, so it goes through this
+     * separate staged-draw path instead of [draw]/[DrawCall]. [material] must have been built
+     * with a real [texture][createMaterial]'s `texture` parameter, not the default placeholder
+     * -- see `textured.wgsl`. Same "stage now, consume on next [draw]" pattern as
+     * [drawDebugLines]/[drawSkinnedMesh]; same default no-op for a backend with no textured-
+     * pipeline support yet. */
+    fun drawTexturedMesh(mesh: Mesh, material: Material, model: Mat4) {}
+
     fun destroy()
 }

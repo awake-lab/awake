@@ -119,7 +119,9 @@ fun buildHeadlessUiRendererFixture(width: Int, height: Int): HeadlessUiRendererF
         runBlocking {
             loadUiAnimationShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv")
         },
-        VertexFormat.PositionColorUv
+        VertexFormat.PositionColorUv,
+        vertexEntryPoint = "vertexMain",
+        fragmentEntryPoint = "fragmentMain"
     )
     val lineRenderPipeline = LineRenderPipeline(
         graphicsDevice,
@@ -135,6 +137,7 @@ fun buildHeadlessUiRendererFixture(width: Int, height: Int): HeadlessUiRendererF
         graphicsDevice,
         swapchainManager,
         renderPipeline,
+        null,
         null,
         lineRenderPipeline,
         transferContext,

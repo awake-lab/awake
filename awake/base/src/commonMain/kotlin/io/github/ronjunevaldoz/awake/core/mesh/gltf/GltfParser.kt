@@ -34,10 +34,13 @@ private val GltfJson = Json { ignoreUnknownKeys = true }
  *   pipeline would resolve an external `uri` relative to the `.gltf`'s own resource path
  *   via `readResourceBytes`; deferred since a self-contained (embedded-buffer) `.gltf` is
  *   sufficient to prove the accessor/bufferView decoding this parser exists for.
- * - **No materials or textures** -- [parse] reads only the first mesh's first primitive's
- *   `POSITION`/`NORMAL`/`COLOR_0`/`TEXCOORD_0`/`JOINTS_0`/`WEIGHTS_0` attributes and its index
- *   accessor; [parseScene] walks the full node hierarchy for static meshes; [parseSkinned]
- *   walks it for skeletal skinning/animation (skins + animation clips too).
+ * - **No materials or textures beyond a base color texture** -- [parse] reads only the first
+ *   mesh's first primitive's `POSITION`/`NORMAL`/`COLOR_0`/`TEXCOORD_0`/`JOINTS_0`/`WEIGHTS_0`
+ *   attributes, its index accessor, and (if present) its material's embedded `baseColorTexture`
+ *   image bytes -- see [readBaseColorImageBytes]. No other PBR channels (metallic/roughness,
+ *   normal, emissive, occlusion maps) are read. [parseScene] walks the full node hierarchy for
+ *   static meshes; [parseSkinned] walks it for skeletal skinning/animation (skins + animation
+ *   clips too).
  * - **Only `FLOAT` vertex attributes and `UNSIGNED_BYTE`/`UNSIGNED_SHORT`/`UNSIGNED_INT`
  *   indices** are decoded -- glTF also allows signed `BYTE`/`SHORT` and normalized integer
  *   attributes, neither of which real exporters emit for `POSITION`/`NORMAL`/`COLOR_0` in
@@ -114,8 +117,26 @@ object GltfParser {
         val jointWeights = primitive.attributes.weights0?.let {
             readFloatAccessor(document, buffers, it, componentsPerElement = 4)
         }
+        val baseColorImageBytes = readBaseColorImageBytes(document, primitive)
 
-        return GltfMesh(positions, normals, colors, uvs, indices, jointIndices, jointWeights)
+        return GltfMesh(positions, normals, colors, uvs, indices, jointIndices, jointWeights, baseColorImageBytes)
+    }
+
+    /** Resolves [primitive]'s material -> `pbrMetallicRoughness.baseColorTexture` -> texture ->
+     * image, returning that image's still-encoded bytes (decoded from its base64 data URI) --
+     * `null` at any missing link in that chain (no material, no base color texture, an
+     * external/non-embedded image URI). */
+    private fun readBaseColorImageBytes(document: GltfDocument, primitive: GltfPrimitive): ByteArray? {
+        val uri = primitive.material
+            ?.let { document.materials.getOrNull(it) }
+            ?.pbrMetallicRoughness
+            ?.baseColorTexture
+            ?.let { document.textures.getOrNull(it.index) }
+            ?.source
+            ?.let { document.images.getOrNull(it) }
+            ?.uri
+            ?: return null
+        return if (uri.startsWith("data:")) decodeBase64DataUri(uri) else null // External image files aren't supported.
     }
 
     /**

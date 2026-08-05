@@ -11,5 +11,6 @@
     <ID>MagicNumber:VertexAttribute.kt$VertexAttributeFormat.Float4$4</ID>
     <ID>MagicNumber:VertexAttribute.kt$VertexAttributeFormat.UInt4$4</ID>
     <ID>NestedBlockDepth:MipChain.kt$private fun TextureAsset.boxDownsample(newWidth: Int, newHeight: Int): TextureAsset</ID>
+    <ID>TooManyFunctions:Renderer.kt$Renderer</ID>
   </CurrentIssues>
 </SmellBaseline>

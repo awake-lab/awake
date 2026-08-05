@@ -17,17 +17,18 @@ import kotlin.test.assertNotSame
 class GltfViewerScalePositionsTest {
 
     @Test
-    fun scalesOnlyPositionComponentsLeavingNormalAndColorUntouched() {
-        // One vertex: position(1, 2, 3), normal(0, 1, 0), color(1, 0.5, 0.25) -- the 9-float
-        // position+normal+color stride GltfMesh.toInterleavedPositionNormalColor() produces.
-        val source = floatArrayOf(1f, 2f, 3f, 0f, 1f, 0f, 1f, 0.5f, 0.25f)
+    fun scalesOnlyPositionComponentsLeavingNormalColorAndUvUntouched() {
+        // One vertex: position(1, 2, 3), normal(0, 1, 0), color(1, 0.5, 0.25), uv(0.75, 0.1) --
+        // the 11-float position+normal+color+uv stride
+        // GltfMesh.toInterleavedPositionNormalColorUv() produces.
+        val source = floatArrayOf(1f, 2f, 3f, 0f, 1f, 0f, 1f, 0.5f, 0.25f, 0.75f, 0.1f)
 
         val result = GltfViewerDemo.scalePositions(source, 2f)
 
         assertEquals(
-            floatArrayOf(2f, 4f, 6f, 0f, 1f, 0f, 1f, 0.5f, 0.25f).toList(),
+            floatArrayOf(2f, 4f, 6f, 0f, 1f, 0f, 1f, 0.5f, 0.25f, 0.75f, 0.1f).toList(),
             result.toList(),
-            "position scaled by 2x, normal and color left exactly as they were"
+            "position scaled by 2x, normal, color, and uv left exactly as they were"
         )
     }
 
@@ -35,16 +36,16 @@ class GltfViewerScalePositionsTest {
     fun scalesEveryVertexInAMultiVertexBuffer() {
         // Two vertices back to back -- confirms the stride walk doesn't drift after the first one.
         val source = floatArrayOf(
-            1f, 0f, 0f, 0f, 0f, 1f, 1f, 1f, 1f,
-            0f, 1f, 0f, 1f, 0f, 0f, 0f, 0f, 0f
+            1f, 0f, 0f, 0f, 0f, 1f, 1f, 1f, 1f, 0f, 0f,
+            0f, 1f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f, 1f
         )
 
         val result = GltfViewerDemo.scalePositions(source, 0.5f)
 
         assertEquals(
             floatArrayOf(
-                0.5f, 0f, 0f, 0f, 0f, 1f, 1f, 1f, 1f,
-                0f, 0.5f, 0f, 1f, 0f, 0f, 0f, 0f, 0f
+                0.5f, 0f, 0f, 0f, 0f, 1f, 1f, 1f, 1f, 0f, 0f,
+                0f, 0.5f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f, 1f
             ).toList(),
             result.toList()
         )
@@ -55,7 +56,7 @@ class GltfViewerScalePositionsTest {
         // Both rawInterleaved and normalizedInterleaved need to stay independently valid for as
         // long as normalizeScale can still be toggled back -- see scalePositions's own doc
         // comment for why an in-place scale would silently break that.
-        val source = floatArrayOf(10f, 10f, 10f, 0f, 1f, 0f, 1f, 1f, 1f)
+        val source = floatArrayOf(10f, 10f, 10f, 0f, 1f, 0f, 1f, 1f, 1f, 0.5f, 0.5f)
         val sourceCopyForComparison = source.copyOf()
 
         val result = GltfViewerDemo.scalePositions(source, 3f)

@@ -24,7 +24,42 @@ data class GltfDocument(
     val scenes: List<GltfScene> = emptyList(),
     val nodes: List<GltfNode> = emptyList(),
     val skins: List<GltfSkin> = emptyList(),
-    val animations: List<GltfAnimation> = emptyList()
+    val animations: List<GltfAnimation> = emptyList(),
+    val materials: List<GltfMaterial> = emptyList(),
+    val textures: List<GltfTexture> = emptyList(),
+    val images: List<GltfImage> = emptyList()
+)
+
+@Serializable
+data class GltfMaterial(
+    val name: String? = null,
+    val pbrMetallicRoughness: GltfPbrMetallicRoughness? = null
+)
+
+@Serializable
+data class GltfPbrMetallicRoughness(
+    val baseColorTexture: GltfTextureRef? = null
+)
+
+@Serializable
+data class GltfTextureRef(
+    val index: Int,
+    @SerialName("texCoord") val texCoordSet: Int = 0
+)
+
+@Serializable
+data class GltfTexture(
+    val source: Int? = null,
+    val sampler: Int? = null
+)
+
+@Serializable
+data class GltfImage(
+    /** A `data:image/png;base64,...` (or `image/jpeg`) data URI -- external image file
+     * references are not supported, same "embedded buffers only" scope [GltfBuffer] already
+     * has. */
+    val uri: String? = null,
+    val mimeType: String? = null
 )
 
 @Serializable
@@ -130,7 +165,8 @@ data class GltfPrimitiveAttributes(
 @Serializable
 data class GltfPrimitive(
     val attributes: GltfPrimitiveAttributes,
-    val indices: Int? = null
+    val indices: Int? = null,
+    val material: Int? = null
 )
 
 @Serializable

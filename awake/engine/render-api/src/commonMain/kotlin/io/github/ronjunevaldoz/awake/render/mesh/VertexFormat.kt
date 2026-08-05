@@ -58,5 +58,18 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
                 VertexAttribute(VertexSemantic.JointWeights, VertexAttributeFormat.Float4, location = 4)
             )
         )
+
+        /** [PositionNormalColor] plus a uv vec2 @ 36, stride 44 -- for a mesh whose material has
+         * a real `baseColorTexture` to sample (see `textured.wgsl`). Matches
+         * [io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfMesh.toInterleavedPositionNormalColorUv]'s
+         * layout. */
+        val PositionNormalColorUv = VertexFormat(
+            listOf(
+                VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
+                VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
+                VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2),
+                VertexAttribute(VertexSemantic.Uv, VertexAttributeFormat.Float2, location = 3)
+            )
+        )
     }
 }

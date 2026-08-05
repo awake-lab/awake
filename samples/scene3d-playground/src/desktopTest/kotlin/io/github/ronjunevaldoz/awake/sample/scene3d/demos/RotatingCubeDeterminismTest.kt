@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
@@ -71,6 +72,7 @@ class RotatingCubeDeterminismTest {
             graphicsDevice,
             swapchainManager,
             renderPipeline,
+            null,
             null,
             lineRenderPipeline,
             transferContext,
