@@ -43,16 +43,26 @@ just spread unclear ownership across more folders.
   component+System convention the existing camera controls already use.
 - 2026-07-10: `VulkanApplication` now loads `scene.json` through `SceneRuntimeHost`; next
   we peel shared code into smaller modules, starting with math/runtime/utils.
+- 2026-08-06: The above core split is done -- confirmed complete via
+  [docs/reference/decision-log.md](reference/decision-log.md) D11-D13 and the current
+  `settings.gradle.kts` (no `awake:core` module exists anymore): `awake-core` split into
+  dependency-free `:awake:base` (math/input/glTF/utils), `:awake:backend:opengl`, and
+  `:awake:engine:render-api`; the Vulkan/WebGPU backends physically split into
+  `:awake:backend:vulkan`/`:awake:backend:webgpu`. This entry and the matching Open
+  Questions/Fix Lanes bullets below were stale, written before D11-D13 landed.
+- 2026-08-06: `RotatingCubeDemo` gained a "Camera mode" toggle (Orbit/Follow/Look at),
+  wiring the previously-unused `FollowControl`/`LookAtControl` + `FollowCameraSystem`/
+  `LookAtCameraSystem` (built 2026-08-06, never attached to any entity until now) onto
+  `PrimaryOrbitCamera`'s camera entity -- `PrimaryOrbitCamera.entity` is now a public
+  read-only property so a demo can attach extra components to that same entity instead of
+  spawning a second camera.
 
 ## Open Questions
 
-- Should the core split start with `math`/`runtime`/`utils`, or should render boundaries be
-  carved out first?
 - Which ECS/scene APIs are true core, which are reusable helpers, and which are only
   authoring sugar?
 - Should `SceneGameRuntime` remain renderer/UI aware, or should those concerns move behind
   smaller runtime interfaces during the scene split?
-- Which code should remain in `awake-core` once the pure shared pieces move?
 - Do we split `physics` now, or leave it until the scene/runtime shape is settled?
 - Should Awake v1 use one universal `Style`, or separate style types immediately for
   text/button/panel families?
@@ -64,7 +74,8 @@ just spread unclear ownership across more folders.
 
 ## Fix Lanes
 
-- Dev: Core split
+- Dev: Core split (complete -- see
+  [docs/reference/decision-log.md](reference/decision-log.md) D11-D13)
 - Dev: ECS/scene API layering and classification
 - Dev: Scene module split (complete -- see
   [docs/tasks/2026-08-05-scene-module-split-proposal.md](tasks/2026-08-05-scene-module-split-proposal.md))
