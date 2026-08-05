@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>EmptyFunctionBlock:VulkanView.kt$VulkanView${}</ID>
     <ID>LongParameterList:GameSpec.kt$GameSpec$( val windowConfig: GameWindowConfig, private val onReady: List&lt;suspend (Renderer) -> Unit>, private val onRender: List&lt;(delta: Float, viewportWidth: Float, viewportHeight: Float) -> Unit>, private val onResize: List&lt;(width: Float, height: Float) -> Unit>, private val onPause: List&lt;() -> Unit>, private val onResume: List&lt;() -> Unit>, private val onDispose: List&lt;() -> Unit>, private val services: Map&lt;KClass&lt;*>, Any> )</ID>
     <ID>MagicNumber:FrameStats.kt$FrameStats$1000f</ID>
     <ID>MagicNumber:FrameStats.kt$FrameStats$100f</ID>

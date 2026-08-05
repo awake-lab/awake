@@ -63,7 +63,7 @@ internal val UiShowcaseEasingCurves: List<Pair<String, Easing>> = listOf(
     "Ease In" to EaseIn
 )
 
-private const val UiShowcaseEasingDurationMs = 1200f
+private const val UI_SHOWCASE_EASING_DURATION_MS = 1200f
 
 internal fun ColumnScope.drawUiShowcaseEasingPreview() {
     shadcnSectionHeader(
@@ -85,7 +85,7 @@ private fun ColumnScope.drawUiShowcaseEasingRow(name: String, easing: Easing) {
         id = id,
         initialValue = 0f,
         targetValue = 1f,
-        durationMs = UiShowcaseEasingDurationMs,
+        durationMs = UI_SHOWCASE_EASING_DURATION_MS,
         easing = easing,
         repeatMode = RepeatMode.Reverse
     )

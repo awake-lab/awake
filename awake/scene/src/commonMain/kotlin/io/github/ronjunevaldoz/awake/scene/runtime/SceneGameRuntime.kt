@@ -142,7 +142,7 @@ class SceneGameRuntime internal constructor(
         input.textInputFocused = uiFrame.effects.requestKeyboard
     }
 
-    override fun resize(width: Float, height: Float) {}
+    override fun resize(width: Float, height: Float) = Unit
 
     override fun dispose() {
         spec.onDisposeBlock(this)

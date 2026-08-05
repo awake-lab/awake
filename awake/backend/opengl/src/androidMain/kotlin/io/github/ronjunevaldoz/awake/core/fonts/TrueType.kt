@@ -17,7 +17,8 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
     }
 
     init {
-        val fontBitmap = FontBitmap(30f, true)
+        require(filePath.isNotBlank()) { "Font path must not be blank" }
+        val fontBitmap = FontBitmap(fontSize, true)
         texture = fontBitmap.texture
     }
 }

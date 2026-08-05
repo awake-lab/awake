@@ -4,17 +4,9 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>)</ID>
     <ID>CyclomaticComplexMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
-    <ID>EmptyDefaultConstructor:GraphicsDevice.kt$GraphicsDevice$()</ID>
-    <ID>EmptyFunctionBlock:SwapchainManager.kt$SwapchainManager${ }</ID>
     <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>)</ID>
     <ID>LongMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
-    <ID>LongParameterList:RenderPipeline.kt$RenderPipeline$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, descriptorSetLayout: DescriptorSetLayoutHandle, vertShaderCode: ByteArray, fragShaderCode: ByteArray, vertexStride: Int, vertexEntryPoint: String = DEFAULT_VERTEX_ENTRY_POINT, fragmentEntryPoint: String = DEFAULT_FRAGMENT_ENTRY_POINT )</ID>
     <ID>LongParameterList:Renderer.kt$Renderer$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, renderPipeline: RenderPipeline, internal val lineRenderPipeline: LineRenderPipeline, internal val uiShaderCode: ByteArray, internal val uiGlyphShaderCode: ByteArray, internal val uiTextureShaderCode: ByteArray, internal val uiRoundedQuadShaderCode: ByteArray, commandPool: Long, maxFramesInFlight: Int )</ID>
-    <ID>LongParameterList:RendererDrawUi.kt$( x: Float, y: Float, w: Float, h: Float, u0: Float = 0f, v0: Float = 0f, u1: Float = 1f, v1: Float = 1f )</ID>
-    <ID>LongParameterList:RendererVertexWriters.kt$( out: FloatArray, offset: Int, x: Float, y: Float, localX: Float, localY: Float, halfW: Float, halfH: Float, radius: Float, color: AwakeColor, transform: UiPrimitiveTransform? = null )</ID>
-    <ID>LongParameterList:RendererVertexWriters.kt$( out: FloatArray, offset: Int, x: Float, y: Float, u: Float, v: Float, color: AwakeColor, transform: UiPrimitiveTransform? = null )</ID>
-    <ID>LongParameterList:RendererVertexWriters.kt$(out: FloatArray, offset: Int, x: Float, y: Float, color: AwakeColor, transform: UiPrimitiveTransform? = null)</ID>
-    <ID>LongParameterList:RendererVertexWriters.kt$(out: FloatArray, offset: Int, x: Float, y: Float, z: Float, color: FloatArray)</ID>
     <ID>MagicNumber:Renderer.kt$Renderer$255</ID>
     <ID>MagicNumber:Renderer.kt$Renderer$256</ID>
     <ID>MagicNumber:Renderer.kt$Renderer$3</ID>

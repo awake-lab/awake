@@ -3,7 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:PlayerControlSystem.kt$PlayerControlSystem$override fun update(world: World, delta: Float)</ID>
-    <ID>EmptyFunctionBlock:SceneGameRuntime.kt$SceneGameRuntime${}</ID>
     <ID>LongParameterList:SceneGameSpec.kt$SceneGameSpec$( val sceneDocument: SceneDocument, val renderableFactory: SceneRenderableFactory, internal val assetLibraryFactory: (() -> SceneAssetLibrary)?, internal val systems: List&lt;SceneSystemRegistration>, val updateBlock: SceneUpdateBlock, val overlayBlock: SceneOverlayBlock, val onReadyBlock: SceneReadyBlock, val onDisposeBlock: SceneDisposeBlock, internal val serviceRegistrations: List&lt;SceneServiceRegistration&lt;*>> )</ID>
     <ID>LoopWithTooManyJumpStatements:PhysicsSystem.kt$PhysicsSystem$for</ID>
     <ID>MagicNumber:Control.kt$FollowControl$3f</ID>

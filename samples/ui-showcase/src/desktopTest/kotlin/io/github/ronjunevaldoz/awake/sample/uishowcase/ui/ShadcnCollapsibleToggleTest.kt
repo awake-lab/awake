@@ -56,7 +56,7 @@ class ShadcnCollapsibleToggleTest {
 
     private fun UiBounds.center(): Pair<Float, Float> = (x + width / 2f) to (y + height / 2f)
 
-    private fun drawSidebar(ui: UiContext, state: UiShowcaseRuntimeState) {
+    private fun drawSidebar(ui: UiContext) {
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side")
         ui.createBox(x = 0f, y = 0f, width = 1440f, height = 900f).shadcnSidebar(
             id = "ui-showcase-sidebar",
@@ -83,7 +83,7 @@ class ShadcnCollapsibleToggleTest {
         }
 
         // Warm-up frame: establish default (expanded = true for every category) and record bounds.
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui, state) }
+        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
 
         val before = mapOf(
             "GettingStarted" to expandedState(ui, "GettingStarted").value,
@@ -95,10 +95,10 @@ class ShadcnCollapsibleToggleTest {
 
         val headerCenter = headerBounds(ui, "GettingStarted").center()
 
-        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui, state) }
+        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui) }
 
         // One extra settled frame so the flipped state is visible to a fresh read.
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui, state) }
+        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
 
         assertEquals(
             false,
@@ -124,22 +124,22 @@ class ShadcnCollapsibleToggleTest {
             ui.endFrame()
         }
 
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui, state) }
+        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
         val headerCenter = headerBounds(ui, "GettingStarted").center()
 
         // click 1: expanded (true) -> collapsed (false)
-        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui, state) }
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui, state) }
+        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui) }
+        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
         assertEquals(false, expandedState(ui, "GettingStarted").value, "first click must collapse")
 
         // click 2: collapsed (false) -> expanded (true)
-        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui, state) }
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui, state) }
+        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui) }
+        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
         assertEquals(true, expandedState(ui, "GettingStarted").value, "second click must re-expand, not stick or double-fire")
 
         // click 3: expanded (true) -> collapsed (false)
-        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui, state) }
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui, state) }
+        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui) }
+        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
         assertEquals(false, expandedState(ui, "GettingStarted").value, "third click must collapse again")
     }
 }

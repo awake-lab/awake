@@ -9,7 +9,6 @@
     <ID>MagicNumber:FamilyRegistry.kt$FamilyRegistry$16</ID>
     <ID>MaxLineLength:System.kt$*</ID>
     <ID>MaxLineLength:World.kt$World$internal</ID>
-    <ID>MemberNameEqualsClassName:QueryCache.kt$QueryCache$private val queryCache = mutableMapOf&lt;QueryKey, CachedQuery>()</ID>
     <ID>ReturnCount:FamilySpec.kt$FamilySpecCache$fun matches(world: World, entity: Entity): Boolean</ID>
     <ID>ReturnCount:QueryCollector.kt$QueryCollector$fun collect(types: Set&lt;KClass&lt;out Any>>): List&lt;Entity></ID>
     <ID>TooManyFunctions:ComponentRegistry.kt$ComponentRegistry</ID>

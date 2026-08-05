@@ -24,7 +24,7 @@ import io.ygdrasil.webgpu.WGPUContext
  * directly, via [WebGpuHandles] for the individual object handles their own Long-typed
  * fields need.
  */
-class GraphicsDevice() {
+class GraphicsDevice {
     var instance: Long = 0
     var debugUtilsMessenger: Long = 0
     var surface: Long = 0

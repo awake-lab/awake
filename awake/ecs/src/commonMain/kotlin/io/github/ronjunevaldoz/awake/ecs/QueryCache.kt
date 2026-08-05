@@ -24,14 +24,14 @@ import kotlin.reflect.KClass
 internal class QueryCache(
     private val collector: (Set<KClass<out Any>>) -> List<Entity>
 ) {
-    private val queryCache = mutableMapOf<QueryKey, CachedQuery>()
+    private val cachedQueries = mutableMapOf<QueryKey, CachedQuery>()
     private var typedQueryVersion = 0
     private var emptyQueryVersion = 0
     private var hasQueryCache = false
 
     fun query(types: Set<KClass<out Any>>): List<Entity> {
         val key = QueryKey(types)
-        val cached = queryCache.getOrPut(key) { CachedQuery() }
+        val cached = cachedQueries.getOrPut(key) { CachedQuery() }
         hasQueryCache = true
         val currentVersion = if (types.isEmpty()) emptyQueryVersion else typedQueryVersion
         if (cached.version != currentVersion) {
@@ -57,7 +57,7 @@ internal class QueryCache(
     }
 
     fun clear() {
-        queryCache.clear()
+        cachedQueries.clear()
         typedQueryVersion = 0
         emptyQueryVersion = 0
         hasQueryCache = false

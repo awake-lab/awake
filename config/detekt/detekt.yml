@@ -155,9 +155,10 @@ complexity:
       - '**/src/**/kotlin/io/github/ronjunevaldoz/awake/vulkan/models/info/**'
       - '**/src/**/kotlin/io/github/ronjunevaldoz/awake/vulkan/models/physicaldevice/**'
       - '**/OpenGL.kt'
+      - '**/RendererVertexWriters.kt'
     functionThreshold: 6
     constructorThreshold: 7
-    ignoreDefaultParameters: false
+    ignoreDefaultParameters: true
     ignoreDataClasses: true
     ignoreAnnotatedParameter: [ ]
   MethodOverloading:

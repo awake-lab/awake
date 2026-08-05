@@ -62,9 +62,11 @@ class SwapchainManager(
     }
 
     fun createSyncObjects() {
+        // Browser frame pacing replaces explicit swapchain semaphores/fences.
     }
 
     fun destroySyncObjects() {
+        // Browser frame pacing replaces explicit swapchain semaphores/fences.
     }
 
     fun syncSurface() {

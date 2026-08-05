@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldDescription
@@ -38,7 +37,7 @@ private val CheckoutYearOptions = listOf("YYYY") + (2026..2035).map { it.toStrin
  * shadcnFieldSet/shadcnFieldLegend/shadcnFieldGroup/shadcnField and friends. Demonstrates the new
  * FieldSet/FieldLegend pair -- everything else in this page already existed.
  */
-internal fun ColumnScope.drawUiShowcaseFieldDemoPreview(state: UiShowcaseRuntimeState) {
+internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
     var nameOnCard by context.rememberStateValue("ui-showcase-field-demo", "nameOnCard") { "" }
     var cardNumber by context.rememberStateValue("ui-showcase-field-demo", "cardNumber") { "" }
     var monthIndex by context.rememberStateValue("ui-showcase-field-demo", "month") { 0 }

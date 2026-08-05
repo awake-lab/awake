@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldRangeSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextarea
@@ -86,7 +85,7 @@ internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
     }
 }
 
-internal fun ColumnScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntimeState) {
+internal fun ColumnScope.drawUiShowcaseTextInputPreview() {
     var name by context.rememberStateValue("ui-showcase-text-input", "name") { "" }
     var email by context.rememberStateValue("ui-showcase-text-input", "email") { "" }
 
@@ -124,7 +123,7 @@ internal fun ColumnScope.drawUiShowcaseTextInputPreview(state: UiShowcaseRuntime
     )
 }
 
-internal fun ColumnScope.drawUiShowcaseCollapsiblePreview(state: UiShowcaseRuntimeState) {
+internal fun ColumnScope.drawUiShowcaseCollapsiblePreview() {
     var expanded by context.rememberStateValue("ui-showcase-collapsible", "expanded") { false }
 
     shadcnSupportingText("An interactive panel that expands to show more content, with a smooth height transition.")

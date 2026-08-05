@@ -3,7 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>FunctionNaming:bufferExt.kt$fun Buffer.`when`( byte: java.nio.ByteBuffer.() -> Unit = { TODO("Byte buffer not implemented") }, short: java.nio.ShortBuffer.() -> Unit = { TODO("Short buffer not implemented") }, int: java.nio.IntBuffer.() -> Unit = { TODO("Int buffer not implemented") }, float: java.nio.FloatBuffer.() -> Unit = { TODO("Float buffer not implemented") } )</ID>
-    <ID>LongParameterList:Camera.kt$Camera$( var eye: Vec3, var center: Vec3, var up: Vec3 = Vec3(0f, 1f, 0f), var fovYRadians: Float, var near: Float, var far: Float, private val flipYForClipSpace: Boolean = true )</ID>
     <ID>LongParameterList:matrix.kt$Mat4.Companion$( eyeX: Float, eyeY: Float, eyeZ: Float, centerX: Float, centerY: Float, centerZ: Float, upX: Float, upY: Float, upZ: Float )</ID>
     <ID>LongParameterList:matrix.kt$Mat4.Companion$( left: Float, right: Float, bottom: Float, top: Float, near: Float, far: Float )</ID>
     <ID>MagicNumber:Bitmap.kt$16</ID>

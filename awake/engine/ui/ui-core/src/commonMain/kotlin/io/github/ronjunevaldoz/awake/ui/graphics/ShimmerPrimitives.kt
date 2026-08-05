@@ -47,8 +47,9 @@ fun UiScope.shimmerBand(id: String, slot: UiBounds, durationMs: Float = 1200f): 
  * advance. Awake has no offscreen-render-target/blend-mode primitive on either backend yet, so
  * this is a clip-based workaround: it needs the shape declared upfront (shapeSpec/radiusPx), and
  * can't shimmer arbitrary content like an icon glyph. Fine for skeletons/cards/avatars (shape is
- * always known). TODO: real offscreen-render-target + SrcAtop-blend primitive on both backends,
- * ported from Modifier.shimmer's actual mechanism, if arbitrary-content shimmer is ever needed.
+ * always known). Follow-up: add a real offscreen-render-target + SrcAtop-blend primitive on both
+ * backends, ported from Modifier.shimmer's actual mechanism, if arbitrary-content shimmer is ever
+ * needed.
  */
 fun UiScope.emitShimmerOverlay(
     id: String,

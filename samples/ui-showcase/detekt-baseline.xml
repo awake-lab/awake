@@ -5,14 +5,13 @@
     <ID>CyclomaticComplexMethod:UiShowcaseGettingStartedPages.kt$internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState)</ID>
     <ID>LongMethod:UiShowcaseCardClipBugPngTest.kt$UiShowcaseCardClipBugPngTest$private fun saveRepro(id: String)</ID>
     <ID>LongMethod:UiShowcaseComponentPages.kt$internal fun ColumnScope.drawUiShowcaseSidebarPreview()</ID>
-    <ID>LongMethod:UiShowcaseFieldDemoPage.kt$internal fun ColumnScope.drawUiShowcaseFieldDemoPreview(state: UiShowcaseRuntimeState)</ID>
+    <ID>LongMethod:UiShowcaseFieldDemoPage.kt$internal fun ColumnScope.drawUiShowcaseFieldDemoPreview()</ID>
     <ID>LongMethod:UiShowcaseGameTest.kt$UiShowcaseGameTest$@Test fun uiShowcaseSidebarCategoryHeaderCentersIconAndTitleVertically()</ID>
     <ID>LongMethod:UiShowcaseGettingStartedPages.kt$internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState)</ID>
     <ID>LongMethod:UiShowcaseLayoutPages.kt$private fun CanvasScope.drawShowcaseCanvasScene()</ID>
     <ID>LongMethod:UiShowcaseOverlayPages.kt$internal fun ColumnScope.drawUiShowcasePopupPreview()</ID>
     <ID>LongMethod:UiShowcasePreviewCatalogTestSupport.kt$private fun ColumnScope.drawUiShowcaseFieldMatrixContent()</ID>
     <ID>LongMethod:UiShowcaseUi.kt$internal fun GameUiRuntime.drawUiShowcaseOverlay( state: UiShowcaseRuntimeState )</ID>
-    <ID>LongParameterList:UiShowcasePreviewCatalogTestSupport.kt$( metadata: AwakeUiPreviewMetadata, surfaceId: String = metadata.id, badge: String, title: String, summary: String, focusedNodeId: String? = null, content: ColumnScope.() -> Unit )</ID>
     <ID>MagicNumber:UiShowcaseAnimationPages.kt$0.18f</ID>
     <ID>MagicNumber:UiShowcaseAnimationPages.kt$14f</ID>
     <ID>MagicNumber:UiShowcaseAnimationPages.kt$20</ID>
@@ -175,12 +174,5 @@
     <ID>MaxLineLength:UiShowcaseUi.kt$modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).width(sidebarWidth).height(Dimension.FillMax)</ID>
     <ID>NestedBlockDepth:UiShowcasePreviewDocsTest.kt$UiShowcasePreviewDocsTest$@Test fun writeShowcasePreviews()</ID>
     <ID>TooManyFunctions:UiShowcaseComponentPages.kt$io.github.ronjunevaldoz.awake.sample.uishowcase.ui.UiShowcaseComponentPages.kt</ID>
-    <ID>TopLevelPropertyNaming:UiShowcaseAnimationPages.kt$private const val UiShowcaseEasingDurationMs = 1200f</ID>
-    <ID>UnusedParameter:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$state: UiShowcaseRuntimeState</ID>
-    <ID>UnusedParameter:ShadcnCollapsibleToggleTest.kt$ShadcnCollapsibleToggleTest$state: UiShowcaseRuntimeState</ID>
-    <ID>UnusedParameter:UiShowcaseComponentPages.kt$state: UiShowcaseRuntimeState</ID>
-    <ID>UnusedParameter:UiShowcaseFieldDemoPage.kt$state: UiShowcaseRuntimeState</ID>
-    <ID>UnusedPrivateMember:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$private fun UiContext.frame(input: Input, down: Boolean, x: Float, y: Float, body: () -> Unit)</ID>
-    <ID>UnusedPrivateProperty:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$val gettingStartedHeights = mutableListOf&lt;Float>()</ID>
   </CurrentIssues>
 </SmellBaseline>

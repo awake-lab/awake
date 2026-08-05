@@ -29,13 +29,6 @@ import kotlin.test.Test
  */
 class ShadcnCollapsibleCollapseAnimationProbeTest {
 
-    private fun UiContext.frame(input: Input, down: Boolean, x: Float, y: Float, body: () -> Unit) {
-        input.setPointer(down, x, y)
-        beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
-        body()
-        finishFrame()
-    }
-
     private fun headerBounds(ui: UiContext, category: String): UiBounds {
         val id = "ui-showcase-sidebar-category-$category.header"
         val semantics = ui.finishFrame().semantics
@@ -46,7 +39,7 @@ class ShadcnCollapsibleCollapseAnimationProbeTest {
 
     private fun UiBounds.center(): Pair<Float, Float> = (x + width / 2f) to (y + height / 2f)
 
-    private fun drawSidebar(ui: UiContext, state: UiShowcaseRuntimeState) {
+    private fun drawSidebar(ui: UiContext) {
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side")
         ui.createBox(x = 0f, y = 0f, width = 1440f, height = 900f).shadcnSidebar(
             id = "ui-showcase-sidebar",
@@ -69,7 +62,7 @@ class ShadcnCollapsibleCollapseAnimationProbeTest {
         fun frameNoInput() {
             ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
             ui.pushTheme(theme)
-            drawSidebar(ui, state)
+            drawSidebar(ui)
         }
 
         frameNoInput()
@@ -80,25 +73,23 @@ class ShadcnCollapsibleCollapseAnimationProbeTest {
         // two-frame press/release idiom as ShadcnCollapsibleToggleTest, then sample every frame
         // afterward while the collapse animation eases.
         val inputsHeaderYs = mutableListOf<Float>()
-        val gettingStartedHeights = mutableListOf<Float>()
-
         input.setPointer(true, headerCenter.first, headerCenter.second)
         ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
         ui.pushTheme(theme)
-        drawSidebar(ui, state)
+        drawSidebar(ui)
         ui.finishFrame()
 
         input.setPointer(false, headerCenter.first, headerCenter.second)
         ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
         ui.pushTheme(theme)
-        drawSidebar(ui, state)
+        drawSidebar(ui)
         ui.finishFrame()
 
         repeat(40) {
             input.setPointer(false, -100f, -100f)
             ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
             ui.pushTheme(theme)
-            drawSidebar(ui, state)
+            drawSidebar(ui)
             val semantics = ui.finishFrame().semantics
             val inputsHeader = semantics.firstOrNull { it.id == "ui-showcase-sidebar-category-Inputs.header" }
             requireNotNull(inputsHeader) { "Inputs header missing from semantics: ${semantics.map { it.id }}" }

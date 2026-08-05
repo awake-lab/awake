@@ -243,7 +243,7 @@ internal val ShowcasePages = listOf(
             "Works with a real keyboard on every platform: GLFW key polling on desktop, the IME on Android, UIKeyInput on iOS.",
             "No selection or clipboard yet -- click-to-position, type, backspace/delete, arrow keys, home/end."
         ),
-        renderPreview = { state -> drawUiShowcaseTextInputPreview(state) }
+        renderPreview = { drawUiShowcaseTextInputPreview() }
     ),
     ShowcasePage(
         id = "slider",
@@ -633,7 +633,7 @@ internal val ShowcasePages = listOf(
             "Lays out and animates height changes using a per-widget state-based measure pass.",
             "Hidden content costs nothing to lay out while fully collapsed."
         ),
-        renderPreview = { state -> drawUiShowcaseCollapsiblePreview(state) }
+        renderPreview = { drawUiShowcaseCollapsiblePreview() }
     ),
     ShowcasePage(
         id = "shimmer",
@@ -728,7 +728,7 @@ internal val ShowcasePages = listOf(
             "The Month/Year/CVV row uses row() + weight(1f) columns, the same pattern CSS's grid-cols-3 gap-4 maps to.",
             "No border/background chrome on shadcnFieldSet, matching real shadcn's CSS reset of the native <fieldset> border."
         ),
-        renderPreview = { state -> drawUiShowcaseFieldDemoPreview(state) }
+        renderPreview = { drawUiShowcaseFieldDemoPreview() }
     )
 )
 

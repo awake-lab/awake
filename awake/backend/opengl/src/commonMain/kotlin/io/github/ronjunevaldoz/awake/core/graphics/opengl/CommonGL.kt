@@ -314,7 +314,7 @@ object CommonGL {
     /**
      *  3.0
      */
-    val GL_READ_BUFFER: Int = 0x0C02
+    const val GL_READ_BUFFER: Int = 0x0C02
     const val GL_UNPACK_ROW_LENGTH = 0x0CF2
     const val GL_UNPACK_SKIP_ROWS = 0x0CF3
     const val GL_UNPACK_SKIP_PIXELS = 0x0CF4

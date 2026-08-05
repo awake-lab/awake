@@ -9,7 +9,6 @@ import org.lwjgl.stb.STBTTBakedChar
 import org.lwjgl.stb.STBTTFontinfo
 import org.lwjgl.stb.STBTruetype.stbtt_BakeFontBitmap
 import org.lwjgl.stb.STBTruetype.stbtt_GetBakedQuad
-import org.lwjgl.stb.STBTruetype.stbtt_GetCodepointHMetrics
 import org.lwjgl.stb.STBTruetype.stbtt_GetCodepointKernAdvance
 import org.lwjgl.stb.STBTruetype.stbtt_GetFontVMetrics
 import org.lwjgl.stb.STBTruetype.stbtt_InitFont
@@ -92,17 +91,12 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
 
             val q = STBTTAlignedQuad.malloc(stack)
 
-            var lineStart = 0
-
             val factorX: Float = 1.0f / contentScaleX
-            val factorY: Float = 1.0f / contentScaleY
 
             val lineY = 0.0f
 
             var i = 0
             val to = text.length
-
-//            glBegin(GL_QUADS)
             while (i < to) {
                 i += getCP(text, to, i, pCodePoint)
 
@@ -110,8 +104,6 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
                 if (cp == '\n'.code) {
                     y.put(0, lineY + (metrics.ascent - metrics.descent + metrics.lineGap) * scale)
                     x.put(0, 0.0f)
-
-                    lineStart = i
                 } else if (cp < 32 || 128 <= cp) {
                     continue
                 }
@@ -124,60 +116,12 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
                     x.put(0, x[0] + stbtt_GetCodepointKernAdvance(info, cp, pCodePoint[0]) * scale)
                 }
 
-                val x0 = scale(cpX, q.x0(), factorX)
-                val x1 = scale(cpX, q.x1(), factorX)
-                val y0 = scale(lineY, q.y0(), factorY)
-                val y1 = scale(lineY, q.y1(), factorY)
-
-                val textCoords = floatArrayOf(
-                    q.s0(), q.t0(),
-                    q.s1(), q.t0(),
-                    q.s1(), q.t1(),
-                    q.s0(), q.t1()
-                )
-                val position = floatArrayOf(
-                    x0, y0,
-                    x1, y0,
-                    x1, y1,
-                    x0, y1
-                )
             }
-//            glEnd();
-//            if (isLineBBEnabled()) {
-//                renderLineBB(lineStart, text.length(), lineY, scale);
-//            }
         }
     }
 
     private fun scale(center: Float, offset: Float, factor: Float): Float {
         return (offset - center) * factor + center
-    }
-
-    private fun getStringWidth(
-        info: STBTTFontinfo,
-        text: String,
-        from: Int,
-        to: Int,
-        fontHeight: Int
-    ): Float {
-        var width = 0
-        stackPush().use { stack ->
-            val pCodePoint = stack.mallocInt(1)
-            val pAdvancedWidth = stack.mallocInt(1)
-            val pLeftSideBearing = stack.mallocInt(1)
-            var i = from
-            while (i < to) {
-                i += getCP(text, to, i, pCodePoint)
-                val cp = pCodePoint[0]
-                stbtt_GetCodepointHMetrics(info, cp, pAdvancedWidth, pLeftSideBearing)
-                width += pAdvancedWidth[0]
-                if (isKerningEnabled && i < to) {
-                    getCP(text, to, i, pCodePoint)
-                    width += stbtt_GetCodepointKernAdvance(info, cp, pCodePoint[0])
-                }
-            }
-        }
-        return width * stbtt_ScaleForPixelHeight(info, fontHeight.toFloat())
     }
 
     private fun getCP(text: String, to: Int, i: Int, cpOut: IntBuffer): Int {

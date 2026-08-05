@@ -31,7 +31,7 @@ class FontBitmap(fontSize: Float, antialias: Boolean) {
         textPaint.apply {
             typeface = Typeface.SERIF
             textSize = fontSize
-            isAntiAlias = true
+            isAntiAlias = antialias
             color = Color.WHITE
             hinting = Paint.HINTING_ON
             isSubpixelText = true

@@ -7,12 +7,8 @@
     <ID>CyclomaticComplexMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null ): UiInspectionReport</ID>
     <ID>CyclomaticComplexMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:UiRasterizer.kt$val (x, y, w, h) = scaledRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.transform)</ID>
-    <ID>EmptyFunctionBlock:AwakeUiSnapshot.android.kt${}</ID>
-    <ID>EmptyFunctionBlock:AwakeUiSnapshot.ios.kt${}</ID>
-    <ID>EmptyFunctionBlock:AwakeUiSnapshot.wasmJs.kt${}</ID>
     <ID>LongMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null ): UiInspectionReport</ID>
     <ID>LongMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
-    <ID>LongParameterList:AwakeUiPreview.kt$AwakeUiPreview$( val id: String, val title: String, val group: String = "", val summary: String = "", val width: Int = 960, val height: Int = 720, val reportScale: Int = 1 )</ID>
     <ID>LoopWithTooManyJumpStatements:UiRasterizer.kt$while</ID>
     <ID>MagicNumber:AwakeUiPreview.kt$AwakeUiPreviewFrame$0.12f</ID>
     <ID>MagicNumber:AwakeUiPreview.kt$AwakeUiPreviewFrame$0.1f</ID>

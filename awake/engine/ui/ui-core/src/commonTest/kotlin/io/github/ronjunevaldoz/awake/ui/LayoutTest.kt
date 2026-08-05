@@ -364,7 +364,7 @@ class LayoutTest {
     fun scrollableColumnInRowDetectsOverflowThroughNestedWrapContentSurface() {
         val scrollState = UiScrollState()
 
-        renderScrollableNestedSurface(scrollState) { ui, content ->
+        renderScrollableNestedSurface { ui, content ->
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).row(
                 horizontalArrangement = Arrangement.spacedBy(16f.px)
             , modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) {
@@ -388,7 +388,7 @@ class LayoutTest {
     fun scrollableColumnInColumnDetectsOverflowThroughNestedWrapContentSurface() {
         val scrollState = UiScrollState()
 
-        renderScrollableNestedSurface(scrollState) { ui, content ->
+        renderScrollableNestedSurface { ui, content ->
             ui.createColumn(x = 0f, y = 0f, width = 920f, height = 620f).column(
                 id = "content-viewport",
                 modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.FillMax).height(
@@ -405,7 +405,7 @@ class LayoutTest {
     fun scrollableColumnInBoxDetectsOverflowThroughNestedWrapContentSurface() {
         val scrollState = UiScrollState()
 
-        renderScrollableNestedSurface(scrollState) { ui, content ->
+        renderScrollableNestedSurface { ui, content ->
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
                 id = "content-viewport",
                 modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.FillMax).height(
@@ -422,7 +422,7 @@ class LayoutTest {
     fun scrollableColumnInAbsoluteDetectsOverflowThroughNestedWrapContentSurface() {
         val scrollState = UiScrollState()
 
-        renderScrollableNestedSurface(scrollState) { ui, content ->
+        renderScrollableNestedSurface { ui, content ->
             ui.createAbsolute(x = 0f, y = 0f).column(
                 id = "content-viewport",
                 modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.Fixed(920f.px)).height(
@@ -752,10 +752,7 @@ class LayoutTest {
     }
 }
 
-private fun renderScrollableNestedSurface(
-    scrollState: UiScrollState,
-    renderParent: (UiContext, ColumnContent) -> Unit
-) {
+private fun renderScrollableNestedSurface(renderParent: (UiContext, ColumnContent) -> Unit) {
     val ui = UiContext()
     ui.beginFrame(920f, 620f, testSnapshot())
 

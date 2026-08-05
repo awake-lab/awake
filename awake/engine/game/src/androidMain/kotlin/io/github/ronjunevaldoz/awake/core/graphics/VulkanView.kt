@@ -92,7 +92,7 @@ class VulkanView(
         }
     }
 
-    override fun surfaceRedrawNeeded(holder: SurfaceHolder) {}
+    override fun surfaceRedrawNeeded(holder: SurfaceHolder) = Unit
 
     private fun syncUiDensity() {
         UiDensity.scale = resources.displayMetrics.density
