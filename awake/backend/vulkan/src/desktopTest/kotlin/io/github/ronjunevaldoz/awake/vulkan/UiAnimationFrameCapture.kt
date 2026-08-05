@@ -127,7 +127,8 @@ fun buildHeadlessUiRendererFixture(width: Int, height: Int): HeadlessUiRendererF
         renderPipeline.renderPass,
         runBlocking {
             loadUiAnimationShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv")
-        }
+        },
+        UI_ANIMATION_MAX_FRAMES_IN_FLIGHT
     )
     val transferContext = TransferContext(graphicsDevice)
     val renderer = Renderer(

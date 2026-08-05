@@ -35,55 +35,65 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
  * why this lives here as `internal` extension functions rather than as members. */
 
 internal fun Renderer.createDepthResources() {
-    depthImage = VulkanImages.vkCreateImage(
-        device,
-        VkImageCreateInfo(
-            width = swapchainManager.extent.width,
-            height = swapchainManager.extent.height,
-            format = Renderer.DEPTH_FORMAT,
-            usage = VkImageUsageFlagBits2.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-        )
-    )
-    val requirements = VulkanImages.vkGetImageMemoryRequirements(device, depthImage)
-    val memoryTypeIndex = VulkanBuffers.findMemoryType(
-        physicalDevice,
-        requirements.memoryTypeBits,
-        VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-    )
-    depthImageMemory = VulkanBuffers.vkAllocateMemory(
-        device,
-        VkMemoryAllocateInfo(
-            allocationSize = requirements.size,
-            memoryTypeIndex = memoryTypeIndex
-        )
-    )
-    VulkanImages.vkBindImageMemory(device, depthImage, depthImageMemory, 0)
-    depthImageView = Vulkan.vkCreateImageView(
-        device,
-        VkImageViewCreateInfo(
-            image = depthImage,
-            viewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_2D,
-            format = VkFormat.VK_FORMAT_D32_SFLOAT,
-            subresourceRange = VkImageSubresourceRange(
-                aspectMask = VkImageAspectFlagBits.VK_IMAGE_ASPECT_DEPTH_BIT.value,
-                baseMipLevel = 0,
-                levelCount = 1,
-                baseArrayLayer = 0,
-                layerCount = 1
+    val imageCount = swapchainManager.imageViews.size.coerceAtLeast(1)
+    val images = mutableListOf<Long>()
+    val memories = mutableListOf<Long>()
+    val imageViews = mutableListOf<Long>()
+    repeat(imageCount) {
+        val depthImage = VulkanImages.vkCreateImage(
+            device,
+            VkImageCreateInfo(
+                width = swapchainManager.extent.width,
+                height = swapchainManager.extent.height,
+                format = Renderer.DEPTH_FORMAT,
+                usage = VkImageUsageFlagBits2.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
             )
         )
-    )
+        val requirements = VulkanImages.vkGetImageMemoryRequirements(device, depthImage)
+        val memoryTypeIndex = VulkanBuffers.findMemoryType(
+            physicalDevice,
+            requirements.memoryTypeBits,
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        )
+        val depthImageMemory = VulkanBuffers.vkAllocateMemory(
+            device,
+            VkMemoryAllocateInfo(
+                allocationSize = requirements.size,
+                memoryTypeIndex = memoryTypeIndex
+            )
+        )
+        VulkanImages.vkBindImageMemory(device, depthImage, depthImageMemory, 0)
+        val depthImageView = Vulkan.vkCreateImageView(
+            device,
+            VkImageViewCreateInfo(
+                image = depthImage,
+                viewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_2D,
+                format = VkFormat.VK_FORMAT_D32_SFLOAT,
+                subresourceRange = VkImageSubresourceRange(
+                    aspectMask = VkImageAspectFlagBits.VK_IMAGE_ASPECT_DEPTH_BIT.value,
+                    baseMipLevel = 0,
+                    levelCount = 1,
+                    baseArrayLayer = 0,
+                    layerCount = 1
+                )
+            )
+        )
+        images += depthImage
+        memories += depthImageMemory
+        imageViews += depthImageView
+    }
+    depthImages = images
+    depthImageMemories = memories
+    depthImageViews = imageViews
 }
 
 internal fun Renderer.createFramebuffers() {
-    framebuffers = swapchainManager.imageViews.map { imageView ->
+    framebuffers = swapchainManager.imageViews.mapIndexed { index, imageView ->
         val frameBufferInfo = VkFramebufferCreateInfo(
             renderPass = renderPipeline.renderPass,
-            // depthImageView is shared across every framebuffer -- only one frame is
-            // ever actually in the depth-write phase at a time given draw()'s
-            // vkDeviceWaitIdle serialization, so this is safe (a "real" per-frame-in-
-            // flight setup would need one depth image per frame-in-flight instead).
-            pAttachments = arrayOf(imageView, depthImageView),
+            // One depth image per swapchain framebuffer so multiple frames can be in
+            // flight without racing depth writes through a single shared attachment.
+            pAttachments = arrayOf(imageView, depthImageViews[index]),
             width = swapchainManager.extent.width,
             height = swapchainManager.extent.height,
             layers = 1
@@ -158,6 +168,15 @@ internal fun Renderer.createCommandBuffers(commandPool: Long, maxFramesInFlight:
     }
 }
 
+internal fun Renderer.destroyDepthResources() {
+    depthImageViews.forEach { Vulkan.vkDestroyImageView(device, it) }
+    depthImages.forEach { VulkanImages.vkDestroyImage(device, it) }
+    depthImageMemories.forEach { VulkanBuffers.vkFreeMemory(device, it) }
+    depthImageViews = emptyList()
+    depthImages = emptyList()
+    depthImageMemories = emptyList()
+}
+
 /** Rebuilds the swapchain (and everything sized off it -- depth image, main + UI
  * framebuffers) after `vkAcquireNextImageKHR`/`vkQueuePresentKHR` reports
  * `VK_SUBOPTIMAL_KHR`/`VK_ERROR_OUT_OF_DATE_KHR` (typically a window resize/maximize).
@@ -178,9 +197,7 @@ internal fun Renderer.recreateSwapChain() {
     }
     presentTransitionFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
     uiFramebuffers.forEach { Vulkan.vkDestroyFramebuffer(device, it) }
-    Vulkan.vkDestroyImageView(device, depthImageView)
-    VulkanImages.vkDestroyImage(device, depthImage)
-    VulkanBuffers.vkFreeMemory(device, depthImageMemory)
+    destroyDepthResources()
 
     swapchainManager.destroy()
     // oldSwapchain (read by swapchainManager.create() below) must not reference an

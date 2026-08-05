@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerAddressMode
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerMipmapMode
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
-import io.github.ronjunevaldoz.awake.vulkan.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiRoundedQuadRenderPipeline
@@ -126,7 +125,7 @@ internal fun Renderer.ensureFontTexture(font: UiFont): Texture {
     ).also { fontTexture = it }
 }
 
-/** Builds [Renderer.uiTextureRenderPipeline]/[Renderer.textureQuadMesh] on the first
+/** Builds [Renderer.uiTextureRenderPipeline] on the first
  * [Renderer.drawUi] call that has any [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Texture]
  * primitives -- cached after that. Requires [ensureUiQuadPipeline] to already have run (needs
  * its render pass), same precondition [ensureGlyphPipeline] has. */
@@ -138,9 +137,9 @@ internal fun Renderer.ensureTextureQuadPipeline() {
         swapchainManager,
         renderPass,
         uiTextureShaders.vertex,
-        uiTextureShaders.fragment
+        uiTextureShaders.fragment,
+        maxFramesInFlight
     )
-    textureQuadMesh = DynamicMesh(graphicsDevice, Renderer.MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
 }
 
 /** Builds [Renderer.uiRoundedQuadRenderPipeline] on the first [Renderer.drawUi] call that has

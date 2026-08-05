@@ -43,6 +43,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendAttachmentState
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendStateCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineDepthStencilStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineDynamicStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineInputAssemblyStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
@@ -328,7 +329,7 @@ class UiRenderPipeline(
                 pRasterizationState = rasterizationInfo,
                 pMultisampleState = multisamplingInfo,
                 pColorBlendState = colorBlendInfo,
-                pDepthStencilState = null,
+                pDepthStencilState = uiDepthStencilState,
                 pDynamicState = dynamicInfo,
                 layout = pipelineLayout,
                 renderPass = renderPass,
@@ -362,5 +363,11 @@ class UiRenderPipeline(
 
     private companion object {
         const val SCREEN_SIZE_UNIFORM_BYTES = 4 * Float.SIZE_BYTES
+        val uiDepthStencilState = arrayOf(
+            VkPipelineDepthStencilStateCreateInfo(
+                depthTestEnable = false,
+                depthWriteEnable = false
+            )
+        )
     }
 }

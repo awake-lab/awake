@@ -31,7 +31,8 @@ class DynamicMesh(
     /** Floats per vertex -- 6 for colored quads (pos2+color4, see `ui_quad.vert`), 8 for
      * textured glyph quads (pos2+uv2+color4, see `ui_glyph.vert`). Parameterized (not a
      * fixed companion constant) so this one class serves both vertex layouts. */
-    private val floatsPerVertex: Int = FLOATS_PER_VERTEX
+    private val floatsPerVertex: Int = FLOATS_PER_VERTEX,
+    private val framesInFlight: Int = 1
 ) {
     private val device get() = graphicsDevice.device
     private val physicalDevice get() = graphicsDevice.physicalDevice
@@ -39,30 +40,40 @@ class DynamicMesh(
     private val maxVertices = maxQuads * VERTICES_PER_QUAD
     private val maxIndices = maxQuads * INDICES_PER_QUAD
 
-    private var vertexBuffer: BufferHandle
-    private var vertexBufferMemory: DeviceMemoryHandle
-    private var indexBuffer: BufferHandle
-    private var indexBufferMemory: DeviceMemoryHandle
+    private data class FrameResources(
+        val vertexBuffer: BufferHandle,
+        val vertexBufferMemory: DeviceMemoryHandle,
+        val indexBuffer: BufferHandle,
+        val indexBufferMemory: DeviceMemoryHandle,
+        var drawIndexCount: Int = 0
+    )
+
+    private val frameResources: Array<FrameResources>
+    private var activeFrameIndex: Int = 0
 
     /** How many indices this frame's [update] actually wrote -- [draw] only draws this many,
      * not the full buffer capacity. */
-    var drawIndexCount: Int = 0
-        private set
+    val drawIndexCount: Int
+        get() = frameResources[activeFrameIndex].drawIndexCount
 
     init {
-        val (vBuffer, vMemory) = allocateHostVisibleBuffer(
-            byteSize = (maxVertices * floatsPerVertex * Float.SIZE_BYTES).toLong(),
-            usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
-        )
-        vertexBuffer = BufferHandle(vBuffer)
-        vertexBufferMemory = DeviceMemoryHandle(vMemory)
-
-        val (iBuffer, iMemory) = allocateHostVisibleBuffer(
-            byteSize = (maxIndices * Int.SIZE_BYTES).toLong(),
-            usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_INDEX_BUFFER_BIT
-        )
-        indexBuffer = BufferHandle(iBuffer)
-        indexBufferMemory = DeviceMemoryHandle(iMemory)
+        require(framesInFlight > 0) { "framesInFlight must be positive." }
+        frameResources = Array(framesInFlight) {
+            val (vBuffer, vMemory) = allocateHostVisibleBuffer(
+                byteSize = (maxVertices * floatsPerVertex * Float.SIZE_BYTES).toLong(),
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+            )
+            val (iBuffer, iMemory) = allocateHostVisibleBuffer(
+                byteSize = (maxIndices * Int.SIZE_BYTES).toLong(),
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+            )
+            FrameResources(
+                vertexBuffer = BufferHandle(vBuffer),
+                vertexBufferMemory = DeviceMemoryHandle(vMemory),
+                indexBuffer = BufferHandle(iBuffer),
+                indexBufferMemory = DeviceMemoryHandle(iMemory)
+            )
+        }
     }
 
     /** Overwrites this frame's vertex/index contents. [vertices] must be at most
@@ -79,7 +90,10 @@ class DynamicMesh(
      * per the Vulkan spec, and MoltenVK's `vkUnmapMemory` throws `VK_ERROR_MEMORY_MAP_FAILED`
      * ("Memory is not mapped") for it, since the preceding 0-size `vkMapMemory` never
      * actually establishes a mapping. */
-    fun update(vertices: FloatArray, indices: IntArray) {
+    fun update(vertices: FloatArray, indices: IntArray) = update(frameIndex = 0, vertices = vertices, indices = indices)
+
+    fun update(frameIndex: Int, vertices: FloatArray, indices: IntArray) {
+        val frame = resourcesFor(frameIndex)
         require(vertices.size <= maxVertices * floatsPerVertex) {
             "UI quad count exceeds DynamicMesh capacity ($maxQuads quads) -- " +
                 "raise maxQuads or reduce widgets drawn this frame."
@@ -88,37 +102,53 @@ class DynamicMesh(
             "UI index count exceeds DynamicMesh capacity ($maxQuads quads) -- " +
                 "raise maxQuads or reduce widgets drawn this frame."
         }
-        drawIndexCount = indices.size
+        activeFrameIndex = frameIndex
+        frame.drawIndexCount = indices.size
         if (indices.isEmpty()) return
-        VulkanBuffers.writeBufferMemoryFloats(device, vertexBufferMemory.handle, 0, vertices)
-        VulkanBuffers.writeBufferMemoryBytes(device, indexBufferMemory.handle, 0, indices.toByteArrayLE())
+        VulkanBuffers.writeBufferMemoryFloats(device, frame.vertexBufferMemory.handle, 0, vertices)
+        VulkanBuffers.writeBufferMemoryBytes(device, frame.indexBufferMemory.handle, 0, indices.toByteArrayLE())
     }
 
-    fun bind(commandBuffer: Long) {
+    fun bind(commandBuffer: Long) = bind(activeFrameIndex, commandBuffer)
+
+    fun bind(frameIndex: Int, commandBuffer: Long) {
+        val frame = resourcesFor(frameIndex)
         VulkanBuffers.vkCmdBindVertexBuffers(
             commandBuffer,
             0,
-            longArrayOf(vertexBuffer.handle),
+            longArrayOf(frame.vertexBuffer.handle),
             longArrayOf(0L)
         )
         VulkanBuffers.vkCmdBindIndexBuffer(
             commandBuffer,
-            indexBuffer.handle,
+            frame.indexBuffer.handle,
             0,
             VkIndexType.VK_INDEX_TYPE_UINT32
         )
     }
 
-    fun draw(commandBuffer: Long) {
-        if (drawIndexCount == 0) return
-        VulkanBuffers.vkCmdDrawIndexed(commandBuffer, drawIndexCount, 1, 0, 0, 0)
+    fun draw(commandBuffer: Long) = draw(activeFrameIndex, commandBuffer)
+
+    fun draw(frameIndex: Int, commandBuffer: Long) {
+        val frame = resourcesFor(frameIndex)
+        if (frame.drawIndexCount == 0) return
+        VulkanBuffers.vkCmdDrawIndexed(commandBuffer, frame.drawIndexCount, 1, 0, 0, 0)
     }
 
     fun destroy() {
-        VulkanBuffers.vkDestroyBuffer(device, vertexBuffer.handle)
-        VulkanBuffers.vkFreeMemory(device, vertexBufferMemory.handle)
-        VulkanBuffers.vkDestroyBuffer(device, indexBuffer.handle)
-        VulkanBuffers.vkFreeMemory(device, indexBufferMemory.handle)
+        frameResources.forEach { frame ->
+            VulkanBuffers.vkDestroyBuffer(device, frame.vertexBuffer.handle)
+            VulkanBuffers.vkFreeMemory(device, frame.vertexBufferMemory.handle)
+            VulkanBuffers.vkDestroyBuffer(device, frame.indexBuffer.handle)
+            VulkanBuffers.vkFreeMemory(device, frame.indexBufferMemory.handle)
+        }
+    }
+
+    private fun resourcesFor(frameIndex: Int): FrameResources {
+        require(frameIndex in frameResources.indices) {
+            "DynamicMesh frame index $frameIndex is outside 0..${frameResources.lastIndex}."
+        }
+        return frameResources[frameIndex]
     }
 
     private fun allocateHostVisibleBuffer(byteSize: Long, usage: Int): Pair<Long, Long> {

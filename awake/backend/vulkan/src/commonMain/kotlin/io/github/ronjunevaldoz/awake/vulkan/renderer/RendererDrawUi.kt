@@ -68,10 +68,13 @@ private enum class ClipKind {
  *
  * Named `performDrawUi`, not `drawUi` -- see [performDraw]'s doc comment for why. */
 internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) {
-    ensureUiQuadPipeline()
-    if (font != null) ensureGlyphPipeline(font)
-    if (primitives.any { it is UiDrawPrimitive.Texture }) ensureTextureQuadPipeline()
-    if (primitives.any { it is UiDrawPrimitive.RoundedQuad }) ensureRoundedQuadPipeline()
+    waitForCurrentFrameResourceSlot()
+    if (swapchainManager.imageViews.isNotEmpty()) {
+        ensureUiQuadPipeline()
+        if (font != null) ensureGlyphPipeline(font)
+        if (primitives.any { it is UiDrawPrimitive.Texture }) ensureTextureQuadPipeline()
+        if (primitives.any { it is UiDrawPrimitive.RoundedQuad }) ensureRoundedQuadPipeline()
+    }
 
     val runs = mutableListOf<Renderer.UiRun>()
     var quadRunCount = 0
@@ -374,7 +377,7 @@ internal fun Renderer.stageQuadRun(
         indices[indexBase + 5] = vertexOffset
         quadIndex += 1
     }
-    mesh.update(vertices, indices)
+    mesh.update(swapchainManager.currentFrame, vertices, indices)
 }
 
 internal fun Renderer.stageGradientQuadRun(
@@ -405,7 +408,7 @@ internal fun Renderer.stageGradientQuadRun(
         indices[indexBase + 5] = vertexOffset
         quadIndex += 1
     }
-    mesh.update(vertices, indices)
+    mesh.update(swapchainManager.currentFrame, vertices, indices)
 }
 
 /** Tessellates+clips a single [UiDrawPrimitive.StrokedPath] -- extracted so `performDrawUi`'s
@@ -551,7 +554,7 @@ internal fun Renderer.stageColoredTriangleMeshes(
         }
         vertexOffset += triangleMesh.points.size
     }
-    mesh.update(vertices, indices)
+    mesh.update(swapchainManager.currentFrame, vertices, indices)
 }
 
 internal fun canExactClip(paths: List<UiPath>): Boolean = paths.isNotEmpty() && paths.all { it.convexClipContour() != null }
@@ -602,7 +605,7 @@ internal fun Renderer.stageColoredVertexTriangleMeshes(
         }
         vertexOffset += triangleMesh.vertices.size
     }
-    mesh.update(vertices, indices)
+    mesh.update(swapchainManager.currentFrame, vertices, indices)
 }
 
 /** Writes [quads] (one run's worth) into [mesh] using the rounded-quad vertex layout --
@@ -642,7 +645,7 @@ internal fun Renderer.stageRoundedQuadRun(mesh: DynamicMesh, quads: List<UiDrawP
         indices[indexBase + 5] = vertexOffset
         quadIndex += 1
     }
-    mesh.update(vertices, indices)
+    mesh.update(swapchainManager.currentFrame, vertices, indices)
 }
 
 /** Writes [glyphs] (one run's worth) into [mesh] -- extracted from the old single-mesh
@@ -690,7 +693,7 @@ internal fun Renderer.stageGlyphRun(
         glyphIndices[indexBase + 5] = vertexOffset
         glyphIndex += 1
     }
-    mesh.update(glyphVertices, glyphIndices)
+    mesh.update(swapchainManager.currentFrame, glyphVertices, glyphIndices)
 }
 
 internal fun Renderer.stageTextureRun(
@@ -739,7 +742,7 @@ internal fun Renderer.stageTexturedTriangleMeshes(
         }
         vertexOffset += triangleMesh.vertices.size
     }
-    mesh.update(vertices, indices)
+    mesh.update(swapchainManager.currentFrame, vertices, indices)
 }
 
 internal fun texturedQuadMesh(
@@ -800,6 +803,7 @@ internal fun texturedGeometryBuffers(
 fun Renderer.renderUiToTexture(target: RenderTarget, primitives: List<UiDrawPrimitive>, font: UiFont?) {
     val offscreen = target as OffscreenRenderTarget
     performDrawUi(primitives, font)
+    val frameIndex = swapchainManager.currentFrame
 
     ensureOffscreenQuadPipeline()
     if (font != null) ensureOffscreenGlyphPipeline(font)
@@ -828,21 +832,21 @@ fun Renderer.renderUiToTexture(target: RenderTarget, primitives: List<UiDrawPrim
             when (val run = uiRuns[runIndex]) {
                 is Renderer.UiRun.QuadRun -> {
                     quadPipeline.bind(commandBuffer)
-                    run.mesh.bind(commandBuffer)
-                    run.mesh.draw(commandBuffer)
+                    run.mesh.bind(frameIndex, commandBuffer)
+                    run.mesh.draw(frameIndex, commandBuffer)
                 }
                 is Renderer.UiRun.RoundedQuadRun -> {
                     offscreenRoundedQuadRenderPipeline?.let { pipeline ->
                         pipeline.bind(commandBuffer)
-                        run.mesh.bind(commandBuffer)
-                        run.mesh.draw(commandBuffer)
+                        run.mesh.bind(frameIndex, commandBuffer)
+                        run.mesh.draw(frameIndex, commandBuffer)
                     }
                 }
                 is Renderer.UiRun.GlyphRun -> {
                     offscreenGlyphRenderPipeline?.let { pipeline ->
                         pipeline.bind(commandBuffer)
-                        run.mesh.bind(commandBuffer)
-                        run.mesh.draw(commandBuffer)
+                        run.mesh.bind(frameIndex, commandBuffer)
+                        run.mesh.draw(frameIndex, commandBuffer)
                     }
                 }
                 is Renderer.UiRun.ClipRun -> {
@@ -874,6 +878,8 @@ fun Renderer.renderUiToTexture(target: RenderTarget, primitives: List<UiDrawPrim
  */
 fun Renderer.renderUiGlyphsToTexture(target: RenderTarget, glyphs: List<UiDrawPrimitive.Glyph>, font: UiFont) {
     val offscreen = target as OffscreenRenderTarget
+    waitForCurrentFrameResourceSlot()
+    val frameIndex = swapchainManager.currentFrame
     ensureOffscreenGlyphPipeline(font)
     val glyphPipeline = requireNotNull(offscreenGlyphRenderPipeline)
     glyphPipeline.writeScreenSize(offscreen.width.toFloat(), offscreen.height.toFloat())
@@ -905,8 +911,8 @@ fun Renderer.renderUiGlyphsToTexture(target: RenderTarget, glyphs: List<UiDrawPr
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
         glyphPipeline.bind(commandBuffer)
         glyphRunMeshes.forEach { mesh ->
-            mesh.bind(commandBuffer)
-            mesh.draw(commandBuffer)
+            mesh.bind(frameIndex, commandBuffer)
+            mesh.draw(frameIndex, commandBuffer)
         }
         Vulkan.vkCmdEndRenderPass(commandBuffer)
         offscreen.transitionToShaderReadOnly(commandBuffer)

@@ -76,7 +76,8 @@ class GltfViewerDeterminismTest {
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
-            runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }
+            runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
+            MAX_FRAMES_IN_FLIGHT
         )
         val transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(

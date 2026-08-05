@@ -112,7 +112,8 @@ class VulkanGameApplication(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
-            loadShaderPair(DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH, DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH)
+            loadShaderPair(DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH, DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH),
+            MAX_FRAMES_IN_FLIGHT
         )
         transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(

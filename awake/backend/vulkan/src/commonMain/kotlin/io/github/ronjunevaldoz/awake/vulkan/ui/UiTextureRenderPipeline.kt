@@ -34,6 +34,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendAttachmentState
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendStateCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineDepthStencilStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineDynamicStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineInputAssemblyStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
@@ -58,36 +59,41 @@ import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
  *
  * Unlike [UiGlyphRenderPipeline] (one fixed font texture for the pipeline's whole lifetime),
  * each [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Texture] primitive can carry a
- * DIFFERENT material/image. Rather than tracking one descriptor set per distinct material,
- * this pipeline owns exactly ONE descriptor set whose image binding is rewritten (via
- * [bindMaterial]) immediately before each texture-quad draw call -- safe under this
- * codebase's existing per-frame full-serialization model (`Renderer.draw()`'s
- * `vkDeviceWaitIdle` after every submit guarantees no in-flight command buffer is still
- * reading this descriptor set when the next frame's host-side rewrite happens).
+ * DIFFERENT material/image. Descriptor sets are therefore split by frame-in-flight and draw
+ * slot: a frame may reuse slot 0 next time that frame's fence is signaled, but two texture
+ * primitives in the same command buffer never rewrite the same descriptor set underneath one
+ * another.
  */
 class UiTextureRenderPipeline(
     graphicsDevice: GraphicsDevice,
     private val swapchainManager: SwapchainManager,
     private val renderPass: Long,
     vertShaderCode: ByteArray,
-    fragShaderCode: ByteArray
+    fragShaderCode: ByteArray,
+    private val framesInFlight: Int = 1
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
 
     private var descriptorSetLayout: Long = 0
-    private var descriptorPool: Long = 0
-    private var descriptorSet: Long = 0
     private var screenSizeBuffer: Long = 0
     private var screenSizeBufferMemory: Long = 0
     private var pipelineLayout: Long = 0
     private var pipelineCache: Long = 0
     private var graphicsPipeline: LongArray = longArrayOf()
+    private val descriptorSlotsByFrame = List(framesInFlight) {
+        mutableListOf<TextureDescriptorSlot>()
+    }
+
+    private data class TextureDescriptorSlot(
+        val descriptorPool: Long,
+        val descriptorSet: Long
+    )
 
     init {
+        require(framesInFlight > 0) { "framesInFlight must be positive." }
         descriptorSetLayout = createDescriptorSetLayout()
         createScreenSizeUniformBuffer()
-        createDescriptorSet()
         createGraphicsPipeline(vertShaderCode, fragShaderCode)
         writeScreenSize(swapchainManager.extent.width.toFloat(), swapchainManager.extent.height.toFloat())
     }
@@ -132,20 +138,26 @@ class UiTextureRenderPipeline(
         VulkanBuffers.vkBindBufferMemory(device, screenSizeBuffer, screenSizeBufferMemory, 0)
     }
 
-    /** Builds the one shared descriptor set with a placeholder image binding (rewritten per
-     * draw call by [bindMaterial]) -- there's nothing real to bind yet at construction time. */
-    private fun createDescriptorSet() {
-        descriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
+    /** Builds one descriptor set for a single frame/draw slot. Binding 0 points at the shared
+     * screen-size UBO; binding 1 is rewritten by [bindMaterial] for this slot's material. */
+    private fun createDescriptorSlot(): TextureDescriptorSlot {
+        val descriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
             device,
             VkDescriptorPoolCreateInfo(
                 maxSets = 1,
                 pPoolSizes = arrayOf(
-                    VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount = 1),
-                    VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorCount = 1)
+                    VkDescriptorPoolSize(
+                        type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                        descriptorCount = 1
+                    ),
+                    VkDescriptorPoolSize(
+                        type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                        descriptorCount = 1
+                    )
                 )
             )
         )
-        descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(device, descriptorPool, descriptorSetLayout)
+        val descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(device, descriptorPool, descriptorSetLayout)
         VulkanDescriptors.vkUpdateDescriptorSetBuffer(
             device,
             descriptorSet,
@@ -153,26 +165,52 @@ class UiTextureRenderPipeline(
             VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             VkDescriptorBufferInfo(buffer = screenSizeBuffer, range = SCREEN_SIZE_UNIFORM_BYTES.toLong())
         )
+        return TextureDescriptorSlot(descriptorPool, descriptorSet)
     }
 
     fun writeScreenSize(width: Float, height: Float) {
-        VulkanBuffers.writeBufferMemoryFloats(device, screenSizeBufferMemory, 0, floatArrayOf(width, height, 0f, 0f))
+        VulkanBuffers.writeBufferMemoryFloats(
+            device,
+            screenSizeBufferMemory,
+            0,
+            floatArrayOf(width, height, 0f, 0f)
+        )
     }
 
-    /** Rewrites this pipeline's one shared descriptor set to sample [sampler]/[imageView],
-     * then binds the pipeline + descriptor set -- call once per distinct material,
-     * immediately before drawing that material's quad. See this class's doc comment for why
-     * a single rewritten descriptor set is safe here. */
-    fun bindMaterial(commandBuffer: Long, sampler: Long, imageView: Long) {
+    fun bindMaterial(commandBuffer: Long, sampler: Long, imageView: Long) =
+        bindMaterial(
+            commandBuffer,
+            frameIndex = 0,
+            drawSlotIndex = 0,
+            sampler = sampler,
+            imageView = imageView
+        )
+
+    /** Rewrites this frame/draw slot's descriptor set to sample [sampler]/[imageView], then
+     * binds the pipeline + that slot. Distinct [drawSlotIndex] values avoid overwriting a
+     * descriptor set already referenced by an earlier texture draw in the same command
+     * buffer; distinct [frameIndex] values avoid racing the previous in-flight frame. */
+    fun bindMaterial(
+        commandBuffer: Long,
+        frameIndex: Int,
+        drawSlotIndex: Int,
+        sampler: Long,
+        imageView: Long
+    ) {
+        val slot = descriptorSlot(frameIndex, drawSlotIndex)
         VulkanDescriptors.vkUpdateDescriptorSetImage(
             device,
-            descriptorSet,
+            slot.descriptorSet,
             1,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             VkDescriptorImageInfo(sampler = sampler, imageView = imageView)
         )
-        Vulkan.vkCmdBindPipeline(commandBuffer, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline[0])
-        VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet)
+        Vulkan.vkCmdBindPipeline(
+            commandBuffer,
+            VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS,
+            graphicsPipeline[0]
+        )
+        VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, slot.descriptorSet)
     }
 
     private fun createShaderModule(code: IntArray): Long =
@@ -295,7 +333,7 @@ class UiTextureRenderPipeline(
                 pRasterizationState = rasterizationInfo,
                 pMultisampleState = multisamplingInfo,
                 pColorBlendState = colorBlendInfo,
-                pDepthStencilState = null,
+                pDepthStencilState = uiDepthStencilState,
                 pDynamicState = dynamicInfo,
                 layout = pipelineLayout,
                 renderPass = renderPass,
@@ -317,11 +355,29 @@ class UiTextureRenderPipeline(
         Vulkan.vkDestroyPipelineCache(device, pipelineCache)
         VulkanBuffers.vkDestroyBuffer(device, screenSizeBuffer)
         VulkanBuffers.vkFreeMemory(device, screenSizeBufferMemory)
-        VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool)
+        descriptorSlotsByFrame.forEach { slots ->
+            slots.forEach { slot -> VulkanDescriptors.vkDestroyDescriptorPool(device, slot.descriptorPool) }
+        }
         VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout)
+    }
+
+    private fun descriptorSlot(frameIndex: Int, drawSlotIndex: Int): TextureDescriptorSlot {
+        require(frameIndex in descriptorSlotsByFrame.indices) {
+            "UiTextureRenderPipeline frame index $frameIndex is outside 0..${descriptorSlotsByFrame.lastIndex}."
+        }
+        require(drawSlotIndex >= 0) { "drawSlotIndex must be non-negative." }
+        val slots = descriptorSlotsByFrame[frameIndex]
+        while (slots.size <= drawSlotIndex) slots += createDescriptorSlot()
+        return slots[drawSlotIndex]
     }
 
     private companion object {
         const val SCREEN_SIZE_UNIFORM_BYTES = 4 * Float.SIZE_BYTES
+        val uiDepthStencilState = arrayOf(
+            VkPipelineDepthStencilStateCreateInfo(
+                depthTestEnable = false,
+                depthWriteEnable = false
+            )
+        )
     }
 }

@@ -15,7 +15,6 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkResult
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
-import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
@@ -39,11 +38,10 @@ import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 /** Renders one frame: waits for this frame-in-flight slot, acquires a swapchain image,
  * prepares each [DrawCall]'s MVP matrix (model combined with [camera]'s view/projection)
  * into a concrete material uniform slot, records and submits a command buffer that draws
- * every call in order, then presents. Material uniforms are no longer one shared mutable
- * buffer per material -- the prepared draw list carries the exact frame/draw slot each bind
- * must use, so one material can safely appear multiple times in the same frame. The final
- * `vkDeviceWaitIdle` remains until the UI/debug dynamic-buffer paths get the same per-frame
- * treatment.
+ * every call in order, then presents. Mutable per-frame resources (material uniforms,
+ * debug-line uniforms/buffers, and UI dynamic meshes/descriptors) are indexed by the same
+ * frame slot, so this path only waits that slot's fence rather than stalling the entire
+ * device after every submit.
  *
  * Named `performDraw`, not `draw` -- [Renderer]'s `override fun draw(...)` (the actual
  * `RenderRenderer` interface method) is a one-line delegate to this extension function; an
@@ -89,13 +87,13 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
     val viewProjection = camera.viewProjectionMatrix(aspect)
     // Debug lines are already in world space (no per-line model matrix), so their MVP
     // is exactly this frame's viewProjection.
-    lineRenderPipeline.writeMvp(viewProjection.data)
+    lineRenderPipeline.writeMvp(currentFrame, viewProjection.data)
     val materialUsage = mutableMapOf<RenderMaterial, Int>()
     val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, drawCalls, materialUsage)
     val preparedSkinnedDrawCalls = prepareSkinnedDrawCalls(currentFrame, viewProjection, materialUsage)
 
     Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
-    recordCommandBuffer(commandBuffers[currentFrame], imageIndex, preparedDrawCalls, preparedSkinnedDrawCalls)
+    recordCommandBuffer(commandBuffers[currentFrame], currentFrame, imageIndex, preparedDrawCalls, preparedSkinnedDrawCalls)
 
     val waitSemaphores = arrayOf(swapchainManager.imageAvailableSemaphores[currentFrame])
     val waitStages =
@@ -128,8 +126,6 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
     }
 
     swapchainManager.currentFrame = (currentFrame + 1) % commandBuffers.size
-
-    VulkanBuffers.vkDeviceWaitIdle(device)
 }
 
 /** Binds+draws each [drawCalls] entry against whatever render pass/pipeline is already
@@ -154,6 +150,7 @@ internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<Prepa
 
 internal fun Renderer.recordCommandBuffer(
     commandBuffer: Long,
+    frameIndex: Int,
     acquiredImageIndex: Int,
     drawCalls: List<PreparedDrawCall>,
     skinnedDrawCalls: List<PreparedSkinnedDrawCall>
@@ -193,9 +190,9 @@ internal fun Renderer.recordCommandBuffer(
     // Debug lines (e.g. a frustum wireframe), same render pass/depth attachment as
     // the 3D draw calls above -- real depth-testing against scene geometry, not an
     // X-ray overlay. Still inside this pass, before it ends.
-    lineRenderPipeline.bind(commandBuffer)
-    lineMesh.bind(commandBuffer)
-    lineMesh.draw(commandBuffer)
+    lineRenderPipeline.bind(commandBuffer, frameIndex)
+    lineMesh.bind(frameIndex, commandBuffer)
+    lineMesh.draw(frameIndex, commandBuffer)
 
     val skinnedPipeline = skinnedRenderPipeline
     if (skinnedPipeline != null) {
@@ -244,27 +241,27 @@ internal fun Renderer.recordCommandBuffer(
         val glyphPipeline = uiGlyphRenderPipeline
         val texturePipeline = uiTextureRenderPipeline
         val roundedQuadPipeline = uiRoundedQuadRenderPipeline
-        val quadMesh = textureQuadMesh
         var runIndex = 0
+        var textureSlotIndex = 0
         while (runIndex < uiRuns.size) {
             when (val run = uiRuns[runIndex]) {
                 is Renderer.UiRun.QuadRun -> {
                     uiPipeline.bind(commandBuffer)
-                    run.mesh.bind(commandBuffer)
-                    run.mesh.draw(commandBuffer)
+                    run.mesh.bind(frameIndex, commandBuffer)
+                    run.mesh.draw(frameIndex, commandBuffer)
                 }
                 is Renderer.UiRun.RoundedQuadRun -> {
                     if (roundedQuadPipeline != null) {
                         roundedQuadPipeline.bind(commandBuffer)
-                        run.mesh.bind(commandBuffer)
-                        run.mesh.draw(commandBuffer)
+                        run.mesh.bind(frameIndex, commandBuffer)
+                        run.mesh.draw(frameIndex, commandBuffer)
                     }
                 }
                 is Renderer.UiRun.GlyphRun -> {
                     if (glyphPipeline != null) {
                         glyphPipeline.bind(commandBuffer)
-                        run.mesh.bind(commandBuffer)
-                        run.mesh.draw(commandBuffer)
+                        run.mesh.bind(frameIndex, commandBuffer)
+                        run.mesh.draw(frameIndex, commandBuffer)
                     }
                 }
                 is Renderer.UiRun.ClipRun -> {
@@ -288,24 +285,27 @@ internal fun Renderer.recordCommandBuffer(
                 }
                 is Renderer.UiRun.TextureRun -> {
                     // Render-target-backed textured quads (e.g. a minimap), one draw
-                    // call per primitive -- each rewrites the texture pipeline's one
-                    // shared descriptor set (see UiTextureRenderPipeline's doc comment
-                    // for why that's safe here). Geometry is already staged, including
-                    // any exact convex path clipping, so command recording stays simple.
-                    if (texturePipeline != null && quadMesh != null) {
+                    // call per primitive. Each primitive gets a distinct per-frame mesh
+                    // and descriptor slot so command recording never overwrites geometry
+                    // or image bindings already referenced by an earlier texture draw.
+                    if (texturePipeline != null) {
                         var textureIndex = 0
                         while (textureIndex < run.primitives.size) {
                             val primitive = run.primitives[textureIndex]
                             val material = primitive.material as Material
+                            val mesh = textureMeshForPrimitive(textureSlotIndex)
                             texturePipeline.bindMaterial(
                                 commandBuffer,
+                                frameIndex,
+                                textureSlotIndex,
                                 material.samplerHandle,
                                 material.imageViewHandle
                             )
-                            quadMesh.update(primitive.vertices, primitive.indices)
-                            quadMesh.bind(commandBuffer)
-                            quadMesh.draw(commandBuffer)
+                            mesh.update(frameIndex, primitive.vertices, primitive.indices)
+                            mesh.bind(frameIndex, commandBuffer)
+                            mesh.draw(frameIndex, commandBuffer)
                             textureIndex += 1
+                            textureSlotIndex += 1
                         }
                     }
                 }
@@ -329,6 +329,16 @@ internal fun Renderer.recordCommandBuffer(
     }
 
     Vulkan.vkEndCommandBuffer(commandBuffer)
+}
+
+/** Waits until the current frame-in-flight slot is no longer referenced by the GPU before
+ * CPU code rewrites host-visible resources assigned to that slot. This is intentionally much
+ * narrower than `vkDeviceWaitIdle`: other submitted frame slots may continue running. */
+internal fun Renderer.waitForCurrentFrameResourceSlot() {
+    val currentFrame = swapchainManager.currentFrame
+    val fence = swapchainManager.inFlightFences.getOrNull(currentFrame) ?: return
+    if (fence == 0L) return
+    Vulkan.vkWaitForFences(device, longArrayOf(fence), true, Long.MAX_VALUE)
 }
 
 internal data class PreparedDrawCall(
@@ -433,6 +443,7 @@ internal fun Renderer.runOffscreenCommands(block: (Long) -> Unit) {
  * Named `performDrawDebugLines`, not `drawDebugLines` -- see [performDraw]'s doc comment for
  * why. */
 internal fun Renderer.performDrawDebugLines(lines: List<LineSegment>) {
+    waitForCurrentFrameResourceSlot()
     require(lines.size <= Renderer.MAX_DEBUG_LINES) {
         "Debug line count (${lines.size}) exceeds Renderer's LineMesh capacity (${Renderer.MAX_DEBUG_LINES})."
     }
@@ -452,5 +463,5 @@ internal fun Renderer.performDrawDebugLines(lines: List<LineSegment>) {
         )
         lineIndex += 1
     }
-    lineMesh.update(vertices)
+    lineMesh.update(swapchainManager.currentFrame, vertices)
 }

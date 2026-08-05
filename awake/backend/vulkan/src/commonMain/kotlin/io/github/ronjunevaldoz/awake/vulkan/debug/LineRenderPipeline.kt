@@ -58,24 +58,29 @@ class LineRenderPipeline(
     graphicsDevice: GraphicsDevice,
     private val swapchainManager: SwapchainManager,
     private val renderPass: Long,
-    shaders: ShaderPair
+    shaders: ShaderPair,
+    private val framesInFlight: Int = 1
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
 
     private var descriptorSetLayout: Long = 0
-    private var descriptorPool: Long = 0
-    private var descriptorSet: Long = 0
-    private var mvpBuffer: Long = 0
-    private var mvpBufferMemory: Long = 0
     private var pipelineLayout: Long = 0
     private var pipelineCache: Long = 0
     private var graphicsPipeline: LongArray = longArrayOf()
+    private val uniformSlots = mutableListOf<UniformSlot>()
+
+    private data class UniformSlot(
+        val descriptorPool: Long,
+        val descriptorSet: Long,
+        val mvpBuffer: Long,
+        val mvpBufferMemory: Long
+    )
 
     init {
+        require(framesInFlight > 0) { "framesInFlight must be positive." }
         descriptorSetLayout = createDescriptorSetLayout()
-        createMvpUniformBuffer()
-        createDescriptorSet()
+        repeat(framesInFlight) { uniformSlots += createUniformSlot() }
         createGraphicsPipeline(shaders.vertex, shaders.fragment)
     }
 
@@ -92,30 +97,32 @@ class LineRenderPipeline(
         )
     )
 
-    private fun createMvpUniformBuffer() {
-        mvpBuffer = VulkanBuffers.vkCreateBuffer(
+    private fun createMvpUniformBuffer(): Pair<Long, Long> {
+        val buffer = VulkanBuffers.vkCreateBuffer(
             device,
             VkBufferCreateInfo(
                 size = MVP_UNIFORM_BYTES.toLong(),
                 usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
             )
         )
-        val requirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, mvpBuffer)
+        val requirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, buffer)
         val memoryTypeIndex = VulkanBuffers.findMemoryType(
             graphicsDevice.physicalDevice,
             requirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
                 VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
         )
-        mvpBufferMemory = VulkanBuffers.vkAllocateMemory(
+        val memory = VulkanBuffers.vkAllocateMemory(
             device,
             VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex)
         )
-        VulkanBuffers.vkBindBufferMemory(device, mvpBuffer, mvpBufferMemory, 0)
+        VulkanBuffers.vkBindBufferMemory(device, buffer, memory, 0)
+        return buffer to memory
     }
 
-    private fun createDescriptorSet() {
-        descriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
+    private fun createUniformSlot(): UniformSlot {
+        val (mvpBuffer, mvpBufferMemory) = createMvpUniformBuffer()
+        val descriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
             device,
             VkDescriptorPoolCreateInfo(
                 maxSets = 1,
@@ -124,7 +131,7 @@ class LineRenderPipeline(
                 )
             )
         )
-        descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(device, descriptorPool, descriptorSetLayout)
+        val descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(device, descriptorPool, descriptorSetLayout)
         VulkanDescriptors.vkUpdateDescriptorSetBuffer(
             device,
             descriptorSet,
@@ -132,12 +139,16 @@ class LineRenderPipeline(
             VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             VkDescriptorBufferInfo(buffer = mvpBuffer, range = MVP_UNIFORM_BYTES.toLong())
         )
+        return UniformSlot(descriptorPool, descriptorSet, mvpBuffer, mvpBufferMemory)
     }
 
     /** Writes this frame's view-projection matrix (lines are already in world space, so
      * model is implicitly identity -- mvp == viewProjection). */
-    fun writeMvp(mvp: FloatArray) {
-        VulkanBuffers.writeBufferMemoryFloats(device, mvpBufferMemory, 0, mvp)
+    fun writeMvp(mvp: FloatArray) = writeMvp(frameIndex = 0, mvp = mvp)
+
+    fun writeMvp(frameIndex: Int, mvp: FloatArray) {
+        val slot = uniformSlot(frameIndex)
+        VulkanBuffers.writeBufferMemoryFloats(device, slot.mvpBufferMemory, 0, mvp)
     }
 
     private fun createShaderModule(code: IntArray): Long =
@@ -155,8 +166,16 @@ class LineRenderPipeline(
         val vertShaderModule = createShaderModule(vertShaderCode.toIntArray())
 
         val shaderStages = arrayOf(
-            VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main"),
-            VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")
+            VkPipelineShaderStageCreateInfo(
+                stage = VkShaderStageFlagBits.FRAGMENT,
+                module = fragShaderModule,
+                pName = "main"
+            ),
+            VkPipelineShaderStageCreateInfo(
+                stage = VkShaderStageFlagBits.VERTEX,
+                module = vertShaderModule,
+                pName = "main"
+            )
         )
 
         val vertexInputInfo = arrayOf(
@@ -187,7 +206,10 @@ class LineRenderPipeline(
 
         val dynamicInfo = arrayOf(
             VkPipelineDynamicStateCreateInfo(
-                pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)
+                pDynamicStates = arrayOf(
+                    VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT,
+                    VkDynamicState.VK_DYNAMIC_STATE_SCISSOR
+                )
             )
         )
 
@@ -253,19 +275,35 @@ class LineRenderPipeline(
         Vulkan.vkDestroyShaderModule(device, vertShaderModule)
     }
 
-    fun bind(commandBuffer: Long) {
-        Vulkan.vkCmdBindPipeline(commandBuffer, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline[0])
-        VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, descriptorSet)
+    fun bind(commandBuffer: Long) = bind(commandBuffer, frameIndex = 0)
+
+    fun bind(commandBuffer: Long, frameIndex: Int) {
+        val slot = uniformSlot(frameIndex)
+        Vulkan.vkCmdBindPipeline(
+            commandBuffer,
+            VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS,
+            graphicsPipeline[0]
+        )
+        VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, slot.descriptorSet)
     }
 
     fun destroy() {
         graphicsPipeline.forEach { Vulkan.vkDestroyPipeline(device, it) }
         Vulkan.vkDestroyPipelineLayout(device, pipelineLayout)
         Vulkan.vkDestroyPipelineCache(device, pipelineCache)
-        VulkanBuffers.vkDestroyBuffer(device, mvpBuffer)
-        VulkanBuffers.vkFreeMemory(device, mvpBufferMemory)
-        VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool)
+        uniformSlots.forEach { slot ->
+            VulkanBuffers.vkDestroyBuffer(device, slot.mvpBuffer)
+            VulkanBuffers.vkFreeMemory(device, slot.mvpBufferMemory)
+            VulkanDescriptors.vkDestroyDescriptorPool(device, slot.descriptorPool)
+        }
         VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout)
+    }
+
+    private fun uniformSlot(frameIndex: Int): UniformSlot {
+        require(frameIndex in uniformSlots.indices) {
+            "LineRenderPipeline frame index $frameIndex is outside 0..${uniformSlots.lastIndex}."
+        }
+        return uniformSlots[frameIndex]
     }
 
     private companion object {

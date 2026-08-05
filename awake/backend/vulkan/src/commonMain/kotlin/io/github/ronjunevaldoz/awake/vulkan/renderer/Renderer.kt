@@ -98,7 +98,7 @@ class Renderer(
     internal val uiGlyphShaders: ShaderPair,
     internal val uiTextureShaders: ShaderPair,
     internal val uiRoundedQuadShaders: ShaderPair,
-    maxFramesInFlight: Int
+    internal val maxFramesInFlight: Int
 ) : RenderRenderer {
     override val flipYForClipSpace: Boolean = true
 
@@ -117,9 +117,9 @@ class Renderer(
     internal val graphicsQueue get() = graphicsDevice.graphicsQueue
     internal val presentQueue get() = graphicsDevice.presentQueue
 
-    internal var depthImage: Long = 0
-    internal var depthImageMemory: Long = 0
-    internal var depthImageView: Long = 0
+    internal var depthImages: List<Long> = emptyList()
+    internal var depthImageMemories: List<Long> = emptyList()
+    internal var depthImageViews: List<Long> = emptyList()
     internal var presentTransitionRenderPass: Long = 0
 
     // Reused every call by renderToTexture()/readPixels() -- NOT transferContext
@@ -156,9 +156,8 @@ class Renderer(
 
     // Lazily built on the first drawUi() call that has any Texture primitives -- see
     // ensureTextureQuadPipeline()'s doc comment. Reused every frame after that; a game that
-    // never composites a RenderTarget never pays for this pipeline or textureQuadMesh.
+    // never composites a RenderTarget never pays for this pipeline or texture mesh pool.
     internal var uiTextureRenderPipeline: UiTextureRenderPipeline? = null
-    internal var textureQuadMesh: DynamicMesh? = null
 
     // Lazily built on the first drawUi() call that has any RoundedQuad primitives -- see
     // ensureRoundedQuadPipeline()'s doc comment. Same lazy-pay-only-if-used pattern as the
@@ -204,6 +203,7 @@ class Renderer(
     private val uiQuadMeshPool = mutableListOf<DynamicMesh>()
     private val uiGlyphMeshPool = mutableListOf<DynamicMesh>()
     private val uiRoundedQuadMeshPool = mutableListOf<DynamicMesh>()
+    private val uiTextureMeshPool = mutableListOf<DynamicMesh>()
 
     /** One coalesced same-type run of a frame's UI primitives, in original paint order --
      * see `drawUi`'s doc comment (in [RendererDrawUi.kt]) for why runs (not "all quads, then
@@ -231,28 +231,52 @@ class Renderer(
     internal var uiRuns: List<UiRun> = emptyList()
 
     internal fun quadMeshForRun(index: Int): DynamicMesh {
-        while (uiQuadMeshPool.size <= index) uiQuadMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS)
+        while (uiQuadMeshPool.size <= index) {
+            uiQuadMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, framesInFlight = maxFramesInFlight)
+        }
         return uiQuadMeshPool[index]
     }
 
     internal fun roundedQuadMeshForRun(index: Int): DynamicMesh {
         while (uiRoundedQuadMeshPool.size <= index) {
-            uiRoundedQuadMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX)
+            uiRoundedQuadMeshPool += DynamicMesh(
+                graphicsDevice,
+                MAX_UI_QUADS,
+                DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX,
+                maxFramesInFlight
+            )
         }
         return uiRoundedQuadMeshPool[index]
     }
 
     internal fun glyphMeshForRun(index: Int): DynamicMesh {
         while (uiGlyphMeshPool.size <= index) {
-            uiGlyphMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
+            uiGlyphMeshPool += DynamicMesh(
+                graphicsDevice,
+                MAX_UI_QUADS,
+                DynamicMesh.GLYPH_FLOATS_PER_VERTEX,
+                maxFramesInFlight
+            )
         }
         return uiGlyphMeshPool[index]
+    }
+
+    internal fun textureMeshForPrimitive(index: Int): DynamicMesh {
+        while (uiTextureMeshPool.size <= index) {
+            uiTextureMeshPool += DynamicMesh(
+                graphicsDevice,
+                MAX_UI_QUADS,
+                DynamicMesh.GLYPH_FLOATS_PER_VERTEX,
+                maxFramesInFlight
+            )
+        }
+        return uiTextureMeshPool[index]
     }
 
     // Rewritten every frame by drawDebugLines() (staged before draw(), same pattern as
     // uiMesh/uiGlyphMesh) -- world-space, so draw() writes lineRenderPipeline's MVP uniform
     // from the same viewProjection it already computes for the 3D draw calls.
-    internal val lineMesh = LineMesh(graphicsDevice, MAX_DEBUG_LINES)
+    internal val lineMesh = LineMesh(graphicsDevice, MAX_DEBUG_LINES, maxFramesInFlight)
 
     init {
         createDepthResources()
@@ -274,7 +298,11 @@ class Renderer(
      * [createdTextures] for teardown in [destroy]; a [renderTarget] is NOT re-tracked here
      * (it's already tracked in [createdRenderTargets] from its own [createRenderTarget]
      * call). */
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): RenderMaterial {
+    override fun createMaterial(
+        texture: TextureAsset?,
+        renderTarget: RenderTarget?,
+        uniformFloatCount: Int
+    ): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
         val material = Material(graphicsDevice, uniformFloatCount)
         if (renderTarget != null) {
@@ -432,7 +460,6 @@ class Renderer(
         offscreenRoundedQuadRenderPipeline?.destroy()
         uiTextureRenderPipeline?.destroy()
         uiRoundedQuadRenderPipeline?.destroy()
-        textureQuadMesh?.destroy()
         fontTexture?.destroy()
         createdTextures.forEach { it.destroy() }
         createdRenderTargets.forEach { it.destroy() }
@@ -440,10 +467,9 @@ class Renderer(
         uiQuadMeshPool.forEach { it.destroy() }
         uiGlyphMeshPool.forEach { it.destroy() }
         uiRoundedQuadMeshPool.forEach { it.destroy() }
+        uiTextureMeshPool.forEach { it.destroy() }
         lineMesh.destroy()
-        Vulkan.vkDestroyImageView(device, depthImageView)
-        VulkanImages.vkDestroyImage(device, depthImage)
-        VulkanBuffers.vkFreeMemory(device, depthImageMemory)
+        destroyDepthResources()
     }
 
     companion object {
