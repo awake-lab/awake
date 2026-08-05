@@ -40,7 +40,7 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
  * constructor only creates the layout; [createResources] (called once the texture is ready)
  * creates the uniform buffer, descriptor pool, and descriptor set.
  */
-class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
+class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: Int = DEFAULT_UNIFORM_FLOAT_COUNT) : RenderMaterial {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
     private val physicalDevice get() = graphicsDevice.physicalDevice
@@ -105,7 +105,7 @@ class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
     private fun createResources(sampler: Long, imageView: Long) {
         samplerHandle = sampler
         imageViewHandle = imageView
-        val bufferSize = (16 * Float.SIZE_BYTES).toLong()
+        val bufferSize = (uniformFloatCount * Float.SIZE_BYTES).toLong()
         val rawUniformBuffer = VulkanBuffers.vkCreateBuffer(
             device,
             VkBufferCreateInfo(
@@ -162,7 +162,7 @@ class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
             VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             VkDescriptorBufferInfo(
                 buffer = rawUniformBuffer,
-                range = (16 * Float.SIZE_BYTES).toLong()
+                range = (uniformFloatCount * Float.SIZE_BYTES).toLong()
             )
         )
         VulkanDescriptors.vkUpdateDescriptorSetImage(
@@ -194,5 +194,12 @@ class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
         VulkanBuffers.vkFreeMemory(device, uniformBufferMemory.handle)
         VulkanDescriptors.vkDestroyDescriptorPool(device, descriptorPool.handle)
         VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout.handle)
+    }
+
+    private companion object {
+        /** A bare MVP matrix -- every material before skinning existed. A skinned material
+         * requests `16 + 16 * jointCount` (MVP + joint palette) instead, see
+         * `Renderer.createMaterial`'s own `uniformFloatCount` parameter. */
+        const val DEFAULT_UNIFORM_FLOAT_COUNT = 16
     }
 }

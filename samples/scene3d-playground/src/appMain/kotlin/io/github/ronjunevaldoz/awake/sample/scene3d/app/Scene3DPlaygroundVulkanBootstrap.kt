@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 
 private val Scene3DPlaygroundShaders = gameShaderSet("triangle")
+private val Scene3DPlaygroundSkinnedShaders = gameShaderSet("skinned")
 
 fun createScene3DPlaygroundVulkanApplication(
     game: AwakeGame = scene3DPlayground()
@@ -15,6 +16,7 @@ fun createScene3DPlaygroundVulkanApplication(
     return VulkanGameApplication(
         shaderSet = Scene3DPlaygroundShaders,
         vertexFormat = VertexFormat.PositionNormalColor,
-        game = game
+        game = game,
+        skinnedShaderSet = Scene3DPlaygroundSkinnedShaders
     )
 }

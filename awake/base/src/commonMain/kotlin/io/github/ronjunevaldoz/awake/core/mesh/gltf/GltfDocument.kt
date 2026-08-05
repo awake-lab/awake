@@ -7,10 +7,10 @@ import kotlinx.serialization.Serializable
 
 /**
  * The subset of the glTF 2.0 JSON schema (https://registry.khronos.org/glTF/specs/2.0/
- * glTF-2.0.html) this parser actually reads: enough to pull a single mesh's vertex
- * attributes and indices out of a `.gltf` file with embedded (base64 data-URI) buffers.
- * No scenes/nodes/materials/textures/animations/skinning -- see [GltfParser]'s doc comment
- * for why this is deliberately minimal, not an oversight.
+ * glTF-2.0.html) this parser actually reads: enough to pull mesh vertex attributes/indices,
+ * a node hierarchy, and skeletal skinning/animation out of a `.gltf` file with embedded
+ * (base64 data-URI) buffers. No materials/textures -- see [GltfParser]'s doc comment for why
+ * that's deliberately still out of scope.
  */
 @Serializable
 data class GltfDocument(
@@ -22,7 +22,46 @@ data class GltfDocument(
      * default is `0` when the document has any scenes at all. */
     val scene: Int? = null,
     val scenes: List<GltfScene> = emptyList(),
-    val nodes: List<GltfNode> = emptyList()
+    val nodes: List<GltfNode> = emptyList(),
+    val skins: List<GltfSkin> = emptyList(),
+    val animations: List<GltfAnimation> = emptyList()
+)
+
+@Serializable
+data class GltfSkin(
+    val inverseBindMatrices: Int? = null,
+    val joints: List<Int> = emptyList(),
+    val skeleton: Int? = null
+)
+
+@Serializable
+data class GltfAnimation(
+    val channels: List<GltfAnimationChannel> = emptyList(),
+    val samplers: List<GltfAnimationSampler> = emptyList(),
+    val name: String? = null
+)
+
+@Serializable
+data class GltfAnimationChannel(
+    val sampler: Int,
+    val target: GltfAnimationTarget
+)
+
+@Serializable
+data class GltfAnimationTarget(
+    val node: Int? = null,
+    /** `"translation"`, `"rotation"`, `"scale"`, or `"weights"` -- only the first three are
+     * handled ([GltfParser]'s skinning path has no morph-target support). */
+    val path: String
+)
+
+@Serializable
+data class GltfAnimationSampler(
+    val input: Int,
+    val output: Int,
+    /** `"LINEAR"`, `"STEP"`, or `"CUBICSPLINE"` -- only `LINEAR` (nlerp/lerp) is sampled;
+     * every channel in the reference CesiumMan clip this parser targets is `LINEAR`. */
+    val interpolation: String = "LINEAR"
 )
 
 @Serializable
@@ -34,6 +73,8 @@ data class GltfScene(
 data class GltfNode(
     val name: String? = null,
     val mesh: Int? = null,
+    /** Index into [GltfDocument.skins] -- present on the node that carries a skinned mesh. */
+    val skin: Int? = null,
     /** 16 column-major floats -- mutually exclusive with [translation]/[rotation]/[scale]
      * per the glTF 2.0 spec; when absent, TRS is composed instead. */
     val matrix: List<Float>? = null,
@@ -81,7 +122,9 @@ data class GltfPrimitiveAttributes(
     @SerialName("POSITION") val position: Int? = null,
     @SerialName("NORMAL") val normal: Int? = null,
     @SerialName("COLOR_0") val color0: Int? = null,
-    @SerialName("TEXCOORD_0") val texCoord0: Int? = null
+    @SerialName("TEXCOORD_0") val texCoord0: Int? = null,
+    @SerialName("JOINTS_0") val joints0: Int? = null,
+    @SerialName("WEIGHTS_0") val weights0: Int? = null
 )
 
 @Serializable

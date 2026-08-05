@@ -19,7 +19,7 @@ import io.ygdrasil.webgpu.GPUTextureView
 // (`Renderer.createMaterial(renderTarget = ...)` -> `UiTextureRenderPipeline`) -- the
 // general 3D `DrawCall.material` texture-binding path (`createResources`/`bind`) remains
 // unimplemented, see that method's own doc comment for why.
-class Material(graphicsDevice: GraphicsDevice) : RenderMaterial {
+class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: Int = 16) : RenderMaterial {
     val descriptorSetLayout: DescriptorSetLayoutHandle = DescriptorSetLayoutHandle(0)
     var descriptorPool: DescriptorPoolHandle = DescriptorPoolHandle(0)
     var descriptorSet: DescriptorSetHandle = DescriptorSetHandle(0)

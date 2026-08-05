@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
@@ -84,6 +85,14 @@ class Renderer(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     renderPipeline: RenderPipeline,
+    /** A second, optional 3D pipeline for GPU-skinned meshes -- see [drawSkinnedMesh]'s doc
+     * comment for why one fixed-vertex-format [renderPipeline] can't also draw a skinned
+     * mesh's different vertex layout. `null` for every game that never calls
+     * [drawSkinnedMesh] (most of them) -- built eagerly, same as [renderPipeline] itself,
+     * by whichever `GameApplication` bootstrap opts into it (shader loading is `suspend`,
+     * so it can't be built lazily on first [drawSkinnedMesh] call the way the UI pipelines
+     * below are). */
+    internal val skinnedRenderPipeline: RenderPipeline? = null,
     internal val lineRenderPipeline: LineRenderPipeline,
     internal val transferContext: TransferContext,
     internal val uiShaders: ShaderPair,
@@ -156,6 +165,26 @@ class Renderer(
     // ensureRoundedQuadPipeline()'s doc comment. Same lazy-pay-only-if-used pattern as the
     // texture/glyph pipelines above.
     internal var uiRoundedQuadRenderPipeline: UiRoundedQuadRenderPipeline? = null
+
+    /** One [drawSkinnedMesh] call's staged draw -- [model]/[jointPalette] combined into
+     * [material]'s uniform buffer once this frame's camera is known (inside `performDraw`),
+     * same "stage now, resolve at draw time" reason [DrawCall] doesn't carry a resolved MVP
+     * either. */
+    internal data class SkinnedDrawCall(
+        val mesh: RenderMesh,
+        val material: RenderMaterial,
+        val model: Mat4,
+        val jointPalette: FloatArray
+    )
+
+    // Staged by drawSkinnedMesh(), consumed and cleared every performDraw() frame -- see
+    // that method's own doc comment for the "call it every frame you want it drawn" contract,
+    // matching drawDebugLines()/lineMesh's existing pattern.
+    internal val pendingSkinnedDraws = mutableListOf<SkinnedDrawCall>()
+
+    override fun drawSkinnedMesh(mesh: RenderMesh, material: RenderMaterial, model: Mat4, jointPalette: FloatArray) {
+        pendingSkinnedDraws += SkinnedDrawCall(mesh, material, model, jointPalette)
+    }
 
     // Textures created on demand by createMaterial() -- Renderer (not Material) owns their
     // teardown, mirroring how it already owns the UI mesh pools/lineMesh.
@@ -244,9 +273,9 @@ class Renderer(
      * [createdTextures] for teardown in [destroy]; a [renderTarget] is NOT re-tracked here
      * (it's already tracked in [createdRenderTargets] from its own [createRenderTarget]
      * call). */
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): RenderMaterial {
+    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
-        val material = Material(graphicsDevice)
+        val material = Material(graphicsDevice, uniformFloatCount)
         if (renderTarget != null) {
             val offscreen = renderTarget as OffscreenRenderTarget
             material.createResourcesFromRenderTarget(offscreen.sampler, offscreen.colorImageView)

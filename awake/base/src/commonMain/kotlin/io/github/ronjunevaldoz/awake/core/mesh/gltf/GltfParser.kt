@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.core.mesh.gltf
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.Quat
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import kotlinx.serialization.json.Json
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -32,9 +34,10 @@ private val GltfJson = Json { ignoreUnknownKeys = true }
  *   pipeline would resolve an external `uri` relative to the `.gltf`'s own resource path
  *   via `readResourceBytes`; deferred since a self-contained (embedded-buffer) `.gltf` is
  *   sufficient to prove the accessor/bufferView decoding this parser exists for.
- * - **No scene graph, materials, textures, animations, or skinning** -- only the first
- *   mesh's first primitive's `POSITION`/`NORMAL`/`COLOR_0`/`TEXCOORD_0` attributes and its
- *   index accessor are read.
+ * - **No materials or textures** -- [parse] reads only the first mesh's first primitive's
+ *   `POSITION`/`NORMAL`/`COLOR_0`/`TEXCOORD_0`/`JOINTS_0`/`WEIGHTS_0` attributes and its index
+ *   accessor; [parseScene] walks the full node hierarchy for static meshes; [parseSkinned]
+ *   walks it for skeletal skinning/animation (skins + animation clips too).
  * - **Only `FLOAT` vertex attributes and `UNSIGNED_BYTE`/`UNSIGNED_SHORT`/`UNSIGNED_INT`
  *   indices** are decoded -- glTF also allows signed `BYTE`/`SHORT` and normalized integer
  *   attributes, neither of which real exporters emit for `POSITION`/`NORMAL`/`COLOR_0` in
@@ -107,8 +110,93 @@ object GltfParser {
         }
         val indices = primitive.indices?.let { readIndexAccessor(document, buffers, it) }
             ?: IntArray(positions.size / 3) { it }
+        val jointIndices = primitive.attributes.joints0?.let { readJointAccessor(document, buffers, it) }
+        val jointWeights = primitive.attributes.weights0?.let {
+            readFloatAccessor(document, buffers, it, componentsPerElement = 4)
+        }
 
-        return GltfMesh(positions, normals, colors, uvs, indices)
+        return GltfMesh(positions, normals, colors, uvs, indices, jointIndices, jointWeights)
+    }
+
+    /**
+     * Parses a plain-JSON embedded-buffer glTF (same input shape as [parse] -- NOT a GLB
+     * container, see [parse]'s own doc comment) into every mesh/node/skin/animation the document
+     * has, for skeletal skinning/animation playback. Unlike [parse] (first mesh/primitive only)
+     * this reads the whole node hierarchy -- a skin's joints are node indices, so the demo layer
+     * needs the real scene graph, not just one primitive's raw attributes.
+     */
+    fun parseSkinned(json: String): LoadedSkinnedScene {
+        val document = GltfJson.decodeFromString(GltfDocument.serializer(), json)
+        val buffers = document.buffers.map(::decodeBuffer)
+
+        val nodes = document.nodes.map { node ->
+            val explicitMatrix = node.matrix?.let { m ->
+                require(m.size == 16) { "glTF node matrix must have 16 elements, got ${m.size}." }
+                Mat4().apply { for (i in 0 until 16) data[i] = m[i] }
+            }
+            val t = node.translation ?: listOf(0f, 0f, 0f)
+            val r = node.rotation ?: listOf(0f, 0f, 0f, 1f)
+            val s = node.scale ?: listOf(1f, 1f, 1f)
+            LoadedNode(
+                translation = Vec3(t[0], t[1], t[2]),
+                rotation = Quat(r[0], r[1], r[2], r[3]),
+                scale = Vec3(s[0], s[1], s[2]),
+                matrix = explicitMatrix,
+                children = node.children,
+                mesh = node.mesh,
+                skin = node.skin
+            )
+        }
+        val meshes = document.meshes.map { meshDef ->
+            val primitive = meshDef.primitives.firstOrNull()
+                ?: error("glTF mesh '${meshDef.name}' has no primitives.")
+            readPrimitive(document, buffers, primitive)
+        }
+        val skins = document.skins.indices.map { parseSkin(document, buffers, it) }
+        val animations = document.animations.indices.map { parseAnimation(document, buffers, it) }
+        val sceneIndex = document.scene ?: 0
+        val rootNodes = document.scenes.getOrNull(sceneIndex)?.nodes ?: emptyList()
+
+        return LoadedSkinnedScene(nodes, meshes, skins, animations, rootNodes)
+    }
+
+    private fun parseSkin(document: GltfDocument, buffers: List<ByteArray>, skinIndex: Int): LoadedSkin {
+        val skin = document.skins[skinIndex]
+        val inverseBindFloats = skin.inverseBindMatrices?.let {
+            readFloatAccessor(document, buffers, it, componentsPerElement = 16)
+        }
+        val inverseBindMatrices = skin.joints.indices.map { jointIndex ->
+            Mat4().apply {
+                if (inverseBindFloats != null) {
+                    for (component in 0 until 16) data[component] = inverseBindFloats[jointIndex * 16 + component]
+                }
+                // else: no inverseBindMatrices accessor -- glTF spec default is identity per joint.
+            }
+        }
+        return LoadedSkin(skin.joints, inverseBindMatrices)
+    }
+
+    private fun parseAnimation(document: GltfDocument, buffers: List<ByteArray>, animationIndex: Int): LoadedAnimation {
+        val animation = document.animations[animationIndex]
+        val channels = animation.channels.mapNotNull { channel ->
+            val targetNode = channel.target.node ?: return@mapNotNull null
+            val sampler = animation.samplers.getOrElse(channel.sampler) {
+                error("glTF animation $animationIndex channel references sampler ${channel.sampler}, out of range.")
+            }
+            val componentsPerKeyframe = when (channel.target.path) {
+                "translation", "scale" -> 3
+                "rotation" -> 4
+                else -> return@mapNotNull null // "weights" (morph targets) -- not supported.
+            }
+            val times = readFloatAccessor(document, buffers, sampler.input, componentsPerElement = 1)
+            val values = readFloatAccessor(document, buffers, sampler.output, componentsPerElement = componentsPerKeyframe)
+            LoadedAnimationChannel(
+                targetNode = targetNode,
+                targetPath = channel.target.path,
+                sampler = LoadedAnimationSampler(times, values, componentsPerKeyframe)
+            )
+        }
+        return LoadedAnimation(channels)
     }
 
     /** Parses the 12-byte GLB header and its chunks, returning the JSON chunk's text and the
@@ -185,64 +273,16 @@ object GltfParser {
         val t = node.translation ?: listOf(0f, 0f, 0f)
         val r = node.rotation ?: listOf(0f, 0f, 0f, 1f)
         val s = node.scale ?: listOf(1f, 1f, 1f)
-        return trsMatrix(
-            tx = t[0], ty = t[1], tz = t[2],
-            qx = r[0], qy = r[1], qz = r[2], qw = r[3],
-            sx = s[0], sy = s[1], sz = s[2]
+        return Mat4.fromTrs(
+            translation = Vec3(t[0], t[1], t[2]),
+            rotation = Quat(r[0], r[1], r[2], r[3]),
+            scale = Vec3(s[0], s[1], s[2])
         )
     }
 
-    /** Standard T * R * S composition, written directly into [Mat4]'s column-major storage
-     * (avoids [Mat4]'s own `translate`/`rotate`/`scale`/`times` helpers, whose chained-matrix
-     * convention doesn't match the row/col semantics of the `mRC` accessors used here). */
-    private fun trsMatrix(
-        tx: Float, ty: Float, tz: Float,
-        qx: Float, qy: Float, qz: Float, qw: Float,
-        sx: Float, sy: Float, sz: Float
-    ): Mat4 {
-        val xx = qx * qx
-        val yy = qy * qy
-        val zz = qz * qz
-        val xy = qx * qy
-        val xz = qx * qz
-        val yz = qy * qz
-        val wx = qw * qx
-        val wy = qw * qy
-        val wz = qw * qz
-
-        val r00 = 1f - 2f * (yy + zz)
-        val r01 = 2f * (xy - wz)
-        val r02 = 2f * (xz + wy)
-        val r10 = 2f * (xy + wz)
-        val r11 = 1f - 2f * (xx + zz)
-        val r12 = 2f * (yz - wx)
-        val r20 = 2f * (xz - wy)
-        val r21 = 2f * (yz + wx)
-        val r22 = 1f - 2f * (xx + yy)
-
-        return Mat4().apply {
-            m00 = r00 * sx; m10 = r10 * sx; m20 = r20 * sx; m30 = 0f
-            m01 = r01 * sy; m11 = r11 * sy; m21 = r21 * sy; m31 = 0f
-            m02 = r02 * sz; m12 = r12 * sz; m22 = r22 * sz; m32 = 0f
-            m03 = tx; m13 = ty; m23 = tz; m33 = 1f
-        }
-    }
-
     /** `a * b` in the standard row/col sense (applies [b] first, then [a]) -- deliberately
-     * not [Mat4]'s own `times` operator; see [trsMatrix]'s doc comment. */
-    private fun multiply(a: Mat4, b: Mat4): Mat4 {
-        val result = Mat4()
-        for (col in 0 until 4) {
-            for (row in 0 until 4) {
-                var sum = 0f
-                for (k in 0 until 4) {
-                    sum += a.data[k * 4 + row] * b.data[col * 4 + k]
-                }
-                result.data[col * 4 + row] = sum
-            }
-        }
-        return result
-    }
+     * not [Mat4]'s own `times` operator; see [Mat4.multiplyColumnMajor]'s doc comment. */
+    private fun multiply(a: Mat4, b: Mat4): Mat4 = Mat4.multiplyColumnMajor(a, b)
 
     private fun accessorAt(document: GltfDocument, index: Int): GltfAccessor {
         return document.accessors.getOrElse(index) {
@@ -273,6 +313,7 @@ object GltfParser {
             "VEC2" -> 2
             "VEC3" -> 3
             "VEC4" -> 4
+            "MAT4" -> 16
             else -> error("Unsupported glTF accessor type: $type")
         }
     }
@@ -329,6 +370,38 @@ object GltfParser {
                 COMPONENT_TYPE_UNSIGNED_SHORT -> readUShortLe(bytes, offset)
                 COMPONENT_TYPE_UNSIGNED_INT -> readUIntLe(bytes, offset)
                 else -> error("Unsupported glTF index componentType: ${accessor.componentType}")
+            }
+        }
+    }
+
+    /** Reads a `JOINTS_0`-shaped accessor (`ubyte4` or `ushort4` per the glTF 2.0 spec) into
+     * `IntArray(count * 4)`, one entry per component -- widened to `Int` regardless of the
+     * source byte width, matching [io.github.ronjunevaldoz.awake.render.mesh.VertexAttributeFormat.UInt4]'s
+     * own "widen everything to 4 bytes/component" convention. */
+    private fun readJointAccessor(
+        document: GltfDocument,
+        buffers: List<ByteArray>,
+        accessorIndex: Int
+    ): IntArray {
+        val accessor = accessorAt(document, accessorIndex)
+        require(typeComponentCount(accessor.type) == 4) {
+            "glTF JOINTS_0 accessor $accessorIndex has type ${accessor.type}, expected VEC4."
+        }
+        val bufferView = bufferViewFor(document, accessor, accessorIndex)
+        val bytes = buffers[bufferView.buffer]
+        val componentSize = componentSize(accessor.componentType)
+        val elementByteSize = 4 * componentSize
+        val stride = bufferView.byteStride ?: elementByteSize
+        val base = bufferView.byteOffset + accessor.byteOffset
+
+        return IntArray(accessor.count * 4) { i ->
+            val elementIndex = i / 4
+            val component = i % 4
+            val offset = base + elementIndex * stride + component * componentSize
+            when (accessor.componentType) {
+                COMPONENT_TYPE_UNSIGNED_BYTE -> bytes[offset].toInt() and 0xFF
+                COMPONENT_TYPE_UNSIGNED_SHORT -> readUShortLe(bytes, offset)
+                else -> error("Unsupported glTF JOINTS_0 componentType: ${accessor.componentType}")
             }
         }
     }

@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.engine.application.GameModule
 import io.github.ronjunevaldoz.awake.engine.application.gameModule
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.GltfViewerDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
+import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.scene
 import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
@@ -59,7 +60,11 @@ internal fun scene3DPlaygroundModule(): GameModule {
             // Duck.gltf's byte load is suspend (see readResourceBytes) -- done once here,
             // regardless of which demo page is active at startup, so GltfViewerDemo.onActivate
             // (a plain non-suspend per-frame hook) only ever touches the already-parsed scene.
-            onReady { GltfViewerDemo.preload() }
+            // CesiumMan.gltf's own preload follows the exact same reason.
+            onReady {
+                GltfViewerDemo.preload()
+                SkinnedMeshDemo.preload()
+            }
             overlay { width, height ->
                 renderer.clearColor = VIEWPORT_CLEAR_COLOR
                 drawScene3DPlaygroundOverlay(state, width, height)

@@ -229,7 +229,7 @@ private class RecordingRenderer : Renderer {
         }
     }
 
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): Material {
+    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material {
         materialCreateCount += 1
         return object : Material {
             override fun updateUniformBuffer(mvp: FloatArray) = Unit

@@ -190,9 +190,9 @@ class Renderer(
      * its own doc comment), so this just constructs it, matching this backend's existing
      * (pre-refactor) behavior of never calling `createResources`. [texture]/[renderTarget]
      * are accepted for interface parity with the Vulkan backend but otherwise unused here. */
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): RenderMaterial {
+    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
-        val material = Material(graphicsDevice)
+        val material = Material(graphicsDevice, uniformFloatCount)
         if (renderTarget != null) {
             val offscreen = renderTarget as OffscreenRenderTarget
             val sampler = graphicsDevice.wgpuContext.device.createSampler(SamplerDescriptor())

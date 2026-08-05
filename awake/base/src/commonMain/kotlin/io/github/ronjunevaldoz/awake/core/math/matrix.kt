@@ -385,6 +385,39 @@ class Mat4 {
                 m23 = f.dot(eye)
             }
         }
+
+        /** Standard T * R * S composition -- glTF node transforms (and any other TRS-driven
+         * transform, e.g. joint local transforms during animation playback) all reduce to this;
+         * factored out so nothing outside [core.math] hand-rolls quaternion-to-matrix math
+         * inline (see [Quat.toMat4]). */
+        fun fromTrs(translation: Vec3, rotation: Quat, scale: Vec3): Mat4 {
+            val r = rotation.toMat4()
+            return Mat4().apply {
+                m00 = r.m00 * scale.x; m10 = r.m10 * scale.x; m20 = r.m20 * scale.x; m30 = 0f
+                m01 = r.m01 * scale.y; m11 = r.m11 * scale.y; m21 = r.m21 * scale.y; m31 = 0f
+                m02 = r.m02 * scale.z; m12 = r.m12 * scale.z; m22 = r.m22 * scale.z; m32 = 0f
+                m03 = translation.x; m13 = translation.y; m23 = translation.z; m33 = 1f
+            }
+        }
+
+        /** `a * b` in the standard column-major row/col sense (applies [b] first, then [a]) --
+         * unlike the [Mat4.times] operator above, whose chained-matrix convention doesn't match
+         * the row/col semantics the `mRC` accessors use (see that operator's callers for the
+         * difference). Node-hierarchy world-transform composition (glTF scene graph, joint
+         * palettes) needs this exact convention. */
+        fun multiplyColumnMajor(a: Mat4, b: Mat4): Mat4 {
+            val result = Mat4()
+            for (col in 0 until 4) {
+                for (row in 0 until 4) {
+                    var sum = 0f
+                    for (k in 0 until 4) {
+                        sum += a.data[k * 4 + row] * b.data[col * 4 + k]
+                    }
+                    result.data[col * 4 + row] = sum
+                }
+            }
+            return result
+        }
     }
 
 

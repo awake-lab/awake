@@ -99,6 +99,13 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
         drawCall.material.updateUniformBuffer(mvp.data)
         drawIndex += 1
     }
+    var skinnedDrawIndex = 0
+    while (skinnedDrawIndex < pendingSkinnedDraws.size) {
+        val skinnedDraw = pendingSkinnedDraws[skinnedDrawIndex]
+        val mvp = skinnedDraw.model * viewProjection
+        skinnedDraw.material.updateUniformBuffer(mvp.data + skinnedDraw.jointPalette)
+        skinnedDrawIndex += 1
+    }
 
     Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
     recordCommandBuffer(commandBuffers[currentFrame], imageIndex, drawCalls)
@@ -192,6 +199,20 @@ internal fun Renderer.recordCommandBuffer(commandBuffer: Long, acquiredImageInde
     lineRenderPipeline.bind(commandBuffer)
     lineMesh.bind(commandBuffer)
     lineMesh.draw(commandBuffer)
+
+    val skinnedPipeline = skinnedRenderPipeline
+    if (skinnedPipeline != null) {
+        skinnedPipeline.bind(commandBuffer)
+        var skinnedDrawIndex = 0
+        while (skinnedDrawIndex < pendingSkinnedDraws.size) {
+            val skinnedDraw = pendingSkinnedDraws[skinnedDrawIndex]
+            skinnedDraw.mesh.bind(commandBuffer)
+            skinnedDraw.material.bind(commandBuffer, skinnedPipeline.pipelineLayout)
+            skinnedDraw.mesh.draw(commandBuffer)
+            skinnedDrawIndex += 1
+        }
+    }
+    pendingSkinnedDraws.clear()
 
     Vulkan.vkCmdEndRenderPass(commandBuffer)
 

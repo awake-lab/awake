@@ -31,7 +31,14 @@ class VulkanGameApplication(
     vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     game: Game,
     private val vertexShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
-    private val fragmentShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT
+    private val fragmentShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
+    /** An optional second 3D pipeline for GPU-skinned meshes -- see
+     * [io.github.ronjunevaldoz.awake.render.renderer.Renderer.drawSkinnedMesh]'s doc comment.
+     * `null` (default) for every game that has no skinned content -- most of them -- which
+     * skips building it entirely, same as [GenericGameApplication]'s existing single-pipeline
+     * shape for every other game. */
+    private val skinnedShaderSet: GameShaderSet? = null,
+    private val skinnedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorSkin
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -41,19 +48,24 @@ class VulkanGameApplication(
     constructor(
         shaderSet: GameShaderSet,
         vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
-        game: Game
+        game: Game,
+        skinnedShaderSet: GameShaderSet? = null,
+        skinnedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorSkin
     ) : this(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
         vertexFormat = vertexFormat,
         game = game,
         vertexShaderEntryPoint = shaderSet.vulkan.vertexEntryPoint,
-        fragmentShaderEntryPoint = shaderSet.vulkan.fragmentEntryPoint
+        fragmentShaderEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+        skinnedShaderSet = skinnedShaderSet,
+        skinnedVertexFormat = skinnedVertexFormat
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
     private lateinit var swapchainManager: SwapchainManager
     private lateinit var renderPipeline: RenderPipeline
+    private var skinnedRenderPipeline: RenderPipeline? = null
     private lateinit var lineRenderPipeline: LineRenderPipeline
     private lateinit var transferContext: TransferContext
 
@@ -80,6 +92,17 @@ class VulkanGameApplication(
             vertexShaderEntryPoint,
             fragmentShaderEntryPoint
         )
+        skinnedRenderPipeline = skinnedShaderSet?.let { shaderSet ->
+            RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                pipelineLayoutMaterial.descriptorSetLayout,
+                loadShaderPair(shaderSet.vulkan.vertexResourcePath, shaderSet.vulkan.fragmentResourcePath),
+                skinnedVertexFormat,
+                shaderSet.vulkan.vertexEntryPoint,
+                shaderSet.vulkan.fragmentEntryPoint
+            )
+        }
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
@@ -91,6 +114,7 @@ class VulkanGameApplication(
             graphicsDevice,
             swapchainManager,
             renderPipeline,
+            skinnedRenderPipeline,
             lineRenderPipeline,
             transferContext,
             loadShaderPair(UI_VERTEX_SHADER_RESOURCE_PATH, UI_FRAGMENT_SHADER_RESOURCE_PATH),
@@ -125,6 +149,7 @@ class VulkanGameApplication(
             pipelineLayoutMaterial.descriptorSetLayout.handle
         )
         renderPipeline.destroy()
+        skinnedRenderPipeline?.destroy()
         lineRenderPipeline.destroy()
         graphicsDevice.destroy()
     }

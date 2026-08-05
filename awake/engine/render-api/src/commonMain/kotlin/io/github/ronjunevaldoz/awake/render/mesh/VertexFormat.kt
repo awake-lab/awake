@@ -44,5 +44,19 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
                 VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2)
             )
         )
+
+        /** [PositionNormalColor] plus joint indices (uint4 @ 36) and joint weights (vec4 @ 52),
+         * stride 68 -- for a GPU-skinned mesh's vertex shader, which blends up to 4 joint
+         * matrices by weight before applying MVP (see `skinned.wgsl`). Matches
+         * [io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfMesh.toInterleavedSkinned]'s layout. */
+        val PositionNormalColorSkin = VertexFormat(
+            listOf(
+                VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
+                VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
+                VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2),
+                VertexAttribute(VertexSemantic.JointIndices, VertexAttributeFormat.UInt4, location = 3),
+                VertexAttribute(VertexSemantic.JointWeights, VertexAttributeFormat.Float4, location = 4)
+            )
+        )
     }
 }

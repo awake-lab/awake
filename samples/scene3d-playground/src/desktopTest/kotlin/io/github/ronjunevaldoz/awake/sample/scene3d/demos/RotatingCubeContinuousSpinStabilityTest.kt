@@ -75,6 +75,7 @@ class RotatingCubeContinuousSpinStabilityTest {
             graphicsDevice,
             swapchainManager,
             renderPipeline,
+            null,
             lineRenderPipeline,
             transferContext,
             runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") },

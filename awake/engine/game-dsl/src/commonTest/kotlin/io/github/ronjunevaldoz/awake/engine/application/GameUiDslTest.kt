@@ -239,7 +239,7 @@ private class RecordingUiRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?): Material = object : Material {
+    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material = object : Material {
         override fun updateUniformBuffer(mvp: FloatArray) = Unit
         override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
         override fun destroy() = Unit
