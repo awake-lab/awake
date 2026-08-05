@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongParameterList:SceneGameSpec.kt$SceneGameSpec$( val sceneDocument: SceneDocument, val renderableFactory: SceneRenderableFactory, internal val assetLibraryFactory: (() -> SceneAssetLibrary)?, internal val systems: List&lt;SceneSystemRegistration>, val updateBlock: SceneUpdateBlock, val overlayBlock: SceneOverlayBlock, val onReadyBlock: SceneReadyBlock, val onDisposeBlock: SceneDisposeBlock, internal val serviceRegistrations: List&lt;SceneServiceRegistration&lt;*>> )</ID>
+    <ID>MagicNumber:SceneDocument.kt$SceneCamera$5f</ID>
+    <ID>MagicNumber:SceneGameFrame.kt$10f</ID>
+    <ID>MagicNumber:SceneGameFrame.kt$SceneFrameStats$100</ID>
+    <ID>MagicNumber:SceneGameRuntime.kt$SceneGameRuntime$1000f</ID>
+    <ID>MagicNumber:SceneInstantiationAdapter.kt$180f</ID>
+    <ID>MagicNumber:SceneValidation.kt$SceneValidator$180f</ID>
+    <ID>MaxLineLength:SceneLoader.kt$SceneLoader$instantiateNode(adapter, node, parent = null, flipYForClipSpace = flipYForClipSpace, path = node.name?.takeIf { it.isNotBlank() } ?: "#$index")</ID>
+    <ID>TooManyFunctions:SceneGameRuntime.kt$SceneGameRuntime : Game</ID>
+  </CurrentIssues>
+</SmellBaseline>

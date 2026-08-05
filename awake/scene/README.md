@@ -86,7 +86,9 @@ flowchart LR
 ```kotlin
 import io.github.ronjunevaldoz.awake.core.math.Camera as MathCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.core.renderer.Renderer
+import io.github.ronjunevaldoz.awake.render.material.Material
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh
+import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer

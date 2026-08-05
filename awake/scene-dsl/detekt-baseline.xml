@@ -2,10 +2,12 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
+    <ID>CyclomaticComplexMethod:PlayerControlSystem.kt$PlayerControlSystem$override fun update(world: World, delta: Float)</ID>
     <ID>MagicNumber:SystemExtensions.kt$3f</ID>
     <ID>MagicNumber:SystemExtensions.kt$6f</ID>
     <ID>MatchingDeclarationName:SceneAssetDsl.kt$SceneAssetsDsl</ID>
     <ID>MaxLineLength:SceneDocumentDslCompat.kt$message = "Compatibility scene entry point slated for future removal. Prefer io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneDocumentDsl or the canonical scene DSL entrypoint."</ID>
     <ID>TooManyFunctions:SceneGameDsl.kt$SceneGameDsl</ID>
+    <ID>UnusedPrivateProperty:PlayerControlSystem.kt$PlayerControlSystem$private val zoomSpeed: Float = 4f</ID>
   </CurrentIssues>
 </SmellBaseline>

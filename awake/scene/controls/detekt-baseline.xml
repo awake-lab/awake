@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:Control.kt$FollowControl$3f</ID>
+    <ID>MagicNumber:Control.kt$FollowControl$6f</ID>
+    <ID>MagicNumber:Control.kt$FollowControl$8f</ID>
+    <ID>MagicNumber:Control.kt$OrbitControl$0.4f</ID>
+    <ID>MagicNumber:Control.kt$OrbitControl$8f</ID>
+  </CurrentIssues>
+</SmellBaseline>

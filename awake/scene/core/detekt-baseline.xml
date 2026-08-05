@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaxLineLength:TransformSystem.kt$TransformSystem$override val frequency: io.github.ronjunevaldoz.awake.ecs.SystemFrequency = io.github.ronjunevaldoz.awake.ecs.SystemFrequency.Infrastructure</ID>
+  </CurrentIssues>
+</SmellBaseline>
