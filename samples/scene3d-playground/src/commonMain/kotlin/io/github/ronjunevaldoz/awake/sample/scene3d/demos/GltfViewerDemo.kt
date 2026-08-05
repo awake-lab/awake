@@ -55,20 +55,42 @@ internal object GltfViewerDemo {
     private var loadedMesh: GltfMesh? = null
     private var autoRotate = true
 
-    /** `true` (default): the loaded mesh is scaled down so its bounding radius is ~1 unit
-     * (`1 / [modelRadius] * [scaleMultiplier]`), and [camera] uses the same small, friendly
-     * zoom range every other demo's viewport uses (2..15, [OrbitCameraController]'s own
-     * defaults) -- a raw glTF file's units are whatever its authoring tool used (Duck.gltf's
-     * own ~170-unit bounding radius, since [GltfParser.parse] reads only raw mesh data, no
-     * scene-graph node transform to apply glTF's usual corrective scale -- see [modelRadius]'s
-     * own doc comment), so without this every new model would need its own hand-tuned zoom
-     * range instead of just working. `false`: the model renders at its real raw scale, and
-     * [applyScaleMode] widens [camera]'s zoom/pan/far range to match instead. */
+    /** [loadedMesh] interleaved once at [preload] time, in BOTH scales -- raw (Duck's own
+     * ~170-unit-radius authored coordinates) and pre-normalized (positions baked down to a ~1
+     * unit bounding radius, [modelRadius]'s own reciprocal already multiplied in). Only
+     * [scaleMultiplier] (0.25x-4x) is ever applied at runtime via [Transform.worldMatrix] now --
+     * see that field's own doc comment for why combining the ~0.0059 `1/modelRadius` factor with
+     * Duck's raw ~170-unit vertex coordinates in the SAME per-frame GPU matrix multiply was worth
+     * eliminating outright, not just working around. */
+    private var rawInterleaved: FloatArray? = null
+    private var normalizedInterleaved: FloatArray? = null
+
+    /** `true` (default): [normalizedInterleaved] is bound instead of [rawInterleaved] (the
+     * mesh's own bounding radius already baked down to ~1 unit at [preload] time), and [camera]
+     * uses the same small, friendly zoom range every other demo's viewport uses (2..15,
+     * [OrbitCameraController]'s own defaults) -- a raw glTF file's units are whatever its
+     * authoring tool used (Duck.gltf's own ~170-unit bounding radius, since [GltfParser.parse]
+     * reads only raw mesh data, no scene-graph node transform to apply glTF's usual corrective
+     * scale -- see [modelRadius]'s own doc comment), so without this every new model would need
+     * its own hand-tuned zoom range instead of just working. `false`: [rawInterleaved] is bound,
+     * the model renders at its real raw scale, and [applyScaleMode] widens [camera]'s zoom/pan/far
+     * range to match instead. */
     private var normalizeScale = true
 
-    /** Fine-tune on top of the automatic `1 / [modelRadius]` normalization -- 1x is "exactly
-     * fills the same ~1-unit bounding sphere every other demo's content uses". */
+    /** Fine-tune on top of [normalizeScale]'s automatic normalization -- 1x is "exactly fills the
+     * same ~1-unit bounding sphere every other demo's content uses". Applied at runtime via
+     * [Transform.worldMatrix] every frame (unlike the `1/modelRadius` factor, which is baked into
+     * [normalizedInterleaved] once instead -- see that field's own doc comment) since its whole
+     * 0.25x-4x range is safe to combine with already-normalized ~1-unit coordinates in one GPU
+     * matrix multiply; nothing here approaches the precision cliff `1/modelRadius` sat on. */
     private var scaleMultiplier = 1f
+
+    /** Which of [rawInterleaved]/[normalizedInterleaved] [meshEntity]'s current GPU mesh was
+     * built from -- `null` before the first [ensureSpawned]. Compared against [normalizeScale]
+     * every [onUpdate] tick so toggling the switch rebinds the GPU mesh (destroy + recreate from
+     * the other cached array) instead of scaling the same raw-coordinate mesh differently, which
+     * is what reintroduced the precision cliff this whole split exists to avoid. */
+    private var meshIsNormalized: Boolean? = null
 
     /** Bounding-sphere radius of [loadedMesh]'s raw positions -- [GltfParser.parse] reads only
      * raw mesh/primitive attributes, no scene-graph node transform (glTF's usual place for a
@@ -82,7 +104,6 @@ internal object GltfViewerDemo {
 
     init {
         camera.orbitDegrees = 20f
-        camera.pitchDegrees = 15f
     }
 
     suspend fun preload() {
@@ -91,7 +112,28 @@ internal object GltfViewerDemo {
         val mesh = GltfParser.parse(bytes.decodeToString())
         loadedMesh = mesh
         modelRadius = boundingRadius(mesh.positions)
+        rawInterleaved = mesh.toInterleavedPositionNormalColor()
+        normalizedInterleaved = scalePositions(rawInterleaved!!, 1f / modelRadius)
         applyScaleMode()
+    }
+
+    /** Multiplies every position component (the first 3 of each 9-float
+     * [GltfMesh.toInterleavedPositionNormalColor] stride -- normal and color are left untouched)
+     * by [factor], returning a new array -- [source] is never mutated, since both
+     * [rawInterleaved] and [normalizedInterleaved] need to stay independently valid for as long
+     * as [normalizeScale] can still be toggled back. `internal`, not `private`, so
+     * `GltfViewerScalePositionsTest` (`desktopTest`) can verify this exact baking math directly,
+     * fast and without a GPU -- this is the actual mechanism the Duck flicker fix relies on. */
+    internal fun scalePositions(source: FloatArray, factor: Float): FloatArray {
+        val result = source.copyOf()
+        var i = 0
+        while (i < result.size) {
+            result[i] *= factor
+            result[i + 1] *= factor
+            result[i + 2] *= factor
+            i += NORMAL_VERTEX_STRIDE_COMPONENTS
+        }
+        return result
     }
 
     /** Fits [camera]'s zoom/pan/far range to whichever of [normalizeScale]'s two modes is
@@ -167,10 +209,14 @@ internal object GltfViewerDemo {
         },
         onUpdate = { delta ->
             ensureSpawned(this)
+            if (meshEntity != null && meshIsNormalized != normalizeScale) rebindMesh(this)
             if (autoRotate) camera.orbitDegrees = (camera.orbitDegrees + delta * ORBIT_DEGREES_PER_SECOND) % 360f
             meshEntity?.let { entity ->
-                val effectiveScale = if (normalizeScale) (1f / modelRadius) * scaleMultiplier else 1f
-                world.get(entity, Transform::class)?.worldMatrix = Mat4().scale(effectiveScale, effectiveScale, effectiveScale)
+                // Only scaleMultiplier here now -- the 1/modelRadius normalization is already
+                // baked into normalizedInterleaved (see rebindMesh/scalePositions), not
+                // recombined with raw ~170-unit coordinates in this per-frame matrix anymore.
+                val worldScale = if (normalizeScale) scaleMultiplier else 1f
+                world.get(entity, Transform::class)?.worldMatrix = Mat4().scale(worldScale, worldScale, worldScale)
             }
             cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true)) }
         }
@@ -178,18 +224,42 @@ internal object GltfViewerDemo {
 
     private fun ensureSpawned(runtime: SceneGameRuntime) {
         if (meshEntity != null) return
-        val mesh = loadedMesh ?: return
-        val geometry = MeshGeometry(mesh.toInterleavedPositionNormalColor(), mesh.indices, format = VertexFormat.PositionNormalColor)
-        val mesh3d = runtime.renderer.createMesh(geometry)
+        if (loadedMesh == null) return
+        val mesh3d = createMeshForCurrentScaleMode(runtime)
         val material = runtime.renderer.createMaterial()
         val entity = runtime.world.create()
         runtime.world.add(entity, Transform())
         runtime.world.add(entity, MeshRenderer(mesh3d, material))
         meshEntity = entity
+        meshIsNormalized = normalizeScale
         val cameraEnt = runtime.world.create()
         runtime.world.add(cameraEnt, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true))
         cameraEntity = cameraEnt
     }
+
+    /** Destroys [meshEntity]'s current GPU mesh and rebuilds it from whichever of
+     * [rawInterleaved]/[normalizedInterleaved] now matches [normalizeScale] -- called from
+     * [onUpdate] the first tick after the controls panel flips the switch (the panel itself only
+     * has a `ColumnScope` receiver, no `renderer` to build a GPU resource with). Keeps the
+     * existing [MeshRenderer.material] (color/shading is scale-independent, no reason to churn
+     * it), only [MeshRenderer.mesh] and [meshIsNormalized] change. */
+    private fun rebindMesh(runtime: SceneGameRuntime) {
+        val entity = meshEntity ?: return
+        val existingMaterial = runtime.world.get(entity, MeshRenderer::class)?.material ?: return
+        runtime.world.get(entity, MeshRenderer::class)?.mesh?.destroy()
+        val mesh3d = createMeshForCurrentScaleMode(runtime)
+        runtime.world.add(entity, MeshRenderer(mesh3d, existingMaterial))
+        meshIsNormalized = normalizeScale
+    }
+
+    private fun createMeshForCurrentScaleMode(runtime: SceneGameRuntime) =
+        runtime.renderer.createMesh(
+            MeshGeometry(
+                if (normalizeScale) normalizedInterleaved!! else rawInterleaved!!,
+                loadedMesh!!.indices,
+                format = VertexFormat.PositionNormalColor
+            )
+        )
 
     private val MODEL_CENTER = Vec3(0f, 0f, 0f)
 
@@ -199,4 +269,9 @@ internal object GltfViewerDemo {
      * far enough that a roughly-spherical model (like Duck) doesn't clip the near plane at
      * default pitch/orbit. */
     private const val ZOOM_FIT_FACTOR = 2.5f
+
+    /** [GltfMesh.toInterleavedPositionNormalColor]'s own stride (position vec3 + normal vec3 +
+     * color vec3 = 9 floats/vertex) -- re-stated here since that constant is private to
+     * [GltfMesh], for [scalePositions] to walk position components only. */
+    private const val NORMAL_VERTEX_STRIDE_COMPONENTS = 9
 }

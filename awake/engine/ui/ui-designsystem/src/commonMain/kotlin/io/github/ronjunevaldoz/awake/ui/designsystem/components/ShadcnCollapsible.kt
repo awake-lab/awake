@@ -19,7 +19,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
@@ -48,7 +47,7 @@ fun ColumnScope.shadcnCollapsible(
 ): Boolean {
     trigger(expanded) { onExpandedChange(!expanded) }
 
-    animatedHeight(id = "$id.content", expanded = expanded, responsiveness = 8f) {
+    animatedHeight(id = "$id.content", expanded = expanded) {
         content()
     }
 
@@ -103,7 +102,7 @@ private fun ColumnScope.shadcnCollapsible(
                     modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))
                 ) {
                     header()
-                    icon(if (isOpen) UiIcons.chevronUp else UiIcons.chevronDown)
+                    icon(if (isOpen) ShadcnIcons.chevronUp else ShadcnIcons.chevronDown)
                 }
             }
         },

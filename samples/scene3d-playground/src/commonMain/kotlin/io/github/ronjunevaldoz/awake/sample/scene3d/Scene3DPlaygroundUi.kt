@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -36,7 +37,11 @@ private val PlaygroundTheme = shadcnTheme(dark = false)
 /** Three-column playground shell: demo menu (left) | live viewport (center) | per-demo controls
  * (right). Only lays out chrome and delegates to whichever [Scene3DDemo] is active for both the
  * center and right panes -- see [Scene3DDemos]'s doc comment for how to add a new demo. */
-internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(state: Scene3DPlaygroundState, viewportWidth: Float, viewportHeight: Float) {
+internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
+    state: Scene3DPlaygroundState,
+    viewportWidth: Float,
+    viewportHeight: Float
+) {
     val runtime = this
     uiContext.pushTheme(PlaygroundTheme)
     frame(viewportWidth, viewportHeight) {
@@ -44,6 +49,7 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(state: Scene3DPlaygro
             id = "scene3d-playground-shell",
             horizontalArrangement = Arrangement.spacedBy(0f.dp),
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
+                .padding(8.dp)
         ) {
             shadcnSidebar(
                 id = "scene3d-demo-menu",
@@ -88,7 +94,9 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(state: Scene3DPlaygro
             column(
                 id = "scene3d-controls-column",
                 verticalArrangement = Arrangement.spacedBy(16f.dp),
-                modifier = Modifier.width(220f.dp).height(Dimension.FillMax).verticalScroll(controlsScroll)
+                modifier = Modifier.width(220f.dp).height(Dimension.FillMax)
+                    .padding(8.dp)
+                    .verticalScroll(controlsScroll)
             ) {
                 activeDemo.renderControls(this)
             }

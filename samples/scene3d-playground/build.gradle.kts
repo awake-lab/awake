@@ -118,6 +118,23 @@ kotlin {
             dependsOn(appMain)
         }
 
+        // Pixel-baseline regression test for RotatingCubeDemo (see
+        // RotatingCubePixelBaselineTest) needs a real headless Vulkan Renderer -- only
+        // appMain/desktopMain/androidMain/iosMain pull in awake:backend:vulkan today (a real
+        // GPU backend has no business on commonTest's classpath, which every target -- wasmJs
+        // included -- compiles against), so desktopTest gets its own explicit dependency
+        // instead of going through appMain. comparePixels (awake:engine:ui:ui-testing) is
+        // already a commonTest dependency above, inherited here. appMain's own compiled
+        // triangle.vert/frag.spv (PositionNormalColor, this sample's real shader -- not
+        // awake-backend-vulkan's own generic ui shaders) is mirrored into
+        // src/desktopTest/resources rather than added as a source-set dependency here, since
+        // appMain also carries GltfViewerDemo's model assets this test has no use for.
+        named("desktopTest") {
+            dependencies {
+                implementation(project(":awake:backend:vulkan"))
+            }
+        }
+
         named("wasmJsMain") {
             dependencies {
                 implementation(project(":awake:base"))
@@ -158,4 +175,25 @@ tasks.register<JavaExec>("run") {
         jvmArgsList += "-XstartOnFirstThread"
     }
     jvmArgs(jvmArgsList)
+}
+
+// Same wiring awake-backend-vulkan's own desktopTest task uses for its headless pixel-baseline
+// test (see that module's build.gradle.kts) -- RotatingCubePixelBaselineTest needs the same
+// native Vulkan loader / MoltenVK ICD env to construct a real (headless) GraphicsDevice. A
+// no-op if buildDesktopNative hasn't been run (System.loadLibrary just fails with its usual
+// UnsatisfiedLinkError, same as if this weren't set at all).
+tasks.named<Test>("desktopTest") {
+    jvmArgs("-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
+    if (moltenVkIcdPath != null) {
+        environment("VK_ICD_FILENAMES", moltenVkIcdPath)
+    }
+    environment("DYLD_FALLBACK_LIBRARY_PATH", dyldFallbackLibraryPath)
+    // A second headless GraphicsDevice.createHeadless() call in the same JVM process throws
+    // VK_ERROR_EXTENSION_NOT_PRESENT (cross-instance native/global Vulkan loader state colliding
+    // -- see RotatingCubePixelBaselineTest's own doc comment, which sidesteps this WITHIN one
+    // test class by sharing a single device across cases). RotatingCubeContinuousSpinStabilityTest
+    // is a separate class with its own headless device, so the same collision resurfaces ACROSS
+    // classes once both run in this task's single default JVM -- forkEvery=1 gives every test
+    // class a fresh JVM instead of chasing a fix in GraphicsDevice's own teardown.
+    forkEvery = 1
 }

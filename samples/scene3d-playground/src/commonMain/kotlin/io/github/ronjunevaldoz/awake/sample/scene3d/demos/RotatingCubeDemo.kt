@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.math.PI
 import kotlin.math.cos
@@ -46,7 +46,7 @@ internal object RotatingCubeDemo {
      * demo is the one that maps `hours -> a full 360-degree turn` ([HOURS_TO_DEGREES]) below. */
     private val timeController = ManualTimeController()
 
-    private var displayGroupExpanded = true
+    private var displayGroupExpanded = false
 
     private var cubeMesh: Mesh? = null
     private var material: Material? = null
@@ -77,12 +77,11 @@ internal object RotatingCubeDemo {
         },
         renderControls = {
             renderOrbitCameraControls(camera, idPrefix = "cube", targetLabel = "cube")
-            shadcnCollapsible(
+            shadcnCollapsibleCard(
                 id = "cube-controls-display",
-                title = "Display",
                 expanded = displayGroupExpanded,
                 onExpandedChange = { displayGroupExpanded = it },
-                bordered = true
+                header = { text("Display", verticallyCentered = true) }
             ) {
                 wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
                 timeController.autoPlay = shadcnSwitch(id = "cube-auto-spin", checked = timeController.autoPlay, label = "Auto-spin")

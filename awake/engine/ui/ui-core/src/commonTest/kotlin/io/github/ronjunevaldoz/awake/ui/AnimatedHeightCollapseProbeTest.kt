@@ -55,30 +55,37 @@ class AnimatedHeightCollapseProbeTest {
             }
             prev = h
         }
-        // Exponential ease-to-target (see animateFloatStep) never guarantees hitting 0 in a
-        // fixed frame count, only asymptotically approaching it -- 30 frames at the default
-        // responsiveness=12f already gets well under 1px, which is the real thing that matters.
-        check(heights.last() < 1f) { "collapse did not converge toward 0 within 30 frames: $heights" }
+        // animateFloatTween (see below) reaches the EXACT target once elapsed >= durationMs,
+        // not just asymptotically close -- default durationMs=250ms is well under 30 frames
+        // (~500ms) at a real 60fps delta, so this should already be sitting at exactly 0.
+        check(heights.last() == 0f) { "collapse did not reach exactly 0 within 30 frames: $heights" }
     }
 
     @Test
-    fun collapseConvergesQuicklyAtShadcnCollapsibleRealResponsiveness() {
-        // Regression for the live "extra space lingers, then suddenly clears" report:
-        // animatedHeight's old default snapDistance (0.001px, a fixed absolute epsilon) meant
-        // convergence time scaled with ln(startHeight), so shadcnCollapsible's real
-        // responsiveness=8f + a real 120px content height took ~70 frames (~1.2s) to cross the
-        // render gate (animatedHeight > 0.01f) even though content itself was fully clipped
-        // away and invisible after ~10 frames. This asserts the fixed slot returns null (fully
-        // collapsed, matching the container's real render-gate check) well before that.
+    fun collapseConvergesWithinItsOwnFixedDuration() {
+        // Regression for two live reports on the OLD animateFloat-based implementation: (1)
+        // "extra space lingers, then suddenly clears" -- exponential decay chasing a target
+        // forever, gated behind an epsilon "snapDistance" to decide when to call it done, meant
+        // content looked fully collapsed within ~10 frames while the container kept an
+        // imperceptible sliver of leftover height for dozens more frames, then hard-snapped to
+        // exactly 0 once it finally crossed the epsilon; (2) "the parent didn't have same
+        // animation" -- a wrap-sized parent (e.g. a card) re-measures this child every frame, so
+        // that epsilon-vs-true-zero mismatch meant the parent's own shrink desynced from the
+        // child's right at the very end. animateFloatTween has neither problem: it reaches the
+        // EXACT target in a known, bounded number of frames (no epsilon), so this asserts the
+        // slot becomes null (fully collapsed) at or right after that exact duration, not "well
+        // before" some old worst-case bound.
         val ui = UiContext()
         var expanded = true
+        val durationMs = 250f
+        val frameDeltaMs = 1000f / 60f
+        val expectedFrames = kotlin.math.ceil(durationMs / frameDeltaMs).toInt()
 
         fun frame(): UiBounds? {
             ui.beginFrame(400f, 800f, testSnapshot())
             val slot = ui.createColumn(x = 0f, y = 0f, width = 300f).animatedHeight(
                 id = "shadcn-collapsible-probe",
-                expanded = expanded,
-                responsiveness = 8f // shadcnCollapsible's real value, not animatedHeight's 12f default.
+                expanded = expanded
             ) {
                 spacer(Modifier.height(120f.dp))
             }
@@ -90,16 +97,16 @@ class AnimatedHeightCollapseProbeTest {
         expanded = false
 
         var framesToFullyCollapse = -1
-        repeat(50) { i ->
+        repeat(expectedFrames + 5) { i ->
             val slot = frame()
             if (framesToFullyCollapse < 0 && slot == null) {
                 framesToFullyCollapse = i
             }
         }
 
-        check(framesToFullyCollapse in 0..40) {
-            "expected shadcnCollapsible's real 120px/responsiveness=8f collapse to fully clip " +
-                "within 40 frames (was ~70 before the snapDistance fix), took $framesToFullyCollapse"
+        check(framesToFullyCollapse in (expectedFrames - 2)..(expectedFrames + 2)) {
+            "expected collapse to fully clip within ~$expectedFrames frames (durationMs=$durationMs " +
+                "at a 60fps delta), took $framesToFullyCollapse"
         }
     }
 }

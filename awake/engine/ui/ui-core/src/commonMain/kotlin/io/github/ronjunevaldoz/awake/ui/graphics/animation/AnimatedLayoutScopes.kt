@@ -5,7 +5,9 @@ package io.github.ronjunevaldoz.awake.ui.graphics.animation
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.animateFloat
+import io.github.ronjunevaldoz.awake.ui.EaseOut
+import io.github.ronjunevaldoz.awake.ui.Easing
+import io.github.ronjunevaldoz.awake.ui.animateFloatTween
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -21,7 +23,8 @@ fun ColumnScope.animatedHeight(
     id: String,
     expanded: Boolean,
     modifier: UiModifier = Modifier,
-    responsiveness: Float = 12f,
+    durationMs: Float = 250f,
+    easing: Easing = EaseOut,
     content: ColumnScope.(slot: UiBounds) -> Unit
 ): UiBounds? {
     // 1. Measure the content to know the target expanded height -- only on the frame this
@@ -42,19 +45,24 @@ fun ColumnScope.animatedHeight(
     }
     state.set("wasExpanded", expanded)
 
-    // 2. Animate current height toward 0 (collapsed) or measured.height (expanded)
+    // 2. Animate current height toward 0 (collapsed) or measured.height (expanded). A fixed-
+    // duration animateFloatTween, not the spring-style animateFloat this used to call: that one
+    // chases its target with exponential decay that never truly reaches it, so collapsing relied
+    // on an epsilon "snapDistance" to decide when to give up and call it 0 -- decay is fastest
+    // early and slows to an imperceptible crawl near the target, so in practice content looked
+    // fully collapsed within ~15-20 frames while the container kept an invisible sliver of
+    // leftover height for dozens more frames, then hard-snapped to exactly 0 once it finally
+    // crossed the epsilon (reported live as "slowly hidden, then snap" -- a real, reproducible
+    // symptom, not a one-off). Worse, since a wrap-sized parent (e.g. a card) measures this
+    // child's height fresh every frame, the parent's own shrink desynced from the child's the
+    // instant the child's slot went from "still claiming a sub-2px sliver" to "gone entirely" --
+    // the parent had no equivalent snap of its own to stay in lockstep with (reported separately
+    // as "the parent didn't have same animation"). animateFloatTween has none of this: it reaches
+    // the EXACT target in a known, bounded number of frames, so the slot legitimately becomes
+    // exactly 0 (not epsilon-close) right as the tween completes, and a wrap-sized parent measuring
+    // it every frame tracks that exact value with no separate snap step to fall out of sync.
     val targetHeight = if (expanded) cachedHeight else 0f
-    // animateFloat's default snapDistance (0.001px) is a fixed absolute epsilon -- exponential
-    // decay's convergence time scales with ln(startHeight / snapDistance), so a real collapse
-    // (e.g. 120px of content) takes ~88 frames (~1.5s) to cross that threshold even though
-    // content is already fully clipped away and invisible within the first ~15-20 frames. The
-    // container keeps an imperceptible sliver of leftover height the whole time, then hard-snaps
-    // to exactly 0 once it finally crosses -- reads as "extra space lingers, then suddenly
-    // clears." A sub-2px sliver is visually identical to 0 (this renders as a clipped, near-empty
-    // column either way), but crosses in a fraction of the frames -- e.g. shadcnCollapsible's
-    // real responsiveness=8f/120px case: ~70 frames (~1.2s) at the old 0.001 default down to
-    // ~33 frames (~0.55s) at 1.5f.
-    val animatedHeight = animateFloat(id, targetHeight, responsiveness = responsiveness, snapDistance = 1.5f)
+    val animatedHeight = animateFloatTween(id, targetHeight, durationMs = durationMs, easing = easing)
 
     // 3. Render a clipped container with the animated height
     return if (animatedHeight > 0.01f) {

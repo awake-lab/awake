@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
-import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /**
  * Reusable default camera control -- every demo with a 3D viewport gets this same Camera/
@@ -63,9 +64,13 @@ internal class OrbitCameraController(
      * with it). Meaningless in [freeLook] mode -- disabled in the controls panel while that's on. */
     var lockTargetToPoint = true
 
-    // Controls panel grouping -- default expanded so nothing looks like it went missing.
-    var cameraGroupExpanded = true
-    var projectionGroupExpanded = true
+    // Controls panel grouping -- default collapsed. Each group now renders as its own
+    // shadcnCollapsibleCard/shadcnCollapsible with a real header label + chevron affordance
+    // (see renderOrbitCameraControls below), so a collapsed group reads as "more settings
+    // here," not "this went missing" -- unlike an earlier version with no per-group visual
+    // identity at all, where default-collapsed genuinely did look broken.
+    var cameraGroupExpanded = false
+    var projectionGroupExpanded = false
 
     /** Orbit mode's eye *anchor* -- [orbitDegrees]/[pitchDegrees]/[zoom] always orbit the eye
      * around this exact point, regardless of [lockTargetToPoint]. Keeping the anchor fixed to
@@ -147,19 +152,11 @@ internal fun ColumnScope.renderOrbitCameraControls(
     idPrefix: String,
     targetLabel: String
 ) {
-    // Reassigning from shadcnCollapsible's own return value here (`cameraGroupExpanded =
-    // shadcnCollapsible(...)`) is a real bug, not just style: the primary shadcnCollapsible
-    // always `return`s the pre-click `expanded` it was called with, so that reassignment
-    // executes *after* `onExpandedChange` already flipped the var this frame and silently
-    // clobbers it back to the stale value -- collapsing a card never visibly toggled.
-    // shadcnCollapsible's own sidebar-category caller (UiShowcaseChrome.kt) never reassigns
-    // from the return value for exactly this reason; match that here.
-    shadcnCollapsible(
+    shadcnCollapsibleCard(
         id = "$idPrefix-controls-camera",
-        title = "Camera",
         expanded = controller.cameraGroupExpanded,
         onExpandedChange = { controller.cameraGroupExpanded = it },
-        bordered = true
+        header = { text("Camera", verticallyCentered = true) }
     ) {
         controller.orbitDegrees = shadcnFieldSliderWithValue(id = "$idPrefix-orbit", label = "Orbit", min = 0f, max = 360f, value = controller.orbitDegrees)
         controller.pitchDegrees = shadcnFieldSliderWithValue(id = "$idPrefix-pitch", label = "Pitch", min = 0f, max = 89f, value = controller.pitchDegrees)
@@ -175,12 +172,11 @@ internal fun ColumnScope.renderOrbitCameraControls(
         controller.panZ = shadcnFieldSliderWithValue(id = "$idPrefix-pan-z", label = "Pan Z", min = -controller.panRange, max = controller.panRange, value = controller.panZ, enabled = targetFieldsEnabled)
         controller.elevation = shadcnFieldSliderWithValue(id = "$idPrefix-elevation", label = "Elevation", min = -controller.panRange, max = controller.panRange, value = controller.elevation, enabled = targetFieldsEnabled)
     }
-    shadcnCollapsible(
+    shadcnCollapsibleCard(
         id = "$idPrefix-controls-projection",
-        title = "Projection",
         expanded = controller.projectionGroupExpanded,
         onExpandedChange = { controller.projectionGroupExpanded = it },
-        bordered = true
+        header = { text("Projection", verticallyCentered = true) }
     ) {
         controller.near = shadcnFieldSliderWithValue(id = "$idPrefix-near", label = "Near", min = 0.01f, max = 5f, value = controller.near)
         controller.far = shadcnFieldSliderWithValue(id = "$idPrefix-far", label = "Far", min = 10f, max = controller.zoomMax * 40f, value = controller.far)
