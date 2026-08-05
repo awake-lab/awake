@@ -14,10 +14,6 @@
     <ID>MagicNumber:GltfViewerDemo.kt$GltfViewerDemo$3</ID>
     <ID>MagicNumber:GltfViewerDemo.kt$GltfViewerDemo$5f</ID>
     <ID>MagicNumber:GltfViewerDemo.kt$GltfViewerDemo$6f</ID>
-    <ID>MagicNumber:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$100f</ID>
-    <ID>MagicNumber:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$20f</ID>
-    <ID>MagicNumber:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$3</ID>
-    <ID>MagicNumber:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$40f</ID>
     <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$0.13f</ID>
     <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$0.15f</ID>
     <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$0.36f</ID>
@@ -26,10 +22,6 @@
     <ID>MagicNumber:OrbitCameraController.kt$OrbitCameraController$0.1f</ID>
     <ID>MagicNumber:OrbitCameraController.kt$OrbitCameraController$100f</ID>
     <ID>MagicNumber:OrbitCameraController.kt$OrbitCameraController$45f</ID>
-    <ID>MagicNumber:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$0xFF</ID>
-    <ID>MagicNumber:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$2.2f</ID>
-    <ID>MagicNumber:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$4</ID>
-    <ID>MagicNumber:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$5</ID>
     <ID>MagicNumber:RotatingCubeDemo.kt$RotatingCubeDemo$0.01f</ID>
     <ID>MagicNumber:RotatingCubeDemo.kt$RotatingCubeDemo$0.15f</ID>
     <ID>MagicNumber:RotatingCubeDemo.kt$RotatingCubeDemo$0.35f</ID>
@@ -38,8 +30,6 @@
     <ID>MagicNumber:RotatingCubeDemo.kt$RotatingCubeDemo$0.75f</ID>
     <ID>MagicNumber:RotatingCubeDemo.kt$RotatingCubeDemo$0.9f</ID>
     <ID>MagicNumber:RotatingCubeDemo.kt$RotatingCubeDemo$2.2f</ID>
-    <ID>MagicNumber:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$1.2f</ID>
-    <ID>MagicNumber:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$2.2f</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$0.5f</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$10</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$11</ID>
@@ -62,12 +52,6 @@
     <ID>MagicNumber:RotatingCubeMesh.kt$7</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$8</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$9</ID>
-    <ID>MagicNumber:RotatingCubePixelBaselineTest.kt$0xFF</ID>
-    <ID>MagicNumber:RotatingCubePixelBaselineTest.kt$16</ID>
-    <ID>MagicNumber:RotatingCubePixelBaselineTest.kt$24</ID>
-    <ID>MagicNumber:RotatingCubePixelBaselineTest.kt$3</ID>
-    <ID>MagicNumber:RotatingCubePixelBaselineTest.kt$4</ID>
-    <ID>MagicNumber:RotatingCubePixelBaselineTest.kt$8</ID>
     <ID>MagicNumber:Scene3DPlaygroundFeature.kt$0.14f</ID>
     <ID>MagicNumber:Scene3DPlaygroundFeature.kt$0.16f</ID>
     <ID>MagicNumber:Scene3DPlaygroundGame.kt$1600</ID>
@@ -83,15 +67,6 @@
     <ID>MagicNumber:SkinnedMeshDemo.kt$SkinnedMeshDemo$3</ID>
     <ID>MaxLineLength:GltfViewerDemo.kt$GltfViewerDemo$cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true)) }</ID>
     <ID>MaxLineLength:GltfViewerDemo.kt$GltfViewerDemo$normalizeScale = shadcnSwitch(id = "gltf-normalize-scale", checked = normalizeScale, label = "Normalize scale")</ID>
-    <ID>MaxLineLength:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)</ID>
-    <ID>MaxLineLength:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")</ID>
-    <ID>MaxLineLength:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }</ID>
-    <ID>MaxLineLength:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") }</ID>
-    <ID>MaxLineLength:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") }</ID>
-    <ID>MaxLineLength:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") }</ID>
-    <ID>MaxLineLength:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") }</ID>
-    <ID>MaxLineLength:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$val</ID>
-    <ID>MaxLineLength:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$val duckMesh = runBlocking { GltfParser.parse(readResourceBytes("assets/models/Duck.gltf").decodeToString()) }</ID>
     <ID>MaxLineLength:OrbitCameraController.kt$controller.elevation = shadcnFieldSliderWithValue(id = "$idPrefix-elevation", label = "Elevation", min = -controller.panRange, max = controller.panRange, value = controller.elevation, enabled = targetFieldsEnabled)</ID>
     <ID>MaxLineLength:OrbitCameraController.kt$controller.far = shadcnFieldSliderWithValue(id = "$idPrefix-far", label = "Far", min = 10f, max = controller.zoomMax * 40f, value = controller.far)</ID>
     <ID>MaxLineLength:OrbitCameraController.kt$controller.fovDegrees = shadcnFieldSliderWithValue(id = "$idPrefix-fov", label = "FOV", min = 10f, max = 120f, value = controller.fovDegrees)</ID>
@@ -104,38 +79,12 @@
     <ID>MaxLineLength:OrbitCameraController.kt$controller.pitchDegrees = shadcnFieldSliderWithValue(id = "$idPrefix-pitch", label = "Pitch", min = 0f, max = 89f, value = controller.pitchDegrees)</ID>
     <ID>MaxLineLength:OrbitCameraController.kt$controller.rollDegrees = shadcnFieldSliderWithValue(id = "$idPrefix-roll", label = "Roll", min = -180f, max = 180f, value = controller.rollDegrees)</ID>
     <ID>MaxLineLength:OrbitCameraController.kt$controller.zoom = shadcnFieldSliderWithValue(id = "$idPrefix-zoom", label = "Zoom", min = controller.zoomMin, max = controller.zoomMax, value = controller.zoom, enabled = !controller.freeLook)</ID>
-    <ID>MaxLineLength:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)</ID>
-    <ID>MaxLineLength:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")</ID>
-    <ID>MaxLineLength:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$val diff = kotlin.math.abs(r - BACKGROUND_R) + kotlin.math.abs(g - BACKGROUND_G) + kotlin.math.abs(b - BACKGROUND_B)</ID>
     <ID>MaxLineLength:RotatingCubeDemo.kt$RotatingCubeDemo$cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(cubeWorldPosition()), isPrimary = true)) }</ID>
     <ID>MaxLineLength:RotatingCubeDemo.kt$RotatingCubeDemo$timeController.autoPlay = shadcnSwitch(id = "cube-auto-spin", checked = timeController.autoPlay, label = "Auto-spin")</ID>
-    <ID>MaxLineLength:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)</ID>
-    <ID>MaxLineLength:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")</ID>
-    <ID>MaxLineLength:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)</ID>
-    <ID>MaxLineLength:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")</ID>
-    <ID>MaxLineLength:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") }</ID>
-    <ID>MaxLineLength:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest.Companion$CubeFrameCase(hours = 0f, baselineResourcePath = "baselines/rotating-cube-headless.rgba", failureDirName = "RotatingCubePixelBaselineTest")</ID>
-    <ID>MaxLineLength:Scene3DPlaygroundUiTest.kt$Scene3DPlaygroundUiTest$assertTrue(state.activeDemoId == Scene3DDemos.last().id, "activeDemoId must be freely settable by the menu's onClick")</ID>
     <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$FloatArray(comps) { i -> sampler.values[loBase + i] + (sampler.values[hiBase + i] - sampler.values[loBase + i]) * t }</ID>
     <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$val a = Quat(sampler.values[loBase], sampler.values[loBase + 1], sampler.values[loBase + 2], sampler.values[loBase + 3])</ID>
     <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$val b = Quat(sampler.values[hiBase], sampler.values[hiBase + 1], sampler.values[hiBase + 2], sampler.values[hiBase + 3])</ID>
     <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$val local = node.matrix ?: Mat4.fromTrs(currentTranslation[nodeIndex], currentRotation[nodeIndex], currentScale[nodeIndex])</ID>
-    <ID>MaxLineLength:SkinnedAnimationPlayerTest.kt$SkinnedAnimationPlayerTest$LoadedNode(translation, Quat.IDENTITY, Vec3(1f, 1f, 1f), matrix = null, children = children, mesh = null, skin = null)</ID>
-    <ID>MaxLineLength:SkinnedAnimationPlayerTest.kt$SkinnedAnimationPlayerTest$private fun identitySkin(): LoadedSkin</ID>
     <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true)) }</ID>
     <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$timeController.autoPlay = shadcnSwitch(id = "skinned-auto-play", checked = timeController.autoPlay, label = "Auto-play")</ID>
     <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$val timeSeconds = if (duration > 0f) (timeController.hours / ManualTimeController.HOURS_PER_CYCLE) * duration else 0f</ID>

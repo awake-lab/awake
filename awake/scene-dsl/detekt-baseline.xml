@@ -8,7 +8,6 @@
     <ID>MagicNumber:SystemExtensions.kt$6f</ID>
     <ID>MatchingDeclarationName:SceneAssetDsl.kt$SceneAssetsDsl</ID>
     <ID>MaxLineLength:SceneDocumentDslCompat.kt$message = "Compatibility scene entry point slated for future removal. Prefer io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneDocumentDsl or the canonical scene DSL entrypoint."</ID>
-    <ID>MaxLineLength:SceneRouterDslTest.kt$RouterRecordingRenderer$override</ID>
     <ID>TooManyFunctions:SceneGameDsl.kt$SceneGameDsl</ID>
   </CurrentIssues>
 </SmellBaseline>

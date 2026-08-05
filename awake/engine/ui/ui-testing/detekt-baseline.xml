@@ -64,7 +64,6 @@
     <ID>MaxLineLength:UiRasterizer.kt$is UiDrawPrimitive.GradientQuad -> fillGradientRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.gradient)</ID>
     <ID>MaxLineLength:UiRasterizer.kt$is UiDrawPrimitive.StrokedPath -> fillTriangleMesh(primitive.path.tessellateStroke(primitive.stroke), primitive.color)</ID>
     <ID>MaxLineLength:UiRasterizer.kt$val scaledGlyph = if (primitive.transform == null) primitive else primitive.copy(x = x, y = y, w = w, h = h)</ID>
-    <ID>MaxLineLength:UiRasterizerTest.kt$UiRasterizerTest$val primitives = listOf(UiDrawPrimitive.RoundedQuad(x = 0f, y = 0f, w = 600f, h = 36f, color = fill, radius = 6f))</ID>
     <ID>NestedBlockDepth:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
     <ID>ReturnCount:AwakeUiSnapshot.desktop.kt$actual fun loadAwakeUiSnapshot(id: String): ByteArray?</ID>
   </CurrentIssues>

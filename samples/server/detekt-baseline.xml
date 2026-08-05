@@ -4,7 +4,6 @@
   <CurrentIssues>
     <ID>LoopWithTooManyJumpStatements:DebugControlServer.kt$WebSocketDebugTransport$for</ID>
     <ID>MatchingDeclarationName:DebugControlServer.kt$WebSocketDebugTransport&lt;TCommand, TResponse> : DebugTransport</ID>
-    <ID>MaxLineLength:DebugControlLoopTest.kt$DebugControlLoopTest.&lt;no name provided>$override fun drainCommands()</ID>
     <ID>TooGenericExceptionCaught:DebugControlLoop.kt$t: Throwable</ID>
   </CurrentIssues>
 </SmellBaseline>

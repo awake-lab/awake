@@ -79,29 +79,7 @@
     <ID>MatchingDeclarationName:gameloop.ios.kt$IOSGameLoop : GameLoop</ID>
     <ID>MatchingDeclarationName:gameloop.kt$GameLoop</ID>
     <ID>MatchingDeclarationName:matrix.kt$Mat4</ID>
-    <ID>MaxLineLength:CameraTest.kt$CameraTest$val expected = Mat4.perspective(fovY = camera.fovYRadians, aspect = aspect, near = camera.near, far = camera.far)</ID>
-    <ID>MaxLineLength:CameraTest.kt$CameraTest$val unflipped = Mat4.perspective(fovY = camera.fovYRadians, aspect = aspect, near = camera.near, far = camera.far)</ID>
     <ID>MaxLineLength:GltfParser.kt$GltfParser$val values = readFloatAccessor(document, buffers, sampler.output, componentsPerElement = componentsPerKeyframe)</ID>
-    <ID>MaxLineLength:GridTest.kt$GridTest$private</ID>
-    <ID>NewLineAtEndOfFile:Angle.kt$io.github.ronjunevaldoz.awake.core.math.Angle.kt</ID>
-    <ID>NewLineAtEndOfFile:Bitmap.kt$io.github.ronjunevaldoz.awake.core.graphics.Bitmap.kt</ID>
-    <ID>NewLineAtEndOfFile:Buffer.kt$io.github.ronjunevaldoz.awake.core.memory.Buffer.kt</ID>
-    <ID>NewLineAtEndOfFile:Disposable.kt$io.github.ronjunevaldoz.awake.core.graphics.Disposable.kt</ID>
-    <ID>NewLineAtEndOfFile:Drawable.kt$io.github.ronjunevaldoz.awake.core.graphics.Drawable.kt</ID>
-    <ID>NewLineAtEndOfFile:MatrixTest.kt$io.github.ronjunevaldoz.awake.core.MatrixTest.kt</ID>
-    <ID>NewLineAtEndOfFile:Pixmap.kt$io.github.ronjunevaldoz.awake.core.graphics.Pixmap.kt</ID>
-    <ID>NewLineAtEndOfFile:Platform.android.kt$io.github.ronjunevaldoz.awake.core.Platform.android.kt</ID>
-    <ID>NewLineAtEndOfFile:Platform.desktop.kt$io.github.ronjunevaldoz.awake.core.Platform.desktop.kt</ID>
-    <ID>NewLineAtEndOfFile:Platform.ios.kt$io.github.ronjunevaldoz.awake.core.Platform.ios.kt</ID>
-    <ID>NewLineAtEndOfFile:Platform.kt$io.github.ronjunevaldoz.awake.core.Platform.kt</ID>
-    <ID>NewLineAtEndOfFile:Time.kt$io.github.ronjunevaldoz.awake.core.utils.Time.kt</ID>
-    <ID>NewLineAtEndOfFile:bufferExt.kt$io.github.ronjunevaldoz.awake.core.memory.bufferExt.kt</ID>
-    <ID>NewLineAtEndOfFile:gameloop.android.kt$io.github.ronjunevaldoz.awake.core.application.gameloop.android.kt</ID>
-    <ID>NewLineAtEndOfFile:gameloop.desktop.kt$io.github.ronjunevaldoz.awake.core.application.gameloop.desktop.kt</ID>
-    <ID>NewLineAtEndOfFile:gameloop.ios.kt$io.github.ronjunevaldoz.awake.core.application.gameloop.ios.kt</ID>
-    <ID>NewLineAtEndOfFile:gameloop.kt$io.github.ronjunevaldoz.awake.core.application.gameloop.kt</ID>
-    <ID>NewLineAtEndOfFile:matrix.kt$io.github.ronjunevaldoz.awake.core.math.matrix.kt</ID>
-    <ID>NewLineAtEndOfFile:vector.kt$io.github.ronjunevaldoz.awake.core.math.vector.kt</ID>
     <ID>ReturnCount:AndroidInputBridge.kt$fun MotionEvent.syncAwakePointerInput(input: Input): Boolean</ID>
     <ID>TooManyFunctions:GltfParser.kt$GltfParser</ID>
     <ID>UnusedPrivateProperty:Bitmap.kt$val bytesPerRow = CGImageGetBytesPerRow(cgImage)</ID>

@@ -67,7 +67,27 @@ comments:
     endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
   KDocReferencesNonPublicProperty:
     active: false
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: &testSourceSetExcludes
+      - '**/test/**'
+      - 'test/**'
+      - '**/androidTest/**'
+      - 'androidTest/**'
+      - '**/commonTest/**'
+      - 'commonTest/**'
+      - '**/jvmTest/**'
+      - 'jvmTest/**'
+      - '**/desktopTest/**'
+      - 'desktopTest/**'
+      - '**/wasmJsTest/**'
+      - 'wasmJsTest/**'
+      - '**/androidUnitTest/**'
+      - 'androidUnitTest/**'
+      - '**/androidInstrumentedTest/**'
+      - 'androidInstrumentedTest/**'
+      - '**/jsTest/**'
+      - 'jsTest/**'
+      - '**/iosTest/**'
+      - 'iosTest/**'
   OutdatedDocumentation:
     active: false
     matchTypeParameters: true
@@ -75,7 +95,7 @@ comments:
     allowParamOnConstructorProperties: false
   UndocumentedPublicClass:
     active: false
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
     searchInNestedClass: true
     searchInInnerClass: true
     searchInInnerObject: true
@@ -83,11 +103,11 @@ comments:
     searchInProtectedClass: false
   UndocumentedPublicFunction:
     active: false
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
     searchProtectedFunction: false
   UndocumentedPublicProperty:
     active: false
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
     searchProtectedProperty: false
 
 complexity:
@@ -131,6 +151,10 @@ complexity:
     threshold: 60
   LongParameterList:
     active: true
+    excludes:
+      - '**/src/**/kotlin/io/github/ronjunevaldoz/awake/vulkan/models/info/**'
+      - '**/src/**/kotlin/io/github/ronjunevaldoz/awake/vulkan/models/physicaldevice/**'
+      - '**/OpenGL.kt'
     functionThreshold: 6
     constructorThreshold: 7
     ignoreDefaultParameters: false
@@ -159,14 +183,14 @@ complexity:
     active: false
   StringLiteralDuplication:
     active: false
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
     threshold: 3
     ignoreAnnotation: true
     excludeStringsWithLessThan5Characters: true
     ignoreStringsRegex: '$^'
   TooManyFunctions:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
     thresholdInFiles: 11
     thresholdInClasses: 11
     thresholdInInterfaces: 11
@@ -243,7 +267,7 @@ exceptions:
       - 'toString'
   InstanceOfCheckForException:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
   NotImplementedDeclaration:
     active: false
   ObjectExtendsThrowable:
@@ -269,7 +293,7 @@ exceptions:
     active: false
   ThrowingExceptionsWithoutMessageOrCause:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
     exceptions:
       - 'ArrayIndexOutOfBoundsException'
       - 'Exception'
@@ -284,7 +308,7 @@ exceptions:
     active: true
   TooGenericExceptionCaught:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
     exceptionNames:
       - 'ArrayIndexOutOfBoundsException'
       - 'Error'
@@ -330,7 +354,7 @@ naming:
     minimumFunctionNameLength: 3
   FunctionNaming:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
     functionPattern: '[a-z][a-zA-Z0-9]*'
     excludeClassPattern: '$^'
   FunctionParameterNaming:
@@ -388,10 +412,10 @@ performance:
     threshold: 3
   ForEachOnRange:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
   SpreadOperator:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
   UnnecessaryPartOfBinaryExpression:
     active: false
   UnnecessaryTemporaryInstantiation:
@@ -464,7 +488,7 @@ potential-bugs:
     active: true
   LateinitUsage:
     active: false
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
     ignoreOnClassesPattern: ''
   MapGetWithNotNullAssertionOperator:
     active: true
@@ -491,7 +515,7 @@ potential-bugs:
     active: true
   UnsafeCallOnNullableType:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    excludes: *testSourceSetExcludes
   UnsafeCast:
     active: true
   UnusedUnaryOperator:
@@ -608,7 +632,33 @@ style:
     maxJumpCount: 1
   MagicNumber:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts' ]
+    excludes:
+      - '**/test/**'
+      - 'test/**'
+      - '**/androidTest/**'
+      - 'androidTest/**'
+      - '**/commonTest/**'
+      - 'commonTest/**'
+      - '**/jvmTest/**'
+      - 'jvmTest/**'
+      - '**/desktopTest/**'
+      - 'desktopTest/**'
+      - '**/wasmJsTest/**'
+      - 'wasmJsTest/**'
+      - '**/androidUnitTest/**'
+      - 'androidUnitTest/**'
+      - '**/androidInstrumentedTest/**'
+      - 'androidInstrumentedTest/**'
+      - '**/jsTest/**'
+      - 'jsTest/**'
+      - '**/iosTest/**'
+      - 'iosTest/**'
+      - '**/*.kts'
+      - '**/src/**/kotlin/io/github/ronjunevaldoz/awake/vulkan/enums/**'
+      - '**/RobotoRegularUiFontData.kt'
+      - '**/GlyphAtlasSource.kt'
+      - '**/HeroIcons.kt'
+      - '**/ShadcnTheme.kt'
     ignoreNumbers:
       - '-1'
       - '0'
@@ -632,6 +682,30 @@ style:
   MaxLineLength:
     active: true
     maxLineLength: 120
+    excludes:
+      - '**/test/**'
+      - 'test/**'
+      - '**/androidTest/**'
+      - 'androidTest/**'
+      - '**/commonTest/**'
+      - 'commonTest/**'
+      - '**/jvmTest/**'
+      - 'jvmTest/**'
+      - '**/desktopTest/**'
+      - 'desktopTest/**'
+      - '**/wasmJsTest/**'
+      - 'wasmJsTest/**'
+      - '**/androidUnitTest/**'
+      - 'androidUnitTest/**'
+      - '**/androidInstrumentedTest/**'
+      - 'androidInstrumentedTest/**'
+      - '**/jsTest/**'
+      - 'jsTest/**'
+      - '**/iosTest/**'
+      - 'iosTest/**'
+      - '**/RobotoRegularUiFontData.kt'
+      - '**/GlyphAtlasSource.kt'
+      - '**/HeroIcons.kt'
     excludePackageStatements: true
     excludeImportStatements: true
     excludeCommentStatements: false
@@ -782,3 +856,5 @@ style:
     active: true
     excludeImports:
       - 'java.util.*'
+      - 'io.github.ronjunevaldoz.awake.ui.layout.*'
+      - 'io.github.ronjunevaldoz.awake.ui.style.*'

@@ -29,19 +29,12 @@
     <ID>MagicNumber:DemoNavMeshGeometry.kt$DemoNavMeshGeometry$5</ID>
     <ID>MagicNumber:DemoNavMeshGeometry.kt$DemoNavMeshGeometry$6</ID>
     <ID>MagicNumber:DemoNavMeshGeometry.kt$DemoNavMeshGeometry$7</ID>
-    <ID>MagicNumber:DemoNavMeshTest.kt$DemoNavMeshTest$0.6f</ID>
-    <ID>MagicNumber:DemoNavMeshTest.kt$DemoNavMeshTest$3f</ID>
-    <ID>MagicNumber:DemoNavMeshTest.kt$DemoNavMeshTest$8f</ID>
     <ID>MagicNumber:SceneDocument.kt$SceneCamera$5f</ID>
     <ID>MagicNumber:SceneGameFrame.kt$10f</ID>
     <ID>MagicNumber:SceneGameFrame.kt$SceneFrameStats$100</ID>
     <ID>MagicNumber:SceneGameRuntime.kt$SceneGameRuntime$1000f</ID>
     <ID>MagicNumber:SceneInstantiationAdapter.kt$180f</ID>
     <ID>MagicNumber:SceneValidation.kt$SceneValidator$180f</ID>
-    <ID>MaxLineLength:FollowCameraSystemTest.kt$FollowCameraSystemTest$camera = CoreCamera(eye = Vec3(0f, 0f, 0f), center = Vec3(0f, 0f, 0f), fovYRadians = 1f, near = 0.1f, far = 100f)</ID>
-    <ID>MaxLineLength:FreeFlyCameraSystemTest.kt$FreeFlyCameraSystemTest$camera = CoreCamera(eye = Vec3(0f, 0f, 0f), center = Vec3(0f, 0f, -1f), fovYRadians = 1f, near = 0.1f, far = 100f)</ID>
-    <ID>MaxLineLength:FreeFlyCameraSystemTest.kt$FreeFlyCameraSystemTest$private</ID>
-    <ID>MaxLineLength:OrbitCameraSystemTest.kt$OrbitCameraSystemTest$camera = CoreCamera(eye = Vec3(0f, 0f, 0f), center = Vec3(0f, 0f, 0f), fovYRadians = 1f, near = 0.1f, far = 100f)</ID>
     <ID>MaxLineLength:RenderSystem.kt$RenderSystem$override val frequency: io.github.ronjunevaldoz.awake.ecs.SystemFrequency = io.github.ronjunevaldoz.awake.ecs.SystemFrequency.Infrastructure</ID>
     <ID>MaxLineLength:SceneLoader.kt$SceneLoader$instantiateNode(adapter, node, parent = null, flipYForClipSpace = flipYForClipSpace, path = node.name?.takeIf { it.isNotBlank() } ?: "#$index")</ID>
     <ID>MaxLineLength:SceneRuntime.kt$SceneRuntime$scene = SceneLoader.loadFromResource(scenePath).instantiate(world = world, flipYForClipSpace = renderer.flipYForClipSpace)</ID>

@@ -40,22 +40,6 @@
     <ID>NestedBlockDepth:CreateVulkanAccessor.kt$fun CppFunctionBodyBuilder.processArrayAccessor( void: Boolean, clazz: Class&lt;*>, javaMember: Field, returnType: String, import: (dependency: String) -> Unit )</ID>
     <ID>NestedBlockDepth:CreateVulkanAccessor.kt$fun CppFunctionBodyBuilder.processObjectAccessor( void: Boolean, javaMember: Field, returnType: String, import: (dependency: String) -> Unit )</ID>
     <ID>NestedBlockDepth:CreateVulkanAccessor.kt$private fun CppClassBuilder.generateVulkanGetters( clazz: Class&lt;*>, declareMembers: Array&lt;Field> )</ID>
-    <ID>NewLineAtEndOfFile:ClassMember.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.ClassMember.kt</ID>
-    <ID>NewLineAtEndOfFile:CppBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.CppBuilder.kt</ID>
-    <ID>NewLineAtEndOfFile:CppClassBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppClassBuilder.kt</ID>
-    <ID>NewLineAtEndOfFile:CppClassDSL.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.dsl.CppClassDSL.kt</ID>
-    <ID>NewLineAtEndOfFile:CppConstructorBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppConstructorBuilder.kt</ID>
-    <ID>NewLineAtEndOfFile:CppDestructorBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppDestructorBuilder.kt</ID>
-    <ID>NewLineAtEndOfFile:CppFunctionBodyBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppFunctionBodyBuilder.kt</ID>
-    <ID>NewLineAtEndOfFile:CppFunctionBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder.CppFunctionBuilder.kt</ID>
-    <ID>NewLineAtEndOfFile:CppFunctionDSL.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.dsl.CppFunctionDSL.kt</ID>
-    <ID>NewLineAtEndOfFile:CreateVulkanAccessor.kt$io.github.ronjunevaldoz.awake.vulkan_generator.vulkan.CreateVulkanAccessor.kt</ID>
-    <ID>NewLineAtEndOfFile:CreateVulkanMutator.kt$io.github.ronjunevaldoz.awake.vulkan_generator.vulkan.CreateVulkanMutator.kt</ID>
-    <ID>NewLineAtEndOfFile:GenerateVulkanFromObject.kt$io.github.ronjunevaldoz.awake.vulkan_generator.vulkan.GenerateVulkanFromObject.kt</ID>
-    <ID>NewLineAtEndOfFile:VulkanCppBuilder.kt$io.github.ronjunevaldoz.awake.vulkan_generator.vulkan.VulkanCppBuilder.kt</ID>
-    <ID>NewLineAtEndOfFile:WriteFile.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.WriteFile.kt</ID>
-    <ID>NewLineAtEndOfFile:fieldExt.kt$io.github.ronjunevaldoz.awake.vulkan_generator.tool.fieldExt.kt</ID>
-    <ID>NewLineAtEndOfFile:main.kt$io.github.ronjunevaldoz.awake.vulkan_generator.main.kt</ID>
     <ID>PackageNaming:ClassMember.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool</ID>
     <ID>PackageNaming:CppBuilder.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool</ID>
     <ID>PackageNaming:CppClassBuilder.kt$package io.github.ronjunevaldoz.awake.vulkan_generator.tool.builder</ID>

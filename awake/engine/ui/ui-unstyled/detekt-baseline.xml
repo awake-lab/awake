@@ -62,32 +62,7 @@
     <ID>MagicNumber:Dropdown.kt$10f</ID>
     <ID>MagicNumber:Dropdown.kt$6f</ID>
     <ID>MagicNumber:Dropdown.kt$8f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$10.54f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$10f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$11.168f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$11.73f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$12.77f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$12.79f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$13.71f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$14.79f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$5.21f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$5.23f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$6.29f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$7.21f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$7.23f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$8.27f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$8.832f</ID>
-    <ID>MagicNumber:HeroIcons.kt$HeroIcons.Solid20Mini$9.46f</ID>
     <ID>MagicNumber:RangeSlider.kt$0.5f</ID>
-    <ID>MagicNumber:SkeletonShimmerPixelTest.kt$SkeletonShimmerPixelTest$0xFF</ID>
-    <ID>MagicNumber:SkeletonShimmerPixelTest.kt$SkeletonShimmerPixelTest$120</ID>
-    <ID>MagicNumber:SkeletonShimmerPixelTest.kt$SkeletonShimmerPixelTest$255f</ID>
-    <ID>MagicNumber:SkeletonShimmerPixelTest.kt$SkeletonShimmerPixelTest$28f</ID>
-    <ID>MagicNumber:SkeletonShimmerPixelTest.kt$SkeletonShimmerPixelTest$3</ID>
-    <ID>MagicNumber:SkeletonShimmerPixelTest.kt$SkeletonShimmerPixelTest$36</ID>
-    <ID>MagicNumber:SkeletonShimmerPixelTest.kt$SkeletonShimmerPixelTest$4</ID>
-    <ID>MagicNumber:SkeletonShimmerPixelTest.kt$SkeletonShimmerPixelTest$60</ID>
-    <ID>MagicNumber:SkeletonShimmerPixelTest.kt$SkeletonShimmerPixelTest$60f</ID>
     <ID>MagicNumber:Slider.kt$0.5f</ID>
     <ID>MagicNumber:Spinner.kt$0.16f</ID>
     <ID>MagicNumber:Spinner.kt$0.75f</ID>
@@ -97,14 +72,6 @@
     <ID>MagicNumber:Text.kt$4096f</ID>
     <ID>MagicNumber:TextField.kt$6f</ID>
     <ID>MagicNumber:Textarea.kt$0.25f</ID>
-    <ID>MagicNumber:UiSnapshotWriter.kt$0.12f</ID>
-    <ID>MagicNumber:UiSnapshotWriter.kt$0.1f</ID>
-    <ID>MagicNumber:UiSnapshotWriter.kt$0xFF</ID>
-    <ID>MagicNumber:UiSnapshotWriter.kt$16</ID>
-    <ID>MagicNumber:UiSnapshotWriter.kt$24</ID>
-    <ID>MagicNumber:UiSnapshotWriter.kt$3</ID>
-    <ID>MagicNumber:UiSnapshotWriter.kt$4</ID>
-    <ID>MagicNumber:UiSnapshotWriter.kt$8</ID>
     <ID>MatchingDeclarationName:Icons.kt$UiIcons</ID>
     <ID>MatchingDeclarationName:Interaction.kt$UiInteraction</ID>
     <ID>MatchingDeclarationName:Separator.kt$SeparatorOrientation</ID>
@@ -112,51 +79,14 @@
     <ID>MaxLineLength:BasicText.kt$fun</ID>
     <ID>MaxLineLength:BasicText.kt$val safeLine = if (line.isEmpty() &amp;&amp; trim) remaining.substring(0, fitIndex).trimEnd() else if (line.isEmpty()) remaining.substring(0, fitIndex) else line</ID>
     <ID>MaxLineLength:Buttons.kt$UiButtonVariant$*</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$"checkbox label should stay vertically centered in its row with the true font: rowCenterY=$rowCenterY glyphCenterY=$glyphCenterY bounds=$glyphBounds"</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$assertEquals(5, quads.size, "unchecked box draws the box quad plus its 4 border edge quads, not a full-row fill")</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$assertEquals(6, quads.size, "checked state adds one inset accent quad on top of the box quad plus its 4 border edge quads")</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$assertIs&lt;UiDrawPrimitive.RoundedQuad>(primitive, "style.shape() must round the checkbox's own box, not just buttons/panels")</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$assertTrue(checked, "clicking anywhere in the row must flip the checkbox, same as a real checkbox's clickable row")</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$assertTrue(glyphs.first().x >= 44f, "label should still render to the right of the checkbox box when sizing comes from modifier")</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$assertTrue(quads[0].w &lt; 160f, "the box quad must be far narrower than the row -- proves it's a small box, not the whole row filled")</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$checked = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp)).checkbox("cb", checked, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp)).checkbox("cb", checked = true, modifier = Modifier.width(160f.px).height(40f.px))</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).checkbox("cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))</ID>
-    <ID>MaxLineLength:CheckboxTest.kt$CheckboxTest$ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = font).checkbox("cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))</ID>
-    <ID>MaxLineLength:ClipAndBorderTest.kt$ClipAndBorderTest$assertEquals(4, borderQuads.size, "style.border() must draw all 4 edge quads even for a Filled (non-Outline) button")</ID>
-    <ID>MaxLineLength:ClipAndBorderTest.kt$ClipAndBorderTest$assertEquals(UiBounds(0f, 0f, 100f, 100f), pops[0].restoreRect, "popping the inner clip restores the outer's resolved rect")</ID>
-    <ID>MaxLineLength:ClipAndBorderTest.kt$ClipAndBorderTest$assertEquals(UiBounds(0f, 0f, 200f, 200f), pops[1].restoreRect, "popping the outermost clip restores the full frame extent")</ID>
-    <ID>MaxLineLength:ClipAndBorderTest.kt$ClipAndBorderTest$assertEquals(UiBounds(20f, 20f, 80f, 80f), pushes[1].rect, "inner clip must be intersected against the outer, not just its own requested rect")</ID>
-    <ID>MaxLineLength:ClipAndBorderTest.kt$ClipAndBorderTest$assertEquals(listOf(25, 25, 30, 255), rgbaAt(11, 11).toList(), "clipped corner should leave the background untouched")</ID>
-    <ID>MaxLineLength:ClipAndBorderTest.kt$ClipAndBorderTest$assertIs&lt;UiDrawPrimitive.FilledPath>(primitives.first(), "cut-corner widget fill should use the path lane instead of pretending to be a rounded box")</ID>
-    <ID>MaxLineLength:ClipAndBorderTest.kt$ClipAndBorderTest$assertIs&lt;UiDrawPrimitive.RoundedQuad>(primitive, "style.shape() must produce a RoundedQuad even though radius param was UiShape.none")</ID>
-    <ID>MaxLineLength:ClipAndBorderTest.kt$ClipAndBorderTest$assertTrue(primitives.any { it is UiDrawPrimitive.ClipPathPush }, "clipContent should route shaped panels through the shape clip lane")</ID>
-    <ID>MaxLineLength:ClipAndBorderTest.kt$ClipAndBorderTest$assertTrue(primitives.any { it is UiDrawPrimitive.FilledPath }, "a true circle inside a non-square slot needs the path lane")</ID>
     <ID>MaxLineLength:Dropdown.kt$val textColor = if (isPlaceholder) theme.colors.mutedForeground else (resolved.foreground ?: theme.colors.foreground)</ID>
-    <ID>MaxLineLength:PanelTest.kt$PanelTest$assertEquals(10f + UiSpacing.sm.toPx(), childSlot.x, "nested content must start after the panel's content padding")</ID>
-    <ID>MaxLineLength:PanelTest.kt$PanelTest$assertEquals(20f + UiSpacing.sm.toPx(), childSlot.y, "nested content must start after the panel's content padding")</ID>
-    <ID>MaxLineLength:PanelTest.kt$PanelTest$assertIs&lt;UiDrawPrimitive.Quad>(primitives.first(), "radius = UiShape.none must emit a plain Quad, not a RoundedQuad")</ID>
-    <ID>MaxLineLength:PanelTest.kt$PanelTest$column</ID>
-    <ID>MaxLineLength:PanelTest.kt$PanelTest$val panelSlot = column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px))) { }</ID>
     <ID>MaxLineLength:ProgressBar.kt$slot</ID>
     <ID>MaxLineLength:RangeSlider.kt$val rawStart = if (draggingStart) sliderValueFromPointerX(px, trackSlot.x, trackSlot.width, min, max) else valueStart</ID>
-    <ID>MaxLineLength:ReusableCompositionTest.kt$ReusableCompositionTest$assertIs&lt;UiDrawPrimitive.RoundedQuad>(primitives.first(), "custom widget should be able to emit a styled rounded border")</ID>
-    <ID>MaxLineLength:ReusableCompositionTest.kt$ReusableCompositionTest$assertTrue(glyphs.first().x >= 32f, "slot content should render inside the padded content region, not against the outer button edge")</ID>
-    <ID>MaxLineLength:ReusableCompositionTest.kt$ReusableCompositionTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "custom widget should be able to reuse text() for its label")</ID>
-    <ID>MaxLineLength:ReusableCompositionTest.kt$ReusableCompositionTest$ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).badge("status", "READY", emphasized = true)</ID>
-    <ID>MaxLineLength:ReusableCompositionTest.kt$text(label, slot.toBounds(), font = font, color = resolved.foreground ?: theme.colors.foreground, centered = true)</ID>
-    <ID>MaxLineLength:RowCrossAxisCenterProbeTest.kt$RowCrossAxisCenterProbeTest$assertEquals(tallMid, shortMid, absoluteTolerance = 0.01f, message = "row(verticalAlignment=Center) should center children of different heights at the same midpoint")</ID>
-    <ID>MaxLineLength:ScrollContainersTest.kt$ScrollContainersTest$assertFalse(ui.inputResult().isScrollConsumed, "a non-hovered scroll panel must not mark the frame's delta as consumed")</ID>
-    <ID>MaxLineLength:ScrollContainersTest.kt$ScrollContainersTest$assertTrue(ui.inputResult().isScrollConsumed, "a hovered scrollable scroll panel must mark the frame's delta as consumed")</ID>
-    <ID>MaxLineLength:ScrollContainersTest.kt$ScrollContainersTest$is UiDrawPrimitive.Quad -> primitive.x == result.verticalThumb!!.thumb.x &amp;&amp; primitive.y == result.verticalThumb!!.thumb.y</ID>
-    <ID>MaxLineLength:ScrollContainersTest.kt$ScrollContainersTest$is UiDrawPrimitive.RoundedQuad -> primitive.x == result.verticalThumb!!.thumb.x &amp;&amp; primitive.y == result.verticalThumb!!.thumb.y</ID>
     <ID>MaxLineLength:Separator.kt$emit(UiDrawPrimitive.Quad(lineX, pixelPerfectPixel(slot.y), lineWidth, pixelPerfectPixel(slot.height).coerceAtLeast(1f), color))</ID>
     <ID>MaxLineLength:Separator.kt$emit(UiDrawPrimitive.Quad(pixelPerfectPixel(slot.x), lineY, pixelPerfectPixel(slot.width).coerceAtLeast(1f), lineHeight, color))</ID>
     <ID>MaxLineLength:Skeleton.kt$*</ID>
     <ID>MaxLineLength:Skeleton.kt$val pulse = SKELETON_PULSE_MIN_ALPHA + (SKELETON_PULSE_MAX_ALPHA - SKELETON_PULSE_MIN_ALPHA) * ((sin(phase) + 1f) / 2f)</ID>
     <ID>MaxLineLength:Slider.kt$slot</ID>
-    <ID>MaxLineLength:SliderEnabledTest.kt$SliderEnabledTest$.</ID>
-    <ID>MaxLineLength:SliderEnabledTest.kt$SliderEnabledTest$assertEquals(100f, value, "dragging from the left edge to the right edge must reach max when enabled (the default)")</ID>
     <ID>MaxLineLength:Switch.kt$slot</ID>
     <ID>MaxLineLength:Text.kt$Dimension.FillMax -> (fillWidthOrNull()?.minus(resolved.contentPadding.horizontalPx()))?.coerceAtLeast(glyphPx) ?: 4096f</ID>
     <ID>MaxLineLength:Text.kt$color = color ?: resolvedStyle.foreground ?: textStyle.color ?: context.currentTextStyle.color ?: theme.colors.foreground</ID>
@@ -166,69 +96,8 @@
     <ID>MaxLineLength:TextField.kt$*</ID>
     <ID>MaxLineLength:TextField.kt$slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(drawTextX, textContentSlot.y, measureWidth, textContentSlot.height)</ID>
     <ID>MaxLineLength:TextField.kt$val measureWidth = if (showingPlaceholder) textContentSlot.width else totalTextWidth.coerceAtLeast(textContentSlot.width)</ID>
-    <ID>MaxLineLength:TextFieldWidgetTest.kt$TextFieldWidgetTest$value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))</ID>
-    <ID>MaxLineLength:TextWidgetsTest.kt$TextWidgetsTest$"left-aligned button text should start from the padded content edge instead of the button center: bounds=$glyphBounds"</ID>
-    <ID>MaxLineLength:TextWidgetsTest.kt$TextWidgetsTest$"top-aligned text should align the visible glyph top with the slot top instead of preserving baked atlas padding: bounds=$glyphBounds"</ID>
-    <ID>MaxLineLength:TextWidgetsTest.kt$TextWidgetsTest$"true-font text should center its visible glyph bounds inside the slot: slotCenterY=$slotCenterY glyphCenterY=$glyphCenterY bounds=$glyphBounds"</ID>
-    <ID>MaxLineLength:TextWidgetsTest.kt$TextWidgetsTest$assertTrue(layout.lineWidths.single() &lt;= slotWidthPx, "ellipsized text layout must measure within the slot width")</ID>
-    <ID>MaxLineLength:TextWidgetsTest.kt$TextWidgetsTest$assertTrue(layout.lines.single().endsWith("..."), "ellipsis overflow should append a visible ellipsis when text is truncated")</ID>
     <ID>MaxLineLength:Toggle.kt$*</ID>
     <ID>MaxLineLength:ToggleGroup.kt$*</ID>
-    <ID>MaxLineLength:UiContextTest.kt$UiContextTest$is UiDrawPrimitive.Quad -> primitive.x == 20f &amp;&amp; primitive.w == 160f &amp;&amp; (primitive.y == 52f || primitive.y == 84f)</ID>
-    <ID>MaxLineLength:UiContextTest.kt$UiContextTest$is UiDrawPrimitive.Quad -> primitive.x == 20f &amp;&amp; primitive.y == 60f &amp;&amp; primitive.w == 160f &amp;&amp; primitive.h == 32f</ID>
-    <ID>MaxLineLength:UiContextTest.kt$UiContextTest$is UiDrawPrimitive.RoundedQuad -> primitive.x == 20f &amp;&amp; primitive.w == 160f &amp;&amp; (primitive.y == 52f || primitive.y == 84f)</ID>
-    <ID>MaxLineLength:UiContextTest.kt$UiContextTest$is UiDrawPrimitive.RoundedQuad -> primitive.x == 20f &amp;&amp; primitive.y == 60f &amp;&amp; primitive.w == 160f &amp;&amp; primitive.h == 32f</ID>
-    <ID>MaxLineLength:UiCrossPlatformQualityTest.kt$UiCrossPlatformQualityTest$.</ID>
-    <ID>MaxLineLength:UiCrossPlatformQualityTest.kt$UiCrossPlatformQualityTest$context.createAbsolute(modifier = Modifier.offset(((frameWidth - buttonWidth) / 2f).dp, ((frameHeight - buttonHeight) / 2f).dp), font = font, theme = theme)</ID>
-    <ID>MaxLineLength:UiCrossPlatformQualityTest.kt$UiCrossPlatformQualityTest$context.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = font, theme = shadcnTheme(dark = false))</ID>
-    <ID>MaxLineLength:UiCrossPlatformQualityTest.kt$UiCrossPlatformQualityTest$val compact = measureScaledButtonMetrics(font, frameWidth = 220f, frameHeight = 96f, buttonWidth = 180f, buttonHeight = 44f)</ID>
-    <ID>MaxLineLength:UiCrossPlatformQualityTest.kt$UiCrossPlatformQualityTest$val expanded = measureScaledButtonMetrics(font, frameWidth = 440f, frameHeight = 192f, buttonWidth = 360f, buttonHeight = 88f)</ID>
-    <ID>MaxLineLength:UiPopupTest.kt$UiPopupTest$assertFalse(ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").get("expanded", true))</ID>
-    <ID>MaxLineLength:UiPopupTest.kt$UiPopupTest$assertNotNull(firstExitFrame.slot, "the first frame after collapsing must still be rendering (fading), not already gone")</ID>
-    <ID>MaxLineLength:UiPopupTest.kt$UiPopupTest$picked = ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))</ID>
-    <ID>MaxLineLength:UiPopupTest.kt$UiPopupTest$ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").set("expanded", true)</ID>
-    <ID>MaxLineLength:UiPopupTest.kt$UiPopupTest$var picked = ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$.</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$checkbox("state-matrix-checkbox-off", checked = false, modifier = Modifier.width(180f.px).height(24f.px))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$checkbox("state-matrix-checkbox-on", checked = true, modifier = Modifier.width(180f.px).height(24f.px))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = snapshotFont, theme = UiDefaultTheme)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$id = "button-variants"</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$id = "inspector"</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$id = "shadcn-showcase"</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$modifier = (Modifier.align(UiAlignment.Center)).width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(56f.px))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$row</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("danger", "Danger", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Danger)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("ghost", "Ghost", modifier = Modifier.width(122f.px).height(40f.px), variant = ShadcnButtonVariant.Ghost)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Outline)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Primary)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = ShadcnButtonVariant.Secondary)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("showcase-doc-danger", "Danger", modifier = Modifier.width(112f.px).height(36f.dp), variant = ShadcnButtonVariant.Danger)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("showcase-doc-ghost", "Ghost", modifier = Modifier.width(112f.px).height(36f.dp), variant = ShadcnButtonVariant.Ghost)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("showcase-doc-outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Outline)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("showcase-doc-primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Primary)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$shadcnButton("showcase-doc-secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = ShadcnButtonVariant.Secondary)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$slider("state-matrix-slider-empty", min = 0f, max = 100f, value = 0f, modifier = Modifier.width(120f.px).height(36f.dp))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$slider("state-matrix-slider-full", min = 0f, max = 100f, value = 100f, modifier = Modifier.width(120f.px).height(36f.dp))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$slider("state-matrix-slider-half", min = 0f, max = 100f, value = 50f, modifier = Modifier.width(120f.px).height(36f.dp))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$summary = "A long title must wrap and stay clipped inside the dialog panel instead of overflowing past its bounds."</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$summary = "Every state a component can be in, side by side under the shadcn theme -- not just its default rest look. This is the gallery page that would have shown the toggle/slider/checkbox color-inversion bug and the dropdown-row styling bug at a glance instead of requiring a live click-through."</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$summary = "Panels can opt into a custom shape and content clipping, which gives the DSL a reusable way to compose containers and controls."</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$summary = "Rounded surfaces, colored borders, Box-style alignment, and vector-path icons all compose through the same widget surface, with shape clipping trimming intentional overflow."</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$summary = "The Awake shadcn layer keeps the same shared widget runtime while giving buttons a sharper, darker design language."</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$summary = "The same property-form scaffolds can be skinned by the shared shadcn layer, so tool surfaces look authored without moving logic into the sample."</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$summary = "The starter design-system layer can already express a recognizable shadcn-style component set while staying fully inside Awake's owned widget stack."</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$supportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$supportingText("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$supportingText("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$supportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$textField("state-matrix-empty-field", value = "", placeholder = "Placeholder", modifier = Modifier.width(190f.px).height(36f.dp))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$textField("state-matrix-focused-field", value = "Typed", modifier = Modifier.width(190f.px).height(36f.dp))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$toggle("state-matrix-toggle-off", checked = false, modifier = Modifier.width(120f.px).height(24f.px))</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$val panelColumn = panelUi.createColumn(modifier = Modifier.offset((20f).dp, (20f).dp).width((200f).dp), font = font, theme = UiDefaultTheme)</ID>
-    <ID>MaxLineLength:UiSnapshotFixtures.kt$val panelScope = createAbsolute(modifier = Modifier.offset(24f.dp, 24f.dp), font = snapshotFont, theme = UiDefaultTheme)</ID>
-    <ID>MaxLineLength:UiSnapshotSignatureTest.kt$"Snapshot drift for ${scene.name}: actual=${actualSignature.toHexString()}, size=${scene.width}x${scene.height}, "</ID>
-    <ID>MaxLineLength:UiTestHarness.kt$simulateFrame(pointerDown = false, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight, input = input, widgetCalls = widgetCalls)</ID>
-    <ID>MaxLineLength:UiTestHarness.kt$simulateFrame(pointerDown = true, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight, input = input, widgetCalls = widgetCalls)</ID>
     <ID>NestedBlockDepth:TextField.kt$fun UiScope.textField( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, leadingIcon: (BoxScope.() -> Unit)? = null, trailingIcon: (BoxScope.() -> Unit)? = null, // Applied only to what's drawn -- `value`/the returned string always carry the real typed // text, same as real shadcn's Input; a password field passes `{ "*".repeat(it.length) }` // here and stores/returns the actual characters untouched. visualTransformation: (String) -> String = { it } ): String</ID>
     <ID>NestedBlockDepth:Textarea.kt$fun UiScope.textarea( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, minLines: Int = 3 ): String</ID>
     <ID>ReturnCount:BasicText.kt$private fun ellipsizeLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> Float): String</ID>
@@ -236,53 +105,5 @@
     <ID>ReturnCount:BasicText.kt$private fun measureTextBlock( layout: UiBitmapTextLayout, font: UiFont, glyphPx: Float, lineGap: Float ): UiMeasuredTextBlock</ID>
     <ID>TooManyFunctions:BasicText.kt$io.github.ronjunevaldoz.awake.ui.unstyled.input.text.BasicText.kt</ID>
     <ID>UnusedParameter:Textarea.kt$lineGap: Float</ID>
-    <ID>WildcardImport:Avatar.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Avatar.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:BasicText.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Buttons.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Buttons.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Checkbox.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Checkbox.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:CheckboxTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:ClipAndBorderTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:ClipAndBorderTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Dropdown.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Dropdown.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Icon.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:IconWidgetsTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:IconWidgetsTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:PanelTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:PanelTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:ProgressBar.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:ProgressBar.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:RangeSlider.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:RangeSlider.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:ReusableCompositionTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:ReusableCompositionTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:ScrollContainersTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:ScrollContainersTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Separator.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:SeparatorWidgetsTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:SeparatorWidgetsTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Skeleton.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Skeleton.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Slider.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Slider.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Spinner.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Spinner.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Surface.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Surface.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Switch.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Switch.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Text.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Text.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:TextField.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:TextField.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:TextWidgetsTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:Textarea.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:Textarea.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
-    <ID>WildcardImport:UiPopupTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:UiSnapshotFixtures.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
-    <ID>WildcardImport:UiSnapshotFixtures.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
   </CurrentIssues>
 </SmellBaseline>
