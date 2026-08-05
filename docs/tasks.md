@@ -12,6 +12,9 @@ just spread unclear ownership across more folders.
   [docs/reference/api-layering.md](reference/api-layering.md) as the stable rule and
   [docs/tasks/2026-08-05-api-layering-plan.md](tasks/2026-08-05-api-layering-plan.md) as
   the active ECS/scene cleanup plan.
+- 2026-08-05: Phase 2 ECS/scene API classification audit recorded in the API layering
+  plan. First cleanup target is demo/navigation ownership in `awake:scene`, then
+  `SceneRuntime` deprecation review.
 - 2026-07-10: `VulkanApplication` now loads `scene.json` through `SceneRuntimeHost`; next
   we peel shared code into smaller modules, starting with math/runtime/utils.
 
