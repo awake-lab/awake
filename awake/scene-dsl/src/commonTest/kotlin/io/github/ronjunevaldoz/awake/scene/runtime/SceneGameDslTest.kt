@@ -60,7 +60,7 @@ class SceneGameDslTest {
                     mesh("cube") { recordingRenderer.createMesh(EmptyGeometry) }
                     material("default") { recordingRenderer.createMaterial() }
                 }
-                tickSystem = system("tick") {
+                tickSystem = fixedSystem("tick") {
                     RecordingSystem()
                 }
             }
@@ -214,6 +214,36 @@ class SceneGameDslTest {
 
         assertEquals(listOf("drawUi", "draw"), renderer.frameCalls)
     }
+
+    @Test
+    fun explicitSystemPhasesSeparateFixedStepsFromRenderedFrames() = runTest {
+        lateinit var fixedHandle: SceneSystemHandle<RecordingSystem>
+        lateinit var frameHandle: SceneSystemHandle<RecordingSystem>
+        val game = game {
+            scene("phase-proof") {
+                cameraEntity("camera", camera = { primary(true) })
+                fixedHandle = fixedSystem("fixed") { RecordingSystem() }
+                frameHandle = frameSystem("frame") { RecordingSystem() }
+            }
+        }
+
+        game.ready(RecordingRenderer())
+        val runtime = game.requireService<SceneGameRuntime>()
+        val fixedSystem = runtime.system(fixedHandle)
+        val frameSystem = runtime.system(frameHandle)
+        fixedSystem.reset()
+        frameSystem.reset()
+
+        game.render(0.001f, 320f, 240f)
+
+        assertEquals(0, fixedSystem.calls)
+        assertEquals(1, frameSystem.calls)
+
+        game.render(1f / 60f, 320f, 240f)
+
+        assertEquals(1, fixedSystem.calls)
+        assertEquals(2, frameSystem.calls)
+    }
 }
 
 private class RecordingSystem : System {
@@ -223,6 +253,11 @@ private class RecordingSystem : System {
     override fun update(world: World, delta: Float) {
         calls += 1
         accumulatedDelta += delta
+    }
+
+    fun reset() {
+        calls = 0
+        accumulatedDelta = 0f
     }
 }
 

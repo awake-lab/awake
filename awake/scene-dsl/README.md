@@ -7,7 +7,7 @@ Use it when you want:
 - `sceneGame { ... }`
 - `game { ecs { ... } }`
 - `gameModule { ecs { ... } }`
-- authored entities, assets, systems, and scene update blocks
+- authored entities, assets, fixed-step systems, frame systems, and scene update blocks
 
 Minimal example:
 
@@ -38,3 +38,17 @@ val game = game {
 
 Rule of thumb: this module owns authored scene syntax. Runtime/spec/install surfaces such
 as `SceneGameSpec` and `SceneGameRuntime` stay in `awake:scene`.
+
+## System scheduling
+
+`awake-ecs` systems do not carry their own timing policy. Scene scheduling is explicit at
+registration:
+
+```kotlin
+fixedSystem("gameplay") { GameplaySystem() } // deterministic simulation/physics step
+frameSystem("camera") { CameraSystem() }     // once per rendered frame
+```
+
+Use `fixedSystem` for deterministic gameplay or physics work. Use `frameSystem` for camera
+controllers, transform propagation, rendering, and demo drivers that must run exactly once
+for every presented frame.

@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.ecs.SystemFrequency
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
@@ -38,11 +37,11 @@ class SceneGameRuntime internal constructor(
     /** All systems indexed by their handle. */
     private val registeredSystems = linkedMapOf<SceneSystemHandle<out System>, System>()
     
-    /** Gameplay systems (simulation rate). */
-    private val simulationSystems = mutableListOf<System>()
+    /** Systems that run during fixed-timestep simulation steps. */
+    private val fixedSystems = mutableListOf<System>()
     
-    /** Engine systems (frame rate). */
-    private val infrastructureSystems = mutableListOf<System>()
+    /** Systems that run once per rendered frame. */
+    private val frameSystems = mutableListOf<System>()
     
     lateinit var world: World
         private set
@@ -91,10 +90,10 @@ class SceneGameRuntime internal constructor(
             val system = registration.factory(this)
             registeredSystems[registration.handle] = system
             
-            // Sort into execution buckets
-            when (system.frequency) {
-                SystemFrequency.Simulation -> simulationSystems.add(system)
-                SystemFrequency.Infrastructure -> infrastructureSystems.add(system)
+            // Sort into execution buckets owned by the scene runtime, not the system object.
+            when (registration.phase) {
+                SceneSystemPhase.Fixed -> fixedSystems.add(system)
+                SceneSystemPhase.Frame -> frameSystems.add(system)
             }
         }
 
@@ -103,7 +102,7 @@ class SceneGameRuntime internal constructor(
         scene.attachRenderableComponents { request -> spec.renderableFactory(this, request) }
         
         // 3. Initial sync pass for all frame-rate systems
-        infrastructureSystems.forEach { it.update(world, 0f) }
+        frameSystems.forEach { it.update(world, 0f) }
         
         spec.onReadyBlock(this)
     }
@@ -132,11 +131,11 @@ class SceneGameRuntime internal constructor(
         fixedTimestepLoop.advance(
             frameDelta = delta,
             fixedUpdate = { step -> 
-                simulationSystems.forEach { it.update(world, step) }
+                fixedSystems.forEach { it.update(world, step) }
                 spec.updateBlock(this, step, snapshot) 
             },
             render = {
-                infrastructureSystems.forEach { it.update(world, delta) }
+                frameSystems.forEach { it.update(world, delta) }
             }
         )
         
@@ -151,8 +150,8 @@ class SceneGameRuntime internal constructor(
         assetLibrary?.dispose()
         assetLibrary = null
         registeredSystems.clear()
-        simulationSystems.clear()
-        infrastructureSystems.clear()
+        fixedSystems.clear()
+        frameSystems.clear()
     }
 
     fun requireAssetLibrary(): SceneAssetLibrary = checkNotNull(assetLibrary) {

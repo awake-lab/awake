@@ -118,7 +118,7 @@ fun myGameModule(): GameModule = gameModule {
         // infrastructure systems (TransformSystem + RenderSystem) at build time.
         // Do not hand-register another RenderSystem here, or the scene submits twice
         // per frame and scene3d UI/viewport presentation can blink.
-        system("demo-driver") { MyDemoDriverSystem(this) }
+        frameSystem("demo-driver") { MyDemoDriverSystem(this) }
 
         // Suspend, runs once before the first frame -- the only place to do suspend
         // work (asset loads) before entities need it.
@@ -196,7 +196,7 @@ has to account for (see `GltfViewerDemo.kt`'s own doc comment).
 **Do not register `RenderSystem` manually inside `scene {}` DSL modules.**
 `SceneGameDsl.build()` calls `installInfrastructureSystems()`, which appends a built-in
 `TransformSystem` and `RenderSystem(renderer)` after user systems. Registering another
-`system("render") { RenderSystem(renderer) }` in a sample such as `scene3DPlaygroundModule()`
+`frameSystem("render") { RenderSystem(renderer) }` in a sample such as `scene3DPlaygroundModule()`
 causes two `renderer.draw()` calls per frame (`drawUi`, `draw`, `draw`) and can show up as
 scene3d UI/viewport blinking even when UI-only samples remain stable.
 

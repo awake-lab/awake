@@ -116,6 +116,8 @@ fun onFrame(world: World, delta: Float) {
 
 `TransformSystem` must run before `RenderSystem` in your per-frame system order —
 `RenderSystem` reads `Transform.worldMatrix`, which only `TransformSystem` writes.
+When using `awake:scene-dsl`, those built-in systems are registered as frame systems for
+you and appended after user systems.
 
 ## Building your own systems on top
 

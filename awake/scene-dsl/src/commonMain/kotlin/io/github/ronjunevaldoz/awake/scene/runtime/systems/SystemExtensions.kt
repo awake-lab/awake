@@ -28,7 +28,7 @@ fun SceneGameDsl.orbitCameraSystem(
             this.pitch = initialPitch
         })
     }
-    return system(name) {
+    return frameSystem(name) {
         OrbitCameraSystem(
             autoRotateSpeed = autoRotateSpeed
         ).also(configure)
@@ -44,7 +44,7 @@ fun SceneGameDsl.freeFlyCameraSystem(
         val cameraEntity = requireEntity(camera)
         world.add(cameraEntity, io.github.ronjunevaldoz.awake.scene.components.FreeFlyControl())
     }
-    return system(name) {
+    return frameSystem(name) {
         FreeFlyCameraSystem().also(configure)
     }
 }
@@ -65,7 +65,7 @@ fun SceneGameDsl.followCameraSystem(
             this.smoothing = smoothing
         })
     }
-    return system(name) {
+    return frameSystem(name) {
         FollowCameraSystem().also(configure)
     }
 }
@@ -76,7 +76,7 @@ fun SceneGameDsl.playerControlSystem(
     zoomSpeed: Float = 4f,
     pinchZoomSpeed: Float = 0.5f
 ): SceneSystemHandle<PlayerControlSystem> {
-    return system(name) {
+    return frameSystem(name) {
         PlayerControlSystem(
             rotateSpeed = rotateSpeed,
             zoomSpeed = zoomSpeed,

@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d
 
 import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.ecs.SystemFrequency
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.application.GameModule
 import io.github.ronjunevaldoz.awake.engine.application.gameModule
@@ -35,7 +34,7 @@ internal fun scene3DPlaygroundModule(): GameModule {
     val state = Scene3DPlaygroundState()
     return gameModule {
         scene("scene3d-playground") {
-            // Demo activate/deactivate/onUpdate must run at Infrastructure frequency (real
+            // Demo activate/deactivate/onUpdate must run as a frame system (real
             // per-render-frame delta, called exactly once per SceneGameRuntime.render() call --
             // see FixedTimestepLoop's own doc comment), NOT via the scene{} DSL's `update{}`
             // block: that runs at the fixed SIMULATION rate, which can fire zero times in a
@@ -45,10 +44,10 @@ internal fun scene3DPlaygroundModule(): GameModule {
             // frame's lines automatically) -- on a skipped-fixed-step frame that call simply
             // never happens, so the grid/axis lines (and, watching casually, the whole cube)
             // visibly blink out for that one frame. A real, reported regression from routing
-            // this through `update{}` -- fixed here by driving it from a Infrastructure system
+            // this through `update{}` -- fixed here by driving it from a frame system
             // instead, exactly matching the pre-migration `GameUiRuntime.overlay{}` call site's
             // real-every-frame timing.
-            system("demo-driver") {
+            frameSystem("demo-driver") {
                 val runtime = this
                 Scene3DDemoDriverSystem(runtime, state)
             }
@@ -72,14 +71,13 @@ internal fun scene3DPlaygroundModule(): GameModule {
     }
 }
 
-/** Drives [Scene3DDemo.onActivate]/[onDeactivate]/[onUpdate] at Infrastructure frequency -- see
+/** Drives [Scene3DDemo.onActivate]/[onDeactivate]/[onUpdate] once per rendered frame -- see
  * [scene3DPlaygroundModule]'s own comment for why this can't be the scene{} DSL's `update{}`
  * block. */
 private class Scene3DDemoDriverSystem(
     private val runtime: SceneGameRuntime,
     private val state: Scene3DPlaygroundState
 ) : System {
-    override val frequency: SystemFrequency = SystemFrequency.Infrastructure
     private var activatedDemoId: String? = null
 
     override fun update(world: World, delta: Float) {

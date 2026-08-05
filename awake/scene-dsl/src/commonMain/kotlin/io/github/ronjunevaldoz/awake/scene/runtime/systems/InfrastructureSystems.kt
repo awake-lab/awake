@@ -7,11 +7,11 @@ import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 
 /**
- * Registers mandatory engine systems that must run every frame (Infrastructure frequency).
+ * Registers mandatory engine systems that must run every frame.
  * Extracted from core DSL to ensure Scene module doesn't hardcode system knowledge.
  */
 internal fun SceneGameDsl.installInfrastructureSystems() {
     // These run LAST in the pipeline as they are added at the end of the build process.
-    system("transform") { TransformSystem() }
-    system("render") { RenderSystem(renderer) }
+    frameSystem("transform") { TransformSystem() }
+    frameSystem("render") { RenderSystem(renderer) }
 }

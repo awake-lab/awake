@@ -205,6 +205,15 @@ fun gameLoop(world: World, delta: Float) {
 }
 ```
 
+Design credit: Awake's system model is **Ashley-like in spirit, but with a
+Bevy/Unity/Flecs-style separation**. Like libGDX Ashley, systems are behavior objects
+that run against an `Engine`/`World`. Like Bevy schedules, Unity Entities system
+groups, and Flecs pipelines, the decision about **when** a system runs belongs to the
+runtime/schedule layer, not the component data model. In Awake that means `awake-ecs`
+keeps `System` small and scheduler-free, while higher layers such as `awake-scene`
+can register systems into explicit phases such as fixed simulation steps or per-frame
+render/update passes.
+
 If a system keeps its own per-frame scratch state (buffers, visited-sets), reuse instance
 fields across `update()` calls instead of allocating fresh collections every frame — see
 `awake-scene`'s `TransformSystem` for a worked example (entity-id-indexed arrays instead of

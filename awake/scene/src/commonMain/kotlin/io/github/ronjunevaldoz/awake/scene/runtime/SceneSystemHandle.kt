@@ -10,5 +10,6 @@ class SceneSystemHandle<T : System>(
 
 class SceneSystemRegistration(
     val handle: SceneSystemHandle<out System>,
+    val phase: SceneSystemPhase,
     val factory: SceneSystemFactory
 )

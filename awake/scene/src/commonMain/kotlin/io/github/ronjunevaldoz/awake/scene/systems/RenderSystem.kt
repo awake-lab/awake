@@ -14,8 +14,6 @@ import kotlin.collections.ArrayList
 class RenderSystem(
     private val renderer: Renderer
 ) : System {
-    override val frequency: io.github.ronjunevaldoz.awake.ecs.SystemFrequency = io.github.ronjunevaldoz.awake.ecs.SystemFrequency.Infrastructure
-
     private val drawCalls = ArrayList<DrawCall>()
 
     override fun update(world: World, delta: Float) {

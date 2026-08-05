@@ -84,9 +84,24 @@ class SceneGameDsl internal constructor() {
 
     fun <T : System> system(
         name: String,
+        phase: SceneSystemPhase,
         factory: SceneGameRuntime.() -> T
     ): SceneSystemHandle<T> {
-        return systemsDsl.system(name, factory)
+        return systemsDsl.system(name, phase, factory)
+    }
+
+    fun <T : System> fixedSystem(
+        name: String,
+        factory: SceneGameRuntime.() -> T
+    ): SceneSystemHandle<T> {
+        return systemsDsl.fixedSystem(name, factory)
+    }
+
+    fun <T : System> frameSystem(
+        name: String,
+        factory: SceneGameRuntime.() -> T
+    ): SceneSystemHandle<T> {
+        return systemsDsl.frameSystem(name, factory)
     }
 
     fun systems(block: SceneSystemsDsl.() -> Unit) {
@@ -118,7 +133,7 @@ class SceneGameDsl internal constructor() {
     }
 
     internal fun build(): SceneGameSpec {
-        // Core infrastructure: must run every frame (Infrastructure frequency).
+        // Core infrastructure: must run every frame.
         // Added at the end of build so they always execute LAST in the pipeline.
         installInfrastructureSystems()
 
@@ -141,15 +156,27 @@ class SceneSystemsDsl internal constructor() {
 
     fun <T : System> system(
         name: String,
+        phase: SceneSystemPhase,
         factory: SceneGameRuntime.() -> T
     ): SceneSystemHandle<T> {
         val handle = SceneSystemHandle<T>(name)
         registrations += SceneSystemRegistration(
             handle = handle,
+            phase = phase,
             factory = { factory() }
         )
         return handle
     }
+
+    fun <T : System> fixedSystem(
+        name: String,
+        factory: SceneGameRuntime.() -> T
+    ): SceneSystemHandle<T> = system(name, SceneSystemPhase.Fixed, factory)
+
+    fun <T : System> frameSystem(
+        name: String,
+        factory: SceneGameRuntime.() -> T
+    ): SceneSystemHandle<T> = system(name, SceneSystemPhase.Frame, factory)
 
     internal fun build(): List<SceneSystemRegistration> = registrations.toList()
 }
