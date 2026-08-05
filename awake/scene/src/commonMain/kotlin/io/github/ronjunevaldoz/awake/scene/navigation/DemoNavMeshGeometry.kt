@@ -10,6 +10,9 @@ package io.github.ronjunevaldoz.awake.scene.navigation
  * around the cube is this slice's real verification signal. Deliberately invisible/synthetic
  * (not tied to any render mesh format) -- purely input to the navmesh builder, see this
  * slice's ground-geometry decision.
+ *
+ * TODO(api-layering): move this into a sample/gameplay-owned navigation slice before
+ * extracting `:awake:scene:core`; demo geometry must not become reusable scene API.
  */
 internal object DemoNavMeshGeometry {
     private const val GROUND_HALF_EXTENT = 10f

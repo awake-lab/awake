@@ -232,11 +232,11 @@ The proposal must answer:
 
 ## Next Concrete Step
 
-Start the first source cleanup from the Phase 2 audit:
+The first source cleanup from the Phase 2 audit has started:
 
 1. Keep `awake:ecs` unchanged except possibly documenting/renaming advanced APIs.
-2. Move demo-specific navigation out of `awake:scene` (`DemoNavMeshGeometry` and
-   `createDemoNavMesh`) or mark it with an explicit migration note if moving it would
-   disturb current samples.
-3. Review `SceneRuntime` for deprecation in favor of `SceneGameRuntime`.
-4. Draft the scene split proposal only after those two cleanups land.
+2. Demo-specific navigation in `awake:scene` is now explicitly marked transitional:
+   `createDemoNavMesh()` is deprecated and `DemoNavMeshGeometry` has an API-layering TODO.
+3. `SceneRuntime` is deprecated in favor of `SceneGameRuntime`/`sceneGame {}`.
+4. Next: move demo navigation to a sample/gameplay-owned location, then draft the scene split
+   proposal.

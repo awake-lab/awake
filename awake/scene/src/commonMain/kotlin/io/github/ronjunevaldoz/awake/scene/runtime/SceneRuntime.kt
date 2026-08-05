@@ -17,6 +17,10 @@ import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
  * `resolveRenderable` closure that calls `renderer.createMesh(...)`/
  * `renderer.createMaterial(...)` for whatever the scene needs, at [load] time.
  */
+@Deprecated(
+    message = "Use SceneGameRuntime via awake:scene-dsl sceneGame/scene instead. " +
+        "SceneRuntime is the legacy manual transform/render bootstrap."
+)
 class SceneRuntime(private val renderer: Renderer) {
     lateinit var world: World
         private set

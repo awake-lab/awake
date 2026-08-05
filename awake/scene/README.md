@@ -64,6 +64,9 @@ flowchart LR
   builds entities and hierarchy, and `SceneInstance.attachRenderableComponents(...)` is the
   handoff point for actual GPU-backed mesh/material construction.
 - `Name` keeps scene hierarchy labels available at runtime for editors and debug views.
+- `SceneGameRuntime` is the canonical game-loop integration path. The older manual
+  `SceneRuntime` bootstrap is kept only as a compatibility bridge while scene modules are
+  being split.
 
 ## Quick start
 

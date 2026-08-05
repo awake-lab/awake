@@ -23,4 +23,8 @@ interface NavMesh {
  * platforms with no navmesh backend yet (iOS, wasmJs) -- `recast4j` is plain JVM only, see
  * this module's build.gradle.kts.
  */
+@Deprecated(
+    message = "Demo-only navmesh bootstrap is not reusable scene core. Move callers to " +
+        "sample-owned navigation setup before the scene module split."
+)
 expect fun createDemoNavMesh(): NavMesh?
