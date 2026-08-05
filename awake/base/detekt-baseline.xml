@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:bufferExt.kt$fun Buffer.`when`( byte: java.nio.ByteBuffer.() -> Unit = { TODO("Byte buffer not implemented") }, short: java.nio.ShortBuffer.() -> Unit = { TODO("Short buffer not implemented") }, int: java.nio.IntBuffer.() -> Unit = { TODO("Int buffer not implemented") }, float: java.nio.FloatBuffer.() -> Unit = { TODO("Float buffer not implemented") } )</ID>
+    <ID>LongParameterList:Camera.kt$Camera$( var eye: Vec3, var center: Vec3, var up: Vec3 = Vec3(0f, 1f, 0f), var fovYRadians: Float, var near: Float, var far: Float, private val flipYForClipSpace: Boolean = true )</ID>
+    <ID>LongParameterList:matrix.kt$Mat4.Companion$( eyeX: Float, eyeY: Float, eyeZ: Float, centerX: Float, centerY: Float, centerZ: Float, upX: Float, upY: Float, upZ: Float )</ID>
+    <ID>LongParameterList:matrix.kt$Mat4.Companion$( left: Float, right: Float, bottom: Float, top: Float, near: Float, far: Float )</ID>
+    <ID>MagicNumber:Bitmap.kt$16</ID>
+    <ID>MagicNumber:Bitmap.kt$24</ID>
+    <ID>MagicNumber:Bitmap.kt$3</ID>
+    <ID>MagicNumber:Bitmap.kt$4</ID>
+    <ID>MagicNumber:Bitmap.kt$8</ID>
+    <ID>MagicNumber:Color.kt$Color$3</ID>
+    <ID>MagicNumber:Color.kt$Color.Companion$3</ID>
+    <ID>MagicNumber:EngineConfig.kt$EngineConfig$30.0</ID>
+    <ID>MagicNumber:Frustum.kt$Frustum$3</ID>
+    <ID>MagicNumber:Frustum.kt$Frustum$4</ID>
+    <ID>MagicNumber:Frustum.kt$Frustum$5</ID>
+    <ID>MagicNumber:Frustum.kt$Frustum$6</ID>
+    <ID>MagicNumber:Frustum.kt$Frustum$7</ID>
+    <ID>MagicNumber:GltfMesh.kt$GltfMesh$13</ID>
+    <ID>MagicNumber:GltfMesh.kt$GltfMesh$3</ID>
+    <ID>MagicNumber:GltfMesh.kt$GltfMesh$4</ID>
+    <ID>MagicNumber:GltfMesh.kt$GltfMesh$5</ID>
+    <ID>MagicNumber:GltfMesh.kt$GltfMesh$6</ID>
+    <ID>MagicNumber:GltfMesh.kt$GltfMesh$7</ID>
+    <ID>MagicNumber:GltfMesh.kt$GltfMesh$8</ID>
+    <ID>MagicNumber:GltfMesh.kt$GltfMesh$9</ID>
+    <ID>MagicNumber:GltfParser.kt$GltfParser$0xFF</ID>
+    <ID>MagicNumber:GltfParser.kt$GltfParser$16</ID>
+    <ID>MagicNumber:GltfParser.kt$GltfParser$24</ID>
+    <ID>MagicNumber:GltfParser.kt$GltfParser$3</ID>
+    <ID>MagicNumber:GltfParser.kt$GltfParser$4</ID>
+    <ID>MagicNumber:GltfParser.kt$GltfParser$8</ID>
+    <ID>MagicNumber:PixelProbe.kt$4</ID>
+    <ID>MagicNumber:Pixmap.kt$4</ID>
+    <ID>MagicNumber:Pixmap.kt$Pixmap$0xFF</ID>
+    <ID>MagicNumber:Pixmap.kt$Pixmap$16</ID>
+    <ID>MagicNumber:Pixmap.kt$Pixmap$24</ID>
+    <ID>MagicNumber:Pixmap.kt$Pixmap$8</ID>
+    <ID>MagicNumber:gameloop.android.kt$AndroidGameLoop$1000</ID>
+    <ID>MagicNumber:gameloop.android.kt$AndroidGameLoop$1_000_000</ID>
+    <ID>MagicNumber:gameloop.android.kt$AndroidGameLoop$1e9</ID>
+    <ID>MagicNumber:gameloop.desktop.kt$DesktopGameLoop$1000</ID>
+    <ID>MagicNumber:gameloop.desktop.kt$DesktopGameLoop$1_000_000</ID>
+    <ID>MagicNumber:gameloop.desktop.kt$DesktopGameLoop$1e9</ID>
+    <ID>MagicNumber:gameloop.ios.kt$IOSGameLoop$1_000L</ID>
+    <ID>MagicNumber:gameloop.ios.kt$IOSGameLoop$1_000_000L</ID>
+    <ID>MagicNumber:gameloop.ios.kt$IOSGameLoop$1_000_000_000L</ID>
+    <ID>MagicNumber:gameloop.ios.kt$IOSGameLoop$1e9</ID>
+    <ID>MagicNumber:matrix.kt$16</ID>
+    <ID>MagicNumber:matrix.kt$4</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$10</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$11</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$12</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$13</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$14</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$15</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$16</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$3</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$4</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$5</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$6</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$7</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$8</ID>
+    <ID>MagicNumber:matrix.kt$Mat4$9</ID>
+    <ID>MagicNumber:matrix.kt$Mat4.Companion$2.0f</ID>
+    <ID>MagicNumber:matrix.kt$Mat4.Companion$2f</ID>
+    <ID>MagicNumber:matrix.kt$Mat4.Companion$4</ID>
+    <ID>MagicNumber:vector.kt$Vec4$0.5f</ID>
+    <ID>MatchingDeclarationName:Bitmap.kt$AppleBitmap : Bitmap</ID>
+    <ID>MatchingDeclarationName:Platform.android.kt$AndroidPlatform : Platform</ID>
+    <ID>MatchingDeclarationName:Platform.desktop.kt$DesktopPlatform : Platform</ID>
+    <ID>MatchingDeclarationName:Platform.ios.kt$IOSPlatform : Platform</ID>
+    <ID>MatchingDeclarationName:Platform.wasmJs.kt$WasmJsPlatform : Platform</ID>
+    <ID>MatchingDeclarationName:gameloop.android.kt$AndroidGameLoop : GameLoop</ID>
+    <ID>MatchingDeclarationName:gameloop.desktop.kt$DesktopGameLoop : GameLoop</ID>
+    <ID>MatchingDeclarationName:gameloop.ios.kt$IOSGameLoop : GameLoop</ID>
+    <ID>MatchingDeclarationName:gameloop.kt$GameLoop</ID>
+    <ID>MatchingDeclarationName:matrix.kt$Mat4</ID>
+    <ID>MaxLineLength:CameraTest.kt$CameraTest$val expected = Mat4.perspective(fovY = camera.fovYRadians, aspect = aspect, near = camera.near, far = camera.far)</ID>
+    <ID>MaxLineLength:CameraTest.kt$CameraTest$val unflipped = Mat4.perspective(fovY = camera.fovYRadians, aspect = aspect, near = camera.near, far = camera.far)</ID>
+    <ID>MaxLineLength:GltfParser.kt$GltfParser$val values = readFloatAccessor(document, buffers, sampler.output, componentsPerElement = componentsPerKeyframe)</ID>
+    <ID>MaxLineLength:GridTest.kt$GridTest$private</ID>
+    <ID>NewLineAtEndOfFile:Angle.kt$io.github.ronjunevaldoz.awake.core.math.Angle.kt</ID>
+    <ID>NewLineAtEndOfFile:Bitmap.kt$io.github.ronjunevaldoz.awake.core.graphics.Bitmap.kt</ID>
+    <ID>NewLineAtEndOfFile:Buffer.kt$io.github.ronjunevaldoz.awake.core.memory.Buffer.kt</ID>
+    <ID>NewLineAtEndOfFile:Disposable.kt$io.github.ronjunevaldoz.awake.core.graphics.Disposable.kt</ID>
+    <ID>NewLineAtEndOfFile:Drawable.kt$io.github.ronjunevaldoz.awake.core.graphics.Drawable.kt</ID>
+    <ID>NewLineAtEndOfFile:MatrixTest.kt$io.github.ronjunevaldoz.awake.core.MatrixTest.kt</ID>
+    <ID>NewLineAtEndOfFile:Pixmap.kt$io.github.ronjunevaldoz.awake.core.graphics.Pixmap.kt</ID>
+    <ID>NewLineAtEndOfFile:Platform.android.kt$io.github.ronjunevaldoz.awake.core.Platform.android.kt</ID>
+    <ID>NewLineAtEndOfFile:Platform.desktop.kt$io.github.ronjunevaldoz.awake.core.Platform.desktop.kt</ID>
+    <ID>NewLineAtEndOfFile:Platform.ios.kt$io.github.ronjunevaldoz.awake.core.Platform.ios.kt</ID>
+    <ID>NewLineAtEndOfFile:Platform.kt$io.github.ronjunevaldoz.awake.core.Platform.kt</ID>
+    <ID>NewLineAtEndOfFile:Time.kt$io.github.ronjunevaldoz.awake.core.utils.Time.kt</ID>
+    <ID>NewLineAtEndOfFile:bufferExt.kt$io.github.ronjunevaldoz.awake.core.memory.bufferExt.kt</ID>
+    <ID>NewLineAtEndOfFile:gameloop.android.kt$io.github.ronjunevaldoz.awake.core.application.gameloop.android.kt</ID>
+    <ID>NewLineAtEndOfFile:gameloop.desktop.kt$io.github.ronjunevaldoz.awake.core.application.gameloop.desktop.kt</ID>
+    <ID>NewLineAtEndOfFile:gameloop.ios.kt$io.github.ronjunevaldoz.awake.core.application.gameloop.ios.kt</ID>
+    <ID>NewLineAtEndOfFile:gameloop.kt$io.github.ronjunevaldoz.awake.core.application.gameloop.kt</ID>
+    <ID>NewLineAtEndOfFile:matrix.kt$io.github.ronjunevaldoz.awake.core.math.matrix.kt</ID>
+    <ID>NewLineAtEndOfFile:vector.kt$io.github.ronjunevaldoz.awake.core.math.vector.kt</ID>
+    <ID>ReturnCount:AndroidInputBridge.kt$fun MotionEvent.syncAwakePointerInput(input: Input): Boolean</ID>
+    <ID>TooManyFunctions:GltfParser.kt$GltfParser</ID>
+    <ID>UnusedPrivateProperty:Bitmap.kt$val bytesPerRow = CGImageGetBytesPerRow(cgImage)</ID>
+  </CurrentIssues>
+</SmellBaseline>

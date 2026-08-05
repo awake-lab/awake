@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:PlayerControlSystem.kt$PlayerControlSystem$override fun update(world: World, delta: Float)</ID>
+    <ID>EmptyFunctionBlock:SceneGameRuntime.kt$SceneGameRuntime${}</ID>
+    <ID>LongParameterList:SceneGameSpec.kt$SceneGameSpec$( val sceneDocument: SceneDocument, val renderableFactory: SceneRenderableFactory, internal val assetLibraryFactory: (() -> SceneAssetLibrary)?, internal val systems: List&lt;SceneSystemRegistration>, val updateBlock: SceneUpdateBlock, val overlayBlock: SceneOverlayBlock, val onReadyBlock: SceneReadyBlock, val onDisposeBlock: SceneDisposeBlock, internal val serviceRegistrations: List&lt;SceneServiceRegistration&lt;*>> )</ID>
+    <ID>LoopWithTooManyJumpStatements:PhysicsSystem.kt$PhysicsSystem$for</ID>
+    <ID>MagicNumber:Control.kt$FollowControl$3f</ID>
+    <ID>MagicNumber:Control.kt$FollowControl$6f</ID>
+    <ID>MagicNumber:Control.kt$FollowControl$8f</ID>
+    <ID>MagicNumber:Control.kt$OrbitControl$0.4f</ID>
+    <ID>MagicNumber:Control.kt$OrbitControl$8f</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$0.2f</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$0.3f</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$0.4f</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$0x07</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$1.3f</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$1.8f</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$12f</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$20</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$45f</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$6</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$6f</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$8</ID>
+    <ID>MagicNumber:DemoNavMesh.kt$Recast4jNavMesh$4f</ID>
+    <ID>MagicNumber:DemoNavMeshGeometry.kt$DemoNavMeshGeometry$3</ID>
+    <ID>MagicNumber:DemoNavMeshGeometry.kt$DemoNavMeshGeometry$4</ID>
+    <ID>MagicNumber:DemoNavMeshGeometry.kt$DemoNavMeshGeometry$5</ID>
+    <ID>MagicNumber:DemoNavMeshGeometry.kt$DemoNavMeshGeometry$6</ID>
+    <ID>MagicNumber:DemoNavMeshGeometry.kt$DemoNavMeshGeometry$7</ID>
+    <ID>MagicNumber:DemoNavMeshTest.kt$DemoNavMeshTest$0.6f</ID>
+    <ID>MagicNumber:DemoNavMeshTest.kt$DemoNavMeshTest$3f</ID>
+    <ID>MagicNumber:DemoNavMeshTest.kt$DemoNavMeshTest$8f</ID>
+    <ID>MagicNumber:SceneDocument.kt$SceneCamera$5f</ID>
+    <ID>MagicNumber:SceneGameFrame.kt$10f</ID>
+    <ID>MagicNumber:SceneGameFrame.kt$SceneFrameStats$100</ID>
+    <ID>MagicNumber:SceneGameRuntime.kt$SceneGameRuntime$1000f</ID>
+    <ID>MagicNumber:SceneInstantiationAdapter.kt$180f</ID>
+    <ID>MagicNumber:SceneValidation.kt$SceneValidator$180f</ID>
+    <ID>MaxLineLength:FollowCameraSystemTest.kt$FollowCameraSystemTest$camera = CoreCamera(eye = Vec3(0f, 0f, 0f), center = Vec3(0f, 0f, 0f), fovYRadians = 1f, near = 0.1f, far = 100f)</ID>
+    <ID>MaxLineLength:FreeFlyCameraSystemTest.kt$FreeFlyCameraSystemTest$camera = CoreCamera(eye = Vec3(0f, 0f, 0f), center = Vec3(0f, 0f, -1f), fovYRadians = 1f, near = 0.1f, far = 100f)</ID>
+    <ID>MaxLineLength:FreeFlyCameraSystemTest.kt$FreeFlyCameraSystemTest$private</ID>
+    <ID>MaxLineLength:OrbitCameraSystemTest.kt$OrbitCameraSystemTest$camera = CoreCamera(eye = Vec3(0f, 0f, 0f), center = Vec3(0f, 0f, 0f), fovYRadians = 1f, near = 0.1f, far = 100f)</ID>
+    <ID>MaxLineLength:RenderSystem.kt$RenderSystem$override val frequency: io.github.ronjunevaldoz.awake.ecs.SystemFrequency = io.github.ronjunevaldoz.awake.ecs.SystemFrequency.Infrastructure</ID>
+    <ID>MaxLineLength:SceneLoader.kt$SceneLoader$instantiateNode(adapter, node, parent = null, flipYForClipSpace = flipYForClipSpace, path = node.name?.takeIf { it.isNotBlank() } ?: "#$index")</ID>
+    <ID>MaxLineLength:SceneRuntime.kt$SceneRuntime$scene = SceneLoader.loadFromResource(scenePath).instantiate(world = world, flipYForClipSpace = renderer.flipYForClipSpace)</ID>
+    <ID>MaxLineLength:TransformSystem.kt$TransformSystem$override val frequency: io.github.ronjunevaldoz.awake.ecs.SystemFrequency = io.github.ronjunevaldoz.awake.ecs.SystemFrequency.Infrastructure</ID>
+    <ID>ReturnCount:DemoNavMesh.kt$Recast4jNavMesh$override fun findPath(start: Vec3, end: Vec3): List&lt;Vec3></ID>
+    <ID>ReturnCount:DemoNavMesh.kt$actual fun createDemoNavMesh(): NavMesh?</ID>
+    <ID>TooManyFunctions:SceneGameRuntime.kt$SceneGameRuntime : Game</ID>
+    <ID>UnusedPrivateProperty:PlayerControlSystem.kt$PlayerControlSystem$private val zoomSpeed: Float = 4f</ID>
+  </CurrentIssues>
+</SmellBaseline>

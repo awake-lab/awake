@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:AwakeUiPreviewValidator.kt$r1 != r2 || g1 != g2 || b1 != b2 || a1 != a2</ID>
+    <ID>ComplexCondition:UiMetrics.kt$bounds.x &lt; allowedBounds.x - tolerancePx || bounds.y &lt; allowedBounds.y - tolerancePx || bounds.x + bounds.width > allowedBounds.x + allowedBounds.width + tolerancePx || bounds.y + bounds.height > allowedBounds.y + allowedBounds.height + tolerancePx</ID>
+    <ID>CyclomaticComplexMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null ): UiInspectionReport</ID>
+    <ID>CyclomaticComplexMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:UiRasterizer.kt$val (x, y, w, h) = scaledRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.transform)</ID>
+    <ID>EmptyFunctionBlock:AwakeUiSnapshot.android.kt${}</ID>
+    <ID>EmptyFunctionBlock:AwakeUiSnapshot.ios.kt${}</ID>
+    <ID>EmptyFunctionBlock:AwakeUiSnapshot.wasmJs.kt${}</ID>
+    <ID>LongMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null ): UiInspectionReport</ID>
+    <ID>LongMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
+    <ID>LongParameterList:AwakeUiPreview.kt$AwakeUiPreview$( val id: String, val title: String, val group: String = "", val summary: String = "", val width: Int = 960, val height: Int = 720, val reportScale: Int = 1 )</ID>
+    <ID>LoopWithTooManyJumpStatements:UiRasterizer.kt$while</ID>
+    <ID>MagicNumber:AwakeUiPreview.kt$AwakeUiPreviewFrame$0.12f</ID>
+    <ID>MagicNumber:AwakeUiPreview.kt$AwakeUiPreviewFrame$0.1f</ID>
+    <ID>MagicNumber:AwakeUiPreviewValidator.kt$0xFF</ID>
+    <ID>MagicNumber:AwakeUiPreviewValidator.kt$3</ID>
+    <ID>MagicNumber:AwakeUiPreviewValidator.kt$4</ID>
+    <ID>MagicNumber:AwakeUiPreviewWriter.kt$0xFF</ID>
+    <ID>MagicNumber:AwakeUiPreviewWriter.kt$16</ID>
+    <ID>MagicNumber:AwakeUiPreviewWriter.kt$24</ID>
+    <ID>MagicNumber:AwakeUiPreviewWriter.kt$3</ID>
+    <ID>MagicNumber:AwakeUiPreviewWriter.kt$4</ID>
+    <ID>MagicNumber:AwakeUiPreviewWriter.kt$8</ID>
+    <ID>MagicNumber:AwakeUiSnapshot.desktop.kt$0xFF</ID>
+    <ID>MagicNumber:AwakeUiSnapshot.desktop.kt$16</ID>
+    <ID>MagicNumber:AwakeUiSnapshot.desktop.kt$24</ID>
+    <ID>MagicNumber:AwakeUiSnapshot.desktop.kt$3</ID>
+    <ID>MagicNumber:AwakeUiSnapshot.desktop.kt$4</ID>
+    <ID>MagicNumber:AwakeUiSnapshot.desktop.kt$8</ID>
+    <ID>MagicNumber:PixelBaseline.kt$0xFF</ID>
+    <ID>MagicNumber:PixelBaseline.kt$4</ID>
+    <ID>MagicNumber:UiRasterizer.kt$0.12f</ID>
+    <ID>MagicNumber:UiRasterizer.kt$0.1f</ID>
+    <ID>MagicNumber:UiRasterizer.kt$0.25f</ID>
+    <ID>MagicNumber:UiRasterizer.kt$0.5f</ID>
+    <ID>MagicNumber:UiRasterizer.kt$0.9999f</ID>
+    <ID>MagicNumber:UiRasterizer.kt$0xFF</ID>
+    <ID>MagicNumber:UiRasterizer.kt$255</ID>
+    <ID>MagicNumber:UiRasterizer.kt$255f</ID>
+    <ID>MagicNumber:UiRasterizer.kt$3</ID>
+    <ID>MagicNumber:UiRasterizer.kt$3f</ID>
+    <ID>MagicNumber:UiRasterizer.kt$4</ID>
+    <ID>MagicNumber:UiRasterizer.kt$6</ID>
+    <ID>MatchingDeclarationName:PixelBaseline.kt$PixelDiffResult</ID>
+    <ID>MaxLineLength:AwakeUiPreviewWriter.kt$"Preview entry ${entry::class.qualifiedName} produced ${scenes.size} samples. Use renderAnnotatedUiPreviews(...) instead."</ID>
+    <ID>MaxLineLength:PixelBaseline.kt$return PixelDiffResult(matches = diffPixelCount == 0, diffPixelCount = diffPixelCount, maxChannelDiff = maxChannelDiff)</ID>
+    <ID>MaxLineLength:UiInspection.kt$fun</ID>
+    <ID>MaxLineLength:UiInspection.kt$fun slotHasValidSize(slot: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): Boolean</ID>
+    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
+    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.GradientQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
+    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.Quad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
+    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
+    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
+    <ID>MaxLineLength:UiLayoutSignature.kt$"${node.role}[${node.id ?: "?"}] @ (${bounds.x.toInt()}, ${bounds.y.toInt()}) ${bounds.width.toInt()}x${bounds.height.toInt()}"</ID>
+    <ID>MaxLineLength:UiMetrics.kt$issues += "$label overlap between [$index]=$current and [$otherIndex]=$other with tolerance=$tolerancePx"</ID>
+    <ID>MaxLineLength:UiMetrics.kt$private</ID>
+    <ID>MaxLineLength:UiMetrics.kt$reference == null || candidate == null -> issues += "$label missing on one side: expected=$reference actual=$candidate"</ID>
+    <ID>MaxLineLength:UiRasterizer.kt$UiShapeSpec.RoundedRectangle((primitive.radius * min(primitive.transform?.scaleX ?: 1f, primitive.transform?.scaleY ?: 1f)).px)</ID>
+    <ID>MaxLineLength:UiRasterizer.kt$fun</ID>
+    <ID>MaxLineLength:UiRasterizer.kt$is UiDrawPrimitive.GradientQuad -> fillGradientRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.gradient)</ID>
+    <ID>MaxLineLength:UiRasterizer.kt$is UiDrawPrimitive.StrokedPath -> fillTriangleMesh(primitive.path.tessellateStroke(primitive.stroke), primitive.color)</ID>
+    <ID>MaxLineLength:UiRasterizer.kt$val scaledGlyph = if (primitive.transform == null) primitive else primitive.copy(x = x, y = y, w = w, h = h)</ID>
+    <ID>MaxLineLength:UiRasterizerTest.kt$UiRasterizerTest$val primitives = listOf(UiDrawPrimitive.RoundedQuad(x = 0f, y = 0f, w = 600f, h = 36f, color = fill, radius = 6f))</ID>
+    <ID>NestedBlockDepth:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
+    <ID>ReturnCount:AwakeUiSnapshot.desktop.kt$actual fun loadAwakeUiSnapshot(id: String): ByteArray?</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongParameterList:SystemExtensions.kt$( name: String = "follow", target: String, camera: String, offset: Vec3 = Vec3(0f, 3f, 6f), smoothing: Float = 8f, configure: FollowCameraSystem.() -> Unit = {} )</ID>
+    <ID>LongParameterList:SystemExtensions.kt$( name: String = "orbit", target: String, camera: String, initialDistance: Float = 5f, initialPitch: Float = 0.4f, autoRotateSpeed: Float = 0f, configure: OrbitCameraSystem.() -> Unit = {} )</ID>
+    <ID>MagicNumber:SystemExtensions.kt$3f</ID>
+    <ID>MagicNumber:SystemExtensions.kt$6f</ID>
+    <ID>MatchingDeclarationName:SceneAssetDsl.kt$SceneAssetsDsl</ID>
+    <ID>MaxLineLength:SceneDocumentDslCompat.kt$message = "Compatibility scene entry point slated for future removal. Prefer io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneDocumentDsl or the canonical scene DSL entrypoint."</ID>
+    <ID>MaxLineLength:SceneRouterDslTest.kt$RouterRecordingRenderer$override</ID>
+    <ID>TooManyFunctions:SceneGameDsl.kt$SceneGameDsl</ID>
+  </CurrentIssues>
+</SmellBaseline>

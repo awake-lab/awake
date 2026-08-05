@@ -2,56 +2,349 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongParameterList:AwakeShadcnComponents.kt$( id: String, width: Float, height: Float, label: String, modifier: UiModifier = Modifier, variant: AwakeShadcnButtonVariant = AwakeShadcnButtonVariant.Primary, style: Style = Style.Empty )</ID>
-    <ID>LongParameterList:AwakeShadcnComponents.kt$( label: String, width: Float = 96f, height: Float = 28f, modifier: UiModifier = Modifier, variant: AwakeShadcnBadgeVariant = AwakeShadcnBadgeVariant.Secondary, style: Style = Style.Empty )</ID>
-    <ID>MagicNumber:AwakeShadcnComponents.kt$3</ID>
-    <ID>MagicNumber:AwakeShadcnComponents.kt$AwakeShadcnStyles$1.05f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.06f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.07f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.09f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.12f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.13f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.14f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.15f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.17f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.18f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.1f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.21f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.24f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.25f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.26f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.28f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.2f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.48f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.63f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.67f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.74f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.82f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.91f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.92f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.95f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.96f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.97f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.98f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.99f</ID>
-    <ID>MagicNumber:AwakeShadcnTheme.kt$AwakeShadcnTheme.&lt;no name provided>$0.9f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.12f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.1f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.24f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.2f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.45f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.4f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.83f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.85f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.88f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.8f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.92f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.98f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.99f</ID>
-    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.9f</ID>
-    <ID>MaxLineLength:AwakeShadcnComponents.kt$text(label, slot = slot, font = font, color = resolved.foreground ?: AwakeShadcnTheme.tokens.foreground, centered = true)</ID>
-    <ID>MaxLineLength:AwakeShadcnDesignSystemTest.kt$AwakeShadcnDesignSystemTest$assertEquals(4, primitives.filterIsInstance&lt;UiDrawPrimitive.RoundedQuad>().size, "surface + badge should each emit border + fill rounded quads")</ID>
-    <ID>MaxLineLength:AwakeShadcnDesignSystemTest.kt$AwakeShadcnDesignSystemTest$assertIs&lt;UiDrawPrimitive.RoundedQuad>(primitives.first(), "design-system badge should render its own rounded surface")</ID>
-    <ID>MaxLineLength:AwakeShadcnDesignSystemTest.kt$AwakeShadcnDesignSystemTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "design-system badge should render glyphs")</ID>
+    <ID>CyclomaticComplexMethod:DropdownMenu.kt$private fun ColumnScope.dropdownMenuItem( id: String, item: UiDropdownMenuItem, width: Float, baseHeight: Float, style: Style, selected: Boolean ): Boolean</ID>
+    <ID>CyclomaticComplexMethod:ShadcnTheme.kt$private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette</ID>
+    <ID>LargeClass:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest</ID>
+    <ID>LongMethod:Dialog.kt$fun UiScope.shadcnDialog( id: String, expanded: Boolean, width: Dimension = Dimension.WrapContent, height: Dimension = Dimension.WrapContent, properties: UiDialogProperties = UiDialogProperties(), showCloseButton: Boolean = false, closeIcon: (BoxScope.() -> Unit)? = null, header: (ColumnScope.(slot: UiBounds) -> Unit)? = null, actions: (RowScope.(slot: UiBounds) -> Unit)? = null, content: ColumnScope.(slot: UiBounds) -> Unit ): UiPopupResult</ID>
+    <ID>LongMethod:DropdownMenu.kt$fun UiScope.shadcnDropdownMenu( id: String, anchorSlot: UiBounds, expanded: Boolean, items: List&lt;UiDropdownMenuEntry>, selectedIndex: Int? = null, width: Dimension = Dimension.Fixed(anchorSlot.width.px), height: Dimension = Dimension.WrapContent, itemHeight: Float = 32f, positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(), properties: UiPopupProperties = UiPopupProperties(), style: Style = Style.Empty, itemStyle: Style = Style.Empty ): UiDropdownMenuResult</ID>
+    <ID>LongMethod:DropdownMenu.kt$private fun ColumnScope.dropdownMenuItem( id: String, item: UiDropdownMenuItem, width: Float, baseHeight: Float, style: Style, selected: Boolean ): Boolean</ID>
+    <ID>LongMethod:ShadcnTheme.kt$private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette</ID>
+    <ID>LongParameterList:AlertDialog.kt$( id: String, expanded: Boolean, title: String, message: String, width: Dimension = Dimension.Fixed(320f.dp), confirmLabel: String = "Confirm", dismissLabel: String? = "Cancel", confirmVariant: ShadcnButtonVariant = ShadcnButtonVariant.Primary, dismissVariant: ShadcnButtonVariant = ShadcnButtonVariant.Outline, confirmStyle: Style = Style.Empty, dismissStyle: Style = Style.Empty, properties: UiDialogProperties = UiDialogProperties(), style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:AlertDialog.kt$( id: String, expanded: Boolean, title: String, width: Dimension = Dimension.Fixed(320f.dp), confirmLabel: String = "Confirm", dismissLabel: String? = "Cancel", confirmVariant: ShadcnButtonVariant = ShadcnButtonVariant.Primary, dismissVariant: ShadcnButtonVariant = ShadcnButtonVariant.Outline, confirmStyle: Style = Style.Empty, dismissStyle: Style = Style.Empty, properties: UiDialogProperties = UiDialogProperties(), style: Style = Style.Empty, body: ColumnScope.() -> Unit )</ID>
+    <ID>LongParameterList:AlertDialog.kt$( id: String, expanded: Boolean, title: String, width: Dimension = Dimension.Fixed(320f.dp), properties: UiDialogProperties = UiDialogProperties(), style: Style = Style.Empty, actions: RowScope.() -> Unit, body: ColumnScope.() -> Unit )</ID>
+    <ID>LongParameterList:Dialog.kt$( id: String, expanded: Boolean, width: Dimension = Dimension.WrapContent, height: Dimension = Dimension.WrapContent, properties: UiDialogProperties = UiDialogProperties(), showCloseButton: Boolean = false, closeIcon: (BoxScope.() -> Unit)? = null, header: (ColumnScope.(slot: UiBounds) -> Unit)? = null, actions: (RowScope.(slot: UiBounds) -> Unit)? = null, content: ColumnScope.(slot: UiBounds) -> Unit )</ID>
+    <ID>LongParameterList:DropdownMenu.kt$( id: String, anchorSlot: UiBounds, expanded: Boolean, items: List&lt;UiDropdownMenuEntry>, selectedIndex: Int? = null, width: Dimension = Dimension.Fixed(anchorSlot.width.px), height: Dimension = Dimension.WrapContent, itemHeight: Float = 32f, positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(), properties: UiPopupProperties = UiPopupProperties(), style: Style = Style.Empty, itemStyle: Style = Style.Empty )</ID>
+    <ID>LongParameterList:DropdownMenu.kt$( id: String, item: UiDropdownMenuItem, width: Float, baseHeight: Float, style: Style, selected: Boolean )</ID>
+    <ID>LongParameterList:ShadcnButtons.kt$( id: String, label: String, modifier: UiModifier = Modifier, variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary, size: ShadcnButtonSize = ShadcnButtonSize.Md, style: Style = Style.Empty, centered: Boolean = true, verticallyCentered: Boolean = centered, enabled: Boolean = true, onClick: (() -> Unit)? = null )</ID>
+    <ID>LongParameterList:ShadcnButtons.kt$( id: String, modifier: UiModifier = Modifier, variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary, size: ShadcnButtonSize = ShadcnButtonSize.Md, style: Style = Style.Empty, centered: Boolean = true, verticallyCentered: Boolean = centered, enabled: Boolean = true, onClick: (() -> Unit)? = null, content: BoxScope.(slot: UiBounds) -> Unit )</ID>
+    <ID>LongParameterList:ShadcnCheckbox.kt$( id: String, checked: Boolean, label: String? = null, modifier: UiModifier = Modifier, indeterminate: Boolean = false, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:ShadcnCollapsible.kt$( id: String, expanded: Boolean, modifier: UiModifier = Modifier, onExpandedChange: (Boolean) -> Unit = {}, bordered: Boolean = false, header: RowScope.() -> Unit, content: ColumnScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnCollapsible.kt$( id: String, expanded: Boolean, modifier: UiModifier = Modifier, onExpandedChange: (Boolean) -> Unit = {}, trigger: ColumnScope.(isOpen: Boolean, toggle: () -> Unit) -> Unit, content: ColumnScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnCollapsible.kt$( id: String, title: String, expanded: Boolean, modifier: UiModifier = Modifier, onExpandedChange: (Boolean) -> Unit = {}, bordered: Boolean = false, content: ColumnScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnCollapsibleCard.kt$( id: String, expanded: Boolean, modifier: UiModifier = Modifier, onExpandedChange: (Boolean) -> Unit = {}, header: RowScope.() -> Unit, content: ColumnScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnFeedback.kt$( id: String, title: String, description: String? = null, modifier: UiModifier = Modifier, variant: ShadcnAlertVariant = ShadcnAlertVariant.Default, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:ShadcnFieldDropdown.kt$( id: String, label: String, options: List&lt;String>, selectedIndex: Int, modifier: UiModifier = Modifier, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:ShadcnFieldDropdown.kt$( id: String, options: List&lt;String>, selectedIndex: Int, height: Dp, style: Style = Style.Empty, labelContent: UiScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnFieldDropdown.kt$( id: String, options: List&lt;String>, selectedIndex: Int, modifier: UiModifier = Modifier, style: Style = Style.Empty, labelContent: UiScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnFieldRangeSlider.kt$( id: String, label: String, min: Float, max: Float, valueStart: Float, valueEnd: Float, modifier: UiModifier = Modifier, style: Style = Style.Empty, valueLabel: (Float, Float) -> String = ::defaultRangeSliderValueLabel )</ID>
+    <ID>LongParameterList:ShadcnFieldSlider.kt$( id: String, label: String, min: Float, max: Float, value: Float, modifier: UiModifier = Modifier, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:ShadcnFieldSlider.kt$( id: String, label: String, min: Float, max: Float, value: Float, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, valueLabel: (Float, Float, Float) -> String = ::defaultSliderValueLabel )</ID>
+    <ID>LongParameterList:ShadcnFieldSlider.kt$( id: String, min: Float, max: Float, value: Float, height: Dp, style: Style = Style.Empty, labelContent: UiScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnFieldSlider.kt$( id: String, min: Float, max: Float, value: Float, modifier: UiModifier = Modifier, style: Style = Style.Empty, labelContent: UiScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnFieldSwitch.kt$( id: String, checked: Boolean, height: Dp, modifier: UiModifier = Modifier, style: Style = Style.Empty, labelContent: UiScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnFieldTextField.kt$( id: String, label: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, errorText: String? = null )</ID>
+    <ID>LongParameterList:ShadcnFieldTextField.kt$( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, // Real shadcn's TextField itself never renders error/helper text -- that's the enclosing // Field's job (a separate description/error-text slot below the control). Matching that // split here: passing errorText both flips the field into its error visual state (red // border) and renders the message via shadcnFieldError underneath. errorText: String? = null, labelContent: UiScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnFieldTextarea.kt$( id: String, label: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, errorText: String? = null, minLines: Int = 3 )</ID>
+    <ID>LongParameterList:ShadcnFieldTextarea.kt$( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, errorText: String? = null, minLines: Int = 3, labelContent: UiScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnFieldToggle.kt$( id: String, checked: Boolean, height: Dp, modifier: UiModifier = Modifier, style: Style = Style.Empty, labelContent: UiScope.() -> Unit )</ID>
+    <ID>LongParameterList:ShadcnInput.kt$( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, leadingIcon: (BoxScope.() -> Unit)? = null, trailingIcon: (BoxScope.() -> Unit)? = null, visualTransformation: (String) -> String = { it } )</ID>
+    <ID>LongParameterList:ShadcnRadioGroup.kt$( id: String, options: List&lt;String>, selectedIndex: Int, modifier: UiModifier = Modifier, gap: Dp = 8f.dp, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:ShadcnRangeSlider.kt$( id: String, min: Float, max: Float, valueStart: Float, valueEnd: Float, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true )</ID>
+    <ID>LongParameterList:ShadcnSelect.kt$( id: String, options: List&lt;String>, // Nullable: real shadcn's Select explicitly supports "nothing chosen yet, show // placeholder" -- forcing an initial index committed a value the caller never picked. selectedIndex: Int?, modifier: UiModifier = Modifier, style: Style = Style.Empty, placeholder: String = "" )</ID>
+    <ID>LongParameterList:ShadcnSelect.kt$( id: String, value: T?, options: List&lt;T>, onValueChange: (T) -> Unit, label: (T) -> String = { it.toString() }, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty )</ID>
+    <ID>LongParameterList:ShadcnSlider.kt$( id: String, min: Float, max: Float, value: Float, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true )</ID>
+    <ID>LongParameterList:ShadcnSurfaces.kt$( id: String, anchorSlot: UiBounds, expanded: Boolean, width: Dimension = Dimension.WrapContent, height: Dimension = Dimension.WrapContent, positionProvider: UiPopupPositionProvider = UiPopupDefaults.popover(), properties: UiPopupProperties = UiPopupProperties(), style: Style = Style.Empty, content: ColumnScope.(slot: UiBounds) -> Unit )</ID>
+    <ID>LongParameterList:ShadcnSurfaces.kt$( id: String, label: String, active: Boolean, modifier: UiModifier = Modifier, style: Style = Style.Empty, badge: String? = null, onClick: () -> Unit = {} )</ID>
+    <ID>LongParameterList:ShadcnSurfaces.kt$( id: String, modifier: UiModifier = Modifier, style: Style = Style.Empty, expanded: Boolean = true, header: (ColumnScope.() -> Unit)? = null, footer: (ColumnScope.() -> Unit)? = null, content: ColumnScope.(slot: UiBounds) -> Unit )</ID>
+    <ID>LongParameterList:ShadcnSurfaces.kt$( id: String, modifier: UiModifier = Modifier, variant: ShadcnCardVariant = ShadcnCardVariant.Default, size: ShadcnCardSize = ShadcnCardSize.Default, style: Style = Style.Empty, header: (ColumnScope.() -> Unit)? = null, footer: (ColumnScope.() -> Unit)? = null, body: ColumnScope.(slot: UiBounds) -> Unit )</ID>
+    <ID>LongParameterList:ShadcnSwitch.kt$( id: String, checked: Boolean, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true )</ID>
+    <ID>LongParameterList:ShadcnTextarea.kt$( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, minLines: Int = 3 )</ID>
+    <ID>LongParameterList:ShadcnToggle.kt$( id: String, checked: Boolean, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, variant: ShadcnToggleVariant = ShadcnToggleVariant.Default, onCheckedChange: (Boolean) -> Unit = {}, content: BoxScope.(slot: UiBounds) -> Unit )</ID>
+    <ID>LongParameterList:ShadcnToggle.kt$( id: String, checked: Boolean, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, variant: ShadcnToggleVariant = ShadcnToggleVariant.Default, onCheckedChange: (Boolean) -> Unit = {}, label: String? = null )</ID>
+    <ID>LongParameterList:ShadcnTypography.kt$( label: String, modifier: UiModifier = Modifier, style: Style = Style.Empty, muted: Boolean = false, maxLines: Int = Int.MAX_VALUE, overflow: UiTextOverflow = UiTextOverflow.Visible )</ID>
+    <ID>LongParameterList:Tooltip.kt$( anchorSlot: UiBounds, visible: Boolean, width: Dimension = Dimension.WrapContent, height: Dimension = Dimension.WrapContent, positionProvider: UiPopupPositionProvider = UiPopupDefaults.aligned( anchorAlignment = UiAlignment.BottomCenter, popupAlignment = UiAlignment.TopCenter, offsetY = theme.asShadcnTheme().spacing.xs ), properties: UiPopupProperties = UiPopupProperties(), style: Style = Style.Empty, // Also used as the popup's own id so multiple tooltips rendered together (e.g. a preview // page open-state proof) don't collide on the same "tooltip" semantic id. id: String = "tooltip", content: ColumnScope.(slot: UiBounds) -> Unit )</ID>
+    <ID>LongParameterList:TooltipText.kt$( anchorSlot: UiBounds, visible: Boolean, text: String, positionProvider: UiPopupPositionProvider = UiPopupDefaults.aligned( anchorAlignment = UiAlignment.BottomCenter, popupAlignment = UiAlignment.TopCenter, offsetY = theme.asShadcnTheme().spacing.xs ), properties: UiPopupProperties = UiPopupProperties(), style: Style = Style.Empty, id: String = "tooltip" )</ID>
+    <ID>LongParameterList:textLines.kt$( lines: Iterable&lt;String>, modifier: UiModifier = Modifier, style: Style = Style.Empty, wrap: UiTextWrap = UiTextWrap.None, overflow: UiTextOverflow = if (wrap == UiTextWrap.None) UiTextOverflow.Ellipsis else UiTextOverflow.Clip, maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE )</ID>
+    <ID>MagicNumber:Dialog.kt$0.48f</ID>
+    <ID>MagicNumber:DropdownMenu.kt$0.25f</ID>
+    <ID>MagicNumber:DropdownMenu.kt$0.72f</ID>
+    <ID>MagicNumber:DropdownMenu.kt$0.82f</ID>
+    <ID>MagicNumber:DropdownMenu.kt$0.86f</ID>
+    <ID>MagicNumber:DropdownMenu.kt$12f</ID>
+    <ID>MagicNumber:DropdownMenu.kt$24f</ID>
+    <ID>MagicNumber:DropdownMenu.kt$4f</ID>
+    <ID>MagicNumber:DropdownMenu.kt$8f</ID>
+    <ID>MagicNumber:OklchColor.kt$0.0031308f</ID>
+    <ID>MagicNumber:OklchColor.kt$0.055f</ID>
+    <ID>MagicNumber:OklchColor.kt$1.055f</ID>
+    <ID>MagicNumber:OklchColor.kt$12.92f</ID>
+    <ID>MagicNumber:OklchColor.kt$1_000_000f</ID>
+    <ID>MagicNumber:OklchColor.kt$2.4</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.0041960863</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.06385417f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.08948418f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.105561346f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.21580376f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.2309699292</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.3413193965</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.39633778f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.7034186147</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$1.2684380046</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$1.2914855f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$1.7076147010</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$180.0</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$2.6097574011</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$3.0</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$3.3077115913</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$4.0767416621</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.145f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.205f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.245f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.556f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.577f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.922f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.97f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.985f</ID>
+    <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$27.325f</ID>
+    <ID>MagicNumber:ShadcnFieldRangeSlider.kt$10f</ID>
+    <ID>MagicNumber:ShadcnFieldSlider.kt$10f</ID>
+    <ID>MagicNumber:ShadcnFieldTextarea.kt$0.25f</ID>
+    <ID>MagicNumber:ShadcnSurfaces.kt$0.07f</ID>
+    <ID>MagicNumber:ShadcnSurfaces.kt$0.13f</ID>
+    <ID>MagicNumber:ShadcnSurfaces.kt$0.20f</ID>
+    <ID>MagicNumber:ShadcnSurfaces.kt$0.72f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.02f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.03f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.04f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.05f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.06f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.08f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.12f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.145f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.158f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.168f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.16f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.18f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.191f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.1f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.205f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.22f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.235f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.245f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.24f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.269f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.28f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.2f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.32f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.35f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.507f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.537f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.556f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.55f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.577f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.5f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.604f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.652f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.704f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.708f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.922f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.94f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.97f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.985f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$0.988f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$22.216f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$27.325f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Amber$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Amber$0xD97706</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Amber$0xF59E0B</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Blue$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Blue$0x2563EB</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Blue$0x3B82F6</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Cyan$0x06B6D4</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Cyan$0x0891B2</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Cyan$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Emerald$0x059669</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Emerald$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Emerald$0x10B981</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Fuchsia$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Fuchsia$0xC084FC</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Fuchsia$0xD8B4FE</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Green$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Green$0x16A34A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Green$0x22C55E</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Indigo$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Indigo$0x4F46E5</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Indigo$0x6366F1</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Lime$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Lime$0x84CC16</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Lime$0xA3E635</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Orange$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Orange$0xEA580C</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Orange$0xF97316</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Pink$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Pink$0xDB2777</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Pink$0xEC4899</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Purple$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Purple$0x9333EA</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Purple$0xA855F7</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Red$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Red$0xDC2626</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Red$0xEF4444</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Rose$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Rose$0xE11D48</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Rose$0xF43F5E</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Sky$0x0284C7</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Sky$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Sky$0x38BDF8</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Teal$0x0D9488</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Teal$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Teal$0x14B8A6</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Violet$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Violet$0x7C3AED</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Violet$0x8B5CF6</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Yellow$0x0F172A</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Yellow$0xCA8A04</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnAccent.Yellow$0xFACC15</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Mauve$0.018f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Mauve$315f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Mist$0.015f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Mist$225f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Olive$0.016f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Olive$130f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Stone$0.012f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Stone$35f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Taupe$0.018f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Taupe$28f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Zinc$0.012f</ID>
+    <ID>MagicNumber:ShadcnTheme.kt$ShadcnBaseColor.Zinc$285f</ID>
+    <ID>MagicNumber:ShadcnTokens.kt$ShadcnRadiusScale.Companion$0.4f</ID>
+    <ID>MagicNumber:ShadcnTokens.kt$ShadcnRadiusScale.Companion$0.6f</ID>
+    <ID>MagicNumber:ShadcnTokens.kt$ShadcnRadiusScale.Companion$0.8f</ID>
+    <ID>MagicNumber:ShadcnTokens.kt$ShadcnRadiusScale.Companion$1.4f</ID>
+    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Icon$40f</ID>
+    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Lg$44f</ID>
+    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Md$40f</ID>
+    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Sm$32f</ID>
+    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Xs$28f</ID>
+    <ID>MagicNumber:ShadcnVariants.kt$ShadcnCardSize.Default$4f</ID>
+    <ID>MatchingDeclarationName:ShadcnAvatars.kt$ShadcnAvatarSize</ID>
+    <ID>MatchingDeclarationName:ShadcnField.kt$ShadcnFieldOrientation</ID>
+    <ID>MatchingDeclarationName:ShadcnTabs.kt$ShadcnTabItem</ID>
+    <ID>MaxLineLength:DropdownMenu.kt$color = if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground</ID>
+    <ID>MaxLineLength:DropdownMenu.kt$modifier = Modifier.align(trailingAlignment).padding(start = 0f.dp, top = verticalPadding, end = 12f.dp, bottom = 0f.dp)</ID>
+    <ID>MaxLineLength:DropdownMenu.kt$modifier = Modifier.padding(start = 12f.dp, top = (8f + glyphPx + 4f).px, end = 12f.dp, bottom = 0f.dp).align(UiAlignment.TopStart)</ID>
+    <ID>MaxLineLength:DropdownMenu.kt$modifier = Modifier.width(bodyWidth.px).padding(start = labelStart.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(labelAlignment)</ID>
+    <ID>MaxLineLength:DropdownMenu.kt$val trailingColor = if (!item.enabled) theme.colors.mutedForeground else if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground</ID>
+    <ID>MaxLineLength:ShadcnBadges.kt$style = ShadcnStyles.badge(theme.asShadcnTheme(), variant) then ShadcnStyles.badgeContent(theme.asShadcnTheme()) then style</ID>
+    <ID>MaxLineLength:ShadcnButtonScrollClickInteractionTest.kt$ShadcnButtonScrollClickInteractionTest$"activeId is bound to item-3's own id -- content that scrolled INTO the old pixel position must not steal the click"</ID>
+    <ID>MaxLineLength:ShadcnButtonScrollClickInteractionTest.kt$ShadcnButtonScrollClickInteractionTest$assertEquals(target.y, restoredTarget.y, 0.01f, "test setup bug: net-zero scroll didn't restore original offset")</ID>
+    <ID>MaxLineLength:ShadcnButtonScrollClickInteractionTest.kt$ShadcnButtonScrollClickInteractionTest$assertFalse(lastClickedIds.contains("item-3"), "release-outside after scroll must not click the scrolled-away original target")</ID>
+    <ID>MaxLineLength:ShadcnButtonScrollClickInteractionTest.kt$ShadcnButtonScrollClickInteractionTest$assertTrue(lastClickedIds.contains("item-3"), "hover restored by the time of release must still register the click")</ID>
+    <ID>MaxLineLength:ShadcnCheckboxRadioSlotTest.kt$ShadcnCheckboxRadioSlotTest$assertNotNull(semantics.firstOrNull { it.id == "plan.a" }, "bare radio button should render its own semantic node")</ID>
+    <ID>MaxLineLength:ShadcnCollapsibleCard.kt$column</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$"sidebar height=${sidebar.bounds.height}, content height=${content.bounds.height}, padding=$verticalPadding"</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$.</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertEquals(3, primitives.filterIsInstance&lt;UiDrawPrimitive.RoundedQuad>().size, "surface should emit border + fill, and the filled badge should emit one rounded quad")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertIs&lt;UiDrawPrimitive.RoundedQuad>(primitives.first(), "design-system badge should render its own rounded surface")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(abs(glyphCenterX - buttonCenterX) &lt; 5f, "Text should be roughly horizontally centered in button: glyphCenterX=$glyphCenterX, buttonCenterX=$buttonCenterX")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(abs(slot.x - expectedX) &lt; 1f, "popover should be centered under its anchor: expected x=$expectedX, was x=${slot.x}")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(abs(slot.y - expectedY) &lt; 1f, "popover should sit just below its anchor: expected y=$expectedY, was y=${slot.y}")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "DSL adapters should still render labeled content")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "design-system badge should render glyphs")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "field wrappers should keep text rendering intact")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().isNotEmpty(), "label beside the switch should still render text")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.RoundedQuad>().size >= 3, "surface, switch pill, and thumb should emit shaped chrome")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.RoundedQuad>().size >= 4, "surface, badge, and button should emit rounded surfaces through the DSL")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.RoundedQuad>().size >= 6, "surface and field wrappers should emit shaped chrome")</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$controlsBounds</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$row</ID>
+    <ID>MaxLineLength:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest$sidebarBounds</ID>
+    <ID>MaxLineLength:ShadcnField.kt$)</ID>
+    <ID>MaxLineLength:ShadcnReferenceTokenTest.kt$ShadcnReferenceTokenTest$assertColorClose("light ring", lightReference, shadcnTheme(dark = false).asShadcnTheme().ring, tolerance = 0.08f)</ID>
+    <ID>MaxLineLength:ShadcnSurfaces.kt$content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }</ID>
+    <ID>MaxLineLength:ShadcnSurfaces.kt$style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style</ID>
+    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Luma -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 20.sp, headline = 24.sp, display = 30.sp)</ID>
+    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Lyra -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 22.sp, display = 26.sp)</ID>
+    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Maia -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 20.sp, headline = 24.sp, display = 30.sp)</ID>
+    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Mira -> UiTypography(caption = 10.sp, label = 12.sp, body = 13.sp, title = 17.sp, headline = 20.sp, display = 24.sp)</ID>
+    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Nova -> UiTypography(caption = 11.sp, label = 12.sp, body = 13.sp, title = 17.sp, headline = 21.sp, display = 26.sp)</ID>
+    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Rhea -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 21.sp, display = 27.sp)</ID>
+    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Sera -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 21.sp, headline = 25.sp, display = 30.sp)</ID>
+    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Vega -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 22.sp, display = 28.sp)</ID>
+    <ID>MaxLineLength:ShadcnTheme.kt$val ring = (accentPrimary ?: ringBase).withAlpha(if (accentPrimary != null) 1f else config.preset.ringAlphaMultiplier)</ID>
+    <ID>MaxLineLength:ShadcnToggleSlotAndGroupTest.kt$ShadcnToggleSlotAndGroupTest$assertTrue(semantics.count { it.selected == true } == 2, "both toggles must report selected=true in their semantics")</ID>
+    <ID>MaxLineLength:ShadcnTypography.kt$*</ID>
+    <ID>MaxLineLength:UiPopupCompositionsTest.kt$UiPopupCompositionsTest$"dialog action button's slot content should inherit the button's resolved themed foreground, not the ambient page color"</ID>
+    <ID>MaxLineLength:UiPopupCompositionsTest.kt$UiPopupCompositionsTest$assertTrue(assertNotNull(result).dismissed, "clicking the reserved close button should report the dialog as dismissed")</ID>
+    <ID>MaxLineLength:UiPopupCompositionsTest.kt$UiPopupCompositionsTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Glyph>().size >= 3, "menu entry metadata should still render text glyphs")</ID>
+    <ID>MaxLineLength:UiPopupCompositionsTest.kt$UiPopupCompositionsTest$assertTrue(primitives.filterIsInstance&lt;UiDrawPrimitive.Quad>().isNotEmpty(), "separator should emit a line quad")</ID>
+    <ID>MaxLineLength:UiTypographyTest.kt$UiTypographyTest$"Shared supporting copy should wrap cleanly and grow the panel instead of spilling outside its bounds."</ID>
+    <ID>NewLineAtEndOfFile:TooltipText.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.TooltipText.kt</ID>
+    <ID>NewLineAtEndOfFile:metaText.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.metaText.kt</ID>
+    <ID>NewLineAtEndOfFile:supportingLines.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines.kt</ID>
+    <ID>NewLineAtEndOfFile:supportingText.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText.kt</ID>
+    <ID>NewLineAtEndOfFile:textLines.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.textLines.kt</ID>
+    <ID>TooManyFunctions:ShadcnStyles.kt$ShadcnStyles</ID>
+    <ID>TooManyFunctions:ShadcnSurfaces.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnSurfaces.kt</ID>
+    <ID>UnusedParameter:ShadcnCollapsible.kt$modifier: UiModifier = Modifier</ID>
+    <ID>UnusedParameter:ShadcnRadioGroup.kt$id: String</ID>
+    <ID>UnusedParameter:ShadcnRadioGroup.kt$modifier: UiModifier = Modifier</ID>
+    <ID>VariableNaming:ShadcnReferenceTokenTest.kt$ShadcnReferenceTokenTest$// Same tolerance class as this project's existing pixel-baseline tests: float rounding // through OKLCH->linear-sRGB->gamma conversion accumulates a little error even for two // mathematically identical OKLCH triples, so an exact `==` would be too brittle. private val ColorTolerance = 0.02f</ID>
+    <ID>WildcardImport:AlertDialog.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:AlertDialog.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:DropdownMenu.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:DropdownMenu.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnAvatarTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnAvatars.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnAvatars.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnBadges.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnBadges.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnBreadcrumb.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnBreadcrumb.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnButtons.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnButtons.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnCardVariantTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnCheckbox.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnDesignSystemTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnDesignSystemTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnFeedback.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnFeedback.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnFieldDropdown.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnFieldRangeSlider.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnFieldSlider.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnFieldSwitch.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnFieldTextField.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnFieldTextarea.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnFieldToggle.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnInput.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnProgress.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnRadioGroup.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnRangeSlider.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnSelect.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnSelect.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnSeparator.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnSkeleton.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnSlider.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnSpinner.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnStyles.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnSurfaces.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnSurfaces.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnSwitch.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnTabs.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnTabs.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnTextarea.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnTheme.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnTheme.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnToggle.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:ShadcnTypography.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnTypography.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:Tooltip.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:Tooltip.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:TooltipText.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:TooltipText.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiDialogProperties.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:UiDialogProperties.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiPopupCompositionsTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:UiPopupCompositionsTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiTypographyTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:metaText.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:metaText.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:sectionTitle.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:sectionTitle.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:supportingLines.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:supportingText.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:supportingText.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:textLines.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:textLines.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
   </CurrentIssues>
 </SmellBaseline>

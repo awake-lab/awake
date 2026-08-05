@@ -1,0 +1,317 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:UiShowcaseGettingStartedPages.kt$internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState)</ID>
+    <ID>LongMethod:UiShowcaseCardClipBugPngTest.kt$UiShowcaseCardClipBugPngTest$private fun saveRepro(id: String)</ID>
+    <ID>LongMethod:UiShowcaseComponentPages.kt$internal fun ColumnScope.drawUiShowcaseSidebarPreview()</ID>
+    <ID>LongMethod:UiShowcaseFieldDemoPage.kt$internal fun ColumnScope.drawUiShowcaseFieldDemoPreview(state: UiShowcaseRuntimeState)</ID>
+    <ID>LongMethod:UiShowcaseGameTest.kt$UiShowcaseGameTest$@Test fun uiShowcaseSidebarCategoryHeaderCentersIconAndTitleVertically()</ID>
+    <ID>LongMethod:UiShowcaseGettingStartedPages.kt$internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState)</ID>
+    <ID>LongMethod:UiShowcaseLayoutPages.kt$private fun CanvasScope.drawShowcaseCanvasScene()</ID>
+    <ID>LongMethod:UiShowcaseOverlayPages.kt$internal fun ColumnScope.drawUiShowcasePopupPreview()</ID>
+    <ID>LongMethod:UiShowcasePreviewCatalogTestSupport.kt$private fun ColumnScope.drawUiShowcaseFieldMatrixContent()</ID>
+    <ID>LongMethod:UiShowcaseUi.kt$internal fun GameUiRuntime.drawUiShowcaseOverlay( state: UiShowcaseRuntimeState )</ID>
+    <ID>LongParameterList:UiShowcasePreviewCatalogTestSupport.kt$( metadata: AwakeUiPreviewMetadata, surfaceId: String = metadata.id, badge: String, title: String, summary: String, focusedNodeId: String? = null, content: ColumnScope.() -> Unit )</ID>
+    <ID>MagicNumber:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$0.01f</ID>
+    <ID>MagicNumber:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$100f</ID>
+    <ID>MagicNumber:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$1440f</ID>
+    <ID>MagicNumber:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$40</ID>
+    <ID>MagicNumber:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$900f</ID>
+    <ID>MagicNumber:ShadcnCollapsibleToggleTest.kt$ShadcnCollapsibleToggleTest$1440f</ID>
+    <ID>MagicNumber:ShadcnCollapsibleToggleTest.kt$ShadcnCollapsibleToggleTest$900f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeAlertVariantsLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeAvatarLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeBadgeVariantsLightPreview$42f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeBreadcrumbLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeButtonVariantsLightPreview$45f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeCheckboxStatesLightPreview$24f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeCollapsibleLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeDropdownMenuStatesLightPreview$16f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeKbdLightPreview$52f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakePopoverStatesLightPreview$16f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeProgressLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeRadioGroupLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeSelectClosedLightPreview$24f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeSkeletonLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeSliderMatrixLightPreview$100f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeSliderMatrixLightPreview$50f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeSpinnerLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeSwitchVariantsLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeTabsLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeTextFieldStatesLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeTextareaStatesLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeToggleButtonVariantsLightPreview$48f</ID>
+    <ID>MagicNumber:ShadcnParityScreenshotTest.kt$AwakeTooltipTriggerLightPreview$24f</ID>
+    <ID>MagicNumber:UiShowcaseAnimationPages.kt$0.18f</ID>
+    <ID>MagicNumber:UiShowcaseAnimationPages.kt$14f</ID>
+    <ID>MagicNumber:UiShowcaseAnimationPages.kt$20</ID>
+    <ID>MagicNumber:UiShowcaseCardClipBugPngTest.kt$UiShowcaseCardClipBugPngTest$220f</ID>
+    <ID>MagicNumber:UiShowcaseCardClipBugPngTest.kt$UiShowcaseCardClipBugPngTest$420f</ID>
+    <ID>MagicNumber:UiShowcaseComponentPages.kt$0.3f</ID>
+    <ID>MagicNumber:UiShowcaseComponentPages.kt$0.7f</ID>
+    <ID>MagicNumber:UiShowcaseComponentPages.kt$18f</ID>
+    <ID>MagicNumber:UiShowcaseComponentPages.kt$52f</ID>
+    <ID>MagicNumber:UiShowcaseComponentPages.kt$65f</ID>
+    <ID>MagicNumber:UiShowcaseCounterStore.kt$UiShowcaseCounterStore$5</ID>
+    <ID>MagicNumber:UiShowcaseFieldDemoPage.kt$12</ID>
+    <ID>MagicNumber:UiShowcaseFieldDemoPage.kt$2026</ID>
+    <ID>MagicNumber:UiShowcaseFieldDemoPage.kt$2035</ID>
+    <ID>MagicNumber:UiShowcaseGame.kt$1600</ID>
+    <ID>MagicNumber:UiShowcaseGame.kt$900</ID>
+    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.01f</ID>
+    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.08f</ID>
+    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.12f</ID>
+    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.15f</ID>
+    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.99f</ID>
+    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$160f</ID>
+    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$40f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutCostTest.kt$UiShowcaseLayoutCostTest$100.0</ID>
+    <ID>MagicNumber:UiShowcaseLayoutCostTest.kt$UiShowcaseLayoutCostTest$1440f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutCostTest.kt$UiShowcaseLayoutCostTest$900f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutCostTest.kt$UiShowcaseLayoutCostTest.FrameCost$100.0</ID>
+    <ID>MagicNumber:UiShowcaseLayoutCostTest.kt$UiShowcaseLayoutCostTest.FrameCost$1_000_000.0</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.16f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.22f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.32f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.78f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.82f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.85f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.88f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.8f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.92f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.94f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$10</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$14f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$150f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$178f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$28f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$32f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$34f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$42f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$50f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$54f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$60f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$66f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$68f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$78f</ID>
+    <ID>MagicNumber:UiShowcaseLayoutPages.kt$92f</ID>
+    <ID>MagicNumber:UiShowcaseSidebarGapProbeTest.kt$UiShowcaseSidebarGapProbeTest$1440f</ID>
+    <ID>MagicNumber:UiShowcaseSidebarGapProbeTest.kt$UiShowcaseSidebarGapProbeTest$3</ID>
+    <ID>MagicNumber:UiShowcaseSidebarGapProbeTest.kt$UiShowcaseSidebarGapProbeTest$900f</ID>
+    <ID>MagicNumber:UiShowcaseSidebarOverflowBugPngTest.kt$UiShowcaseSidebarOverflowBugPngTest$360f</ID>
+    <ID>MagicNumber:UiShowcaseSidebarOverflowBugPngTest.kt$UiShowcaseSidebarOverflowBugPngTest$90f</ID>
+    <ID>MagicNumber:UiShowcaseSidebarRealChromePngTest.kt$UiShowcaseSidebarRealChromePngTest$1440f</ID>
+    <ID>MagicNumber:UiShowcaseSidebarRealChromePngTest.kt$UiShowcaseSidebarRealChromePngTest$900f</ID>
+    <ID>MaxLineLength:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$"Inputs header Y INCREASED (moved back down) at frame $i: $prevY -> $y -- non-monotonic slide in $inputsHeaderYs"</ID>
+    <ID>MaxLineLength:ShadcnCollapsibleToggleTest.kt$ShadcnCollapsibleToggleTest$assertEquals(true, expandedState(ui, "GettingStarted").value, "second click must re-expand, not stick or double-fire")</ID>
+    <ID>MaxLineLength:ShadcnCollapsibleToggleTest.kt$ShadcnCollapsibleToggleTest$assertEquals(true, expandedState(ui, "Inputs").value, "Inputs must be unaffected by a click on a sibling header")</ID>
+    <ID>MaxLineLength:ShadcnCollapsibleToggleTest.kt$ShadcnCollapsibleToggleTest$assertEquals(true, expandedState(ui, "Patterns").value, "Patterns must be unaffected by a click on a sibling header")</ID>
+    <ID>MaxLineLength:ShadcnCollapsibleToggleTest.kt$ShadcnCollapsibleToggleTest$assertEquals(true, expandedState(ui, "Typography").value, "Typography must be unaffected by a click on a sibling header")</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeAlertVariantsLightPreview$summary = "New component -- Awake had no inline banner before, only alertDialog (a modal). Matches real shadcn's Default/Destructive Alert look."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeAvatarLightPreview$row</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeAvatarLightPreview$summary = "New component -- AvatarFallback-only (initials on a muted circle); no image-loading pipeline wired into this rasterizer yet, that's the real component's image slot."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeBadgeVariantsLightPreview$summary = "Matches docs/reference/shadcn-previews/badge_variants_light.png's arrangement for a direct side-by-side."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeButtonVariantsLightPreview$summary = "Matches docs/reference/shadcn-previews/button_variants_light.png's arrangement for a direct side-by-side."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeCheckboxStatesLightPreview$shadcnCheckbox("parity-checkbox-unchecked", checked = false, modifier = Modifier.width(20f.dp).height(20f.dp))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeCheckboxStatesLightPreview$summary = "Matches docs/reference/shadcn-previews/checkbox_states_light.png's arrangement for a direct side-by-side."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeDialogStatesLightPreview$summary = "Matches docs/reference/shadcn-previews/dialog_states_light.png's arrangement (title/description/action) for a direct side-by-side."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeDropdownMenuStatesLightPreview$summary = "Matches docs/reference/shadcn-previews/dropdown-menu_states_light.png's arrangement (trigger + open menu) for a direct side-by-side."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeKbdLightPreview$row</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeKbdLightPreview$summary = "New component -- inline key-cap label, same measure-and-draw mechanics as shadcnBadge with a Kbd-specific style."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakePopoverStatesLightPreview$summary = "Matches docs/reference/shadcn-previews/popover_states_light.png's arrangement (trigger + open panel) for a direct side-by-side."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeProgressLightPreview$summary = "New component -- non-interactive track+fill, ProgressWidget.kt reuses slider()'s painting logic minus the knob/drag handling."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeRadioGroupLightPreview$summary = "New component -- circular checkbox() reused via a Circle shapeSpec, single-select logic composed on top, no new ui-unstyled primitive."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeSkeletonLightPreview$summary = "New component -- muted placeholder block with a real per-widget opacity pulse (sine wave over elapsed time), not a static gray box."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeSpinnerLightPreview$summary = "New component -- orbiting-dots loader, a real distinct animation (not a static substitute) approximating shadcn's CSS-rotated loader icon, which this engine has no SVG-rotation pipeline to reproduce exactly."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeSwitchMatrixLightPreview$row</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTabsLightPreview$summary = "New component -- shadcnTabs composes shadcnButton (Ghost variant) per tab inside a muted track, same reuse-existing-variant approach as shadcnRadioGroup."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTextFieldStatesLightPreview$shadcnInput("parity-field-1", value = "", placeholder = "Default", modifier = Modifier.width(248f.px).height(40f.px))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTextFieldStatesLightPreview$shadcnInput("parity-field-2", value = "", placeholder = "Filled", variant = ShadcnTextFieldVariant.Filled, modifier = Modifier.width(248f.px).height(40f.px))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTextFieldStatesLightPreview$shadcnInput("parity-field-3", value = "", placeholder = "Ghost", variant = ShadcnTextFieldVariant.Ghost, modifier = Modifier.width(248f.px).height(40f.px))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTextFieldStatesLightPreview$shadcnInput("parity-field-4", value = "Invalid value", modifier = Modifier.width(248f.px).height(40f.px), isError = true)</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTextFieldStatesLightPreview$shadcnInput("parity-field-5", value = "", placeholder = "Disabled", modifier = Modifier.width(248f.px).height(40f.px), enabled = false)</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTextFieldStatesLightPreview$summary = "Matches docs/reference/shadcn-previews/text-field_states_light.png's arrangement -- all 5 real shadcn states now exist."</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTextareaMatrixLightPreview$textarea("textarea", value = "Line 1\nLine 2", placeholder = "Type here...", modifier = forcedModifier.width(272f.px))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTextareaStatesLightPreview$shadcnTextarea("parity-textarea-1", value = "", placeholder = "Default textarea", modifier = Modifier.width(272f.px))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTextareaStatesLightPreview$shadcnTextarea("parity-textarea-3", value = "", placeholder = "Disabled textarea", modifier = Modifier.width(272f.px), enabled = false)</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeToggleButtonVariantsLightPreview$row</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeToggleButtonVariantsLightPreview$shadcnToggle("parity-toggle-disabled", checked = false, label = "B", modifier = Modifier.width(40f.px).height(40f.px), enabled = false)</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeToggleButtonVariantsLightPreview$shadcnToggle("parity-toggle-off", checked = false, label = "B", modifier = Modifier.width(40f.px).height(40f.px))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeToggleButtonVariantsLightPreview$shadcnToggle("parity-toggle-on", checked = true, label = "B", modifier = Modifier.width(40f.px).height(40f.px))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeToggleMatrixLightPreview$row</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeToggleMatrixLightPreview$toggle("toggle-off", checked = false, label = "Off", modifier = forcedModifier.width(Dimension.Fixed(60f.px)))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeToggleMatrixLightPreview$toggle("toggle-on", checked = true, label = "On", modifier = forcedModifier.width(Dimension.Fixed(60f.px)))</ID>
+    <ID>MaxLineLength:ShadcnParityScreenshotTest.kt$AwakeTooltipTriggerLightPreview$summary = "Matches docs/reference/shadcn-previews/tooltip_trigger_light.png's arrangement -- the reference screenshot only shows the trigger, not the (hover-only) tooltip content."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"A custom widget (like this catalog's own recipes) uses this exact same slot-content pattern, not a special library-only path."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Awake has no image-loading pipeline wired in yet, so this is the fallback-only look -- a real gap, not a faked one."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Built on graphicsLayer's UiAlphaEffect, applied once at UiContext's own primitive-emission choke point -- no per-widget changes needed."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Content is freeform (any ColumnScope body), unlike the dropdown menu's fixed list of UiDropdownMenuItem rows."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Content keeps rendering (dimmed) through the exit fade instead of unmounting the frame visible flips false."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Dragging one thumb past the other clamps instead of crossing -- a small minimum gap between start and end is enforced."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Each row's thumbnail samples the same Easing.transform used to drive the moving thumb, so the shape and the motion always agree."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Header and footer are each independently optional, same as shadcnCard -- a content-only sidebar is just shadcnSidebar with neither slot filled."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Header and footer are independently optional -- a body-only card is just shadcnCard with neither slot filled."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Neither has a flex-grow concept: FillMax only resolves against the enclosing scope's own fixed axis (a column's configured width, not a row's advancing width)."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"No border/background chrome on shadcnFieldSet, matching real shadcn's CSS reset of the native &lt;fieldset> border."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"No dismiss/action slot yet -- shadcn's own Alert doesn't have one either; that's composed alongside it by the caller."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Real usage (see StarterGameUi.kt, UiShowcaseUi.kt) gives it a fixed width; letting it stretch full-width reads wrong for a nav rail."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Retargeting mid-tween restarts the duration from the current animated value instead of snapping back to the start."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"See the Shimmer page for the other loading-state animation -- a moving highlight sweep rather than a pulse or rotation."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Skeleton has a real per-widget opacity pulse (not a static box); Spinner is a real orbiting-dots animation approximating shadcn's CSS-rotated Lucide icon."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"The API stays local-coordinate based so a nested canvas composes cleanly inside cards, HUDs, and docs previews."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"The Dropdown Menu And Dialog page's open-state preview demonstrates the same underlying popover anchoring shadcnSelect builds on."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"The active tab uses ShadcnButtonVariant.Primary with its background/foreground overridden to the card color; inactive tabs stay Ghost for the real chromeless-until-hover look."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"The caller owns the trigger widget and expanded state, same split as shadcnDropdownMenu -- shadcnPopover only owns anchored positioning, dismiss, and panel chrome."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"The default runtime font now uses the true-font atlas so spacing and letterforms stop fighting the showcase."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"The initials overload is sugar over the slot-based primary overload; there is no capability gap between them."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"The label-string overload is sugar over this content-lambda form -- there is no capability gap between them."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"The widget preview report keeps a partially scrolled proof around so clipping and thumb math are validated without manual interaction."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"This page exists so the same widget is also documented as a reusable component, not just tested as a hidden proof surface."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Uses the base theme surface style directly; it isn't a ShadcnSurfaceVariant flavor like shadcnSurface's Card variant used to be."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"We keep an open-state widget preview for tooltip sizing and anchoring so this does not depend on hover automation."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"Works with a real keyboard on every platform: GLFW key polling on desktop, the IME on Android, UIKeyInput on iOS."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"shadcnDialog is the plain content-based dialog shadcnAlertDialog is itself composed from -- this page now shows both, not just the alert-dialog wrapper."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"shadcnFieldRangeSlider is the label-above/value-above layout shadcn's own range demo uses; the bare shadcnRangeSlider control has no label row of its own since two knobs have no single 'beside the knob' spot."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"shadcnFieldSet/shadcnFieldLegend are new -- a titled section wrapper and its title, one step up in weight from shadcnFieldLabel."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"shadcnKbd shares its 'measure text, draw a box, draw the label' mechanics with shadcnBadge -- just a different (sm-radius, muted) style."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"shadcnLabel's required/disabled states show up here in isolation -- shadcnFieldLabel (used throughout Text Input and Checkout Form) is sugar over the default-state case of the same function."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"shadcnSelect already appears composed inside the Checkout Form and the Field State Matrix preview -- this page is its own first-class home in isolation."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"shadcnSwitch is real shadcn's `Switch`; shadcnToggle is our own boolean pressable control -- both exist and both get a row here."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$"shadcnToggleGroup delegates entirely to toggleGroup() (ui-unstyled); each option now gets an equal weight(1f) share of the group width (previously the first option's FillMax claimed the whole row, leaving every option after it zero-width -- fixed)."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A bounded drawing surface for custom shapes, gradients, text, clipping, and nested authored drawing."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A circular fallback avatar -- initials text via the convenience overload, or arbitrary caller-supplied content (e.g. an icon) via the slot-based primary overload."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A compact anchored overlay for helper copy that should wrap cleanly and stay visually attached to its trigger."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A continuous-value control that keeps value labels, track fill, and thumb placement aligned under the same shadcn recipe."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A fixed-width navigation shell -- optional header/footer slots around a required nav-item content area, sharing the same divider convention as Card."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A header/body/footer surface composition -- both slots are optional and separated from the body by the same divider convention as DropdownMenu's item separator."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A muted track with a raised active tab, composed from shadcnButton the same way shadcnRadioGroup composes from checkbox()."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A non-searchable dropdown trigger -- matches real shadcn's plain Select, not a searchable Combobox."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A real, typeable single-line field -- click to focus, type, backspace, and use the arrow keys to move the cursor."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A real-world composed pattern: shadcn/ui's Payment Method checkout form, built from shadcnFieldSet/shadcnFieldLegend and the rest of the Field family."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A reusable clipped container that owns scrolling, thumb placement, and viewport measurement instead of pushing that work to each sample."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A trail of muted links separated by a glyph, with the last item rendered as plain current-page text."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "A trigger-anchored floating panel for freeform content -- not a fixed list of menu rows like the dropdown menu."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "An interactive disclosure panel that toggles visibility of its content with an animated height transition."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "Dual-thumb variant of Slider -- two independently draggable knobs on one track, with the fill spanning only between them."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "Fixed-duration tweens shaped by an Easing curve, distinct from the spring-style animateFloat above."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "Live preset, base color, accent, and dark mode controls feeding the same public Awake theme factory."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "Progress, Skeleton, and Spinner -- three small loading/status primitives grouped on one page since none carry a variant axis of their own."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "Proof that our menus and dialogs behave like real overlay surfaces rather than loose button stacks."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "Real alpha compositing for graphicsLayer -- fades a subtree in/out instead of instantly unmounting it."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "The Awake-owned selection family: Toggle, Switch, Checkbox, and RadioGroup, all sharing the same shadcn token layer."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "The shadcn text component family: sectionTitle, headline, bodyText, supportingText, generic text, and label."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "Two tiny presentational primitives with no variant or state axis, grouped on one page instead of two near-empty ones."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "buttonSlot(...)'s content-lambda form composes arbitrary content inside a widget's own claimed slot instead of a fixed label string."</ID>
+    <ID>MaxLineLength:UiShowcaseCatalog.kt$description = "row(...) and column(...) -- the modifier-first layout primitives every other page in this catalog is built from."</ID>
+    <ID>MaxLineLength:UiShowcaseChrome.kt$style = Style { contentPadding(start = 24f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp) }</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$"Selection state now lives in the same preview lane as fields and overlays, so color inversions and label alignment regressions show up faster."</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$footer = { shadcnButton("showcase-card-full-action", label = "Save", modifier = Modifier.width(96f.dp).height(32f.dp)) }</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$footer = { shadcnButton("showcase-sidebar-full-signout", label = "Sign out", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Outline) }</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$row</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnButton("showcase-button-danger", label = "Danger", variant = ShadcnButtonVariant.Danger, modifier = Modifier.width(108f.dp))</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnButton("showcase-button-ghost", label = "Ghost", variant = ShadcnButtonVariant.Ghost, modifier = Modifier.width(100f.dp))</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnButton("showcase-button-outline", label = "Outline", variant = ShadcnButtonVariant.Outline, modifier = Modifier.width(112f.dp))</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnButton("showcase-button-primary", label = "Primary", variant = ShadcnButtonVariant.Primary, modifier = Modifier.width(120f.dp))</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnButton("showcase-button-secondary", label = "Secondary", variant = ShadcnButtonVariant.Secondary, modifier = Modifier.width(120f.dp))</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnButton("showcase-sidebar-content-only-camera", label = "Camera", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Secondary)</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnButton("showcase-sidebar-content-only-lighting", label = "Lighting", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Primary)</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("A closed-state trigger + popover dropdown -- see the Dropdown Menu And Dialog page for the open-state proof of the same underlying popover mechanics.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("A static inline banner, not a modal -- see the Dropdown Menu And Dialog page for overlay surfaces.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("Awake has no image-loading pipeline yet, so this is the fallback-only look (initials or caller-supplied content) -- see ShadcnAvatars.kt.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("Click a field, type, backspace, and use the arrow keys -- this is a real keyboard-driven widget, not a mockup.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("Composed from shadcnButton, same reuse-existing-variant approach as RadioGroup -- the active tab uses Primary with an overridden background/foreground, inactive tabs stay Ghost.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("Header and footer are each independently optional -- three real slot combinations, not hover/pressed states.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("Header and footer are each independently optional, same as Card -- a fixed nav-rail width keeps it from stretching full-width. Groups/menu items use the dedicated sidebarAccent tokens for the active highlight, not the generic primary/accent tokens.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("No click/navigation wiring -- that routing stays caller-owned, same as every other Awake nav element.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("The Slot API overload composes an icon and label inside the same button instead of a fixed label string.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("The current Awake-owned selection controls: two independent booleans (Toggle/Switch), an exclusive checkbox group (Checkbox), and single-select (RadioGroup/ToggleGroup).")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("The initials-string overload is sugar over the slot-based primary overload -- both share the same circular structure.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("ToggleGroup: row of mutually exclusive toggle buttons, each option gets an equal share of the group width.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("Two independent thumbs share one track, with the fill spanning only between them -- shadcn's range-mode Slider.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("Use sliders when you need a continuous value with immediate visual feedback and a stable control footprint.")</ID>
+    <ID>MaxLineLength:UiShowcaseComponentPages.kt$shadcnSupportingText("expanded animates width toward 0 on collapse (real shadcn's SidebarProvider expand/collapse), caller-hoisted like every other stateful recipe in this module -- toggle from any ordinary button, there's no dedicated trigger/provider type.")</ID>
+    <ID>MaxLineLength:UiShowcaseGameTest.kt$UiShowcaseGameTest$"expected contentHeight=${'$'}{contentScroll.contentHeight} to exceed viewportHeight=${'$'}{contentScroll.viewportHeight}"</ID>
+    <ID>MaxLineLength:UiShowcaseGameTest.kt$UiShowcaseGameTest$"the configured showcase theme should be visually distinct from the shell theme for this regression to be meaningful"</ID>
+    <ID>MaxLineLength:UiShowcaseGameTest.kt$UiShowcaseGameTest$modifier = (Modifier.fillMaxSize().padding(24f.dp)).width(Dimension.FillMax).height(Dimension.Fixed(900f.px))</ID>
+    <ID>MaxLineLength:UiShowcaseGameTest.kt$UiShowcaseGameTest$modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax)</ID>
+    <ID>MaxLineLength:UiShowcaseGameTest.kt$UiShowcaseGameTest$modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.Fixed(320f.px))</ID>
+    <ID>MaxLineLength:UiShowcaseGameTest.kt$UiShowcaseGameTest$modifier = (Modifier.verticalScroll(sidebarScroll)).width(264f.dp.toDimension()).height(Dimension.FillMax)</ID>
+    <ID>MaxLineLength:UiShowcaseGettingStartedPages.kt$shadcnSupportingText("This page proves that the Awake theme factory can re-skin the entire component library live, including custom canvas chrome.")</ID>
+    <ID>MaxLineLength:UiShowcaseGettingStartedPages.kt$shadcnSupportingText("This page shell exists so the design system is judged as a product surface, not just as loose demo widgets.")</ID>
+    <ID>MaxLineLength:UiShowcaseGettingStartedPages.kt$variant = if (state.showcaseDangerMode) ShadcnButtonVariant.Danger else ShadcnButtonVariant.Outline</ID>
+    <ID>MaxLineLength:UiShowcaseGettingStartedPages.kt$variant = if (state.showcaseLiveBadge) ShadcnBadgeVariant.Primary else ShadcnBadgeVariant.Outline</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutCostTest.kt$UiShowcaseLayoutCostTest$modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).width(sidebarWidth).height(Dimension.FillMax)</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutPages.kt$"The header glow, clipped badge, and nested chart all come from the same CanvasScope without opening a separate renderer API."</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutPages.kt$"The widget-level preview report keeps a static clipped state around so we can catch scrollbar and clipping drift without manual scrolling."</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutPages.kt$shadcnSupportingText("Canvas keeps custom drawing local to a bounded slot, so layout still owns structure while drawing owns paint.")</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutPages.kt$shadcnSupportingText("Scrollable containers own clipping, content measurement, and the scrollbar lane so callers do not have to reimplement any of it.")</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutPages.kt$shadcnSupportingText("column(...) advances a cursor along the vertical axis -- the default layout for every page in this catalog.")</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutPages.kt$shadcnSupportingText("row(...) advances a cursor along the horizontal axis; each child claims the next slot in call order.")</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutSignatureTest.kt$UiShowcaseLayoutSignatureTest$assertEquals(expectedShowcaseLayoutSignatures.size, actual.size, "Preview page count changed. Refresh the expected matrix.")</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutSignatureTest.kt$UiShowcaseLayoutSignatureTest$mismatches.append("$id actual=0x${actualSignature.toString(16)}\n${describeLayout(frame.semantics)}\n\n")</ID>
+    <ID>MaxLineLength:UiShowcaseLayoutSignatureTest.kt$UiShowcaseLayoutSignatureTest$val entry = requireNotNull(UiShowcasePreviewEntries.find { previewMetadataFor(it).id == id }) { "Missing preview $id" }</ID>
+    <ID>MaxLineLength:UiShowcaseOverlayPages.kt$label = "Frame pacing, draw calls, and scene counters can live in a tooltip without forcing a dedicated panel."</ID>
+    <ID>MaxLineLength:UiShowcaseOverlayPages.kt$message = "This sample does not really delete anything. It exists to prove the alert dialog composition and confirm or dismiss flow."</ID>
+    <ID>MaxLineLength:UiShowcaseOverlayPages.kt$shadcnBodyText("shadcnDialog is the plain content-based dialog -- shadcnAlertDialog is composed from it with a fixed title/message/confirm-cancel shape.")</ID>
+    <ID>MaxLineLength:UiShowcaseOverlayPages.kt$shadcnSupportingText("Popover owns anchored positioning, dismiss, and panel chrome; the caller renders its own trigger and expanded state, same split as the dropdown menu.")</ID>
+    <ID>MaxLineLength:UiShowcaseOverlayPages.kt$shadcnSupportingText("The preview suite keeps an open-state proof so tooltip width, wrap, and anchoring stay reviewable without hover automation.")</ID>
+    <ID>MaxLineLength:UiShowcaseOverlayPages.kt$shadcnSupportingText("Tooltips stay small and contextual: anchored to a trigger, wrapped inside a surfaced popup, and dismissible without changing the surrounding layout.")</ID>
+    <ID>MaxLineLength:UiShowcasePatternPages.kt$shadcnSupportingText("The label-string overload is sugar over this content-lambda form -- there is no capability gap between them.")</ID>
+    <ID>MaxLineLength:UiShowcasePatternPages.kt$shadcnSupportingText("samples:hello-cube's Gauge.kt is a fully custom widget built from the same claimSlot()/emit() primitives a built-in widget uses -- no library-only capability gap.")</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$"The dialog is rendered open on purpose so title wrapping, message rhythm, scrim color, and action widths can be checked without live interaction."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$"The panel is rendered expanded on purpose so revealed-content spacing and separators are reviewable without live interaction."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$"This preview intentionally renders the menu in its expanded state so row spacing and popover chrome are reviewable in docs."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$"This preview intentionally renders the popover in its expanded state so anchored placement and panel chrome are reviewable in docs."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcaseAvatarPreview$summary = "Initials-string convenience overload beside the slot-based primary overload rendering custom icon content."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcaseButtonMatrixPreview$summary = "Primary, secondary, outline, ghost, danger, and constrained-label cases captured as one validation surface."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcaseButtonMatrixPreview$summary = "Variant and long-label button coverage side by side so spacing and fit regressions show up without a click-through."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcaseCanvasPreview$summary = "Immediate-mode drawing through Awake's public canvas DSL: gradients, paths, clipping, and nested local coordinates."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcaseFieldDemoPreview$summary = "shadcn/ui's Payment Method checkout form rebuilt from shadcnFieldSet/shadcnFieldLegend and the rest of the Field family."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcaseFieldMatrixPreview$summary = "Focused text, placeholder text, closed selects, and binary controls all share the same automated review surface."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcaseFieldMatrixPreview$summary = "Text fields, dropdowns, toggles, and checkboxes rendered in their key states under the shared shadcn recipe."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcasePopoverOpenPreview$summary = "The panel stays inside a real popover container anchored to its trigger, with freeform content instead of a fixed menu row list."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcaseScrollPanelPreview$summary = "Scrollable content should clip cleanly, reserve a thumb lane, and keep the card shell measured correctly."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$UiShowcaseSliderMatrixPreview$summary = "Low, mid, and max slider positions rendered together so track fill, thumb sizing, and label rhythm stay stable."</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$shadcnSupportingText("A tooltip is a tiny overlay, but it still needs proper container chrome, spacing, and wrap behavior.")</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$shadcnSupportingText("Sliders catch subtle spacing bugs quickly because thumb, fill, and label alignment drift together.")</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$shadcnSupportingText("This static proof starts partially scrolled so viewport clipping and the scrollbar thumb are visible immediately.")</ID>
+    <ID>MaxLineLength:UiShowcasePreviewCatalogTestSupport.kt$shadcnSupportingText("shadcnTooltipText is the text-only convenience wrapper: same anchor/popup composition, no custom content lambda.")</ID>
+    <ID>MaxLineLength:UiShowcaseSidebarGapProbeTest.kt$UiShowcaseSidebarGapProbeTest$appendLine("ui-showcase sidebar category '${category.key.title}' menu-item gaps (pre-migration vs current):")</ID>
+    <ID>MaxLineLength:UiShowcaseSidebarGapProbeTest.kt$UiShowcaseSidebarGapProbeTest$shadcnSidebarMenuItem(id = "ui-showcase-page-${page.id}", label = page.title, active = false, onClick = { onSelect(page) })</ID>
+    <ID>MaxLineLength:UiShowcaseSidebarRealChromePngTest.kt$if (compact) "Choose one page at a time." else "Grouped component and pattern pages, following the shadcn-compose catalog layout."</ID>
+    <ID>MaxLineLength:UiShowcaseTextInputIntegrationTest.kt$UiShowcaseTextInputIntegrationTest$"typed text must not leak into a field that was never clicked -- value stays empty, so its placeholder is still what's recorded"</ID>
+    <ID>MaxLineLength:UiShowcaseTypographyPages.kt$"The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly."</ID>
+    <ID>MaxLineLength:UiShowcaseTypographyPages.kt$description = "The shadcn text component family: section title, headline, body, supporting/caption, and generic muted text."</ID>
+    <ID>MaxLineLength:UiShowcaseTypographyPages.kt$shadcnBodyText("Body text is the default reading size for paragraphs and descriptions across every shadcn component.")</ID>
+    <ID>MaxLineLength:UiShowcaseTypographyPages.kt$shadcnSupportingText("Label: a purely presentational field label -- shadcnFieldLabel (used throughout the Text Input and Checkout Form pages) is sugar over this.")</ID>
+    <ID>MaxLineLength:UiShowcaseUi.kt$modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax)</ID>
+    <ID>MaxLineLength:UiShowcaseUi.kt$modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax)</ID>
+    <ID>MaxLineLength:UiShowcaseUi.kt$modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).height(Dimension.FillMax)</ID>
+    <ID>MaxLineLength:UiShowcaseUi.kt$modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).width(sidebarWidth).height(Dimension.FillMax)</ID>
+    <ID>NestedBlockDepth:UiShowcasePreviewDocsTest.kt$UiShowcasePreviewDocsTest$@Test fun writeShowcasePreviews()</ID>
+    <ID>TooManyFunctions:UiShowcaseComponentPages.kt$io.github.ronjunevaldoz.awake.sample.uishowcase.ui.UiShowcaseComponentPages.kt</ID>
+    <ID>TopLevelPropertyNaming:UiShowcaseAnimationPages.kt$private const val UiShowcaseEasingDurationMs = 1200f</ID>
+    <ID>UnusedParameter:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$state: UiShowcaseRuntimeState</ID>
+    <ID>UnusedParameter:ShadcnCollapsibleToggleTest.kt$ShadcnCollapsibleToggleTest$state: UiShowcaseRuntimeState</ID>
+    <ID>UnusedParameter:UiShowcaseComponentPages.kt$state: UiShowcaseRuntimeState</ID>
+    <ID>UnusedParameter:UiShowcaseFieldDemoPage.kt$state: UiShowcaseRuntimeState</ID>
+    <ID>UnusedPrivateMember:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$private fun UiContext.frame(input: Input, down: Boolean, x: Float, y: Float, body: () -> Unit)</ID>
+    <ID>UnusedPrivateProperty:ShadcnCollapsibleCollapseAnimationProbeTest.kt$ShadcnCollapsibleCollapseAnimationProbeTest$val gettingStartedHeights = mutableListOf&lt;Float>()</ID>
+    <ID>WildcardImport:ShadcnParityScreenshotTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:ShadcnParityScreenshotTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiShowcaseAnimationPages.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:UiShowcaseAnimationPages.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiShowcaseComponentPages.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiShowcaseGameTest.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:UiShowcaseGameTest.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiShowcaseOverlayPages.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:UiShowcaseOverlayPages.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiShowcasePatternPages.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:UiShowcasePatternPages.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiShowcasePreviewCatalogTestSupport.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:UiShowcasePreviewCatalogTestSupport.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+    <ID>WildcardImport:UiShowcaseTypographyPages.kt$import io.github.ronjunevaldoz.awake.ui.layout.*</ID>
+    <ID>WildcardImport:UiShowcaseTypographyPages.kt$import io.github.ronjunevaldoz.awake.ui.style.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:GlfwKeyMapping.kt$fun glfwToAwtKeyCode(glfwKeyCode: Int): Int</ID>
+    <ID>LargeClass:CommonGL.kt$CommonGL</ID>
+    <ID>LongMethod:Agl.kt$Agl$override fun texImage2D( target: Int, level: Int, internalFormat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, buffer: Buffer? )</ID>
+    <ID>LongMethod:Agl.kt$Agl$override fun texSubImage2D( target: Int, level: Int, xOffset: Int, yOffset: Int, width: Int, height: Int, format: Int, type: Int, buffer: Buffer? )</ID>
+    <ID>LongMethod:GlfwKeyMapping.kt$fun glfwToAwtKeyCode(glfwKeyCode: Int): Int</ID>
+    <ID>LongParameterList:OpenGL.kt$OpenGL$( index: Int, size: Int, type: Int, normalized: Boolean, stride: Int, offset: Int )</ID>
+    <ID>LongParameterList:OpenGL.kt$OpenGL$( index: Int, size: Int, type: Int, normalized: Boolean, stride: Int, ptr: Buffer? = null )</ID>
+    <ID>LongParameterList:OpenGL.kt$OpenGL$( target: Int, level: Int, internalFormat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, buffer: Buffer? )</ID>
+    <ID>LongParameterList:OpenGL.kt$OpenGL$( target: Int, level: Int, xOffset: Int, yOffset: Int, bitmap: Bitmap, format: Int )</ID>
+    <ID>LongParameterList:OpenGL.kt$OpenGL$( target: Int, level: Int, xOffset: Int, yOffset: Int, width: Int, height: Int, format: Int, type: Int, buffer: Buffer? )</ID>
+    <ID>LongParameterList:OpenGL.kt$OpenGL$(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: Buffer)</ID>
+    <ID>LongParameterList:Texture.kt$Texture.Companion$( width: Int, height: Int, internalFormat: Int = CommonGL.GL_RGBA8, options: Options = Options(), mipmap: Boolean = false, buffer: Buffer? = null )</ID>
+    <ID>LongParameterList:application.kt$( width: Int, height: Int, onInit: () -> Unit, onResize: (width: Int, height: Int) -> Unit, onUpdate: (delta: Float) -> Unit, onDispose: () -> Unit )</ID>
+    <ID>MagicNumber:CommonGL.kt$CommonGL$0x0C02</ID>
+    <ID>MagicNumber:CommonGL.kt$CommonGL$0x1901</ID>
+    <ID>MagicNumber:Config.kt$Config$30.0</ID>
+    <ID>MagicNumber:FontBitmap.kt$FontBitmap$12</ID>
+    <ID>MagicNumber:FontBitmap.kt$FontBitmap$127</ID>
+    <ID>MagicNumber:FontBitmap.kt$FontBitmap$32</ID>
+    <ID>MagicNumber:FontBitmap.kt$FontBitmap$4</ID>
+    <ID>MagicNumber:FontBitmap.kt$FontBitmap.Companion$0xFF</ID>
+    <ID>MagicNumber:FontBitmap.kt$FontBitmap.Companion$16</ID>
+    <ID>MagicNumber:FontBitmap.kt$FontBitmap.Companion$24</ID>
+    <ID>MagicNumber:FontBitmap.kt$FontBitmap.Companion$8</ID>
+    <ID>MagicNumber:FrameBuffer.kt$FrameBuffer$4</ID>
+    <ID>MagicNumber:GlfwWindow.kt$GlfwWindow$3</ID>
+    <ID>MagicNumber:Image.kt$48.0</ID>
+    <ID>MagicNumber:Image.kt$500.0</ID>
+    <ID>MagicNumber:Image.kt$8.0</ID>
+    <ID>MagicNumber:OpenGLView.kt$OpenGLView$3</ID>
+    <ID>MagicNumber:TrueType.kt$NativeTrueType$128</ID>
+    <ID>MagicNumber:TrueType.kt$NativeTrueType$256</ID>
+    <ID>MagicNumber:TrueType.kt$NativeTrueType$30f</ID>
+    <ID>MagicNumber:TrueType.kt$NativeTrueType$32</ID>
+    <ID>MagicNumber:TrueType.kt$NativeTrueType$96</ID>
+    <ID>MagicNumber:UniformBinderImpl.kt$UniformBinderImpl$16</ID>
+    <ID>MagicNumber:glExt.kt$16</ID>
+    <ID>MatchingDeclarationName:TrueType.kt$NativeTrueType : TrueType</ID>
+    <ID>MayBeConst:CommonGL.kt$CommonGL$/** * 3.0 */ val GL_READ_BUFFER: Int = 0x0C02</ID>
+    <ID>NewLineAtEndOfFile:Agl.kt$io.github.ronjunevaldoz.awake.core.graphics.opengl.Agl.kt</ID>
+    <ID>NewLineAtEndOfFile:AndroidRenderer.kt$io.github.ronjunevaldoz.awake.core.graphics.opengl.AndroidRenderer.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetUtils.kt$io.github.ronjunevaldoz.awake.core.utils.AssetUtils.kt</ID>
+    <ID>NewLineAtEndOfFile:Attribute.kt$io.github.ronjunevaldoz.awake.core.geometry.Attribute.kt</ID>
+    <ID>NewLineAtEndOfFile:Attribute.kt$io.github.ronjunevaldoz.awake.core.shader.Attribute.kt</ID>
+    <ID>NewLineAtEndOfFile:AttributeBinder.kt$io.github.ronjunevaldoz.awake.core.shader.AttributeBinder.kt</ID>
+    <ID>NewLineAtEndOfFile:AttributeBinderImpl.kt$io.github.ronjunevaldoz.awake.core.shader.AttributeBinderImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:BaseShader.kt$io.github.ronjunevaldoz.awake.core.shader.BaseShader.kt</ID>
+    <ID>NewLineAtEndOfFile:BitmapUtils.kt$io.github.ronjunevaldoz.awake.core.utils.BitmapUtils.kt</ID>
+    <ID>NewLineAtEndOfFile:BufferObject.kt$io.github.ronjunevaldoz.awake.core.rendering.BufferObject.kt</ID>
+    <ID>NewLineAtEndOfFile:BufferUtils.kt$io.github.ronjunevaldoz.awake.core.utils.BufferUtils.kt</ID>
+    <ID>NewLineAtEndOfFile:Config.kt$io.github.ronjunevaldoz.awake.core.graphics.Config.kt</ID>
+    <ID>NewLineAtEndOfFile:Context.kt$io.github.ronjunevaldoz.awake.core.Context.kt</ID>
+    <ID>NewLineAtEndOfFile:DefaultShader.kt$io.github.ronjunevaldoz.awake.core.shader.DefaultShader.kt</ID>
+    <ID>NewLineAtEndOfFile:ElementBufferObject.kt$io.github.ronjunevaldoz.awake.core.rendering.ElementBufferObject.kt</ID>
+    <ID>NewLineAtEndOfFile:FontBitmap.kt$io.github.ronjunevaldoz.awake.core.fonts.FontBitmap.kt</ID>
+    <ID>NewLineAtEndOfFile:FrameBuffer.kt$io.github.ronjunevaldoz.awake.core.rendering.FrameBuffer.kt</ID>
+    <ID>NewLineAtEndOfFile:GameView.kt$io.github.ronjunevaldoz.awake.core.graphics.opengl.GameView.kt</ID>
+    <ID>NewLineAtEndOfFile:GlfwCoroutineDispatcher.kt$io.github.ronjunevaldoz.awake.core.graphics.opengl.GlfwCoroutineDispatcher.kt</ID>
+    <ID>NewLineAtEndOfFile:GlfwKeyMapping.kt$io.github.ronjunevaldoz.awake.core.graphics.opengl.GlfwKeyMapping.kt</ID>
+    <ID>NewLineAtEndOfFile:GlfwWindow.kt$io.github.ronjunevaldoz.awake.core.graphics.opengl.GlfwWindow.kt</ID>
+    <ID>NewLineAtEndOfFile:Glyph.kt$io.github.ronjunevaldoz.awake.core.fonts.Glyph.kt</ID>
+    <ID>NewLineAtEndOfFile:OpenGLView.kt$io.github.ronjunevaldoz.awake.core.graphics.opengl.OpenGLView.kt</ID>
+    <ID>NewLineAtEndOfFile:RenderBufferObject.kt$io.github.ronjunevaldoz.awake.core.rendering.RenderBufferObject.kt</ID>
+    <ID>NewLineAtEndOfFile:Shader.kt$io.github.ronjunevaldoz.awake.core.shader.Shader.kt</ID>
+    <ID>NewLineAtEndOfFile:Texture.kt$io.github.ronjunevaldoz.awake.core.rendering.Texture.kt</ID>
+    <ID>NewLineAtEndOfFile:TrueType.kt$io.github.ronjunevaldoz.awake.core.fonts.TrueType.kt</ID>
+    <ID>NewLineAtEndOfFile:Uniform.kt$io.github.ronjunevaldoz.awake.core.shader.Uniform.kt</ID>
+    <ID>NewLineAtEndOfFile:UniformBinder.kt$io.github.ronjunevaldoz.awake.core.shader.UniformBinder.kt</ID>
+    <ID>NewLineAtEndOfFile:UniformBinderImpl.kt$io.github.ronjunevaldoz.awake.core.shader.UniformBinderImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:VertexArrayObject.kt$io.github.ronjunevaldoz.awake.core.rendering.VertexArrayObject.kt</ID>
+    <ID>NewLineAtEndOfFile:VertexBufferObject.kt$io.github.ronjunevaldoz.awake.core.rendering.VertexBufferObject.kt</ID>
+    <ID>NewLineAtEndOfFile:application.kt$io.github.ronjunevaldoz.awake.core.application.application.kt</ID>
+    <ID>NewLineAtEndOfFile:glExt.kt$io.github.ronjunevaldoz.awake.core.graphics.opengl.ext.glExt.kt</ID>
+    <ID>TooGenericExceptionThrown:Agl.kt$Agl$throw Exception("Buffer not supported")</ID>
+    <ID>TooGenericExceptionThrown:BufferUtils.kt$throw Exception("Unsupported buffer type")</ID>
+    <ID>TooGenericExceptionThrown:TrueType.kt$NativeTrueType$throw Exception("$path not found")</ID>
+    <ID>TooGenericExceptionThrown:Uniform.kt$Uniform$throw Exception("Uniform value not yet supported `${value::class.simpleName}` ")</ID>
+    <ID>TooManyFunctions:Agl.kt$Agl : OpenGL</ID>
+    <ID>TooManyFunctions:Agl.kt$AglDebuggable : OpenGL</ID>
+    <ID>TooManyFunctions:GlfwWindow.kt$GlfwWindow</ID>
+    <ID>TooManyFunctions:OpenGL.kt$OpenGL</ID>
+    <ID>TooManyFunctions:glExt.kt$io.github.ronjunevaldoz.awake.core.graphics.opengl.ext.glExt.kt</ID>
+    <ID>UnusedPrivateMember:TrueType.kt$NativeTrueType$private fun getStringWidth( info: STBTTFontinfo, text: String, from: Int, to: Int, fontHeight: Int ): Float</ID>
+    <ID>UnusedPrivateProperty:FontBitmap.kt$FontBitmap$antialias: Boolean</ID>
+    <ID>UnusedPrivateProperty:TrueType.kt$NativeTrueType$filePath: String</ID>
+    <ID>UnusedPrivateProperty:TrueType.kt$NativeTrueType$fontSize: Float</ID>
+    <ID>UnusedPrivateProperty:TrueType.kt$NativeTrueType$val position = floatArrayOf( x0, y0, x1, y0, x1, y1, x0, y1 )</ID>
+    <ID>UnusedPrivateProperty:TrueType.kt$NativeTrueType$val textCoords = floatArrayOf( q.s0(), q.t0(), q.s1(), q.t0(), q.s1(), q.t1(), q.s0(), q.t1() )</ID>
+  </CurrentIssues>
+</SmellBaseline>

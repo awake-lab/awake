@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:MipChain.kt$0xFF</ID>
+    <ID>MagicNumber:MipChain.kt$3</ID>
+    <ID>MagicNumber:MipChain.kt$4</ID>
+    <ID>MagicNumber:VertexAttribute.kt$VertexAttributeFormat.Float2$4</ID>
+    <ID>MagicNumber:VertexAttribute.kt$VertexAttributeFormat.Float3$3</ID>
+    <ID>MagicNumber:VertexAttribute.kt$VertexAttributeFormat.Float3$4</ID>
+    <ID>MagicNumber:VertexAttribute.kt$VertexAttributeFormat.Float4$4</ID>
+    <ID>MagicNumber:VertexAttribute.kt$VertexAttributeFormat.UInt4$4</ID>
+    <ID>NestedBlockDepth:MipChain.kt$private fun TextureAsset.boxDownsample(newWidth: Int, newHeight: Int): TextureAsset</ID>
+  </CurrentIssues>
+</SmellBaseline>

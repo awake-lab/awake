@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>)</ID>
+    <ID>CyclomaticComplexMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
+    <ID>EmptyDefaultConstructor:GraphicsDevice.kt$GraphicsDevice$()</ID>
+    <ID>EmptyFunctionBlock:SwapchainManager.kt$SwapchainManager${ }</ID>
+    <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>)</ID>
+    <ID>LongMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
+    <ID>LongParameterList:RenderPipeline.kt$RenderPipeline$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, descriptorSetLayout: DescriptorSetLayoutHandle, vertShaderCode: ByteArray, fragShaderCode: ByteArray, vertexStride: Int, vertexEntryPoint: String = DEFAULT_VERTEX_ENTRY_POINT, fragmentEntryPoint: String = DEFAULT_FRAGMENT_ENTRY_POINT )</ID>
+    <ID>LongParameterList:Renderer.kt$Renderer$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, renderPipeline: RenderPipeline, internal val lineRenderPipeline: LineRenderPipeline, internal val uiShaderCode: ByteArray, internal val uiGlyphShaderCode: ByteArray, internal val uiTextureShaderCode: ByteArray, internal val uiRoundedQuadShaderCode: ByteArray, commandPool: Long, maxFramesInFlight: Int )</ID>
+    <ID>LongParameterList:RendererDrawUi.kt$( x: Float, y: Float, w: Float, h: Float, u0: Float = 0f, v0: Float = 0f, u1: Float = 1f, v1: Float = 1f )</ID>
+    <ID>LongParameterList:RendererVertexWriters.kt$( out: FloatArray, offset: Int, x: Float, y: Float, localX: Float, localY: Float, halfW: Float, halfH: Float, radius: Float, color: AwakeColor, transform: UiPrimitiveTransform? = null )</ID>
+    <ID>LongParameterList:RendererVertexWriters.kt$( out: FloatArray, offset: Int, x: Float, y: Float, u: Float, v: Float, color: AwakeColor, transform: UiPrimitiveTransform? = null )</ID>
+    <ID>LongParameterList:RendererVertexWriters.kt$(out: FloatArray, offset: Int, x: Float, y: Float, color: AwakeColor, transform: UiPrimitiveTransform? = null)</ID>
+    <ID>LongParameterList:RendererVertexWriters.kt$(out: FloatArray, offset: Int, x: Float, y: Float, z: Float, color: FloatArray)</ID>
+    <ID>MagicNumber:Renderer.kt$Renderer$255</ID>
+    <ID>MagicNumber:Renderer.kt$Renderer$256</ID>
+    <ID>MagicNumber:Renderer.kt$Renderer$3</ID>
+    <ID>MagicNumber:Renderer.kt$Renderer$4</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$1e9f</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$2e9f</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$3</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$4</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$5</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$10</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$11</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$12</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$13</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$14</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$3</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$4</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$5</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$6</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$7</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$8</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$9</ID>
+    <ID>MagicNumber:WebGpuCanvasHost.kt$100.0</ID>
+    <ID>MagicNumber:WebGpuCanvasHost.kt$1000.0</ID>
+    <ID>MagicNumber:WebGpuCanvasHost.kt$32.0</ID>
+    <ID>MaxLineLength:Renderer.kt$Renderer$get() = GpuColor(clearColor[0].toDouble(), clearColor[1].toDouble(), clearColor[2].toDouble(), clearColor[3].toDouble())</ID>
+    <ID>MaxLineLength:Renderer.kt$Renderer$override</ID>
+    <ID>MaxLineLength:Renderer.kt$Renderer$uiRoundedQuadMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX)</ID>
+    <ID>MaxLineLength:RendererDraw3D.kt$uiRoundedQuadRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())</ID>
+    <ID>MaxLineLength:RendererDraw3D.kt$writeLineVertex(vertices, vertexBase + LineMesh.FLOATS_PER_VERTEX, line.end.x, line.end.y, line.end.z, line.color)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$if</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$private fun canExactClip(paths: List&lt;UiPath>): Boolean</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "gradient-quad")</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "rounded-quad-clipped")</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$runs += Renderer.UiRun.TextureRun(stageTextureRun(slice as List&lt;UiDrawPrimitive.Texture>, activePathClips, safeInteriorRect))</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$val</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$val raw = texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 0 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y, glyph.u0, glyph.v0, glyph.color, glyph.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 1 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y, glyph.u1, glyph.v0, glyph.color, glyph.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 2 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y + glyph.h, glyph.u1, glyph.v1, glyph.color, glyph.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 3 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y + glyph.h, glyph.u0, glyph.v1, glyph.color, glyph.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.gradient.topRight)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.gradient.bottomRight)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.gradient.bottomLeft)</ID>
+    <ID>MaxLineLength:RendererVertexWriters.kt$internal</ID>
+    <ID>NestedBlockDepth:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
+    <ID>TooManyFunctions:Renderer.kt$Renderer : RenderRenderer</ID>
+    <ID>TooManyFunctions:RendererDrawUi.kt$io.github.ronjunevaldoz.awake.webgpu.renderer.RendererDrawUi.kt</ID>
+    <ID>UnusedParameter:Material.kt$Material$texture: Texture</ID>
+    <ID>UnusedParameter:RenderPipeline.kt$RenderPipeline$commandBuffer: Long</ID>
+    <ID>UnusedParameter:TransferContext.kt$TransferContext$block: (Long) -> Unit</ID>
+    <ID>UnusedPrivateProperty:Material.kt$Material$graphicsDevice: GraphicsDevice</ID>
+    <ID>UnusedPrivateProperty:Material.kt$Material$private val uniformFloatCount: Int = 16</ID>
+    <ID>UnusedPrivateProperty:Mesh.kt$Mesh$runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit</ID>
+    <ID>UnusedPrivateProperty:RenderPipeline.kt$RenderPipeline$descriptorSetLayout: DescriptorSetLayoutHandle</ID>
+    <ID>UnusedPrivateProperty:RenderPipeline.kt$RenderPipeline$fragShaderCode: ByteArray</ID>
+    <ID>UnusedPrivateProperty:Renderer.kt$Renderer$commandPool: Long</ID>
+    <ID>UnusedPrivateProperty:Renderer.kt$Renderer$maxFramesInFlight: Int</ID>
+    <ID>UnusedPrivateProperty:Texture.kt$Texture$data: ByteArray</ID>
+    <ID>UnusedPrivateProperty:Texture.kt$Texture$graphicsDevice: GraphicsDevice</ID>
+    <ID>UnusedPrivateProperty:Texture.kt$Texture$height: Int</ID>
+    <ID>UnusedPrivateProperty:Texture.kt$Texture$runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit</ID>
+    <ID>UnusedPrivateProperty:Texture.kt$Texture$width: Int</ID>
+    <ID>UnusedPrivateProperty:TransferContext.kt$TransferContext$graphicsDevice: GraphicsDevice</ID>
+  </CurrentIssues>
+</SmellBaseline>

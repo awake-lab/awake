@@ -3,12 +3,46 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ConstructorParameterNaming:VkPhysicalDeviceFeatures.kt$VkPhysicalDeviceFeatures$val textureCompressionASTC_LDR: VkBool32 = false</ID>
-    <ID>EmptyClassBlock:Vulkan.kt$Vulkan${ }</ID>
-    <ID>EmptyFunctionBlock:Vulkan.kt$Vulkan${ }</ID>
+    <ID>CyclomaticComplexMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
+    <ID>CyclomaticComplexMethod:Vulkan.kt$@OptIn(ExperimentalForeignApi::class) private fun NativeVkPhysicalDeviceFeatures.fromKotlinModel(model: VkPhysicalDeviceFeatures)</ID>
+    <ID>CyclomaticComplexMethod:Vulkan.kt$Vulkan$actual fun vkCreateGraphicsPipelines( device: Long, pipelineCache: Long, createInfos: Array&lt;VkGraphicsPipelineCreateInfo> ): LongArray</ID>
+    <ID>FunctionNaming:VulkanDesktopNativeSmokeTest.kt$VulkanDesktopNativeSmokeTest$@Test fun vkCreateInstance_returnsRealHandle()</ID>
+    <ID>LargeClass:Vulkan.kt$Vulkan</ID>
+    <ID>LongMethod:LineRenderPipeline.kt$LineRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
+    <ID>LongMethod:RenderPipeline.kt$RenderPipeline$private fun createGraphicsPipeline( descriptorSetLayout: DescriptorSetLayoutHandle, vertShaderCode: ByteArray, fragShaderCode: ByteArray, vertexFormat: VertexFormat, vertexEntryPoint: String, fragmentEntryPoint: String )</ID>
+    <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.performDraw(camera: Camera, drawCalls: List&lt;DrawCall>)</ID>
+    <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, skinnedDrawCalls: List&lt;PreparedSkinnedDrawCall> )</ID>
+    <ID>LongMethod:RendererDrawUi.kt$fun Renderer.renderUiToTexture(target: RenderTarget, primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
+    <ID>LongMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
+    <ID>LongMethod:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$@Test fun headlessCubeRenderFrameTiming()</ID>
+    <ID>LongMethod:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$@Test fun headlessCubeRenderMatchesBaseline()</ID>
+    <ID>LongMethod:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
+    <ID>LongMethod:UiRenderPipeline.kt$UiRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
+    <ID>LongMethod:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
+    <ID>LongMethod:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
+    <ID>LongMethod:Vulkan.kt$@OptIn(ExperimentalForeignApi::class) private fun platform.MoltenVK.VkPhysicalDeviceLimits.toKotlinModel(): VkPhysicalDeviceLimits</ID>
+    <ID>LongMethod:Vulkan.kt$Vulkan$actual fun vkCreateGraphicsPipelines( device: Long, pipelineCache: Long, createInfos: Array&lt;VkGraphicsPipelineCreateInfo> ): LongArray</ID>
+    <ID>LongMethod:Vulkan.kt$Vulkan$actual fun vkCreateRenderPass(device: Long, createInfo: VkRenderPassCreateInfo): Long</ID>
+    <ID>LongMethod:VulkanImages.kt$VulkanImages$actual fun vkTransitionImageLayout( commandBuffer: Long, image: Long, oldLayout: Int, newLayout: Int, levelCount: Int )</ID>
+    <ID>LongParameterList:RenderPipeline.kt$RenderPipeline$( descriptorSetLayout: DescriptorSetLayoutHandle, vertShaderCode: ByteArray, fragShaderCode: ByteArray, vertexFormat: VertexFormat, vertexEntryPoint: String, fragmentEntryPoint: String )</ID>
+    <ID>LongParameterList:RenderPipeline.kt$RenderPipeline$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, descriptorSetLayout: DescriptorSetLayoutHandle, shaders: ShaderPair, vertexFormat: VertexFormat = VertexFormat.PositionColorUv, vertexEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT, fragmentEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT )</ID>
+    <ID>LongParameterList:Renderer.kt$Renderer$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, renderPipeline: RenderPipeline, /** A second, optional 3D pipeline for GPU-skinned meshes -- see [drawSkinnedMesh]'s doc * comment for why one fixed-vertex-format [renderPipeline] can't also draw a skinned * mesh's different vertex layout. `null` for every game that never calls * [drawSkinnedMesh] (most of them) -- built eagerly, same as [renderPipeline] itself, * by whichever `GameApplication` bootstrap opts into it (shader loading is `suspend`, * so it can't be built lazily on first [drawSkinnedMesh] call the way the UI pipelines * below are). */ internal val skinnedRenderPipeline: RenderPipeline? = null, internal val lineRenderPipeline: LineRenderPipeline, internal val transferContext: TransferContext, internal val uiShaders: ShaderPair, internal val uiGlyphShaders: ShaderPair, internal val uiTextureShaders: ShaderPair, internal val uiRoundedQuadShaders: ShaderPair, internal val maxFramesInFlight: Int )</ID>
+    <ID>LongParameterList:RendererDrawUi.kt$( x: Float, y: Float, w: Float, h: Float, u0: Float = 0f, v0: Float = 0f, u1: Float = 1f, v1: Float = 1f )</ID>
+    <ID>LongParameterList:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.Companion$( label: String, font: io.github.ronjunevaldoz.awake.ui.font.UiFont, x: Float, y: Float, scale: Float, color: Color )</ID>
+    <ID>LongParameterList:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.HeadlessUiRendererFixture$( val graphicsDevice: GraphicsDevice, val swapchainManager: SwapchainManager, val pipelineLayoutMaterial: Material, val renderPipeline: RenderPipeline, val lineRenderPipeline: LineRenderPipeline, val transferContext: TransferContext, val renderer: Renderer )</ID>
+    <ID>LongParameterList:RendererVertexWriters.kt$( out: FloatArray, offset: Int, x: Float, y: Float, localX: Float, localY: Float, halfW: Float, halfH: Float, radius: Float, color: Color, transform: UiPrimitiveTransform? = null )</ID>
+    <ID>LongParameterList:RendererVertexWriters.kt$( out: FloatArray, offset: Int, x: Float, y: Float, u: Float, v: Float, color: Color, transform: UiPrimitiveTransform? = null )</ID>
+    <ID>LongParameterList:RendererVertexWriters.kt$(out: FloatArray, offset: Int, x: Float, y: Float, color: Color, transform: UiPrimitiveTransform? = null)</ID>
+    <ID>LongParameterList:RendererVertexWriters.kt$(out: FloatArray, offset: Int, x: Float, y: Float, z: Float, color: FloatArray)</ID>
+    <ID>LongParameterList:UiAnimationFrameCapture.kt$HeadlessUiRendererFixture$( private val graphicsDevice: GraphicsDevice, private val swapchainManager: SwapchainManager, private val pipelineLayoutMaterial: Material, private val renderPipeline: RenderPipeline, private val lineRenderPipeline: LineRenderPipeline, private val transferContext: TransferContext, val renderer: Renderer )</ID>
+    <ID>LongParameterList:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$( graphicsDevice: GraphicsDevice, private val swapchainManager: SwapchainManager, private val renderPass: Long, vertShaderCode: ByteArray, fragShaderCode: ByteArray, private val fontTexture: Texture, private val font: UiFont )</ID>
     <ID>LongParameterList:VkDebugUtilsMessengerCallbackDataEXT.kt$VkDebugUtilsMessengerCallbackDataEXT$( val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT, val pNext: Any? = null, val flags: VkDebugUtilsMessengerCallbackDataFlagsEXT = 0, val pMessageIdName: String? = "", val messageIdNumber: Int = 0, val pMessage: String = "", @VkArray(sizeAlias = "queueLabelCount") val pQueueLabels: Array&lt;VkDebugUtilsLabelEXT>? = null, @VkArray(sizeAlias = "cmdBufLabelCount") val pCmdBufLabels: Array&lt;VkDebugUtilsLabelEXT>? = null, @VkArray(sizeAlias = "objectCount") val pObjects: Array&lt;VkDebugUtilsObjectNameInfoEXT>? = null )</ID>
     <ID>LongParameterList:VkDeviceCreateInfo.kt$VkDeviceCreateInfo$( val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, val pNext: Any? = null, val flags: VkDeviceCreateFlags = 0, @field:VkArray(sizeAlias = "queueCreateInfoCount") val pQueueCreateInfos: Array&lt;VkDeviceQueueCreateInfo> = emptyArray(), @field:VkArray(sizeAlias = "enabledLayerCount") val ppEnabledLayerNames: Array&lt;String>? = null, @field:VkArray(sizeAlias = "enabledExtensionCount") val ppEnabledExtensionNames: Array&lt;String>? = null, @field:VkArray val pEnabledFeatures: Array&lt;VkPhysicalDeviceFeatures> = emptyArray() )</ID>
     <ID>LongParameterList:VkFramebufferCreateInfo.kt$VkFramebufferCreateInfo$( val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO, val pNext: Any? = null, val flags: VkFramebufferCreateFlags = 0, @field:VkHandleRef("VkRenderPass") val renderPass: VkHandle = 0, @field:VkHandleRef("VkImageView") @field:VkArray(sizeAlias = "attachmentCount") val pAttachments: Array&lt;VkImageView> = emptyArray(), val width: Int = 0, val height: Int = 0, val layers: Int = 0 )</ID>
     <ID>LongParameterList:VkGraphicsPipelineCreateInfo.kt$VkGraphicsPipelineCreateInfo$( val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO, val pNext: Any? = null, val flags: VkPipelineCreateFlags = 0, @field:VkArray("stageCount") val pStages: Array&lt;VkPipelineShaderStageCreateInfo> = emptyArray(), @VkPointer val pVertexInputState: Array&lt;VkPipelineVertexInputStateCreateInfo> = arrayOf( VkPipelineVertexInputStateCreateInfo() ), @VkPointer val pInputAssemblyState: Array&lt;VkPipelineInputAssemblyStateCreateInfo> = arrayOf( VkPipelineInputAssemblyStateCreateInfo() ), @VkPointer val pTessellationState: Array&lt;VkPipelineTessellationStateCreateInfo> = arrayOf( VkPipelineTessellationStateCreateInfo() ), @VkPointer val pViewportState: Array&lt;VkPipelineViewportStateCreateInfo> = arrayOf( VkPipelineViewportStateCreateInfo() ), @VkPointer val pRasterizationState: Array&lt;VkPipelineRasterizationStateCreateInfo> = arrayOf( VkPipelineRasterizationStateCreateInfo() ), @VkPointer val pMultisampleState: Array&lt;VkPipelineMultisampleStateCreateInfo> = arrayOf( VkPipelineMultisampleStateCreateInfo() ), @VkPointer val pDepthStencilState: Array&lt;VkPipelineDepthStencilStateCreateInfo>? = null, @VkPointer val pColorBlendState: Array&lt;VkPipelineColorBlendStateCreateInfo> = arrayOf( VkPipelineColorBlendStateCreateInfo() ), @VkPointer val pDynamicState: Array&lt;VkPipelineDynamicStateCreateInfo> = arrayOf( VkPipelineDynamicStateCreateInfo() ), @field:VkHandleRef("VkPipelineLayout") val layout: VkHandle = 0, // VkPipelineLayout handle @field:VkHandleRef("VkRenderPass") val renderPass: VkHandle = 0, // VkRenderPass handle val subpass: Int = 0, @field:VkHandleRef("VkPipeline") val basePipelineHandle: VkHandle = 0, // VkPipeline handle val basePipelineIndex: Int = -1 )</ID>
+    <ID>LongParameterList:VkImageCreateInfo.kt$VkBufferImageCopy$( val imageWidth: Int, val imageHeight: Int, val bufferOffset: Long = 0, val bufferRowLength: Int = 0, val bufferImageHeight: Int = 0, val mipLevel: Int = 0, val baseArrayLayer: Int = 0, val layerCount: Int = 1, )</ID>
+    <ID>LongParameterList:VkImageCreateInfo.kt$VkImageCreateInfo$( val width: Int, val height: Int, val format: Int, val usage: Int, val imageType: Int = VkImageType.VK_IMAGE_TYPE_2D, val tiling: Int = VkImageTiling.VK_IMAGE_TILING_OPTIMAL, val initialLayout: Int = VkImageLayout2.VK_IMAGE_LAYOUT_UNDEFINED, val sharingMode: Int = VkSharingMode2.VK_SHARING_MODE_EXCLUSIVE, val mipLevels: Int = 1, val arrayLayers: Int = 1, val samples: Int = 1, // VK_SAMPLE_COUNT_1_BIT val flags: Int = 0, )</ID>
+    <ID>LongParameterList:VkImageCreateInfo.kt$VkSamplerCreateInfo$( val magFilter: Int = VkFilter.VK_FILTER_LINEAR, val minFilter: Int = VkFilter.VK_FILTER_LINEAR, val addressModeU: Int = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_REPEAT, val addressModeV: Int = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_REPEAT, val addressModeW: Int = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_REPEAT, val anisotropyEnable: Boolean = false, val maxAnisotropy: Float = 1f, val borderColor: Int = VkBorderColor.VK_BORDER_COLOR_INT_OPAQUE_BLACK, val unnormalizedCoordinates: Boolean = false, val mipmapMode: Int = VkSamplerMipmapMode.VK_SAMPLER_MIPMAP_MODE_LINEAR, /** Sampling is clamped to `[minLod, maxLod]` -- a single-mip texture (the default * everywhere until [io.github.ronjunevaldoz.awake.vulkan.texture.Texture] builds a real * mip chain) only ever has level 0, so `maxLod = 0f` is correct there; a texture with a * real mip chain must set `maxLod` to its highest level index or the GPU clamps sampling * to level 0 regardless of how many levels the image actually has. */ val minLod: Float = 0f, val maxLod: Float = 0f, )</ID>
     <ID>LongParameterList:VkPhysicalDeviceLimits.kt$VkPhysicalDeviceLimits$( val maxImageDimension1D: UInt = 0u, val maxImageDimension2D: UInt = 0u, val maxImageDimension3D: UInt = 0u, val maxImageDimensionCube: UInt = 0u, val maxImageArrayLayers: UInt = 0u, val maxTexelBufferElements: UInt = 0u, val maxUniformBufferRange: UInt = 0u, val maxStorageBufferRange: UInt = 0u, val maxPushConstantsSize: UInt = 0u, val maxMemoryAllocationCount: UInt = 0u, val maxSamplerAllocationCount: UInt = 0u, val bufferImageGranularity: VkDeviceSize = 0, val sparseAddressSpaceSize: VkDeviceSize = 0, val maxBoundDescriptorSets: UInt = 0u, val maxPerStageDescriptorSamplers: UInt = 0u, val maxPerStageDescriptorUniformBuffers: UInt = 0u, val maxPerStageDescriptorStorageBuffers: UInt = 0u, val maxPerStageDescriptorSampledImages: UInt = 0u, val maxPerStageDescriptorStorageImages: UInt = 0u, val maxPerStageDescriptorInputAttachments: UInt = 0u, val maxPerStageResources: UInt = 0u, val maxDescriptorSetSamplers: UInt = 0u, val maxDescriptorSetUniformBuffers: UInt = 0u, val maxDescriptorSetUniformBuffersDynamic: UInt = 0u, val maxDescriptorSetStorageBuffers: UInt = 0u, val maxDescriptorSetStorageBuffersDynamic: UInt = 0u, val maxDescriptorSetSampledImages: UInt = 0u, val maxDescriptorSetStorageImages: UInt = 0u, val maxDescriptorSetInputAttachments: UInt = 0u, val maxVertexInputAttributes: UInt = 0u, val maxVertexInputBindings: UInt = 0u, val maxVertexInputAttributeOffset: UInt = 0u, val maxVertexInputBindingStride: UInt = 0u, val maxVertexOutputComponents: UInt = 0u, val maxTessellationGenerationLevel: UInt = 0u, val maxTessellationPatchSize: UInt = 0u, val maxTessellationControlPerVertexInputComponents: UInt = 0u, val maxTessellationControlPerVertexOutputComponents: UInt = 0u, val maxTessellationControlPerPatchOutputComponents: UInt = 0u, val maxTessellationControlTotalOutputComponents: UInt = 0u, val maxTessellationEvaluationInputComponents: UInt = 0u, val maxTessellationEvaluationOutputComponents: UInt = 0u, val maxGeometryShaderInvocations: UInt = 0u, val maxGeometryInputComponents: UInt = 0u, val maxGeometryOutputComponents: UInt = 0u, val maxGeometryOutputVertices: UInt = 0u, val maxGeometryTotalOutputComponents: UInt = 0u, val maxFragmentInputComponents: UInt = 0u, val maxFragmentOutputAttachments: UInt = 0u, val maxFragmentDualSrcAttachments: UInt = 0u, val maxFragmentCombinedOutputResources: UInt = 0u, val maxComputeSharedMemorySize: UInt = 0u, @VkConstArray("3") val maxComputeWorkGroupCount: IntArray = IntArray(3), // max 3 val maxComputeWorkGroupInvocations: UInt = 0u, @VkConstArray("3") val maxComputeWorkGroupSize: IntArray = IntArray(3), // max 3 val subPixelPrecisionBits: UInt = 0u, val subTexelPrecisionBits: UInt = 0u, val mipmapPrecisionBits: UInt = 0u, val maxDrawIndexedIndexValue: UInt = 0u, val maxDrawIndirectCount: UInt = 0u, val maxSamplerLodBias: Float = 0f, val maxSamplerAnisotropy: Float = 0f, val maxViewports: UInt = 0u, @VkConstArray("2") val maxViewportDimensions: IntArray = IntArray(2), // max 2 @VkConstArray("2") val viewportBoundsRange: FloatArray = FloatArray(2), // max 2 val viewportSubPixelBits: UInt = 0u, val minMemoryMapAlignment: ULong = 0u, val minTexelBufferOffsetAlignment: VkDeviceSize = 0, val minUniformBufferOffsetAlignment: VkDeviceSize = 0, val minStorageBufferOffsetAlignment: VkDeviceSize = 0, val minTexelOffset: Int = 0, val maxTexelOffset: UInt = 0u, val minTexelGatherOffset: Int = 0, val maxTexelGatherOffset: UInt = 0u, val minInterpolationOffset: Float = 0f, val maxInterpolationOffset: Float = 0f, val subPixelInterpolationOffsetBits: UInt = 0u, val maxFramebufferWidth: UInt = 0u, val maxFramebufferHeight: UInt = 0u, val maxFramebufferLayers: UInt = 0u, val framebufferColorSampleCounts: VkSampleCountFlags = 0, val framebufferDepthSampleCounts: VkSampleCountFlags = 0, val framebufferStencilSampleCounts: VkSampleCountFlags = 0, val framebufferNoAttachmentsSampleCounts: VkSampleCountFlags = 0, val maxColorAttachments: UInt = 0u, val sampledImageColorSampleCounts: VkSampleCountFlags = 0, val sampledImageIntegerSampleCounts: VkSampleCountFlags = 0, val sampledImageDepthSampleCounts: VkSampleCountFlags = 0, val sampledImageStencilSampleCounts: VkSampleCountFlags = 0, val storageImageSampleCounts: VkSampleCountFlags = 0, val maxSampleMaskWords: UInt = 0u, val timestampComputeAndGraphics: VkBool32 = false, val timestampPeriod: Float = 0f, val maxClipDistances: UInt = 0u, val maxCullDistances: UInt = 0u, val maxCombinedClipAndCullDistances: UInt = 0u, val discreteQueuePriorities: UInt = 0u, @VkConstArray("2") val pointSizeRange: FloatArray = FloatArray(2), // max size 2 @VkConstArray("2") val lineWidthRange: FloatArray = FloatArray(2), // max size 2 val pointSizeGranularity: Float = 0f, val lineWidthGranularity: Float = 0f, val strictLines: VkBool32 = false, val standardSampleLocations: VkBool32 = false, val optimalBufferCopyOffsetAlignment: VkDeviceSize = 0, val optimalBufferCopyRowPitchAlignment: VkDeviceSize = 0, val nonCoherentAtomSize: VkDeviceSize = 0 )</ID>
     <ID>LongParameterList:VkPhysicalDeviceProperties.kt$VkPhysicalDeviceProperties$( val apiVersion: Int = 0, val driverVersion: Int = 0, val vendorID: Int = 0, val deviceID: Int = 0, val deviceType: VkPhysicalDeviceType = VkPhysicalDeviceType.VK_PHYSICAL_DEVICE_TYPE_OTHER, @VkConstArray("VK_MAX_PHYSICAL_DEVICE_NAME_SIZE") val deviceName: CharArray = CharArray(VK_MAX_PHYSICAL_DEVICE_NAME_SIZE), @VkConstArray("VK_UUID_SIZE") val pipelineCacheUUID: ByteArray = ByteArray(VK_UUID_SIZE), val limits: VkPhysicalDeviceLimits = VkPhysicalDeviceLimits(), val sparseProperties: VkPhysicalDeviceSparseProperties = VkPhysicalDeviceSparseProperties() )</ID>
     <ID>LongParameterList:VkPipelineColorBlendStateCreateInfo.kt$VkPipelineColorBlendAttachmentState$( val blendEnable: VkBool32 = false, val srcColorBlendFactor: VkBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE, val dstColorBlendFactor: VkBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ZERO, val colorBlendOp: VkBlendOp = VkBlendOp.VK_BLEND_OP_ADD, val srcAlphaBlendFactor: VkBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE, val dstAlphaBlendFactor: VkBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ZERO, val alphaBlendOp: VkBlendOp = VkBlendOp.VK_BLEND_OP_ADD, val colorWriteMask: VkColorComponentFlags = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value )</ID>
@@ -20,6 +54,195 @@
     <ID>LongParameterList:VkStencilOpState.kt$VkStencilOpState$( var failOp: VkStencilOp = VkStencilOp.VK_STENCIL_OP_KEEP, var passOp: VkStencilOp = VkStencilOp.VK_STENCIL_OP_KEEP, var depthFailOp: VkStencilOp = VkStencilOp.VK_STENCIL_OP_KEEP, var compareOp: VkCompareOp = VkCompareOp.VK_COMPARE_OP_ALWAYS, var compareMask: Int = 0, var writeMask: Int = 0, var reference: Int = 0 )</ID>
     <ID>LongParameterList:VkSubpassDescription.kt$VkSubpassDescription$( val flags: VkSubpassDescriptionFlags = 0, val pipelineBindPoint: VkPipelineBindPoint = VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, @field:VkArray(sizeAlias = "inputAttachmentCount") val pInputAttachments: Array&lt;VkAttachmentReference>? = null, @field:VkArray(sizeAlias = "colorAttachmentCount") val pColorAttachments: Array&lt;VkAttachmentReference>? = null, val pResolveAttachments: Array&lt;VkAttachmentReference>? = null, val pDepthStencilAttachment: Array&lt;VkAttachmentReference>? = null, @field:VkArray(sizeAlias = "preserveAttachmentCount") val pPreserveAttachments: IntArray? = null )</ID>
     <ID>LongParameterList:VkSwapchainCreateInfoKHR.kt$VkSwapchainCreateInfoKHR$( val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR, val pNext: Any? = null, // You can use the appropriate type for pNext based on your requirements val flags: Int = 0, @field:VkHandleRef("VkSurfaceKHR") val surface: VkHandle = 0, //VkSurfaceKHR, val minImageCount: Int = 0, val imageFormat: VkFormat = VkFormat.VK_FORMAT_UNDEFINED, val imageColorSpace: VkColorSpaceKHR = VkColorSpaceKHR.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, val imageExtent: VkExtent2D = VkExtent2D(), val imageArrayLayers: Int = 0, val imageUsage: VkImageUsageFlags = 0, val imageSharingMode: VkSharingMode = VkSharingMode.VK_SHARING_MODE_EXCLUSIVE, @field:VkArray("queueFamilyIndexCount") val pQueueFamilyIndices: IntArray? = null, // Set it to null if it's optional val preTransform: VkSurfaceTransformFlagBitsKHR = VkSurfaceTransformFlagBitsKHR.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR, val compositeAlpha: VkCompositeAlphaFlagBitsKHR = VkCompositeAlphaFlagBitsKHR.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, val presentMode: VkPresentModeKHR = VkPresentModeKHR.VK_PRESENT_MODE_IMMEDIATE_KHR, val clipped: VkBool32 = false, @field:VkHandleRef("VkSwapchainKHR") val oldSwapchain: VkHandle = 0// VkSwapchainKHR )</ID>
+    <ID>LongParameterList:VulkanBuffers.kt$VulkanBuffers$( commandBuffer: Long, indexCount: Int, instanceCount: Int, firstIndex: Int, vertexOffset: Int, firstInstance: Int )</ID>
+    <ID>LongParameterList:VulkanGameApplication.kt$VulkanGameApplication$( vertexShaderResourcePath: String, fragmentShaderResourcePath: String, vertexFormat: VertexFormat = VertexFormat.PositionColorUv, game: Game, private val vertexShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT, private val fragmentShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT, /** An optional second 3D pipeline for GPU-skinned meshes -- see * [io.github.ronjunevaldoz.awake.render.renderer.Renderer.drawSkinnedMesh]'s doc comment. * `null` (default) for every game that has no skinned content -- most of them -- which * skips building it entirely, same as [GenericGameApplication]'s existing single-pipeline * shape for every other game. */ private val skinnedShaderSet: GameShaderSet? = null, private val skinnedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorSkin )</ID>
+    <ID>LongParameterList:VulkanMetalView.kt$VulkanMetalView$( frame: CValue&lt;CGRect>, private val input: Input, private val onCreate: (metalLayer: CAMetalLayer) -> Unit, private val onUpdate: (deltaSeconds: Float) -> Unit, private val onResize: (width: Int, height: Int) -> Unit, private val onPause: () -> Unit, private val onResume: () -> Unit )</ID>
+    <ID>MagicNumber:DynamicMesh.kt$DynamicMesh$0xFF</ID>
+    <ID>MagicNumber:DynamicMesh.kt$DynamicMesh$16</ID>
+    <ID>MagicNumber:DynamicMesh.kt$DynamicMesh$24</ID>
+    <ID>MagicNumber:DynamicMesh.kt$DynamicMesh$3</ID>
+    <ID>MagicNumber:DynamicMesh.kt$DynamicMesh$4</ID>
+    <ID>MagicNumber:DynamicMesh.kt$DynamicMesh$8</ID>
+    <ID>MagicNumber:GlfwInputBridgeTest.kt$GlfwInputBridgeTest$100.0</ID>
+    <ID>MagicNumber:GlfwInputBridgeTest.kt$GlfwInputBridgeTest$100f</ID>
+    <ID>MagicNumber:GlfwInputBridgeTest.kt$GlfwInputBridgeTest$200f</ID>
+    <ID>MagicNumber:GlfwInputBridgeTest.kt$GlfwInputBridgeTest$3.5</ID>
+    <ID>MagicNumber:GlfwInputBridgeTest.kt$GlfwInputBridgeTest$3.5f</ID>
+    <ID>MagicNumber:GlfwInputBridgeTest.kt$GlfwInputBridgeTest$50.0</ID>
+    <ID>MagicNumber:GlfwManualVerify.kt$0x00022001</ID>
+    <ID>MagicNumber:GlfwManualVerify.kt$64</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$39</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$44</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$45</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$46</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$47</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$48</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$57</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$59</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$60.0</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$61</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$65</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$90</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$91</ID>
+    <ID>MagicNumber:GlfwTextInputBridge.kt$93</ID>
+    <ID>MagicNumber:GraphicsDevice.kt$GraphicsDevice$3</ID>
+    <ID>MagicNumber:LineRenderPipeline.kt$LineRenderPipeline$0xFF</ID>
+    <ID>MagicNumber:LineRenderPipeline.kt$LineRenderPipeline$16</ID>
+    <ID>MagicNumber:LineRenderPipeline.kt$LineRenderPipeline$24</ID>
+    <ID>MagicNumber:LineRenderPipeline.kt$LineRenderPipeline$3</ID>
+    <ID>MagicNumber:LineRenderPipeline.kt$LineRenderPipeline$4</ID>
+    <ID>MagicNumber:LineRenderPipeline.kt$LineRenderPipeline$8</ID>
+    <ID>MagicNumber:Mesh.kt$Mesh$0xFF</ID>
+    <ID>MagicNumber:Mesh.kt$Mesh$16</ID>
+    <ID>MagicNumber:Mesh.kt$Mesh$24</ID>
+    <ID>MagicNumber:Mesh.kt$Mesh$3</ID>
+    <ID>MagicNumber:Mesh.kt$Mesh$4</ID>
+    <ID>MagicNumber:Mesh.kt$Mesh$8</ID>
+    <ID>MagicNumber:RenderPipeline.kt$RenderPipeline$0xFF</ID>
+    <ID>MagicNumber:RenderPipeline.kt$RenderPipeline$16</ID>
+    <ID>MagicNumber:RenderPipeline.kt$RenderPipeline$24</ID>
+    <ID>MagicNumber:RenderPipeline.kt$RenderPipeline$3</ID>
+    <ID>MagicNumber:RenderPipeline.kt$RenderPipeline$4</ID>
+    <ID>MagicNumber:RenderPipeline.kt$RenderPipeline$8</ID>
+    <ID>MagicNumber:Renderer.kt$Renderer$3</ID>
+    <ID>MagicNumber:Renderer.kt$Renderer$4</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$1e9f</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$2e9f</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$3</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$4</ID>
+    <ID>MagicNumber:RendererDrawUi.kt$5</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$0xFF</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$14</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$24</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$250</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$254</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$26</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$32f</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$4</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$40f</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$5</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$56f</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$64</ID>
+    <ID>MagicNumber:RendererHeadlessFilledPathAaTest.kt$RendererHeadlessFilledPathAaTest$8f</ID>
+    <ID>MagicNumber:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$1_000_000.0</ID>
+    <ID>MagicNumber:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$1_000_000_000f</ID>
+    <ID>MagicNumber:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$2.5f</ID>
+    <ID>MagicNumber:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$4f</ID>
+    <ID>MagicNumber:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$0xFF</ID>
+    <ID>MagicNumber:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$16f</ID>
+    <ID>MagicNumber:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$20</ID>
+    <ID>MagicNumber:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$4</ID>
+    <ID>MagicNumber:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$64</ID>
+    <ID>MagicNumber:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$96f</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$0xFF</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$16</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$24</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$3</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$4</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$8</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$0xFF</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$2.5f</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$4</ID>
+    <ID>MagicNumber:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$4f</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$0.85f</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$0.8f</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$248f</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$256</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$256f</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$30f</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$40</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$4f</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$8</ID>
+    <ID>MagicNumber:RendererHeadlessRoundedQuadChunkingTest.kt$RendererHeadlessRoundedQuadChunkingTest$8f</ID>
+    <ID>MagicNumber:RendererHeadlessStrokedPathChunkingTest.kt$RendererHeadlessStrokedPathChunkingTest$0.85f</ID>
+    <ID>MagicNumber:RendererHeadlessStrokedPathChunkingTest.kt$RendererHeadlessStrokedPathChunkingTest$0.8f</ID>
+    <ID>MagicNumber:RendererHeadlessStrokedPathChunkingTest.kt$RendererHeadlessStrokedPathChunkingTest$10</ID>
+    <ID>MagicNumber:RendererHeadlessStrokedPathChunkingTest.kt$RendererHeadlessStrokedPathChunkingTest$20f</ID>
+    <ID>MagicNumber:RendererHeadlessStrokedPathChunkingTest.kt$RendererHeadlessStrokedPathChunkingTest$24f</ID>
+    <ID>MagicNumber:RendererHeadlessStrokedPathChunkingTest.kt$RendererHeadlessStrokedPathChunkingTest$256</ID>
+    <ID>MagicNumber:RendererHeadlessStrokedPathChunkingTest.kt$RendererHeadlessStrokedPathChunkingTest$80</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$0xFF</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$16</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$24</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$3</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$4</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$8</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$0.6f</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$0.78f</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$0.92f</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$0.95f</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$0.96f</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$0.97f</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$0xFF</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$12</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$128</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$4</ID>
+    <ID>MagicNumber:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$512</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$10</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$11</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$12</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$13</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$14</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$3</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$4</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$5</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$6</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$7</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$8</ID>
+    <ID>MagicNumber:RendererVertexWriters.kt$9</ID>
+    <ID>MagicNumber:ShadcnCollapsibleRealRenderCollapseFrameCaptureTest.kt$ShadcnCollapsibleRealRenderCollapseFrameCaptureTest$20</ID>
+    <ID>MagicNumber:ShadcnCollapsibleRealRenderCollapseFrameCaptureTest.kt$ShadcnCollapsibleRealRenderCollapseFrameCaptureTest$4</ID>
+    <ID>MagicNumber:ShadcnCollapsibleRealRenderCollapseFrameCaptureTest.kt$ShadcnCollapsibleRealRenderCollapseFrameCaptureTest$480</ID>
+    <ID>MagicNumber:ShadcnCollapsibleRealRenderCollapseFrameCaptureTest.kt$ShadcnCollapsibleRealRenderCollapseFrameCaptureTest$480f</ID>
+    <ID>MagicNumber:ShadcnCollapsibleRealRenderCollapseFrameCaptureTest.kt$ShadcnCollapsibleRealRenderCollapseFrameCaptureTest$800</ID>
+    <ID>MagicNumber:ShadcnCollapsibleRealRenderCollapseFrameCaptureTest.kt$ShadcnCollapsibleRealRenderCollapseFrameCaptureTest$800f</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$3</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$30</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$4</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$480</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$480f</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$5</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$6</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$8</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$800</ID>
+    <ID>MagicNumber:ShadcnCollapsibleScrolledCollapseFrameCaptureTest.kt$ShadcnCollapsibleScrolledCollapseFrameCaptureTest$800f</ID>
+    <ID>MagicNumber:TextureLoader.kt$0xFF</ID>
+    <ID>MagicNumber:TextureLoader.kt$16</ID>
+    <ID>MagicNumber:TextureLoader.kt$24</ID>
+    <ID>MagicNumber:TextureLoader.kt$3</ID>
+    <ID>MagicNumber:TextureLoader.kt$4</ID>
+    <ID>MagicNumber:TextureLoader.kt$8</ID>
+    <ID>MagicNumber:UiAnimationFrameCapture.kt$0xFF</ID>
+    <ID>MagicNumber:UiAnimationFrameCapture.kt$16</ID>
+    <ID>MagicNumber:UiAnimationFrameCapture.kt$24</ID>
+    <ID>MagicNumber:UiAnimationFrameCapture.kt$3</ID>
+    <ID>MagicNumber:UiAnimationFrameCapture.kt$4</ID>
+    <ID>MagicNumber:UiAnimationFrameCapture.kt$8</ID>
+    <ID>MagicNumber:UiAnimationFrameCapture.kt$UiAnimationFrameCapture$3</ID>
+    <ID>MagicNumber:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$0xFF</ID>
+    <ID>MagicNumber:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$16</ID>
+    <ID>MagicNumber:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$24</ID>
+    <ID>MagicNumber:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$3</ID>
+    <ID>MagicNumber:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$4</ID>
+    <ID>MagicNumber:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$8</ID>
+    <ID>MagicNumber:UiRenderPipeline.kt$UiRenderPipeline$0xFF</ID>
+    <ID>MagicNumber:UiRenderPipeline.kt$UiRenderPipeline$16</ID>
+    <ID>MagicNumber:UiRenderPipeline.kt$UiRenderPipeline$24</ID>
+    <ID>MagicNumber:UiRenderPipeline.kt$UiRenderPipeline$3</ID>
+    <ID>MagicNumber:UiRenderPipeline.kt$UiRenderPipeline$4</ID>
+    <ID>MagicNumber:UiRenderPipeline.kt$UiRenderPipeline$8</ID>
+    <ID>MagicNumber:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$0xFF</ID>
+    <ID>MagicNumber:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$16</ID>
+    <ID>MagicNumber:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$24</ID>
+    <ID>MagicNumber:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$3</ID>
+    <ID>MagicNumber:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$4</ID>
+    <ID>MagicNumber:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$8</ID>
+    <ID>MagicNumber:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$0xFF</ID>
+    <ID>MagicNumber:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$16</ID>
+    <ID>MagicNumber:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$24</ID>
+    <ID>MagicNumber:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$3</ID>
+    <ID>MagicNumber:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$4</ID>
+    <ID>MagicNumber:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$8</ID>
     <ID>MagicNumber:Version.kt$Version.Companion$12</ID>
     <ID>MagicNumber:Version.kt$Version.Companion$22</ID>
     <ID>MagicNumber:Version.kt$Version.Companion$4096</ID>
@@ -1351,17 +1574,120 @@
     <ID>MagicNumber:VkSurfaceTransformFlagBitsKHR.kt$VkSurfaceTransformFlagBitsKHR.VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR$0x00000004</ID>
     <ID>MagicNumber:VkSurfaceTransformFlagBitsKHR.kt$VkSurfaceTransformFlagBitsKHR.VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR$0x00000008</ID>
     <ID>MagicNumber:VkVertexInputRate.kt$VkVertexInputRate.VK_VERTEX_INPUT_RATE_MAX_ENUM$0x7FFFFFFF</ID>
+    <ID>MagicNumber:Vulkan.kt$3</ID>
+    <ID>MagicNumber:Vulkan.kt$Vulkan$3</ID>
     <ID>MatchingDeclarationName:AwkEnum.kt$VkEnum</ID>
     <ID>MatchingDeclarationName:VDeviceQueueCreateFlagBits.kt$VkDeviceQueueCreateFlagBits</ID>
     <ID>MatchingDeclarationName:exceptions.kt$VkResultException : RuntimeException</ID>
     <ID>MatchingDeclarationName:queue.kt$QueueFamilyIndices</ID>
     <ID>MatchingDeclarationName:swapChain.kt$SwapChainSupportDetails</ID>
+    <ID>MaxLineLength:GlfwInputBridgeTest.kt$GlfwInputBridgeTest$assertEquals(-3.5f, input.scrollDeltaY, "a scroll tick must reach Input.scrollDeltaY for the UI/camera layer to consume")</ID>
+    <ID>MaxLineLength:GlfwTextInputBridgeTest.kt$GlfwTextInputBridgeTest$assertEquals("", input.updateSnapshot().typedText, "holding the key without crossing the repeat threshold must not insert again")</ID>
+    <ID>MaxLineLength:GlfwTextInputBridgeTest.kt$GlfwTextInputBridgeTest$assertEquals("", input.updateSnapshot().typedText, "releasing the key must stop insertion even after a long delta")</ID>
+    <ID>MaxLineLength:GlfwTextInputBridgeTest.kt$GlfwTextInputBridgeTest$assertEquals("a", input.updateSnapshot().typedText, "holding past the initial repeat delay must fire another insert")</ID>
+    <ID>MaxLineLength:GlfwTextInputBridgeTest.kt$GlfwTextInputBridgeTest$assertEquals("a", input.updateSnapshot().typedText, "pressing again after a release must fire a fresh rising edge, not resume mid-repeat")</ID>
+    <ID>MaxLineLength:GlfwTextInputBridgeTest.kt$GlfwTextInputBridgeTest$assertEquals("a", input.updateSnapshot().typedText, "the first frame a key is down must insert exactly one character")</ID>
+    <ID>MaxLineLength:GlfwTextInputBridgeTest.kt$GlfwTextInputBridgeTest$assertEquals(listOf(TextEditAction.Backspace), input.updateSnapshot().editActions, "a held edit key must push its TextEditAction on the rising edge")</ID>
+    <ID>MaxLineLength:GlfwWindowInput.kt$RealGlfwWindowInput$override fun isMouseButtonDown(glfwButton: Int): Boolean</ID>
+    <ID>MaxLineLength:GraphicsDevice.kt$GraphicsDevice$val glfwExtensions = if (includeGlfwExtensions) VulkanWindow.glfwGetRequiredInstanceExtensions().toList() else emptyList()</ID>
+    <ID>MaxLineLength:RendererDraw3D.kt$recordCommandBuffer(commandBuffers[currentFrame], currentFrame, imageIndex, preparedDrawCalls, preparedSkinnedDrawCalls)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$if</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$internal fun canExactClip(paths: List&lt;UiPath>): Boolean</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "gradient-quad")</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "rounded-quad-clipped")</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$runs += Renderer.UiRun.TextureRun(stageTextureRun(slice as List&lt;UiDrawPrimitive.Texture>, activePathClips, safeInteriorRect))</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$val</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$val raw = texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 0 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y, glyph.u0, glyph.v0, glyph.color, glyph.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 1 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y, glyph.u1, glyph.v0, glyph.color, glyph.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 2 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y + glyph.h, glyph.u1, glyph.v1, glyph.color, glyph.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 3 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y + glyph.h, glyph.u0, glyph.v1, glyph.color, glyph.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.gradient.topRight)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.gradient.bottomRight)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.color, quad.transform)</ID>
+    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.gradient.bottomLeft)</ID>
+    <ID>MaxLineLength:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)</ID>
+    <ID>MaxLineLength:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")</ID>
+    <ID>MaxLineLength:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessFrameTimingTest.kt$RendererHeadlessFrameTimingTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")</ID>
+    <ID>MaxLineLength:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$return Fixture(graphicsDevice, pipelineLayoutMaterial, renderPipeline, lineRenderPipeline, transferContext, renderer)</ID>
+    <ID>MaxLineLength:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessGradientClipTest.kt$RendererHeadlessGradientClipTest.Fixture$VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)</ID>
+    <ID>MaxLineLength:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")</ID>
+    <ID>MaxLineLength:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessPixelBaselineTest.kt$RendererHeadlessPixelBaselineTest$runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest$"TrueSans (large mip chain, ~11 levels) should render non-empty output, not sample an UNDEFINED-layout mip"</ID>
+    <ID>MaxLineLength:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.Companion$loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")</ID>
+    <ID>MaxLineLength:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.Companion$runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.Companion$runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.Companion$runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.Companion$runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.Companion$runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") }</ID>
+    <ID>MaxLineLength:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.HeadlessUiRendererFixture$VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)</ID>
+    <ID>MaxLineLength:RendererVertexWriters.kt$internal</ID>
+    <ID>MaxLineLength:SwapchainManager.kt$SwapchainManager$if</ID>
+    <ID>MaxLineLength:SwapchainManager.kt$SwapchainManager$preferedFormats.contains(surfaceFormat.format) &amp;&amp; surfaceFormat.colorSpace == VkColorSpaceKHR.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR</ID>
+    <ID>MaxLineLength:SwapchainManager.kt$SwapchainManager$}</ID>
+    <ID>MaxLineLength:UiAnimationFrameCapture.kt$HeadlessUiRendererFixture$VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)</ID>
+    <ID>MaxLineLength:UiAnimationFrameCapture.kt$UiAnimationFrameCapture$fun</ID>
+    <ID>MaxLineLength:UiAnimationFrameCapture.kt$loadUiAnimationShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv")</ID>
+    <ID>MaxLineLength:UiAnimationFrameCapture.kt$loadUiAnimationShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv")</ID>
+    <ID>MaxLineLength:UiAnimationFrameCapture.kt$loadUiAnimationShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv")</ID>
+    <ID>MaxLineLength:UiAnimationFrameCapture.kt$runBlocking { loadUiAnimationShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") }</ID>
+    <ID>MaxLineLength:UiAnimationFrameCapture.kt$runBlocking { loadUiAnimationShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") }</ID>
+    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorCount = 1)</ID>
+    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount = 1)</ID>
+    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main")</ID>
+    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")</ID>
+    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$Vulkan.vkCmdBindPipeline(commandBuffer, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline[0])</ID>
+    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)</ID>
+    <ID>MaxLineLength:UiRenderPipeline.kt$UiRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main")</ID>
+    <ID>MaxLineLength:UiRenderPipeline.kt$UiRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")</ID>
+    <ID>MaxLineLength:UiRenderPipeline.kt$UiRenderPipeline$Vulkan.vkCmdBindPipeline(commandBuffer, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline[0])</ID>
+    <ID>MaxLineLength:UiRenderPipeline.kt$UiRenderPipeline$pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main")</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 0, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 0)</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 1, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 2 * Float.SIZE_BYTES)</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 2, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 4 * Float.SIZE_BYTES)</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 3, binding = 0, format = VkFormat.VK_FORMAT_R32_SFLOAT, offset = 6 * Float.SIZE_BYTES)</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 4, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 7 * Float.SIZE_BYTES)</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 5, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 11 * Float.SIZE_BYTES)</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$Vulkan.vkCmdBindPipeline(commandBuffer, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline[0])</ID>
+    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)</ID>
+    <ID>MaxLineLength:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main")</ID>
+    <ID>MaxLineLength:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")</ID>
+    <ID>MaxLineLength:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)</ID>
     <ID>MaxLineLength:VkPipelineColorBlendStateCreateInfo.kt$VkPipelineColorBlendAttachmentState$val colorWriteMask: VkColorComponentFlags = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value</ID>
     <ID>MaxLineLength:VkSurfaceCapabilitiesKHR.kt$VkSurfaceCapabilitiesKHR$val currentTransform: VkSurfaceTransformFlagBitsKHR = VkSurfaceTransformFlagBitsKHR.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</ID>
     <ID>MaxLineLength:VkSwapchainCreateInfoKHR.kt$VkSwapchainCreateInfoKHR$val preTransform: VkSurfaceTransformFlagBitsKHR = VkSurfaceTransformFlagBitsKHR.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</ID>
     <ID>MaxLineLength:Vulkan.kt$Vulkan$*</ID>
-    <ID>MaxLineLength:Vulkan.kt$Vulkan$actual</ID>
+    <ID>MaxLineLength:Vulkan.kt$Vulkan$actual external</ID>
     <ID>MaxLineLength:Vulkan.kt$Vulkan$fun</ID>
+    <ID>MaxLineLength:Vulkan.kt$Vulkan$nativeVkCmdSetViewport(commandBuffer.toCPointer(), firstViewport.toUInt(), viewports.size.toUInt(), nativeViewports)</ID>
+    <ID>MaxLineLength:Vulkan.kt$Vulkan$pQueuePriorities = allocArray(queueInfo.pQueuePriorities.size) { i -> value = queueInfo.pQueuePriorities[i] }</ID>
+    <ID>MaxLineLength:Vulkan.kt$Vulkan$val</ID>
+    <ID>MaxLineLength:VulkanImages.kt$VulkanImages$/**</ID>
+    <ID>NestedBlockDepth:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, skinnedDrawCalls: List&lt;PreparedSkinnedDrawCall> )</ID>
+    <ID>NestedBlockDepth:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
     <ID>NewLineAtEndOfFile:VDeviceQueueCreateFlagBits.kt$io.github.ronjunevaldoz.awake.vulkan.enums.VDeviceQueueCreateFlagBits.kt</ID>
     <ID>NewLineAtEndOfFile:Version.kt$io.github.ronjunevaldoz.awake.vulkan.Version.kt</ID>
     <ID>NewLineAtEndOfFile:VkAccessFlags.kt$io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkAccessFlags.kt</ID>
@@ -1462,6 +1788,20 @@
     <ID>NewLineAtEndOfFile:extensions.kt$io.github.ronjunevaldoz.awake.vulkan.utils.extensions.kt</ID>
     <ID>NewLineAtEndOfFile:flags.kt$io.github.ronjunevaldoz.awake.vulkan.flags.kt</ID>
     <ID>NewLineAtEndOfFile:swapChain.kt$io.github.ronjunevaldoz.awake.vulkan.utils.swapChain.kt</ID>
+    <ID>TooGenericExceptionThrown:GraphicsDevice.kt$GraphicsDevice$throw Exception("Cannot find suitable gpu!")</ID>
+    <ID>TooGenericExceptionThrown:GraphicsDevice.kt$GraphicsDevice$throw Exception("GPU graphics / Presentation not supported")</ID>
+    <ID>TooGenericExceptionThrown:SwapchainManager.kt$SwapchainManager$throw Exception("No valid compositeAlpha found")</ID>
+    <ID>TooGenericExceptionThrown:SwapchainManager.kt$SwapchainManager$throw Exception("No valid usage flags found")</ID>
+    <ID>TooManyFunctions:LineRenderPipeline.kt$LineRenderPipeline</ID>
+    <ID>TooManyFunctions:Renderer.kt$Renderer : RenderRenderer</ID>
+    <ID>TooManyFunctions:RendererDrawUi.kt$io.github.ronjunevaldoz.awake.vulkan.renderer.RendererDrawUi.kt</ID>
+    <ID>TooManyFunctions:UiTextureRenderPipeline.kt$UiTextureRenderPipeline</ID>
     <ID>TooManyFunctions:Vulkan.kt$Vulkan</ID>
+    <ID>TooManyFunctions:VulkanBuffers.kt$VulkanBuffers</ID>
+    <ID>TooManyFunctions:VulkanMetalView.kt$VulkanMetalView : UIViewUIKeyInputProtocol</ID>
+    <ID>TooManyFunctions:VulkanWindow.kt$VulkanWindow</ID>
+    <ID>UnusedPrivateMember:VulkanMetalView.kt$VulkanMetalView$@ObjCAction private fun tick(displayLink: CADisplayLink)</ID>
+    <ID>UnusedPrivateProperty:GlfwTextInputBridgeTest.kt$private const val REPEAT_INTERVAL_SECONDS = 0.05</ID>
+    <ID>UnusedPrivateProperty:GraphicsDevice.kt$GraphicsDevice$val hasGeometry = features.geometryShader</ID>
   </CurrentIssues>
 </SmellBaseline>
