@@ -13,14 +13,12 @@ import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedSkinnedScene
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.SkinnedAnimationPlayer
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.scene.controls.PrimaryOrbitCamera
+import io.github.ronjunevaldoz.awake.scene.controls.OrbitCameraDemoRig
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
@@ -43,13 +41,13 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
  * [SceneGameRuntime.renderer]'s own [io.github.ronjunevaldoz.awake.render.renderer.Renderer
  * .drawSkinnedMesh] instead -- called directly from [onUpdate] every frame, the same "demo
  * calls the renderer directly" pattern [RotatingCubeDemo] already uses for
- * `renderer.drawDebugLines`. Still spawns a [Transform] entity (unused by rendering, kept so
- * this demo's world-space placement is inspectable/extensible the same way every other demo's
- * is) and a primary camera entity, same as every other demo.
+ * `renderer.drawDebugLines`. Still spawns [rig]'s placement entity (unused by rendering, kept
+ * so this demo's world-space placement is inspectable/extensible the same way every other
+ * demo's is) and a primary camera entity, same as every other demo.
  */
 internal object SkinnedMeshDemo {
-    private val camera = OrbitCameraController()
-    private val primaryCamera = PrimaryOrbitCamera(camera)
+    private val rig = OrbitCameraDemoRig(OrbitCameraController())
+    private val camera get() = rig.camera
 
     private var scene: LoadedSkinnedScene? = null
     private var player: SkinnedAnimationPlayer? = null
@@ -62,7 +60,7 @@ internal object SkinnedMeshDemo {
     private val timeController = ManualTimeController()
     private var displayGroupExpanded = false
 
-    private var placementEntity: Entity? = null
+    private var spawned = false
     private var mesh: Mesh? = null
     private var material: Material? = null
 
@@ -123,9 +121,8 @@ internal object SkinnedMeshDemo {
         },
         onActivate = { ensureSpawned(this) },
         onDeactivate = { world ->
-            placementEntity?.let { world.destroy(it) }
-            placementEntity = null
-            primaryCamera.destroy(world)
+            rig.destroy(world)
+            spawned = false
         },
         onUpdate = { delta ->
             ensureSpawned(this)
@@ -143,22 +140,20 @@ internal object SkinnedMeshDemo {
             if (currentMesh != null && currentMaterial != null && currentSkin != null && currentPlayer != null) {
                 renderer.drawSkinnedMesh(currentMesh, currentMaterial, Mat4(), currentPlayer.jointPalette(currentSkin))
             }
-            primaryCamera.refresh(world, MODEL_CENTER)
+            rig.refresh(world, MODEL_CENTER)
         }
     )
 
     private fun ensureSpawned(runtime: SceneGameRuntime) {
-        if (placementEntity != null) return
+        if (spawned) return
         val vertices = meshVertices ?: return
         val indices = meshIndices ?: return
         mesh = runtime.renderer.createMesh(
             MeshGeometry(vertices, indices, format = VertexFormat.PositionNormalColorSkin)
         )
         material = runtime.renderer.createMaterial(uniformFloatCount = SKINNED_UNIFORM_FLOAT_COUNT)
-        val entity = runtime.world.create()
-        runtime.world.add(entity, Transform())
-        placementEntity = entity
-        primaryCamera.spawn(runtime.world, MODEL_CENTER)
+        rig.spawn(runtime.world, MODEL_CENTER)
+        spawned = true
     }
 
     private val MODEL_CENTER = Vec3(0f, 0f, 0f)

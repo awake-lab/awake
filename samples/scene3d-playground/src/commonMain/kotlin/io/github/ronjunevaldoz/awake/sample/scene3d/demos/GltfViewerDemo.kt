@@ -11,15 +11,13 @@ import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfMesh
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.scene.controls.PrimaryOrbitCamera
+import io.github.ronjunevaldoz.awake.scene.controls.OrbitCameraDemoRig
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
@@ -45,8 +43,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
  * `Scene3DPlaygroundVulkanBootstrap.kt`), so it draws through [SceneGameRuntime.renderer]'s own
  * [io.github.ronjunevaldoz.awake.render.renderer.Renderer.drawTexturedMesh] instead -- called
  * directly from [onUpdate] every frame, the same "demo calls the renderer directly" pattern
- * [SkinnedMeshDemo] already uses for `drawSkinnedMesh`. Still spawns a [Transform] placement
- * entity (unused by rendering, kept so this demo's world-space placement is inspectable the same
+ * [SkinnedMeshDemo] already uses for `drawSkinnedMesh`. Still spawns [rig]'s placement entity
+ * (unused by rendering, kept so this demo's world-space placement is inspectable the same
  * way every other demo's is) and a primary camera entity, same as every other demo.
  *
  * The actual byte load ([readResourceBytes]) is suspend, so it can't happen in [Scene3DDemo
@@ -55,7 +53,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
  *
  * [ensureSpawned] (not just [onActivate]) is what actually builds the mesh/material/camera
  * entity, and is called from both [onActivate] AND every [onUpdate] tick, idempotently (no-ops
- * once [mesh] exists) -- `SceneGameRuntime.ready()` runs an "initial sync pass" over every
+ * once [spawned] is `true`) -- `SceneGameRuntime.ready()` runs an "initial sync pass" over every
  * Infrastructure system (this demo's activation driver included) BEFORE `onReadyBlock`/[preload]
  * ever runs, so if this demo happens to be the very first one active, its first [onActivate]
  * call is guaranteed to see [loadedMesh] still `null` -- a real race this project's own demo
@@ -63,8 +61,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
  * registration order). Retrying from [onUpdate] instead of only [onActivate] makes this
  * self-healing once [preload] actually finishes, regardless of activation timing. */
 internal object GltfViewerDemo {
-    private val camera = OrbitCameraController()
-    private val primaryCamera = PrimaryOrbitCamera(camera)
+    private val rig = OrbitCameraDemoRig(OrbitCameraController())
+    private val camera get() = rig.camera
 
     private var loadedMesh: GltfMesh? = null
     private var autoRotate = true
@@ -119,7 +117,7 @@ internal object GltfViewerDemo {
      * ...)` once a [SceneGameRuntime] (and its `renderer`) actually exists. */
     private var textureAsset: TextureAsset? = null
 
-    private var placementEntity: Entity? = null
+    private var spawned = false
     private var mesh: Mesh? = null
     private var material: Material? = null
 
@@ -212,9 +210,8 @@ internal object GltfViewerDemo {
         },
         onActivate = { ensureSpawned(this) },
         onDeactivate = { world ->
-            placementEntity?.let { world.destroy(it) }
-            placementEntity = null
-            primaryCamera.destroy(world)
+            rig.destroy(world)
+            spawned = false
         },
         onUpdate = { delta ->
             ensureSpawned(this)
@@ -230,20 +227,18 @@ internal object GltfViewerDemo {
                 val model = Mat4().scale(worldScale, worldScale, worldScale)
                 renderer.drawTexturedMesh(currentMesh, currentMaterial, model)
             }
-            primaryCamera.refresh(world, MODEL_CENTER)
+            rig.refresh(world, MODEL_CENTER)
         }
     )
 
     private fun ensureSpawned(runtime: SceneGameRuntime) {
-        if (placementEntity != null) return
+        if (spawned) return
         if (loadedMesh == null) return
         mesh = createMeshForCurrentScaleMode(runtime)
         material = runtime.renderer.createMaterial(texture = textureAsset)
         meshIsNormalized = normalizeScale
-        val entity = runtime.world.create()
-        runtime.world.add(entity, Transform())
-        placementEntity = entity
-        primaryCamera.spawn(runtime.world, MODEL_CENTER)
+        rig.spawn(runtime.world, MODEL_CENTER)
+        spawned = true
     }
 
     /** Destroys [mesh]'s current GPU mesh and rebuilds it from whichever of
