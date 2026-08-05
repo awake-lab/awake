@@ -14,7 +14,8 @@ just spread unclear ownership across more folders.
   the active ECS/scene cleanup plan.
 - 2026-08-05: Phase 2 ECS/scene API classification audit recorded in the API layering
   plan. Demo navmesh bootstrap moved out of `awake:scene`; authored gameplay systems moved
-  to the scene3d sample; next cleanup target is the scene split proposal.
+  to the scene3d sample. The scene module split proposal is now tracked in
+  [docs/tasks/2026-08-05-scene-module-split-proposal.md](tasks/2026-08-05-scene-module-split-proposal.md).
 - 2026-07-10: `VulkanApplication` now loads `scene.json` through `SceneRuntimeHost`; next
   we peel shared code into smaller modules, starting with math/runtime/utils.
 
@@ -24,8 +25,8 @@ just spread unclear ownership across more folders.
   carved out first?
 - Which ECS/scene APIs are true core, which are reusable helpers, and which are only
   authoring sugar?
-- Should scene split first by API layer (`core`/`authoring`) or domain capability
-  (`core`/`rendering`/`physics`/`controls`) once classification is complete?
+- Should `SceneGameRuntime` remain renderer/UI aware, or should those concerns move behind
+  smaller runtime interfaces during the scene split?
 - Which code should remain in `awake-core` once the pure shared pieces move?
 - Do we split `physics` now, or leave it until the scene/runtime shape is settled?
 - Should Awake v1 use one universal `Style`, or separate style types immediately for
@@ -40,6 +41,7 @@ just spread unclear ownership across more folders.
 
 - Dev: Core split
 - Dev: ECS/scene API layering and classification
+- Dev: Scene module split proposal
 - Dev: UI DSL and style audit
 - Beta: None yet
 - Stable: Refresh runtime docs after the module split lands
@@ -52,6 +54,7 @@ just spread unclear ownership across more folders.
 - [2026-07-14-ui-module-split](tasks/2026-07-14-ui-module-split.md)
 - [2026-07-17-ui-api-simplification](tasks/2026-07-17-ui-api-simplification.md)
 - [2026-08-05-api-layering-plan](tasks/2026-08-05-api-layering-plan.md)
+- [2026-08-05-scene-module-split-proposal](tasks/2026-08-05-scene-module-split-proposal.md)
 
 ## Archive Index
 

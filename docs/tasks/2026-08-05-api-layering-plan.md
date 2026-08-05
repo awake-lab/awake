@@ -242,4 +242,5 @@ The first source cleanup from the Phase 2 audit has started:
 2. Demo-specific navmesh bootstrap now lives in `samples:scene3d-playground`.
 3. `SceneRuntime` is deprecated in favor of `SceneGameRuntime`/`sceneGame {}`.
 4. Authored gameplay systems moved to `samples:scene3d-playground`.
-5. Next: draft the scene split proposal around reusable core/rendering/physics/controls.
+5. Scene split proposal drafted in
+   [docs/tasks/2026-08-05-scene-module-split-proposal.md](2026-08-05-scene-module-split-proposal.md).

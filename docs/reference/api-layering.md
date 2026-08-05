@@ -120,7 +120,8 @@ Likely future shape:
 ```
 
 Current guidance: classify and document the API first, then split modules. Splitting before
-classification usually moves confusion into more folders.
+classification usually moves confusion into more folders. The active split plan is tracked in
+[docs/tasks/2026-08-05-scene-module-split-proposal.md](../tasks/2026-08-05-scene-module-split-proposal.md).
 
 ## Review Questions For New API
 
