@@ -1042,7 +1042,7 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
             expanded = true,
             items = PreviewOverlayMenuItems,
             selectedIndex = 1,
-            width = Dimension.Fixed(280f.px),
+            width = Dimension.Fixed(340f.px),
             itemHeight = 32f,
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
             style = Style { contentPadding(4f.dp) }
@@ -1109,7 +1109,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
         val trigger = buttonSlot(
             id = "showcase-matrix-tooltip-trigger",
             label = "Hover target",
-            modifier = Modifier.width(132f.px).height(36f.dp),
+            modifier = Modifier.width(156f.px).height(36f.dp),
             style = theme.components.button
         )
         shadcnTooltip(

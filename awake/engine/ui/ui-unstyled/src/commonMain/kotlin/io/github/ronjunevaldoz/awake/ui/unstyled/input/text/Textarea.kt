@@ -37,8 +37,7 @@ private const val TEXT_FIELD_CARET_WIDTH_PX = 1.5f
 
 /**
  * Multi-line text input. Immediate-mode like [textField].
- * Handles manual newlines (\n) and cursor navigation across lines.
- * Wrapping is not yet implemented (fixed-width layout for now).
+ * Handles manual newlines (\n), automatic wrapping, and cursor navigation across visual lines.
  */
 fun UiScope.textarea(
     id: String,
@@ -106,7 +105,7 @@ fun UiScope.textarea(
     val cursorState = widgetState(id)
     var cursor = cursorState.get("cursor", value.length).coerceIn(0, value.length)
 
-    val layout = layoutBitmapText(
+    val previousLayout = layoutBitmapText(
         label = value,
         glyphPx = glyphPx,
         maxWidthPx = contentSlot.width,
@@ -128,7 +127,7 @@ fun UiScope.textarea(
         val clickIndex =
             if (interaction.clicked || (pointerDownEdge() && interaction.hovered)) {
                 indexForPointerXY(
-                    layout,
+                    previousLayout,
                     value,
                     resolvedFont,
                     glyphPx,
@@ -158,7 +157,7 @@ fun UiScope.textarea(
                 UiTextEditAction.ArrowLeft -> cursor = (cursor - 1).coerceAtLeast(0)
                 UiTextEditAction.ArrowRight -> cursor = (cursor + 1).coerceAtMost(nextValue.length)
                 UiTextEditAction.ArrowUp -> cursor = moveCursorVertical(
-                    layout,
+                    previousLayout,
                     nextValue,
                     resolvedFont,
                     glyphPx,
@@ -168,10 +167,10 @@ fun UiScope.textarea(
                 )
 
                 UiTextEditAction.ArrowDown -> cursor =
-                    moveCursorVertical(layout, nextValue, resolvedFont, glyphPx, lineGap, cursor, 1)
+                    moveCursorVertical(previousLayout, nextValue, resolvedFont, glyphPx, lineGap, cursor, 1)
 
-                UiTextEditAction.Home -> cursor = cursorForLineStart(layout, nextValue, cursor)
-                UiTextEditAction.End -> cursor = cursorForLineEnd(layout, nextValue, cursor)
+                UiTextEditAction.Home -> cursor = cursorForLineStart(previousLayout, nextValue, cursor)
+                UiTextEditAction.End -> cursor = cursorForLineEnd(previousLayout, nextValue, cursor)
                 UiTextEditAction.Enter -> {
                     nextValue = nextValue.substring(0, cursor) + "\n" + nextValue.substring(cursor)
                     cursor += 1
@@ -187,16 +186,31 @@ fun UiScope.textarea(
     }
     cursorState.set("cursor", cursor)
 
+    val currentLayout = if (nextValue == value) {
+        previousLayout
+    } else {
+        layoutBitmapText(
+            label = nextValue,
+            glyphPx = glyphPx,
+            maxWidthPx = contentSlot.width,
+            wrap = UiTextWrap.Word,
+            overflow = UiTextOverflow.Clip,
+            maxLines = Int.MAX_VALUE,
+            trim = false,
+            advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
+        )
+    }
+
     // Vertical scroll: content taller than the box's fixed viewport (contentSlot) used to just
     // clip silently with no way to reach the hidden lines. Auto-follow the caret's line instead
     // -- the same "cursor scrolls into view" behavior a native multi-line text input gives you,
     // simpler than wiring a draggable scrollbar for a field whose scroll is driven by typing/
     // arrow-key position, not by dragging.
-    val contentHeight = layout.blockHeight(glyphPx, lineGap)
+    val contentHeight = currentLayout.blockHeight(glyphPx, lineGap)
     val maxScrollY = (contentHeight - contentSlot.height).coerceAtLeast(0f)
     var scrollOffsetY = lastScrollOffsetY.coerceIn(0f, maxScrollY)
     if (focused) {
-        val (caretLineIdx, _) = cursorToLineAndCol(layout, nextValue, cursor)
+        val (caretLineIdx, _) = cursorToLineAndCol(currentLayout, nextValue, cursor)
         val caretTop = caretLineIdx * (glyphPx + lineGap)
         val caretBottom = caretTop + glyphPx
         if (caretTop - scrollOffsetY < 0f) {
@@ -233,7 +247,7 @@ fun UiScope.textarea(
                 (elapsed % TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS) < TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS / 2f
             if (caretVisible) {
                 val caretPos = cursorPositionPx(
-                    layout,
+                    currentLayout,
                     nextValue,
                     resolvedFont,
                     glyphPx,
@@ -264,7 +278,7 @@ fun UiScope.textarea(
         bounds = interaction.slot.toBounds(),
         contentBounds = contentSlot.toBounds(),
         selected = focused,
-        lineCount = layout.lines.size
+        lineCount = currentLayout.lines.size
     )
     return nextValue
 }

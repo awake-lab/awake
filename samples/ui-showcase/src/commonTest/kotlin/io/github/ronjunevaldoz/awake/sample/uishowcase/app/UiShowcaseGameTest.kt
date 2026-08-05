@@ -273,8 +273,8 @@ class UiShowcaseGameTest {
             .sortedBy { it.y }
             .deduplicatedCards()
         assertTrue(
-            contentCards.size >= 3,
-            "expected preview, usage, and notes cards in the introduction page: $contentCards"
+            contentCards.size >= 2,
+            "expected preview/code tab content and notes cards in the introduction page: $contentCards"
         )
         inspectNonOverlappingBounds(
             label = "showcase content cards",

@@ -94,8 +94,8 @@ class UiShowcaseTextareaIntegrationTest {
         val width = 160f
         val height = 600f
 
-        fun frame(value: String): List<UiDrawPrimitive> {
-            input.pushTypedText(value)
+        fun frame(pointerDown: Boolean, x: Float, y: Float): List<UiDrawPrimitive> {
+            input.setPointer(down = pointerDown, x = x, y = y)
             ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
             ui.pushFont(font)
             ui.pushTheme(theme)
@@ -109,9 +109,21 @@ class UiShowcaseTextareaIntegrationTest {
             return ui.endFrame()
         }
 
-        // Frame 1: Type a very long word to ensure it wraps even without spaces
+        // Frame 1: locate the real page textarea.
+        frame(pointerDown = false, x = -100f, y = -100f)
+        val initialBioNode = ui.semanticNodes()
+            .firstOrNull { it.role == UiSemanticRole.Text && it.id == "showcase-bio" }
+        requireNotNull(initialBioNode) { "showcase-bio textarea must be present in the real page's semantics" }
+        val clickX = initialBioNode.bounds.x + initialBioNode.bounds.width / 2f
+        val clickY = initialBioNode.bounds.y + initialBioNode.bounds.height / 2f
+
+        // Frame 2: focus the textarea so typed text is accepted.
+        frame(pointerDown = true, x = clickX, y = clickY)
+
+        // Frame 3: type a very long word to ensure it wraps even without spaces.
         val longWord = "ANTIDISESTABLISHMENTARIANISM_ANTIDISESTABLISHMENTARIANISM"
-        frame(longWord)
+        input.pushTypedText(longWord)
+        frame(pointerDown = false, x = clickX, y = clickY)
 
         val bioNode = ui.semanticNodes()
             .firstOrNull { it.role == UiSemanticRole.Text && it.id == "showcase-bio" }

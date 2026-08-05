@@ -54,4 +54,29 @@ class TextareaWidgetTest {
             "the caret's current (scrolled-into-view) line must still be laid out as glyphs"
         )
     }
+
+    @Test
+    fun typedTextRecomputesWrappedSemanticLineCountInTheSameFrame() {
+        val ui = UiContext()
+        val input = Input()
+        var value = ""
+        ui.simulateClick(x = 42f, y = 28f, screenHeight = 180f, input = input) {
+            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+                .textarea("notes", value, modifier = Modifier.width(96f.px).height(80f.px), minLines = 3)
+        }
+
+        input.pushTypedText("ANTIDISESTABLISHMENTARIANISM_ANTIDISESTABLISHMENTARIANISM")
+        ui.simulateFrame(pointerDown = false, x = 42f, y = 28f, screenHeight = 180f, input = input) {
+            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+                .textarea("notes", value, modifier = Modifier.width(96f.px).height(80f.px), minLines = 3)
+        }
+
+        val textareaNode = requireNotNull(
+            ui.semanticNodes().firstOrNull { it.id == "notes" && it.role == UiSemanticRole.Text }
+        ) { "textarea should record its own semantic node" }
+        assertTrue(
+            textareaNode.lineCount > 1,
+            "textarea semantic lineCount must reflect the wrapped value typed during this frame"
+        )
+    }
 }
