@@ -133,7 +133,10 @@ internal fun Renderer.createPresentTransitionResources() {
                     srcSubpass = VK_SUBPASS_EXTERNAL,
                     dstSubpass = 0,
                     srcStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
-                    srcAccessMask = 0,
+                    // Fallback transition pass loads the 3D pass output before presenting.
+                    // Synchronize against the previous color attachment write exactly like
+                    // the real UI overlay pass does.
+                    srcAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value,
                     dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
                     dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or
                         VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value

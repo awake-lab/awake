@@ -141,7 +141,11 @@ class UiRenderPipeline(
                     srcSubpass = VK_SUBPASS_EXTERNAL,
                     dstSubpass = 0,
                     srcStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
-                    srcAccessMask = 0,
+                    // This pass loads the swapchain image produced by the preceding 3D
+                    // render pass in the same command buffer. Make those color writes
+                    // visible before LOAD/blend reads the image, otherwise scene+UI frames
+                    // can intermittently sample stale attachment contents.
+                    srcAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value,
                     dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
                     dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or
                         VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value
