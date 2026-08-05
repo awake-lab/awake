@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+if [[ "${AWAKE_SKIP_DETEKT_HOOK:-}" == "1" || "${SKIP_DETEKT_HOOK:-}" == "1" ]]; then
+  echo "Skipping Detekt pre-push hook because AWAKE_SKIP_DETEKT_HOOK/SKIP_DETEKT_HOOK is set." >&2
+  exit 0
+fi
+
+zero_oid="0000000000000000000000000000000000000000"
+should_run=0
+
+quality_paths=(
+  ":(glob)**/*.kt"
+  ":(glob)**/*.kts"
+  "build-logic/**"
+  "config/detekt/**"
+  "gradle/libs.versions.toml"
+  ".github/workflows/**"
+)
+
+while read -r local_ref local_oid remote_ref remote_oid; do
+  if [[ -z "${local_ref:-}" ]]; then
+    continue
+  fi
+
+  if [[ "$local_oid" == "$zero_oid" ]]; then
+    continue
+  fi
+
+  if [[ "$remote_oid" == "$zero_oid" ]]; then
+    should_run=1
+    break
+  fi
+
+  if git diff --name-only "$remote_oid..$local_oid" -- "${quality_paths[@]}" | grep -q .; then
+    should_run=1
+    break
+  fi
+done
+
+if [[ "$should_run" != "1" ]]; then
+  echo "Detekt pre-push hook: no Kotlin/build quality changes detected; skipping." >&2
+  exit 0
+fi
+
+echo "Detekt pre-push hook: running ./gradlew detekt" >&2
+echo "Set AWAKE_SKIP_DETEKT_HOOK=1 only for an explicit, reviewed emergency bypass." >&2
+./gradlew detekt

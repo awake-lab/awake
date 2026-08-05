@@ -66,6 +66,7 @@ See also:
 
 - [docs/reference/agent-starter-pack.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-starter-pack.md)
 - [docs/reference/agent-routing.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-routing.md)
+- [docs/reference/engineering-change-summaries.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/engineering-change-summaries.md)
 
 ## Duplication Policy
 
@@ -79,6 +80,28 @@ Avoid:
 - re-stating the same architecture rule in `AGENTS.md`, `.claude/AGENTS.md`, and multiple
   repo-local skills
 - letting `skills/*` turn into parallel architecture docs
+
+## Quality Gate Policy
+
+Detekt is not optional for code pushes. The repository keeps a tracked
+[.githooks/pre-push](/Users/ronvaldoz/StudioProjects/awaken/.githooks/pre-push) hook that runs
+`./gradlew detekt` before pushing Kotlin, Gradle, Detekt config, build-logic, or workflow
+changes.
+
+Local setup:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Rules:
+
+- run Detekt before pushing code changes, even when a narrower test suite passed
+- do not treat existing Detekt debt as permission to add more debt
+- use `AWAKE_SKIP_DETEKT_HOOK=1` only for an explicit, reviewed emergency bypass
+- when Detekt is already red, either fix the touched-module findings or deliberately
+  re-baseline existing debt in a separate debt-tracking change before relying on the hook
+- keep broad legacy cleanup separate from feature/fix commits
 
 ## Model Selection Rule
 
