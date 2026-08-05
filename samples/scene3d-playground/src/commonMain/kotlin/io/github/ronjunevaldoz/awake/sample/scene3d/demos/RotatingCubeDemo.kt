@@ -7,17 +7,22 @@ import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.ecs.Entity
+import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.ecs.ensure
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
+import io.github.ronjunevaldoz.awake.scene.components.FollowControl
 import io.github.ronjunevaldoz.awake.scene.components.Light
+import io.github.ronjunevaldoz.awake.scene.components.LookAtControl
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.controls.PrimaryOrbitCamera
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.math.PI
@@ -44,6 +49,20 @@ internal object RotatingCubeDemo {
 
     private var wireframe = false
     private var spinRadians = 0f
+
+    /** Which system drives [primaryCamera]'s camera entity every frame -- see the
+     * [onUpdate] dispatch below. [Follow]/[LookAt] attach [FollowControl]/[LookAtControl] to
+     * that SAME entity ([PrimaryOrbitCamera.entity]) instead of spawning a second camera, so
+     * exactly one [io.github.ronjunevaldoz.awake.scene.components.Camera] is ever primary. */
+    private enum class CameraMode { Orbit, Follow, LookAt }
+    private var cameraMode = CameraMode.Orbit
+
+    /** Plain data holder, not an ECS entity -- [FollowControl.target]/[LookAtControl.target]
+     * only ever read `.position` (see [FollowCameraSystem][io.github.ronjunevaldoz.awake.scene
+     * .systems.FollowCameraSystem]/[LookAtCameraSystem][io.github.ronjunevaldoz.awake.scene
+     * .systems.LookAtCameraSystem]), same shape their own tests use. Kept in sync with
+     * [cubeWorldPosition] every frame in [onUpdate]. */
+    private val followTarget = Transform()
 
     /** Drives [spinRadians] -- see [ManualTimeController]'s own doc comment for the auto/manual
      * shape. Not spin-specific itself (a generic 0..24-hour clock any demo could reuse); this
@@ -81,6 +100,12 @@ internal object RotatingCubeDemo {
         },
         renderControls = {
             renderOrbitCameraControls(camera, idPrefix = "cube", targetLabel = "cube")
+            shadcnToggleGroup(
+                id = "cube-camera-mode",
+                options = listOf("Orbit", "Follow", "Look at"),
+                selectedIndex = cameraMode.ordinal,
+                onIndexChange = { cameraMode = CameraMode.entries[it] }
+            )
             shadcnCollapsibleCard(
                 id = "cube-controls-display",
                 expanded = displayGroupExpanded,
@@ -141,9 +166,37 @@ internal object RotatingCubeDemo {
                     cubeMesh?.let { mesh -> material?.let { mat -> world.add(entity, MeshRenderer(mesh, mat)) } }
                 }
             }
-            primaryCamera.refresh(world, cubeWorldPosition())
+            updateCamera(world)
         }
     )
+
+    /** Dispatches [primaryCamera]'s single camera entity to whichever mode [cameraMode]
+     * currently selects -- [Orbit][CameraMode.Orbit] (the demo's original behavior) fully
+     * re-projects the entity's `Camera` every frame via [primaryCamera], so any leftover
+     * [FollowControl]/[LookAtControl] from a previous mode must come off first or the
+     * frame-registered `FollowCameraSystem`/`LookAtCameraSystem` would keep fighting it.
+     * [Follow][CameraMode.Follow]/[LookAt][CameraMode.LookAt] instead attach their control
+     * component and let those systems drive the entity directly -- [primaryCamera.refresh]
+     * is skipped so it doesn't overwrite what they just wrote. */
+    private fun updateCamera(world: World) {
+        followTarget.position = cubeWorldPosition()
+        val cameraEntity = primaryCamera.entity ?: return
+        when (cameraMode) {
+            CameraMode.Orbit -> {
+                world.remove<FollowControl>(cameraEntity)
+                world.remove<LookAtControl>(cameraEntity)
+                primaryCamera.refresh(world, cubeWorldPosition())
+            }
+            CameraMode.Follow -> {
+                world.remove<LookAtControl>(cameraEntity)
+                world.ensure(cameraEntity, ::FollowControl).target = followTarget
+            }
+            CameraMode.LookAt -> {
+                world.remove<FollowControl>(cameraEntity)
+                world.ensure(cameraEntity, ::LookAtControl).target = followTarget
+            }
+        }
+    }
 
     /** The cube never translates (only [wireframeCubeEdges] rotates it in place), so its world
      * position is always this fixed point -- the same one [SpinControl.offset] uses. */

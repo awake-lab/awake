@@ -11,6 +11,8 @@ import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.scene
+import io.github.ronjunevaldoz.awake.scene.systems.FollowCameraSystem
+import io.github.ronjunevaldoz.awake.scene.systems.LookAtCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.SpinSystem
 
 /** The whole app -- this module's `app/Main.kt`/`app/main.kt` platform entry points install
@@ -59,6 +61,11 @@ internal fun scene3DPlaygroundModule(): GameModule {
             // worldMatrix from whichever SpinControl.radians the active demo just set this frame,
             // not last frame's stale value.
             frameSystem("spin") { SpinSystem() }
+            // Same register-once/dormant-by-component-presence shape as "spin" above --
+            // RotatingCubeDemo's camera-mode toggle attaches FollowControl/LookAtControl to its
+            // camera entity only in Follow/Look-at mode, otherwise these no-op every frame.
+            frameSystem("followCamera") { FollowCameraSystem() }
+            frameSystem("lookAtCamera") { LookAtCameraSystem() }
             // The scene DSL appends its built-in transform/render infrastructure systems at
             // build time, after this demo-driver. Do not register another RenderSystem here:
             // doing so submits/presents the same frame twice, which shows up as scene3d UI

@@ -17,7 +17,12 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera
  * used to hand-roll.
  */
 class PrimaryOrbitCamera(private val controller: OrbitCameraController) {
-    private var entity: Entity? = null
+    /** Exposed read-only so a demo can attach extra components (e.g. `FollowControl`/
+     * `LookAtControl`) to the SAME camera entity -- e.g. to switch which system drives this
+     * entity's [Camera] between frames without spawning a second camera entity. `null` before
+     * the first [spawn]. */
+    var entity: Entity? = null
+        private set
 
     /** Creates the camera entity if it doesn't already exist -- safe to call every frame
      * alongside a demo's own idempotent mesh/entity spawn. */
