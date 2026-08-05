@@ -30,6 +30,18 @@ Do not rename `:awake:scene-dsl` to `:awake:scene:authoring` yet. The current mo
 already clear, tests already protect its implicit infrastructure behavior, and renaming it
 would add churn before the scene core split is proven.
 
+## Current Implementation Status
+
+The first physical split has started:
+
+- `:awake:scene:core` exists and owns `Transform`/`Name`.
+- `:awake:scene:rendering` exists and owns `Camera`/`Light`/`MeshRenderer` plus
+  `RenderSystem`.
+- `:awake:scene` still acts as the published facade and re-exports both modules.
+
+The document model, runtime, physics, and controls are intentionally still in
+`:awake:scene` until their seams are clearer.
+
 ## Compatibility Strategy
 
 `awake:scene` should remain the published facade during the split.
@@ -48,7 +60,7 @@ import immediately.
 
 | Module | Owns | Allowed dependencies | Must not own |
 |---|---|---|---|
-| `:awake:scene:core` | `Transform`, `Name`, `SceneDocument`, `SceneNode`, `SceneTransform`, `SceneCamera`, `SceneLight`, `SceneMeshRenderer`, `SceneValidator`, adapter contracts | `awake:base`, `awake:ecs`, serialization | `Renderer`, `PhysicsWorld`, UI input, authored gameplay |
+| `:awake:scene:core` | `Transform`, `Name` now; later `SceneDocument`, `SceneNode`, `SceneTransform`, validation, adapter contracts | `awake:base`, `awake:ecs`, serialization only once document model moves | `Renderer`, `PhysicsWorld`, UI input, authored gameplay |
 | `:awake:scene:runtime` | `SceneGameRuntime`, `SceneGameSpec`, `SceneSystemPhase`, `SceneSystemHandle`, frame/update lifecycle, scene frame helpers | `scene:core`, `awake:engine:game`, `awake:engine:ui:ui-core`, likely `render-api` during transition | Render submission internals, physics backend details, sample demo drivers |
 | `:awake:scene:rendering` | `Camera`, `Light`, `MeshRenderer`, `RenderSystem`, renderable request resolution, scene asset binding | `scene:core`, `scene:runtime` if asset factories still need runtime receiver, `awake:engine:render-api` | Vulkan/WebGPU concrete backends, authored sample meshes |
 | `:awake:scene:physics` | `PhysicsBody`, `PhysicsSystem` | `scene:core`, `awake:physics:api` | Jolt backend classes, gameplay movement rules |

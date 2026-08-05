@@ -21,6 +21,8 @@ flowchart TD
     core["awake:core"]
     ecs["awake:ecs"]
     scene["awake:scene"]
+    sceneCore["awake:scene:core"]
+    sceneRendering["awake:scene:rendering"]
     sceneDsl["awake:scene-dsl"]
     render["awake:engine:render-api"]
     game["awake:engine:game"]
@@ -37,10 +39,16 @@ flowchart TD
 
     core --> game
     base --> ecs
+    base --> sceneCore
     base --> scene
     base --> render
     base --> physicsApi
+    ecs --> sceneCore
     ecs --> scene
+    sceneCore --> sceneRendering
+    render --> sceneRendering
+    sceneCore --> scene
+    sceneRendering --> scene
     scene --> sceneDsl
     render --> game
     scene --> game
@@ -65,7 +73,9 @@ flowchart TD
 | `:awake-core` | Backend-agnostic app-lifecycle glue: `Application`, `GameLoop`, `VulkanView`, `EngineConfig` | `awake-core` |
 | `:awake-opengl` | Legacy OpenGL rendering backend | `awake-opengl` |
 | `:awake-ecs` | Sparse-set ECS runtime: entities, stores, queries, systems | `awake-ecs` |
-| `:awake-scene` | Scene components and systems on top of ECS | `awake-scene` |
+| `:awake-scene` | Published compatibility facade for scene runtime/components while scene internals split by capability | `awake-scene` |
+| `:awake-scene:core` | Scene core components such as `Transform`/`Name`; first internal split behind `awake-scene` | not published |
+| `:awake-scene:rendering` | Render-facing scene components and systems: `Camera`, `Light`, `MeshRenderer`, `RenderSystem` | not published |
 | `:awake-scene-dsl` | Authored scene DSL (`sceneGame { ... }`, entities/assets/systems) on top of `awake:scene` | not published |
 | `:awake-backend:vulkan` | Vulkan KMP bindings and JNI bridge | `awake-vulkan` |
 | `:awake-engine:game` | Backend-neutral game bootstrap and runtime glue | not published |

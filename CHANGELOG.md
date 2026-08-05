@@ -45,6 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   published `awake-scene` and into `samples:scene3d-playground`. Engine-owned systems should
   be reusable behavior; sample/game-specific systems belong with the authored gameplay that
   owns their rules.
+- Scene internals started splitting behind the published `awake-scene` facade:
+  `:awake:scene:core` now owns `Transform`/`Name`, and `:awake:scene:rendering` owns
+  `Camera`/`Light`/`MeshRenderer` plus `RenderSystem`. Public package names stay stable.
 - **Maven Central publishing migrated off Sonatype's legacy OSSRH staging API**
   (`s01.oss.sonatype.org`), which Sonatype sunset in June 2025 — publishing would have failed
   outright had it been run. Now uses the vanniktech `maven-publish` plugin targeting the

@@ -16,6 +16,9 @@ just spread unclear ownership across more folders.
   plan. Demo navmesh bootstrap moved out of `awake:scene`; authored gameplay systems moved
   to the scene3d sample. The scene module split proposal is now tracked in
   [docs/tasks/2026-08-05-scene-module-split-proposal.md](tasks/2026-08-05-scene-module-split-proposal.md).
+- 2026-08-05: First scene split slice landed behind the `awake-scene` facade:
+  `:awake:scene:core` owns `Transform`/`Name`, and `:awake:scene:rendering` owns
+  render-facing scene components plus `RenderSystem`.
 - 2026-07-10: `VulkanApplication` now loads `scene.json` through `SceneRuntimeHost`; next
   we peel shared code into smaller modules, starting with math/runtime/utils.
 

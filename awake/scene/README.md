@@ -1,10 +1,16 @@
 # Awake Scene
 
-Scene-graph components and systems built on top of [`awake-ecs`](../awake-ecs/README.md):
+Published facade for scene-graph components and systems built on top of
+[`awake-ecs`](../ecs/README.md):
 `Transform` (with parent/child hierarchy), `MeshRenderer`, `Camera`, `Light`, plus the
 `Name`, `TransformSystem`/`RenderSystem`, and the scene runtime that turns `scene.json`
 into live ECS entities. This is the layer between the bare ECS and a real game — read
 `awake-ecs`'s README first if you haven't.
+
+Internally, the scene stack has started splitting by reusable capability. `awake-scene`
+still re-exports the stable public packages, while `:awake:scene:core` owns
+`Transform`/`Name` and `:awake:scene:rendering` owns `Camera`/`Light`/`MeshRenderer` plus
+`RenderSystem`.
 
 ## Installation
 
@@ -23,7 +29,7 @@ repositories {
   frame. `localMatrix()` builds the local transform from position/rotation/scale.
 - **`Name`** — optional label for scene hierarchy/editor views. It is a small runtime
   component, not part of the serialized document itself.
-- **`MeshRenderer`** — wraps a `Mesh` + `Material` (from `awake-vulkan`) for `RenderSystem`
+- **`MeshRenderer`** — wraps a `Mesh` + `Material` (from `awake:engine:render-api`) for `RenderSystem`
   to turn into a `DrawCall`.
 - **`Camera`** — wraps `awake-core`'s math `Camera` (eye/center/up/fov/near/far) plus
   `isPrimary: Boolean`; `RenderSystem` renders through whichever `Camera` has

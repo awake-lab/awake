@@ -78,7 +78,7 @@ runtime. That is fine for iteration, but it should not be treated as final archi
 | `SceneLoader`, `SceneValidator`, `SceneInstantiationAdapter`, `AwakeWorldSceneAdapter` | Scene core/helper | Keep in scene core; adapter is the right seam for future non-ECS/editor targets. |
 | `SceneGameRuntime`, `SceneGameSpec`, `SceneSystemPhase`, `SceneSystemHandle` | Scene runtime core | Keep in scene core. |
 | `SceneAssetLibrary`, mesh/material factory typealiases | Runtime helper/rendering boundary | Keep for now, but likely belongs with scene rendering/asset binding if modules split. |
-| `Camera`, `MeshRenderer`, `RenderSystem` | Rendering | Candidate for `:awake:scene:rendering`. Depends on render-api and should not define generic scene core. |
+| `Camera`, `Light`, `MeshRenderer`, `RenderSystem` | Rendering | Moved to `:awake:scene:rendering` behind the `:awake:scene` facade. Depends on render-api and should not define generic scene core. |
 | `TransformSystem` | Scene core/render preparation | Keep near `Transform` for now. If a rendering split happens, keep transform propagation in core and render submission in rendering. |
 | `PhysicsBody`, `PhysicsSystem` | Physics | Candidate for `:awake:scene:physics`; depends on `awake:physics:api`. |
 | `OrbitControl`, `FreeFlyControl`, `FollowControl`, `MovementControl` | Controls | Candidate for `:awake:scene:controls` if reusable; otherwise keep out of scene core. |

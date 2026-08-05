@@ -65,6 +65,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(project(":awake:scene:core"))
+            api(project(":awake:scene:rendering"))
             api(project(":awake:base"))
             api(project(":awake:ecs"))
             api(project(":awake:engine:game"))

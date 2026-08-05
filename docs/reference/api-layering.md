@@ -34,7 +34,8 @@ Current intended split:
 | `System` | Core | `:awake:ecs` | Minimal behavior contract: `update(world, delta)` |
 | `World.family(...)` / `queryEach(...)` | Core/helper boundary | `:awake:ecs` | Querying is central to using the ECS; ergonomic overloads are acceptable when they stay explicit |
 | Component pooling | Helper | `:awake:ecs` | Performance convenience over component storage |
-| `Transform`, `Camera`, `MeshRenderer` | Scene core | `:awake:scene` | Scene-domain components, not generic ECS concepts |
+| `Transform`, `Name` | Scene core | `:awake:scene:core` via `:awake:scene` facade | Scene-domain components, not generic ECS concepts |
+| `Camera`, `Light`, `MeshRenderer` | Scene rendering | `:awake:scene:rendering` via `:awake:scene` facade | Render-facing scene components stay out of the tiny scene core |
 | `SceneGameRuntime` | Scene core | `:awake:scene` | Owns scene lifecycle and game-loop integration |
 | `SceneSystemPhase` | Scene core | `:awake:scene` | Scheduling belongs to the scene runtime, not the ECS core |
 | `fixedSystem(...)` / `frameSystem(...)` | Helper/sugar | `:awake:scene-dsl` | Friendly explicit registration for scene runtime phases |
@@ -103,8 +104,12 @@ Likely future shape:
 :awake:ecs
   Pure ECS core and low-level ECS helpers.
 
+:awake:scene
+  Published compatibility facade while scene internals split by capability.
+
 :awake:scene:core
-  Scene runtime contracts, scene-domain components, scene document/runtime lifecycle.
+  Scene-domain core components. Currently owns Transform and Name; document/runtime
+  extraction remains staged.
 
 :awake:scene:rendering
   Render-facing scene components and systems, such as MeshRenderer and RenderSystem.
