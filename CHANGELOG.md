@@ -41,6 +41,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   hardcoded demo geometry, recast4j dependencies, and proof tests moved to
   `samples:scene3d-playground`. `SceneRuntime` is deprecated in favor of
   `SceneGameRuntime`/`sceneGame {}`.
+- Authored gameplay systems `ChaseAiSystem` and `PlayerMovementSystem` moved out of
+  published `awake-scene` and into `samples:scene3d-playground`. Engine-owned systems should
+  be reusable behavior; sample/game-specific systems belong with the authored gameplay that
+  owns their rules.
 - **Maven Central publishing migrated off Sonatype's legacy OSSRH staging API**
   (`s01.oss.sonatype.org`), which Sonatype sunset in June 2025 — publishing would have failed
   outright had it been run. Now uses the vanniktech `maven-publish` plugin targeting the

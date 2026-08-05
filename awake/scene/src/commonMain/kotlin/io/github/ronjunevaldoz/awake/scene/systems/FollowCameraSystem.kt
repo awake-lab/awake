@@ -14,9 +14,8 @@ import kotlin.math.exp
  * has a [FollowControl] component trailing behind its target at a fixed offset, smoothed with
  * frame-rate-independent exponential decay so `delta` spikes don't cause overshoot.
  *
- * Decoupled from hardware input: [FollowControl] carries the target/offset/smoothing, nothing
- * here reads WASD directly (see PlayerMovementSystem/PlayerControlSystem for moving the
- * followed target itself).
+ * Decoupled from hardware input: [FollowControl] carries the target/offset/smoothing.
+ * This system only follows the target; gameplay code decides how the target itself moves.
  */
 class FollowCameraSystem : System {
 

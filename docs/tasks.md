@@ -13,8 +13,8 @@ just spread unclear ownership across more folders.
   [docs/tasks/2026-08-05-api-layering-plan.md](tasks/2026-08-05-api-layering-plan.md) as
   the active ECS/scene cleanup plan.
 - 2026-08-05: Phase 2 ECS/scene API classification audit recorded in the API layering
-  plan. Demo navmesh bootstrap moved out of `awake:scene`; next cleanup target is
-  gameplay-ish scene systems, then the scene split proposal.
+  plan. Demo navmesh bootstrap moved out of `awake:scene`; authored gameplay systems moved
+  to the scene3d sample; next cleanup target is the scene split proposal.
 - 2026-07-10: `VulkanApplication` now loads `scene.json` through `SceneRuntimeHost`; next
   we peel shared code into smaller modules, starting with math/runtime/utils.
 

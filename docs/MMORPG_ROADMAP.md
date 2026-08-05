@@ -107,15 +107,15 @@ used, so the categorical view (what kind of system is this) and the sequencing v
 > `Camera.eye`/`center` once in `scenes/mvp.scene.json` and never touched them again. The
 > new `CameraFollowSystem` (`awake-scene/.../systems/`) is the first system to mutate them
 > at runtime — a fixed third-person offset tracking the player's `Transform.position`, no
-> collision/occlusion handling yet (matches `PlayerMovementSystem`'s "deliberately simple"
-> scope for this slice).
+> collision/occlusion handling yet (matching the sample-owned movement system's deliberately
+> simple scope for this slice).
 
 ### Gameplay Mechanics & AI Systems
 
 | Item | Status | Priority | Stage | Approach |
 |---|---|---|---|---|
 | Recast/Detour NavMesh Generation & Dynamic Obstacle Avoidance | 🚧 Partial (2026-07-11) | P0 | MVP1a | `recast4j` (pure-Java Recast/Detour port, no JNI) generates a real navmesh and finds paths that route around a solid obstacle -- desktop + Android only (recast4j is JVM-only); iOS/wasmJs get `null` (deferred, no pre-built C wrapper like Jolt's `JoltC` exists for Recast yet). Dynamic obstacle avoidance (re-baking around moving obstacles) not done -- this slice repaths periodically toward a moving target, but the navmesh geometry itself is still static. |
-| ECS-Coupled Behavior Trees | 🚧 Partial (2026-07-11) | P0 | MVP1a | First real behavior via `ChaseAiSystem` (`awake-scene/.../systems/`) -- one fixed chase behavior (periodic repath + kinematic waypoint steering), not a general branching behavior-tree framework. Proves the ECS-coupled-AI pattern end-to-end; multiple/composable behaviors are a follow-up. |
+| ECS-Coupled Behavior Trees | 🚧 Partial (2026-07-11) | P0 | MVP1a | First real behavior via sample-owned `ChaseAiSystem` (`samples:scene3d-playground/.../gameplay/systems`) -- one fixed chase behavior (periodic repath + kinematic waypoint steering), not a general branching behavior-tree framework. Proves the ECS-coupled-AI pattern end-to-end; multiple/composable reusable behaviors are a follow-up. |
 | Hierarchical Pathfinding / HPA* | 🔲 Not started | P1 | MVP4 | 🆕 (only pays off at world scale) |
 | Utility AI System Data Blocks | 🔲 Not started | P2 | MVP4 | 🆕 (vs. plain behavior trees) |
 
@@ -134,7 +134,7 @@ used, so the categorical view (what kind of system is this) and the sequencing v
 
 | Item | Status | Priority | Stage | Approach |
 |---|---|---|---|---|
-| Kinematic Character Movement (no physics engine) | ✅ Done (2026-07-11) | P0 | MVP1a | 🕰️ deliberately simple — `Transform` moved directly from input via `PlayerMovementSystem` (`awake-scene`); WASD/arrows on desktop+wasmJs, touch-drag on Android+iOS (both already fed `Input.pointerDown/X/Y` from existing touch handlers, no new platform code needed). Not yet NavMesh-clamped — that's the next MVP1a item. |
+| Kinematic Character Movement (no physics engine) | ✅ Done (2026-07-11) | P0 | MVP1a | 🕰️ deliberately simple — `Transform` moved directly from input via sample-owned `PlayerMovementSystem` (`samples:scene3d-playground/.../gameplay/systems`); WASD/arrows on desktop+wasmJs, touch-drag on Android/iOS (both already fed `Input.pointerDown/X/Y` from existing touch handlers, no new platform code needed). Not yet NavMesh-clamped — that's the next MVP1a item. |
 | Jolt Physics JNI/cinterop Bindings | 🚧 Partial (2026-07-12) | P1 | MVP1b | See [D5](./MVP_PLAN.md#d5--physics-engine): `awake:physics:api` + `awake:backend:jolt`'s desktop/Android `JoltPhysicsWorld` (`stephengold/jolt-jni`) are real, wired into `awake-scene`'s `PhysicsBody`/`PhysicsSystem` and proven end-to-end in `sample-hello-cube`'s `PhysicsDemo` (falling cube settles onto a static ground box on real hardware). iOS (`JoltC` cinterop) and wasmJs (`JoltPhysics.js`) remain `TODO()`-stub-only -- deferred, not yet started. |
 | Dynamic Rigid Bodies (ragdolls, projectiles, knockback) | 🔲 Not started | P2 | MVP4 | 🆕 — only once gameplay needs real dynamics, not before |
 | 2D Physics (kbox2d, pure Kotlin) | 🔲 Not started | P3 | — | 🆕 — only if a 2D minigame/UI-physics need ever comes up; covers Wasm/JS for free since it's pure Kotlin |

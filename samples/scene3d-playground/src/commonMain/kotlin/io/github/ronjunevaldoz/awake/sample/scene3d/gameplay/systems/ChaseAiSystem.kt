@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.scene.systems
+package io.github.ronjunevaldoz.awake.sample.scene3d.gameplay.systems
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.System
@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.navigation.NavMesh
 
 /**
- * MVP1a's first ECS-coupled AI behavior (see docs/MMORPG_ROADMAP.md): [npcTransform] chases
+ * scene3d's first ECS-coupled AI behavior (see docs/MMORPG_ROADMAP.md): [npcTransform] chases
  * [targetTransform] by periodically re-querying [navMesh] for a path and steering
  * kinematically toward the next waypoint -- same "deliberately simple, no physics" bar as
  * [PlayerMovementSystem]. Chase only, not chase-*and*-avoid; dodge/avoid behavior is a

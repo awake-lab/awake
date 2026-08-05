@@ -45,6 +45,23 @@ Design credit: Awake's system model is Ashley-like in spirit, but with a
 Bevy/Unity/Flecs-style separation. Systems describe behavior; schedules decide when that
 behavior runs.
 
+## Reusable Systems Versus Authored Gameplay
+
+Engine-owned systems must be reusable behaviors, not one game's authored rules.
+
+Put a `System` in an engine module only when it is generic, configurable, and useful across
+multiple games or samples without carrying authored scenario assumptions. A reusable scene
+system may say "propagate transforms," "submit mesh renderers," "sync physics bodies," or
+"drive cameras from reusable control components."
+
+Keep a `System` in the game/sample `gameplay/systems/` folder when it encodes authored
+gameplay: chase this specific target style, move this specific player model, trigger this
+demo sequence, score this rule, or prove one roadmap slice. Authored gameplay can graduate
+later, but only after repeated usage reveals the reusable contract.
+
+Rule of thumb: if the system's name only makes sense inside one demo's story or MVP slice,
+it is authored gameplay first.
+
 ## Naming Rules
 
 - Prefer boring names in core: `World`, `Entity`, `System`.
@@ -116,4 +133,3 @@ Before merging a public API addition, answer:
 5. What is the non-DSL way to do the same thing?
 6. What would make this API hard to remove later?
 7. Does the README/changelog need an update?
-

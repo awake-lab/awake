@@ -85,6 +85,11 @@ Owns simulation logic.
 
 Do not put UI formatting or shell/session glue here.
 
+Authored gameplay systems live here by default. Do not promote a `System` into `awake:scene`
+or another engine module just because it uses ECS. Promote it only when it becomes reusable
+engine behavior: generic, configurable, and useful across multiple games/samples without
+dragging along one demo's scenario.
+
 ### `scene/`
 
 Owns authored scene structure and reusable prefabs.
@@ -148,6 +153,7 @@ Before adding a new type, answer these questions:
 1. Is this gameplay truth, session/runtime truth, UI view data, or widget-local state?
 2. Does this type need ECS access, or only a mapped snapshot of ECS state?
 3. Is this reusable engine API, reusable game composition, or authored game usage?
+4. If it is a `System`, is it generic reusable behavior or authored gameplay?
 
 Use the answers like this:
 

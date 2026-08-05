@@ -1,12 +1,11 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.scene
+package io.github.ronjunevaldoz.awake.sample.scene3d.gameplay.systems
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.MovementControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.scene.systems.PlayerMovementSystem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

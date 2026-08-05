@@ -16,8 +16,7 @@ import kotlin.test.assertTrue
 
 /**
  * FollowCameraSystem is decoupled from hardware input -- it only reads target/offset/smoothing
- * already set on [FollowControl] (see PlayerMovementSystem/PlayerControlSystem for how the
- * followed target itself gets moved by WASD in a real frame).
+ * already set on [FollowControl]. Gameplay code decides how the followed target itself moves.
  */
 class FollowCameraSystemTest {
     private fun newCamera() = Camera(

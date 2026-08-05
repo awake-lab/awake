@@ -2734,9 +2734,9 @@ falling-cube demo.**
 
 - `awake:scene` gained `PhysicsBody` (shape/motionType/nullable `BodyHandle`, same
   "declared-before-the-live-resource-exists" shape as `MeshRenderer`) and `PhysicsSystem`
-  (externally driven `update(world, delta)`, same pattern as `OrbitCameraSystem`/
-  `ChaseAiSystem` — constructed and called by game code, never wired into `SceneRuntime`
-  itself, since only the caller knows which concrete `PhysicsWorld` to construct). Body
+  (externally driven `update(world, delta)` — constructed and called by game code, never
+  wired into `SceneRuntime` itself, since only the caller knows which concrete
+  `PhysicsWorld` to construct). Body
   creation is lazy/one-shot per entity (first `update` that sees a `null` handle creates the
   body); `step`/`syncTransforms` are each called exactly once per `update`, matching
   `PhysicsWorld.syncTransforms`'s batched-readback contract. Covered by

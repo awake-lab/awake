@@ -84,7 +84,7 @@ runtime. That is fine for iteration, but it should not be treated as final archi
 | `OrbitControl`, `FreeFlyControl`, `FollowControl`, `MovementControl` | Controls | Candidate for `:awake:scene:controls` if reusable; otherwise keep out of scene core. |
 | `OrbitCameraSystem`, `FreeFlyCameraSystem`, `FollowCameraSystem` | Controls | Candidate for `:awake:scene:controls`. |
 | `PlayerControlSystem` | Controls/UI boundary smell | Depends on hardware input plus UI input ownership. Candidate for controls or sample/tooling; do not keep in scene core long-term. |
-| `PlayerMovementSystem`, `ChaseAiSystem` | Gameplay/sample-adjacent | Likely too opinionated for scene core. Move toward sample/gameplay or a future gameplay/navigation module. |
+| `PlayerMovementSystem`, `ChaseAiSystem` | Authored gameplay | Moved to `samples:scene3d-playground` gameplay systems. Do not keep scenario-specific systems in scene core. |
 | `NavMesh` | Navigation | Keep as a tiny contract for now; it may deserve a small navigation contract module later. |
 | `createScene3DDemoNavMesh()` | Sample-local | Moved to `samples:scene3d-playground`; no longer reusable scene API. |
 | `DemoNavMeshGeometry` | Sample-local | Moved to `samples:scene3d-playground`; no longer reusable scene code. |
@@ -137,8 +137,9 @@ which is healthy.
 2. `awake:scene` is the next debt pocket. It mixes core scene contracts with rendering,
    physics, controls, navigation, and gameplay-ish systems.
 3. The immediate split should not be a blind module move. Demo navmesh bootstrap and
-   geometry are now sample-owned; next, review gameplay-ish systems (`ChaseAiSystem`,
-   `PlayerMovementSystem`) so future module boundaries are not polluted.
+   geometry are now sample-owned. Authored gameplay systems (`ChaseAiSystem`,
+   `PlayerMovementSystem`) moved with the sample so future module boundaries are not
+   polluted.
 4. `scene-dsl` is correctly sugar, but its implicit built-in systems need continuous tests
    because the duplicate-render bug came from misunderstanding that hidden registration.
 5. The Ashley-style `EntitySystem` idea remains deferred. A future `FamilySystem*` helper is
@@ -228,6 +229,8 @@ The proposal must answer:
 - Do not move scene concepts into `awake-ecs`.
 - Do not put renderer-specific behavior into generic runtime facades.
 - Do not add sugar without a non-sugar path.
+- Do not put authored gameplay systems in reusable engine modules. Engine systems must be
+  generic, configurable, and reusable across more than one game/sample.
 - Do not remove or rename published public symbols without changelog/release-note treatment.
 - Do not split modules until the API classification is clear.
 
@@ -238,5 +241,5 @@ The first source cleanup from the Phase 2 audit has started:
 1. Keep `awake:ecs` unchanged except possibly documenting/renaming advanced APIs.
 2. Demo-specific navmesh bootstrap now lives in `samples:scene3d-playground`.
 3. `SceneRuntime` is deprecated in favor of `SceneGameRuntime`/`sceneGame {}`.
-4. Next: review gameplay-ish systems (`ChaseAiSystem`, `PlayerMovementSystem`) and then draft
-   the scene split proposal.
+4. Authored gameplay systems moved to `samples:scene3d-playground`.
+5. Next: draft the scene split proposal around reusable core/rendering/physics/controls.
