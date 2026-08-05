@@ -57,7 +57,6 @@
     <ID>MagicNumber:SkinnedMeshDemo.kt$SkinnedMeshDemo$0.5f</ID>
     <ID>MagicNumber:SkinnedMeshDemo.kt$SkinnedMeshDemo$2.5f</ID>
     <ID>MagicNumber:SkinnedMeshDemo.kt$SkinnedMeshDemo$20f</ID>
-    <ID>MaxLineLength:GltfViewerDemo.kt$GltfViewerDemo$cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true)) }</ID>
     <ID>MaxLineLength:GltfViewerDemo.kt$GltfViewerDemo$normalizeScale = shadcnSwitch(id = "gltf-normalize-scale", checked = normalizeScale, label = "Normalize scale")</ID>
     <ID>MaxLineLength:OrbitCameraControlsPanel.kt$controller.elevation = shadcnFieldSliderWithValue(id = "$idPrefix-elevation", label = "Elevation", min = -controller.panRange, max = controller.panRange, value = controller.elevation, enabled = targetFieldsEnabled)</ID>
     <ID>MaxLineLength:OrbitCameraControlsPanel.kt$controller.far = shadcnFieldSliderWithValue(id = "$idPrefix-far", label = "Far", min = 10f, max = controller.zoomMax * 40f, value = controller.far)</ID>
@@ -71,9 +70,7 @@
     <ID>MaxLineLength:OrbitCameraControlsPanel.kt$controller.pitchDegrees = shadcnFieldSliderWithValue(id = "$idPrefix-pitch", label = "Pitch", min = 0f, max = 89f, value = controller.pitchDegrees)</ID>
     <ID>MaxLineLength:OrbitCameraControlsPanel.kt$controller.rollDegrees = shadcnFieldSliderWithValue(id = "$idPrefix-roll", label = "Roll", min = -180f, max = 180f, value = controller.rollDegrees)</ID>
     <ID>MaxLineLength:OrbitCameraControlsPanel.kt$controller.zoom = shadcnFieldSliderWithValue(id = "$idPrefix-zoom", label = "Zoom", min = controller.zoomMin, max = controller.zoomMax, value = controller.zoom, enabled = !controller.freeLook)</ID>
-    <ID>MaxLineLength:RotatingCubeDemo.kt$RotatingCubeDemo$cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(cubeWorldPosition()), isPrimary = true)) }</ID>
     <ID>MaxLineLength:RotatingCubeDemo.kt$RotatingCubeDemo$timeController.autoPlay = shadcnSwitch(id = "cube-auto-spin", checked = timeController.autoPlay, label = "Auto-spin")</ID>
-    <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true)) }</ID>
     <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$timeController.autoPlay = shadcnSwitch(id = "skinned-auto-play", checked = timeController.autoPlay, label = "Auto-play")</ID>
     <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$val timeSeconds = if (duration > 0f) (timeController.hours / ManualTimeController.HOURS_PER_CYCLE) * duration else 0f</ID>
     <ID>NestedBlockDepth:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$@Test fun headlessRotatingCubeRenderMatchesBaselines()</ID>
