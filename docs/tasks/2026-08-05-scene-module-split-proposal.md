@@ -2,6 +2,12 @@
 
 Date: 2026-08-05
 
+Status: **Complete** -- all five leaf modules (`core`/`rendering`/`physics`/`controls`/
+`runtime`) exist, `:awake:scene` is a published re-export facade, and `:awake:scene-dsl`
+depends on the leaf modules directly (Phase 5). See "Current Implementation Status" below.
+The "Open Decisions" section still lists genuinely unresolved design questions that outlive
+the physical split.
+
 ## Objective
 
 Split `awake:scene` by reusable capability without breaking the existing `awake-scene`
@@ -40,8 +46,11 @@ The first physical split has started:
 - `:awake:scene:physics` exists and owns `PhysicsBody`/`PhysicsSystem`.
 - `:awake:scene:controls` exists and owns `OrbitControl`/`FreeFlyControl`/`FollowControl`/
   `MovementControl` plus `OrbitCameraSystem`/`FreeFlyCameraSystem`/`FollowCameraSystem`.
-  `PlayerControlSystem` stays in `:awake:scene` (it depends on `ui-core`'s
-  `UiInputOwnership`, per the UI-free preference below).
+  `PlayerControlSystem` stays in `:awake:scene-dsl` (it depends on `ui-core`'s
+  `UiInputOwnership`, per the UI-free preference below). `LookAtControl`/
+  `LookAtCameraSystem` (rotation-only tracking) and `PrimaryOrbitCamera` (a plain
+  lifecycle helper, not an ECS `System`, for a UI-driven debug camera entity) landed
+  later in this module, following the same reusable-control pattern.
 - `:awake:scene:runtime` exists and owns `SceneGameRuntime`, `SceneGameSpec`,
   `SceneSystemPhase`/`SceneSystemHandle`, `SceneRouterSpec`, the document model
   (`SceneDocument`/`SceneLoader`/`SceneValidator`/`SceneInstantiationAdapter`), and
@@ -57,7 +66,9 @@ The first physical split has started:
   rendering split had already happened -- the condition the original plan set for this move).
   `PlayerControlSystem` moved into `:awake:scene-dsl` directly, not `:awake:scene:controls`
   (it needs `ui-core`'s `UiInputOwnership`, and `:awake:scene-dsl` is exactly the "DSL/sample
-  tooling" home the open-decisions section below already named for it).
+  tooling" home the open-decisions section below already named for it). `SpinControl`/
+  `SpinSystem` (generic entity rotation) landed in `:awake:scene:core` after this split,
+  following the same component+System convention as the existing camera controls.
 - `:awake:scene-dsl` now depends on `:awake:scene:core`/`:rendering`/`:controls`/`:runtime`
   directly instead of the `:awake:scene` facade (Phase 5, "DSL Dependency Tightening") --
   moving `TransformSystem`/`PlayerControlSystem` out of `:awake:scene` is what made this

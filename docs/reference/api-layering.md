@@ -36,8 +36,8 @@ Current intended split:
 | Component pooling | Helper | `:awake:ecs` | Performance convenience over component storage |
 | `Transform`, `Name` | Scene core | `:awake:scene:core` via `:awake:scene` facade | Scene-domain components, not generic ECS concepts |
 | `Camera`, `Light`, `MeshRenderer` | Scene rendering | `:awake:scene:rendering` via `:awake:scene` facade | Render-facing scene components stay out of the tiny scene core |
-| `SceneGameRuntime` | Scene core | `:awake:scene` | Owns scene lifecycle and game-loop integration |
-| `SceneSystemPhase` | Scene core | `:awake:scene` | Scheduling belongs to the scene runtime, not the ECS core |
+| `SceneGameRuntime` | Scene core | `:awake:scene:runtime` via `:awake:scene` facade | Owns scene lifecycle and game-loop integration |
+| `SceneSystemPhase` | Scene core | `:awake:scene:runtime` via `:awake:scene` facade | Scheduling belongs to the scene runtime, not the ECS core |
 | `fixedSystem(...)` / `frameSystem(...)` | Helper/sugar | `:awake:scene-dsl` | Friendly explicit registration for scene runtime phases |
 | `cameraEntity(...)` / `meshEntity(...)` | Sugar | `:awake:scene-dsl` | Authoring convenience for common scene shapes |
 | `scene { ... }` / `assets { ... }` | Sugar | `:awake:scene-dsl` | Declarative authoring surface |
@@ -110,7 +110,8 @@ Likely future shape:
 :awake:scene:core
   Scene-domain core components. Currently owns Transform, Name, and TransformSystem
   (moved here once the rendering split made "keep transform propagation in core" the
-  actual state, not just the plan).
+  actual state, not just the plan), plus the generic entity-rotation SpinControl/
+  SpinSystem.
 
 :awake:scene:rendering
   Render-facing scene components and systems, such as MeshRenderer and RenderSystem.
@@ -120,8 +121,10 @@ Likely future shape:
 
 :awake:scene:controls
   Reusable camera/player control components and systems. Currently owns OrbitControl,
-  FreeFlyControl, FollowControl, MovementControl, and their camera systems.
-  PlayerControlSystem stays in :awake:scene (depends on ui-core's UiInputOwnership).
+  FreeFlyControl, FollowControl, LookAtControl, MovementControl, their camera systems
+  (including LookAtCameraSystem), and PrimaryOrbitCamera (a plain lifecycle helper, not
+  an ECS System, for a UI-driven debug camera entity). PlayerControlSystem stays in
+  :awake:scene-dsl (depends on ui-core's UiInputOwnership).
 
 :awake:scene:runtime
   SceneGameRuntime scheduling and game-loop integration. Currently owns SceneGameRuntime,

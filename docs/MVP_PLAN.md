@@ -1283,8 +1283,14 @@ add/remove and family churn at 100k).
       `readResourceBytes`/`SceneLoader`
 - [x] **Mesh import (2026-07-09):** minimal glTF 2.0 parser (`GltfDocument`/`GltfMesh`/
       `GltfParser` in `awake-base`) — single mesh/primitive, base64-embedded buffers only,
-      deliberately narrow MVP scope; full glTF (external `.bin`, skinning, animation,
-      multi-primitive) is post-MVP
+      deliberately narrow MVP scope; full glTF (external `.bin`, multi-primitive) is still
+      post-MVP. **Skinning/animation and materials/textures have since landed** (post-MVP,
+      not part of the spinning-cube exit criteria, but real and working): `GltfSkinning.kt`/
+      `SkinnedAnimationPlayer` (skin joints, keyframe sampling) and `GltfMesh`
+      materials/textures parsing (`baseColorImageBytes`, `toInterleavedPositionNormalColorUv()`)
+      in `awake-base`; consumed via the renderer's `drawSkinnedMesh`/`drawTexturedMesh`
+      staged-draw paths (`VertexFormat.PositionNormalColorSkin`/`PositionNormalColorUv`) —
+      see `samples/scene3d-playground`'s `SkinnedMeshDemo`/`GltfViewerDemo`.
 - [x] Scene serialization: `kotlinx.serialization` → `scene.json`
       (the editor contract now lives in `SceneDocument`/`SceneLoader`; renderable binding
       is still app-side)

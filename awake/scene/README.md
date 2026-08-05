@@ -140,10 +140,14 @@ you and appended after user systems.
 ## Building your own systems on top
 
 Scene systems are plain `awake-ecs` `System`s — there's nothing special about the two
-above beyond what components they read/write. A typical addition follows the same shape:
+above beyond what components they read/write. `:awake:scene:core` already ships
+`SpinControl`/`SpinSystem` for generic entity rotation and `:awake:scene:controls` ships
+`OrbitControl`/`FreeFlyControl`/`FollowControl`/`LookAtControl` and their camera systems —
+check those first. For anything not already covered, a typical addition follows the same
+shape:
 
 ```kotlin
-class SpinSystem(private val radiansPerSecond: Float) : System {
+class OrbitLightSystem(private val radiansPerSecond: Float) : System {
     override fun update(world: World, delta: Float) {
         world.queryEach<Transform> { _, transform ->
             transform.rotation.y += radiansPerSecond * delta

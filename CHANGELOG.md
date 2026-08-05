@@ -14,6 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `awake-scene`.
 - Maintained ECS family handles for one- and two-component queries, including
   component-only iteration for systems that do not need entity handles.
+- GPU skinning: `Quat` (`awake-base` `core.math`), `GltfSkinning.kt` (skin/animation data
+  types) and `SkinnedAnimationPlayer` (a generic glTF animation sampler) in `awake-base`
+  `core.mesh.gltf`, `VertexFormat.PositionNormalColorSkin`, and
+  `Renderer.drawSkinnedMesh(mesh, material, model, jointPalette)` — a separate staged-draw
+  path from `draw()`/`DrawCall` because a skinned mesh's vertex layout doesn't match the
+  one shared main 3D pipeline. `Renderer.createMaterial(...)` gained a `uniformFloatCount`
+  parameter so a skinned material's joint-palette uniform buffer can be sized correctly.
+- Texture sampling: `Bitmap.toRgba8Bytes()` (`awake-base` `core.graphics.BitmapRgba8.kt`),
+  materials/textures/images parsing on `GltfDocument`/`GltfParser`/`GltfMesh`
+  (`GltfMesh.baseColorImageBytes`, `toInterleavedPositionNormalColorUv()`),
+  `VertexFormat.PositionNormalColorUv`, and `Renderer.drawTexturedMesh(mesh, material,
+  model)` — same separate staged-draw pattern as GPU skinning.
+- `:awake:scene:core` gained `SpinControl`/`SpinSystem` (generic entity rotation) and
+  `:awake:scene:controls` gained `LookAtControl`/`LookAtCameraSystem` (rotation-only
+  tracking) plus `PrimaryOrbitCamera` (a plain lifecycle helper, not an ECS `System`, for
+  a UI-driven debug camera entity) — extracted from boilerplate duplicated across
+  `samples:scene3d-playground` demos.
 
 ### Removed
 

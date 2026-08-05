@@ -36,6 +36,11 @@ just spread unclear ownership across more folders.
   specific `:awake:scene:*` leaf modules it uses instead of the whole `:awake:scene`
   facade -- this completes the module list the split proposal sketched, leaving only
   `NavMesh` and the deprecated `SceneRuntime` bootstrap in `:awake:scene` itself.
+- 2026-08-06: `:awake:scene:core` gained `SpinControl`/`SpinSystem` (generic entity
+  rotation) and `:awake:scene:controls` gained `LookAtControl`/`LookAtCameraSystem` plus
+  `PrimaryOrbitCamera` (a plain lifecycle helper, not an ECS `System`, for a UI-driven
+  debug camera entity) -- extracted from duplicated demo boilerplate, following the same
+  component+System convention the existing camera controls already use.
 - 2026-07-10: `VulkanApplication` now loads `scene.json` through `SceneRuntimeHost`; next
   we peel shared code into smaller modules, starting with math/runtime/utils.
 
@@ -61,7 +66,8 @@ just spread unclear ownership across more folders.
 
 - Dev: Core split
 - Dev: ECS/scene API layering and classification
-- Dev: Scene module split proposal
+- Dev: Scene module split (complete -- see
+  [docs/tasks/2026-08-05-scene-module-split-proposal.md](tasks/2026-08-05-scene-module-split-proposal.md))
 - Dev: UI DSL and style audit
 - Beta: None yet
 - Stable: Refresh runtime docs after the module split lands

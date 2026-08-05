@@ -34,9 +34,9 @@ authoring surface.
 | `Entity`, `World`, `System` | Core | Keep in `:awake:ecs` |
 | `World.family(...)`, `queryEach(...)` | Core/helper boundary | Keep in `:awake:ecs`; watch allocation and naming |
 | `SystemFrequency` | Removed core leakage | Replace with scene-owned scheduling |
-| `SceneSystemPhase` | Scene core | Keep in `:awake:scene` |
+| `SceneSystemPhase` | Scene core | Now in `:awake:scene:runtime` via the `:awake:scene` facade |
 | `fixedSystem(...)`, `frameSystem(...)` | Scene DSL helper/sugar | Keep in `:awake:scene-dsl` |
-| `TransformSystem`, `RenderSystem` | Scene runtime systems | Keep in `:awake:scene` for now; later evaluate rendering split |
+| `TransformSystem`, `RenderSystem` | Scene runtime systems | Split landed: `TransformSystem` in `:awake:scene:core`, `RenderSystem` in `:awake:scene:rendering` |
 | `cameraEntity(...)`, `meshEntity(...)` | Sugar | Keep in `:awake:scene-dsl` |
 | Ashley-style `EntitySystem` | Not accepted yet | Do not add until repeated boilerplate proves a helper is needed |
 
