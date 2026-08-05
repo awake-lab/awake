@@ -103,7 +103,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>) {
     val waitSemaphores = arrayOf(swapchainManager.imageAvailableSemaphores[currentFrame])
     val waitStages =
         intArrayOf(VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value)
-    val signalSemaphores = arrayOf(swapchainManager.renderFinishedSemaphores[currentFrame])
+    val signalSemaphores = arrayOf(swapchainManager.renderFinishedSemaphores[imageIndex])
 
     val submitInfo = VkSubmitInfo(
         pWaitSemaphores = waitSemaphores,

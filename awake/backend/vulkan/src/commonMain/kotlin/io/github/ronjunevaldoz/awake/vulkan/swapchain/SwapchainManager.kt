@@ -28,8 +28,9 @@ import io.github.ronjunevaldoz.awake.vulkan.utils.findQueueFamilies
 import io.github.ronjunevaldoz.awake.vulkan.utils.querySwapChainSupport
 
 /**
- * Phase 2 (renderer abstraction): owns the swapchain (images, image views, format, extent)
- * and the per-frame-in-flight synchronization primitives (semaphores/fences) -- extracted
+ * Phase 2 (renderer abstraction): owns the swapchain (images, image views, format, extent),
+ * per-frame-in-flight acquire/fence synchronization, and per-swapchain-image present
+ * semaphores -- extracted
  * verbatim from `VulkanApplication`'s `swapChain`/`createImageViews`/`chooseSwap*`/
  * `cleanSwapChain`/`createSyncObjects` functions and their backing fields. Same calls, same
  * order, same synchronization ownership.
@@ -54,7 +55,7 @@ class SwapchainManager(
     var imageFormat = VkFormat.VK_FORMAT_UNDEFINED
 
     val imageAvailableSemaphores = LongArray(maxFramesInFlight)
-    val renderFinishedSemaphores = LongArray(maxFramesInFlight)
+    var renderFinishedSemaphores = LongArray(0)
     val inFlightFences = LongArray(maxFramesInFlight)
     internal var imagesInFlight = LongArray(0)
     var currentFrame = 0
@@ -116,6 +117,9 @@ class SwapchainManager(
         extent = chosenExtent
         createImageViews()
         imagesInFlight = LongArray(imageViews.size)
+        renderFinishedSemaphores = LongArray(imageViews.size) {
+            Vulkan.vkCreateSemaphore(device, VkSemaphoreCreateInfo())
+        }
     }
 
     /** Desktop-only headless stand-in for [create] (see `GraphicsDevice.createHeadless`'s doc
@@ -131,6 +135,7 @@ class SwapchainManager(
         imageFormat = format
         extent = VkExtent2D(width, height)
         imagesInFlight = LongArray(imageViews.size)
+        renderFinishedSemaphores = LongArray(0)
     }
 
     private fun createImageViews() {
@@ -218,6 +223,10 @@ class SwapchainManager(
     /** Destroys the image views + swapchain itself. Framebuffers are the caller's
      * responsibility (see class doc comment) and must be destroyed BEFORE this. */
     fun destroy() {
+        renderFinishedSemaphores.forEach { semaphore ->
+            Vulkan.vkDestroySemaphore(device, semaphore)
+        }
+        renderFinishedSemaphores = LongArray(0)
         imageViews.forEach { imageView ->
             Vulkan.vkDestroyImageView(device, imageView)
         }
@@ -232,7 +241,6 @@ class SwapchainManager(
 
         for (i in 0 until maxFramesInFlight) {
             imageAvailableSemaphores[i] = Vulkan.vkCreateSemaphore(device, semaphoreInfo)
-            renderFinishedSemaphores[i] = Vulkan.vkCreateSemaphore(device, semaphoreInfo)
             inFlightFences[i] = Vulkan.vkCreateFence(device, fenceInfo)
         }
     }
@@ -240,7 +248,6 @@ class SwapchainManager(
     fun destroySyncObjects() {
         repeat(maxFramesInFlight) { index ->
             Vulkan.vkDestroySemaphore(device, imageAvailableSemaphores[index])
-            Vulkan.vkDestroySemaphore(device, renderFinishedSemaphores[index])
             Vulkan.vkDestroyFence(device, inFlightFences[index])
         }
     }

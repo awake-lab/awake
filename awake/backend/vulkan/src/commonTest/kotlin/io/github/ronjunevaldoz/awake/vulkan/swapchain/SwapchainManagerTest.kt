@@ -75,6 +75,7 @@ class SwapchainManagerTest {
         manager.createHeadless(width = 320, height = 240)
 
         assertEquals(0, manager.imagesInFlight.size)
+        assertEquals(0, manager.renderFinishedSemaphores.size)
     }
 
     private fun swapchainManagerWithExtent(width: Int, height: Int): SwapchainManager =
