@@ -73,6 +73,20 @@ class FollowControl : Poolable {
 }
 
 /**
+ * Stores the target for a rotation-only (look-at/tracking) camera -- the eye stays wherever it
+ * already is (set independently, e.g. by [OrbitControl]/[FreeFlyControl] or gameplay code), only
+ * the aim direction tracks [target] every frame. See [FollowControl]'s own doc comment for the
+ * distinction: that one also chases the target's position, this one doesn't.
+ */
+class LookAtControl : Poolable {
+    var target: Transform? = null
+
+    override fun reset() {
+        target = null
+    }
+}
+
+/**
  * Stores intended translation deltas for a character or player.
  */
 class MovementControl : Poolable {

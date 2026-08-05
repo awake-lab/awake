@@ -19,8 +19,8 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCamera
 import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.controls.PrimaryOrbitCamera
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
@@ -49,6 +49,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
  */
 internal object SkinnedMeshDemo {
     private val camera = OrbitCameraController()
+    private val primaryCamera = PrimaryOrbitCamera(camera)
 
     private var scene: LoadedSkinnedScene? = null
     private var player: SkinnedAnimationPlayer? = null
@@ -62,7 +63,6 @@ internal object SkinnedMeshDemo {
     private var displayGroupExpanded = false
 
     private var placementEntity: Entity? = null
-    private var cameraEntity: Entity? = null
     private var mesh: Mesh? = null
     private var material: Material? = null
 
@@ -125,8 +125,7 @@ internal object SkinnedMeshDemo {
         onDeactivate = { world ->
             placementEntity?.let { world.destroy(it) }
             placementEntity = null
-            cameraEntity?.let { world.destroy(it) }
-            cameraEntity = null
+            primaryCamera.destroy(world)
         },
         onUpdate = { delta ->
             ensureSpawned(this)
@@ -144,7 +143,7 @@ internal object SkinnedMeshDemo {
             if (currentMesh != null && currentMaterial != null && currentSkin != null && currentPlayer != null) {
                 renderer.drawSkinnedMesh(currentMesh, currentMaterial, Mat4(), currentPlayer.jointPalette(currentSkin))
             }
-            cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true)) }
+            primaryCamera.refresh(world, MODEL_CENTER)
         }
     )
 
@@ -159,9 +158,7 @@ internal object SkinnedMeshDemo {
         val entity = runtime.world.create()
         runtime.world.add(entity, Transform())
         placementEntity = entity
-        val cameraEnt = runtime.world.create()
-        runtime.world.add(cameraEnt, SceneCamera(camera.computeCamera(MODEL_CENTER), isPrimary = true))
-        cameraEntity = cameraEnt
+        primaryCamera.spawn(runtime.world, MODEL_CENTER)
     }
 
     private val MODEL_CENTER = Vec3(0f, 0f, 0f)

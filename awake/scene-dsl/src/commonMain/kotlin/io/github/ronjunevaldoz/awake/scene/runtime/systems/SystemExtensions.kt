@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemHandle
 import io.github.ronjunevaldoz.awake.scene.systems.FollowCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem
+import io.github.ronjunevaldoz.awake.scene.systems.LookAtCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem
 import io.github.ronjunevaldoz.awake.scene.systems.PlayerControlSystem
 
@@ -67,6 +68,23 @@ fun SceneGameDsl.followCameraSystem(
     }
     return frameSystem(name) {
         FollowCameraSystem().also(configure)
+    }
+}
+
+fun SceneGameDsl.lookAtCameraSystem(
+    name: String = "lookAt",
+    target: String,
+    camera: String,
+    configure: LookAtCameraSystem.() -> Unit = {}
+): SceneSystemHandle<LookAtCameraSystem> {
+    onReady {
+        val cameraEntity = requireEntity(camera)
+        world.add(cameraEntity, io.github.ronjunevaldoz.awake.scene.components.LookAtControl().apply {
+            this.target = requireTransform(target)
+        })
+    }
+    return frameSystem(name) {
+        LookAtCameraSystem().also(configure)
     }
 }
 

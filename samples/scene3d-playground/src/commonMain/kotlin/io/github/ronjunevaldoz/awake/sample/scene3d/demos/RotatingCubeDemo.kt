@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Grid
-import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
@@ -12,9 +11,10 @@ import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCamera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.controls.PrimaryOrbitCamera
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
@@ -39,6 +39,7 @@ import kotlin.math.sin
  */
 internal object RotatingCubeDemo {
     private val camera = OrbitCameraController(zoom = 15f, zoomMin = 2f, zoomMax = 15f)
+    private val primaryCamera = PrimaryOrbitCamera(camera)
 
     private var wireframe = false
     private var spinRadians = 0f
@@ -53,7 +54,6 @@ internal object RotatingCubeDemo {
     private var cubeMesh: Mesh? = null
     private var material: Material? = null
     private var cubeEntity: Entity? = null
-    private var cameraEntity: Entity? = null
 
     private const val GRID_SIZE = 10f
     private const val GRID_DIVISIONS = 10
@@ -104,18 +104,16 @@ internal object RotatingCubeDemo {
             spinRadians = 0f
             timeController.reset()
             val cube = world.create()
-            world.add(cube, Transform(worldMatrix = cubeModelMatrix()))
+            world.add(cube, Transform())
+            world.add(cube, SpinControl().apply { offset = cubeWorldPosition(); radians = spinRadians })
             if (!wireframe) world.add(cube, MeshRenderer(cubeMesh!!, material!!))
             cubeEntity = cube
-            val cameraEnt = world.create()
-            world.add(cameraEnt, SceneCamera(camera.computeCamera(cubeWorldPosition()), isPrimary = true))
-            cameraEntity = cameraEnt
+            primaryCamera.spawn(world, cubeWorldPosition())
         },
         onDeactivate = { world ->
             cubeEntity?.let { world.destroy(it) }
-            cameraEntity?.let { world.destroy(it) }
             cubeEntity = null
-            cameraEntity = null
+            primaryCamera.destroy(world)
         },
         onUpdate = { delta ->
             timeController.advance(delta)
@@ -127,7 +125,7 @@ internal object RotatingCubeDemo {
             renderer.drawDebugLines(lines)
 
             cubeEntity?.let { entity ->
-                world.get(entity, Transform::class)?.worldMatrix = cubeModelMatrix()
+                world.get(entity, SpinControl::class)?.radians = spinRadians
                 val hasMeshRenderer = world.get(entity, MeshRenderer::class) != null
                 if (wireframe && hasMeshRenderer) {
                     world.remove(entity, MeshRenderer::class)
@@ -135,15 +133,12 @@ internal object RotatingCubeDemo {
                     cubeMesh?.let { mesh -> material?.let { mat -> world.add(entity, MeshRenderer(mesh, mat)) } }
                 }
             }
-            cameraEntity?.let { entity -> world.add(entity, SceneCamera(camera.computeCamera(cubeWorldPosition()), isPrimary = true)) }
+            primaryCamera.refresh(world, cubeWorldPosition())
         }
     )
 
-    private fun cubeModelMatrix(): Mat4 = Mat4().translate(0f, CUBE_REST_HEIGHT, 0f).rotateY(spinRadians)
-
-    /** The cube never translates (only [wireframeCubeEdges]/[cubeModelMatrix] rotates it in
-     * place), so its world position is always this fixed point -- the same one the cube's own
-     * rest-height translate uses. */
+    /** The cube never translates (only [wireframeCubeEdges] rotates it in place), so its world
+     * position is always this fixed point -- the same one [SpinControl.offset] uses. */
     private fun cubeWorldPosition(): Vec3 = Vec3(0f, CUBE_REST_HEIGHT, 0f)
 
     // Standard red/green/blue X/Y/Z axis convention (Blender/Unity/three.js all use this),
