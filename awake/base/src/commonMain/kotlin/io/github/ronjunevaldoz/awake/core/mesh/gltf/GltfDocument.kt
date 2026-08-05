@@ -8,9 +8,11 @@ import kotlinx.serialization.Serializable
 /**
  * The subset of the glTF 2.0 JSON schema (https://registry.khronos.org/glTF/specs/2.0/
  * glTF-2.0.html) this parser actually reads: enough to pull mesh vertex attributes/indices,
- * a node hierarchy, and skeletal skinning/animation out of a `.gltf` file with embedded
- * (base64 data-URI) buffers. No materials/textures -- see [GltfParser]'s doc comment for why
- * that's deliberately still out of scope.
+ * a node hierarchy, skeletal skinning/animation, and a base color texture out of a `.gltf`
+ * file with embedded (base64 data-URI) buffers -- see [GltfParser]'s doc comment for exactly
+ * which parts of [materials]/[textures]/[images] are read (base color only, no other PBR
+ * channels) and which are deliberately still out of scope (external buffer/image files,
+ * multi-primitive meshes).
  */
 @Serializable
 data class GltfDocument(
