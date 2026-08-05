@@ -159,8 +159,7 @@ kotlin {
             implementation(kotlin("test"))
         }
         // jolt-jni is a JVM-only native binding (desktop+Android) -- duplicated verbatim
-        // between desktopMain/androidMain rather than a shared intermediate source set,
-        // same convention awake:scene's recast4j DemoNavMesh actuals already established
+        // between desktopMain/androidMain rather than a shared intermediate source set
         // (this repo's default hierarchy template doesn't group desktop+Android under one
         // JVM-shared source set the way it auto-groups js+wasmJs under `webMain`).
         named("desktopMain") {

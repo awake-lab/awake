@@ -67,6 +67,8 @@ flowchart LR
 - `SceneGameRuntime` is the canonical game-loop integration path. The older manual
   `SceneRuntime` bootstrap is kept only as a compatibility bridge while scene modules are
   being split.
+- `NavMesh` is only a small navigation contract in this module. Demo-specific navmesh
+  bootstrap and geometry belong in samples or games, not reusable scene core.
 
 ## Quick start
 

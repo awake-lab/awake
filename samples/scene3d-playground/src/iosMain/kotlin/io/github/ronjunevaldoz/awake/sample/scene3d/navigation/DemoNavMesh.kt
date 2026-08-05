@@ -1,6 +1,8 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.scene.navigation
+package io.github.ronjunevaldoz.awake.sample.scene3d.navigation
+
+import io.github.ronjunevaldoz.awake.scene.navigation.NavMesh
 
 /**
  * No navmesh backend on iOS yet (see docs/MMORPG_ROADMAP.md's NavMesh decision) --
@@ -9,4 +11,4 @@ package io.github.ronjunevaldoz.awake.scene.navigation
  * it, unlike Jolt's `JoltC`). Callers must treat `null` as "no NPC/nav on this platform yet",
  * matching how `Material`/`Texture` are `TODO()`-only on the WebGPU backend already.
  */
-actual fun createDemoNavMesh(): NavMesh? = null
+internal actual fun createScene3DDemoNavMesh(): NavMesh? = null

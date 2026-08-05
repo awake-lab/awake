@@ -15,16 +15,3 @@ interface NavMesh {
     /** Returns waypoints from [start] to [end], or an empty list if no path exists. */
     fun findPath(start: Vec3, end: Vec3): List<Vec3>
 }
-
-/**
- * Builds the navmesh for the MVP demo world (a hardcoded flat walkable area with the
- * existing decorative cube's footprint carved out as an obstacle -- see
- * [io.github.ronjunevaldoz.awake.scene.navigation.DemoNavMeshGeometry]). Returns `null` on
- * platforms with no navmesh backend yet (iOS, wasmJs) -- `recast4j` is plain JVM only, see
- * this module's build.gradle.kts.
- */
-@Deprecated(
-    message = "Demo-only navmesh bootstrap is not reusable scene core. Move callers to " +
-        "sample-owned navigation setup before the scene module split."
-)
-expect fun createDemoNavMesh(): NavMesh?

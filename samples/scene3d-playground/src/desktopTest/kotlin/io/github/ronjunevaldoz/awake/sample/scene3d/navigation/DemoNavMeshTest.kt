@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.scene.navigation
+package io.github.ronjunevaldoz.awake.sample.scene3d.navigation
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import kotlin.math.abs
@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 class DemoNavMeshTest {
     @Test
     fun pathAroundObstacleDeviatesFromStraightLine() {
-        val navMesh = createDemoNavMesh() ?: error("Expected a recast4j-backed NavMesh on desktop.")
+        val navMesh = createScene3DDemoNavMesh() ?: error("Expected a recast4j-backed NavMesh on desktop.")
 
         // Straight line between these two points runs directly through the origin cube's
         // footprint (|x|,|z| <= 0.5) -- a real navmesh must route around it.
@@ -37,7 +37,7 @@ class DemoNavMeshTest {
 
     @Test
     fun pathWithNoObstacleInTheWayIsStillFound() {
-        val navMesh = createDemoNavMesh() ?: error("Expected a recast4j-backed NavMesh on desktop.")
+        val navMesh = createScene3DDemoNavMesh() ?: error("Expected a recast4j-backed NavMesh on desktop.")
         val path = navMesh.findPath(Vec3(-8f, 0f, -8f), Vec3(-8f, 0f, 8f))
         assertTrue(path.isNotEmpty(), "Expected a path along open ground, away from the obstacle.")
     }

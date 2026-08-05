@@ -10,8 +10,8 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
  * commonMain-only interface here, a concrete implementation per native binding in its own
  * backend module (`awake:backend:jolt` today, using jolt-jni on desktop+Android; a JoltC
  * cinterop backend for iOS and a JoltPhysics.js backend for wasmJs are deferred, since
- * jolt-jni/JoltC/JoltPhysics.js share zero code -- unlike `awake:scene`'s NavMesh, which
- * uses one `expect`/`actual` module because recast4j runs unmodified on every JVM target).
+ * jolt-jni/JoltC/JoltPhysics.js share zero code. Demo navmesh bootstrap follows the same
+ * unsupported-platform-null pattern in sample code, not in this reusable physics contract.
  *
  * There is deliberately no factory function in this module -- platform bootstrap code
  * (a game's `Application`/`View` implementation) constructs the concrete

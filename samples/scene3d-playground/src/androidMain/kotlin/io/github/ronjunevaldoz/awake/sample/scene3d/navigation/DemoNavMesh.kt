@@ -1,8 +1,11 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.scene.navigation
+@file:Suppress("MagicNumber", "ReturnCount")
+
+package io.github.ronjunevaldoz.awake.sample.scene3d.navigation
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.scene.navigation.NavMesh
 import org.recast4j.detour.DefaultQueryFilter
 import org.recast4j.detour.NavMeshBuilder
 import org.recast4j.detour.NavMeshDataCreateParams
@@ -53,7 +56,7 @@ private class Recast4jNavMesh(private val query: NavMeshQuery) : NavMesh {
     }
 }
 
-actual fun createDemoNavMesh(): NavMesh? {
+internal actual fun createScene3DDemoNavMesh(): NavMesh? {
     val (vertices, faces) = DemoNavMeshGeometry.buildGroundWithObstacle()
     val geom = SimpleInputGeomProvider(vertices, faces)
 

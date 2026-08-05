@@ -37,10 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `SystemFrequency` enum were removed from the public ECS core API. Scene scheduling now
   belongs to `awake-scene`/`awake-scene-dsl` registration via `SceneSystemPhase` plus
   explicit fixed-step and per-frame system helpers.
-- `awake-scene` now marks demo-only `createDemoNavMesh()` and legacy `SceneRuntime` as
-  deprecated transitional APIs. `SceneGameRuntime`/`sceneGame {}` are the canonical scene
-  runtime path; demo navigation should move out of reusable scene core before the scene
-  module split.
+- `awake-scene` now keeps only the small `NavMesh` contract; the demo navmesh bootstrap,
+  hardcoded demo geometry, recast4j dependencies, and proof tests moved to
+  `samples:scene3d-playground`. `SceneRuntime` is deprecated in favor of
+  `SceneGameRuntime`/`sceneGame {}`.
 - **Maven Central publishing migrated off Sonatype's legacy OSSRH staging API**
   (`s01.oss.sonatype.org`), which Sonatype sunset in June 2025 — publishing would have failed
   outright had it been run. Now uses the vanniktech `maven-publish` plugin targeting the

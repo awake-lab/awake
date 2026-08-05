@@ -85,8 +85,9 @@ runtime. That is fine for iteration, but it should not be treated as final archi
 | `OrbitCameraSystem`, `FreeFlyCameraSystem`, `FollowCameraSystem` | Controls | Candidate for `:awake:scene:controls`. |
 | `PlayerControlSystem` | Controls/UI boundary smell | Depends on hardware input plus UI input ownership. Candidate for controls or sample/tooling; do not keep in scene core long-term. |
 | `PlayerMovementSystem`, `ChaseAiSystem` | Gameplay/sample-adjacent | Likely too opinionated for scene core. Move toward sample/gameplay or a future gameplay/navigation module. |
-| `NavMesh`, `createDemoNavMesh()` | Navigation | `NavMesh` may deserve a small navigation contract module later; `createDemoNavMesh()` is demo-specific and should move out of reusable scene. |
-| `DemoNavMeshGeometry` | Sample-local | Internal, but belongs in sample/demo code, not reusable scene. |
+| `NavMesh` | Navigation | Keep as a tiny contract for now; it may deserve a small navigation contract module later. |
+| `createScene3DDemoNavMesh()` | Sample-local | Moved to `samples:scene3d-playground`; no longer reusable scene API. |
+| `DemoNavMeshGeometry` | Sample-local | Moved to `samples:scene3d-playground`; no longer reusable scene code. |
 | `SceneRuntime` | Legacy/simple runtime | Mark for review/deprecation once `SceneGameRuntime` is the canonical path. It duplicates transform/render driving. |
 | `SceneRouterSpec`, `SceneRouterRuntime` | Runtime helper | Keep as experimental/helper. Needs stronger lifecycle story because routed `ready()` cannot suspend after startup. |
 
@@ -135,9 +136,9 @@ which is healthy.
    stable publishing.
 2. `awake:scene` is the next debt pocket. It mixes core scene contracts with rendering,
    physics, controls, navigation, and gameplay-ish systems.
-3. The immediate split should not be a blind module move. First move or mark demo/gameplay
-   concepts (`DemoNavMeshGeometry`, `createDemoNavMesh`, `ChaseAiSystem`,
-   `PlayerMovementSystem`) so the future module boundaries are not polluted.
+3. The immediate split should not be a blind module move. Demo navmesh bootstrap and
+   geometry are now sample-owned; next, review gameplay-ish systems (`ChaseAiSystem`,
+   `PlayerMovementSystem`) so future module boundaries are not polluted.
 4. `scene-dsl` is correctly sugar, but its implicit built-in systems need continuous tests
    because the duplicate-render bug came from misunderstanding that hidden registration.
 5. The Ashley-style `EntitySystem` idea remains deferred. A future `FamilySystem*` helper is
@@ -235,8 +236,7 @@ The proposal must answer:
 The first source cleanup from the Phase 2 audit has started:
 
 1. Keep `awake:ecs` unchanged except possibly documenting/renaming advanced APIs.
-2. Demo-specific navigation in `awake:scene` is now explicitly marked transitional:
-   `createDemoNavMesh()` is deprecated and `DemoNavMeshGeometry` has an API-layering TODO.
+2. Demo-specific navmesh bootstrap now lives in `samples:scene3d-playground`.
 3. `SceneRuntime` is deprecated in favor of `SceneGameRuntime`/`sceneGame {}`.
-4. Next: move demo navigation to a sample/gameplay-owned location, then draft the scene split
-   proposal.
+4. Next: review gameplay-ish systems (`ChaseAiSystem`, `PlayerMovementSystem`) and then draft
+   the scene split proposal.

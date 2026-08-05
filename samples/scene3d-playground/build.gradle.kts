@@ -104,6 +104,10 @@ kotlin {
 
         named("desktopMain") {
             dependsOn(appMain)
+            dependencies {
+                implementation(libs.recast4j.recast)
+                implementation(libs.recast4j.detour)
+            }
         }
 
         named("androidMain") {
@@ -111,6 +115,8 @@ kotlin {
             dependencies {
                 api(project(":awake:base"))
                 api(project(":awake:backend:vulkan"))
+                implementation(libs.recast4j.recast)
+                implementation(libs.recast4j.detour)
             }
         }
 

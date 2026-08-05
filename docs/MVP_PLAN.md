@@ -2759,7 +2759,7 @@ falling-cube demo.**
   real run's settling behavior is verifiable from console output alone.
 - **iOS/wasmJs handling**: a small `expect fun createPhysicsWorld(): PhysicsWorld?` in
   `sample-hello-cube`'s own `commonMain` (same "return `null` on an unsupported platform"
-  shape as `awake:scene`'s `createDemoNavMesh()`) — `desktopMain`/`androidMain` actuals
+  shape used by sample-owned navmesh bootstrap) — `desktopMain`/`androidMain` actuals
   construct a real `JoltPhysicsWorld`, `iosMain`/`wasmJsMain` actuals return `null` since
   `awake:backend:jolt`'s backends there are still `TODO()`-throwing stubs (per D5's binding
   plan). `PhysicsDemo` degrades gracefully on a `null` `PhysicsWorld`: it still loads/renders
