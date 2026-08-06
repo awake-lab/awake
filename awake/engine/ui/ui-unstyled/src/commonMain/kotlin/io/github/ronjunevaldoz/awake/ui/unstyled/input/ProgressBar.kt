@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
@@ -40,7 +41,8 @@ fun UiScope.progressBar(
     )
     paintSurface(slot = surface.slot, resolved = surface.resolved)
     val fraction = value.coerceIn(0f, 1f)
-    val fillWidth = (surface.slot.width * fraction).coerceAtLeast(0f)
+    val animatedFraction = animateFloat(id = "$id.progress", target = fraction, initial = 0f)
+    val fillWidth = (surface.slot.width * animatedFraction).coerceAtLeast(0f)
     if (fillWidth > 0f) {
         emitFillAndBorder(
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(surface.slot.x, surface.slot.y, fillWidth, surface.slot.height)

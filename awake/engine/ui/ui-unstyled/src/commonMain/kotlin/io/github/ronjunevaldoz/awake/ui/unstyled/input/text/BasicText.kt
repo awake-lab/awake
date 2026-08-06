@@ -329,20 +329,12 @@ private fun measureTextBlock(
 }
 
 private fun measureVisibleLineBandEm(line: String, font: UiFont): Pair<Float, Float> {
-    var topEm = Float.POSITIVE_INFINITY
-    var bottomEm = Float.NEGATIVE_INFINITY
-    line.forEach { char ->
-        val glyph = font.uvFor(char) ?: return@forEach
-        if (glyph.heightEm <= 0f) {
-            return@forEach
-        }
-        topEm = minOf(topEm, glyph.offsetYEm)
-        bottomEm = maxOf(bottomEm, glyph.offsetYEm + glyph.heightEm)
-    }
-    if (!topEm.isFinite() || !bottomEm.isFinite() || bottomEm <= topEm) {
-        return font.visibleTopEm to font.visibleBottomEm
-    }
-    return topEm to bottomEm
+    // Always use the font's consistent vertical band (ascent to descent), NOT per-string
+    // character bounding boxes. Per-string character bounding boxes caused text with
+    // descenders ('y', 'g', 'p') or symbols ('*') to calculate different line heights and
+    // baseline offsets than plain text ('Name'), misaligning adjacent labels in Rows and
+    // clipping descenders at the bottom of line slots.
+    return font.visibleTopEm to font.visibleBottomEm
 }
 
 fun layoutBitmapText(
