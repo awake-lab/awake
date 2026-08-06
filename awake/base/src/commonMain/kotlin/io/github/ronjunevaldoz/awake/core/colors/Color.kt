@@ -42,5 +42,28 @@ data class Color(val r: Float = 0f, val g: Float = 0f, val b: Float = 0f, val a:
             b = channels.getOrElse(2) { 0f },
             a = channels.getOrElse(3) { 1f }
         )
+
+        /**
+         * Parses a hex string like "#RRGGBB" or "#RRGGBBAA".
+         */
+        fun fromHex(hex: String): Color {
+            val h = hex.removePrefix("#")
+            return when (h.length) {
+                6 -> {
+                    val r = h.substring(0, 2).toInt(16) / 255f
+                    val g = h.substring(2, 4).toInt(16) / 255f
+                    val b = h.substring(4, 6).toInt(16) / 255f
+                    Color(r, g, b, 1f)
+                }
+                8 -> {
+                    val r = h.substring(0, 2).toInt(16) / 255f
+                    val g = h.substring(2, 4).toInt(16) / 255f
+                    val b = h.substring(4, 6).toInt(16) / 255f
+                    val a = h.substring(6, 8).toInt(16) / 255f
+                    Color(r, g, b, a)
+                }
+                else -> throw IllegalArgumentException("Invalid hex color: $hex")
+            }
+        }
     }
 }
