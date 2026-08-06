@@ -27,4 +27,5 @@ tasks.register<UiPreviewReportTask>("uiPreviewReport") {
     previewsDir.set(layout.buildDirectory.dir("ui-previews"))
     manifestFile.set(layout.buildDirectory.file("ui-previews/previews.tsv"))
     reportFile.set(layout.buildDirectory.file("reports/ui-previews/index.html"))
+    designReportFile.set(layout.buildDirectory.file("reports/ui-previews/design-report.json"))
 }

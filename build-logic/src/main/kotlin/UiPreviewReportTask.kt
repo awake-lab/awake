@@ -41,12 +41,16 @@ abstract class UiPreviewReportTask : DefaultTask() {
     @get:OutputFile
     abstract val reportFile: RegularFileProperty
 
+    @get:OutputFile
+    @get:Optional
+    abstract val designReportFile: RegularFileProperty
+
     @TaskAction
     fun generate() {
         val root = previewsDir.get().asFile
         val manifest = manifestFile.get().asFile
         val title = reportTitle.getOrElse("Awake UI Previews")
-        val previews = if (manifest.exists()) {
+        val previewColumns = if (manifest.exists()) {
             manifest.readLines()
                 .filter { it.isNotBlank() }
                 .mapNotNull { line ->
@@ -56,6 +60,26 @@ abstract class UiPreviewReportTask : DefaultTask() {
                 .sortedWith(compareBy({ it[2] }, { it[0] }))
         } else {
             emptyList()
+        }
+
+        // --- Aggregate Design Report (JSON) ---
+        if (designReportFile.isPresent) {
+            val designOut = designReportFile.get().asFile
+            val designJson = buildString {
+                append("[\n")
+                previewColumns.forEachIndexed { index, columns ->
+                    val id = columns[0]
+                    val jsonFile = root.resolve("$id.json")
+                    if (jsonFile.exists()) {
+                        append(jsonFile.readText().prependIndent("  "))
+                        if (index < previewColumns.lastIndex) append(",")
+                        append("\n")
+                    }
+                }
+                append("]")
+            }
+            designOut.parentFile.mkdirs()
+            designOut.writeText(designJson)
         }
 
         fun escapeHtml(value: String): String = buildString(value.length) {
@@ -72,7 +96,7 @@ abstract class UiPreviewReportTask : DefaultTask() {
             }
         }
 
-        val cards = previews.joinToString("\n") { columns ->
+        val cards = previewColumns.joinToString("\n") { columns ->
             val id = columns[0]
             val cardTitle = columns[1]
             val group = columns[2].ifBlank { "General" }
