@@ -75,13 +75,10 @@ fun UiScope.shadcnDrawer(
     ) { slot ->
         val resolvedTheme = theme.asShadcnTheme()
         val bounds = slot.toBounds()
-        column(
+        surface(
+            id = id,
             modifier = modifier.width(Dimension.Fixed(bounds.width.dp)).height(Dimension.Fixed(bounds.height.dp)),
-            style = Style {
-                background(resolvedTheme.colors.background)
-                foreground(resolvedTheme.colors.foreground)
-                borderWidth(1f.dp)
-                borderColor(resolvedTheme.colors.border)
+            style = resolvedTheme.components.surface then Style {
                 shape(
                     when (position) {
                         ShadcnDrawerPosition.Bottom, ShadcnDrawerPosition.Top -> resolvedTheme.radii.xl
@@ -91,6 +88,9 @@ fun UiScope.shadcnDrawer(
                 contentPadding(16f.dp)
             }
         ) {
+            column(
+                modifier = Modifier.fillMaxWidth().height(Dimension.Fixed(bounds.height.dp))
+            ) {
             // Drag handle pill for bottom drawer
             if (position == ShadcnDrawerPosition.Bottom) {
                 row(
@@ -147,6 +147,7 @@ fun UiScope.shadcnDrawer(
                 }
             }
         }
+    }
     }
 
     if (popupResult.dismissed) {

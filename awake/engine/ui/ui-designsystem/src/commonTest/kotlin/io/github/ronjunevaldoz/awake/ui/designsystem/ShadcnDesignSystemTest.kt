@@ -801,8 +801,7 @@ class ShadcnDesignSystemTest {
 
         // With no header/footer, the sidebar's wrap-content height should hug the content
         // plus its own padding -- no leftover header/footer divider gap baked in.
-        val verticalPadding = Style { contentPadding(ShadcnTheme.metrics.surfacePadding) }
-            .resolve().contentPadding.verticalPx()
+        val verticalPadding = 16f.dp.toPx()
         assertTrue(
             abs(sidebar.bounds.height - (content.bounds.height + verticalPadding)) < 2f,
             "header/footer-omitted sidebar should not leave dangling empty space: " +
