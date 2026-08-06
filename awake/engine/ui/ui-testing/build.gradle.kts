@@ -20,6 +20,7 @@
 
 plugins {
     id("awake.kmp-library-convention")
+    alias(libs.plugins.kotlin.serialization)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
@@ -34,6 +35,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":awake:base"))
             implementation(project(":awake:engine:ui:ui-core"))
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

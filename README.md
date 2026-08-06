@@ -2,11 +2,21 @@
 [![Kotlin](https://img.shields.io/badge/kotlin-2.4.0-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+<p align="center">
+  <img src="readme_images/logo.png" width="400" alt="Awake Logo">
+</p>
+
 # Awake
 
 Awake is a Kotlin Multiplatform game engine (Vulkan, WebGPU, OpenGL) with a shared ECS
 runtime, targeting Android, iOS, Desktop (macOS/Windows/Linux), and the Web (Wasm/WebGPU)
-from one `commonMain` codebase. [`samples/scene3d-playground`](samples/scene3d-playground) is
+from one `commonMain` codebase.
+
+<p align="center">
+  <img src="readme_images/banner.png" alt="Awake Multiplatform">
+</p>
+
+[`samples/scene3d-playground`](samples/scene3d-playground) is
 the project's live demo suite — see [docs/MMORPG_ROADMAP.md](docs/MMORPG_ROADMAP.md) for the
 long-horizon plan and [docs/MVP_PLAN.md](docs/MVP_PLAN.md) for near-term status.
 

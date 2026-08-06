@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnF
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputOTP
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -45,12 +46,21 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
     var cvv by context.rememberStateValue("ui-showcase-field-demo", "cvv") { "" }
     var sameAsShipping by context.rememberStateValue("ui-showcase-field-demo", "sameAsShipping") { true }
     var comments by context.rememberStateValue("ui-showcase-field-demo", "comments") { "" }
+    var otpCode by context.rememberStateValue("ui-showcase-field-demo", "otpCode") { "123456" }
 
     shadcnFieldGroup {
         shadcnFieldSet(id = "checkout-payment") {
             shadcnFieldLegend("Payment Method")
             shadcnFieldDescription("All transactions are secure and encrypted")
             shadcnFieldGroup {
+                shadcnField(id = "checkout-otp") {
+                    shadcnFieldLabel("Security PIN (OTP)")
+                    otpCode = shadcnInputOTP(
+                        id = "checkout-otp-input",
+                        value = otpCode,
+                        length = 6
+                    )
+                }
                 shadcnField(id = "checkout-name-on-card") {
                     shadcnFieldLabel("Name on Card")
                     nameOnCard = shadcnInput(

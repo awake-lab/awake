@@ -6,6 +6,7 @@
 - `docs/reference/agent-catalog.md`
 - `docs/reference/ui-ownership.md`
 - `docs/reference/ui-validation.md`
+- `docs/reference/ui-figma-validation-audit.md`
 - `docs/reference/game-structure.md`
 - `docs/MVP_PLAN.md`
 - `docs/tasks.md`

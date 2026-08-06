@@ -7,6 +7,11 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.comparison.drawShadcnSideBySideComparisonPreview
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.inputs.drawShadcnInputOtpDemoPreview
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.layout.drawShadcnAccordionDemoPreview
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.overlay.drawShadcnContextMenuDemoPreview
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.overlay.drawShadcnDrawerDemoPreview
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 
 internal typealias ShowcasePreviewRenderer = ColumnScope.(UiShowcaseRuntimeState) -> Unit
@@ -82,6 +87,79 @@ internal val ShowcasePages = listOf(
             "The biggest cues are control height, popover containment, and softer card contrast."
         ),
         renderPreview = { drawUiShowcaseReferenceComparisonPreview() }
+    ),
+    ShowcasePage(
+        id = "parity-matrix",
+        title = "Side-by-Side Parity",
+        category = ShowcaseCategory.GettingStarted,
+        description = "Side-by-side specification comparison between official web shadcn/ui and Awake KMP implementation.",
+        usageCode = "drawShadcnSideBySideComparisonPreview()",
+        notes = listOf("1:1 spec parity checkpoint for new Phase 3 components."),
+        renderPreview = { drawShadcnSideBySideComparisonPreview() }
+    ),
+    ShowcasePage(
+        id = "input-otp",
+        title = "Input OTP",
+        category = ShowcaseCategory.Inputs,
+        description = "Segmented One-Time Password / PIN code digit entry row.",
+        usageCode = """
+            shadcnInputOTP(
+                id = "otp",
+                value = otpCode,
+                length = 6
+            )
+        """.trimIndent(),
+        notes = listOf("Segmented digits with length mask and space separation."),
+        renderPreview = { drawShadcnInputOtpDemoPreview() }
+    ),
+    ShowcasePage(
+        id = "context-menu",
+        title = "Context Menu",
+        category = ShowcaseCategory.Overlays,
+        description = "Right-click trigger opening a floating action dropdown popup.",
+        usageCode = """
+            shadcnContextMenu(
+                id = "ctx",
+                expanded = open,
+                onExpandedChange = { open = it },
+                items = items
+            ) { ... }
+        """.trimIndent(),
+        notes = listOf("Triggers on secondary pointer click over target bounds."),
+        renderPreview = { drawShadcnContextMenuDemoPreview() }
+    ),
+    ShowcasePage(
+        id = "drawer",
+        title = "Drawer",
+        category = ShowcaseCategory.Overlays,
+        description = "Slide-over viewport overlay panel (Bottom, Top, Left, Right).",
+        usageCode = """
+            shadcnDrawer(
+                id = "drawer",
+                expanded = open,
+                position = ShadcnDrawerPosition.Bottom,
+                onDismissRequest = { open = false }
+            ) { ... }
+        """.trimIndent(),
+        notes = listOf("Anchors to any viewport edge with overlay scrim."),
+        renderPreview = { drawShadcnDrawerDemoPreview() }
+    ),
+    ShowcasePage(
+        id = "accordion",
+        title = "Accordion",
+        category = ShowcaseCategory.Layout,
+        description = "Single-select interactive collapsible section group.",
+        usageCode = """
+            shadcnAccordion(
+                items = items,
+                selectedId = selectedId,
+                onSelectId = { selectedId = it },
+                idProvider = { it.id },
+                titleProvider = { it.title }
+            ) { item -> ... }
+        """.trimIndent(),
+        notes = listOf("Collapsible group supporting WAI-ARIA single selection."),
+        renderPreview = { drawShadcnAccordionDemoPreview() }
     ),
     ShowcasePage(
         id = "theming",

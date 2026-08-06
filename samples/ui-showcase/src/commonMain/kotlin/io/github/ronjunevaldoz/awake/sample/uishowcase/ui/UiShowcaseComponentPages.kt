@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAccordion
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnKbd
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnProgress
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
@@ -149,6 +150,25 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview() {
                 text("@stitches/react", style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) })
             }
         }
+    }
+
+    spacer(Modifier.height(12f.dp))
+    shadcnSectionTitle("Accordion Group")
+    var accordionSelectedId: String? by context.rememberStateValue("showcase-accordion", "selected") { "acc-1" }
+    shadcnAccordion(
+        items = listOf("acc-1", "acc-2", "acc-3"),
+        selectedId = accordionSelectedId,
+        onSelectId = { accordionSelectedId = it },
+        idProvider = { it },
+        titleProvider = {
+            when (it) {
+                "acc-1" -> "Is it accessible?"
+                "acc-2" -> "Is it styled?"
+                else -> "Is it animated?"
+            }
+        }
+    ) { item ->
+        shadcnBodyText("Yes. It adheres to the WAI-ARIA design pattern for accordion components.")
     }
 }
 

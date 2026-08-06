@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -238,6 +239,7 @@ private object FakeRenderer : Renderer {
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
     override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
+        override val format: io.github.ronjunevaldoz.awake.render.mesh.VertexFormat = geometry.format
         override fun bind(commandBuffer: Long) = Unit
         override fun draw(commandBuffer: Long) = Unit
         override fun destroy() = Unit
@@ -255,7 +257,7 @@ private object FakeRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun draw(camera: Camera, drawCalls: List<DrawCall>) = Unit
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) = Unit
 
     override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
 

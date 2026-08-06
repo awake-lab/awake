@@ -9,10 +9,11 @@ import io.github.ronjunevaldoz.awake.ui.UiColoredVertex
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
 import io.github.ronjunevaldoz.awake.ui.UiPoint
-import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
+import io.github.ronjunevaldoz.awake.ui.UiShapeSpec.RoundedRectangle
 import io.github.ronjunevaldoz.awake.ui.UiTexturedTriangleMesh
 import io.github.ronjunevaldoz.awake.ui.UiTexturedVertex
 import io.github.ronjunevaldoz.awake.ui.UiTriangleMesh
+import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.clipToConvexPaths
 import io.github.ronjunevaldoz.awake.ui.convexClipContour
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -20,7 +21,6 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.contains
 import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.tessellateFillAa
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
@@ -32,6 +32,11 @@ import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
+import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer.UiRun.ClipRun
+import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer.UiRun.GlyphRun
+import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer.UiRun.QuadRun
+import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer.UiRun.RoundedQuadRun
+import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer.UiRun.TextureRun
 import io.github.ronjunevaldoz.awake.vulkan.texture.OffscreenRenderTarget
 import io.github.ronjunevaldoz.awake.vulkan.ui.DynamicMesh
 
@@ -129,7 +134,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                         val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, quadSlice.size)
                         val mesh = quadMeshForRun(quadRunCount)
                         stageQuadRun(mesh, quadSlice.subList(chunkStart, chunkEnd))
-                        runs += Renderer.UiRun.QuadRun(mesh)
+                        runs += QuadRun(mesh)
                         quadRunCount += 1
                         chunkStart = chunkEnd
                     }
@@ -161,7 +166,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                         val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, gradientSlice.size)
                         val mesh = quadMeshForRun(quadRunCount)
                         stageGradientQuadRun(mesh, gradientSlice.subList(chunkStart, chunkEnd))
-                        runs += Renderer.UiRun.QuadRun(mesh)
+                        runs += QuadRun(mesh)
                         quadRunCount += 1
                         chunkStart = chunkEnd
                     }
@@ -179,7 +184,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 val roundedSlice = slice as List<UiDrawPrimitive.RoundedQuad>
                 if (canExactClip(activePathClips)) {
                     val tessellated = roundedSlice.map { quad ->
-                        val triangleMesh = UiShapeSpec.RoundedRectangle(quad.radius.px)
+                        val triangleMesh = RoundedRectangle(quad.radius.px)
                             .toPath(UiBounds(quad.x, quad.y, quad.w, quad.h))
                             .tessellateFillAa(quad.color)
                         if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) triangleMesh
@@ -192,7 +197,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                         val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, roundedSlice.size)
                         val mesh = roundedQuadMeshForRun(roundedQuadRunCount)
                         stageRoundedQuadRun(mesh, roundedSlice.subList(chunkStart, chunkEnd))
-                        runs += Renderer.UiRun.RoundedQuadRun(mesh)
+                        runs += RoundedQuadRun(mesh)
                         roundedQuadRunCount += 1
                         chunkStart = chunkEnd
                     }
@@ -256,7 +261,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                         if (chunk.isEmpty()) return
                         val mesh = glyphMeshForRun(glyphRunCount)
                         stageTexturedTriangleMeshes(mesh, chunk, "glyph")
-                        runs += Renderer.UiRun.GlyphRun(mesh)
+                        runs += GlyphRun(mesh)
                         glyphRunCount += 1
                         chunk = mutableListOf()
                         chunkVertices = 0
@@ -279,7 +284,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                         val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, glyphSlice.size)
                         val mesh = glyphMeshForRun(glyphRunCount)
                         stageGlyphRun(mesh, glyphSlice.subList(chunkStart, chunkEnd), activePathClips, safeInteriorRect)
-                        runs += Renderer.UiRun.GlyphRun(mesh)
+                        runs += GlyphRun(mesh)
                         glyphRunCount += 1
                         chunkStart = chunkEnd
                     }
@@ -287,7 +292,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
             }
             is UiDrawPrimitive.Texture -> {
                 @Suppress("UNCHECKED_CAST")
-                runs += Renderer.UiRun.TextureRun(stageTextureRun(slice as List<UiDrawPrimitive.Texture>, activePathClips, safeInteriorRect))
+                runs += TextureRun(stageTextureRun(slice as List<UiDrawPrimitive.Texture>, activePathClips, safeInteriorRect))
             }
             is UiDrawPrimitive.ClipPathPush -> {
                 // Keep the resolved bounds scissor even when exact convex path clipping
@@ -300,7 +305,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                     safeInteriorRectStack.addLast(
                         it.safeInteriorRect?.let { own -> parentSafeInteriorRect?.intersect(own) }
                     )
-                    runs += Renderer.UiRun.ClipRun(it.boundsRect)
+                    runs += ClipRun(it.boundsRect)
                 }
             }
             is UiDrawPrimitive.ClipPush -> {
@@ -310,7 +315,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 // order they were emitted, same as any other run.
                 (slice as List<UiDrawPrimitive.ClipPush>).forEach {
                     clipKindStack.addLast(ClipKind.Rect)
-                    runs += Renderer.UiRun.ClipRun(it.rect)
+                    runs += ClipRun(it.rect)
                 }
             }
             is UiDrawPrimitive.ClipPop -> {
@@ -322,9 +327,11 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                         }
                         ClipKind.Rect, null -> Unit
                     }
-                    runs += Renderer.UiRun.ClipRun(it.restoreRect)
+                    runs += ClipRun(it.restoreRect)
                 }
             }
+
+            is UiDrawPrimitive.ShadowQuad -> TODO()
         }
     }
     uiRuns = runs

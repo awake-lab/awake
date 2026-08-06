@@ -5,6 +5,8 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -177,6 +179,47 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
             )
         ) {
             infoDialogState.open()
+        }
+        val drawerState = context.rememberPopupState("ui-showcase-drawer")
+        val contextMenuState = context.rememberPopupState("ui-showcase-context-menu")
+
+        if (
+            shadcnButton(
+                id = "ui-showcase-drawer-trigger",
+                label = "Open Drawer",
+                modifier = Modifier.width(120f.dp).height(36f.dp),
+                variant = ShadcnButtonVariant.Outline
+            )
+        ) {
+            drawerState.open()
+        }
+
+        shadcnContextMenu(
+            id = "ui-showcase-context-menu-demo",
+            expanded = contextMenuState.expanded,
+            onExpandedChange = { if (it) contextMenuState.open() else contextMenuState.close() },
+            items = ShowcaseActionMenuItems
+        ) {
+            shadcnBadge("Right Click Me", variant = ShadcnBadgeVariant.Secondary)
+        }
+
+        shadcnDrawer(
+            id = "ui-showcase-drawer",
+            expanded = drawerState.expanded,
+            onDismissRequest = { drawerState.close() },
+            header = { text("Slideover Drawer") }
+        ) {
+            shadcnBodyText("This is a bottom slideover drawer modal panel.")
+            if (
+                shadcnButton(
+                    id = "ui-showcase-drawer-close",
+                    label = "Close Drawer",
+                    modifier = Modifier.width(100f.dp).height(32f.dp),
+                    variant = ShadcnButtonVariant.Outline
+                )
+            ) {
+                drawerState.close()
+            }
         }
     }
     spacer(Modifier.height(4f.dp))

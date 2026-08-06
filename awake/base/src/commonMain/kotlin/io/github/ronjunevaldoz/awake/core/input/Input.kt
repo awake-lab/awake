@@ -29,7 +29,8 @@ data class InputSnapshot(
     val scrollDeltaY: Float,
     val keysDown: Set<Key>,
     val typedText: String,
-    val editActions: List<TextEditAction>
+    val editActions: List<TextEditAction>,
+    val secondaryPointerDown: Boolean = false
 )
 
 /**
@@ -81,7 +82,8 @@ class Input {
             scrollDeltaY = scrollDeltaY,
             keysDown = keysDown.toSet(),
             typedText = typedText.toString(),
-            editActions = pendingEditActions.toList()
+            editActions = pendingEditActions.toList(),
+            secondaryPointerDown = secondaryPointerDown
         )
         // Clear transient buffers
         scrollDeltaX = 0f
@@ -106,6 +108,13 @@ class Input {
 
     fun setKeyDown(key: Key, down: Boolean) {
         if (down) keysDown.add(key) else keysDown.remove(key)
+    }
+
+    var secondaryPointerDown: Boolean = false
+        private set
+
+    fun setSecondaryPointer(down: Boolean) {
+        secondaryPointerDown = down
     }
 
     fun setPointer(down: Boolean, x: Float, y: Float) {
