@@ -20,9 +20,8 @@ import io.github.ronjunevaldoz.awake.scene.components.Transform
 class SpinSystem : System {
     override fun update(world: World, delta: Float) {
         world.queryEach(Transform::class, SpinControl::class) { _, transform, spin ->
-            transform.worldMatrix = Mat4()
-                .translate(spin.offset.x, spin.offset.y, spin.offset.z)
-                .rotateY(spin.radians)
+            transform.position = spin.offset
+            transform.rotation.y = spin.radians
         }
     }
 }

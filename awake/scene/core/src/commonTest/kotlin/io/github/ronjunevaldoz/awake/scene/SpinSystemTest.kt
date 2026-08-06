@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.systems.SpinSystem
+import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -26,6 +27,7 @@ class SpinSystemTest {
         })
 
         SpinSystem().update(world, 1f / 60f)
+        TransformSystem().update(world, 1f / 60f)
 
         val worldMatrix = world.get(entity, Transform::class)!!.worldMatrix
         // translate(0, 2, 0) * rotateY(90deg) -- translation column carries the offset,
@@ -53,12 +55,16 @@ class SpinSystemTest {
         world.add(entity, spin)
         val system = SpinSystem()
 
+        val transformSystem = TransformSystem()
+
         spin.radians = 0f
         system.update(world, 1f / 60f)
+        transformSystem.update(world, 1f / 60f)
         val atZero = world.get(entity, Transform::class)!!.worldMatrix.m00
 
         spin.radians = (PI / 2).toFloat()
         system.update(world, 1f / 60f)
+        transformSystem.update(world, 1f / 60f)
         val atQuarterTurn = world.get(entity, Transform::class)!!.worldMatrix.m00
 
         assertEquals(1f, atZero, ABSOLUTE_TOLERANCE)
