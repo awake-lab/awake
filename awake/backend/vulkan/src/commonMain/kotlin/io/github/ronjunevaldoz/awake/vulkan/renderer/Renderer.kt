@@ -175,22 +175,6 @@ class Renderer(
     // texture/glyph pipelines above.
     internal var uiRoundedQuadRenderPipeline: UiRoundedQuadRenderPipeline? = null
 
-    // Staged by drawSkinnedMesh()/drawTexturedMesh(), consumed and cleared every performDraw()
-    // frame -- see drawDebugLines()/lineMesh's existing "call it every frame you want it
-    // drawn" pattern. Plain DrawCalls (not a bespoke wrapper type) since pipelinesByFormat/
-    // prepareDrawCalls resolve every draw call -- ordinary or staged -- through the exact same
-    // format-keyed path; jointPalette rides in DrawCall.extraUniformFloats.
-    internal val pendingSkinnedDraws = mutableListOf<DrawCall>()
-    internal val pendingTexturedDraws = mutableListOf<DrawCall>()
-
-    override fun drawSkinnedMesh(mesh: RenderMesh, material: RenderMaterial, model: Mat4, jointPalette: FloatArray) {
-        pendingSkinnedDraws += DrawCall(mesh, material, model, extraUniformFloats = jointPalette)
-    }
-
-    override fun drawTexturedMesh(mesh: RenderMesh, material: RenderMaterial, model: Mat4) {
-        pendingTexturedDraws += DrawCall(mesh, material, model)
-    }
-
     // Textures created on demand by createMaterial() -- Renderer (not Material) owns their
     // teardown, mirroring how it already owns the UI mesh pools/lineMesh.
     private val createdTextures = mutableListOf<Texture>()

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
-import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
@@ -18,6 +17,8 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
+import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.components.SkinnedPose
 import io.github.ronjunevaldoz.awake.scene.controls.OrbitCameraDemoRig
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
@@ -33,17 +34,15 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
  * .core.mesh.gltf.GltfMesh.toInterleavedPositionNormalColor] already uses) and no texture
  * (out of scope -- see the skinning implementation plan's Context section).
  *
- * Doesn't go through the ordinary [io.github.ronjunevaldoz.awake.scene.components.MeshRenderer]
- * ECS component / [io.github.ronjunevaldoz.awake.scene.systems.RenderSystem] path any other
- * demo's mesh does -- a skinned mesh's vertex layout ([VertexFormat.PositionNormalColorSkin])
- * doesn't match this sample's one fixed-format main 3D pipeline (`VertexFormat
- * .PositionNormalColor`, see `Scene3DPlaygroundVulkanBootstrap.kt`), so it draws through
- * [SceneGameRuntime.renderer]'s own [io.github.ronjunevaldoz.awake.render.renderer.Renderer
- * .drawSkinnedMesh] instead -- called directly from [onUpdate] every frame, the same "demo
- * calls the renderer directly" pattern [RotatingCubeDemo] already uses for
- * `renderer.drawDebugLines`. Still spawns [rig]'s placement entity (unused by rendering, kept
- * so this demo's world-space placement is inspectable/extensible the same way every other
- * demo's is) and a primary camera entity, same as every other demo.
+ * Renders through the ordinary [MeshRenderer]/[io.github.ronjunevaldoz.awake.scene.systems
+ * .RenderSystem] path, same as every other demo -- [rig]'s placement entity carries
+ * [MeshRenderer] plus [SkinnedPose] (the joint palette [RenderSystem][io.github
+ * .ronjunevaldoz.awake.scene.systems.RenderSystem] reads into that entity's `DrawCall
+ * .extraUniformFloats` every frame), its mesh's own [VertexFormat.PositionNormalColorSkin]
+ * resolving to the `skinned.wgsl` pipeline via `Renderer.pipelinesByFormat`.
+ *
+ * `Renderer.drawSkinnedMesh` (the bypass this demo used before `RenderSystem` supported more
+ * than one vertex format) is gone now that nothing needs it.
  */
 internal object SkinnedMeshDemo {
     private val rig = OrbitCameraDemoRig(OrbitCameraController())
@@ -96,8 +95,9 @@ internal object SkinnedMeshDemo {
         id = "skinned-mesh",
         title = "Skinned mesh",
         renderViewport = {
-            // Real geometry is drawn via Renderer.drawSkinnedMesh in onUpdate, not this
-            // viewport column -- see this object's own doc comment.
+            // Real geometry is drawn by RenderSystem via this demo's own ECS entity (see
+            // onActivate/onUpdate below) -- this viewport column only needs to exist so the
+            // shell lays out a center pane for it.
         },
         renderControls = {
             renderOrbitCameraControls(camera, idPrefix = "skinned", targetLabel = "model")
@@ -135,10 +135,8 @@ internal object SkinnedMeshDemo {
                 val timeSeconds = if (duration > 0f) (timeController.hours / ManualTimeController.HOURS_PER_CYCLE) * duration else 0f
                 currentPlayer.sample(currentAnimation, timeSeconds)
             }
-            val currentMesh = mesh
-            val currentMaterial = material
-            if (currentMesh != null && currentMaterial != null && currentSkin != null && currentPlayer != null) {
-                renderer.drawSkinnedMesh(currentMesh, currentMaterial, Mat4(), currentPlayer.jointPalette(currentSkin))
+            if (currentSkin != null && currentPlayer != null) {
+                rig.entity?.let { world.get<SkinnedPose>(it)?.jointPalette = currentPlayer.jointPalette(currentSkin) }
             }
             rig.refresh(world, MODEL_CENTER)
         }
@@ -148,11 +146,18 @@ internal object SkinnedMeshDemo {
         if (spawned) return
         val vertices = meshVertices ?: return
         val indices = meshIndices ?: return
+        val currentSkin = requireNotNull(skin) { "SkinnedMeshDemo.preload() must resolve skin before ensureSpawned." }
+        val currentPlayer = requireNotNull(player) {
+            "SkinnedMeshDemo.preload() must resolve player before ensureSpawned."
+        }
         mesh = runtime.renderer.createMesh(
             MeshGeometry(vertices, indices, format = VertexFormat.PositionNormalColorSkin)
         )
         material = runtime.renderer.createMaterial(uniformFloatCount = SKINNED_UNIFORM_FLOAT_COUNT)
         rig.spawn(runtime.world, MODEL_CENTER)
+        val entity = rig.entity!!
+        runtime.world.add(entity, MeshRenderer(mesh!!, material!!))
+        runtime.world.add(entity, SkinnedPose(currentPlayer.jointPalette(currentSkin)))
         spawned = true
     }
 

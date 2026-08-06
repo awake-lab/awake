@@ -31,9 +31,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   tracking) plus `PrimaryOrbitCamera` (a plain lifecycle helper, not an ECS `System`, for
   a UI-driven debug camera entity) — extracted from boilerplate duplicated across
   `samples:scene3d-playground` demos.
+- `Mesh.format` and `DrawCall.extraUniformFloats` — a `MeshRenderer` entity's mesh now
+  determines which GPU pipeline draws it (`Renderer.pipelinesByFormat` on the Vulkan
+  backend), instead of `RenderSystem`/`draw()` only ever supporting one fixed vertex
+  format. `:awake:scene:rendering` gained `SkinnedPose`, an optional `MeshRenderer`
+  add-on component carrying a GPU-skinned mesh's joint palette. `OrbitCameraDemoRig`
+  gained a public `entity` accessor so a demo can attach these to its placement entity.
 
 ### Removed
 
+- `Renderer.drawSkinnedMesh`/`drawTexturedMesh` — the separate staged-draw bypass a skinned
+  or textured mesh needed before `RenderSystem`/`draw()` supported more than one vertex
+  format. `GltfViewerDemo`/`SkinnedMeshDemo` (`samples:scene3d-playground`) now spawn a real
+  `MeshRenderer` entity (plus `SkinnedPose` for the skinned case) instead.
 - `DemoApplication`'s per-second `Random.nextInt` drawable switching on desktop. Leftover
   debug code that silently overrode `DemoDrawer`'s real click-to-select mechanism — selecting
   an item in the drawer never stuck for more than a second. Not a feature; just noise.

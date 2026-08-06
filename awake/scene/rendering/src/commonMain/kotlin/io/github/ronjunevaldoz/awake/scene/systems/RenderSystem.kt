@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.Light
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.components.SkinnedPose
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import kotlin.collections.ArrayList
 
@@ -21,23 +22,25 @@ class RenderSystem(
 
     override fun update(world: World, delta: Float) {
         val camera = primaryCamera(world) ?: return
-        val family = world.family<Transform, MeshRenderer>()
-        val transforms = family.componentsA()
-        val meshRenderers = family.componentsB()
         drawCalls.clear()
-        var index = 0
-        val count = family.size
-        while (index < count) {
-            val transform = transforms[index]
-            val meshRenderer = meshRenderers[index]
+        world.family<Transform, MeshRenderer>().forEach { entity, transform, meshRenderer ->
+            // An entity's mesh format decides which pipeline draws it (see Renderer
+            // .pipelinesByFormat) -- extraUniformFloats only matters for a format whose
+            // shader reads it (a skinned mesh's joint palette); every other format ignores
+            // an empty array the same way it always has.
+            val pose = world.get<SkinnedPose>(entity)
             drawCalls.add(
-                DrawCall(
-                    mesh = meshRenderer.mesh,
-                    material = meshRenderer.material,
-                    model = transform.worldMatrix
-                )
+                if (pose != null) {
+                    DrawCall(
+                        mesh = meshRenderer.mesh,
+                        material = meshRenderer.material,
+                        model = transform.worldMatrix,
+                        extraUniformFloats = pose.jointPalette
+                    )
+                } else {
+                    DrawCall(mesh = meshRenderer.mesh, material = meshRenderer.material, model = transform.worldMatrix)
+                }
             )
-            index += 1
         }
         renderer.draw(camera.camera, drawCalls, sceneLight(world))
     }

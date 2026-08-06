@@ -9,29 +9,33 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 
 /**
- * Bundles [PrimaryOrbitCamera] with the empty [Transform]-only "placement" entity a demo that
- * draws its own mesh directly (bypassing [io.github.ronjunevaldoz.awake.scene.components
- * .MeshRenderer]/[io.github.ronjunevaldoz.awake.scene.systems.RenderSystem], e.g. via
- * `Renderer.drawTexturedMesh`/`drawSkinnedMesh`) still spawns so its world-space placement stays
- * inspectable the same way every other demo's is -- `GltfViewerDemo`/`SkinnedMeshDemo` hand-rolled
+ * Bundles [PrimaryOrbitCamera] with a [Transform]-only "placement" entity a demo can attach
+ * its own mesh-facing components to ([io.github.ronjunevaldoz.awake.scene.components
+ * .MeshRenderer], `SkinnedPose`) via [entity] -- `GltfViewerDemo`/`SkinnedMeshDemo` hand-rolled
  * this exact `placementEntity: Entity?` + create/add(Transform())/destroy triple identically
- * before this existed. Not for [io.github.ronjunevaldoz.awake.sample.scene3d.demos
- * .RotatingCubeDemo]-shaped demos, whose main entity already carries real gameplay components
- * ([Transform]/`SpinControl`/`MeshRenderer`) -- there [PrimaryOrbitCamera] alone is the right
- * level, wrapping this rig around a real entity would just add a second, unrelated one.
+ * before this existed, back when they drew directly (`Renderer.drawTexturedMesh`/
+ * `drawSkinnedMesh`) instead of through `RenderSystem`. Not for
+ * [io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo]-shaped demos that spawn
+ * their own entity by hand -- there [PrimaryOrbitCamera] alone is the right level, wrapping
+ * this rig around an already-real entity would just add a second, unrelated one.
  */
 class OrbitCameraDemoRig(val camera: OrbitCameraController) {
     val primaryCamera = PrimaryOrbitCamera(camera)
-    private var placementEntity: Entity? = null
+
+    /** Exposed read-only so a demo can attach extra mesh-facing components to this same
+     * entity (matching [PrimaryOrbitCamera.entity]'s own reason for being public) -- `null`
+     * before the first [spawn]. */
+    var entity: Entity? = null
+        private set
 
     /** Creates the placement entity (if it doesn't already exist) and the camera entity --
      * safe to call every frame alongside a demo's own idempotent mesh spawn, same as
      * [PrimaryOrbitCamera.spawn]. */
     fun spawn(world: World, target: Vec3) {
-        if (placementEntity == null) {
-            val entity = world.create()
-            world.add(entity, Transform())
-            placementEntity = entity
+        if (entity == null) {
+            val created = world.create()
+            world.add(created, Transform())
+            entity = created
         }
         primaryCamera.spawn(world, target)
     }
@@ -42,8 +46,8 @@ class OrbitCameraDemoRig(val camera: OrbitCameraController) {
 
     /** Destroys both the placement and camera entities -- call from a demo's `onDeactivate`. */
     fun destroy(world: World) {
-        placementEntity?.let { world.destroy(it) }
-        placementEntity = null
+        entity?.let { world.destroy(it) }
+        entity = null
         primaryCamera.destroy(world)
     }
 }

@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.render.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
-import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -66,10 +65,10 @@ interface Renderer {
      * trivial 1x1 white pixel. [uniformFloatCount] is the material's per-object uniform
      * buffer's size in floats -- `24` (MVP + [SceneLight]'s direction/color, both `vec4f`) by
      * default, since every material a [DrawCall] can reach goes through [draw]'s single lit
-     * pass (`prepareDrawCalls` always writes both, unconditionally -- a smaller buffer here
-     * would be a real out-of-bounds write, not just wasted space); a skinned material passes
-     * `16 + 16 * jointCount` instead (MVP + joint palette, no light -- `drawSkinnedMesh` is a
-     * separate staged-draw path `prepareDrawCalls` never touches). */
+     * pass (`prepareDrawCalls` always writes MVP + either light or [DrawCall
+     * .extraUniformFloats], unconditionally -- a smaller buffer here would be a real
+     * out-of-bounds write, not just wasted space); a skinned material passes `16 + 16 *
+     * jointCount` instead (MVP + joint palette via [DrawCall.extraUniformFloats], no light). */
     fun createMaterial(
         texture: TextureAsset? = null,
         renderTarget: RenderTarget? = null,
@@ -125,31 +124,6 @@ interface Renderer {
      * geometry. Stages the lines for the next [draw] call, same "stage now, consume on next
      * draw" pattern [drawUi] already uses -- call before [draw] each frame. */
     fun drawDebugLines(lines: List<LineSegment>)
-
-    /** Draws one GPU-skinned mesh this frame, through a dedicated skinned pipeline -- a
-     * skinned mesh's vertex layout ([io.github.ronjunevaldoz.awake.render.mesh.VertexFormat.PositionNormalColorSkin])
-     * doesn't match [createMesh]'s default 3D pipeline's fixed layout, so it can't go through
-     * the ordinary [draw]/[DrawCall] path the way a static mesh does -- a renderer has exactly
-     * one fixed-vertex-format main 3D pipeline (see `RendererDraw3D.kt`'s doc comment on the
-     * Vulkan backend). [jointPalette] is `16 * jointCount` floats -- see
-     * `SkinnedAnimationPlayer.jointPalette`; [model]'s combined with this frame's camera and
-     * [jointPalette] into [material]'s uniform buffer, same "stage now, consume on next [draw]"
-     * pattern [drawDebugLines] already uses. Default no-op: a backend with no skinned-pipeline
-     * support yet (e.g. WebGPU's still-stubbed 3D material path, see that backend's own
-     * `Material.kt`) simply doesn't render the call, rather than every implementer needing an
-     * empty override. */
-    fun drawSkinnedMesh(mesh: Mesh, material: Material, model: Mat4, jointPalette: FloatArray) {}
-
-    /** Draws one textured mesh this frame, through a dedicated textured pipeline -- same
-     * reason [drawSkinnedMesh] exists: a mesh with a real `baseColorTexture`
-     * ([io.github.ronjunevaldoz.awake.render.mesh.VertexFormat.PositionNormalColorUv]) doesn't
-     * match [createMesh]'s default 3D pipeline's fixed layout either, so it goes through this
-     * separate staged-draw path instead of [draw]/[DrawCall]. [material] must have been built
-     * with a real [texture][createMaterial]'s `texture` parameter, not the default placeholder
-     * -- see `textured.wgsl`. Same "stage now, consume on next [draw]" pattern as
-     * [drawDebugLines]/[drawSkinnedMesh]; same default no-op for a backend with no textured-
-     * pipeline support yet. */
-    fun drawTexturedMesh(mesh: Mesh, material: Material, model: Mat4) {}
 
     fun destroy()
 }

@@ -61,13 +61,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     // is exactly this frame's viewProjection.
     lineRenderPipeline.writeMvp(currentFrame, viewProjection.data)
     val materialUsage = mutableMapOf<RenderMaterial, Int>()
-    // Ordinary ECS draw calls plus whatever drawSkinnedMesh()/drawTexturedMesh() staged this
-    // frame -- one shared materialUsage counter and one prepare/record pass for all of them,
-    // see prepareDrawCalls's own doc comment for why this is safe to unify.
-    val allDrawCalls = drawCalls + pendingSkinnedDraws + pendingTexturedDraws
-    val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, allDrawCalls, light, materialUsage)
-    pendingSkinnedDraws.clear()
-    pendingTexturedDraws.clear()
+    val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, drawCalls, light, materialUsage)
 
     Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
     recordCommandBuffer(commandBuffers[currentFrame], currentFrame, imageIndex, preparedDrawCalls)

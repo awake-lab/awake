@@ -17,6 +17,8 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
+import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.controls.OrbitCameraDemoRig
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
@@ -36,16 +38,15 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
  * [GltfMesh.baseColorImageBytes]'s own doc comment), decoded once in [preload] via the shared
  * [io.github.ronjunevaldoz.awake.core.graphics.createBitmap]/[toRgba8Bytes] utility.
  *
- * Doesn't go through the ordinary [io.github.ronjunevaldoz.awake.scene.components.MeshRenderer]
- * ECS component / [io.github.ronjunevaldoz.awake.scene.systems.RenderSystem] path -- a textured
- * mesh's vertex layout ([VertexFormat.PositionNormalColorUv]) doesn't match this sample's one
- * fixed-format main 3D pipeline (`VertexFormat.PositionNormalColor`, see
- * `Scene3DPlaygroundVulkanBootstrap.kt`), so it draws through [SceneGameRuntime.renderer]'s own
- * [io.github.ronjunevaldoz.awake.render.renderer.Renderer.drawTexturedMesh] instead -- called
- * directly from [onUpdate] every frame, the same "demo calls the renderer directly" pattern
- * [SkinnedMeshDemo] already uses for `drawSkinnedMesh`. Still spawns [rig]'s placement entity
- * (unused by rendering, kept so this demo's world-space placement is inspectable the same
- * way every other demo's is) and a primary camera entity, same as every other demo.
+ * Renders through the ordinary [MeshRenderer]/[io.github.ronjunevaldoz.awake.scene.systems
+ * .RenderSystem] path, same as every other demo -- [rig]'s placement entity carries
+ * [MeshRenderer] directly, its mesh's own [VertexFormat.PositionNormalColorUv] resolving to
+ * the `textured.wgsl` pipeline via `Renderer.pipelinesByFormat` (see that property's own doc
+ * comment). Scale is applied via [Transform.worldMatrix] each frame, same as [SpinSystem]
+ * writes it, not passed to a bespoke draw call.
+ *
+ * `Renderer.drawTexturedMesh` (the bypass this demo used before `RenderSystem` supported
+ * more than one vertex format) is gone now that nothing needs it.
  *
  * The actual byte load ([readResourceBytes]) is suspend, so it can't happen in [Scene3DDemo
  * .onActivate] (a plain, non-suspend per-frame hook) -- [preload] does it once, during the
@@ -70,8 +71,8 @@ internal object GltfViewerDemo {
     /** [loadedMesh] interleaved once at [preload] time, in BOTH scales -- raw (Duck's own
      * ~170-unit-radius authored coordinates) and pre-normalized (positions baked down to a ~1
      * unit bounding radius, [modelRadius]'s own reciprocal already multiplied in). Only
-     * [scaleMultiplier] (0.25x-4x) is ever applied at runtime via the model matrix passed to
-     * `drawTexturedMesh` now -- see that field's own doc comment for why combining the ~0.0059
+     * [scaleMultiplier] (0.25x-4x) is ever applied at runtime via [Transform.worldMatrix]
+     * now -- see that field's own doc comment for why combining the ~0.0059
      * `1/modelRadius` factor with Duck's raw ~170-unit vertex coordinates in the SAME per-frame
      * GPU matrix multiply was worth eliminating outright, not just working around. */
     private var rawInterleaved: FloatArray? = null
@@ -91,7 +92,7 @@ internal object GltfViewerDemo {
 
     /** Fine-tune on top of [normalizeScale]'s automatic normalization -- 1x is "exactly fills the
      * same ~1-unit bounding sphere every other demo's content uses". Applied every [onUpdate] tick
-     * to the model matrix passed into `drawTexturedMesh` (unlike the `1/modelRadius` factor, which
+     * to [Transform.worldMatrix] (unlike the `1/modelRadius` factor, which
      * is baked into [normalizedInterleaved] once instead -- see that field's own doc comment)
      * since its whole 0.25x-4x range is safe to combine with already-normalized ~1-unit
      * coordinates in one GPU matrix multiply; nothing here approaches the precision cliff
@@ -188,8 +189,9 @@ internal object GltfViewerDemo {
         id = "gltf-viewer",
         title = "glTF viewer",
         renderViewport = {
-            // Real geometry is drawn via Renderer.drawTexturedMesh in onUpdate, not this
-            // viewport column -- see this object's own doc comment.
+            // Real geometry is drawn by RenderSystem via this demo's own ECS entity (see
+            // onActivate/onUpdate below) -- this viewport column only needs to exist so the
+            // shell lays out a center pane for it.
         },
         renderControls = {
             shadcnSurface(id = "gltf-controls-panel", modifier = Modifier.fillMaxWidth()) {
@@ -217,16 +219,11 @@ internal object GltfViewerDemo {
             ensureSpawned(this)
             if (mesh != null && meshIsNormalized != normalizeScale) rebindMesh(this)
             if (autoRotate) camera.orbitDegrees = (camera.orbitDegrees + delta * ORBIT_DEGREES_PER_SECOND) % 360f
-            val currentMesh = mesh
-            val currentMaterial = material
-            if (currentMesh != null && currentMaterial != null) {
-                // Only scaleMultiplier here now -- the 1/modelRadius normalization is already
-                // baked into normalizedInterleaved (see rebindMesh/scalePositions), not
-                // recombined with raw ~170-unit coordinates in this per-frame matrix anymore.
-                val worldScale = if (normalizeScale) scaleMultiplier else 1f
-                val model = Mat4().scale(worldScale, worldScale, worldScale)
-                renderer.drawTexturedMesh(currentMesh, currentMaterial, model)
-            }
+            // Only scaleMultiplier here now -- the 1/modelRadius normalization is already
+            // baked into normalizedInterleaved (see rebindMesh/scalePositions), not
+            // recombined with raw ~170-unit coordinates in this per-frame matrix anymore.
+            val worldScale = if (normalizeScale) scaleMultiplier else 1f
+            rig.entity?.let { world.get<Transform>(it)?.worldMatrix = Mat4().scale(worldScale, worldScale, worldScale) }
             rig.refresh(world, MODEL_CENTER)
         }
     )
@@ -238,6 +235,7 @@ internal object GltfViewerDemo {
         material = runtime.renderer.createMaterial(texture = textureAsset)
         meshIsNormalized = normalizeScale
         rig.spawn(runtime.world, MODEL_CENTER)
+        runtime.world.add(rig.entity!!, MeshRenderer(mesh!!, material!!))
         spawned = true
     }
 
@@ -245,11 +243,14 @@ internal object GltfViewerDemo {
      * [rawInterleaved]/[normalizedInterleaved] now matches [normalizeScale] -- called from
      * [onUpdate] the first tick after the controls panel flips the switch. Keeps the existing
      * [material] (color/shading is scale-independent, no reason to churn it), only [mesh] and
-     * [meshIsNormalized] change. */
+     * [meshIsNormalized] change -- the entity's [MeshRenderer] is re-added to reference the
+     * new [mesh] (`world.add` replaces the existing component, see [World.add][io.github
+     * .ronjunevaldoz.awake.ecs.World.add]'s own doc comment). */
     private fun rebindMesh(runtime: SceneGameRuntime) {
         mesh?.destroy()
         mesh = createMeshForCurrentScaleMode(runtime)
         meshIsNormalized = normalizeScale
+        runtime.world.add(rig.entity!!, MeshRenderer(mesh!!, material!!))
     }
 
     private fun createMeshForCurrentScaleMode(runtime: SceneGameRuntime) =

@@ -33,16 +33,17 @@ class VulkanGameApplication(
     game: Game,
     private val vertexShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
     private val fragmentShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
-    /** An optional second 3D pipeline for GPU-skinned meshes -- see
-     * [io.github.ronjunevaldoz.awake.render.renderer.Renderer.drawSkinnedMesh]'s doc comment.
-     * `null` (default) for every game that has no skinned content -- most of them -- which
-     * skips building it entirely, same as [GenericGameApplication]'s existing single-pipeline
-     * shape for every other game. */
+    /** An optional second 3D pipeline for GPU-skinned meshes -- registered into `Renderer
+     * .pipelinesByFormat` under [skinnedVertexFormat] so a `MeshRenderer` entity using that
+     * format draws through it instead of the primary pipeline. `null` (default) for every
+     * game that has no skinned content -- most of them -- which skips building it entirely,
+     * same as [GenericGameApplication]'s existing single-pipeline shape for every other game. */
     private val skinnedShaderSet: GameShaderSet? = null,
     private val skinnedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorSkin,
-    /** An optional third 3D pipeline for meshes with a real `baseColorTexture` -- see
-     * [io.github.ronjunevaldoz.awake.render.renderer.Renderer.drawTexturedMesh]'s doc comment.
-     * Same "null by default, opt in per game" shape as [skinnedShaderSet]. */
+    /** An optional third 3D pipeline for meshes with a real `baseColorTexture` -- same
+     * `pipelinesByFormat` registration shape as [skinnedShaderSet], under
+     * [texturedVertexFormat]. Same "null by default, opt in per game" shape as
+     * [skinnedShaderSet]. */
     private val texturedShaderSet: GameShaderSet? = null,
     private val texturedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorUv
 ) : GenericGameApplication(
