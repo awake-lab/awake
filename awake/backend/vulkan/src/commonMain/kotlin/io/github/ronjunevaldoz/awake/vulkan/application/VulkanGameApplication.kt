@@ -137,12 +137,15 @@ class VulkanGameApplication(
             MAX_FRAMES_IN_FLIGHT
         )
         transferContext = TransferContext(graphicsDevice)
+        val additionalPipelinesByFormat = buildMap {
+            skinnedRenderPipeline?.let { put(skinnedVertexFormat, it) }
+            texturedRenderPipeline?.let { put(texturedVertexFormat, it) }
+        }
         val renderer = Renderer(
             graphicsDevice,
             swapchainManager,
             renderPipeline,
-            skinnedRenderPipeline,
-            texturedRenderPipeline,
+            additionalPipelinesByFormat,
             lineRenderPipeline,
             transferContext,
             loadShaderPair(UI_VERTEX_SHADER_RESOURCE_PATH, UI_FRAGMENT_SHADER_RESOURCE_PATH),

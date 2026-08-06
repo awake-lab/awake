@@ -15,6 +15,12 @@ package io.github.ronjunevaldoz.awake.render.mesh
  * `Mesh(graphicsDevice, ...)` construction pattern needs no changes.
  */
 interface Mesh {
+    /** The vertex layout this mesh's GPU buffer was built with -- lets a [Renderer]
+     * implementation pick the correct pipeline for a [io.github.ronjunevaldoz.awake.render
+     * .renderer.DrawCall] by [format] instead of assuming every mesh shares the one pipeline
+     * the renderer happens to have bound. Set once at [Renderer.createMesh] time from the
+     * [MeshGeometry.format] the mesh was created from. */
+    val format: VertexFormat
     fun bind(commandBuffer: Long)
     fun draw(commandBuffer: Long)
     fun destroy()

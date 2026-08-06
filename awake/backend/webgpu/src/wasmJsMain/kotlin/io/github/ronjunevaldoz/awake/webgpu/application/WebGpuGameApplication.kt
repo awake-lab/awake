@@ -81,6 +81,7 @@ class WebGpuGameApplication(
             graphicsDevice,
             swapchainManager,
             renderPipeline,
+            vertexFormat,
             lineRenderPipeline,
             readResourceBytes(UI_SHADER_RESOURCE_PATH),
             readResourceBytes(UI_GLYPH_SHADER_RESOURCE_PATH),

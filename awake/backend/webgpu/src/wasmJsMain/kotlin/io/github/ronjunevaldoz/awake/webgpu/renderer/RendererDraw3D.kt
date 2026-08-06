@@ -77,6 +77,14 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
         var drawIndex = 0
         while (drawIndex < drawCalls.size) {
             val drawCall = drawCalls[drawIndex]
+            // This backend only ever has the one pipeline (primaryVertexFormat) -- a mesh
+            // built with any other format is skipped rather than drawn through a pipeline
+            // that expects a different vertex layout, matching Vulkan's Renderer
+            // .pipelinesByFormat skip-on-mismatch guard (see that class's doc comment).
+            if (drawCall.mesh.format != primaryVertexFormat) {
+                drawIndex += 1
+                continue
+            }
             // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
             // Camera.viewProjectionMatrix's docs), matching vulkanMain's Renderer.
             val mvp = drawCall.model * viewProjection

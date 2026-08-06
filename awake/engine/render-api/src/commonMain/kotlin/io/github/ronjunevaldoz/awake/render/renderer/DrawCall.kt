@@ -14,9 +14,18 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
  * [Renderer.draw] writes this draw's MVP matrix into), placed in the world by [model].
  * Multiple `DrawCall`s can share the same [mesh] or [material] instance -- `Renderer` doesn't
  * assume either is unique per call.
+ *
+ * [extraUniformFloats] is appended after the MVP matrix (and, for [mesh]es using the
+ * renderer's primary lit format, after the light floats) when writing [material]'s uniform
+ * buffer -- empty by default (a plain-colored mesh needs nothing extra), a joint-palette
+ * `FloatArray` for a GPU-skinned [mesh]. Which extra data (if any) a given [mesh.format]
+ * expects is a backend concern, not something `DrawCall` itself interprets.
  */
 data class DrawCall(
     val mesh: Mesh,
     val material: Material,
-    val model: Mat4 = Mat4()
+    val model: Mat4 = Mat4(),
+    val extraUniformFloats: FloatArray = EMPTY_UNIFORM_FLOATS
 )
+
+private val EMPTY_UNIFORM_FLOATS = FloatArray(0)

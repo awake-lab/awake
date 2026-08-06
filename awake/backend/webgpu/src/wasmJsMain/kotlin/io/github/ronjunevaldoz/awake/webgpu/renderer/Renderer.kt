@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
@@ -80,6 +81,13 @@ class Renderer(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     renderPipeline: RenderPipeline,
+    /** The one [io.github.ronjunevaldoz.awake.render.mesh.VertexFormat] [renderPipeline] was
+     * built for -- this backend only ever has the one 3D pipeline (see this class's own doc
+     * comment), so a [DrawCall] whose mesh uses any other format is skipped rather than drawn
+     * through a pipeline that expects a different vertex layout (see [performDraw]'s doc
+     * comment). Mirrors Vulkan's `Renderer.pipelinesByFormat`, minus the "more than one
+     * pipeline" part -- no format table needed when there's only ever one entry. */
+    internal val primaryVertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     internal val lineRenderPipeline: LineRenderPipeline,
     internal val uiShaderCode: ByteArray,
     internal val uiGlyphShaderCode: ByteArray,
@@ -186,7 +194,7 @@ class Renderer(
      * comment. `runOneTimeCommands` is unused by this backend's `Mesh` (see its own doc
      * comment), so an empty lambda is passed. */
     override fun createMesh(geometry: MeshGeometry): RenderMesh =
-        Mesh(graphicsDevice, {}, geometry.vertices, geometry.indices)
+        Mesh(graphicsDevice, {}, geometry.vertices, geometry.indices, geometry.format)
 
     /** Builds a [Material] -- this backend's `Material` is still a compile-only stub (see
      * its own doc comment), so this just constructs it, matching this backend's existing
@@ -255,6 +263,12 @@ class Renderer(
             var drawIndex = 0
             while (drawIndex < drawCalls.size) {
                 val drawCall = drawCalls[drawIndex]
+                // Same skip-on-format-mismatch guard as performDraw() -- see that function's
+                // own comment.
+                if (drawCall.mesh.format != primaryVertexFormat) {
+                    drawIndex += 1
+                    continue
+                }
                 val mvp = drawCall.model * viewProjection
                 device.queue.writeBuffer(uniformBuffer!!, 0uL, fastArrayBufferOf(mvp.data + lightFloats))
                 setBindGroup(0u, uniformBindGroup!!)

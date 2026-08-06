@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
@@ -86,18 +87,13 @@ class Renderer(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     renderPipeline: RenderPipeline,
-    /** A second, optional 3D pipeline for GPU-skinned meshes -- see [drawSkinnedMesh]'s doc
-     * comment for why one fixed-vertex-format [renderPipeline] can't also draw a skinned
-     * mesh's different vertex layout. `null` for every game that never calls
-     * [drawSkinnedMesh] (most of them) -- built eagerly, same as [renderPipeline] itself,
-     * by whichever `GameApplication` bootstrap opts into it (shader loading is `suspend`,
-     * so it can't be built lazily on first [drawSkinnedMesh] call the way the UI pipelines
-     * below are). */
-    internal val skinnedRenderPipeline: RenderPipeline? = null,
-    /** A third, optional 3D pipeline for meshes with a real `baseColorTexture` -- see
-     * [drawTexturedMesh]'s doc comment. Same "built eagerly, opt-in per bootstrap" shape as
-     * [skinnedRenderPipeline]. */
-    internal val texturedRenderPipeline: RenderPipeline? = null,
+    /** Extra 3D pipelines beyond [renderPipeline], keyed by the [VertexFormat] each one was
+     * built for -- see [pipelinesByFormat]'s doc comment for how a [DrawCall] picks one.
+     * Empty (default) for every game that only ever draws [renderPipeline]'s format (most of
+     * them) -- built eagerly, same as [renderPipeline] itself, by whichever `GameApplication`
+     * bootstrap opts into extra formats (shader loading is `suspend`, so this can't be built
+     * lazily on first draw the way the UI pipelines below are). */
+    additionalPipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
     internal val lineRenderPipeline: LineRenderPipeline,
     internal val transferContext: TransferContext,
     internal val uiShaders: ShaderPair,
@@ -118,6 +114,15 @@ class Renderer(
     internal val graphicsDevice = graphicsDevice
     internal val swapchainManager = swapchainManager
     internal val renderPipeline = renderPipeline
+
+    /** Every 3D pipeline this renderer can draw with, keyed by the [VertexFormat] it expects
+     * -- [prepareDrawCalls] resolves each [DrawCall] against this table via
+     * [DrawCall.mesh]'s own [io.github.ronjunevaldoz.awake.render.mesh.Mesh.format]; a format
+     * with no entry here is skipped (not drawn), not force-drawn through [renderPipeline] --
+     * see [prepareDrawCalls]'s own doc comment for why silently rendering wrong-format vertex
+     * data through the wrong pipeline would be worse than not drawing it at all. */
+    internal val pipelinesByFormat: Map<VertexFormat, RenderPipeline> =
+        mapOf(renderPipeline.vertexFormat to renderPipeline) + additionalPipelinesByFormat
     internal val device get() = graphicsDevice.device
     internal val physicalDevice get() = graphicsDevice.physicalDevice
     internal val graphicsQueue get() = graphicsDevice.graphicsQueue
@@ -170,40 +175,20 @@ class Renderer(
     // texture/glyph pipelines above.
     internal var uiRoundedQuadRenderPipeline: UiRoundedQuadRenderPipeline? = null
 
-    /** One [drawSkinnedMesh] call's staged draw -- [model]/[jointPalette] combined into
-     * [material]'s uniform buffer once this frame's camera is known (inside `performDraw`),
-     * same "stage now, resolve at draw time" reason [DrawCall] doesn't carry a resolved MVP
-     * either. */
-    internal data class SkinnedDrawCall(
-        val mesh: RenderMesh,
-        val material: RenderMaterial,
-        val model: Mat4,
-        val jointPalette: FloatArray
-    )
-
-    // Staged by drawSkinnedMesh(), consumed and cleared every performDraw() frame -- see
-    // that method's own doc comment for the "call it every frame you want it drawn" contract,
-    // matching drawDebugLines()/lineMesh's existing pattern.
-    internal val pendingSkinnedDraws = mutableListOf<SkinnedDrawCall>()
+    // Staged by drawSkinnedMesh()/drawTexturedMesh(), consumed and cleared every performDraw()
+    // frame -- see drawDebugLines()/lineMesh's existing "call it every frame you want it
+    // drawn" pattern. Plain DrawCalls (not a bespoke wrapper type) since pipelinesByFormat/
+    // prepareDrawCalls resolve every draw call -- ordinary or staged -- through the exact same
+    // format-keyed path; jointPalette rides in DrawCall.extraUniformFloats.
+    internal val pendingSkinnedDraws = mutableListOf<DrawCall>()
+    internal val pendingTexturedDraws = mutableListOf<DrawCall>()
 
     override fun drawSkinnedMesh(mesh: RenderMesh, material: RenderMaterial, model: Mat4, jointPalette: FloatArray) {
-        pendingSkinnedDraws += SkinnedDrawCall(mesh, material, model, jointPalette)
+        pendingSkinnedDraws += DrawCall(mesh, material, model, extraUniformFloats = jointPalette)
     }
 
-    /** One [drawTexturedMesh] call's staged draw -- same "stage now, resolve at draw time"
-     * shape as [SkinnedDrawCall], minus the joint palette. */
-    internal data class TexturedDrawCall(
-        val mesh: RenderMesh,
-        val material: RenderMaterial,
-        val model: Mat4
-    )
-
-    // Staged by drawTexturedMesh(), consumed and cleared every performDraw() frame -- see
-    // pendingSkinnedDraws' own doc comment for the shared contract.
-    internal val pendingTexturedDraws = mutableListOf<TexturedDrawCall>()
-
     override fun drawTexturedMesh(mesh: RenderMesh, material: RenderMaterial, model: Mat4) {
-        pendingTexturedDraws += TexturedDrawCall(mesh, material, model)
+        pendingTexturedDraws += DrawCall(mesh, material, model)
     }
 
     // Textures created on demand by createMaterial() -- Renderer (not Material) owns their
@@ -312,7 +297,7 @@ class Renderer(
     /** Uploads [geometry] as a GPU mesh, on demand -- see [RenderRenderer.createMesh]'s doc
      * comment. */
     override fun createMesh(geometry: MeshGeometry): RenderMesh =
-        Mesh(graphicsDevice, transferContext::runOneTimeCommands, geometry.vertices, geometry.indices)
+        Mesh(graphicsDevice, transferContext::runOneTimeCommands, geometry.vertices, geometry.indices, geometry.format)
 
     /** Builds a [Material] bound to this [renderPipeline], uploading [texture] (or a 1x1
      * white placeholder when both [texture]/[renderTarget] are null) -- see

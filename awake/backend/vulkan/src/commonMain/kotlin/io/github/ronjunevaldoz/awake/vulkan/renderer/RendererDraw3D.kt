@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFenceCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkPresentInfoKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 
 /** The 3D frame path -- [Renderer.draw]'s whole-frame orchestration (wait/acquire -> update
@@ -60,19 +61,16 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     // is exactly this frame's viewProjection.
     lineRenderPipeline.writeMvp(currentFrame, viewProjection.data)
     val materialUsage = mutableMapOf<RenderMaterial, Int>()
-    val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, drawCalls, light, materialUsage)
-    val preparedSkinnedDrawCalls = prepareSkinnedDrawCalls(currentFrame, viewProjection, materialUsage)
-    val preparedTexturedDrawCalls = prepareTexturedDrawCalls(currentFrame, viewProjection, materialUsage)
+    // Ordinary ECS draw calls plus whatever drawSkinnedMesh()/drawTexturedMesh() staged this
+    // frame -- one shared materialUsage counter and one prepare/record pass for all of them,
+    // see prepareDrawCalls's own doc comment for why this is safe to unify.
+    val allDrawCalls = drawCalls + pendingSkinnedDraws + pendingTexturedDraws
+    val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, allDrawCalls, light, materialUsage)
+    pendingSkinnedDraws.clear()
+    pendingTexturedDraws.clear()
 
     Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
-    recordCommandBuffer(
-        commandBuffers[currentFrame],
-        currentFrame,
-        imageIndex,
-        preparedDrawCalls,
-        preparedSkinnedDrawCalls,
-        preparedTexturedDrawCalls
-    )
+    recordCommandBuffer(commandBuffers[currentFrame], currentFrame, imageIndex, preparedDrawCalls)
 
     val waitSemaphores = arrayOf(swapchainManager.imageAvailableSemaphores[currentFrame])
     val waitStages =
@@ -107,9 +105,11 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     swapchainManager.currentFrame = (currentFrame + 1) % commandBuffers.size
 }
 
-/** Binds+draws each [drawCalls] entry against whatever render pass/pipeline is already
- * bound on [commandBuffer] -- shared by [recordCommandBuffer] (the swapchain frame) and
- * [Renderer.renderToTexture] (an offscreen frame), so the two don't duplicate this loop. */
+/** Binds+draws each [drawCalls] entry against its own resolved [PreparedDrawCall.pipeline]'s
+ * layout -- shared by [recordCommandBuffer] (the swapchain frame, which groups by pipeline
+ * and binds each group's pipeline before calling this) and [Renderer.renderToTexture] (an
+ * offscreen frame, which only ever resolves the primary pipeline, already bound before this
+ * is called there), so neither duplicates this loop. */
 internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<PreparedDrawCall>) {
     var drawIndex = 0
     val drawCount = drawCalls.size
@@ -118,7 +118,7 @@ internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<Prepa
         prepared.drawCall.mesh.bind(commandBuffer)
         prepared.material.bind(
             commandBuffer,
-            renderPipeline.pipelineLayout,
+            prepared.pipeline.pipelineLayout,
             prepared.frameIndex,
             prepared.uniformSlotIndex
         )
@@ -131,9 +131,7 @@ internal fun Renderer.recordCommandBuffer(
     commandBuffer: Long,
     frameIndex: Int,
     acquiredImageIndex: Int,
-    drawCalls: List<PreparedDrawCall>,
-    skinnedDrawCalls: List<PreparedSkinnedDrawCall>,
-    texturedDrawCalls: List<PreparedTexturedDrawCall>
+    drawCalls: List<PreparedDrawCall>
 ) {
     val beginInfo = VkCommandBufferBeginInfo(
         flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value,
@@ -154,6 +152,12 @@ internal fun Renderer.recordCommandBuffer(
         VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE
     )
 
+    // Grouped by resolved pipeline (see prepareDrawCalls) instead of 3 hardcoded blocks --
+    // the primary group is drawn first (even if empty, renderPipeline is still bound first,
+    // matching this method's old unconditional bind-before-anything-else behavior), then
+    // debug lines, then every other format's group -- same relative draw order this method
+    // always had, now generalized to however many pipelines pipelinesByFormat actually holds.
+    val groupedDrawCalls = drawCalls.groupBy { it.pipeline }
     renderPipeline.bind(commandBuffer)
     val viewport = VkViewport(
         width = swapchainManager.extent.width.toFloat(),
@@ -164,8 +168,7 @@ internal fun Renderer.recordCommandBuffer(
         extent = swapchainManager.extent
     )
     Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
-
-    recordDrawCalls(commandBuffer, drawCalls)
+    recordDrawCalls(commandBuffer, groupedDrawCalls[renderPipeline] ?: emptyList())
 
     // Debug lines (e.g. a frustum wireframe), same render pass/depth attachment as
     // the 3D draw calls above -- real depth-testing against scene geometry, not an
@@ -174,43 +177,11 @@ internal fun Renderer.recordCommandBuffer(
     lineMesh.bind(frameIndex, commandBuffer)
     lineMesh.draw(frameIndex, commandBuffer)
 
-    val skinnedPipeline = skinnedRenderPipeline
-    if (skinnedPipeline != null) {
-        skinnedPipeline.bind(commandBuffer)
-        var skinnedDrawIndex = 0
-        while (skinnedDrawIndex < skinnedDrawCalls.size) {
-            val prepared = skinnedDrawCalls[skinnedDrawIndex]
-            prepared.drawCall.mesh.bind(commandBuffer)
-            prepared.material.bind(
-                commandBuffer,
-                skinnedPipeline.pipelineLayout,
-                prepared.frameIndex,
-                prepared.uniformSlotIndex
-            )
-            prepared.drawCall.mesh.draw(commandBuffer)
-            skinnedDrawIndex += 1
-        }
+    groupedDrawCalls.forEach { (pipeline, group) ->
+        if (pipeline === renderPipeline) return@forEach
+        pipeline.bind(commandBuffer)
+        recordDrawCalls(commandBuffer, group)
     }
-    pendingSkinnedDraws.clear()
-
-    val texturedPipeline = texturedRenderPipeline
-    if (texturedPipeline != null) {
-        texturedPipeline.bind(commandBuffer)
-        var texturedDrawIndex = 0
-        while (texturedDrawIndex < texturedDrawCalls.size) {
-            val prepared = texturedDrawCalls[texturedDrawIndex]
-            prepared.drawCall.mesh.bind(commandBuffer)
-            prepared.material.bind(
-                commandBuffer,
-                texturedPipeline.pipelineLayout,
-                prepared.frameIndex,
-                prepared.uniformSlotIndex
-            )
-            prepared.drawCall.mesh.draw(commandBuffer)
-            texturedDrawIndex += 1
-        }
-    }
-    pendingTexturedDraws.clear()
 
     Vulkan.vkCmdEndRenderPass(commandBuffer)
 
@@ -342,18 +313,26 @@ internal fun Renderer.waitForCurrentFrameResourceSlot() {
 
 internal data class PreparedDrawCall(
     val drawCall: DrawCall,
+    val pipeline: RenderPipeline,
     val material: Material,
     val frameIndex: Int,
     val uniformSlotIndex: Int
 )
 
-internal data class PreparedSkinnedDrawCall(
-    val drawCall: Renderer.SkinnedDrawCall,
-    val material: Material,
-    val frameIndex: Int,
-    val uniformSlotIndex: Int
-)
-
+/** Resolves each [drawCalls] entry against [Renderer.pipelinesByFormat] by its
+ * [DrawCall.mesh]'s own [io.github.ronjunevaldoz.awake.render.mesh.Mesh.format] and writes
+ * its uniform buffer -- one shared pass for every vertex format a [Renderer] can draw,
+ * replacing what used to be a separate `prepare*DrawCalls` function (and a separate
+ * `Prepared*DrawCall` type) per format. A [drawCall] whose format has no entry in
+ * [Renderer.pipelinesByFormat] is SKIPPED, not drawn through [Renderer.renderPipeline] as a
+ * fallback -- rendering one format's vertex data through a different format's pipeline would
+ * silently misinterpret the vertex buffer (wrong attribute count/offsets), which is worse
+ * than not drawing it.
+ *
+ * [light] only reaches [drawCall]s resolved to [Renderer.renderPipeline] itself (the primary/
+ * lit format) -- every other resolved pipeline gets [DrawCall.extraUniformFloats] instead
+ * (e.g. a skinned mesh's joint palette), exactly matching what each format's own shader
+ * expects (`triangle.wgsl` reads light; `textured.wgsl`/`skinned.wgsl` don't). */
 internal fun Renderer.prepareDrawCalls(
     frameIndex: Int,
     viewProjection: Mat4,
@@ -372,59 +351,18 @@ internal fun Renderer.prepareDrawCalls(
     var drawIndex = 0
     while (drawIndex < drawCalls.size) {
         val drawCall = drawCalls[drawIndex]
-        val material = drawCall.material as Material
-        val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
-        // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
-        // Camera.viewProjectionMatrix's docs), so `model * viewProjection` (Kotlin
-        // order) gives the conventional `projection * view * model`.
-        val mvp = drawCall.model * viewProjection
-        material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + lightFloats)
-        prepared += PreparedDrawCall(drawCall, material, frameIndex, uniformSlotIndex)
-        drawIndex += 1
-    }
-    return prepared
-}
-
-internal fun Renderer.prepareSkinnedDrawCalls(
-    frameIndex: Int,
-    viewProjection: Mat4,
-    materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf()
-): List<PreparedSkinnedDrawCall> {
-    val prepared = ArrayList<PreparedSkinnedDrawCall>(pendingSkinnedDraws.size)
-    var drawIndex = 0
-    while (drawIndex < pendingSkinnedDraws.size) {
-        val drawCall = pendingSkinnedDraws[drawIndex]
-        val material = drawCall.material as Material
-        val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
-        val mvp = drawCall.model * viewProjection
-        material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + drawCall.jointPalette)
-        prepared += PreparedSkinnedDrawCall(drawCall, material, frameIndex, uniformSlotIndex)
-        drawIndex += 1
-    }
-    return prepared
-}
-
-internal data class PreparedTexturedDrawCall(
-    val drawCall: Renderer.TexturedDrawCall,
-    val material: Material,
-    val frameIndex: Int,
-    val uniformSlotIndex: Int
-)
-
-internal fun Renderer.prepareTexturedDrawCalls(
-    frameIndex: Int,
-    viewProjection: Mat4,
-    materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf()
-): List<PreparedTexturedDrawCall> {
-    val prepared = ArrayList<PreparedTexturedDrawCall>(pendingTexturedDraws.size)
-    var drawIndex = 0
-    while (drawIndex < pendingTexturedDraws.size) {
-        val drawCall = pendingTexturedDraws[drawIndex]
-        val material = drawCall.material as Material
-        val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
-        val mvp = drawCall.model * viewProjection
-        material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data)
-        prepared += PreparedTexturedDrawCall(drawCall, material, frameIndex, uniformSlotIndex)
+        val pipeline = pipelinesByFormat[drawCall.mesh.format]
+        if (pipeline != null) {
+            val material = drawCall.material as Material
+            val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
+            // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
+            // Camera.viewProjectionMatrix's docs), so `model * viewProjection` (Kotlin
+            // order) gives the conventional `projection * view * model`.
+            val mvp = drawCall.model * viewProjection
+            val extraFloats = if (pipeline === renderPipeline) lightFloats else drawCall.extraUniformFloats
+            material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + extraFloats)
+            prepared += PreparedDrawCall(drawCall, pipeline, material, frameIndex, uniformSlotIndex)
+        }
         drawIndex += 1
     }
     return prepared

@@ -59,6 +59,7 @@ private class RecordingScene3DRenderer : Renderer {
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
     override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
+        override val format = geometry.format
         override fun bind(commandBuffer: Long) = Unit
         override fun draw(commandBuffer: Long) = Unit
         override fun destroy() = Unit

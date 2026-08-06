@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.webgpu.mesh
 
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.webgpu.handles.DeviceMemoryHandle
@@ -26,7 +27,8 @@ class Mesh(
     graphicsDevice: GraphicsDevice,
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     vertices: FloatArray,
-    indices: IntArray
+    indices: IntArray,
+    override val format: VertexFormat = VertexFormat.PositionColorUv
 ) : RenderMesh {
     var vertexBuffer: BufferHandle
     var vertexBufferMemory: DeviceMemoryHandle

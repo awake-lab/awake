@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.vulkan.mesh
 
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
@@ -34,7 +35,8 @@ class Mesh(
     graphicsDevice: GraphicsDevice,
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     vertices: FloatArray,
-    indices: IntArray
+    indices: IntArray,
+    override val format: VertexFormat = VertexFormat.PositionColorUv
 ) : RenderMesh {
     private val graphicsDevice = graphicsDevice
     private val runOneTimeCommands = runOneTimeCommands

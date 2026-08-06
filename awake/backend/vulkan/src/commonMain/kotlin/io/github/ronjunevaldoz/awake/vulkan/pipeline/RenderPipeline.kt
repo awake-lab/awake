@@ -80,7 +80,7 @@ class RenderPipeline(
     swapchainManager: SwapchainManager,
     descriptorSetLayout: DescriptorSetLayoutHandle,
     shaders: ShaderPair,
-    vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
+    val vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     vertexEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
     fragmentEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT
 ) {
