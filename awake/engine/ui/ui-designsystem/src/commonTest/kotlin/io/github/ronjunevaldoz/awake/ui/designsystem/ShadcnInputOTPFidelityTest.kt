@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.*
+import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewDimensionRule
+import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewExactSpacingRule
+import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
+import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
+import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
+import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputOTP
@@ -31,7 +36,7 @@ class ShadcnInputOTPFidelityTest {
             length = 4,
             modifier = Modifier.width(300f.dp)
         )
-        val frame = ui.finishFrame()
+        val frameOutput = ui.finishFrame()
 
         val config = AwakeUiPreviewValidationConfig(
             dimensionRules = listOf(
@@ -50,12 +55,19 @@ class ShadcnInputOTPFidelityTest {
         )
 
         validateAwakeUiPreview(
-            metadata = AwakeUiPreviewMetadata(id = "otp-fidelity", title = "OTP Fidelity"),
+            metadata = AwakeUiPreviewMetadata(
+                id = "otp-fidelity",
+                title = "OTP Fidelity",
+                group = "Input",
+                summary = "OTP slots fidelity check",
+                width = 400,
+                height = 100
+            ),
             frame = AwakeUiPreviewFrame(
-                primitives = frame.primitives,
-                background = frame.background,
-                font = frame.font,
-                semantics = frame.semantics
+                primitives = frameOutput.primitives,
+                background = ui.currentTheme.colors.background,
+                font = ui.currentFont,
+                semantics = frameOutput.semantics
             ),
             config = config
         ).requireClean()

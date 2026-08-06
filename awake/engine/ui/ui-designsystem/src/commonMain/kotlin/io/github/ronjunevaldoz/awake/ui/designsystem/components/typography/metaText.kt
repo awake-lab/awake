@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-fun UiScope.metaText(
+fun UiScope.shadcnMetaText(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Companion {
@@ -22,5 +22,24 @@ fun UiScope.metaText(
     modifier = modifier,
     style = style,
     overflow = UiTextOverflow.Ellipsis,
+    maxLines = maxLines
+)
+
+@Deprecated(
+    message = "Use shadcnMetaText for UI design system typography functions",
+    replaceWith = ReplaceWith("shadcnMetaText(label, modifier, style, maxLines)")
+)
+fun UiScope.metaText(
+    label: String,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Companion {
+        foreground(theme.colors.mutedForeground)
+        textSize(theme.typography.caption)
+    },
+    maxLines: Int = 1
+): UiBounds = shadcnMetaText(
+    label = label,
+    modifier = modifier,
+    style = style,
     maxLines = maxLines
 )

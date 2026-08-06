@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-fun UiScope.sectionTitle(
+fun UiScope.shadcnSectionTitle(
     title: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Companion {
@@ -16,3 +16,16 @@ fun UiScope.sectionTitle(
         textSize(theme.typography.label)
     }
 ): UiBounds = text(title, modifier = modifier, style = style)
+
+@Deprecated(
+    message = "Use shadcnSectionTitle for UI design system typography functions",
+    replaceWith = ReplaceWith("shadcnSectionTitle(title, modifier, style)")
+)
+fun UiScope.sectionTitle(
+    title: String,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Companion {
+        foreground(theme.colors.mutedForeground)
+        textSize(theme.typography.label)
+    }
+): UiBounds = shadcnSectionTitle(title = title, modifier = modifier, style = style)

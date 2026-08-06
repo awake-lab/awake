@@ -5,8 +5,8 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.sectionTitle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSectionTitle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -26,12 +26,12 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-/** [sectionTitle] with Shadcn tokens. */
+/** [shadcnSectionTitle] with Shadcn tokens. */
 fun ColumnScope.shadcnSectionTitle(
     title: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
-): UiBounds = sectionTitle(
+): UiBounds = shadcnSectionTitle(
     title = title,
     modifier = modifier,
     style = Style {
@@ -85,7 +85,7 @@ fun ColumnScope.shadcnSupportingText(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     maxLines: Int = Int.MAX_VALUE
-): UiBounds = supportingText(
+): UiBounds = shadcnSupportingText(
     label = label,
     modifier = modifier,
     style = Style {

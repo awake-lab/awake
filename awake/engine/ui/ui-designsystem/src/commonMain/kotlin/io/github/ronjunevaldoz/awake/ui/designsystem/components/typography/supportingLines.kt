@@ -8,6 +8,28 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.style.*
 
+fun UiScope.shadcnSupportingLines(
+    lines: Iterable<String>,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Companion {
+        foreground(theme.colors.mutedForeground)
+    },
+    maxLines: Int = Int.MAX_VALUE
+) {
+    shadcnTextLines(
+        lines = lines,
+        modifier = modifier,
+        style = style,
+        wrap = UiTextWrap.Word,
+        overflow = UiTextOverflow.Ellipsis,
+        maxLines = maxLines
+    )
+}
+
+@Deprecated(
+    message = "Use shadcnSupportingLines for UI design system typography functions",
+    replaceWith = ReplaceWith("shadcnSupportingLines(lines, modifier, style, maxLines)")
+)
 fun UiScope.supportingLines(
     lines: Iterable<String>,
     modifier: UiModifier = Modifier,
@@ -16,12 +38,10 @@ fun UiScope.supportingLines(
     },
     maxLines: Int = Int.MAX_VALUE
 ) {
-    textLines(
+    shadcnSupportingLines(
         lines = lines,
         modifier = modifier,
         style = style,
-        wrap = UiTextWrap.Word,
-        overflow = UiTextOverflow.Ellipsis,
         maxLines = maxLines
     )
 }

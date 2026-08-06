@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
-import io.github.ronjunevaldoz.awake.testing.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
@@ -36,7 +35,7 @@ class ShadcnSidebarFidelityTest {
         ) {
             text("Sidebar content")
         }
-        val frame = ui.finishFrame()
+        val frameOutput = ui.finishFrame()
 
         val config = AwakeUiPreviewValidationConfig(
             tokenRules = listOf(
@@ -48,15 +47,26 @@ class ShadcnSidebarFidelityTest {
             )
         )
 
-        validateAwakeUiPreview(
-            metadata = AwakeUiPreviewMetadata(id = "sidebar-fidelity", title = "Sidebar Fidelity"),
+        val report = validateAwakeUiPreview(
+            metadata = AwakeUiPreviewMetadata(
+                id = "sidebar-fidelity",
+                title = "Sidebar Fidelity",
+                group = "Sidebar",
+                summary = "Sidebar background/border fidelity check",
+                width = 400,
+                height = 600
+            ),
             frame = AwakeUiPreviewFrame(
-                primitives = frame.primitives,
-                background = frame.background,
-                font = frame.font,
-                semantics = frame.semantics
+                primitives = frameOutput.primitives,
+                background = ui.currentTheme.colors.background,
+                font = ui.currentFont,
+                semantics = frameOutput.semantics
             ),
             config = config
-        ).requireClean()
+        )
+        if (!report.isClean) {
+            println("REPORT: ${report.summary()}")
+        }
+        report.requireClean()
     }
 }

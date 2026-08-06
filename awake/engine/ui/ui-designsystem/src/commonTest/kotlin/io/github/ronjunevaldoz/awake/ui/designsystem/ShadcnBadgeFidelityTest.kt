@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
-import io.github.ronjunevaldoz.awake.testing.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
@@ -14,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.testTag
 import kotlin.test.Test
 
 /**
@@ -31,11 +31,40 @@ class ShadcnBadgeFidelityTest {
         ui.createAbsolute().shadcnBadge(
             label = "BETA",
             variant = ShadcnBadgeVariant.Primary,
-            modifier = Modifier // Uses WrapContent by default
+            modifier = Modifier.testTag("badge-fidelity")
         )
-        val frame = ui.finishFrame()
+        val frameOutput = ui.finishFrame()
 
-        // Since we didn't provide an ID, it might use a default or we should provide one for validation
-        // I'll update the call to use an explicit ID if shadcnBadge supports it, or check semantics by label
+        val config = AwakeUiPreviewValidationConfig(
+            tokenRules = listOf(
+                AwakeUiPreviewTokenRule(
+                    nodeId = "badge-fidelity",
+                    expectedBackgroundToken = "primary",
+                    expectedForegroundToken = "primary-foreground"
+                )
+            )
+        )
+
+        val report = validateAwakeUiPreview(
+            metadata = AwakeUiPreviewMetadata(
+                id = "badge-fidelity",
+                title = "Badge Fidelity",
+                group = "Badge",
+                summary = "Primary fidelity check",
+                width = 200,
+                height = 80
+            ),
+            frame = AwakeUiPreviewFrame(
+                primitives = frameOutput.primitives,
+                background = ui.currentTheme.colors.background,
+                font = ui.currentFont,
+                semantics = frameOutput.semantics
+            ),
+            config = config
+        )
+        if (!report.isClean) {
+            println("REPORT: ${report.summary()}")
+        }
+        report.requireClean()
     }
 }

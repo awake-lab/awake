@@ -252,10 +252,10 @@ fun BoxScope.shadcnCard(
  * `shape(...)`. A caller that wants a rounded floating-card look (e.g. `samples/starter-game`'s
  * top-left nav rail, which isn't a docked full-height sidebar) opts in via its own `style`. */
 private fun sidebarStyle(theme: ShadcnResolvedTheme): Style = Style {
-    background(theme.sidebar)
-    foreground(theme.onSidebar)
+    background(theme.sidebar, tokenId = "sidebar")
+    foreground(theme.onSidebar, tokenId = "sidebar-foreground")
     borderWidth(1f.dp)
-    borderColor(theme.sidebarBorder)
+    borderColor(theme.sidebarBorder, tokenId = "sidebar-border")
     contentPadding(theme.metrics.surfacePadding)
 }
 

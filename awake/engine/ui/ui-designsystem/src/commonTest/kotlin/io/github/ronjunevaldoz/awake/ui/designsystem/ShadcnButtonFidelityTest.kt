@@ -7,10 +7,9 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
-import io.github.ronjunevaldoz.awake.testing.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
-import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -33,20 +32,20 @@ class ShadcnButtonFidelityTest {
         ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.shadcnButton(
+        ui.createAbsolute().shadcnButton(
             id = "btn-fidelity",
             label = "FIDELITY",
             variant = ShadcnButtonVariant.Primary,
-            modifier = Modifier.width(100f.dp).height(40f.dp)
+            modifier = Modifier.width(120f.dp).height(40f.dp)
         )
-        val frame = ui.finishFrame()
+        val frameOutput = ui.finishFrame()
 
         val config = AwakeUiPreviewValidationConfig(
             dimensionRules = listOf(
                 AwakeUiPreviewDimensionRule(
                     nodeId = "btn-fidelity",
                     exactHeight = 40f.dp.toPx(),
-                    exactWidth = 100f.dp.toPx()
+                    exactWidth = 120f.dp.toPx()
                 )
             ),
             tokenRules = listOf(
@@ -57,16 +56,27 @@ class ShadcnButtonFidelityTest {
             )
         )
 
-        validateAwakeUiPreview(
-            metadata = AwakeUiPreviewMetadata(id = "btn-fidelity", title = "Button Fidelity"),
+        val report = validateAwakeUiPreview(
+            metadata = AwakeUiPreviewMetadata(
+                id = "btn-fidelity",
+                title = "Button Fidelity",
+                group = "Button",
+                summary = "Primary fidelity check",
+                width = 240,
+                height = 100
+            ),
             frame = AwakeUiPreviewFrame(
-                primitives = frame.primitives,
-                background = frame.background,
-                font = frame.font,
-                semantics = frame.semantics
+                primitives = frameOutput.primitives,
+                background = ui.currentTheme.colors.background,
+                font = ui.currentFont,
+                semantics = frameOutput.semantics
             ),
             config = config
-        ).requireClean()
+        )
+        if (!report.isClean) {
+            println("REPORT: ${report.summary()}")
+        }
+        report.requireClean()
     }
 
     @Test
@@ -76,13 +86,13 @@ class ShadcnButtonFidelityTest {
         ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.shadcnButton(
+        ui.createAbsolute().shadcnButton(
             id = "btn-outline",
             label = "OUTLINE",
             variant = ShadcnButtonVariant.Outline,
             modifier = Modifier.width(120f.dp).height(40f.dp)
         )
-        val frame = ui.finishFrame()
+        val frameOutput = ui.finishFrame()
 
         val config = AwakeUiPreviewValidationConfig(
             tokenRules = listOf(
@@ -95,12 +105,19 @@ class ShadcnButtonFidelityTest {
         )
 
         validateAwakeUiPreview(
-            metadata = AwakeUiPreviewMetadata(id = "btn-outline", title = "Button Outline Fidelity"),
+            metadata = AwakeUiPreviewMetadata(
+                id = "btn-outline",
+                title = "Button Outline Fidelity",
+                group = "Button",
+                summary = "Outline fidelity check",
+                width = 200,
+                height = 100
+            ),
             frame = AwakeUiPreviewFrame(
-                primitives = frame.primitives,
-                background = frame.background,
-                font = frame.font,
-                semantics = frame.semantics
+                primitives = frameOutput.primitives,
+                background = ui.currentTheme.colors.background,
+                font = ui.currentFont,
+                semantics = frameOutput.semantics
             ),
             config = config
         ).requireClean()

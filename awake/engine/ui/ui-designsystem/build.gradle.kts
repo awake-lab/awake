@@ -20,6 +20,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(project(":awake:base"))
+            implementation(project(":awake:engine:ui:ui-testing"))
             implementation(kotlin("test"))
         }
     }

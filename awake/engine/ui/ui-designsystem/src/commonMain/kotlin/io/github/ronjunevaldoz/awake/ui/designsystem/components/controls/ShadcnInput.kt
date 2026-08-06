@@ -48,3 +48,4 @@ fun UiScope.shadcnInput(
     trailingIcon = trailingIcon,
     visualTransformation = visualTransformation
 )
+

@@ -1,0 +1,128 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.ui.designsystem.components
+
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.isFocused
+import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.box
+import io.github.ronjunevaldoz.awake.ui.layouts.row
+import io.github.ronjunevaldoz.awake.ui.layouts.surface
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.clickable
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.requestFocus
+import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+
+/**
+ * Real 1:1 shadcn/ui `InputOTP`: a segmented One-Time Password / PIN code digit entry row
+ * rendering individual rounded square slot boxes (`[ ] [ ] [ ] [ ] [ ] [ ]`).
+ *
+ * Architecture:
+ * - A transparent, zero-height [shadcnInput] captures all keyboard, focus, and IME events.
+ * - A visual row of fixed 36×40 dp slot boxes draws on top, each showing one digit centered
+ *   within the full slot bounds via the explicit-slot [text] overload.
+ * - Clicking any visual slot delegates focus to the underlying [shadcnInput] via [requestFocus].
+ */
+fun UiScope.shadcnInputOTP(
+    id: String,
+    value: String,
+    length: Int = 6,
+    modifier: UiModifier = Modifier,
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    groupSize: Int = 0,
+    onValueChange: (String) -> Unit = {}
+): String {
+    var resultValue = value
+    val focused = enabled && isFocused(id)
+    val palette = theme.asShadcnTheme().palette
+
+    box(modifier = modifier.height(40f.dp)) {
+        // 1. Transparent shadcnInput owns all keyboard/IME/focus events.
+        //    It is rendered invisible so no text cursor or border is visible.
+        val rawInput = shadcnInput(
+            id = id,
+            value = value,
+            enabled = enabled,
+            isError = isError,
+            modifier = Modifier.fillMaxWidth().height(40f.dp),
+            style = Style {
+                foreground(Color.Transparent)
+                background(Color.Transparent)
+                border(0f.dp, Color.Transparent)
+            }
+        )
+
+        val digitsOnly = rawInput.filter { it.isDigit() }.take(length)
+        if (digitsOnly != value) {
+            resultValue = digitsOnly
+            onValueChange(resultValue)
+        }
+
+        // 2. Visual slot row drawn on top. Each slot:
+        //    - is clickable and routes focus to the hidden shadcnInput
+        //    - renders its digit centered within the full slot bounds via text(slot=...)
+        row(
+            horizontalArrangement = Arrangement.spacedBy(6f.dp),
+            verticalAlignment = UiAlignment.Vertical.Center,
+            modifier = Modifier.fillMaxWidth().height(40f.dp)
+        ) {
+            for (i in 0 until length) {
+                if (groupSize > 0 && i > 0 && i % groupSize == 0) {
+                    // Separator between groups (e.g. "123 - 456")
+                    text("-", color = palette.mutedForeground)
+                }
+
+                val char = resultValue.getOrNull(i)?.toString() ?: ""
+                // Active slot = the slot that would receive the next character
+                val isActiveSlot = focused && i == resultValue.length.coerceAtMost(length - 1)
+                val slotBorderColor = when {
+                    isError -> palette.destructive
+                    isActiveSlot -> palette.ring
+                    else -> palette.border
+                }
+
+                surface(
+                    id = "$id.slot.$i",
+                    modifier = Modifier
+                        .width(36f.dp)
+                        .height(40f.dp)
+                        .clickable(enabled = enabled) { requestFocus(id) },
+                    style = Style {
+                        background(palette.card)
+                        border(if (isActiveSlot || isError) 1.5f.dp else 1f.dp, slotBorderColor)
+                        shape(6f.dp)
+                        // Zero content padding so the slot slot-lambda receives the full 36×40 area
+                        contentPadding(0f.dp)
+                    }
+                ) { slotBounds ->
+                    // Draw the digit centered within the full slotBounds (not a wrap-content claim).
+                    // text(slot=...) is the correct overload: it renders directly into the given bounds
+                    // without claiming a new layout slot, giving perfect horizontal + vertical centering.
+                    if (char.isNotEmpty()) {
+                        text(
+                            label = char,
+                            slot = slotBounds,
+                            color = if (enabled) palette.foreground else palette.mutedForeground,
+                            centered = true,
+                            verticallyCentered = true
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    return resultValue
+}
