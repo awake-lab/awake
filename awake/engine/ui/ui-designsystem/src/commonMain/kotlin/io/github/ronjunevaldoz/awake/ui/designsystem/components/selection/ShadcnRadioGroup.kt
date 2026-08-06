@@ -79,15 +79,23 @@ fun ColumnScope.shadcnRadioGroup(
     val radioStyle = shadcnRadioStyle(theme, style)
     shadcnRadioGroup(id = id, modifier = modifier) {
         options.forEachIndexed { index, label ->
-            val clicked = checkbox(
+            val wasSelected = index == selectedIndex
+            // checkbox() returns the post-click checked value:
+            //   unselected item clicked → returns true  → select it
+            //   selected item clicked   → returns false → no-op (radio groups don't deselect)
+            val newChecked = checkbox(
                 id = "$id.$index",
-                checked = index == selectedIndex,
+                checked = wasSelected,
                 label = label,
-                modifier = modifier.height(24f.dp),
+                // Do NOT forward the group modifier to each item: the group modifier carries a
+                // width constraint for the whole group container, not for individual rows.
+                modifier = Modifier.height(24f.dp),
                 style = radioStyle,
                 boxSize = 16f.dp
             )
-            if (clicked) resolved = index
+            // Only update when clicking an unselected item (newChecked=true means it just
+            // transitioned from unchecked→checked, i.e. a new selection was made).
+            if (newChecked && !wasSelected) resolved = index
             if (index != options.lastIndex) spacer(Modifier.height(gap))
         }
     }

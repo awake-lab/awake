@@ -15,6 +15,12 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.scope.debugScopeLabel
+import io.github.ronjunevaldoz.awake.ui.scope.fillHeightOrNull
+import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.scope.hasBoundedFillHeight
+import io.github.ronjunevaldoz.awake.ui.scope.hasBoundedFillWidth
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.*

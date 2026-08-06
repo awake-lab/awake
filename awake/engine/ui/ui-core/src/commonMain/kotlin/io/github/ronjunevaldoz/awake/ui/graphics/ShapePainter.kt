@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.UiStroke
-import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
+import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx

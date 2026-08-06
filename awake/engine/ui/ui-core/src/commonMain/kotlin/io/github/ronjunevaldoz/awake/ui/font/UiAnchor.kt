@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.font
 
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.pixelPerfectTextScale
+import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectTextScale
 import io.github.ronjunevaldoz.awake.ui.toPx
 //
 //enum class UiAnchor {

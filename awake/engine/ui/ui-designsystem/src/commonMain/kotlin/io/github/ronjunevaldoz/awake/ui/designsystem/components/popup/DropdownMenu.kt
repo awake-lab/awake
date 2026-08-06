@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.styleable
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.pixelPerfectPixel
+import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
@@ -84,6 +84,8 @@ fun UiScope.shadcnDropdownMenu(
                 }),
             clipContent = true,
         ) {
+            // shadcn spec: menu panel has p-1 (4dp) top and bottom padding
+            spacer(Modifier.height(4f.dp))
             var actionIndex = 0
             items.forEach { entry ->
                 when (entry) {
@@ -126,6 +128,7 @@ fun UiScope.shadcnDropdownMenu(
                     }
                 }
             }
+            spacer(Modifier.height(4f.dp))
         }
     }
     return UiDropdownMenuResult(
@@ -156,15 +159,16 @@ private fun ColumnScope.dropdownMenuItem(
     // Leading icon slot: a fixed glyphPx-square reserved only when `item.icon` is set, so
     // icon-less items keep the exact same 12dp label start they had before this field existed.
     val iconSlotWidth = if (item.icon != null) glyphPx + 8f else 0f
-    val labelStart = 12f + iconSlotWidth
-    val bodyWidth = (width - 24f - trailingWidth - iconSlotWidth).coerceAtLeast(glyphPx)
+    // shadcn px-2 = 8dp horizontal item padding (was 12f hardcoded)
+    val labelStart = 8f.dp.toPx() + iconSlotWidth
+    val bodyWidth = (width - 16f.dp.toPx() - trailingWidth - iconSlotWidth).coerceAtLeast(glyphPx)
 
     val lineGap = glyphPx * 0.25f
     val supportingLayout = item.supportingText?.takeIf { it.isNotBlank() }?.let {
         layoutBitmapText(
             label = it,
             glyphPx = glyphPx,
-            maxWidthPx = (width - 24f).coerceAtLeast(glyphPx),
+            maxWidthPx = (width - 16f.dp.toPx()).coerceAtLeast(glyphPx),
             wrap = UiTextWrap.Word,
             overflow = UiTextOverflow.Ellipsis,
             maxLines = 2,
@@ -214,7 +218,7 @@ private fun ColumnScope.dropdownMenuItem(
             // through/under the shortcut instead of truncating before it.
             text(
                 label = item.label,
-                modifier = Modifier.width(bodyWidth.px).padding(start = labelStart.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(labelAlignment),
+                modifier = Modifier.width(bodyWidth.px).padding(start = labelStart.px, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(labelAlignment),
                 color = textColor,
                 font = resolvedFont,
                 overflow = UiTextOverflow.Ellipsis,
@@ -242,7 +246,7 @@ private fun ColumnScope.dropdownMenuItem(
                     // left to shift into, so the shortcut draws left-anchored under the label
                     // instead of at the row's right edge. Shortcuts are short fixed strings
                     // ("Cmd+D", "Del") that never need to wrap or truncate.
-                    modifier = Modifier.align(trailingAlignment).padding(start = 0f.dp, top = verticalPadding, end = 12f.dp, bottom = 0f.dp),
+                    modifier = Modifier.align(trailingAlignment).padding(start = 0f.dp, top = verticalPadding, end = 8f.dp, bottom = 0f.dp),
                     color = trailingColor,
                     font = resolvedFont,
                     textStyle = resolvedTextStyle
@@ -261,7 +265,7 @@ private fun ColumnScope.dropdownMenuItem(
                 // offset in the same already-scaled unit space as computedHeight.
                 text(
                     label = item.supportingText!!,
-                    modifier = Modifier.padding(start = 12f.dp, top = (8f + glyphPx + 4f).px, end = 12f.dp, bottom = 0f.dp).align(UiAlignment.TopStart),
+                    modifier = Modifier.padding(start = 8f.dp, top = (8f + glyphPx + 4f).px, end = 8f.dp, bottom = 0f.dp).align(UiAlignment.TopStart),
                     color = if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground,
                     font = resolvedFont,
                     wrap = UiTextWrap.Word,

@@ -49,7 +49,7 @@ private fun Map<String, ULong>.toExpectedSignatureMatrix(): String =
 
 private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-overview" to 0x8a0f1cda327975f7uL,
-    "ui-showcase-theming" to 0x822a241556cd9cccuL,
+    "ui-showcase-theming" to 0x7ea3f7d9bda1ef00uL,
     "ui-showcase-typography" to 0x5cdcf234712bdbf4uL,
     "ui-showcase-buttons" to 0xde54a672783258c1uL,
     "ui-showcase-avatar" to 0x5b00b491b02e85b4uL,
@@ -69,7 +69,7 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-button-matrix" to 0x66fe64b834938154uL,
     "ui-showcase-field-matrix" to 0x36a633e7b46c562euL,
     "ui-showcase-slider-matrix" to 0x8f088fdc8f54c31cuL,
-    "ui-showcase-dropdown-open" to 0xbd27e6fb16c60b5fuL,
+    "ui-showcase-dropdown-open" to 0x57f111f7c7807e9buL,
     "ui-showcase-popover-open" to 0x65ca2799d16bc711uL,
     "ui-showcase-tooltip-open" to 0x8540c472d501ae7uL,
     "ui-showcase-alert-dialog" to 0xa895395688df6fbuL,

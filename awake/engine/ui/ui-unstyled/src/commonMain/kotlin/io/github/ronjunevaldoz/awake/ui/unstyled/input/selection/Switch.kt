@@ -8,7 +8,8 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
@@ -20,8 +21,8 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-private const val TOGGLE_WIDTH_PX = 40f
-private const val TOGGLE_HEIGHT_PX = 22f
+private const val TOGGLE_WIDTH_PX = 44f
+private const val TOGGLE_HEIGHT_PX = 24f
 private const val TOGGLE_KNOB_INSET_PX = 2f
 private const val TOGGLE_LABEL_GAP = 8f
 fun UiScope.switch(
@@ -33,6 +34,10 @@ fun UiScope.switch(
     enabled: Boolean = true
 ): Boolean {
     val theme = context.currentTheme
+    // The switch track is always a fixed TOGGLE_WIDTH_PX × TOGGLE_HEIGHT_PX pill — it never
+    // stretches to fill the caller's modifier width. Pass the size-fallback dimension so that
+    // a bare switch() still claims exactly the track size; when the caller adds .width(N)
+    // the widget expands to N while the painted track remains fixed at 44×24dp.
     val surface = resolveInteractiveSurface(
         id = id,
         style = style,
@@ -41,6 +46,15 @@ fun UiScope.switch(
         selected = checked,
         enabled = enabled
     )
+    // Track slot is always fixed-size, anchored at the START of the claimed slot.
+    // When the caller passes .width(260dp), the full slot is 260dp wide but we only paint
+    // the 44dp track on the left side; the label gets the remaining space to the right.
+    val trackSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+        x = surface.interaction.slot.x,
+        y = surface.interaction.slot.y + (surface.interaction.slot.height - TOGGLE_HEIGHT_PX.dp.toPx()) / 2f,
+        width = TOGGLE_WIDTH_PX.dp.toPx(),
+        height = TOGGLE_HEIGHT_PX.dp.toPx()
+    ).toSlot()
     val newChecked = if (surface.interaction.clicked) !checked else checked
     // Both states are hardcoded tokens, not resolved.background -- a Switch's on/off track
     // color is structural to what a switch communicates, not something a caller-supplied
@@ -56,20 +70,20 @@ fun UiScope.switch(
         // resolves to -- same reasoning as the color above, and consistent with the knob below,
         // which already hardcodes UiShapeSpec.Pill instead of trusting the resolved style.
         paintSurface(
-            slot = surface.interaction.slot,
+            slot = trackSlot,
             resolved = surface.resolved,
             fillColor = trackFill,
             borderColor = surface.resolved.borderColor ?: theme.colors.border,
             shapeSpec = UiShapeSpec.Pill
         )
-        val knobDiameter = surface.interaction.slot.height - TOGGLE_KNOB_INSET_PX * 2f
+        val knobDiameter = trackSlot.height - TOGGLE_KNOB_INSET_PX * 2f
         val knobX = if (newChecked) {
-            surface.interaction.slot.x + surface.interaction.slot.width - TOGGLE_KNOB_INSET_PX - knobDiameter
+            trackSlot.x + trackSlot.width - TOGGLE_KNOB_INSET_PX - knobDiameter
         } else {
-            surface.interaction.slot.x + TOGGLE_KNOB_INSET_PX
+            trackSlot.x + TOGGLE_KNOB_INSET_PX
         }
         emitFillAndBorder(
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, surface.interaction.slot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter)
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, trackSlot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter)
                 .toSlot(),
             fillColor = theme.colors.background,
             radiusPx = 0f,
@@ -78,12 +92,17 @@ fun UiScope.switch(
             shapeSpec = UiShapeSpec.Pill
         )
         if (label != null) {
-            val labelWidth = (fillWidthOrNull()?.let { it - surface.interaction.slot.width - TOGGLE_LABEL_GAP }
-                ?: 160f).coerceAtLeast(0f)
+            val trackWidthPx = TOGGLE_WIDTH_PX.dp.toPx()
+            val availableWidth = surface.interaction.slot.width
+            val labelWidth = if (availableWidth > trackWidthPx + TOGGLE_LABEL_GAP) {
+                availableWidth - trackWidthPx - TOGGLE_LABEL_GAP
+            } else {
+                (this@switch.fillWidthOrNull()?.let { it - trackWidthPx - TOGGLE_LABEL_GAP } ?: 160f).coerceAtLeast(0f)
+            }
             text(
                 label,
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-                    surface.interaction.slot.x + surface.interaction.slot.width + TOGGLE_LABEL_GAP,
+                    trackSlot.x + trackWidthPx + TOGGLE_LABEL_GAP,
                     surface.interaction.slot.y,
                     labelWidth,
                     surface.interaction.slot.height

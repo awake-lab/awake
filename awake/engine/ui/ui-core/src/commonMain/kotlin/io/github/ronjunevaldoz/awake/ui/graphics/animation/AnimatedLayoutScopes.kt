@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.EaseOut
 import io.github.ronjunevaldoz.awake.ui.Easing
 import io.github.ronjunevaldoz.awake.ui.animateFloatTween
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.measureColumnContent
