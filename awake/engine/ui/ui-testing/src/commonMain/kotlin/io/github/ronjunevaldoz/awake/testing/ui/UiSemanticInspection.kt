@@ -196,7 +196,7 @@ fun inspectTextCentering(
                 kind = UiSemanticIssueKind.ContentNotCentered,
                 nodeId = node.id,
                 message = "text '${node.label.orEmpty()}' is not horizontally centered: " +
-                    "contentCenterX=$contentCX ≠ nodeCenterX=$nodeCX (tolerance=$tolerancePx, deviation=${kotlin.math.abs(contentCX - nodeCX)})"
+                    "contentCenterX=${contentCX.roundTo1()} ≠ nodeCenterX=${nodeCX.roundTo1()} (tolerance=$tolerancePx, deviation=${kotlin.math.abs(contentCX - nodeCX).roundTo1()})"
             )
         }
         if (vertical && kotlin.math.abs(contentCY - nodeCY) > tolerancePx) {
@@ -204,7 +204,7 @@ fun inspectTextCentering(
                 kind = UiSemanticIssueKind.ContentNotCentered,
                 nodeId = node.id,
                 message = "text '${node.label.orEmpty()}' is not vertically centered: " +
-                    "contentCenterY=$contentCY ≠ nodeCenterY=$nodeCY (tolerance=$tolerancePx, deviation=${kotlin.math.abs(contentCY - nodeCY)})"
+                    "contentCenterY=${contentCY.roundTo1()} ≠ nodeCenterY=${nodeCY.roundTo1()} (tolerance=$tolerancePx, deviation=${kotlin.math.abs(contentCY - nodeCY).roundTo1()})"
             )
         }
     }
@@ -257,10 +257,10 @@ fun inspectPadding(
         val insetBottom = (node.bounds.y + node.bounds.height) - (content.y + content.height)
 
         val violations = buildList {
-            if (insetLeft   < minPaddingPx) add("left=${"%.1f".format(insetLeft)}")
-            if (insetTop    < minPaddingPx) add("top=${"%.1f".format(insetTop)}")
-            if (insetRight  < minPaddingPx) add("right=${"%.1f".format(insetRight)}")
-            if (insetBottom < minPaddingPx) add("bottom=${"%.1f".format(insetBottom)}")
+            if (insetLeft   < minPaddingPx) add("left=${insetLeft.roundTo1()}")
+            if (insetTop    < minPaddingPx) add("top=${insetTop.roundTo1()}")
+            if (insetRight  < minPaddingPx) add("right=${insetRight.roundTo1()}")
+            if (insetBottom < minPaddingPx) add("bottom=${insetBottom.roundTo1()}")
         }
         if (violations.isNotEmpty()) {
             issues += UiSemanticIssue(
@@ -273,6 +273,8 @@ fun inspectPadding(
     }
     return UiSemanticReport(issues)
 }
+
+private fun Float.roundTo1(): String = (kotlin.math.round(this * 10f) / 10f).toString()
 
 /**
  * Checks that each node's [UiSemanticNode.contentBounds] is inset from its
@@ -299,10 +301,10 @@ fun inspectExactPadding(
         val insetBottom = (node.bounds.y + node.bounds.height) - (content.y + content.height)
 
         val violations = buildList {
-            if (kotlin.math.abs(insetLeft - expectedPaddingPx) > tolerancePx) add("left=${"%.1f".format(insetLeft)}")
-            if (kotlin.math.abs(insetTop - expectedPaddingPx) > tolerancePx) add("top=${"%.1f".format(insetTop)}")
-            if (kotlin.math.abs(insetRight - expectedPaddingPx) > tolerancePx) add("right=${"%.1f".format(insetRight)}")
-            if (kotlin.math.abs(insetBottom - expectedPaddingPx) > tolerancePx) add("bottom=${"%.1f".format(insetBottom)}")
+            if (kotlin.math.abs(insetLeft - expectedPaddingPx) > tolerancePx) add("left=${insetLeft.roundTo1()}")
+            if (kotlin.math.abs(insetTop - expectedPaddingPx) > tolerancePx) add("top=${insetTop.roundTo1()}")
+            if (kotlin.math.abs(insetRight - expectedPaddingPx) > tolerancePx) add("right=${insetRight.roundTo1()}")
+            if (kotlin.math.abs(insetBottom - expectedPaddingPx) > tolerancePx) add("bottom=${insetBottom.roundTo1()}")
         }
         if (violations.isNotEmpty()) {
             issues += UiSemanticIssue(
@@ -364,7 +366,7 @@ fun inspectSpacing(
                 kind = UiSemanticIssueKind.InsufficientSpacing,
                 nodeId = a.id ?: b.id,
                 message = "$label ($resolvedAxis): gap between ${describeNode(a)} and " +
-                    "${describeNode(b)} is ${"%.1f".format(gap)}px < min=${minGapPx}px"
+                    "${describeNode(b)} is ${gap.roundTo1()}px < min=${minGapPx}px"
             )
         }
     }
@@ -409,7 +411,7 @@ fun inspectExactSpacing(
                 kind = UiSemanticIssueKind.MismatchedSpacing,
                 nodeId = a.id ?: b.id,
                 message = "$label ($resolvedAxis): gap between ${describeNode(a)} and " +
-                    "${describeNode(b)} is ${"%.1f".format(gap)}px ≠ expected=${expectedGapPx}px"
+                    "${describeNode(b)} is ${gap.roundTo1()}px ≠ expected=${expectedGapPx}px"
             )
         }
     }
@@ -432,7 +434,7 @@ fun inspectDimensions(
                 kind = UiSemanticIssueKind.WrongDimension,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} has incorrect height: " +
-                    "${"%.1f".format(node.bounds.height)}px ≠ expected=${exactHeight}px"
+                    "${node.bounds.height.roundTo1()}px ≠ expected=${exactHeight}px"
             )
         }
         if (exactWidth != null && kotlin.math.abs(node.bounds.width - exactWidth) > tolerancePx) {
@@ -440,7 +442,7 @@ fun inspectDimensions(
                 kind = UiSemanticIssueKind.WrongDimension,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} has incorrect width: " +
-                    "${"%.1f".format(node.bounds.width)}px ≠ expected=${exactWidth}px"
+                    "${node.bounds.width.roundTo1()}px ≠ expected=${exactWidth}px"
             )
         }
     }
