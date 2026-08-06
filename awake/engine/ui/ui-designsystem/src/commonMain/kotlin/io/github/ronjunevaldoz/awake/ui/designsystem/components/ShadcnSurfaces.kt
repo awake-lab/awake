@@ -26,6 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
@@ -401,12 +402,7 @@ fun ColumnScope.shadcnSidebarMenuItem(
     val resolvedTheme = theme.asShadcnTheme()
     return shadcnButton(
         id = id,
-        modifier = modifier.fillMaxWidth().height(36f.dp),
-        // Ghost's resolveFill hardcodes fill to transparent unless hovered/pressed, ignoring
-        // any style override entirely -- same problem shadcnTabs' active-tab highlight hit.
-        // Primary (-> UiButtonVariant.Filled) always honors the resolved background, so the
-        // active item switches variant rather than relying on Ghost to paint a persistent
-        // background it structurally can't.
+        modifier = modifier.fillMaxWidth().height(32f.dp),
         variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
         style = (
             if (active) {
@@ -438,6 +434,55 @@ fun ColumnScope.shadcnSidebarMenuItem(
         }
     }
 }
+
+/** Indented sub-menu tree container matching real shadcn's `SidebarMenuSub`.
+ * Renders a left vertical border line (`border-l border-sidebar-border`) with left padding (`pl-3.5`). */
+fun ColumnScope.shadcnSidebarMenuSub(
+    modifier: UiModifier = Modifier,
+    content: ColumnScope.() -> Unit
+) {
+    val palette = theme.asShadcnTheme().palette
+    row(
+        modifier = modifier.fillMaxWidth().padding(start = 14f.dp, top = 0f.dp, end = 0f.dp, bottom = 0f.dp)
+    ) {
+        separator(
+            thickness = 1f.dp,
+            color = palette.border.withAlpha(0.7f),
+            modifier = Modifier.width(1f.dp).height(Dimension.FillMax)
+        )
+        spacer(Modifier.width(8f.dp))
+        column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2f.dp)
+        ) {
+            content()
+        }
+    }
+}
+
+/** Individual sub-menu destination item matching real shadcn's `SidebarMenuSubItem`. */
+fun ColumnScope.shadcnSidebarMenuSubItem(
+    id: String,
+    label: String,
+    active: Boolean = false,
+    modifier: UiModifier = Modifier,
+    onClick: () -> Unit = {}
+): Boolean = shadcnButton(
+    id = id,
+    label = label,
+    modifier = modifier.fillMaxWidth().height(28f.dp),
+    variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
+    style = Style {
+        if (active) {
+            background(theme.asShadcnTheme().sidebarAccent)
+            foreground(theme.asShadcnTheme().onSidebarAccent)
+        }
+        contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
+    },
+    centered = false,
+    verticallyCentered = true,
+    onClick = onClick
+)
 
 /** Own visual style for real shadcn's `Popover` panel chrome -- the dedicated popover
  * background/border tokens pulled straight off [ShadcnResolvedTheme], not routed through
