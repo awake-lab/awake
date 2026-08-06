@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
+import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
@@ -14,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 /**
@@ -22,7 +24,8 @@ import kotlin.test.Test
 class ShadcnBadgeFidelityTest {
 
     @Test
-    fun shadcnBadgePrimaryFidelity() {
+    fun shadcnBadgePrimaryFidelity() = runTest {
+        val figma = FigmaVariableProvider.load("design-tokens.json")
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)

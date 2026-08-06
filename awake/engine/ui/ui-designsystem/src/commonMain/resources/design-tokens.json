@@ -1,0 +1,615 @@
+{
+  "file_key": "vGpl4nFKKAMpmjAjnpM3AC",
+  "file_name": "shadcn/ui components with variables & Tailwind classes - Updated January 2026 (Community)",
+  "modes": [
+    "light",
+    "dark"
+  ],
+  "tokens": {
+    "text-xs.black": {
+      "found": true,
+      "style_id": "93:16"
+    },
+    "text-xs.extra-bold": {
+      "found": true,
+      "style_id": "93:18"
+    },
+    "text-xs.bold": {
+      "found": true,
+      "style_id": "93:19"
+    },
+    "text-xs.semi-bold": {
+      "found": true,
+      "style_id": "93:20"
+    },
+    "text-xs.medium": {
+      "found": true,
+      "style_id": "93:21"
+    },
+    "text-xs.regular": {
+      "found": true,
+      "style_id": "93:22"
+    },
+    "text-xs.light": {
+      "found": true,
+      "style_id": "93:23"
+    },
+    "text-xs.extra-light": {
+      "found": true,
+      "style_id": "93:24"
+    },
+    "text-xs.thin": {
+      "found": true,
+      "style_id": "93:25"
+    },
+    "text-sm.black": {
+      "found": true,
+      "style_id": "94:34"
+    },
+    "text-sm.extra-bold": {
+      "found": true,
+      "style_id": "94:35"
+    },
+    "text-sm.bold": {
+      "found": true,
+      "style_id": "94:36"
+    },
+    "text-sm.semi-bold": {
+      "found": true,
+      "style_id": "94:37"
+    },
+    "text-sm.medium": {
+      "found": true,
+      "style_id": "94:38"
+    },
+    "text-sm.regular": {
+      "found": true,
+      "style_id": "94:39"
+    },
+    "text-sm.light": {
+      "found": true,
+      "style_id": "94:40"
+    },
+    "text-sm.extra-light": {
+      "found": true,
+      "style_id": "94:42"
+    },
+    "text-sm.thin": {
+      "found": true,
+      "style_id": "94:43"
+    },
+    "text-base.black": {
+      "found": true,
+      "style_id": "94:44"
+    },
+    "text-base.extra-bold": {
+      "found": true,
+      "style_id": "94:45"
+    },
+    "text-base.bold": {
+      "found": true,
+      "style_id": "94:46"
+    },
+    "text-base.semi-bold": {
+      "found": true,
+      "style_id": "94:47"
+    },
+    "text-base.medium": {
+      "found": true,
+      "style_id": "94:48"
+    },
+    "text-base.regular": {
+      "found": true,
+      "style_id": "94:49"
+    },
+    "text-base.light": {
+      "found": true,
+      "style_id": "94:50"
+    },
+    "text-base.extra-light": {
+      "found": true,
+      "style_id": "94:51"
+    },
+    "text-base.thin": {
+      "found": true,
+      "style_id": "94:52"
+    },
+    "text-lg.black": {
+      "found": true,
+      "style_id": "94:53"
+    },
+    "text-lg.extra-bold": {
+      "found": true,
+      "style_id": "94:54"
+    },
+    "text-lg.bold": {
+      "found": true,
+      "style_id": "94:55"
+    },
+    "text-lg.semi-bold": {
+      "found": true,
+      "style_id": "94:56"
+    },
+    "text-lg.medium": {
+      "found": true,
+      "style_id": "94:57"
+    },
+    "text-lg.regular": {
+      "found": true,
+      "style_id": "94:58"
+    },
+    "text-lg.light": {
+      "found": true,
+      "style_id": "94:59"
+    },
+    "text-lg.extra-light": {
+      "found": true,
+      "style_id": "94:60"
+    },
+    "text-lg.thin": {
+      "found": true,
+      "style_id": "94:61"
+    },
+    "text-xl.black": {
+      "found": true,
+      "style_id": "94:62"
+    },
+    "text-xl.extra-bold": {
+      "found": true,
+      "style_id": "94:63"
+    },
+    "text-xl.bold": {
+      "found": true,
+      "style_id": "94:64"
+    },
+    "text-xl.semi-bold": {
+      "found": true,
+      "style_id": "94:65"
+    },
+    "text-xl.medium": {
+      "found": true,
+      "style_id": "94:66"
+    },
+    "text-xl.regular": {
+      "found": true,
+      "style_id": "94:67"
+    },
+    "text-xl.light": {
+      "found": true,
+      "style_id": "94:68"
+    },
+    "text-xl.extra-light": {
+      "found": true,
+      "style_id": "94:69"
+    },
+    "text-xl.thin": {
+      "found": true,
+      "style_id": "94:70"
+    },
+    "text-2xl.black": {
+      "found": true,
+      "style_id": "94:71"
+    },
+    "text-2xl.extra-bold": {
+      "found": true,
+      "style_id": "94:72"
+    },
+    "text-2xl.bold": {
+      "found": true,
+      "style_id": "94:73"
+    },
+    "text-2xl.semi-bold": {
+      "found": true,
+      "style_id": "94:74"
+    },
+    "text-2xl.medium": {
+      "found": true,
+      "style_id": "94:75"
+    },
+    "text-2xl.regular": {
+      "found": true,
+      "style_id": "94:76"
+    },
+    "text-2xl.light": {
+      "found": true,
+      "style_id": "94:77"
+    },
+    "text-2xl.extra-light": {
+      "found": true,
+      "style_id": "94:78"
+    },
+    "text-2xl.thin": {
+      "found": true,
+      "style_id": "94:79"
+    },
+    "text-3xl.black": {
+      "found": true,
+      "style_id": "94:80"
+    },
+    "text-3xl.extra-bold": {
+      "found": true,
+      "style_id": "94:81"
+    },
+    "text-3xl.bold": {
+      "found": true,
+      "style_id": "94:82"
+    },
+    "text-3xl.semi-bold": {
+      "found": true,
+      "style_id": "94:83"
+    },
+    "text-3xl.medium": {
+      "found": true,
+      "style_id": "94:84"
+    },
+    "text-3xl.regular": {
+      "found": true,
+      "style_id": "94:85"
+    },
+    "text-3xl.light": {
+      "found": true,
+      "style_id": "94:86"
+    },
+    "text-3xl.extra-light": {
+      "found": true,
+      "style_id": "94:87"
+    },
+    "text-3xl.thin": {
+      "found": true,
+      "style_id": "94:88"
+    },
+    "text-4xl.black": {
+      "found": true,
+      "style_id": "94:89"
+    },
+    "text-4xl.extra-bold": {
+      "found": true,
+      "style_id": "94:90"
+    },
+    "text-4xl.bold": {
+      "found": true,
+      "style_id": "94:91"
+    },
+    "text-4xl.semi-bold": {
+      "found": true,
+      "style_id": "94:92"
+    },
+    "text-4xl.medium": {
+      "found": true,
+      "style_id": "94:93"
+    },
+    "text-4xl.regular": {
+      "found": true,
+      "style_id": "94:94"
+    },
+    "text-4xl.light": {
+      "found": true,
+      "style_id": "94:95"
+    },
+    "text-4xl.extra-light": {
+      "found": true,
+      "style_id": "94:96"
+    },
+    "text-4xl.thin": {
+      "found": true,
+      "style_id": "94:97"
+    },
+    "text-5xl.black": {
+      "found": true,
+      "style_id": "94:98"
+    },
+    "text-5xl.extra-bold": {
+      "found": true,
+      "style_id": "94:99"
+    },
+    "text-5xl.bold": {
+      "found": true,
+      "style_id": "94:100"
+    },
+    "text-5xl.semi-bold": {
+      "found": true,
+      "style_id": "94:101"
+    },
+    "text-5xl.medium": {
+      "found": true,
+      "style_id": "94:102"
+    },
+    "text-5xl.regular": {
+      "found": true,
+      "style_id": "94:103"
+    },
+    "text-5xl.light": {
+      "found": true,
+      "style_id": "94:104"
+    },
+    "text-5xl.extra-light": {
+      "found": true,
+      "style_id": "94:105"
+    },
+    "text-5xl.thin": {
+      "found": true,
+      "style_id": "94:106"
+    },
+    "text-6xl.black": {
+      "found": true,
+      "style_id": "94:107"
+    },
+    "text-6xl.extra-bold": {
+      "found": true,
+      "style_id": "94:108"
+    },
+    "text-6xl.bold": {
+      "found": true,
+      "style_id": "94:109"
+    },
+    "text-6xl.semi-bold": {
+      "found": true,
+      "style_id": "94:110"
+    },
+    "text-6xl.medium": {
+      "found": true,
+      "style_id": "94:111"
+    },
+    "text-6xl.regular": {
+      "found": true,
+      "style_id": "94:112"
+    },
+    "text-6xl.light": {
+      "found": true,
+      "style_id": "94:113"
+    },
+    "text-6xl.extra-light": {
+      "found": true,
+      "style_id": "94:114"
+    },
+    "text-6xl.thin": {
+      "found": true,
+      "style_id": "94:115"
+    },
+    "text-7xl.black": {
+      "found": true,
+      "style_id": "94:116"
+    },
+    "text-7xl.extra-bold": {
+      "found": true,
+      "style_id": "94:117"
+    },
+    "text-7xl.bold": {
+      "found": true,
+      "style_id": "94:118"
+    },
+    "text-7xl.semi-bold": {
+      "found": true,
+      "style_id": "94:119"
+    },
+    "text-7xl.medium": {
+      "found": true,
+      "style_id": "94:120"
+    },
+    "text-7xl.regular": {
+      "found": true,
+      "style_id": "94:121"
+    },
+    "text-7xl.light": {
+      "found": true,
+      "style_id": "94:122"
+    },
+    "text-7xl.extra-light": {
+      "found": true,
+      "style_id": "94:123"
+    },
+    "text-7xl.thin": {
+      "found": true,
+      "style_id": "94:124"
+    },
+    "text-8xl.black": {
+      "found": true,
+      "style_id": "94:125"
+    },
+    "text-8xl.extra-bold": {
+      "found": true,
+      "style_id": "94:126"
+    },
+    "text-8xl.bold": {
+      "found": true,
+      "style_id": "94:127"
+    },
+    "text-8xl.semi-bold": {
+      "found": true,
+      "style_id": "94:128"
+    },
+    "text-8xl.medium": {
+      "found": true,
+      "style_id": "94:129"
+    },
+    "text-8xl.regular": {
+      "found": true,
+      "style_id": "94:130"
+    },
+    "text-8xl.light": {
+      "found": true,
+      "style_id": "94:131"
+    },
+    "text-8xl.extra-light": {
+      "found": true,
+      "style_id": "94:132"
+    },
+    "text-8xl.thin": {
+      "found": true,
+      "style_id": "94:133"
+    },
+    "text-9xl.black": {
+      "found": true,
+      "style_id": "94:134"
+    },
+    "text-9xl.extra-bold": {
+      "found": true,
+      "style_id": "94:135"
+    },
+    "text-9xl.bold": {
+      "found": true,
+      "style_id": "94:136"
+    },
+    "text-9xl.semi-bold": {
+      "found": true,
+      "style_id": "94:137"
+    },
+    "text-9xl.medium": {
+      "found": true,
+      "style_id": "94:138"
+    },
+    "text-9xl.regular": {
+      "found": true,
+      "style_id": "94:139"
+    },
+    "text-9xl.light": {
+      "found": true,
+      "style_id": "94:140"
+    },
+    "text-9xl.extra-light": {
+      "found": true,
+      "style_id": "94:141"
+    },
+    "text-9xl.thin": {
+      "found": true,
+      "style_id": "94:142"
+    },
+    "box-shadow.shadow-sm": {
+      "found": true,
+      "style_id": "94:188"
+    },
+    "box-shadow.shadow-md": {
+      "found": true,
+      "style_id": "94:203"
+    },
+    "box-shadow.shadow-lg": {
+      "found": true,
+      "style_id": "96:207"
+    },
+    "box-shadow.shadow-xl": {
+      "found": true,
+      "style_id": "96:210"
+    },
+    "box-shadow.shadow-2xl": {
+      "found": true,
+      "style_id": "96:212"
+    },
+    "box-shadow.shadow-none": {
+      "found": true,
+      "style_id": "96:213"
+    },
+    "backdrop-blur.backdrop-blur-none": {
+      "found": true,
+      "style_id": "96:214"
+    },
+    "backdrop-blur.backdrop-blur-sm": {
+      "found": true,
+      "style_id": "96:215"
+    },
+    "backdrop-blur.backdrop-blur": {
+      "found": true,
+      "style_id": "96:216"
+    },
+    "backdrop-blur.backdrop-blur-md": {
+      "found": true,
+      "style_id": "96:217"
+    },
+    "backdrop-blur.backdrop-blur-lg": {
+      "found": true,
+      "style_id": "96:218"
+    },
+    "backdrop-blur.backdrop-blur-xl": {
+      "found": true,
+      "style_id": "96:219"
+    },
+    "backdrop-blur.backdrop-blur-2xl": {
+      "found": true,
+      "style_id": "96:220"
+    },
+    "backdrop-blur.backdrop-blur-3xl": {
+      "found": true,
+      "style_id": "96:221"
+    },
+    "blur.blur-none": {
+      "found": true,
+      "style_id": "96:223"
+    },
+    "blur.blur-sm": {
+      "found": true,
+      "style_id": "96:224"
+    },
+    "blur.blur": {
+      "found": true,
+      "style_id": "96:225"
+    },
+    "blur.blur-md": {
+      "found": true,
+      "style_id": "96:226"
+    },
+    "blur.blur-lg": {
+      "found": true,
+      "style_id": "96:227"
+    },
+    "blur.blur-xl": {
+      "found": true,
+      "style_id": "96:228"
+    },
+    "blur.blur-2xl": {
+      "found": true,
+      "style_id": "96:229"
+    },
+    "blur.blur-3xl": {
+      "found": true,
+      "style_id": "96:230"
+    },
+    "box-shadow.shadow-inner": {
+      "found": true,
+      "style_id": "96:237"
+    },
+    "box-shadow.shadow-xs": {
+      "found": true,
+      "style_id": "402:712"
+    },
+    "box-shadow.shadow-2xs": {
+      "found": true,
+      "style_id": "402:713"
+    },
+    "box-shadow.focus-ring": {
+      "found": true,
+      "style_id": "588:102"
+    },
+    "box-shadow.destructive": {
+      "found": true,
+      "style_id": "1264:805"
+    },
+    "primary": {
+      "light": "#18181b",
+      "dark": "#fafafa"
+    },
+    "primary-foreground": {
+      "light": "#fafafa",
+      "dark": "#18181b"
+    },
+    "background": {
+      "light": "#ffffff",
+      "dark": "#09090b"
+    },
+    "foreground": {
+      "light": "#09090b",
+      "dark": "#fafafa"
+    },
+    "border": {
+      "light": "#e4e4e7",
+      "dark": "#27272a"
+    },
+    "button-height": {
+      "default": 40.0
+    },
+    "button-padding-x": {
+      "default": 16.0
+    },
+    "radius-lg": {
+      "default": 8.0
+    }
+  }
+}

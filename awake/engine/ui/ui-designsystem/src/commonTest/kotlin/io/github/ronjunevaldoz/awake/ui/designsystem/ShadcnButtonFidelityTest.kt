@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
+import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
@@ -18,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.toPx
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 /**
@@ -26,17 +28,21 @@ import kotlin.test.Test
 class ShadcnButtonFidelityTest {
 
     @Test
-    fun shadcnButtonPrimaryFidelity() {
+    fun shadcnButtonPrimaryFidelity() = runTest {
+        val figma = FigmaVariableProvider.load("design-tokens.json")
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
+
+        val btnWidth = 120f
+        val btnHeight = figma.getPx("button-height")
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
         ui.createAbsolute().shadcnButton(
             id = "btn-fidelity",
             label = "FIDELITY",
             variant = ShadcnButtonVariant.Primary,
-            modifier = Modifier.width(120f.dp).height(40f.dp)
+            modifier = Modifier.width(btnWidth.dp).height(btnHeight.dp)
         )
         val frameOutput = ui.finishFrame()
 
@@ -44,8 +50,8 @@ class ShadcnButtonFidelityTest {
             dimensionRules = listOf(
                 AwakeUiPreviewDimensionRule(
                     nodeId = "btn-fidelity",
-                    exactHeight = 40f.dp.toPx(),
-                    exactWidth = 120f.dp.toPx()
+                    exactHeight = btnHeight.dp.toPx(),
+                    exactWidth = btnWidth.dp.toPx()
                 )
             ),
             tokenRules = listOf(
@@ -80,17 +86,21 @@ class ShadcnButtonFidelityTest {
     }
 
     @Test
-    fun shadcnButtonOutlineFidelity() {
+    fun shadcnButtonOutlineFidelity() = runTest {
+        val figma = FigmaVariableProvider.load("design-tokens.json")
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
+
+        val btnWidth = 120f
+        val btnHeight = figma.getPx("button-height")
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
         ui.createAbsolute().shadcnButton(
             id = "btn-outline",
             label = "OUTLINE",
             variant = ShadcnButtonVariant.Outline,
-            modifier = Modifier.width(120f.dp).height(40f.dp)
+            modifier = Modifier.width(btnWidth.dp).height(btnHeight.dp)
         )
         val frameOutput = ui.finishFrame()
 

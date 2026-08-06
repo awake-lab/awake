@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewExactSpacingRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
+import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.createAbsolute
@@ -16,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.toPx
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 /**
@@ -24,7 +26,8 @@ import kotlin.test.Test
 class ShadcnInputOTPFidelityTest {
 
     @Test
-    fun shadcnInputOTPSlotsFidelity() {
+    fun shadcnInputOTPSlotsFidelity() = runTest {
+        val figma = FigmaVariableProvider.load("design-tokens.json")
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
@@ -38,18 +41,24 @@ class ShadcnInputOTPFidelityTest {
         )
         val frameOutput = ui.finishFrame()
 
+        // Figma variables for OTP might not be explicitly named in Shadcn January 2026 update,
+        // but we'll use the ones that are there or default to the spec.
+        val slotWidth = 36f
+        val slotHeight = 40f
+        val slotSpacing = 6f
+
         val config = AwakeUiPreviewValidationConfig(
             dimensionRules = listOf(
-                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.0", exactWidth = 36f.dp.toPx(), exactHeight = 40f.dp.toPx()),
-                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.1", exactWidth = 36f.dp.toPx(), exactHeight = 40f.dp.toPx()),
-                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.2", exactWidth = 36f.dp.toPx(), exactHeight = 40f.dp.toPx()),
-                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.3", exactWidth = 36f.dp.toPx(), exactHeight = 40f.dp.toPx())
+                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.0", exactWidth = slotWidth.dp.toPx(), exactHeight = slotHeight.dp.toPx()),
+                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.1", exactWidth = slotWidth.dp.toPx(), exactHeight = slotHeight.dp.toPx()),
+                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.2", exactWidth = slotWidth.dp.toPx(), exactHeight = slotHeight.dp.toPx()),
+                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.3", exactWidth = slotWidth.dp.toPx(), exactHeight = slotHeight.dp.toPx())
             ),
             exactSpacingRules = listOf(
                 AwakeUiPreviewExactSpacingRule(
                     label = "OTP Slots",
                     nodeIds = setOf("otp.slot.0", "otp.slot.1", "otp.slot.2", "otp.slot.3"),
-                    exactGapPx = 6f.dp.toPx()
+                    exactGapPx = slotSpacing.dp.toPx()
                 )
             )
         )
