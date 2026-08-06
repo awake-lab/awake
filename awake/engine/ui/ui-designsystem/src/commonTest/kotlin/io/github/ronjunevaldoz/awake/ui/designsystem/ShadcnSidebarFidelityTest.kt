@@ -31,16 +31,24 @@ class ShadcnSidebarFidelityTest {
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
 
+        val sidebarWidth = 240f
+
         ui.beginFrame(400f, 600f, testSnapshot(x = -100f, y = -100f, down = false))
         ui.createAbsolute().shadcnSidebar(
             id = "sidebar",
-            modifier = Modifier.width(240f.dp)
+            modifier = Modifier.width(sidebarWidth.dp)
         ) {
             text("Sidebar content")
         }
         val frameOutput = ui.finishFrame()
 
         val config = AwakeUiPreviewValidationConfig(
+            dimensionRules = listOf(
+                io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewDimensionRule(
+                    nodeId = "sidebar",
+                    exactWidth = sidebarWidth
+                )
+            ),
             tokenRules = listOf(
                 AwakeUiPreviewTokenRule(
                     nodeId = "sidebar",

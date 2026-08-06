@@ -41,8 +41,6 @@ class ShadcnInputOTPFidelityTest {
         )
         val frameOutput = ui.finishFrame()
 
-        // Figma variables for OTP might not be explicitly named in Shadcn January 2026 update,
-        // but we'll use the ones that are there or default to the spec.
         val slotWidth = 36f
         val slotHeight = 40f
         val slotSpacing = 6f

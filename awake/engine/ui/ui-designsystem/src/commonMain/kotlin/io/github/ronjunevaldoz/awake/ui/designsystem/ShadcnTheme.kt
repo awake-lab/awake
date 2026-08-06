@@ -201,63 +201,63 @@ private class ConfiguredShadcnTheme(
 
     override val components: UiComponentStyles = object : UiComponentStyles {
         override val button: Style = Style {
-            background(palette.secondary)
-            foreground(palette.secondaryForeground)
+            background(palette.secondary, tokenId = "secondary")
+            foreground(palette.secondaryForeground, tokenId = "secondary-foreground")
             shape(radii.lg)
-            textSize(typography.label)
+            textSize(typography.label, tokenId = "label")
         }
         override val toggle: Style = button
         override val checkbox: Style = Style {
-            background(palette.background)
-            foreground(palette.foreground)
+            background(palette.background, tokenId = "background")
+            foreground(palette.foreground, tokenId = "foreground")
             borderWidth(1f.dp)
-            borderColor(palette.input)
+            borderColor(palette.input, tokenId = "input")
             shape(radii.md)
-            textSize(typography.label)
+            textSize(typography.label, tokenId = "label")
         }
         override val avatar: Style = Style {
-            background(palette.muted)
-            foreground(palette.foreground)
-            textSize(typography.label)
+            background(palette.muted, tokenId = "muted")
+            foreground(palette.foreground, tokenId = "foreground")
+            textSize(typography.label, tokenId = "label")
         }
         override val slider: Style = Style {
-            background(palette.input)
-            foreground(palette.foreground)
+            background(palette.input, tokenId = "input")
+            foreground(palette.foreground, tokenId = "foreground")
             borderWidth(1f.dp)
-            borderColor(palette.input)
+            borderColor(palette.input, tokenId = "input")
             shape(radii.full)
-            textSize(typography.label)
+            textSize(typography.label, tokenId = "label")
         }
         override val dropdown: Style = Style {
-            background(palette.background)
-            foreground(palette.foreground)
+            background(palette.background, tokenId = "background")
+            foreground(palette.foreground, tokenId = "foreground")
             borderWidth(1f.dp)
-            borderColor(palette.input)
+            borderColor(palette.input, tokenId = "input")
             shape(radii.lg)
             contentPadding(metrics.fieldPaddingX, metrics.fieldPaddingY)
-            textSize(typography.label)
+            textSize(typography.label, tokenId = "label")
         }
         override val surface: Style = Style {
-            background(palette.card)
-            foreground(palette.cardForeground)
+            background(palette.card, tokenId = "card")
+            foreground(palette.cardForeground, tokenId = "card-foreground")
             borderWidth(1f.dp)
-            borderColor(palette.border)
+            borderColor(palette.border, tokenId = "border")
             shape(radii.xl)
             contentPadding(metrics.panelPadding)
         }
         override val textField: Style = Style {
-            background(palette.background)
-            foreground(palette.foreground)
+            background(palette.background, tokenId = "background")
+            foreground(palette.foreground, tokenId = "foreground")
             borderWidth(1f.dp)
-            borderColor(palette.input)
+            borderColor(palette.input, tokenId = "input")
             shape(radii.md)
             contentPadding(metrics.fieldPaddingX, metrics.fieldPaddingY)
-            textSize(typography.label)
-            focused { borderColor(palette.ring) }
+            textSize(typography.label, tokenId = "label")
+            focused { borderColor(palette.ring, tokenId = "ring") }
             disabled {
-                background(palette.muted)
-                foreground(palette.mutedForeground)
-                borderColor(palette.input)
+                background(palette.muted, tokenId = "muted")
+                foreground(palette.mutedForeground, tokenId = "muted-foreground")
+                borderColor(palette.input, tokenId = "input")
             }
         }
     }

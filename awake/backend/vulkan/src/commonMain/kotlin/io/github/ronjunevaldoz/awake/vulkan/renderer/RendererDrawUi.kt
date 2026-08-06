@@ -637,10 +637,10 @@ internal fun Renderer.stageRoundedQuadRun(mesh: DynamicMesh, quads: List<UiDrawP
         // quad itself would make the SDF math produce a self-intersecting shape.
         val radius = quad.radius.coerceAtMost(minOf(halfW, halfH))
         val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * floatsPerVertex
-        writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)
-        writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)
-        writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)
-        writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)
+        writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.smoothing, quad.color, quad.transform)
+        writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.smoothing, quad.color, quad.transform)
+        writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.smoothing, quad.color, quad.transform)
+        writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.smoothing, quad.color, quad.transform)
 
         val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
         val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD

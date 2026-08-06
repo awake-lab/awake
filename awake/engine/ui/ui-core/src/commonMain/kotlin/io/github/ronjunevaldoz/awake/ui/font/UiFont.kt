@@ -31,6 +31,12 @@ interface UiFont {
         get() = 1f
     val distanceFieldRangePx: Float
         get() = 0f
+    val ascentEm: Float
+        get() = 0.8f
+    val descentEm: Float
+        get() = 0.2f
+    val capHeightEm: Float
+        get() = 0.7f
 
     fun uvFor(char: Char): GlyphRect?
 

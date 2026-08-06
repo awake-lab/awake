@@ -37,6 +37,9 @@ class BitmapFont(
     private val atlasInnerSize = (atlasCellSize - atlasInsetPx * 2).coerceAtLeast(1)
     override val atlasWidth = columns * atlasCellSize
     override val atlasHeight = atlasCellSize
+    override val ascentEm: Float = 0.75f
+    override val descentEm: Float = 0.125f
+    override val capHeightEm: Float = 0.625f
 
     override val atlasPixelsRgba: ByteArray = ByteArray(atlasWidth * atlasHeight * 4).also { pixels ->
         chars.forEachIndexed { charIndex, char ->

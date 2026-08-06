@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.pow
 
 /**
  * Software-rasterizes a [UiDrawPrimitive] list into a tightly-packed RGBA8 buffer for
@@ -159,6 +160,67 @@ fun List<UiDrawPrimitive>.rasterize(
         }
     }
 
+    fun fillRoundedQuad(x: Float, y: Float, w: Float, h: Float, rawRadius: Float, smoothing: Float, color: Color) {
+        val x0 = max(x, clipX0).toInt().coerceIn(0, width)
+        val y0 = max(y, clipY0).toInt().coerceIn(0, height)
+        val x1 = min(x + w, clipX1).toInt().coerceIn(0, width)
+        val y1 = min(y + h, clipY1).toInt().coerceIn(0, height)
+        val halfW = w / 2f
+        val halfH = h / 2f
+        val radius = rawRadius.coerceAtMost(minOf(halfW, halfH))
+        val centerX = x + halfW
+        val centerY = y + halfH
+        val pExp = 2.0f + 4.0f * smoothing.coerceIn(0f, 1f)
+
+        val cr = (color.r * 255).toInt().coerceIn(0, 255)
+        val cg = (color.g * 255).toInt().coerceIn(0, 255)
+        val cb = (color.b * 255).toInt().coerceIn(0, 255)
+        val ca = color.a
+
+        var py = y0
+        while (py < y1) {
+            var px = x0
+            while (px < x1) {
+                val sampleX = px + 0.5f
+                val sampleY = py + 0.5f
+                if (!passesPathClips(sampleX, sampleY)) {
+                    px += 1
+                    continue
+                }
+                val localX = kotlin.math.abs(sampleX - centerX)
+                val localY = kotlin.math.abs(sampleY - centerY)
+                val qx = localX - (halfW - radius)
+                val qy = localY - (halfH - radius)
+
+                val dist = if (smoothing > 0f && qx > 0f && qy > 0f) {
+                    (qx.toDouble().pow(pExp.toDouble()) + qy.toDouble().pow(pExp.toDouble())).pow(1.0 / pExp.toDouble()).toFloat() - radius
+                } else {
+                    val maxQx = max(qx, 0f)
+                    val maxQy = max(qy, 0f)
+                    kotlin.math.sqrt(maxQx * maxQx + maxQy * maxQy) + min(max(qx, qy), 0f) - radius
+                }
+
+                if (dist <= 1.0f) {
+                    val alphaFactor = (1.0f - smoothstep(-1.0f, 1.0f, dist)) * ca
+                    if (alphaFactor > 0f) {
+                        val offset = (py * width + px) * 4
+                        val bgA = (pixels[offset + 3].toInt() and 0xFF) / 255f
+                        val outA = alphaFactor + bgA * (1f - alphaFactor)
+                        val r = (cr * alphaFactor + (pixels[offset].toInt() and 0xFF) * (1f - alphaFactor)).toInt().coerceIn(0, 255)
+                        val g = (cg * alphaFactor + (pixels[offset + 1].toInt() and 0xFF) * (1f - alphaFactor)).toInt().coerceIn(0, 255)
+                        val b = (cb * alphaFactor + (pixels[offset + 2].toInt() and 0xFF) * (1f - alphaFactor)).toInt().coerceIn(0, 255)
+                        pixels[offset] = r.toByte()
+                        pixels[offset + 1] = g.toByte()
+                        pixels[offset + 2] = b.toByte()
+                        pixels[offset + 3] = (outA * 255).toInt().coerceIn(0, 255).toByte()
+                    }
+                }
+                px += 1
+            }
+            py += 1
+        }
+    }
+
     /** Minifying a glyph (source atlas footprint bigger than the on-screen quad -- the common
      * case for [io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode.CoverageAlpha]
      * atlases like `BitmapFont`, whose raster resolution is baked well above typical render
@@ -290,12 +352,8 @@ fun List<UiDrawPrimitive>.rasterize(
             is UiDrawPrimitive.GradientQuad -> fillGradientRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.gradient)
             is UiDrawPrimitive.RoundedQuad -> {
                 val (x, y, w, h) = scaledRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.transform)
-                fillTriangleMesh(
-                    UiShapeSpec.RoundedRectangle((primitive.radius * min(primitive.transform?.scaleX ?: 1f, primitive.transform?.scaleY ?: 1f)).px)
-                        .toPath(UiBounds(x, y, w, h))
-                        .tessellateFill(),
-                    primitive.color
-                )
+                val scale = min(primitive.transform?.scaleX ?: 1f, primitive.transform?.scaleY ?: 1f)
+                fillRoundedQuad(x, y, w, h, primitive.radius * scale, primitive.smoothing, primitive.color)
             }
             is UiDrawPrimitive.FilledPath -> fillTriangleMesh(primitive.path.tessellateFill(), primitive.color)
             is UiDrawPrimitive.StrokedPath -> fillTriangleMesh(primitive.path.tessellateStroke(primitive.stroke), primitive.color)

@@ -161,7 +161,7 @@ class UiRoundedQuadRenderPipeline(
             VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")
         )
 
-        // pos(vec2) + localPos(vec2) + halfSize(vec2) + radius(float) + color(vec4).
+        // pos(vec2) + localPos(vec2) + halfSize(vec2) + radius(float) + smoothing(float) + color(vec4).
         val vertexInputInfo = arrayOf(
             VkPipelineVertexInputStateCreateInfo(
                 pVertexBindingDescriptions = arrayOf(
@@ -176,9 +176,10 @@ class UiRoundedQuadRenderPipeline(
                     VkVertexInputAttributeDescription(location = 1, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 2 * Float.SIZE_BYTES),
                     VkVertexInputAttributeDescription(location = 2, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 4 * Float.SIZE_BYTES),
                     VkVertexInputAttributeDescription(location = 3, binding = 0, format = VkFormat.VK_FORMAT_R32_SFLOAT, offset = 6 * Float.SIZE_BYTES),
-                    VkVertexInputAttributeDescription(location = 4, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 7 * Float.SIZE_BYTES),
+                    VkVertexInputAttributeDescription(location = 4, binding = 0, format = VkFormat.VK_FORMAT_R32_SFLOAT, offset = 7 * Float.SIZE_BYTES),
+                    VkVertexInputAttributeDescription(location = 5, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 8 * Float.SIZE_BYTES),
                     // scale(xy) + pivot(zw) -- see ui_rounded_quad.vert's inTransform.
-                    VkVertexInputAttributeDescription(location = 5, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 11 * Float.SIZE_BYTES)
+                    VkVertexInputAttributeDescription(location = 6, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 12 * Float.SIZE_BYTES)
                 )
             )
         )

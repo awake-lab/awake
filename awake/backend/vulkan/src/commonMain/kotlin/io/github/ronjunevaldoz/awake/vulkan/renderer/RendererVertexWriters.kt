@@ -75,6 +75,7 @@ internal fun writeRoundedQuadVertex(
     halfW: Float,
     halfH: Float,
     radius: Float,
+    smoothing: Float = 0.0f,
     color: Color,
     transform: UiPrimitiveTransform? = null
 ) {
@@ -85,13 +86,14 @@ internal fun writeRoundedQuadVertex(
     out[offset + 4] = halfW
     out[offset + 5] = halfH
     out[offset + 6] = radius
-    out[offset + 7] = color.r
-    out[offset + 8] = color.g
-    out[offset + 9] = color.b
-    out[offset + 10] = color.a
+    out[offset + 7] = smoothing
+    out[offset + 8] = color.r
+    out[offset + 9] = color.g
+    out[offset + 10] = color.b
+    out[offset + 11] = color.a
     val t = transform ?: IDENTITY_TRANSFORM
-    out[offset + 11] = t.scaleX
-    out[offset + 12] = t.scaleY
-    out[offset + 13] = t.pivotX
-    out[offset + 14] = t.pivotY
+    out[offset + 12] = t.scaleX
+    out[offset + 13] = t.scaleY
+    out[offset + 14] = t.pivotX
+    out[offset + 15] = t.pivotY
 }

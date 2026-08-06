@@ -70,7 +70,7 @@ fun ColumnScope.shadcnTabs(
         ),
         style = Style {
             shape(shadcnTheme.radii.md)
-            background(shadcnTheme.palette.muted)
+            background(shadcnTheme.palette.muted, tokenId = "muted")
             contentPadding(trackInset)
         }
     ) {

@@ -20,9 +20,17 @@ class RoundedQuadTest {
     @Test
     fun equalsMatchesWhenEverythingIsIdentical() {
         val color = Color.White
-        val a = UiDrawPrimitive.RoundedQuad(0f, 0f, 10f, 10f, color, radius = 4f)
-        val b = UiDrawPrimitive.RoundedQuad(0f, 0f, 10f, 10f, color, radius = 4f)
+        val a = UiDrawPrimitive.RoundedQuad(0f, 0f, 10f, 10f, color, radius = 4f, smoothing = 0.6f)
+        val b = UiDrawPrimitive.RoundedQuad(0f, 0f, 10f, 10f, color, radius = 4f, smoothing = 0.6f)
         assertEquals(a, b)
         assertEquals(a.hashCode(), b.hashCode())
+    }
+
+    @Test
+    fun equalsFoldsInSmoothing() {
+        val color = Color.White
+        val a = UiDrawPrimitive.RoundedQuad(0f, 0f, 10f, 10f, color, radius = 4f, smoothing = 0.0f)
+        val b = UiDrawPrimitive.RoundedQuad(0f, 0f, 10f, 10f, color, radius = 4f, smoothing = 0.6f)
+        assertNotEquals(a, b, "two otherwise-identical RoundedQuads with different smoothing must not be equal")
     }
 }

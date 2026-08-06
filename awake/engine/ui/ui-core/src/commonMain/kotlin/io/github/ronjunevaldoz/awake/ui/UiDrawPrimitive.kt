@@ -104,6 +104,7 @@ sealed class UiDrawPrimitive {
         val h: Float,
         val color: Color,
         val radius: Float,
+        val smoothing: Float = 0.0f,
         val tokenId: String? = null,
         val transform: UiPrimitiveTransform? = null
     ) : UiDrawPrimitive() {
@@ -111,7 +112,7 @@ sealed class UiDrawPrimitive {
             if (this === other) return true
             if (other !is RoundedQuad) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
-                radius == other.radius && color == other.color &&
+                radius == other.radius && smoothing == other.smoothing && color == other.color &&
                 tokenId == other.tokenId && transform == other.transform
         }
 
@@ -121,6 +122,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + w.hashCode()
             result = 31 * result + h.hashCode()
             result = 31 * result + radius.hashCode()
+            result = 31 * result + smoothing.hashCode()
             result = 31 * result + color.hashCode()
             result = 31 * result + (tokenId?.hashCode() ?: 0)
             result = 31 * result + transform.hashCode()

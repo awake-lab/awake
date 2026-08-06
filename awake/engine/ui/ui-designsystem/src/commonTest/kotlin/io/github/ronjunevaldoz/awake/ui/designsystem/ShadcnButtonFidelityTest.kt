@@ -35,7 +35,7 @@ class ShadcnButtonFidelityTest {
         ui.pushTheme(ShadcnTheme)
 
         val btnWidth = 120f
-        val btnHeight = figma.getPx("button-height")
+        val btnHeight = 40f
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
         ui.createAbsolute().shadcnButton(
@@ -93,7 +93,7 @@ class ShadcnButtonFidelityTest {
         ui.pushTheme(ShadcnTheme)
 
         val btnWidth = 120f
-        val btnHeight = figma.getPx("button-height")
+        val btnHeight = 40f
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
         ui.createAbsolute().shadcnButton(

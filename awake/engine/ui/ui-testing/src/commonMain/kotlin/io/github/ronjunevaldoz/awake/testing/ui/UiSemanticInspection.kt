@@ -211,6 +211,47 @@ fun inspectTextCentering(
     return UiSemanticReport(issues)
 }
 
+/**
+ * Validates optical typography centering relative to font metric metadata (Ascent/Descent/Cap-Height),
+ * matching Figma's "Vertical Align: Middle" behavior exactly rather than relying on raw bounding boxes.
+ *
+ * @param nodes       Semantic nodes from the frame.
+ * @param font        The font metadata source (e.g. [io.github.ronjunevaldoz.awake.ui.font.BitmapFont]).
+ * @param tolerancePx Maximum allowed deviation from exact optical center (default 1.0 px).
+ * @param allowIds    Optional set of node IDs to exempt.
+ */
+fun inspectOpticalCentering(
+    nodes: List<UiSemanticNode>,
+    font: io.github.ronjunevaldoz.awake.ui.font.UiFont,
+    tolerancePx: Float = 1f,
+    allowIds: Set<String> = emptySet()
+): UiSemanticReport {
+    val issues = ArrayList<UiSemanticIssue>()
+    nodes.forEach { node ->
+        if (node.role != UiSemanticRole.Text) return@forEach
+        if (node.id in allowIds) return@forEach
+        val bounds = node.bounds
+        if (!bounds.hasFiniteSize()) return@forEach
+
+        val glyphPx = font.cellSize.toFloat()
+        val capHeightCenterOffset = (font.ascentEm - font.capHeightEm / 2f) * glyphPx
+        val textOpticalCenterY = bounds.y + capHeightCenterOffset
+        val containerCenterY = bounds.y + bounds.height / 2f
+
+        val deviation = kotlin.math.abs(textOpticalCenterY - containerCenterY)
+        if (deviation > tolerancePx) {
+            issues += UiSemanticIssue(
+                kind = UiSemanticIssueKind.ContentNotCentered,
+                nodeId = node.id,
+                message = "text '${node.label.orEmpty()}' optical center (${textOpticalCenterY.roundTo1()}) " +
+                    "deviates from container center (${containerCenterY.roundTo1()}) by ${deviation.roundTo1()}px " +
+                    "(tolerance=${tolerancePx}px, font capHeight=${font.capHeightEm}em, ascent=${font.ascentEm}em)"
+            )
+        }
+    }
+    return UiSemanticReport(issues)
+}
+
 fun requireSemanticNode(
     nodes: List<UiSemanticNode>,
     id: String,
