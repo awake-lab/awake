@@ -100,6 +100,10 @@ private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
 
 /** Real shadcn's `Surface`: a contained region (Card, Popover, Dialog) that owns its
  * background, border, and content padding. Composed from the [surface] primitive. */
+@Deprecated(
+    message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
+    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
+)
 fun UiScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
@@ -113,7 +117,10 @@ fun UiScope.shadcnSurface(
     content = { slot -> content(slot.toBounds()) }
 ).toBounds()
 
-/** [shadcnSurface] override for [ColumnScope]. */
+@Deprecated(
+    message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
+    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
+)
 fun ColumnScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
@@ -127,7 +134,10 @@ fun ColumnScope.shadcnSurface(
     content = { slot -> content(slot.toBounds()) }
 ).toBounds()
 
-/** [shadcnSurface] override for [RowScope]. */
+@Deprecated(
+    message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
+    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
+)
 fun RowScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
@@ -141,7 +151,10 @@ fun RowScope.shadcnSurface(
     content = { slot -> content(slot.toBounds()) }
 ).toBounds()
 
-/** [shadcnSurface] override for [BoxScope]. */
+@Deprecated(
+    message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
+    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
+)
 fun BoxScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,

@@ -110,7 +110,7 @@ private fun ColumnScope.shadcnCollapsible(
     )
     if (!bordered) return triggerAndContent(modifier)
     var result = expanded
-    shadcnSurface(id = "$id.panel", modifier = modifier.fillMaxWidth()) {
+    shadcnCard(id = "$id.panel", modifier = modifier.fillMaxWidth()) {
         result = triggerAndContent(Modifier)
     }
     return result
