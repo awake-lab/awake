@@ -159,11 +159,13 @@ fun ColumnScope.shadcnSidebarMenuItem(
     return shadcnButton(
         id = id,
         modifier = modifier.fillMaxWidth().height(32f.dp),
-        variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
+        variant = ShadcnButtonVariant.Ghost,
         style = (
             Style {
                 contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
-                if (active) {
+                background(if (active) resolvedTheme.sidebarAccent else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+                foreground(if (active) resolvedTheme.onSidebarAccent else resolvedTheme.onSidebar)
+                hovered {
                     background(resolvedTheme.sidebarAccent)
                     foreground(resolvedTheme.onSidebarAccent)
                 }
@@ -181,7 +183,7 @@ fun ColumnScope.shadcnSidebarMenuItem(
             shadcnText(
                 label,
                 modifier = Modifier.weight(1f),
-                muted = !active,
+                muted = false,
                 maxLines = 1,
                 overflow = UiTextOverflow.Ellipsis
             )
@@ -223,19 +225,24 @@ fun ColumnScope.shadcnSidebarMenuSubItem(
     active: Boolean = false,
     modifier: UiModifier = Modifier,
     onClick: () -> Unit = {}
-): Boolean = shadcnButton(
-    id = id,
-    label = label,
-    modifier = modifier.fillMaxWidth().height(28f.dp),
-    variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
-    style = Style {
-        contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
-        if (active) {
-            background(theme.asShadcnTheme().sidebarAccent)
-            foreground(theme.asShadcnTheme().onSidebarAccent)
-        }
-    },
-    centered = false,
-    verticallyCentered = true,
-    onClick = onClick
-)
+): Boolean {
+    val resolvedTheme = theme.asShadcnTheme()
+    return shadcnButton(
+        id = id,
+        label = label,
+        modifier = modifier.fillMaxWidth().height(28f.dp),
+        variant = ShadcnButtonVariant.Ghost,
+        style = Style {
+            contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
+            background(if (active) resolvedTheme.sidebarAccent else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+            foreground(if (active) resolvedTheme.onSidebarAccent else resolvedTheme.onSidebar)
+            hovered {
+                background(resolvedTheme.sidebarAccent)
+                foreground(resolvedTheme.onSidebarAccent)
+            }
+        },
+        centered = false,
+        verticallyCentered = true,
+        onClick = onClick
+    )
+}
