@@ -733,8 +733,7 @@ private fun renderUiShowcasePagePreviewFrame(
     pageId: String,
 ): AwakeUiPreviewFrame {
     val state = UiShowcaseRuntimeState()
-    val page =
-        ShowcasePages.firstOrNull { it.id == pageId } ?: error("Unknown showcase page: $pageId")
+    val page = showcasePageById(pageId)
     return renderUiShowcaseCardPreviewFrame(
         metadata = metadata,
         surfaceId = page.id,
@@ -760,7 +759,7 @@ private fun renderUiShowcaseEasingPreviewFrame(
     val theme = state.showcaseTheme()
     val font = UiFonts.default(cellSize = 12 * previewScale)
     val ui = UiContext()
-    val page = ShowcasePages.firstOrNull { it.id == "easing" } ?: error("Unknown showcase page: easing")
+    val page = showcasePageById("easing")
 
     return withPreviewDensity(previewScale) {
         val insetPx = 24f * previewScale

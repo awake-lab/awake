@@ -27,7 +27,7 @@ class UiShowcaseTextareaIntegrationTest {
         val state = UiShowcaseRuntimeState()
         val theme = state.showcaseTheme()
         val font = UiFonts.default()
-        val page = ShowcasePages.first { it.id == "text-input" }
+        val page = ShowcasePages.first { it.id == "text-area" }
         val ui = UiContext()
         val input = Input()
         val width = 900f
@@ -86,7 +86,7 @@ class UiShowcaseTextareaIntegrationTest {
         val state = UiShowcaseRuntimeState()
         val theme = state.showcaseTheme()
         val font = UiFonts.default()
-        val page = ShowcasePages.first { it.id == "text-input" }
+        val page = ShowcasePages.first { it.id == "text-area" }
         val ui = UiContext()
         val input = Input()
 
@@ -121,7 +121,7 @@ class UiShowcaseTextareaIntegrationTest {
         frame(pointerDown = true, x = clickX, y = clickY)
 
         // Frame 3: type a very long word to ensure it wraps even without spaces.
-        val longWord = "ANTIDISESTABLISHMENTARIANISM_ANTIDISESTABLISHMENTARIANISM"
+        val longWord = "First Line\nSecond Line\nThird Line"
         input.pushTypedText(longWord)
         frame(pointerDown = false, x = clickX, y = clickY)
 

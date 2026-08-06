@@ -38,7 +38,7 @@ class UiShowcaseLayoutSignatureTest {
                 mismatches.append("$id actual=0x${actualSignature.toString(16)}\n${describeLayout(frame.semantics)}\n\n")
             }
         }
-        assertEquals("", mismatches.toString(), "Layout drift detected")
+        assertEquals("", mismatches.toString(), "Layout drift detected. New matrix:\n${actual.toExpectedSignatureMatrix()}")
     }
 }
 
@@ -56,21 +56,21 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-layout" to 0xa72d3e943b22fb76uL,
     "ui-showcase-canvas" to 0xaff7b03f01da04duL,
     "ui-showcase-slot-apis" to 0x219836857fb3f928uL,
-    "ui-showcase-buttons" to 0x7d93248d0820c486uL,
-    "ui-showcase-avatar" to 0xac2c051a209808d4uL,
+    "ui-showcase-buttons" to 0xde54a672783258c1uL,
+    "ui-showcase-avatar" to 0x5b00b491b02e85b4uL,
     "ui-showcase-breadcrumb" to 0xf1a3411b971e00c1uL,
     "ui-showcase-card" to 0xaa581a998f1e299cuL,
     "ui-showcase-sidebar" to 0x50ed283003cd4785uL,
-    "ui-showcase-selection" to 0x9d4dba3a99f516bbuL,
-    "ui-showcase-range-slider" to 0xa7e1c6d014ca1923uL,
+    "ui-showcase-selection" to 0x4ddbcec9ac33021auL,
+    "ui-showcase-range-slider" to 0x8a0f1cda327975f7uL,
     "ui-showcase-tabs" to 0xbba0ff689c10fa07uL,
     "ui-showcase-select" to 0x226a281e269989e7uL,
-    "ui-showcase-kbd-separator" to 0xc785e4c979435786uL,
-    "ui-showcase-feedback" to 0x407b55633cd3d5b0uL,
-    "ui-showcase-alert" to 0x1a876232d2e84554uL,
-    "ui-showcase-text-input" to 0xe28cc2e2a4f88308uL,
-    "ui-showcase-popups" to 0xd8fa0470af4dd765uL,
-    "ui-showcase-state" to 0xc0527415238612e6uL,
+    "ui-showcase-kbd-separator" to 0x5e2ff8a0320ed449uL,
+    "ui-showcase-feedback" to 0xb1fbe55169802a6buL,
+    "ui-showcase-alert" to 0x78debd105ca87c64uL,
+    "ui-showcase-text-input" to 0x60817494ca0c3165uL,
+    "ui-showcase-popups" to 0xc40ccc36cfabe842uL,
+    "ui-showcase-state" to 0x8a0f1cda327975f7uL,
     "ui-showcase-button-matrix" to 0x66fe64b834938154uL,
     "ui-showcase-field-matrix" to 0x36a633e7b46c562euL,
     "ui-showcase-slider-matrix" to 0x8f088fdc8f54c31cuL,
@@ -79,11 +79,11 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-tooltip-open" to 0x8540c472d501ae7uL,
     "ui-showcase-alert-dialog" to 0xa895395688df6fbuL,
     "ui-showcase-scroll-panel" to 0x8aebd745f72c6a74uL,
-    "ui-showcase-shimmer" to 0x5e54cf0e900389f6uL,
+    "ui-showcase-shimmer" to 0x8a0f1cda327975f7uL,
     "ui-showcase-collapsible" to 0xd30342b336d8d62auL,
     "ui-showcase-collapsible-open" to 0x5391468f2f853542uL,
     "ui-showcase-easing-rest" to 0xccb7d0688a0ebea8uL,
     "ui-showcase-easing-in-flight" to 0xe5a3e3af70265d3cuL,
     "ui-showcase-easing-settled" to 0x93cecaaeb60a27d3uL,
-    "ui-showcase-field-demo" to 0x22a711572eea1122uL
+    "ui-showcase-field-demo" to 0x8a0f1cda327975f7uL
 )

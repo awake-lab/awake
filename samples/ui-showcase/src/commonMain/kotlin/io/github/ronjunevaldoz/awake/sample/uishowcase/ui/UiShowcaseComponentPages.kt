@@ -57,71 +57,195 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
-internal fun ColumnScope.drawUiShowcaseButtonsPreview() {
-    shadcnSupportingText("Matches docs/reference/shadcn-previews/button_variants_light.png for a direct side-by-side.")
+internal fun ColumnScope.drawUiShowcaseButtonPreview() {
+    shadcnSupportingText("Figma Component Layout: Hero interactive card, 2x2 variant matrix grid, and dynamic token inspector.")
     spacer(Modifier.height(8f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
+
+    // 1. Hero Preview Card
+    shadcnCard(
+        id = "button-hero-card",
+        modifier = Modifier.fillMaxWidth().height(160f.dp),
+        header = {
+            row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                text("Interactive Hero Button")
+                shadcnBadge("FIGMA EXACT", variant = ShadcnBadgeVariant.Primary)
+            }
+        }
+    ) {
+        row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(50f.dp.toDimension())) {
+            shadcnButton("hero-button-primary", label = "Primary Action", variant = ShadcnButtonVariant.Primary, modifier = Modifier.width(150f.dp))
+            shadcnButton("hero-button-secondary", label = "Secondary Action", variant = ShadcnButtonVariant.Secondary, modifier = Modifier.width(150f.dp))
+            shadcnButton("hero-button-outline", label = "Outline Action", variant = ShadcnButtonVariant.Outline, modifier = Modifier.width(150f.dp))
+        }
+    }
+
+    spacer(Modifier.height(12f.dp))
+
+    // 2. Variant Matrix Grid
+    shadcnSectionTitle("Variant Matrix")
+    spacer(Modifier.height(4f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
         shadcnButton("showcase-button-primary", label = "Primary", variant = ShadcnButtonVariant.Primary, modifier = Modifier.width(120f.dp))
         shadcnButton("showcase-button-secondary", label = "Secondary", variant = ShadcnButtonVariant.Secondary, modifier = Modifier.width(120f.dp))
         shadcnButton("showcase-button-outline", label = "Outline", variant = ShadcnButtonVariant.Outline, modifier = Modifier.width(112f.dp))
-    }
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
         shadcnButton("showcase-button-ghost", label = "Ghost", variant = ShadcnButtonVariant.Ghost, modifier = Modifier.width(100f.dp))
-        shadcnButton("showcase-button-danger", label = "Danger", variant = ShadcnButtonVariant.Danger, modifier = Modifier.width(108f.dp))
+        shadcnButton("showcase-button-danger", label = "Destructive", variant = ShadcnButtonVariant.Danger, modifier = Modifier.width(118f.dp))
     }
-    spacer(Modifier.height(8f.dp))
-    shadcnSupportingText("The Slot API overload composes an icon and label inside the same button instead of a fixed label string.")
-    spacer(Modifier.height(8f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
-        shadcnButton("showcase-button-icon", modifier = Modifier.width(140f.dp)) {
-            row(horizontalArrangement = Arrangement.spacedBy(6f.dp)) {
-                // row()'s children default to top alignment on the cross axis (matches
-                // Compose's Row default) -- an icon much shorter than the text's line height
-                // needs an explicit center to read as a real icon+label combo instead of
-                // "riding high" above the label's visual center.
-                icon(UiIcons.chevronDown, modifier = Modifier.align(UiAlignment.CenterStart))
-                text("Expand", modifier = Modifier.align(UiAlignment.CenterStart))
-            }
+
+    spacer(Modifier.height(12f.dp))
+
+    // 3. Token & Metric Inspector
+    shadcnCard(
+        id = "button-token-inspector",
+        modifier = Modifier.fillMaxWidth(),
+        header = { text("Token & Metric Inspector") }
+    ) {
+        column(verticalArrangement = Arrangement.spacedBy(4f.dp)) {
+            shadcnSupportingText("Tokens: primary | primary-foreground | border | ring")
+            shadcnSupportingText("Height: 40dp | Padding: 16dp | Radius: radius-lg (8dp)")
         }
     }
 }
 
-internal fun ColumnScope.drawUiShowcaseTextInputPreview() {
-    var name by context.rememberStateValue("ui-showcase-text-input", "name") { "" }
-    var email by context.rememberStateValue("ui-showcase-text-input", "email") { "" }
-
-    shadcnSupportingText("Click a field, type, backspace, and use the arrow keys -- this is a real keyboard-driven widget, not a mockup.")
+internal fun ColumnScope.drawUiShowcaseBadgePreview() {
+    shadcnSupportingText("Compact pill status badge indicator.")
     spacer(Modifier.height(8f.dp))
-    shadcnFieldTextField(
-        id = "showcase-name",
-        label = "Name",
-        value = name,
-        placeholder = "Jane Doe"
-    ).also { name = it }
-    shadcnFieldTextField(
-        id = "showcase-email",
-        label = "Email",
-        value = email,
-        placeholder = "jane@example.com"
-    ).also { email = it }
-
-    var bio by context.rememberStateValue("ui-showcase-text-input", "bio") { "" }
-    shadcnFieldTextarea(
-        id = "showcase-bio",
-        label = "Bio",
-        value = bio,
-        placeholder = "Tell us about yourself...",
-        minLines = 4
-    ).also { bio = it }
-
-    spacer(Modifier.height(8f.dp))
-    shadcnSupportingText(
-        if (name.isEmpty() && email.isEmpty()) {
-            "Nothing typed yet."
-        } else {
-            "You typed: ${name.ifEmpty { "(name)" }} / ${email.ifEmpty { "(email)" }}"
+    shadcnCard(
+        id = "badge-hero-card",
+        modifier = Modifier.fillMaxWidth().height(120f.dp),
+        header = { text("Badge Variants") }
+    ) {
+        row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(30f.dp.toDimension())) {
+            shadcnBadge("Primary", variant = ShadcnBadgeVariant.Primary)
+            shadcnBadge("Secondary", variant = ShadcnBadgeVariant.Secondary)
+            shadcnBadge("Outline", variant = ShadcnBadgeVariant.Outline)
+            shadcnBadge("Destructive", variant = ShadcnBadgeVariant.Danger)
         }
-    )
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseTextFieldPreview() {
+    var name by context.rememberStateValue("ui-showcase-text-field", "name") { "" }
+    var email by context.rememberStateValue("ui-showcase-text-field", "email") { "" }
+    var bio by context.rememberStateValue("ui-showcase-text-field", "bio") { "" }
+
+    shadcnSupportingText("Single-line and multi-line keyboard-driven text input controls with focus ring bounds.")
+    spacer(Modifier.height(8f.dp))
+    shadcnCard(
+        id = "text-field-hero-card",
+        modifier = Modifier.fillMaxWidth(),
+        header = { text("Text Input & Area Interactive Preview") }
+    ) {
+        column(verticalArrangement = Arrangement.spacedBy(10f.dp)) {
+            shadcnFieldTextField(
+                id = "showcase-name",
+                label = "Full Name",
+                value = name,
+                placeholder = "Jane Doe"
+            ).also { name = it }
+
+            shadcnFieldTextField(
+                id = "showcase-email",
+                label = "Email Address",
+                value = email,
+                placeholder = "jane@example.com"
+            ).also { email = it }
+
+            shadcnFieldTextarea(
+                id = "showcase-bio",
+                label = "Biography",
+                value = bio,
+                placeholder = "Tell us about your background...",
+                minLines = 4
+            ).also { bio = it }
+        }
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseTextareaPreview() {
+    var bio by context.rememberStateValue("ui-showcase-textarea", "bio") { "" }
+
+    shadcnSupportingText("Multi-line expandable text input field for longform content.")
+    spacer(Modifier.height(8f.dp))
+    shadcnCard(
+        id = "textarea-hero-card",
+        modifier = Modifier.fillMaxWidth(),
+        header = { text("Text Area Preview") }
+    ) {
+        shadcnFieldTextarea(
+            id = "showcase-bio",
+            label = "Biography",
+            value = bio,
+            placeholder = "Tell us about your background...",
+            minLines = 4
+        ).also { bio = it }
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseCheckboxPreview() {
+    var agree by context.rememberStateValue("ui-showcase-checkbox", "agree") { true }
+    var updates by context.rememberStateValue("ui-showcase-checkbox", "updates") { false }
+
+    shadcnSupportingText("Independent toggle box for binary boolean choices.")
+    spacer(Modifier.height(8f.dp))
+    shadcnCard(
+        id = "checkbox-hero-card",
+        modifier = Modifier.fillMaxWidth(),
+        header = { text("Checkbox Preview") }
+    ) {
+        column(verticalArrangement = Arrangement.spacedBy(12f.dp)) {
+            agree = shadcnCheckbox(
+                id = "showcase-checkbox-agree",
+                checked = agree,
+                label = "Accept terms and conditions",
+                modifier = Modifier.width(260f.dp).height(24f.dp)
+            )
+            updates = shadcnCheckbox(
+                id = "showcase-checkbox-updates",
+                checked = updates,
+                label = "Receive email updates",
+                modifier = Modifier.width(260f.dp).height(24f.dp)
+            )
+        }
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseRadioGroupPreview() {
+    var quality by context.rememberStateValue("ui-showcase-radiogroup", "quality") { 1 }
+
+    shadcnSupportingText("Single-selection radio button group.")
+    spacer(Modifier.height(8f.dp))
+    shadcnCard(
+        id = "radio-hero-card",
+        modifier = Modifier.fillMaxWidth(),
+        header = { text("Radio Group Preview") }
+    ) {
+        quality = shadcnRadioGroup(
+            id = "showcase-radio-quality",
+            options = listOf("Low Quality (Fast)", "Medium Quality (Balanced)", "High Quality (Fidelity)"),
+            selectedIndex = quality,
+            modifier = Modifier.width(320f.dp)
+        )
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseSwitchPreview() {
+    var notifications by context.rememberStateValue("ui-showcase-switch", "notif") { true }
+
+    shadcnSupportingText("Sliding toggle switch for binary setting states.")
+    spacer(Modifier.height(8f.dp))
+    shadcnCard(
+        id = "switch-hero-card",
+        modifier = Modifier.fillMaxWidth(),
+        header = { text("Switch Preview") }
+    ) {
+        notifications = shadcnSwitch(
+            id = "showcase-switch-notif",
+            checked = notifications,
+            label = "Enable push notifications",
+            modifier = Modifier.width(260f.dp).height(24f.dp)
+        )
+    }
 }
 
 internal fun ColumnScope.drawUiShowcaseCollapsiblePreview() {
@@ -493,7 +617,7 @@ internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
 }
 
 internal fun ColumnScope.drawUiShowcaseAlertPreview() {
-    shadcnSupportingText("A static inline banner, not a modal -- see the Dropdown Menu And Dialog page for overlay surfaces.")
+    shadcnSupportingText("A static inline banner, not a modal.")
     spacer(Modifier.height(8f.dp))
     shadcnAlert(
         id = "showcase-alert-default",
@@ -509,4 +633,51 @@ internal fun ColumnScope.drawUiShowcaseAlertPreview() {
         variant = ShadcnAlertVariant.Destructive,
         modifier = Modifier.fillMaxWidth()
     )
+}
+
+internal fun ColumnScope.drawUiShowcaseDialogPreview() {
+    var open by context.rememberStateValue("ui-showcase-dialog", "open") { false }
+    shadcnSupportingText("Centered modal dialog window with backdrop scrim.")
+    spacer(Modifier.height(8f.dp))
+    shadcnButton("showcase-dialog-trigger", label = "Open Dialog", modifier = Modifier.width(140f.dp)) {
+        open = true
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseProgressPreview() {
+    shadcnSupportingText("Linear progress indicator track.")
+    spacer(Modifier.height(8f.dp))
+    shadcnProgress(
+        id = "showcase-progress-bar",
+        value = 0.65f,
+        modifier = Modifier.fillMaxWidth().height(8f.dp)
+    )
+}
+
+internal fun ColumnScope.drawUiShowcaseSkeletonPreview() {
+    shadcnSupportingText("Placeholder wireframe pulse shape during data loading.")
+    spacer(Modifier.height(8f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(24f.dp.toDimension())) {
+        shadcnSkeleton(id = "skel-a", modifier = Modifier.width(120f.dp).height(24f.dp))
+        shadcnSkeleton(id = "skel-b", modifier = Modifier.width(180f.dp).height(24f.dp))
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseSpinnerPreview() {
+    shadcnSupportingText("Circular activity loading spinner indicator.")
+    spacer(Modifier.height(8f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(24f.dp.toDimension())) {
+        shadcnSpinner(id = "spin", modifier = Modifier.width(24f.dp).height(24f.dp))
+        text("Loading component assets...", modifier = Modifier.align(UiAlignment.CenterStart))
+    }
+}
+
+internal fun ColumnScope.drawUiShowcaseKbdPreview() {
+    shadcnSupportingText("Keyboard shortcut key pill display.")
+    spacer(Modifier.height(8f.dp))
+    row(horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(28f.dp.toDimension())) {
+        shadcnKbd("Cmd", modifier = Modifier.width(48f.dp).height(28f.dp))
+        shadcnKbd("Shift", modifier = Modifier.width(56f.dp).height(28f.dp))
+        shadcnKbd("P", modifier = Modifier.width(32f.dp).height(28f.dp))
+    }
 }
