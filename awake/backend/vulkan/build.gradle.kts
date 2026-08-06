@@ -20,21 +20,15 @@
 import java.util.Base64
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library.kmp)
+    id("awake.kmp-library-convention")
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
 }
 
 kotlin {
-    jvmToolchain(17)
-
     android {
         namespace = "io.github.ronjunevaldoz.awake.vulkan"
-        compileSdk = (findProperty("android.compileSdk") as String).toInt()
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-        withHostTest {}
     }
 
     // iosX64 (Intel simulator) dropped: Compose Multiplatform stopped publishing it
@@ -65,13 +59,12 @@ kotlin {
         ),
     )
     listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { target ->
-        val staticDir = moltenVkStaticDir.getValue(target.name)
-        target.binaries.framework {
-            baseName = "awake-vulkan"
-        }
+        "iosArm64",
+        "iosSimulatorArm64"
+    ).forEach { targetName ->
+        val staticDir = moltenVkStaticDir.getValue(targetName)
+        val target = kotlin.targets.getByName(targetName) as org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
         // Gradle's binaries.X { linkerOpts(...) } only affects binaries THIS module
         // builds directly -- it does not propagate to a downstream consumer's own final
         // link step (e.g. awake-demo:shared's Shared.xcframework), confirmed the hard way
@@ -80,7 +73,7 @@ kotlin {
         // consumers are the ones embedded in the .def file's own `linkerOpts` directive --
         // so a per-target .def file is generated here (paths differ: device vs simulator
         // ship separate binary slices) rather than reusing one static file.
-        val generatedDefFile = layout.buildDirectory.file("cinterop/MoltenVK-${target.name}.def").get().asFile
+        val generatedDefFile = layout.buildDirectory.file("cinterop/MoltenVK-$targetName.def").get().asFile
         generatedDefFile.parentFile.mkdirs()
         val moltenVkLinkerOpts = listOf(
             "-L${staticDir.path}", "-lMoltenVK", "-lc++",

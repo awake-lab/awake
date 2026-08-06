@@ -17,24 +17,16 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library.kmp)
+    id("awake.kmp-library-convention")
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
 }
 
 kotlin {
-    jvmToolchain(17)
-
     android {
         namespace = "io.github.ronjunevaldoz.awake.physics.jolt"
-        compileSdk = (findProperty("android.compileSdk") as String).toInt()
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-        withHostTest {}
     }
 
     // Jolt Physics integration slice 2 (see docs/MVP_PLAN.md's decision log): real iOS
@@ -68,13 +60,13 @@ kotlin {
     )
 
     listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { target ->
-        val targetName = target.name
+        "iosArm64",
+        "iosSimulatorArm64"
+    ).forEach { targetName ->
         val nativeBuildDir = joltCBuildDir.getValue(targetName)
         val sysroot = joltCSysroot.getValue(targetName)
         val capitalizedTargetName = targetName.replaceFirstChar { it.uppercase() }
+        val target = kotlin.targets.getByName(targetName) as org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
         val configureTask = tasks.register<Exec>("configureJoltC$capitalizedTargetName") {
             group = "native"
@@ -116,9 +108,6 @@ kotlin {
         // time (like MoltenVK's own per-target .def) since the linker flags are just build
         // directory paths -- known before the native libraries are actually built, same as
         // MoltenVK's own generated .def doesn't need the xcframework to exist yet either.
-        target.binaries.framework {
-            baseName = "awake-backend-jolt"
-        }
         val joltcLibDir = nativeBuildDir
         val joltLibDir = nativeBuildDir.resolve("JoltPhysics/Build")
         val generatedDefFile = layout.buildDirectory.file("cinterop/JoltC-$targetName.def").get().asFile
@@ -144,7 +133,7 @@ kotlin {
 
     jvm("desktop")
 
-    @OptIn(ExperimentalWasmDsl::class)
+    @Suppress("OPT_IN_USAGE")
     wasmJs {
         browser()
     }

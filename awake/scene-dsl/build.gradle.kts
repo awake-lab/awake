@@ -1,38 +1,14 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("awake.kmp-library-convention")
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.android.library.kmp)
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
 }
 
 kotlin {
-    jvmToolchain(17)
-
     android {
         namespace = "io.github.ronjunevaldoz.awake.scene.dsl"
-        compileSdk = (findProperty("android.compileSdk") as String).toInt()
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-        withHostTest {}
-    }
-
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
-            baseName = "awake-scene-dsl"
-        }
-    }
-
-    jvm("desktop")
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
     }
 
     sourceSets {
