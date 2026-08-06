@@ -20,6 +20,7 @@ enum class UiPrimitiveMetricKind {
     Texture,
     FilledPath,
     StrokedPath,
+    ShadowQuad,
     ClipPush,
     ClipPathPush,
     ClipPop
@@ -191,6 +192,7 @@ private fun UiDrawPrimitive.metricKind(): UiPrimitiveMetricKind = when (this) {
     is UiDrawPrimitive.Texture -> UiPrimitiveMetricKind.Texture
     is UiDrawPrimitive.FilledPath -> UiPrimitiveMetricKind.FilledPath
     is UiDrawPrimitive.StrokedPath -> UiPrimitiveMetricKind.StrokedPath
+    is UiDrawPrimitive.ShadowQuad -> UiPrimitiveMetricKind.ShadowQuad
     is UiDrawPrimitive.ClipPush -> UiPrimitiveMetricKind.ClipPush
     is UiDrawPrimitive.ClipPathPush -> UiPrimitiveMetricKind.ClipPathPush
     is UiDrawPrimitive.ClipPop -> UiPrimitiveMetricKind.ClipPop
@@ -202,6 +204,12 @@ private fun UiDrawPrimitive.metricBounds(): io.github.ronjunevaldoz.awake.ui.lay
     is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
     is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
     is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.ShadowQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+        x + offsetX - blurRadius - spread,
+        y + offsetY - blurRadius - spread,
+        w + (blurRadius + spread) * 2f,
+        h + (blurRadius + spread) * 2f
+    )
     is UiDrawPrimitive.FilledPath -> path.bounds()
     is UiDrawPrimitive.StrokedPath -> strokedBounds(path, stroke.width.toPx())
     is UiDrawPrimitive.ClipPush -> null

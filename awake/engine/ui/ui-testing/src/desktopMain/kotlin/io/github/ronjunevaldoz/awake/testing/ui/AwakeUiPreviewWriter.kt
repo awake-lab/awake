@@ -72,6 +72,9 @@ fun saveAwakeUiPreview(scene: AwakeUiPreviewScene) {
     val outDir = File("build/ui-previews").apply { mkdirs() }
     ImageIO.write(image, "png", File(outDir, "${scene.metadata.id}.png"))
 
+    // Save design report JSON (semantics and metadata)
+    saveDesignReport(scene, outDir)
+
     synchronized(previewManifestLock) {
         val manifest = File(outDir, "previews.tsv")
         val escapedTitle = scene.metadata.title.escapePreviewField()
@@ -98,3 +101,37 @@ fun saveAwakeUiPreview(scene: AwakeUiPreviewScene) {
 }
 
 private fun String.escapePreviewField(): String = replace('\t', ' ').replace('\n', ' ')
+
+private fun saveDesignReport(scene: AwakeUiPreviewScene, outDir: File) {
+    val jsonFile = File(outDir, "${scene.metadata.id}.json")
+    val json = buildString {
+        append("{\n")
+        append("  \"id\": \"${scene.metadata.id}\",\n")
+        append("  \"title\": \"${scene.metadata.title.escapeJson()}\",\n")
+        append("  \"group\": \"${scene.metadata.group.escapeJson()}\",\n")
+        append("  \"width\": ${scene.metadata.width},\n")
+        append("  \"height\": ${scene.metadata.height},\n")
+        append("  \"semantics\": [\n")
+        scene.semantics.forEachIndexed { index, node ->
+            append("    {\n")
+            append("      \"role\": \"${node.role}\",\n")
+            append("      \"id\": \"${node.id.orEmpty().escapeJson()}\",\n")
+            append("      \"label\": \"${node.label.orEmpty().escapeJson()}\",\n")
+            append("      \"bounds\": { \"x\": ${node.bounds.x}, \"y\": ${node.bounds.y}, \"w\": ${node.bounds.width}, \"h\": ${node.bounds.height} },\n")
+            node.contentBounds?.let { b ->
+                append("      \"contentBounds\": { \"x\": ${b.x}, \"y\": ${b.y}, \"w\": ${b.width}, \"h\": ${b.height} },\n")
+            }
+            node.backgroundToken?.let { append("      \"backgroundToken\": \"${it.escapeJson()}\",\n") }
+            node.foregroundToken?.let { append("      \"foregroundToken\": \"${it.escapeJson()}\",\n") }
+            node.borderToken?.let { append("      \"borderToken\": \"${it.escapeJson()}\",\n") }
+            node.textStyleToken?.let { append("      \"textStyleToken\": \"${it.escapeJson()}\",\n") }
+            append("      \"truncated\": ${node.truncated}\n")
+            append("    }${if (index < scene.semantics.lastIndex) "," else ""}\n")
+        }
+        append("  ]\n")
+        append("}")
+    }
+    jsonFile.writeText(json)
+}
+
+private fun String.escapeJson(): String = replace("\"", "\\\"").replace("\n", "\\n")

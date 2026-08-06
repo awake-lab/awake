@@ -87,6 +87,12 @@ fun inspectUiFrame(
         is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
         is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
         is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.ShadowQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+            primitive.x + primitive.offsetX - primitive.blurRadius - primitive.spread,
+            primitive.y + primitive.offsetY - primitive.blurRadius - primitive.spread,
+            primitive.w + (primitive.blurRadius + primitive.spread) * 2f,
+            primitive.h + (primitive.blurRadius + primitive.spread) * 2f
+        )
         is UiDrawPrimitive.FilledPath -> primitive.path.bounds()
         is UiDrawPrimitive.StrokedPath -> strokedPathBounds(primitive.path, primitive.stroke.width.toPx())
         is UiDrawPrimitive.ClipPush -> primitive.rect

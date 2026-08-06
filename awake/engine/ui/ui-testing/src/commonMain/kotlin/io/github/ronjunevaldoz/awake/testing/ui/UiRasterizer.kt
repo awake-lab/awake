@@ -313,6 +313,16 @@ fun List<UiDrawPrimitive>.rasterize(
                 val (x, y, w, h) = scaledRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.transform)
                 fillRect(x, y, w, h, Color(0.5f, 0.5f, 0.5f, 1f))
             }
+            is UiDrawPrimitive.ShadowQuad -> {
+                // Simple solid fill for shadow in software rasterizer for now
+                fillRect(
+                    primitive.x + primitive.offsetX - primitive.spread,
+                    primitive.y + primitive.offsetY - primitive.spread,
+                    primitive.w + primitive.spread * 2f,
+                    primitive.h + primitive.spread * 2f,
+                    primitive.color
+                )
+            }
             is UiDrawPrimitive.ClipPathPush -> {
                 clipStack.addLast(ClipSnapshot(floatArrayOf(clipX0, clipY0, clipX1, clipY1), activePathClips.size))
                 clipX0 = max(clipX0, primitive.boundsRect.x)
