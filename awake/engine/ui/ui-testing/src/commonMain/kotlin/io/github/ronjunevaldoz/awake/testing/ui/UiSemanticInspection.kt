@@ -290,7 +290,7 @@ fun inspectPadding(
     nodes.forEach { node ->
         val content = node.contentBounds ?: return@forEach
         if (node.id in allowIds) return@forEach
-        if (node.role != UiSemanticRole.Panel && node.role != UiSemanticRole.Text) return@forEach
+        if (node.role != UiSemanticRole.Panel) return@forEach
 
         val insetLeft   = content.x - node.bounds.x
         val insetTop    = content.y - node.bounds.y

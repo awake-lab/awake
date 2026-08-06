@@ -395,9 +395,9 @@ class UiPopupCompositionsTest {
             "leading icon must sit to the left of its own item's label, not overlap it"
         )
         assertEquals(
-            anchor.x + 12f,
+            anchor.x + 8f,
             plainLabel.bounds.x,
-            "an icon-less item's label start must be unchanged by the new optional icon slot"
+            "an icon-less item's label start must match shadcn px-2 horizontal padding (8dp)"
         )
         assertTrue(
             iconLabel.bounds.x > plainLabel.bounds.x,

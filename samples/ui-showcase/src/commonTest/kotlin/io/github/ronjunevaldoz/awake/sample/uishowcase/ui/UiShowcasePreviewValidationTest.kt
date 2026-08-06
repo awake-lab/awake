@@ -26,6 +26,8 @@ class UiShowcasePreviewValidationTest {
 private fun configFor(previewId: String): AwakeUiPreviewValidationConfig =
     when (previewId) {
         "ui-showcase-theming" -> AwakeUiPreviewValidationConfig(
+            minContentPaddingPx = 4f,
+            paddingAllowIds = setOf("showcase-preview-theming"),
             overlapRules = listOf(
                 AwakeUiPreviewOverlapRule(
                     label = "theme control dropdowns",
@@ -38,5 +40,8 @@ private fun configFor(previewId: String): AwakeUiPreviewValidationConfig =
                 )
             )
         )
-        else -> AwakeUiPreviewValidationConfig()
+        else -> AwakeUiPreviewValidationConfig(
+            minContentPaddingPx = 4f,
+            paddingAllowIds = setOf("ui-showcase-preview-$previewId")
+        )
     }

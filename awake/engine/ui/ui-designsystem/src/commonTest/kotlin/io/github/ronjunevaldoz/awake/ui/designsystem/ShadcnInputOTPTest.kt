@@ -142,4 +142,24 @@ class ShadcnInputOTPTest {
 
         assertTrue(violations.isEmpty(), "Centering violations:\n${violations.joinToString("\n")}")
     }
+
+    @Test
+    fun shadcnInputOTPFocusesInputOnSlotClick() {
+        val ui = uiContext()
+        ui.pushTheme(ShadcnTheme)
+
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 80f, input = testSnapshot(x = -100f, y = -100f, down = false)))
+        ui.column { shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6) }
+        val output = ui.finishFrame()
+
+        val slot0 = output.semantics.first { it.id == "otp-focus-test.slot.0" }
+        val clickX = slot0.bounds.x + slot0.bounds.width / 2f
+        val clickY = slot0.bounds.y + slot0.bounds.height / 2f
+
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 80f, input = testSnapshot(x = clickX, y = clickY, down = true)))
+        ui.column { shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6) }
+        ui.finishFrame()
+
+        assertTrue(ui.isFocused("otp-focus-test"), "Clicking OTP slot 0 must delegate focus to input 'otp-focus-test'")
+    }
 }
