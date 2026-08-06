@@ -24,6 +24,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFiel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.math.PI
 import kotlin.math.cos
@@ -104,6 +108,7 @@ internal object RotatingCubeDemo {
                 id = "cube-camera-mode",
                 options = listOf("Orbit", "Follow", "Look at"),
                 selectedIndex = cameraMode.ordinal,
+                modifier = Modifier.fillMaxWidth().height(32f.dp),
                 onIndexChange = { cameraMode = CameraMode.entries[it] }
             )
             shadcnCollapsibleCard(

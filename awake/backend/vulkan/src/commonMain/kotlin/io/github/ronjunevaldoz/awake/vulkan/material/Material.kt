@@ -80,8 +80,13 @@ class Material(
                         VkDescriptorSetLayoutBinding(
                             binding = 0,
                             descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                            // MVP matrix is only ever read in the vertex shader now.
-                            stageFlags = VkShaderStageFlagBits.VERTEX.value
+                            // MVP matrix is read in the vertex shader; lightDirection/
+                            // lightColor (appended to this same uniform buffer for the
+                            // lighting feature) are read in the fragment shader -- both stage
+                            // bits are required or vkCreateGraphicsPipelines fails validation
+                            // (VUID-VkGraphicsPipelineCreateInfo-layout-07988) the moment a
+                            // shader stage reads a binding this layout didn't declare for it.
+                            stageFlags = VkShaderStageFlagBits.VERTEX.value or VkShaderStageFlagBits.FRAGMENT.value
                         ),
                         // Two separate bindings (image + sampler), not one combined-image-
                         // sampler -- WGSL has no combined-sampler type at all, so naga always
