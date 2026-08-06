@@ -46,41 +46,33 @@ object HeroIcons {
         val chevronDown: UiImageVector = uiImageVector(
             defaultWidth = 16f.dp,
             defaultHeight = 16f.dp,
-            viewportWidth = 20f,
-            viewportHeight = 20f
+            viewportWidth = 16f,
+            viewportHeight = 16f
         ) {
             path {
-                moveTo(5.23f, 7.21f)
-                lineTo(6.29f, 7.23f)
-                lineTo(10f, 11.168f)
-                lineTo(13.71f, 7.23f)
-                lineTo(14.79f, 8.27f)
-                lineTo(10.54f, 12.77f)
-                lineTo(9.46f, 12.77f)
-                lineTo(5.21f, 8.27f)
+                moveTo(4f, 4.8f)
+                lineTo(8f, 8.8f)
+                lineTo(12f, 4.8f)
+                lineTo(13.2f, 6f)
+                lineTo(8f, 11.2f)
+                lineTo(2.8f, 6f)
                 close()
             }
         }
 
-        /** [chevronDown] mirrored vertically about the shared 20x20 viewBox (`y' = 20 - y`) --
-         * the exact same construction real Heroicons uses for its own `ChevronUpIcon`
-         * (mini/solid): its midpoint (10, 8.832) falls out of this mirror automatically,
-         * matching that glyph's real path exactly. */
         val chevronUp: UiImageVector = uiImageVector(
             defaultWidth = 16f.dp,
             defaultHeight = 16f.dp,
-            viewportWidth = 20f,
-            viewportHeight = 20f
+            viewportWidth = 16f,
+            viewportHeight = 16f
         ) {
             path {
-                moveTo(5.23f, 12.79f)
-                lineTo(6.29f, 12.77f)
-                lineTo(10f, 8.832f)
-                lineTo(13.71f, 12.77f)
-                lineTo(14.79f, 11.73f)
-                lineTo(10.54f, 7.23f)
-                lineTo(9.46f, 7.23f)
-                lineTo(5.21f, 11.73f)
+                moveTo(4f, 11.2f)
+                lineTo(8f, 7.2f)
+                lineTo(12f, 11.2f)
+                lineTo(13.2f, 10f)
+                lineTo(8f, 4.8f)
+                lineTo(2.8f, 10f)
                 close()
             }
         }
