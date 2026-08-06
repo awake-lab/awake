@@ -23,20 +23,30 @@ fun UiScope.shadcnContextMenu(
 ): UiBounds {
     val bounds = target()
     val input = context.inputState
+    val state = widgetState(id)
     val isHovered = input.pointerX >= bounds.x && input.pointerX <= bounds.x + bounds.width &&
             input.pointerY >= bounds.y && input.pointerY <= bounds.y + bounds.height
 
-    if (isHovered && input.secondaryPointerDown && !expanded) {
-        onExpandedChange(true)
+    if (isHovered && input.secondaryPointerDown) {
+        state.set("clickX", input.pointerX)
+        state.set("clickY", input.pointerY)
+        if (!expanded) {
+            onExpandedChange(true)
+        }
     }
 
     if (expanded) {
-        shadcnDropdownMenu(
+        val clickX = state.get("clickX", input.pointerX)
+        val clickY = state.get("clickY", input.pointerY)
+        val result = shadcnDropdownMenu(
             id = "$id.menu",
-            anchorSlot = UiBounds(input.pointerX, input.pointerY, 0f, 0f),
+            anchorSlot = UiBounds(clickX, clickY, 0f, 0f),
             expanded = true,
             items = items
         )
+        if (result.dismissed || result.selectedIndex != null) {
+            onExpandedChange(false)
+        }
     }
 
     return bounds

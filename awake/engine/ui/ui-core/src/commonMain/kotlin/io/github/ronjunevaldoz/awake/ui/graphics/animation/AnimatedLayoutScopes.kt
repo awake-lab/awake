@@ -34,7 +34,7 @@ fun ColumnScope.animatedHeight(
     var cachedHeight: Float = state.get("measuredHeight", 0f)
     val wasExpanded = state.get("wasExpanded", false)
 
-    if (expanded && !wasExpanded) {
+    if (expanded && (!wasExpanded || cachedHeight <= 0f)) {
         val measured = measureColumnContent(
             width = fillWidthOrNull() ?: 4096f,
             gap = gap,

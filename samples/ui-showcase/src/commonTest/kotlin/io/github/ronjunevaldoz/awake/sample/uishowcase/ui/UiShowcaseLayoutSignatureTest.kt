@@ -49,7 +49,7 @@ private fun Map<String, ULong>.toExpectedSignatureMatrix(): String =
 
 private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-overview" to 0x8a0f1cda327975f7uL,
-    "ui-showcase-theming" to 0x7ea3f7d9bda1ef00uL,
+    "ui-showcase-theming" to 0xba2468d02164bf68uL,
     "ui-showcase-typography" to 0x5cdcf234712bdbf4uL,
     "ui-showcase-buttons" to 0xde54a672783258c1uL,
     "ui-showcase-avatar" to 0x5b00b491b02e85b4uL,
@@ -59,7 +59,7 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-selection" to 0x4ddbcec9ac33021auL,
     "ui-showcase-range-slider" to 0x8a0f1cda327975f7uL,
     "ui-showcase-tabs" to 0xbba0ff689c10fa07uL,
-    "ui-showcase-select" to 0x226a281e269989e7uL,
+    "ui-showcase-select" to 0xdc6e69635bfecf7uL,
     "ui-showcase-kbd-separator" to 0x5e2ff8a0320ed449uL,
     "ui-showcase-feedback" to 0xb1fbe55169802a6buL,
     "ui-showcase-alert" to 0x78debd105ca87c64uL,
@@ -67,7 +67,7 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-popups" to 0xc40ccc36cfabe842uL,
     "ui-showcase-state" to 0x8a0f1cda327975f7uL,
     "ui-showcase-button-matrix" to 0x66fe64b834938154uL,
-    "ui-showcase-field-matrix" to 0x36a633e7b46c562euL,
+    "ui-showcase-field-matrix" to 0xaa3b36a6b0c3ef6euL,
     "ui-showcase-slider-matrix" to 0x8f088fdc8f54c31cuL,
     "ui-showcase-dropdown-open" to 0x57f111f7c7807e9buL,
     "ui-showcase-popover-open" to 0x65ca2799d16bc711uL,

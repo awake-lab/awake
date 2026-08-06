@@ -138,9 +138,9 @@ fun UiScope.drawDropdownTriggerContent(
     // ONLY this padding and not `slot.width` itself, silently starving the label's available
     // width on any display where UiDensity.scale != 1 (confirmed via a real run: labels
     // truncated to just an ellipsis on a retina window before this fix).
-    val horizontalPad = 10f
-    val chevronGap = 6f
-    val chevronSize = 8f
+    val horizontalPad = 12f
+    val chevronGap = 8f
+    val chevronSize = 16f
     text(
         label,
         slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
@@ -159,11 +159,12 @@ fun UiScope.drawDropdownTriggerContent(
     )
     val chevronSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         x = slot.x + slot.width - horizontalPad - chevronSize,
-        y = slot.y + (slot.height - chevronSize * 0.6f) / 2f,
+        y = slot.y + (slot.height - chevronSize) / 2f,
         width = chevronSize,
-        height = chevronSize * 0.6f
+        height = chevronSize
     ).toSlot()
+    val chevronColor = textColor.withAlpha(0.5f)
     UiIcons.chevronDown.fitTo(chevronSlot).forEach { vectorPath ->
-        emit(UiDrawPrimitive.FilledPath(vectorPath.path, vectorPath.fill ?: textColor))
+        emit(UiDrawPrimitive.FilledPath(vectorPath.path, vectorPath.fill ?: chevronColor))
     }
 }
