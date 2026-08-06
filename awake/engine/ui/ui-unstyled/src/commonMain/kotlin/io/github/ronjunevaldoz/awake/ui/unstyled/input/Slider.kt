@@ -25,8 +25,8 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-private const val SLIDER_TRACK_HEIGHT_PX = 10f
-private const val SLIDER_KNOB_DIAMETER_PX = 26f
+private const val SLIDER_TRACK_HEIGHT_PX = 6f
+private const val SLIDER_KNOB_DIAMETER_PX = 20f
 private const val SLIDER_LABEL_GAP_PX = 8f
 fun UiScope.slider(
     id: String,
@@ -41,7 +41,7 @@ fun UiScope.slider(
 ): Float {
     val interaction = interact(
         id = id,
-        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(32f.dp)),
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(20f.dp)),
         enabled = enabled
     )
     val slot = interaction.slot
