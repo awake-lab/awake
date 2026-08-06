@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
@@ -645,12 +646,19 @@ internal fun ColumnScope.drawUiShowcaseDialogPreview() {
 }
 
 internal fun ColumnScope.drawUiShowcaseProgressPreview() {
-    shadcnSupportingText("Linear progress indicator track.")
+    row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = UiAlignment.Vertical.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        shadcnText("Upload progress")
+        shadcnText("56%", muted = true)
+    }
     spacer(Modifier.height(8f.dp))
     shadcnProgress(
         id = "showcase-progress-bar",
-        value = 0.65f,
-        modifier = Modifier.fillMaxWidth().height(8f.dp)
+        value = 0.56f,
+        modifier = Modifier.fillMaxWidth().height(4f.dp)
     )
 }
 

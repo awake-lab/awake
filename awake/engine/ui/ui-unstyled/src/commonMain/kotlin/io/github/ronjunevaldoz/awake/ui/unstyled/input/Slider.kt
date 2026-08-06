@@ -36,7 +36,8 @@ fun UiScope.slider(
     label: String? = null,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    showKnob: Boolean = true
 ): Float {
     val interaction = interact(
         id = id,
@@ -51,7 +52,7 @@ fun UiScope.slider(
     // parent that clips content (a real reported bug: "knob cut when reach start or end").
     // Drag mapping below uses this same inset range so the pointer-to-value conversion matches
     // where the knob is actually drawn.
-    val trackInsetPx = SLIDER_KNOB_DIAMETER_PX / 2f
+    val trackInsetPx = if (showKnob) SLIDER_KNOB_DIAMETER_PX / 2f else 0f
     val trackX = slot.x + trackInsetPx
     val trackWidth = (slot.width - trackInsetPx * 2f).coerceAtLeast(0f)
     // `isActive(id)` can only ever be true here if `interact()` above claimed it, which it
@@ -101,20 +102,22 @@ fun UiScope.slider(
                 shapeSpec = UiShapeSpec.Pill
             )
         }
-        paintSurface(
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-                knobCenterX - SLIDER_KNOB_DIAMETER_PX / 2f,
-                slot.y + (slot.height - SLIDER_KNOB_DIAMETER_PX) / 2f,
-                SLIDER_KNOB_DIAMETER_PX,
-                SLIDER_KNOB_DIAMETER_PX
-            ).toSlot(),
-            resolved = surface.resolved.copy(
-                borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
-                shapeSpec = UiShapeSpec.Pill
-            ),
-            fillColor = theme.colors.background,
-            borderColor = theme.colors.primary
-        )
+        if (showKnob) {
+            paintSurface(
+                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                    knobCenterX - SLIDER_KNOB_DIAMETER_PX / 2f,
+                    slot.y + (slot.height - SLIDER_KNOB_DIAMETER_PX) / 2f,
+                    SLIDER_KNOB_DIAMETER_PX,
+                    SLIDER_KNOB_DIAMETER_PX
+                ).toSlot(),
+                resolved = surface.resolved.copy(
+                    borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
+                    shapeSpec = UiShapeSpec.Pill
+                ),
+                fillColor = theme.colors.background,
+                borderColor = theme.colors.primary
+            )
+        }
         if (label != null) {
             // Previously this drew centered over the whole slot, which shares its vertical
             // center with the knob (both centered in slot.height) -- the label text rendered
