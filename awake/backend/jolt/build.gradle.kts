@@ -190,7 +190,7 @@ kotlin {
                 // R8 treated every class as unreachable. jolt-jni's own "add to an existing
                 // project" doc suggests starting with the Debug AAR regardless, so this
                 // isn't a workaround so much as the documented default.
-                implementation("com.github.stephengold:jolt-jni-Android:5.2.0:SpDebug@aar")
+                implementation("${libs.jolt.jni.android.get()}:SpDebug@aar")
             }
         }
         // jolt-physics (jrouwe/JoltPhysics.js) -- the official Emscripten/WASM build of the

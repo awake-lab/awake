@@ -2,7 +2,6 @@
 kotlin = "2.4.0"
 agp = "9.2.1"
 compose-multiplatform = "1.11.1"
-compose-material3 = "1.9.0"
 detekt = "1.23.8"
 spotless = "7.0.2"
 dokka = "2.0.0"
@@ -17,9 +16,7 @@ kotlinx-coroutines = "1.10.2"
 kotlinx-browser = "0.5.0"
 napier = "2.7.1"
 androidx-activity-compose = "1.9.3"
-androidx-appcompat = "1.7.0"
 androidx-core-ktx = "1.15.0"
-material-icons = "1.7.3"
 leakcanary = "2.14"
 # vanniktech-publish is applied directly in awake-core/build.gradle.kts.
 vanniktech-publish = "0.36.0"
@@ -48,13 +45,10 @@ wgpu4k = { module = "io.ygdrasil:wgpu4k", version.ref = "wgpu4k" }
 wgpu4k-toolkit = { module = "io.ygdrasil:wgpu4k-toolkit", version.ref = "wgpu4k" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
-androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core-ktx" }
-compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "material-icons" }
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 fleks = { module = "io.github.quillraven.fleks:Fleks", version.ref = "fleks" }
 artemis-odb = { module = "net.onedaybeard.artemis:artemis-odb", version.ref = "artemis-odb" }
@@ -104,7 +98,6 @@ oshi-core = { module = "com.github.oshi:oshi-core", version.ref = "oshi-core" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
-ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

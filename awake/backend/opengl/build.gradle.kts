@@ -14,8 +14,6 @@ plugins {
     id("awake.spotless-convention")
 }
 
-private val lwjglVersion = "3.3.6"
-
 private val lwjglNatives = Pair(
     System.getProperty("os.name")!!,
     System.getProperty("os.arch")!!
@@ -39,20 +37,6 @@ private val lwjglNatives = Pair(
             }
 
         else -> throw Error("Unrecognized or unsupported platform. Please set \"lwjglNatives\" manually")
-    }
-}
-
-private fun lwjgl(module: String? = null, native: Boolean = false): String {
-    val modulePath = when (module) {
-        "lwjgl" -> ":$module"
-        null -> ""
-        else -> ":lwjgl-$module"
-    }
-    val coordinates = "org.lwjgl$modulePath:$lwjglVersion"
-    return if (native) {
-        "$coordinates:$lwjglNatives"
-    } else {
-        coordinates
     }
 }
 
@@ -107,15 +91,15 @@ kotlin {
         }
         getByName("desktopMain").dependencies {
             implementation(compose.desktop.currentOs)
-            implementation(project.dependencies.platform(lwjgl("bom")))
-            implementation(lwjgl("lwjgl"))
-            implementation(lwjgl("glfw"))
-            implementation(lwjgl("opengl"))
-            implementation(lwjgl("stb"))
-            implementation(lwjgl("lwjgl", native = true))
-            implementation(lwjgl("glfw", native = true))
-            implementation(lwjgl("opengl", native = true))
-            implementation(lwjgl("stb", native = true))
+            implementation(project.dependencies.platform(libs.lwjgl.bom))
+            implementation(libs.lwjgl.asProvider())
+            implementation(libs.lwjgl.glfw)
+            implementation(libs.lwjgl.opengl)
+            implementation(libs.lwjgl.stb)
+            implementation("${libs.lwjgl.asProvider().get()}:$lwjglNatives")
+            implementation("${libs.lwjgl.glfw.get()}:$lwjglNatives")
+            implementation("${libs.lwjgl.opengl.get()}:$lwjglNatives")
+            implementation("${libs.lwjgl.stb.get()}:$lwjglNatives")
         }
     }
 }

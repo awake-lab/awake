@@ -32,7 +32,7 @@ plugins {
 
 allprojects {
     group = "io.github.ronjunevaldoz"
-    version = "1.0.0-SNAPSHOT"
+    version = "0.1.0-SNAPSHOT"
 }
 
 tasks.register("developerDocs") {
