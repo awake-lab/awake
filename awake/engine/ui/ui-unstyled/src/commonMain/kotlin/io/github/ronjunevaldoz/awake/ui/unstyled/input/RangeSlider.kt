@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.box
 import io.github.ronjunevaldoz.awake.ui.pointerDown
 import io.github.ronjunevaldoz.awake.ui.pointerX
-import io.github.ronjunevaldoz.awake.ui.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX

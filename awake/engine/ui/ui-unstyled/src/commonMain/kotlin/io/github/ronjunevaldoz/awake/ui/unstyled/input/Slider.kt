@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.pointerDown
 import io.github.ronjunevaldoz.awake.ui.pointerX
-import io.github.ronjunevaldoz.awake.ui.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
@@ -156,7 +156,7 @@ fun UiScope.slider(
         id = id,
         label = label,
         bounds = slot.toBounds(),
-        contentBounds = if (handleWidth > 0f) io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+        contentBounds = if (handleWidth > 0f) UiBounds(
             slot.x,
             slot.y,
             handleWidth,
