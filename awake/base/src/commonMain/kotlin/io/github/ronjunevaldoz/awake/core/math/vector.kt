@@ -9,6 +9,30 @@ data class Vec2(var x: Float, var y: Float) {
 }
 
 data class Vec3(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f) {
+    fun set(x: Float, y: Float, z: Float) {
+        this.x = x
+        this.y = y
+        this.z = z
+    }
+
+    fun set(other: Vec3) {
+        this.x = other.x
+        this.y = other.y
+        this.z = other.z
+    }
+
+    fun add(other: Vec3) {
+        this.x += other.x
+        this.y += other.y
+        this.z += other.z
+    }
+
+    fun lerp(target: Vec3, factor: Float) {
+        this.x += (target.x - this.x) * factor
+        this.y += (target.y - this.y) * factor
+        this.z += (target.z - this.z) * factor
+    }
+
     /**
      * sqrt(x * x + y * y + z * z)
      */
