@@ -2,17 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.context
 
-import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 internal class UiContextStacks {
     private val themeStack = mutableListOf<UiTheme>(UiDefaultTheme)
     private val textStyleStack = mutableListOf(TextStyle.Default)
+    private val textStyleTokenStack = mutableListOf<String?>(null)
     private val fontStack = mutableListOf(UiFonts.default())
     private val shapeStack = mutableListOf<UiShapeSpec?>(null)
 
@@ -33,6 +34,7 @@ internal class UiContextStacks {
 
     val currentTheme: UiTheme get() = themeStack.last()
     val currentTextStyle: TextStyle get() = textStyleStack.last()
+    val currentTextStyleToken: String? get() = textStyleTokenStack.last()
     val currentFont: UiFont get() = fontStack.last()
     val currentShapeSpec: UiShapeSpec? get() = shapeStack.last()
     val currentAlpha: Float get() = alphaStack.last()
@@ -41,8 +43,17 @@ internal class UiContextStacks {
     fun pushTheme(theme: UiTheme) { themeStack.add(theme) }
     fun popTheme() { if (themeStack.size > 1) themeStack.removeAt(themeStack.size - 1) }
 
-    fun pushTextStyle(style: TextStyle) { textStyleStack.add(textStyleStack.last() then style) }
-    fun popTextStyle() { if (textStyleStack.size > 1) textStyleStack.removeAt(textStyleStack.size - 1) }
+    fun pushTextStyle(style: TextStyle, tokenId: String? = null) {
+        textStyleStack.add(textStyleStack.last() then style)
+        textStyleTokenStack.add(tokenId ?: textStyleTokenStack.last())
+    }
+
+    fun popTextStyle() {
+        if (textStyleStack.size > 1) {
+            textStyleStack.removeAt(textStyleStack.size - 1)
+            textStyleTokenStack.removeAt(textStyleTokenStack.size - 1)
+        }
+    }
 
     fun pushFont(font: UiFont) { fontStack.add(font) }
     fun popFont() { if (fontStack.size > 1) fontStack.removeAt(fontStack.size - 1) }

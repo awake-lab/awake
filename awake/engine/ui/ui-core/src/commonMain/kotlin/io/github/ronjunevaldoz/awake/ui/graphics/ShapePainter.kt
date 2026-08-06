@@ -55,20 +55,21 @@ private fun UiScope.emitFillShape(
     color: Color,
     radiusPx: Float,
     shapeSpec: UiShapeSpec?,
-    overlay: Boolean = emitsToOverlay
+    overlay: Boolean = emitsToOverlay,
+    tokenId: String? = null
 ) {
     if (color.isTransparent()) return
     val pathShape = pathOnlyShape(slot, shapeSpec)
     if (pathShape != null) {
-        emitPrimitive(UiDrawPrimitive.FilledPath(pathShape.toPath(slot), color), overlay)
+        emitPrimitive(UiDrawPrimitive.FilledPath(pathShape.toPath(slot), color, tokenId = tokenId), overlay)
         return
     }
     val resolvedRadius = roundedRadiusFor(slot, radiusPx, shapeSpec)
     val snapped = slot.pixelSnapped()
     val primitive = if (resolvedRadius > 0f) {
-        UiDrawPrimitive.RoundedQuad(snapped.x, snapped.y, snapped.width, snapped.height, color, resolvedRadius)
+        UiDrawPrimitive.RoundedQuad(snapped.x, snapped.y, snapped.width, snapped.height, color, resolvedRadius, tokenId = tokenId)
     } else {
-        UiDrawPrimitive.Quad(snapped.x, snapped.y, snapped.width, snapped.height, color)
+        UiDrawPrimitive.Quad(snapped.x, snapped.y, snapped.width, snapped.height, color, tokenId = tokenId)
     }
     emitPrimitive(primitive, overlay)
 }
@@ -81,18 +82,20 @@ fun UiScope.emitFillAndBorder(
     borderWidth: Dp,
     borderColor: Color = context.currentTheme.colors.border,
     shapeSpec: UiShapeSpec? = null,
-    overlay: Boolean = emitsToOverlay
+    overlay: Boolean = emitsToOverlay,
+    fillTokenId: String? = null,
+    borderTokenId: String? = null
 ) {
     val hasFill = !fillColor.isTransparent()
     val borderPx = borderWidth.toPx()
     val pathShape = pathOnlyShape(slot, shapeSpec)
     if (pathShape != null) {
         val path = pathShape.toPath(slot)
-        if (hasFill) emitPrimitive(UiDrawPrimitive.FilledPath(path, fillColor), overlay)
+        if (hasFill) emitPrimitive(UiDrawPrimitive.FilledPath(path, fillColor, tokenId = fillTokenId), overlay)
         if (borderPx > 0f) emitPrimitive(
             UiDrawPrimitive.StrokedPath(
                 path,
-                UiStroke(borderWidth), borderColor
+                UiStroke(borderWidth), borderColor, tokenId = borderTokenId
             ), overlay
         )
         return
@@ -114,7 +117,7 @@ fun UiScope.emitFillAndBorder(
             emitPrimitive(
                 UiDrawPrimitive.StrokedPath(
                     ringShape.toPath(slot),
-                    UiStroke(borderWidth), borderColor
+                    UiStroke(borderWidth), borderColor, tokenId = borderTokenId
                 ), overlay
             )
             return
@@ -127,7 +130,8 @@ fun UiScope.emitFillAndBorder(
                 snapped.width,
                 snapped.height,
                 borderColor,
-                resolvedRadius
+                resolvedRadius,
+                tokenId = borderTokenId
             ), overlay
         )
         val innerRadius = (resolvedRadius - borderPx).coerceAtLeast(0f)
@@ -144,14 +148,15 @@ fun UiScope.emitFillAndBorder(
                 innerSnapped.width,
                 innerSnapped.height,
                 fillColor,
-                innerRadius
+                innerRadius,
+                tokenId = fillTokenId
             ),
             overlay
         )
         return
     }
-    if (hasFill) emitFillShape(slot, fillColor, resolvedRadius, shapeSpec, overlay)
-    if (borderPx > 0f) border(slot, borderWidth, borderColor, overlay)
+    if (hasFill) emitFillShape(slot, fillColor, resolvedRadius, shapeSpec, overlay, tokenId = fillTokenId)
+    if (borderPx > 0f) border(slot, borderWidth, borderColor, overlay, tokenId = borderTokenId)
 }
 
 fun UiScope.emitInsetAccent(

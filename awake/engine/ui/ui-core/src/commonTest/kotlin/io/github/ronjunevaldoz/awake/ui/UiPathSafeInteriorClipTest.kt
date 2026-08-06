@@ -111,8 +111,8 @@ class UiPathSafeInteriorClipTest {
         println(
             "glyph exact-clip cost, $glyphCount glyphs in a RoundedRectangle(8dp) card " +
                 "($skippable/$glyphCount safely interior):\n" +
-                "  before (always exact-clip): %.3fms/frame\n".format(beforeMsPerFrame) +
-                "  after  (skip when safe):    %.3fms/frame".format(afterMsPerFrame)
+                "  before (always exact-clip): ${beforeMsPerFrame.format3Decimals()}ms/frame\n" +
+                "  after  (skip when safe):    ${afterMsPerFrame.format3Decimals()}ms/frame"
         )
 
         check(skippable > glyphCount / 2) {
@@ -136,4 +136,11 @@ class UiPathSafeInteriorClipTest {
         ),
         indices = intArrayOf(0, 1, 2, 2, 3, 0)
     )
+}
+
+private fun Double.format3Decimals(): String {
+    val total = (this * 1000).toInt()
+    val intPart = total / 1000
+    val fracPart = (total % 1000).let { if (it < 0) -it else it }
+    return "$intPart.${fracPart.toString().padStart(3, '0')}"
 }

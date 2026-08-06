@@ -17,7 +17,8 @@ fun UiScope.border(
     slot: UiBounds,
     width: Dp = 1f.dp,
     color: Color? = null,
-    overlay: Boolean = false
+    overlay: Boolean = false,
+    tokenId: String? = null
 ) {
     val strokeColor = color ?: context.currentTheme.colors.border
     val w = width.toPx()
@@ -27,14 +28,14 @@ fun UiScope.border(
     val width_ = pixelPerfectPixel(slot.width).coerceAtLeast(1f)
     val height_ = pixelPerfectPixel(slot.height).coerceAtLeast(1f)
     val strokeWidth = pixelPerfectPixel(w).coerceAtLeast(1f)
-    emitPrimitive(UiDrawPrimitive.Quad(x, y, width_, strokeWidth, strokeColor), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(x, y, width_, strokeWidth, strokeColor, tokenId = tokenId), overlay)
     emitPrimitive(
-        UiDrawPrimitive.Quad(x, y + height_ - strokeWidth, width_, strokeWidth, strokeColor),
+        UiDrawPrimitive.Quad(x, y + height_ - strokeWidth, width_, strokeWidth, strokeColor, tokenId = tokenId),
         overlay
     )
-    emitPrimitive(UiDrawPrimitive.Quad(x, y, strokeWidth, height_, strokeColor), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(x, y, strokeWidth, height_, strokeColor, tokenId = tokenId), overlay)
     emitPrimitive(
-        UiDrawPrimitive.Quad(x + width_ - strokeWidth, y, strokeWidth, height_, strokeColor),
+        UiDrawPrimitive.Quad(x + width_ - strokeWidth, y, strokeWidth, height_, strokeColor, tokenId = tokenId),
         overlay
     )
 }

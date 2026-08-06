@@ -3,6 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.FilledPath
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Glyph
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.GradientQuad
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.RoundedQuad
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.ShadowQuad
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.StrokedPath
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Texture
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /**
@@ -28,19 +36,21 @@ data class UiPrimitiveTransform(
 )
 
 sealed class UiDrawPrimitive {
+
     data class Quad(
         val x: Float,
         val y: Float,
         val w: Float,
         val h: Float,
         val color: Color,
+        val tokenId: String? = null,
         val transform: UiPrimitiveTransform? = null
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Quad) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
-                color == other.color && transform == other.transform
+                color == other.color && tokenId == other.tokenId && transform == other.transform
         }
 
         override fun hashCode(): Int {
@@ -49,6 +59,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + w.hashCode()
             result = 31 * result + h.hashCode()
             result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
             result = 31 * result + transform.hashCode()
             return result
         }
@@ -59,13 +70,14 @@ sealed class UiDrawPrimitive {
         val y: Float,
         val w: Float,
         val h: Float,
-        val gradient: UiLinearGradient
+        val gradient: UiLinearGradient,
+        val tokenId: String? = null
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is GradientQuad) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
-                gradient == other.gradient
+                gradient == other.gradient && tokenId == other.tokenId
         }
 
         override fun hashCode(): Int {
@@ -74,6 +86,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + w.hashCode()
             result = 31 * result + h.hashCode()
             result = 31 * result + gradient.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
             return result
         }
     }
@@ -91,13 +104,15 @@ sealed class UiDrawPrimitive {
         val h: Float,
         val color: Color,
         val radius: Float,
+        val tokenId: String? = null,
         val transform: UiPrimitiveTransform? = null
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is RoundedQuad) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
-                radius == other.radius && color == other.color && transform == other.transform
+                radius == other.radius && color == other.color &&
+                tokenId == other.tokenId && transform == other.transform
         }
 
         override fun hashCode(): Int {
@@ -107,6 +122,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + h.hashCode()
             result = 31 * result + radius.hashCode()
             result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
             result = 31 * result + transform.hashCode()
             return result
         }
@@ -125,6 +141,7 @@ sealed class UiDrawPrimitive {
         val u1: Float,
         val v1: Float,
         val color: Color,
+        val tokenId: String? = null,
         val transform: UiPrimitiveTransform? = null
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
@@ -132,7 +149,7 @@ sealed class UiDrawPrimitive {
             if (other !is Glyph) return false
             return x == other.x && y == other.y && w == other.w && h == other.h &&
                 u0 == other.u0 && v0 == other.v0 && u1 == other.u1 && v1 == other.v1 &&
-                color == other.color && transform == other.transform
+                color == other.color && tokenId == other.tokenId && transform == other.transform
         }
 
         override fun hashCode(): Int {
@@ -145,6 +162,7 @@ sealed class UiDrawPrimitive {
             result = 31 * result + u1.hashCode()
             result = 31 * result + v1.hashCode()
             result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
             result = 31 * result + transform.hashCode()
             return result
         }
@@ -155,17 +173,19 @@ sealed class UiDrawPrimitive {
      * shader support lands. */
     data class FilledPath(
         val path: UiPath,
-        val color: Color
+        val color: Color,
+        val tokenId: String? = null
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is FilledPath) return false
-            return path == other.path && color == other.color
+            return path == other.path && color == other.color && tokenId == other.tokenId
         }
 
         override fun hashCode(): Int {
             var result = path.hashCode()
             result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
             return result
         }
     }
@@ -175,18 +195,21 @@ sealed class UiDrawPrimitive {
     data class StrokedPath(
         val path: UiPath,
         val stroke: UiStroke,
-        val color: Color
+        val color: Color,
+        val tokenId: String? = null
     ) : UiDrawPrimitive() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is StrokedPath) return false
-            return path == other.path && stroke == other.stroke && color == other.color
+            return path == other.path && stroke == other.stroke &&
+                color == other.color && tokenId == other.tokenId
         }
 
         override fun hashCode(): Int {
             var result = path.hashCode()
             result = 31 * result + stroke.hashCode()
             result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
             return result
         }
     }
@@ -210,8 +233,50 @@ sealed class UiDrawPrimitive {
         val w: Float,
         val h: Float,
         val material: Any,
+        val tokenId: String? = null,
         val transform: UiPrimitiveTransform? = null
     ) : UiDrawPrimitive()
+
+    /** Drop-shadow primitive for elevation support (see Phase A.2 in Figma Audit).
+     * [offsetX]/[offsetY] and [blurRadius]/[spread] are in dp-space. [color] is the shadow's
+     * tint (usually a semi-transparent black). */
+    data class ShadowQuad(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val radius: Float,
+        val offsetX: Float,
+        val offsetY: Float,
+        val blurRadius: Float,
+        val spread: Float,
+        val color: Color,
+        val tokenId: String? = null
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ShadowQuad) return false
+            return x == other.x && y == other.y && w == other.w && h == other.h &&
+                radius == other.radius && offsetX == other.offsetX &&
+                offsetY == other.offsetY && blurRadius == other.blurRadius &&
+                spread == other.spread && color == other.color && tokenId == other.tokenId
+        }
+
+        override fun hashCode(): Int {
+            var result = x.hashCode()
+            result = 31 * result + y.hashCode()
+            result = 31 * result + w.hashCode()
+            result = 31 * result + h.hashCode()
+            result = 31 * result + radius.hashCode()
+            result = 31 * result + offsetX.hashCode()
+            result = 31 * result + offsetY.hashCode()
+            result = 31 * result + blurRadius.hashCode()
+            result = 31 * result + spread.hashCode()
+            result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
+            return result
+        }
+    }
 
     /** Path-based clip sibling of [ClipPush]. [boundsRect] is already intersected against
      * the active clip stack, so backends without stencil/mask support can still conservatively
@@ -261,12 +326,12 @@ sealed class UiDrawPrimitive {
 internal fun UiDrawPrimitive.scaledByAlpha(factor: Float): UiDrawPrimitive {
     if (factor >= 1f) return this
     return when (this) {
-        is UiDrawPrimitive.Quad -> copy(color = color.withAlpha(color.a * factor))
-        is UiDrawPrimitive.RoundedQuad -> copy(color = color.withAlpha(color.a * factor))
-        is UiDrawPrimitive.Glyph -> copy(color = color.withAlpha(color.a * factor))
-        is UiDrawPrimitive.FilledPath -> copy(color = color.withAlpha(color.a * factor))
-        is UiDrawPrimitive.StrokedPath -> copy(color = color.withAlpha(color.a * factor))
-        is UiDrawPrimitive.GradientQuad -> copy(
+        is Quad -> copy(color = color.withAlpha(color.a * factor))
+        is RoundedQuad -> copy(color = color.withAlpha(color.a * factor))
+        is Glyph -> copy(color = color.withAlpha(color.a * factor))
+        is FilledPath -> copy(color = color.withAlpha(color.a * factor))
+        is StrokedPath -> copy(color = color.withAlpha(color.a * factor))
+        is GradientQuad -> copy(
             gradient = gradient.copy(
                 topLeft = gradient.topLeft.withAlpha(gradient.topLeft.a * factor),
                 topRight = gradient.topRight.withAlpha(gradient.topRight.a * factor),
@@ -274,7 +339,8 @@ internal fun UiDrawPrimitive.scaledByAlpha(factor: Float): UiDrawPrimitive {
                 bottomLeft = gradient.bottomLeft.withAlpha(gradient.bottomLeft.a * factor)
             )
         )
-        is UiDrawPrimitive.Texture, is UiDrawPrimitive.ClipPathPush,
+        is ShadowQuad -> copy(color = color.withAlpha(color.a * factor))
+        is Texture, is UiDrawPrimitive.ClipPathPush,
         is UiDrawPrimitive.ClipPush, is UiDrawPrimitive.ClipPop -> this
     }
 }
@@ -295,10 +361,10 @@ internal fun UiDrawPrimitive.scaledByAlpha(factor: Float): UiDrawPrimitive {
 internal fun UiDrawPrimitive.withTransform(transform: UiPrimitiveTransform?): UiDrawPrimitive {
     if (transform == null) return this
     return when (this) {
-        is UiDrawPrimitive.Quad -> copy(transform = transform)
-        is UiDrawPrimitive.RoundedQuad -> copy(transform = transform)
-        is UiDrawPrimitive.Glyph -> copy(transform = transform)
-        is UiDrawPrimitive.Texture -> copy(transform = transform)
+        is Quad -> copy(transform = transform)
+        is RoundedQuad -> copy(transform = transform)
+        is Glyph -> copy(transform = transform)
+        is Texture -> copy(transform = transform)
         else -> this
     }
 }

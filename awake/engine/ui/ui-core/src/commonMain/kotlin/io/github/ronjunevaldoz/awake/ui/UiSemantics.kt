@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /**
@@ -38,5 +39,14 @@ data class UiSemanticNode(
     val clippedBounds: UiBounds? = null,
     val truncated: Boolean = false,
     val lineCount: Int = 0,
-    val selected: Boolean? = null
+    val selected: Boolean? = null,
+    val backgroundColor: Color? = null,
+    val backgroundToken: String? = null,
+    val foregroundColor: Color? = null,
+    val foregroundToken: String? = null,
+    val borderColor: Color? = null,
+    val borderToken: String? = null,
+    val borderRadius: Float? = null,
+    val shadowToken: String? = null,
+    val textStyleToken: String? = null
 )

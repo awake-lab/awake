@@ -20,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.styleable
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -201,7 +202,28 @@ private fun UiScope.resolveMeasuredColumn(
         content = content
     )
     if (role != UiSemanticRole.None && id != null) {
-        recordSemantic(role = role, id = id, bounds = rawSlot.toBounds())
+        val styleState = MutableStyleState(
+            hovered = modifier.forceHover ?: hitTest(rawSlot),
+            active = modifier.forceActive ?: isActive(id),
+            focused = modifier.forceFocus ?: context.isFocused(id)
+        )
+        val resolved = resolveStyle(
+            style = effectiveStyle,
+            defaults = if (role == UiSemanticRole.Panel) context.currentTheme.components.surface else Style.Empty,
+            state = styleState
+        )
+        recordSemantic(
+            role = role,
+            id = id,
+            bounds = rawSlot.toBounds(),
+            backgroundColor = resolved.background,
+            backgroundToken = resolved.backgroundToken,
+            foregroundColor = resolved.foreground,
+            foregroundToken = resolved.foregroundToken,
+            borderColor = resolved.borderColor,
+            borderToken = resolved.borderColorToken,
+            borderRadius = resolved.shape.toPx()
+        )
     }
     return rawSlot
 }

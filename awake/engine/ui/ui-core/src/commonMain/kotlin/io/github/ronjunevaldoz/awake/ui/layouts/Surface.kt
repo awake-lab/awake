@@ -178,14 +178,23 @@ fun UiScope.surface(
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
         borderColor = resolved.borderColor ?: context.currentTheme.colors.border,
-        shapeSpec = resolved.shapeSpec
+        shapeSpec = resolved.shapeSpec,
+        fillTokenId = resolved.backgroundToken,
+        borderTokenId = resolved.borderColorToken
     )
     recordSemantic(
         role = UiSemanticRole.Panel,
         id = id,
-        bounds = slot.toBounds()
+        bounds = slot.toBounds(),
+        backgroundColor = resolved.background,
+        backgroundToken = resolved.backgroundToken,
+        foregroundColor = resolved.foreground,
+        foregroundToken = resolved.foregroundToken,
+        borderColor = resolved.borderColor,
+        borderToken = resolved.borderColorToken,
+        borderRadius = resolved.shape.toPx()
     )
-    context.pushTextStyle(resolved.textStyle)
+    context.pushTextStyle(resolved.textStyle, tokenId = resolved.textStyleToken)
     val effectiveShape = resolved.shapeSpec ?: UiShapeSpec.RoundedRectangle(resolved.shape)
     context.pushShapeSpec(effectiveShape)
     

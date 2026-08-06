@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -20,7 +21,16 @@ fun UiScope.recordSemantic(
     clippedBounds: UiBounds? = null,
     truncated: Boolean = false,
     lineCount: Int = 0,
-    selected: Boolean? = null
+    selected: Boolean? = null,
+    backgroundColor: Color? = null,
+    backgroundToken: String? = null,
+    foregroundColor: Color? = null,
+    foregroundToken: String? = null,
+    borderColor: Color? = null,
+    borderToken: String? = null,
+    borderRadius: Float? = null,
+    shadowToken: String? = null,
+    textStyleToken: String? = null
 ) {
     context.recordSemanticInternal(
         UiSemanticNode(
@@ -32,7 +42,16 @@ fun UiScope.recordSemantic(
             clippedBounds = clippedBounds,
             truncated = truncated,
             lineCount = lineCount,
-            selected = selected
+            selected = selected,
+            backgroundColor = backgroundColor,
+            backgroundToken = backgroundToken,
+            foregroundColor = foregroundColor,
+            foregroundToken = foregroundToken,
+            borderColor = borderColor,
+            borderToken = borderToken,
+            borderRadius = borderRadius,
+            shadowToken = shadowToken,
+            textStyleToken = textStyleToken
         )
     )
 }

@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Sp
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.theme.FontWeight
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
@@ -43,14 +44,28 @@ class MutableStyleState(
 
 data class ResolvedStyle(
     val background: Color? = null,
+    val backgroundToken: String? = null,
     val foreground: Color? = null,
+    val foregroundToken: String? = null,
     val borderWidth: Dp = UiShape.none,
     val borderColor: Color? = null,
+    val borderColorToken: String? = null,
     val shape: Dp = UiShape.none,
     val shapeSpec: UiShapeSpec? = null,
+    val shadow: UiShadow? = null,
     val textStyle: TextStyle = TextStyle.Default,
+    val textStyleToken: String? = null,
     val contentPadding: UiInsets = UiInsets.Zero,
     val animation: StyleAnimation? = null
+)
+
+data class UiShadow(
+    val color: Color,
+    val offsetX: Dp = 0f.dp,
+    val offsetY: Dp = 0f.dp,
+    val blurRadius: Dp = 0f.dp,
+    val spread: Dp = 0f.dp,
+    val tokenId: String? = null
 )
 
 data class StyleAnimation(
@@ -59,20 +74,28 @@ data class StyleAnimation(
 )
 
 interface StyleScope {
-    fun background(color: Color)
-    fun foreground(color: Color)
-    fun border(width: Dp, color: Color) {
+    fun background(color: Color, tokenId: String? = null)
+    fun foreground(color: Color, tokenId: String? = null)
+    fun border(width: Dp, color: Color, tokenId: String? = null) {
         borderWidth(width)
-        borderColor(color)
+        borderColor(color, tokenId)
     }
     fun borderWidth(width: Dp)
-    fun borderColor(color: Color)
+    fun borderColor(color: Color, tokenId: String? = null)
     fun shape(radius: Dp)
     fun shape(shape: UiShapeSpec)
-    fun textStyle(style: TextStyle)
+    fun shadow(
+        color: Color,
+        offsetX: Dp = 0f.dp,
+        offsetY: Dp = 0f.dp,
+        blurRadius: Dp = 0f.dp,
+        spread: Dp = 0f.dp,
+        tokenId: String? = null
+    )
+    fun textStyle(style: TextStyle, tokenId: String? = null)
     fun textScale(scale: Float)
-    fun textSize(size: Sp)
-    fun fontSize(size: Sp) = textSize(size)
+    fun textSize(size: Sp, tokenId: String? = null)
+    fun fontSize(size: Sp, tokenId: String? = null) = textSize(size, tokenId)
     fun fontWeight(weight: FontWeight)
     fun letterSpacing(spacing: Sp)
     fun contentPadding(all: Dp)
@@ -116,23 +139,33 @@ class Style private constructor(
 
 private class ResolvedStyleBuilder(
     var background: Color? = null,
+    var backgroundToken: String? = null,
     var foreground: Color? = null,
+    var foregroundToken: String? = null,
     var borderWidth: Dp = UiShape.none,
     var borderColor: Color? = null,
+    var borderColorToken: String? = null,
     var shape: Dp = UiShape.none,
     var shapeSpec: UiShapeSpec? = null,
+    var shadow: UiShadow? = null,
     var textStyle: TextStyle = TextStyle.Default,
+    var textStyleToken: String? = null,
     var contentPadding: UiInsets = UiInsets.Zero,
     var animation: StyleAnimation? = null
 ) {
     fun build(): ResolvedStyle = ResolvedStyle(
         background = background,
+        backgroundToken = backgroundToken,
         foreground = foreground,
+        foregroundToken = foregroundToken,
         borderWidth = borderWidth,
         borderColor = borderColor,
+        borderColorToken = borderColorToken,
         shape = shape,
         shapeSpec = shapeSpec,
+        shadow = shadow,
         textStyle = textStyle,
+        textStyleToken = textStyleToken,
         contentPadding = contentPadding,
         animation = animation
     )
@@ -154,20 +187,29 @@ private class StyleBuilder(
 
     fun build(): List<StyleRule> = rules
 
-    override fun background(color: Color) {
-        rules += StyleRule(predicate) { background = color }
+    override fun background(color: Color, tokenId: String?) {
+        rules += StyleRule(predicate) {
+            background = color
+            backgroundToken = tokenId
+        }
     }
 
-    override fun foreground(color: Color) {
-        rules += StyleRule(predicate) { foreground = color }
+    override fun foreground(color: Color, tokenId: String?) {
+        rules += StyleRule(predicate) {
+            foreground = color
+            foregroundToken = tokenId
+        }
     }
 
     override fun borderWidth(width: Dp) {
         rules += StyleRule(predicate) { borderWidth = width }
     }
 
-    override fun borderColor(color: Color) {
-        rules += StyleRule(predicate) { borderColor = color }
+    override fun borderColor(color: Color, tokenId: String?) {
+        rules += StyleRule(predicate) {
+            borderColor = color
+            borderColorToken = tokenId
+        }
     }
 
     override fun shape(radius: Dp) {
@@ -184,16 +226,42 @@ private class StyleBuilder(
         }
     }
 
-    override fun textStyle(style: TextStyle) {
-        rules += StyleRule(predicate) { textStyle = textStyle then style }
+    override fun shadow(
+        color: Color,
+        offsetX: Dp,
+        offsetY: Dp,
+        blurRadius: Dp,
+        spread: Dp,
+        tokenId: String?
+    ) {
+        rules += StyleRule(predicate) {
+            shadow = UiShadow(
+                color = color,
+                offsetX = offsetX,
+                offsetY = offsetY,
+                blurRadius = blurRadius,
+                spread = spread,
+                tokenId = tokenId
+            )
+        }
+    }
+
+    override fun textStyle(style: TextStyle, tokenId: String?) {
+        rules += StyleRule(predicate) {
+            textStyle = textStyle then style
+            textStyleToken = tokenId
+        }
     }
 
     override fun textScale(scale: Float) {
         rules += StyleRule(predicate) { textStyle = textStyle.copy(scale = scale) }
     }
 
-    override fun textSize(size: Sp) {
-        rules += StyleRule(predicate) { textStyle = textStyle.copy(size = size) }
+    override fun textSize(size: Sp, tokenId: String?) {
+        rules += StyleRule(predicate) {
+            textStyle = textStyle.copy(size = size)
+            textStyleToken = tokenId
+        }
     }
 
     override fun fontWeight(weight: FontWeight) {
