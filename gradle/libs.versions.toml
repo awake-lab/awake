@@ -38,6 +38,9 @@ oshi-core = "7.4.0"
 ktor = "3.5.1"
 
 [libraries]
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+vanniktech-maven-publish-plugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "vanniktech-publish" }
 wgpu4k = { module = "io.ygdrasil:wgpu4k", version.ref = "wgpu4k" }
 # wgpu4k-toolkit has the canvas/adapter/device bootstrap helpers (canvasContextRenderer,
 # WGPUContext) the core wgpu4k module doesn't -- see wgpu4k-toolkit/src/webMain/kotlin/
