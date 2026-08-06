@@ -303,29 +303,50 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
 
     shadcnSupportingText("Use sliders when you need a continuous value with immediate visual feedback and a stable control footprint.")
     spacer(Modifier.height(8f.dp))
+    row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = UiAlignment.Vertical.Center,
+        modifier = Modifier.width(360f.dp)
+    ) {
+        shadcnText("Exposure")
+        shadcnText("${exposure.toInt()}%", muted = true)
+    }
+    spacer(Modifier.height(4f.dp))
     exposure = shadcnSlider(
         id = "showcase-slider-exposure",
         min = 0f,
         max = 100f,
         value = exposure,
-        label = "Exposure ${exposure.toInt()}%",
         modifier = Modifier.width(360f.dp)
     )
+    spacer(Modifier.height(8f.dp))
+    row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = UiAlignment.Vertical.Center,
+        modifier = Modifier.width(360f.dp)
+    ) {
+        shadcnText("Bloom")
+        shadcnText("${bloom.toInt()} px", muted = true)
+    }
+    spacer(Modifier.height(4f.dp))
     bloom = shadcnSlider(
         id = "showcase-slider-bloom",
         min = 0f,
         max = 32f,
         value = bloom,
-        label = "Bloom ${bloom.toInt()} px",
         modifier = Modifier.width(360f.dp)
     )
-    spacer(Modifier.height(8f.dp))
+    spacer(Modifier.height(12f.dp))
 
     var volume by context.rememberStateValue("ui-showcase-slider", "volume") { 65f }
     shadcnSupportingText("A label-beside-track layout for a compact row (e.g. a settings list row).")
     spacer(Modifier.height(8f.dp))
-    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(32f.dp.toDimension())) {
-        text("Volume", modifier = Modifier.width(64f.dp))
+    row(
+        horizontalArrangement = Arrangement.spacedBy(10f.dp),
+        verticalAlignment = UiAlignment.Vertical.Center,
+        modifier = Modifier.height(32f.dp.toDimension())
+    ) {
+        shadcnText("Volume", modifier = Modifier.width(64f.dp))
         volume = shadcnSlider(
             id = "showcase-slider-volume",
             min = 0f,
@@ -333,15 +354,19 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
             value = volume,
             modifier = Modifier.width(220f.dp)
         )
-        text("${volume.toInt()}%", modifier = Modifier.width(40f.dp))
+        shadcnText("${volume.toInt()}%", muted = true, modifier = Modifier.width(40f.dp))
     }
     spacer(Modifier.height(8f.dp))
 
     shadcnSupportingText("Min/max range labels flanking the track.")
     spacer(Modifier.height(8f.dp))
     var speed by context.rememberStateValue("ui-showcase-slider", "speed") { 1f }
-    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(32f.dp.toDimension())) {
-        text("0.5x", modifier = Modifier.width(36f.dp))
+    row(
+        horizontalArrangement = Arrangement.spacedBy(10f.dp),
+        verticalAlignment = UiAlignment.Vertical.Center,
+        modifier = Modifier.height(32f.dp.toDimension())
+    ) {
+        shadcnText("0.5x", modifier = Modifier.width(36f.dp))
         speed = shadcnSlider(
             id = "showcase-slider-speed",
             min = 0.5f,
@@ -349,7 +374,7 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
             value = speed,
             modifier = Modifier.width(220f.dp)
         )
-        text("2x", modifier = Modifier.width(28f.dp))
+        shadcnText("2x", modifier = Modifier.width(28f.dp))
     }
     spacer(Modifier.height(8f.dp))
 }

@@ -68,7 +68,7 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-state" to 0x8a0f1cda327975f7uL,
     "ui-showcase-button-matrix" to 0x66fe64b834938154uL,
     "ui-showcase-field-matrix" to 0xaa3b36a6b0c3ef6euL,
-    "ui-showcase-slider-matrix" to 0x8f088fdc8f54c31cuL,
+    "ui-showcase-slider-matrix" to 0x5a90a7119bc91e3fuL,
     "ui-showcase-dropdown-open" to 0x57f111f7c7807e9buL,
     "ui-showcase-popover-open" to 0x65ca2799d16bc711uL,
     "ui-showcase-tooltip-open" to 0x8540c472d501ae7uL,
