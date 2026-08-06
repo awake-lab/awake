@@ -62,13 +62,8 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseOverviewPreview,
-    UiShowcaseReferencePreview,
     UiShowcaseThemePreview,
     UiShowcaseTypographyPreview,
-    UiShowcaseFontsPreview,
-    UiShowcaseLayoutPreview,
-    UiShowcaseCanvasPreview,
-    UiShowcaseSlotApisPreview,
     UiShowcaseButtonsPreview,
     UiShowcaseAvatarPreview,
     UiShowcaseBreadcrumbPreview,
@@ -95,9 +90,6 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseShimmerPreview,
     UiShowcaseCollapsiblePreview,
     UiShowcaseCollapsibleOpenPreview,
-    UiShowcaseEasingRestPreview,
-    UiShowcaseEasingInFlightPreview,
-    UiShowcaseEasingSettledPreview,
     UiShowcaseFieldDemoPreview
 )
 
@@ -221,7 +213,15 @@ internal object UiShowcaseLayoutPreview : AwakeUiPreviewEntry {
 )
 internal object UiShowcaseCanvasPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
-        renderUiShowcasePagePreviewFrame(metadata, pageId = "canvas")
+        renderUiShowcaseCardPreviewFrame(
+            metadata = metadata,
+            surfaceId = "canvas",
+            badge = "PATTERNS",
+            title = "Canvas",
+            summary = "Immediate-mode drawing through Awake's public canvas DSL: gradients, paths, clipping, and nested local coordinates."
+        ) {
+            drawUiShowcaseCanvasPreview()
+        }
 }
 
 @AwakeUiPreview(
@@ -759,7 +759,7 @@ private fun renderUiShowcaseEasingPreviewFrame(
     val theme = state.showcaseTheme()
     val font = UiFonts.default(cellSize = 12 * previewScale)
     val ui = UiContext()
-    val page = showcasePageById("easing")
+    val page = ShowcasePages.firstOrNull { it.id == "animation" } ?: ShowcasePages.first()
 
     return withPreviewDensity(previewScale) {
         val insetPx = 24f * previewScale

@@ -54,24 +54,6 @@ internal val ShowcasePages = listOf(
         renderPreview = { drawUiShowcaseOverviewPreview() }
     ),
     ShowcasePage(
-        id = "reference",
-        title = "Reference Comparison",
-        category = ShowcaseCategory.GettingStarted,
-        description = "Side-by-side visual calibration against official shadcn cues.",
-        usageCode = "shadcnButton(id = \"primary\", label = \"Primary\")",
-        notes = listOf("Visual calibration for control height and soft card contrast."),
-        renderPreview = { drawUiShowcaseReferenceComparisonPreview() }
-    ),
-    ShowcasePage(
-        id = "parity-matrix",
-        title = "Side-by-Side Parity",
-        category = ShowcaseCategory.GettingStarted,
-        description = "Specification parity checkpoint between web shadcn and Awake KMP.",
-        usageCode = "drawShadcnSideBySideComparisonPreview()",
-        notes = listOf("1:1 spec parity checkpoint."),
-        renderPreview = { drawShadcnSideBySideComparisonPreview() }
-    ),
-    ShowcasePage(
         id = "theming",
         title = "Theming",
         category = ShowcaseCategory.GettingStarted,
@@ -332,51 +314,6 @@ internal val ShowcasePages = listOf(
         usageCode = "shadcnHeadline(\"Headline text\")",
         notes = listOf("Official typography components."),
         renderPreview = { drawUiShowcaseTypographySpecimenPreview() }
-    ),
-    ShowcasePage(
-        id = "fonts",
-        title = "Font Atlas",
-        category = ShowcaseCategory.Typography,
-        description = "Specimen view comparing bitmap default font beside true TTF font.",
-        usageCode = "val trueSans = UiFonts.trueSans()",
-        notes = listOf("Font rendering path comparison."),
-        renderPreview = { drawUiShowcaseFontsPreview() }
-    ),
-    ShowcasePage(
-        id = "layout",
-        title = "Layout Primitives",
-        category = ShowcaseCategory.Patterns,
-        description = "row(...) and column(...) layout primitives.",
-        usageCode = "row(horizontalArrangement = Arrangement.spacedBy(8f.dp)) { ... }",
-        notes = listOf("Cursor-based axis advancing primitives."),
-        renderPreview = { drawUiShowcaseLayoutPreview() }
-    ),
-    ShowcasePage(
-        id = "canvas",
-        title = "Canvas",
-        category = ShowcaseCategory.Patterns,
-        description = "Bounded drawing surface for custom shapes and authored drawing.",
-        usageCode = "surface(id = \"canvas\") { ... }",
-        notes = listOf("Custom vector and path rendering surface."),
-        renderPreview = { drawUiShowcaseCanvasPreview() }
-    ),
-    ShowcasePage(
-        id = "slot-apis",
-        title = "Slot APIs",
-        category = ShowcaseCategory.Patterns,
-        description = "Slot API composition over fixed parameters.",
-        usageCode = "shadcnButton(id = \"icon-btn\") { icon(UiIcons.chevronDown); text(\"Expand\") }",
-        notes = listOf("Composable lambda parameters for deep UI composition."),
-        renderPreview = { drawUiShowcaseSlotApiPreview() }
-    ),
-    ShowcasePage(
-        id = "animation",
-        title = "Animations",
-        category = ShowcaseCategory.Animations,
-        description = "Smooth interpolation, height expansion, and opacity transitions.",
-        usageCode = "shadcnCollapsible(...) { ... }",
-        notes = listOf("Real-time UI frame interpolation."),
-        renderPreview = { drawUiShowcaseEasingPreview() }
     )
 )
 
@@ -391,6 +328,5 @@ internal fun showcasePageById(pageId: String): ShowcasePage =
             "feedback" -> showcasePageById("progress")
             "popups" -> showcasePageById("dialog")
             "kbd-separator" -> showcasePageById("kbd")
-            "easing" -> showcasePageById("animation")
             else -> ShowcasePages.first()
         }

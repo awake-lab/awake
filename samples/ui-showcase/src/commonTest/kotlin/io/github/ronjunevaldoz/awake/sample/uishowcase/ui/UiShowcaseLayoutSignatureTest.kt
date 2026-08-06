@@ -49,13 +49,8 @@ private fun Map<String, ULong>.toExpectedSignatureMatrix(): String =
 
 private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-overview" to 0x8a0f1cda327975f7uL,
-    "ui-showcase-reference" to 0xf9a88a43c62c49a4uL,
     "ui-showcase-theming" to 0x822a241556cd9cccuL,
     "ui-showcase-typography" to 0x5cdcf234712bdbf4uL,
-    "ui-showcase-fonts" to 0x7df78a966a5dd9d7uL,
-    "ui-showcase-layout" to 0xa72d3e943b22fb76uL,
-    "ui-showcase-canvas" to 0xaff7b03f01da04duL,
-    "ui-showcase-slot-apis" to 0x219836857fb3f928uL,
     "ui-showcase-buttons" to 0xde54a672783258c1uL,
     "ui-showcase-avatar" to 0x5b00b491b02e85b4uL,
     "ui-showcase-breadcrumb" to 0xf1a3411b971e00c1uL,
@@ -82,8 +77,5 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-shimmer" to 0x8a0f1cda327975f7uL,
     "ui-showcase-collapsible" to 0xd30342b336d8d62auL,
     "ui-showcase-collapsible-open" to 0x5391468f2f853542uL,
-    "ui-showcase-easing-rest" to 0xccb7d0688a0ebea8uL,
-    "ui-showcase-easing-in-flight" to 0xe5a3e3af70265d3cuL,
-    "ui-showcase-easing-settled" to 0x93cecaaeb60a27d3uL,
     "ui-showcase-field-demo" to 0x8a0f1cda327975f7uL
 )
