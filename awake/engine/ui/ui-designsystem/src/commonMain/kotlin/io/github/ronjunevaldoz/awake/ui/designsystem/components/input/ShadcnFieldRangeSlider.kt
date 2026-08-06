@@ -63,7 +63,7 @@ fun ColumnScope.shadcnFieldRangeSlider(
             valueStart = valueStart,
             valueEnd = valueEnd,
             label = label,
-            modifier = Modifier.fillMaxWidth().height(32f.dp),
+            modifier = Modifier.fillMaxWidth().height(20f.dp),
             style = style
         )
     }

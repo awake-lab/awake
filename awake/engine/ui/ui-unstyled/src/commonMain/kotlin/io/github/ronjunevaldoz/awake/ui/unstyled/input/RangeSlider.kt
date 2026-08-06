@@ -28,8 +28,8 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 import kotlin.math.abs
 
-private const val RANGE_SLIDER_TRACK_HEIGHT_PX = 10f
-private const val RANGE_SLIDER_KNOB_DIAMETER_PX = 26f
+private const val RANGE_SLIDER_TRACK_HEIGHT_PX = 6f
+private const val RANGE_SLIDER_KNOB_DIAMETER_PX = 20f
 
 // ponytail: fixed 1% of the [min, max] span as the minimum start/end gap -- matches shadcn's
 // own range slider "handles can't cross" behavior without modeling step size; revisit if a
@@ -61,7 +61,7 @@ fun UiScope.rangeSlider(
 ): Pair<Float, Float> {
     var resultStart = valueStart
     var resultEnd = valueEnd
-    box(modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(32f.dp))) { boxSlot ->
+    box(modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(20f.dp))) { boxSlot ->
         val startId = "$id.start"
         val endId = "$id.end"
         val pointerDown = pointerDown()

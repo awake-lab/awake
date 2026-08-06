@@ -46,7 +46,7 @@ fun ColumnScope.shadcnFieldSlider(
             min = min,
             max = max,
             value = value,
-            modifier = Modifier.weight(1f).height(40f.dp),
+            modifier = Modifier.weight(1f).height(20f.dp),
             style = style
         )
     }
@@ -133,7 +133,7 @@ fun ColumnScope.shadcnFieldSliderWithValue(
             min = min,
             max = max,
             value = value,
-            modifier = Modifier.fillMaxWidth().height(32f.dp),
+            modifier = Modifier.fillMaxWidth().height(20f.dp),
             style = style,
             enabled = enabled
         )
