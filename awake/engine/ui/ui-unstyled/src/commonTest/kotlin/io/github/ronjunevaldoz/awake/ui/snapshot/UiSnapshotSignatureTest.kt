@@ -80,7 +80,7 @@ private val expectedReviewSnapshotSignatures = mapOf(
     "button-ghost" to 0xa9d6aab03ea5efebuL,
     "theme-dark" to 0xa9d6aab03ea5efebuL,
     "theme-light" to 0x477edd757ade548buL,
-    "panel-with-children" to 0x571a361d85f32e67uL,
+    "panel-with-children" to 0x05b435841e619a07uL,
     "shadcn-field-error" to 0x2661959fe977c56euL
 )
 
@@ -94,7 +94,7 @@ private val expectedReviewSnapshotSignatures = mapOf(
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x7d2dfacc9565f26buL,
     "ui-shaped-panel" to 0xc7edba140939cfffuL,
-    "ui-panel-controls" to 0x843b3ec0de2dd0a4uL,
+    "ui-panel-controls" to 0xd522bd211f937364uL,
     "ui-alert-dialog" to 0x91c88d40e4db9a39uL,
     "ui-component-state-matrix" to 0xeb8e460e55572192uL,
     "ui-rounded-clip-vector" to 0x6252fcda705461c1uL,

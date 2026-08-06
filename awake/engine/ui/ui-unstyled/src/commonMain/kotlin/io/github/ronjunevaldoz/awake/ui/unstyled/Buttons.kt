@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** [button] with the resolved [UiBounds] alongside the click result. */
 data class UiButtonResult(val clicked: Boolean, val slot: UiBounds)
@@ -69,7 +70,10 @@ private inline fun UiScope.buttonSlotInternal(
         // `surface()`/`column()`/`row()`/`box()` already propagate their resolved text style to
         // their own children. Mirrors the explicit `color = resolved.foreground` passed to the
         // label overload's own internal `text()` call below.
-        context.pushTextStyle(surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground))
+        context.pushTextStyle(
+            surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground),
+            tokenId = surface.resolved.textStyleToken
+        )
         childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
         context.popTextStyle()
     }
@@ -78,7 +82,15 @@ private inline fun UiScope.buttonSlotInternal(
         id = id,
         label = semanticLabel,
         bounds = surface.interaction.slot.toBounds(),
-        contentBounds = surface.contentSlot.toBounds()
+        contentBounds = surface.contentSlot.toBounds(),
+        backgroundColor = fillColor,
+        backgroundToken = surface.resolved.backgroundToken,
+        foregroundColor = surface.resolved.foreground,
+        foregroundToken = surface.resolved.foregroundToken,
+        borderColor = surface.resolved.borderColor,
+        borderToken = surface.resolved.borderColorToken,
+        borderRadius = surface.resolved.shape.toPx(),
+        textStyleToken = surface.resolved.textStyleToken
     )
     return UiButtonResult(surface.interaction.clicked, surface.interaction.slot.toBounds())
 }

@@ -147,6 +147,8 @@ internal fun UiScope.paintSurface(
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
         borderColor = borderColor ?: resolved.borderColor ?: theme.colors.border,
-        shapeSpec = shapeSpec
+        shapeSpec = shapeSpec,
+        fillTokenId = resolved.backgroundToken,
+        borderTokenId = resolved.borderColorToken
     )
 }

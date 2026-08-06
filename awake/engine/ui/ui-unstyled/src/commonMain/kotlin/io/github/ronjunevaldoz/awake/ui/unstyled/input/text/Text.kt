@@ -1,25 +1,32 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.layout.inset
+import io.github.ronjunevaldoz.awake.ui.layout.toBounds
+import io.github.ronjunevaldoz.awake.ui.layout.toSlot
+import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.shimmer
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun UiScope.drawResolvedText(
     label: String,
@@ -50,7 +57,9 @@ internal fun UiScope.drawResolvedText(
             radiusPx = resolvedStyle.shape.toPx(),
             borderWidth = resolvedStyle.borderWidth,
             borderColor = resolvedStyle.borderColor ?: theme.colors.border,
-            shapeSpec = resolvedStyle.shapeSpec
+            shapeSpec = resolvedStyle.shapeSpec,
+            fillTokenId = resolvedStyle.backgroundToken,
+            borderTokenId = resolvedStyle.borderColorToken
         )
     }
     renderTextBlock(
@@ -66,7 +75,11 @@ internal fun UiScope.drawResolvedText(
         textStyle = textStyle,
         semanticId = semanticId,
         semanticRole = semanticRole,
-        shimmer = shimmer
+        shimmer = shimmer,
+        textStyleToken = resolvedStyle.textStyleToken,
+        backgroundToken = resolvedStyle.backgroundToken,
+        foregroundToken = resolvedStyle.foregroundToken,
+        borderToken = resolvedStyle.borderColorToken
     )
     return slot
 }
@@ -139,7 +152,7 @@ fun UiScope.text(
 ): UiBounds {
     val resolvedFont = font
     val theme = context.currentTheme
-    val resolvedSemanticId = semanticId ?: if (modifier.shimmer) modifier.testTag ?: "shimmer-${label.hashCode()}" else null
+    val resolvedSemanticId = semanticId ?: modifier.testTag ?: if (modifier.shimmer) "shimmer-${label.hashCode()}" else null
 
     // We need to know whether the widget is hovered to resolve hover-dependent style state,
     // but performing a hitTest requires a measured slot. To avoid claiming a WrapContent slot

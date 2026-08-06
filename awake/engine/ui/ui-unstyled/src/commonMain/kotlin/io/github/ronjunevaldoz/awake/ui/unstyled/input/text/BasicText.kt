@@ -44,7 +44,11 @@ internal fun UiScope.renderTextBlock(
     textStyle: TextStyle,
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text,
-    shimmer: Boolean = false
+    shimmer: Boolean = false,
+    textStyleToken: String? = null,
+    backgroundToken: String? = null,
+    foregroundToken: String? = null,
+    borderToken: String? = null
 ) : UiBounds {
     val glyphPx = resolveGlyphPx(font, textStyle)
     val layout = cachedLayoutBitmapText(
@@ -68,6 +72,8 @@ internal fun UiScope.renderTextBlock(
     )
     val clippedBounds = if (shouldClip) contentBounds.intersect(slot) else contentBounds
 
+    val textColor = color ?: context.currentTextStyle.color ?: context.currentTheme.colors.foreground
+
     recordSemantic(
         role = semanticRole,
         id = semanticId,
@@ -76,10 +82,13 @@ internal fun UiScope.renderTextBlock(
         contentBounds = contentBounds.toBounds(),
         clippedBounds = clippedBounds.toBounds(),
         truncated = layout.truncated,
-        lineCount = layout.lines.size
+        lineCount = layout.lines.size,
+        foregroundColor = textColor,
+        textStyleToken = textStyleToken,
+        backgroundToken = backgroundToken,
+        foregroundToken = foregroundToken,
+        borderToken = borderToken
     )
-
-    val textColor = color ?: context.currentTextStyle.color ?: context.currentTheme.colors.foreground
 
     fun emitLinesInternal(drawColor: Color, shimmerGradient: UiLinearGradient? = null, shimmerX: Float? = null, shimmerWidth: Float? = null) {
         var penY = if (verticallyCentered) {
@@ -129,7 +138,8 @@ internal fun UiScope.renderTextBlock(
                             glyph.v0,
                             glyph.u1,
                             glyph.v1,
-                            finalColor
+                            finalColor,
+                            tokenId = textStyleToken
                         )
                     )
                 }
