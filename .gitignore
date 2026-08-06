@@ -6,6 +6,9 @@ __pycache__/
 /local.properties
 /.idea
 .claude/
+.agents/
+.artifacts/
+.codex/
 .DS_Store
 build/
 /captures

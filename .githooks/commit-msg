@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+msg_file="$1"
+
+if grep -qi "^Co-Authored-By:" "$msg_file"; then
+  if [[ "${AWAKE_ALLOW_COAUTHOR:-}" == "1" || "${ALLOW_COAUTHOR:-}" == "1" ]]; then
+    exit 0
+  fi
+
+  echo "commit-msg hook: this commit message has a Co-Authored-By trailer:" >&2
+  grep -i "^Co-Authored-By:" "$msg_file" >&2
+  echo >&2
+  echo "This is usually an AI assistant auto-attributing itself. Confirm with the" >&2
+  echo "user before keeping it -- if they say yes, retry with:" >&2
+  echo "  AWAKE_ALLOW_COAUTHOR=1 git commit ..." >&2
+  echo "Otherwise, strip the trailer from the commit message and retry." >&2
+  exit 1
+fi
