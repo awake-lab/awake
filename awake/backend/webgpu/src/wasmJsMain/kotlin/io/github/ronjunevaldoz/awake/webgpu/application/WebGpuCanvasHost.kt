@@ -41,6 +41,7 @@ fun launchWebGpuGame(
     
     bindWindowPointerInput(input)
     bindWindowKeyboardInput(input)
+    bindWindowTextInput(input)
     
     val initialSize = currentCanvasSize()
     syncCanvasSize(canvas, initialSize.first, initialSize.second)
@@ -178,6 +179,48 @@ fun bindWindowKeyboardInput(
     }
     window.addEventListener("blur") {
         input.clearKeys()
+    }
+}
+
+/** `KeyboardEvent.key` -> [TextEditAction] for the same discrete edit set
+ * [GlfwTextInputBridge]/[AwakeUIKitTextInputBridge] push on desktop/iOS. */
+private val DomEditKeys: Map<String, io.github.ronjunevaldoz.awake.core.input.TextEditAction> = mapOf(
+    "Backspace" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Backspace,
+    "Delete" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Delete,
+    "Enter" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Enter,
+    "ArrowLeft" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowLeft,
+    "ArrowRight" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowRight,
+    "ArrowUp" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowUp,
+    "ArrowDown" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowDown,
+    "Home" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Home,
+    "End" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.End
+)
+
+/** Feeds Awake's shared text-input API ([Input.pushTypedText]/[Input.pushEditAction]) from DOM
+ * `keydown` -- the wasmJs sibling of [GlfwTextInputBridge]'s polling loop, but far simpler:
+ * `KeyboardEvent.key` already resolves the printable character (Unicode/shift/layout-aware,
+ * unlike GLFW's raw scancodes) and the OS/browser already auto-repeats `keydown` while a key
+ * is held, so there's no character map or hold-to-repeat state machine to hand-roll here --
+ * only which events count as "typed text" vs. a discrete [TextEditAction] to forward.
+ *
+ * Runs unconditionally on every `keydown`, same as the desktop/iOS bridges -- there is no
+ * per-keystroke "is a text field focused" check here, matching [pollGlfwTextInput]'s own
+ * always-polling shape. A keystroke that lands with no focused text field to consume it is
+ * silently dropped the next [Input.updateSnapshot] clears the buffer, same as desktop.
+ * `ctrlKey`/`metaKey`/`altKey` are excluded from the printable-character path so this doesn't
+ * intercept browser/OS shortcuts (Cmd+R, Ctrl+C, ...). */
+fun bindWindowTextInput(input: Input) {
+    window.addEventListener("keydown") { event ->
+        val keyboardEvent = event as KeyboardEvent
+        val key = keyboardEvent.key
+        DomEditKeys[key]?.let { action ->
+            input.pushEditAction(action)
+            return@addEventListener
+        }
+        val isPrintable = key.length == 1 && !keyboardEvent.ctrlKey && !keyboardEvent.metaKey && !keyboardEvent.altKey
+        if (isPrintable) {
+            input.pushTypedText(key)
+        }
     }
 }
 

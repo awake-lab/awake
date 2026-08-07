@@ -310,6 +310,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                     runs += Renderer.UiRun.ClipRun(it.restoreRect)
                 }
             }
+            is UiDrawPrimitive.ShadowQuad -> TODO() // mirrors Vulkan's identical stub -- unimplemented on both backends
         }
     }
     uiRuns = runs
