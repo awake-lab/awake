@@ -41,14 +41,6 @@ class World {
         return entity
     }
 
-    /** Reified sugar for [add] with pooling support. */
-    inline fun <reified T : Any> spawn(noinline block: (T) -> Unit = {}): Entity {
-        val entity = create()
-        val component = add<T>(entity)
-        block(component)
-        return entity
-    }
-
     fun destroy(entity: Entity): Boolean {
         if (!entities.isAlive(entity)) {
             return false
@@ -163,10 +155,6 @@ class World {
 
     fun query(vararg types: KClass<out Any>): List<Entity> {
         return queryCache.query(types.toSet())
-    }
-
-    fun queryEach(vararg types: KClass<out Any>, block: (Entity) -> Unit) {
-        query(*types).forEach(block)
     }
 
     fun <A : Any> queryEach(type: KClass<A>, block: (Entity, A) -> Unit) {

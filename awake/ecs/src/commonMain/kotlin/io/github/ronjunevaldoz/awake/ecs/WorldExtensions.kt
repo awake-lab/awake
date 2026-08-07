@@ -6,16 +6,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 /**
- * Replaces the component of type [T] on [entity]. If it exists, it's recycled.
- * Returns the new component instance.
- */
-inline fun <reified T : Any> World.replace(entity: Entity, component: T): T {
-    remove<T>(entity)
-    add(entity, component)
-    return component
-}
-
-/**
  * Ensures the [entity] has a component of type [T]. If missing, [factory] is called 
  * to create and add it. Returns the existing or new component instance.
  */
@@ -28,22 +18,11 @@ inline fun <reified T : Any> World.ensure(entity: Entity, factory: () -> T): T {
 }
 
 /**
- * Toggles a component on an [entity]. 
- * If [enabled] is true and component is missing, it's added via [factory].
- * If [enabled] is false and component exists, it's removed.
- */
-inline fun <reified T : Any> World.toggle(entity: Entity, enabled: Boolean, factory: () -> T) {
-    if (enabled) {
-        if (!has<T>(entity)) {
-            add(entity, factory())
-        }
-    } else {
-        remove<T>(entity)
-    }
-}
-
-/**
  * Property delegate that fetches a component on demand from the ECS world.
+ *
+ * Each property access is a fresh lookup, so it reads like a local but costs a `KClass` hash
+ * plus a sparse-set probe every time -- `spin.radians = spin.radians + x` is three lookups.
+ * Bind it once outside a hot loop, or use [World.get] directly.
  */
 class ComponentDelegate<T : Any>(
     @PublishedApi internal val world: World,
@@ -61,6 +40,10 @@ class ComponentDelegate<T : Any>(
 
 /**
  * Property delegate that fetches a component on demand from the ECS world.
+ *
+ * Each property access is a fresh lookup, so it reads like a local but costs a `KClass` hash
+ * plus a sparse-set probe every time -- `spin.radians = spin.radians + x` is three lookups.
+ * Bind it once outside a hot loop, or use [World.get] directly.
  */
 inline fun <reified T : Any> World.component(entity: Entity): ComponentDelegate<T> =
     ComponentDelegate(this, entity, T::class)

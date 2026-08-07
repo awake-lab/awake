@@ -114,6 +114,12 @@ internal class Family1Cache<A : Any>(
         count += 1
     }
 
+    /**
+     * Iterates the live cache. Adding or removing a component that changes THIS family's
+     * membership from inside [block] corrupts the walk: removal swaps the last entry into the
+     * freed slot, so the swapped-in entity is skipped and the final slot is read after being
+     * cleared. Collect the entities first, then mutate outside the loop.
+     */
     @PublishedApi
     internal inline fun forEach(block: (Entity, A) -> Unit) {
         val localEntities = entities
@@ -262,6 +268,12 @@ internal class Family2Cache<A : Any, B : Any>(
         count += 1
     }
 
+    /**
+     * Iterates the live cache. Adding or removing a component that changes THIS family's
+     * membership from inside [block] corrupts the walk: removal swaps the last entry into the
+     * freed slot, so the swapped-in entity is skipped and the final slot is read after being
+     * cleared. Collect the entities first, then mutate outside the loop.
+     */
     @PublishedApi
     internal inline fun forEach(block: (Entity, A, B) -> Unit) {
         val localEntities = entities

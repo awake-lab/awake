@@ -111,9 +111,8 @@ class EcsOptimizationTest {
         val world = World()
         world.registerPool(PooledComponent::class) { PooledComponent() }
 
-        val entity = world.spawn<PooledComponent> {
-            it.value = 100
-        }
+        val entity = world.create()
+        world.add<PooledComponent>(entity).value = 100
 
         assertTrue(world.isAlive(entity))
         assertEquals(100, world.get<PooledComponent>(entity)?.value)
