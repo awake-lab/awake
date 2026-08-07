@@ -36,3 +36,7 @@ Mandatory for the domain you are touching — each encodes a bug this repo actua
   size/spacing constant, or naming a primitive. Covers which of `ui-core`/`ui-headless`/
   `ui-designsystem` owns what, the derivable-size rule (an headless default becomes the spec),
   Dp-not-pixels, and the Radix-canonical naming policy.
+- `skills/awake-icon-authoring/SKILL.md` — before adding or editing any `UiImageVector`/icon
+  path data. One hard rule: icon vectors are generated from SVG sources via
+  `tools/svg_to_ui_image_vector.py`, never hand-transcribed or derived by rotating another
+  glyph's coordinates.
