@@ -63,7 +63,7 @@ fun UiScope.toast(
         semanticId = "$id.label",
     )
     recordSemantic(
-        role = UiSemanticRole.Panel,
+        role = UiSemanticRole.Toast,
         id = id,
         label = message,
         bounds = surface.slot,

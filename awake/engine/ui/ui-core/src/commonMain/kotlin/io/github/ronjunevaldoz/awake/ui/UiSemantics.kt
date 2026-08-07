@@ -25,6 +25,10 @@ enum class UiSemanticRole {
     ScrollPanel,
     Skeleton,
     Spinner,
+    Progress,
+    Toast,
+    Separator,
+    Avatar,
 }
 
 /**
@@ -40,6 +44,9 @@ data class UiSemanticNode(
     val truncated: Boolean = false,
     val lineCount: Int = 0,
     val selected: Boolean? = null,
+    // Tri-state like [selected]: null for any widget without an indeterminate concept, false
+    // for a determinately checked/unchecked checkbox, true for `checkbox(indeterminate = true)`.
+    val indeterminate: Boolean? = null,
     val backgroundColor: Color? = null,
     val backgroundToken: String? = null,
     val foregroundColor: Color? = null,

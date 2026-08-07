@@ -55,7 +55,7 @@ fun UiScope.progress(
         )
     }
     recordSemantic(
-        role = UiSemanticRole.Text,
+        role = UiSemanticRole.Progress,
         id = id,
         label = "${(fraction * 100).toInt()}%",
         bounds = surface.slot,

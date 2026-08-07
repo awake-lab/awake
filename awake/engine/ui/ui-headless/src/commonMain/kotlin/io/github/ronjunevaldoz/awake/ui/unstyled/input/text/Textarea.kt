@@ -34,6 +34,7 @@ import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 private const val TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS = 1f
 private const val TEXT_FIELD_CARET_WIDTH_PX = 1.5f
@@ -98,6 +99,10 @@ fun UiScope.textarea(
                     ?: theme.colors.border
                 )
         }
+    // Reference's `disabled:opacity-50` treatment, same single group-alpha shape as
+    // `Buttons.kt`'s `buttonSlotInternal` -- covers the fill/border paint and the typed
+    // text/caret as one composited unit so nothing drawn on top of the fill gets double-dimmed.
+    return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
     emitFillAndBorder(
         slot = interaction.slot,
         fillColor = resolvedWithInteraction.background ?: theme.colors.background,
@@ -296,7 +301,8 @@ fun UiScope.textarea(
         selected = focused,
         lineCount = currentLayout.lines.size,
     )
-    return nextValue
+    nextValue
+    }
 }
 
 private fun UiScope.caretBlinkElapsedSeconds(id: String): Float {

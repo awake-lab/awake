@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 // Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a
 // circular knob straddling it at the current value -- the claimed slot stays the full
@@ -41,6 +42,7 @@ fun UiScope.select(
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    enabled: Boolean = true,
 ): Int? {
     val theme = context.currentTheme
     val expandedState = rememberPopupState(id, key = "expanded")
@@ -50,17 +52,24 @@ fun UiScope.select(
         id = "$id.trigger",
         modifier = modifier.height(modifier.heightDimension ?: Dimension.Fixed(36f.dp)),
         style = resolvedDefaults then style,
+        enabled = enabled,
     )
     if (clicked) {
         expandedState.toggle()
     }
-    drawDropdownTriggerContent(
-        slot = slot,
-        label = selectedLabel,
-        expanded = expandedState.expanded,
-        style = resolvedDefaults then style,
-        semanticId = "$id.label",
-    )
+    // buttonSlot's own disabled-dim already covers the trigger's fill/border (see
+    // buttonSlotInternal); this widget's label/chevron paint on top of that fill separately
+    // below, so they need their own matching group-alpha rather than sharing buttonSlot's
+    // (that would compound into a double dim, `disabled` becoming ~0.25 opacity not 0.5).
+    withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+        drawDropdownTriggerContent(
+            slot = slot,
+            label = selectedLabel,
+            expanded = expandedState.expanded,
+            style = resolvedDefaults then style,
+            semanticId = "$id.label",
+        )
+    }
     recordSemantic(
         role = UiSemanticRole.Dropdown,
         id = id,

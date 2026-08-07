@@ -18,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 // Real shadcn's RadioGroup item is a circular checkbox.checkbox() -- same box/inset-dot
 // mechanics, just a Circle shapeSpec instead of a rounded square. No separate ui-headless
@@ -35,6 +36,7 @@ fun UiScope.shadcnRadioButton(
     onClick: () -> Unit,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    enabled: Boolean = true,
 ) {
     val boxSize = 16f.dp
     val newChecked = checkbox(
@@ -44,6 +46,7 @@ fun UiScope.shadcnRadioButton(
         modifier = modifier.width(boxSize).height(boxSize),
         style = shadcnRadioStyle(theme, style),
         boxSize = boxSize,
+        enabled = enabled,
     )
     if (newChecked != selected) onClick()
 }
@@ -54,13 +57,21 @@ fun UiScope.shadcnRadioButton(
  * indicator belongs -- mirrors real shadcn-compose's `RadioGroup + RadioGroupItem` split
  * instead of a monolithic "options list" API. See the `List<String>` overload below for the
  * previous fixed-row behavior, now expressed as a convenience wrapper over this primary form.
+ *
+ * [enabled] only dims [content] as one composited unit (matching the alpha-dim mechanism every
+ * other interactive widget uses) -- it does not gate clicks, since this form has no interactive
+ * primitive of its own; a caller composing its own [shadcnRadioButton]s is responsible for
+ * threading its own `enabled` state to each one for click-gating.
  */
 fun ColumnScope.shadcnRadioGroup(
     id: String,
     modifier: UiModifier = Modifier,
+    enabled: Boolean = true,
     content: ColumnScope.() -> Unit,
 ) {
-    content()
+    withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+        content()
+    }
 }
 
 /** [shadcnRadioGroup] convenience: a fixed label-only row per option, single-select among
@@ -74,9 +85,13 @@ fun ColumnScope.shadcnRadioGroup(
     modifier: UiModifier = Modifier,
     gap: Dp = 8f.dp,
     style: Style = Style.Empty,
+    enabled: Boolean = true,
 ): Int {
     var resolved = selectedIndex
     val radioStyle = shadcnRadioStyle(theme, style)
+    // Not routed through the primary [shadcnRadioGroup]'s own `enabled` (defaults to true
+    // there): each item's `checkbox()` call below already dims and click-gates itself from the
+    // same `enabled` value, so also dimming the container would compound into a double dim.
     shadcnRadioGroup(id = id, modifier = modifier) {
         options.forEachIndexed { index, label ->
             val wasSelected = index == selectedIndex
@@ -92,6 +107,7 @@ fun ColumnScope.shadcnRadioGroup(
                 modifier = Modifier.height(24f.dp),
                 style = radioStyle,
                 boxSize = 16f.dp,
+                enabled = enabled,
             )
             // Only update when clicking an unselected item (newChecked=true means it just
             // transitioned from unchecked→checked, i.e. a new selection was made).

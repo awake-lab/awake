@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 // Dp, not raw px: every coordinate it is added to below (`boxPx`, `surface.interaction.slot`)
 // already went through `.dp.toPx()`, so a raw literal here would stay 8 physical pixels while
@@ -39,6 +40,7 @@ fun UiScope.checkbox(
     style: Style = Style.Empty,
     boxSize: Dp = 16f.dp,
     indeterminate: Boolean = false,
+    enabled: Boolean = true,
 ): Boolean {
     val theme = context.currentTheme
     val surface = resolveInteractiveSurface(
@@ -47,6 +49,7 @@ fun UiScope.checkbox(
         style = style,
         defaults = theme.components.checkbox,
         selected = checked,
+        enabled = enabled,
     )
     val boxPx = boxSize.toPx()
     val boxSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
@@ -55,6 +58,11 @@ fun UiScope.checkbox(
         boxPx,
         boxPx,
     )
+    // Reference's `disabled:opacity-50` treatment, same single group-alpha shape as
+    // `Buttons.kt`'s `buttonSlotInternal` -- covers the box fill/border, the check/dash mark,
+    // and the label as one composited unit so the label drawn on top of the box's own paint
+    // never gets double-dimmed.
+    return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
     paintSurface(slot = boxSlot, resolved = surface.resolved)
     // Mirrors real shadcn's triStateToggleable: clicking an Indeterminate box always lands
     // on checked=true, same as clicking an Off box -- only an On box flips to false.
@@ -97,6 +105,8 @@ fun UiScope.checkbox(
         bounds = surface.interaction.slot,
         contentBounds = boxSlot,
         selected = newChecked,
+        indeterminate = indeterminate,
     )
-    return newChecked
+    newChecked
+    }
 }

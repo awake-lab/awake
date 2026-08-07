@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 /** Real shadcn's `Select`: a trigger button that opens a [shadcnDropdownMenu] of [options].
  * Owns trigger rendering + popup open/close state; the dropdown itself is composed rather
@@ -34,6 +35,7 @@ fun UiScope.shadcnSelect(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     placeholder: String = "",
+    enabled: Boolean = true,
 ): Int? {
     val popupState = rememberPopupState(id, key = "expanded")
     val triggerStyle = shadcnFieldStyle(theme, style)
@@ -41,20 +43,27 @@ fun UiScope.shadcnSelect(
         id = "$id.trigger",
         modifier = modifier.height(36f.dp),
         style = triggerStyle,
+        enabled = enabled,
     ) { }
     if (trigger.clicked) {
         popupState.toggle()
     }
     val hasSelection = selectedIndex != null && options.getOrNull(selectedIndex) != null
     val selectedLabel = if (hasSelection) options[selectedIndex!!] else placeholder
-    drawDropdownTriggerContent(
-        slot = trigger.slot,
-        label = selectedLabel,
-        expanded = popupState.expanded,
-        style = triggerStyle,
-        semanticId = "$id.label",
-        isPlaceholder = !hasSelection,
-    )
+    // buttonSlot's own disabled-dim already covers the trigger's fill/border (see
+    // buttonSlotInternal); the label/chevron paint on top of that fill separately below, so
+    // they need their own matching group-alpha rather than sharing buttonSlot's (that would
+    // compound into a double dim).
+    withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+        drawDropdownTriggerContent(
+            slot = trigger.slot,
+            label = selectedLabel,
+            expanded = popupState.expanded,
+            style = triggerStyle,
+            semanticId = "$id.label",
+            isPlaceholder = !hasSelection,
+        )
+    }
     recordSemantic(
         role = UiSemanticRole.Dropdown,
         id = id,
@@ -96,6 +105,7 @@ fun <T> UiScope.shadcnSelect(
     placeholder: String = "",
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    enabled: Boolean = true,
 ) {
     val selectedIndex = value?.let { options.indexOf(it).takeIf { i -> i >= 0 } }
     val resultIndex = shadcnSelect(
@@ -105,6 +115,7 @@ fun <T> UiScope.shadcnSelect(
         modifier = modifier,
         style = style,
         placeholder = placeholder,
+        enabled = enabled,
     )
     resultIndex?.let { options.getOrNull(it)?.let(onValueChange) }
 }

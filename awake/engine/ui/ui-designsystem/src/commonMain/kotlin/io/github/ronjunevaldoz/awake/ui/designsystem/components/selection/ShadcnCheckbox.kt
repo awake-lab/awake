@@ -24,6 +24,7 @@ fun UiScope.shadcnCheckbox(
     modifier: UiModifier = Modifier,
     indeterminate: Boolean = false,
     style: Style = Style.Empty,
+    enabled: Boolean = true,
 ): Boolean = checkbox(
     id = id,
     checked = checked,
@@ -31,4 +32,5 @@ fun UiScope.shadcnCheckbox(
     modifier = modifier,
     style = shadcnCheckboxStyle(theme, style),
     indeterminate = indeterminate,
+    enabled = enabled,
 )

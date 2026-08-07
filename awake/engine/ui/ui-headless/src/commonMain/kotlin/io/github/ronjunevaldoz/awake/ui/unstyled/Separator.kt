@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
@@ -14,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Axis a [separator] draws along -- [Horizontal] (the default) fills width and is
@@ -46,5 +48,10 @@ fun UiScope.separator(
             emit(UiDrawPrimitive.Quad(lineX, pixelPerfectPixel(slot.y), lineWidth, pixelPerfectPixel(slot.height).coerceAtLeast(1f), color))
         }
     }
+    recordSemantic(
+        role = UiSemanticRole.Separator,
+        id = modifier.testTag,
+        bounds = slot,
+    )
     return slot
 }
