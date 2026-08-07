@@ -115,5 +115,45 @@ object HeroIcons {
                 close()
             }
         }
+
+        /** `Squares2X2Icon` -- built directly as 4 axis-aligned squares rather than
+         * transcribed from Heroicons' rounded-rect SVG, since this shape has no arcs to
+         * approximate: four plain rects in a grid is exact by construction, not an
+         * approximation risking a wrong transcription. */
+        val squares2x2: UiImageVector = uiImageVector(
+            defaultWidth = 16f.dp,
+            defaultHeight = 16f.dp,
+            viewportWidth = 16f,
+            viewportHeight = 16f,
+        ) {
+            path {
+                moveTo(2f, 2f)
+                lineTo(7f, 2f)
+                lineTo(7f, 7f)
+                lineTo(2f, 7f)
+                close()
+            }
+            path {
+                moveTo(9f, 2f)
+                lineTo(14f, 2f)
+                lineTo(14f, 7f)
+                lineTo(9f, 7f)
+                close()
+            }
+            path {
+                moveTo(2f, 9f)
+                lineTo(7f, 9f)
+                lineTo(7f, 14f)
+                lineTo(2f, 14f)
+                close()
+            }
+            path {
+                moveTo(9f, 9f)
+                lineTo(14f, 9f)
+                lineTo(14f, 14f)
+                lineTo(9f, 14f)
+                close()
+            }
+        }
     }
 }

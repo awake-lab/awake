@@ -20,7 +20,13 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 
 private val StudioTheme = shadcnTheme(dark = false)
 
+// Dark neutral gray, not pure black -- Renderer.clearColor otherwise defaults to stark black,
+// which reads as "nothing rendered" rather than a real viewport background. Same reasoning
+// scene3d-playground's own VIEWPORT_CLEAR_COLOR documents.
+private val ViewportClearColor = floatArrayOf(0.14f, 0.14f, 0.16f, 1f)
+
 internal fun SceneGameRuntime.drawStudioShell(store: StudioStore, viewportWidth: Float, viewportHeight: Float) {
+    renderer.clearColor = ViewportClearColor
     uiContext.pushTheme(StudioTheme)
     frame(viewportWidth, viewportHeight) {
         row(
@@ -28,13 +34,15 @@ internal fun SceneGameRuntime.drawStudioShell(store: StudioStore, viewportWidth:
             horizontalArrangement = Arrangement.spacedBy(0f.dp),
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax).padding(8.dp),
         ) {
+            drawIconRail()
             drawExampleRail(
                 activeExampleId = store.state.value.examples.activeExampleId,
                 onSelectExample = { store.dispatch(StudioContract.Intent.SelectExample(it)) },
             )
             column(
                 id = "studio-viewport-column",
-                modifier = Modifier.weight(1f).height(Dimension.FillMax),
+                verticalArrangement = Arrangement.spacedBy(8f.dp),
+                modifier = Modifier.weight(1f).height(Dimension.FillMax).padding(8f.dp),
             ) {
                 drawStudioToolbar(renderer)
             }
