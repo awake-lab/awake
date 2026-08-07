@@ -16,11 +16,46 @@ More than expected. In `:awake:scene:runtime`:
 
 So loading a scene from JSON into a `World` already works and is tested.
 
-## What's missing
+## Component shape (decided, done)
 
-**1. `SceneNode` can't express what the demos use.** It covers `transform`, `camera`,
-`light`, `meshRenderer`, `children`. The playground's entities also carry `SpinControl`,
-`PbrMaterial`, and `CameraComponent`'s mode. A demo serialized today would lose them.
+`SceneNode` used to carry one nullable field per component (`camera`, `light`,
+`meshRenderer`). Adding a component meant four edits, one of them a breaking change to the
+public `SceneInstantiationAdapter`, and forgetting the `instantiateNode` line dropped the
+data silently at load with no error. `PbrMaterial` drifted this way within an hour of being
+added.
+
+Components are now a sealed `SceneComponent` list:
+
+```kotlin
+data class SceneNode(
+    val name: String? = null,
+    val transform: SceneTransform = SceneTransform(),
+    val components: List<SceneComponent> = emptyList(),
+    val children: List<SceneNode> = emptyList(),
+)
+```
+
+The adapter has a single `attachComponent`, and its `when` is exhaustive — a new component
+stops the build until it's mapped, instead of failing silently. Cost: "at most one camera
+per node" is no longer a type guarantee, so `SceneValidator` checks it.
+
+`transform` stays a named field. Every node has exactly one, and the parent link is
+encoded by `children` nesting.
+
+## Versioning (done)
+
+`SceneDocument.version` defaults to `SCENE_SCHEMA_VERSION`. `decode` throws
+`SceneSchemaVersionException` on a document from a newer build rather than degrading — a
+future scene may use components this loader can't construct, and dropping them yields a
+plausible-looking but wrong scene. A missing `version` key reads as 1, so pre-versioning
+files still load.
+
+Adding a new `SceneComponent` does not need a bump.
+
+## What's still missing
+
+**1. Component coverage.** `SpinControl` and `CameraComponent`'s mode still have no
+`SceneComponent`. `PbrMaterial` now does.
 
 **2. No demo loads from a document.** Every one builds entities imperatively in
 `onActivate`. `SceneLoader.instantiate` has no production caller.
@@ -28,23 +63,13 @@ So loading a scene from JSON into a `World` already works and is tested.
 **3. No save path.** `encode` exists, but nothing writes a file — there's no
 platform-neutral file-write in `awake:base`, only `readResourceBytes`.
 
-## Order to build it
+## Order to build the rest
 
-1. **Extend `SceneNode`** with the missing components. Add them as nullable fields, same
-   shape as `meshRenderer`. Round-trip test per component.
-2. **Migrate one demo** — the rotating cube is the right pick: it uses `Transform`,
-   `MeshRenderer`, `SpinControl`, `PbrMaterial`, `Camera`, and `Light`, so it exercises
-   every field at once. Keep the imperative path until the loaded scene matches it
-   visually, then delete it.
-3. **Add a write path** to `awake:base` (`expect fun writeFile`) so `encode` has somewhere
-   to go. Desktop first; web needs a download or origin-private-filesystem shim.
+1. **Add the remaining components** as `SceneComponent` subtypes. Each is now additive: a
+   new subtype plus an adapter branch the compiler demands.
+2. **Migrate one demo** — the rotating cube uses `Transform`, `MeshRenderer`,
+   `SpinControl`, `PbrMaterial`, `Camera`, and `Light`, so it exercises everything at once.
+   Keep the imperative path until the loaded scene matches it visually, then delete it.
+3. **Add a write path** to `awake:base` (`expect fun writeFile`). Desktop first; web needs
+   a download or origin-private-filesystem shim.
 4. **Migrate the rest** and make the demo registry a list of scene files.
-
-Step 1 is the only one that touches published API. Steps 2-4 are sample-local.
-
-## Open question
-
-Whether a component's serialized form belongs on `SceneNode` (one growing struct, simple,
-but every new component edits a published type) or a keyed map of component payloads
-(open-ended, no API churn, but loses schema validation). Worth deciding before step 1
-rather than after.

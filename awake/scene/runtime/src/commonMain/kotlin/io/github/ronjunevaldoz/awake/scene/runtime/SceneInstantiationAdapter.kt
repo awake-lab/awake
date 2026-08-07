@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Light
 import io.github.ronjunevaldoz.awake.scene.components.Name
+import io.github.ronjunevaldoz.awake.scene.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import kotlin.math.PI
 import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
@@ -22,9 +23,7 @@ interface SceneInstantiationAdapter<Node, Instance> {
     fun createNode(node: SceneNode, parent: Node?): Node
     fun attachName(node: Node, name: String)
     fun attachTransform(node: Node, transform: SceneTransform, parent: Node?)
-    fun attachCamera(node: Node, camera: SceneCamera)
-    fun attachLight(node: Node, light: SceneLight)
-    fun queueMeshRenderer(node: Node, meshRenderer: SceneMeshRenderer)
+    fun attachComponent(node: Node, component: SceneComponent)
     fun complete(roots: List<SceneNodeHandle<Node>>): Instance
 }
 
@@ -43,16 +42,19 @@ class AwakeWorldSceneAdapter(
         world.add(node, transform.toComponent(parent))
     }
 
-    override fun attachCamera(node: Entity, camera: SceneCamera) {
-        world.add(node, camera.toComponent())
-    }
-
-    override fun attachLight(node: Entity, light: SceneLight) {
-        world.add(node, light.toComponent())
-    }
-
-    override fun queueMeshRenderer(node: Entity, meshRenderer: SceneMeshRenderer) {
-        renderableRequests += SceneRenderableRequest(node, meshRenderer)
+    // Exhaustive over the sealed SceneComponent: a new authored component stops this compiling
+    // until it is mapped, instead of round-tripping through JSON and being dropped on load.
+    override fun attachComponent(node: Entity, component: SceneComponent) {
+        when (component) {
+            is SceneCamera -> world.add(node, component.toComponent())
+            is SceneLight -> world.add(node, component.toComponent())
+            is ScenePbrMaterial -> world.add(node, component.toComponent())
+            // Mesh and material are live GPU handles the loader can't build; the caller resolves
+            // these against its own renderer (see SceneRenderableRequest).
+            is SceneMeshRenderer -> {
+                renderableRequests += SceneRenderableRequest(node, component)
+            }
+        }
     }
 
     override fun complete(roots: List<SceneNodeHandle<Entity>>): SceneInstance = SceneInstance(
@@ -88,6 +90,11 @@ internal fun SceneLight.toComponent(): Light = Light(
         SceneLight.Type.Directional -> Light.Type.Directional
         SceneLight.Type.Point -> Light.Type.Point
     },
+)
+
+internal fun ScenePbrMaterial.toComponent(): PbrMaterial = PbrMaterial(
+    metallic = metallic,
+    roughness = roughness,
 )
 
 internal fun SceneVec3.toVec3(): Vec3 = Vec3(x, y, z)

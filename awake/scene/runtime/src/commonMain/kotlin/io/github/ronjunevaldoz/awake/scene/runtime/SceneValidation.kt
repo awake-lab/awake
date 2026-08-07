@@ -48,29 +48,57 @@ object SceneValidator {
             }
         }
 
-        node.meshRenderer?.let { meshRenderer ->
-            if (meshRenderer.mesh.isBlank()) {
-                issues += SceneValidationIssue(path, "meshRenderer.mesh must not be blank")
-            }
-            if (meshRenderer.material.isBlank()) {
-                issues += SceneValidationIssue(path, "meshRenderer.material must not be blank")
-            }
+        // A node could now legally carry two cameras -- the sealed-component shape trades that
+        // type-level guarantee for not having to edit SceneNode per component, so it's checked
+        // here instead.
+        node.components.filterIsInstance<SceneCamera>().size.takeIf { it > 1 }?.let { count ->
+            issues += SceneValidationIssue(path, "node declares $count cameras, expected at most 1")
         }
 
-        node.camera?.let { camera ->
-            if (camera.near <= 0f) {
-                issues += SceneValidationIssue(path, "camera.near must be > 0")
-            }
-            if (camera.far <= camera.near) {
-                issues += SceneValidationIssue(path, "camera.far must be greater than camera.near")
-            }
-            if (camera.fovYDegrees <= 0f || camera.fovYDegrees >= 180f) {
-                issues += SceneValidationIssue(path, "camera.fovYDegrees must be between 0 and 180")
-            }
-        }
+        node.components.forEach { component -> validateComponent(component, path, issues) }
 
         node.children.forEachIndexed { index, child ->
             validateNode(child, nodePath(child.name, index, path), issues, namedPaths)
+        }
+    }
+
+    private fun validateComponent(
+        component: SceneComponent,
+        path: String,
+        issues: MutableList<SceneValidationIssue>,
+    ) {
+        when (component) {
+            is SceneMeshRenderer -> {
+                if (component.mesh.isBlank()) {
+                    issues += SceneValidationIssue(path, "meshRenderer.mesh must not be blank")
+                }
+                if (component.material.isBlank()) {
+                    issues += SceneValidationIssue(path, "meshRenderer.material must not be blank")
+                }
+            }
+
+            is SceneCamera -> {
+                if (component.near <= 0f) {
+                    issues += SceneValidationIssue(path, "camera.near must be > 0")
+                }
+                if (component.far <= component.near) {
+                    issues += SceneValidationIssue(path, "camera.far must be greater than camera.near")
+                }
+                if (component.fovYDegrees <= 0f || component.fovYDegrees >= 180f) {
+                    issues += SceneValidationIssue(path, "camera.fovYDegrees must be between 0 and 180")
+                }
+            }
+
+            is ScenePbrMaterial -> {
+                if (component.metallic !in 0f..1f) {
+                    issues += SceneValidationIssue(path, "pbrMaterial.metallic must be within 0..1")
+                }
+                if (component.roughness !in 0f..1f) {
+                    issues += SceneValidationIssue(path, "pbrMaterial.roughness must be within 0..1")
+                }
+            }
+
+            is SceneLight -> Unit
         }
     }
 

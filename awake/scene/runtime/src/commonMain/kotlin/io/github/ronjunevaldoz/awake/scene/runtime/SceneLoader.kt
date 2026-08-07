@@ -25,7 +25,19 @@ data class SceneRenderableRequest(
     val meshRenderer: SceneMeshRenderer,
 )
 
+/** Thrown rather than silently degrading: a scene from a newer build may reference components
+ * this loader can't construct, and dropping them would produce a plausible-looking but wrong
+ * scene. [documentVersion] is what the file declared. */
+class SceneSchemaVersionException(
+    val documentVersion: Int,
+) : IllegalArgumentException(
+    "Scene document declares schema version $documentVersion, but this build supports up to " +
+        "$SCENE_SCHEMA_VERSION. Upgrade the engine or re-export the scene.",
+)
+
 private val SceneJson = Json {
+    // Unknown keys are tolerated so an older build can still open a scene that gained a field.
+    // An unknown COMPONENT still fails, since a dropped component changes what the scene is.
     ignoreUnknownKeys = true
     encodeDefaults = true
     explicitNulls = false
@@ -34,7 +46,10 @@ private val SceneJson = Json {
 object SceneLoader {
     fun encode(document: SceneDocument, json: Json = SceneJson): String = json.encodeToString(document)
 
-    fun decode(text: String, json: Json = SceneJson): SceneDocument = json.decodeFromString(text)
+    fun decode(text: String, json: Json = SceneJson): SceneDocument =
+        json.decodeFromString<SceneDocument>(text).also { document ->
+            if (document.version > SCENE_SCHEMA_VERSION) throw SceneSchemaVersionException(document.version)
+        }
 
     suspend fun loadFromResource(path: String, json: Json = SceneJson): SceneDocument = decode(readResourceBytes(path).decodeToString(), json)
 
@@ -62,9 +77,7 @@ object SceneLoader {
         val created = adapter.createNode(node, parent)
         adapter.attachTransform(created, node.transform, parent)
         node.name?.takeIf { it.isNotBlank() }?.let { adapter.attachName(created, it) }
-        node.camera?.let { adapter.attachCamera(created, it) }
-        node.light?.let { adapter.attachLight(created, it) }
-        node.meshRenderer?.let { adapter.queueMeshRenderer(created, it) }
+        node.components.forEach { adapter.attachComponent(created, it) }
 
         val children = node.children.mapIndexed { index, child ->
             instantiateNode(

@@ -16,11 +16,11 @@ class SceneValidationTest {
             nodes = listOf(
                 SceneNode(
                     name = "camera",
-                    camera = SceneCamera(fovYDegrees = 200f, near = 0f, far = 0f),
+                    components = listOf(SceneCamera(fovYDegrees = 200f, near = 0f, far = 0f)),
                 ),
                 SceneNode(
                     name = "camera",
-                    meshRenderer = SceneMeshRenderer(mesh = "", material = ""),
+                    components = listOf(SceneMeshRenderer(mesh = "", material = "")),
                 ),
             ),
         )
@@ -40,7 +40,7 @@ class SceneValidationTest {
             nodes = listOf(
                 SceneNode(
                     name = "bad-camera",
-                    camera = SceneCamera(near = 10f, far = 1f),
+                    components = listOf(SceneCamera(near = 10f, far = 1f)),
                 ),
             ),
         )

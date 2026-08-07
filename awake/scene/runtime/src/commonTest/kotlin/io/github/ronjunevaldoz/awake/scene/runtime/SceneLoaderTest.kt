@@ -4,11 +4,13 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Name
+import io.github.ronjunevaldoz.awake.scene.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import kotlinx.coroutines.test.runTest
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
@@ -29,7 +31,7 @@ class SceneLoaderTest {
                     children = listOf(
                         SceneNode(
                             name = "child",
-                            meshRenderer = SceneMeshRenderer(mesh = "cube", material = "mat"),
+                            components = listOf(SceneMeshRenderer(mesh = "cube", material = "mat")),
                         ),
                     ),
                 ),
@@ -49,7 +51,7 @@ class SceneLoaderTest {
             nodes = listOf(
                 SceneNode(
                     name = "camera",
-                    camera = SceneCamera(fovYDegrees = 45f),
+                    components = listOf(SceneCamera(fovYDegrees = 45f)),
                     transform = SceneTransform(position = SceneVec3(0f, 0f, 5f)),
                 ),
                 SceneNode(
@@ -59,7 +61,10 @@ class SceneLoaderTest {
                         SceneNode(
                             name = "child",
                             transform = SceneTransform(position = SceneVec3(0f, 2f, 0f)),
-                            meshRenderer = SceneMeshRenderer(mesh = "cube", material = "mat"),
+                            components = listOf(
+                                SceneMeshRenderer(mesh = "cube", material = "mat"),
+                                ScenePbrMaterial(metallic = 0.25f, roughness = 0.4f),
+                            ),
                         ),
                     ),
                 ),
@@ -102,10 +107,36 @@ class SceneLoaderTest {
         assertEquals(1f, parentTransform.position.x)
         assertEquals(2f, childTransform.position.y)
 
+        // The PbrMaterial on the same node must land as a real ECS component, not be dropped:
+        // that silent drop is exactly what the old one-field-per-component shape allowed.
+        val childPbr = world.get<PbrMaterial>(childEntity)
+        assertNotNull(childPbr)
+        assertEquals(0.25f, childPbr.metallic)
+        assertEquals(0.4f, childPbr.roughness)
+
         val request = instance.renderableRequests.single()
         assertEquals(childEntity, request.entity)
         assertEquals("cube", request.meshRenderer.mesh)
         assertEquals("mat", request.meshRenderer.material)
+    }
+
+    @Test
+    fun decodeRejectsADocumentFromANewerSchema() {
+        val future = SceneLoader.encode(SceneDocument(version = SCENE_SCHEMA_VERSION + 1))
+
+        val failure = assertFailsWith<SceneSchemaVersionException> { SceneLoader.decode(future) }
+
+        assertEquals(SCENE_SCHEMA_VERSION + 1, failure.documentVersion)
+    }
+
+    @Test
+    fun decodeAcceptsADocumentWithNoVersionField() {
+        // Pre-versioning scenes have no `version` key; they must still load as version 1
+        // rather than failing, since the shape they describe is unchanged.
+        val decoded = SceneLoader.decode("""{ "name": "legacy", "nodes": [] }""")
+
+        assertEquals(SCENE_SCHEMA_VERSION, decoded.version)
+        assertEquals("legacy", decoded.name)
     }
 
     @Test
@@ -116,6 +147,10 @@ class SceneLoaderTest {
         assertEquals(2, document.nodes.size)
         assertEquals("camera", document.nodes[0].name)
         assertEquals("cube", document.nodes[1].name)
-        assertNotNull(document.nodes[1].meshRenderer)
+        assertNotNull(document.nodes[1].components.filterIsInstance<SceneMeshRenderer>().singleOrNull())
+        assertEquals(
+            0.35f,
+            document.nodes[1].components.filterIsInstance<ScenePbrMaterial>().single().roughness,
+        )
     }
 }
