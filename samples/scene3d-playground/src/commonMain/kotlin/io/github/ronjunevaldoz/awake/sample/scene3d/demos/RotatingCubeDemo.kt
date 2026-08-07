@@ -20,8 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
  * A real cube spinning in place over a real reference ground grid, driven entirely through the
@@ -98,7 +96,7 @@ internal object RotatingCubeDemo {
             val cube = world.create()
             world.add(cube, Transform().apply { position.set(cubeWorldPosition()) })
             world.add(cube, SpinControl().apply { radians = spinRadians })
-            if (!wireframe) world.add(cube, MeshRenderer(cubeMesh!!, material!!))
+            world.add(cube, MeshRenderer(cubeMesh!!, material!!))
             cubeEntity = cube
 
             val ground = world.create()
@@ -134,17 +132,16 @@ internal object RotatingCubeDemo {
             timeController.advance(delta)
             spinRadians = timeController.hours * HOURS_TO_DEGREES * DEGREES_TO_RADIANS
 
+            // The real VK_POLYGON_MODE_LINE pipeline, not a hand-built edge list. This demo used
+            // to swap the cube's MeshRenderer for its own drawDebugLines() call, which meant the
+            // wireframe cube got its own second implementation of the spin -- with the opposite
+            // sign convention to SpinSystem's, so it visibly rotated the wrong way and sat in a
+            // slightly different place than the solid cube it was standing in for.
+            renderer.wireframe = wireframe
             renderer.drawReferenceGrid()
-            if (wireframe) renderer.drawDebugLines(wireframeCubeEdges())
 
             cubeEntity?.let { entity ->
                 world.get(entity, SpinControl::class)?.radians = spinRadians
-                val hasMeshRenderer = world.get(entity, MeshRenderer::class) != null
-                if (wireframe && hasMeshRenderer) {
-                    world.remove(entity, MeshRenderer::class)
-                } else if (!wireframe && !hasMeshRenderer) {
-                    cubeMesh?.let { mesh -> material?.let { mat -> world.add(entity, MeshRenderer(mesh, mat)) } }
-                }
             }
 
             updateDemoCamera(
@@ -167,17 +164,6 @@ internal object RotatingCubeDemo {
     )
 
     private fun cubeWorldPosition(): Vec3 = Vec3(0f, CUBE_REST_HEIGHT, 0f)
-
-    private fun wireframeCubeEdges(): List<LineSegment> {
-        val s = sin(spinRadians).toFloat()
-        val c = cos(spinRadians).toFloat()
-        val worldCorners = rotatingCubeLocalCorners.map { (x, y, z) ->
-            Vec3(x * c + z * s, y + CUBE_REST_HEIGHT, -x * s + z * c)
-        }
-        return rotatingCubeEdgeIndices.map { (startIndex, endIndex) ->
-            LineSegment(worldCorners[startIndex], worldCorners[endIndex], floatArrayOf(1f, 1f, 1f, 1f))
-        }
-    }
 
     private const val DEGREES_TO_RADIANS = (PI / 180.0).toFloat()
     private const val HOURS_TO_DEGREES = 360f / 24f

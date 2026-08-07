@@ -75,21 +75,3 @@ private val groundPlaneIndices = intArrayOf(0, 1, 2, 2, 3, 0)
 
 internal val rotatingGroundPlaneGeometry =
     MeshGeometry(groundPlaneVertices, groundPlaneIndices, format = VertexFormat.PositionNormalColor)
-
-/** Local-space corners of the cube, in the same winding order [RotatingCubeDemo] uses to build
- * wireframe [io.github.ronjunevaldoz.awake.render.renderer.LineSegment] edges when its
- * "Wireframe" switch is on -- kept as the 8 unique geometric corners (not [cubeVertices]' 24
- * face-duplicated ones), since a wireframe edge only cares about position, not per-face normals. */
-internal val rotatingCubeLocalCorners = listOf(
-    Triple(-0.5f, -0.5f, -0.5f), Triple(0.5f, -0.5f, -0.5f),
-    Triple(0.5f, 0.5f, -0.5f), Triple(-0.5f, 0.5f, -0.5f),
-    Triple(-0.5f, -0.5f, 0.5f), Triple(0.5f, -0.5f, 0.5f),
-    Triple(0.5f, 0.5f, 0.5f), Triple(-0.5f, 0.5f, 0.5f),
-)
-
-/** 12 cube edges as corner-index pairs into [rotatingCubeLocalCorners]. */
-internal val rotatingCubeEdgeIndices = listOf(
-    0 to 1, 1 to 2, 2 to 3, 3 to 0,
-    4 to 5, 5 to 6, 6 to 7, 7 to 4,
-    0 to 4, 1 to 5, 2 to 6, 3 to 7,
-)
