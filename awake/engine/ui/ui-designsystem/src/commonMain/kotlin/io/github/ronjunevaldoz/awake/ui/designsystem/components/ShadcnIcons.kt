@@ -17,4 +17,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.HeroIcons
 object ShadcnIcons {
     var chevronDown: UiImageVector = HeroIcons.Solid20Mini.chevronDown
     var chevronUp: UiImageVector = HeroIcons.Solid20Mini.chevronUp
+    var chevronLeft: UiImageVector = HeroIcons.Solid20Mini.chevronLeft
+    var chevronRight: UiImageVector = HeroIcons.Solid20Mini.chevronRight
 }

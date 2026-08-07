@@ -76,5 +76,44 @@ object HeroIcons {
                 close()
             }
         }
+
+        /** `ChevronRightIcon`, derived by rotating [chevronDown]'s already-verified ribbon -90°
+         * around the 16x16 viewport's center rather than re-transcribing Heroicons'
+         * `ChevronRightIcon` SVG by hand -- same simplified-hexagon shape, same corner-rounding
+         * already collapsed. */
+        val chevronRight: UiImageVector = uiImageVector(
+            defaultWidth = 16f.dp,
+            defaultHeight = 16f.dp,
+            viewportWidth = 16f,
+            viewportHeight = 16f,
+        ) {
+            path {
+                moveTo(4.8f, 12f)
+                lineTo(8.8f, 8f)
+                lineTo(4.8f, 4f)
+                lineTo(6f, 2.8f)
+                lineTo(11.2f, 8f)
+                lineTo(6f, 13.2f)
+                close()
+            }
+        }
+
+        /** `ChevronLeftIcon` -- [chevronRight] mirrored across the viewport's vertical axis. */
+        val chevronLeft: UiImageVector = uiImageVector(
+            defaultWidth = 16f.dp,
+            defaultHeight = 16f.dp,
+            viewportWidth = 16f,
+            viewportHeight = 16f,
+        ) {
+            path {
+                moveTo(11.2f, 4f)
+                lineTo(7.2f, 8f)
+                lineTo(11.2f, 12f)
+                lineTo(10f, 13.2f)
+                lineTo(4.8f, 8f)
+                lineTo(10f, 2.8f)
+                close()
+            }
+        }
     }
 }
