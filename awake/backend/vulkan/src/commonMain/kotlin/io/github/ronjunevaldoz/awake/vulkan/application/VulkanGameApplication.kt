@@ -36,25 +36,19 @@ class VulkanGameApplication(
     game: Game,
     private val vertexShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
     private val fragmentShaderEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
-    /** An optional second 3D pipeline for GPU-skinned meshes -- registered into `Renderer
-     * .pipelinesByFormat` under [skinnedVertexFormat] so a `MeshRenderer` entity using that
-     * format draws through it instead of the primary pipeline. `null` (default) for every
-     * game that has no skinned content -- most of them -- which skips building it entirely,
-     * same as [GenericGameApplication]'s existing single-pipeline shape for every other game. */
-    private val skinnedShaderSet: GameShaderSet? = null,
-    private val skinnedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorSkin,
-    /** An optional third 3D pipeline for meshes with a real `baseColorTexture` -- same
-     * `pipelinesByFormat` registration shape as [skinnedShaderSet], under
-     * [texturedVertexFormat]. Same "null by default, opt in per game" shape as
-     * [skinnedShaderSet]. */
-    private val texturedShaderSet: GameShaderSet? = null,
-    private val texturedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorUv,
+    /** Extra 3D pipelines keyed by the vertex format each one draws -- registered into
+     * `Renderer.pipelinesByFormat`, so a `MeshRenderer` entity using that format draws through
+     * its own pipeline instead of the primary one. Empty (default) for games with only the
+     * primary pipeline. Keyed by format rather than named per kind (skinned/textured/...) on
+     * purpose: this class builds GPU resources and must not know what the game draws, and a
+     * per-kind pair of parameters grew this constructor by two every time a kind was added. */
+    private val additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
     /** Builds a `VK_POLYGON_MODE_LINE` companion pipeline for the primary pipeline and for
-     * [skinnedShaderSet]/[texturedShaderSet] (whichever are actually present), reusing the
+     * [additionalPipelines] (whichever are present), reusing the
      * exact same loaded shaders/vertex layout as their filled counterpart -- toggled on/off
      * per frame via `Renderer.wireframe`. `false` by default so a game that never uses it
      * doesn't pay for the extra pipeline objects, same "opt in per game" shape as
-     * [skinnedShaderSet]/[texturedShaderSet]. Requires the device's `fillModeNonSolid`
+     * [additionalPipelines]. Requires the device's `fillModeNonSolid`
      * feature -- see `RenderPipeline`'s own `polygonMode` doc comment for why that's already
      * satisfied whenever the GPU supports it, no extra wiring needed here. */
     private val wireframeSupport: Boolean = false,
@@ -76,10 +70,7 @@ class VulkanGameApplication(
         shaderSet: GameShaderSet,
         vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
         game: Game,
-        skinnedShaderSet: GameShaderSet? = null,
-        skinnedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorSkin,
-        texturedShaderSet: GameShaderSet? = null,
-        texturedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorUv,
+        additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
         wireframeSupport: Boolean = false,
         shadowShaderSet: GameShaderSet? = null
     ) : this(
@@ -89,10 +80,7 @@ class VulkanGameApplication(
         game = game,
         vertexShaderEntryPoint = shaderSet.vulkan.vertexEntryPoint,
         fragmentShaderEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
-        skinnedShaderSet = skinnedShaderSet,
-        skinnedVertexFormat = skinnedVertexFormat,
-        texturedShaderSet = texturedShaderSet,
-        texturedVertexFormat = texturedVertexFormat,
+        additionalPipelines = additionalPipelines,
         wireframeSupport = wireframeSupport,
         shadowShaderSet = shadowShaderSet
     )
@@ -100,11 +88,9 @@ class VulkanGameApplication(
     private lateinit var graphicsDevice: GraphicsDevice
     private lateinit var swapchainManager: SwapchainManager
     private lateinit var renderPipeline: RenderPipeline
-    private var skinnedRenderPipeline: RenderPipeline? = null
-    private var texturedRenderPipeline: RenderPipeline? = null
     private var wireframeRenderPipeline: RenderPipeline? = null
-    private var wireframeSkinnedRenderPipeline: RenderPipeline? = null
-    private var wireframeTexturedRenderPipeline: RenderPipeline? = null
+    private val additionalRenderPipelines = mutableMapOf<VertexFormat, RenderPipeline>()
+    private val wireframeAdditionalRenderPipelines = mutableMapOf<VertexFormat, RenderPipeline>()
     private lateinit var lineRenderPipeline: LineRenderPipeline
     private lateinit var transferContext: TransferContext
     private var shadowMap: ShadowMap? = null
@@ -182,28 +168,16 @@ class VulkanGameApplication(
         renderPipeline = fill
         wireframeRenderPipeline = wireframe
 
-        skinnedShaderSet?.let { shaderSet ->
-            val (skinnedFill, skinnedWireframe) = fillAndWireframePipeline(
+        additionalPipelines.forEach { (format, shaderSet) ->
+            val (additionalFill, additionalWireframe) = fillAndWireframePipeline(
                 shaderSet.vulkan.vertexResourcePath,
                 shaderSet.vulkan.fragmentResourcePath,
-                skinnedVertexFormat,
+                format,
                 shaderSet.vulkan.vertexEntryPoint,
                 shaderSet.vulkan.fragmentEntryPoint
             )
-            skinnedRenderPipeline = skinnedFill
-            wireframeSkinnedRenderPipeline = skinnedWireframe
-        }
-
-        texturedShaderSet?.let { shaderSet ->
-            val (texturedFill, texturedWireframe) = fillAndWireframePipeline(
-                shaderSet.vulkan.vertexResourcePath,
-                shaderSet.vulkan.fragmentResourcePath,
-                texturedVertexFormat,
-                shaderSet.vulkan.vertexEntryPoint,
-                shaderSet.vulkan.fragmentEntryPoint
-            )
-            texturedRenderPipeline = texturedFill
-            wireframeTexturedRenderPipeline = texturedWireframe
+            additionalRenderPipelines[format] = additionalFill
+            additionalWireframe?.let { wireframeAdditionalRenderPipelines[format] = it }
         }
         shadowRenderPipeline = shadowMap?.let { map ->
             val shaderSet = requireNotNull(shadowShaderSet)
@@ -227,14 +201,10 @@ class VulkanGameApplication(
             MAX_FRAMES_IN_FLIGHT
         )
         transferContext = TransferContext(graphicsDevice)
-        val additionalPipelinesByFormat = buildMap {
-            skinnedRenderPipeline?.let { put(skinnedVertexFormat, it) }
-            texturedRenderPipeline?.let { put(texturedVertexFormat, it) }
-        }
+        val additionalPipelinesByFormat = additionalRenderPipelines.toMap()
         val wireframePipelinesByFormat = buildMap {
             wireframeRenderPipeline?.let { put(vertexFormat, it) }
-            wireframeSkinnedRenderPipeline?.let { put(skinnedVertexFormat, it) }
-            wireframeTexturedRenderPipeline?.let { put(texturedVertexFormat, it) }
+            putAll(wireframeAdditionalRenderPipelines)
         }
         val renderer = Renderer(
             graphicsDevice,
@@ -278,11 +248,9 @@ class VulkanGameApplication(
             pipelineLayoutMaterial.descriptorSetLayout.handle
         )
         renderPipeline.destroy()
-        skinnedRenderPipeline?.destroy()
-        texturedRenderPipeline?.destroy()
+        additionalRenderPipelines.values.forEach { it.destroy() }
         wireframeRenderPipeline?.destroy()
-        wireframeSkinnedRenderPipeline?.destroy()
-        wireframeTexturedRenderPipeline?.destroy()
+        wireframeAdditionalRenderPipelines.values.forEach { it.destroy() }
         shadowRenderPipeline?.destroy()
         shadowMap?.destroy()
         lineRenderPipeline.destroy()

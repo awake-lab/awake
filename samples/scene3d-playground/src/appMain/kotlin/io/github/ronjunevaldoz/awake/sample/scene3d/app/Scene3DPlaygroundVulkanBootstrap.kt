@@ -23,8 +23,10 @@ fun createScene3DPlaygroundVulkanApplication(
         shaderSet = Scene3DPlaygroundShaders,
         vertexFormat = VertexFormat.PositionNormalColor,
         game = game,
-        skinnedShaderSet = Scene3DPlaygroundSkinnedShaders,
-        texturedShaderSet = Scene3DPlaygroundTexturedShaders,
+        additionalPipelines = mapOf(
+            VertexFormat.PositionNormalColorSkin to Scene3DPlaygroundSkinnedShaders,
+            VertexFormat.PositionNormalColorUv to Scene3DPlaygroundTexturedShaders
+        ),
         wireframeSupport = true,
         shadowShaderSet = Scene3DPlaygroundShadowShaders
     )
