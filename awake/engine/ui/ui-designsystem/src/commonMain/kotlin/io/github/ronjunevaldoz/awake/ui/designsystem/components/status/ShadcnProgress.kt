@@ -9,20 +9,20 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.headless.input.progressBar
+import io.github.ronjunevaldoz.awake.ui.headless.input.progress
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 private fun shadcnProgressTrackStyle(theme: UiTheme, style: Style): Style =
     ShadcnStyles.slider(theme.asShadcnTheme()) then style
 
 /** Real shadcn's `Progress`: a filled track showing [value] (0..1), sharing its track/fill
- * chrome with [shadcnSlider]. Delegates entirely to [progressBar]. */
+ * chrome with [shadcnSlider]. Delegates entirely to [progress]. */
 fun UiScope.shadcnProgress(
     id: String,
     value: Float,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty
-): Unit = progressBar(
+): Unit = progress(
     id = id,
     value = value,
     modifier = modifier,

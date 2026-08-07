@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.dropdown
+import io.github.ronjunevaldoz.awake.ui.headless.input.select
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,7 +39,7 @@ class SurfaceDropdownCompositionTest {
                 text("Inspector")
                 row( modifier = Modifier.height(28f.dp)) { propertySlot ->
                     controlSlot = propertySlot
-                    dropdown(
+                    select(
                         id = "mode",
                         options = listOf("Mesh", "Light"),
                         selectedIndex = 0,
@@ -72,7 +72,7 @@ class SurfaceDropdownCompositionTest {
             surface(id = "slot-panel", modifier = Modifier.height(100f.toDimension())) {
                 row( modifier = Modifier.height(28f.dp)) { slot ->
                     controlSlot = slot
-                    dropdown(
+                    select(
                         id = "camera-mode",
                         options = listOf("Orbit", "Fly"),
                         selectedIndex = 0,

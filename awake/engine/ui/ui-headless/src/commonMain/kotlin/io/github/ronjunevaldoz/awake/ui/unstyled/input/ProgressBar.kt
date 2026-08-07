@@ -27,7 +27,7 @@ private const val PROGRESS_TRACK_HEIGHT_DP = 8f
  * a min/max pair like [slider]: `Progress` has no user-facing range concept, only "how much
  * is done."
  */
-fun UiScope.progressBar(
+fun UiScope.progress(
     id: String,
     value: Float,
     modifier: UiModifier = Modifier,

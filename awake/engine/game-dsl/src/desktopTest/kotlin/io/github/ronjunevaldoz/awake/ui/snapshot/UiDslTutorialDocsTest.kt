@@ -24,7 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.uiPath
-import io.github.ronjunevaldoz.awake.ui.headless.input.dropdown
+import io.github.ronjunevaldoz.awake.ui.headless.input.select
 import io.github.ronjunevaldoz.awake.ui.headless.input.slider
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
@@ -66,7 +66,7 @@ class UiDslTutorialDocsTest {
             , modifier = Modifier.height(190f.toDimension())) {
                 text("Camera")
                 row( modifier = Modifier.height(28f.dp)) { slot ->
-                    dropdown(
+                    select(
                         id = "mode",
                         options = listOf("Orbit", "Free Fly"),
                         selectedIndex = 0,

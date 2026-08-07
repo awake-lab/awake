@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.headless.input.dropdown
+import io.github.ronjunevaldoz.awake.ui.headless.input.select
 import io.github.ronjunevaldoz.awake.ui.headless.input.slider
 import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
 import kotlin.test.Test
@@ -149,7 +149,7 @@ class UiContextTest {
         val expandedState = column.widgetState("dd")
         expandedState.set("expanded", true)
 
-        column.dropdown(
+        column.select(
             id = "dd",
             options = listOf("A", "B"),
             selectedIndex = 0,
@@ -184,7 +184,7 @@ class UiContextTest {
         // Expand the dropdown first (simulating it was already expanded from a prior frame).
         val expandedState = column.widgetState("dd")
         expandedState.set("expanded", true)
-        column.dropdown(
+        column.select(
             "dd",
             listOf("A", "B"),
             selectedIndex = 0,
@@ -254,7 +254,7 @@ class UiContextTest {
 
         ui.simulateFrame(pointerDown = false, x = 0f, y = 0f) {
             column.widgetState("dd").set("expanded", true)
-            column.dropdown(
+            column.select(
                 "dd",
                 listOf("A", "B"),
                 selectedIndex = 0,
@@ -270,7 +270,7 @@ class UiContextTest {
 
         // Press far outside the header (y in [20,52]) and both option rows (y in [52,116]).
         ui.simulateFrame(pointerDown = true, x = 190f, y = 190f) {
-            column.dropdown(
+            column.select(
                 "dd",
                 listOf("A", "B"),
                 selectedIndex = 0,
@@ -293,7 +293,7 @@ class UiContextTest {
 
         ui.simulateFrame(pointerDown = false, x = 0f, y = 0f) {
             column.widgetState("dd").set("expanded", true)
-            column.dropdown(
+            column.select(
                 "dd",
                 listOf("A", "B"),
                 selectedIndex = 0,
@@ -305,7 +305,7 @@ class UiContextTest {
 
         // Press inside the first option row (directly below the 32px-tall header at y=20).
         ui.simulateFrame(pointerDown = true, x = 30f, y = 60f) {
-            column.dropdown(
+            column.select(
                 "dd",
                 listOf("A", "B"),
                 selectedIndex = 0,

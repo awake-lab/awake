@@ -36,7 +36,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 // all" (the previous version only drew a flat fill rectangle with no handle).
 
 
-fun UiScope.dropdown(
+fun UiScope.select(
     id: String,
     options: List<String>,
     selectedIndex: Int,
@@ -114,7 +114,7 @@ fun UiScope.dropdown(
 /** Select-trigger content: label left-aligned, expand chevron right-aligned -- matches the
  * real shadcn/ui Select trigger shape, not a big centered label ([buttonSlot]'s default).
  * Public so design-system layers building their own custom dropdown trigger (e.g. one that
- * also needs a popup menu shaped differently from [dropdown]'s own) can reuse the same
+ * also needs a popup menu shaped differently from [select]'s own) can reuse the same
  * label/chevron layout instead of re-deriving it. */
 fun UiScope.drawDropdownTriggerContent(
     slot: UiBounds,

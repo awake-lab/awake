@@ -44,7 +44,7 @@ import io.github.ronjunevaldoz.awake.ui.uiImageVector
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.input.selection.checkbox
-import io.github.ronjunevaldoz.awake.ui.headless.input.dropdown
+import io.github.ronjunevaldoz.awake.ui.headless.input.select
 import io.github.ronjunevaldoz.awake.ui.headless.components.icon
 import io.github.ronjunevaldoz.awake.ui.headless.input.slider
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
@@ -128,7 +128,7 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
         style = Style { borderWidth(1f.dp) }
     ) {
         text("CAMERA", color = UiDefaultTheme.colors.mutedForeground)
-        dropdown("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = Modifier.width(180f.px).height(24f.px))
+        select("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = Modifier.width(180f.px).height(24f.px))
         checkbox("debug", checked = true, label = "DEBUG", modifier = Modifier.width(180f.px).height(24f.px))
     }
 
