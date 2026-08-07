@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+import java.security.MessageDigest
+
 import java.util.Base64
 
 plugins {
@@ -308,3 +310,58 @@ tasks.register<JavaExec>("verifyGlfwMain") {
     jvmArgs(startOnFirstThread + "-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
     environment(desktopVulkanEnv)
 }
+
+// Vulkan loads the checked-in .spv binaries at runtime, NOT the .frag/.vert sources next to
+// them -- so editing GLSL without recompiling silently ships the old shader. That really
+// happened: 7 of 10 binaries had drifted, hiding both an unimplemented MSDF branch and a
+// descriptor-stage mismatch until the SPIR-V was regenerated.
+//
+// Gate on a hash of each GLSL source recorded when its .spv was last built, rather than
+// recompiling and byte-comparing: glslangValidator is unpinned (the glsl-validator convention
+// fetches main-tot), so different compiler versions legitimately emit different bytes and a
+// byte gate would fail for the wrong reason. A source hash needs no compiler and no network.
+val shaderSourceDir = layout.projectDirectory.dir("src/commonMain/resources/assets/shader/vulkan")
+val shaderManifest = shaderSourceDir.file("shader-sources.sha256")
+
+fun hashShaderSources(): String =
+    shaderSourceDir.asFile.listFiles()
+        .orEmpty()
+        .filter { it.extension == "frag" || it.extension == "vert" }
+        .sortedBy { it.name }
+        .joinToString("\n") { file ->
+            val digest = MessageDigest.getInstance("SHA-256").digest(file.readBytes())
+            "${file.name}  " + digest.joinToString("") { byte -> "%02x".format(byte) }
+        }
+
+tasks.register("updateShaderManifest") {
+    group = "shader"
+    description = "Record the current GLSL source hashes. Run after recompiling .spv binaries."
+    doLast {
+        shaderManifest.asFile.writeText(hashShaderSources() + "\n")
+        logger.lifecycle("Wrote ${shaderManifest.asFile.name}")
+    }
+}
+
+val verifyShaderBinaries = tasks.register("verifyShaderBinaries") {
+    group = "verification"
+    description = "Fail if a .frag/.vert changed without its .spv being regenerated."
+    doLast {
+        val manifestFile = shaderManifest.asFile
+        require(manifestFile.exists()) {
+            "Missing ${manifestFile.name}. Run :awake:backend:vulkan:updateShaderManifest."
+        }
+        val expected = manifestFile.readText().trim()
+        val actual = hashShaderSources().trim()
+        if (expected != actual) {
+            val changed = actual.lines().filter { it !in expected.lines() }.map { it.substringBefore("  ") }
+            error(
+                "Vulkan GLSL changed but the checked-in .spv was not regenerated: " +
+                    "${changed.joinToString()}. Recompile with " +
+                    "`glslangValidator -V <file> -o <file>.spv`, then run " +
+                    ":awake:backend:vulkan:updateShaderManifest."
+            )
+        }
+    }
+}
+
+tasks.named("check") { dependsOn(verifyShaderBinaries) }
