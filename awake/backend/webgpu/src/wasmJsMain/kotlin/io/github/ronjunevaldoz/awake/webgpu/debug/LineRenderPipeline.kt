@@ -10,16 +10,20 @@ import io.ygdrasil.webgpu.BindGroupEntry
 import io.ygdrasil.webgpu.BufferBinding
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.ColorTargetState
+import io.ygdrasil.webgpu.DepthStencilState
 import io.ygdrasil.webgpu.FragmentState
 import io.ygdrasil.webgpu.GPUBindGroup
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
+import io.ygdrasil.webgpu.GPUCompareFunction
 import io.ygdrasil.webgpu.GPUPrimitiveTopology
 import io.ygdrasil.webgpu.GPURenderPipeline
+import io.ygdrasil.webgpu.GPUTextureFormat
 import io.ygdrasil.webgpu.GPUVertexFormat
 import io.ygdrasil.webgpu.PrimitiveState
 import io.ygdrasil.webgpu.RenderPipelineDescriptor
 import io.ygdrasil.webgpu.ShaderModuleDescriptor
+import io.ygdrasil.webgpu.StencilFaceState
 import io.ygdrasil.webgpu.VertexAttribute
 import io.ygdrasil.webgpu.VertexBufferLayout
 import io.ygdrasil.webgpu.VertexState
@@ -29,18 +33,16 @@ import io.ygdrasil.webgpu.VertexState
  * pipeline for world-space debug lines (e.g. a `Frustum` wireframe), drawn in the same
  * render pass as the existing 3D `drawCalls` loop in `Renderer.draw`.
  *
- * Unlike Vulkan, this backend's 3D `RenderPipeline`/`Renderer` has **no depth attachment at
- * all today** (confirmed by reading `pipeline/RenderPipeline.kt` and `renderer/Renderer.kt`
- * -- no `depthStencil` field, no depth texture in the render pass descriptor). So debug
- * lines here draw without depth-testing too, same fidelity as the rest of this backend's 3D
- * geometry (not a new limitation introduced for this feature) -- adding a real depth buffer
- * to this backend's 3D pass is a separate, larger pre-existing gap, out of scope here.
+ * The 3D pass (`RendererDraw3D.performDraw`) now has a real `depthStencilAttachment`
+ * (`Depth32Float`, added alongside the textured-mesh pipeline) -- WebGPU requires every
+ * pipeline used inside a pass to declare a matching `depthStencil` state, or the whole
+ * command buffer is rejected at submit time (confirmed live: "Attachment state of
+ * [RenderPipeline] is not compatible with [RenderPassEncoder]", canvas going black on any
+ * page that draws the reference grid). `depthCompare = Always` + `depthWriteEnabled = false`
+ * satisfies that requirement while keeping lines' original no-depth-test look (never
+ * occluded by, never occludes, scene geometry).
  */
-class LineRenderPipeline(
-    graphicsDevice: GraphicsDevice,
-    swapchainManager: SwapchainManager,
-    shaderCode: ByteArray
-) {
+class LineRenderPipeline(graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, shaderCode: ByteArray) {
     private val device = graphicsDevice.wgpuContext.device
     val pipeline: GPURenderPipeline
     private val mvpBuffer: GPUBuffer
@@ -63,34 +65,41 @@ class LineRenderPipeline(
                                 VertexAttribute(
                                     shaderLocation = 1u,
                                     offset = (3 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x4
-                                )
-                            )
-                        )
-                    )
+                                    format = GPUVertexFormat.Float32x4,
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
                 fragment = FragmentState(
                     module = shaderModule,
                     entryPoint = "fragmentMain",
-                    targets = listOf(ColorTargetState(format = swapchainManager.imageFormatWebGpu))
+                    targets = listOf(ColorTargetState(format = swapchainManager.imageFormatWebGpu)),
                 ),
-                primitive = PrimitiveState(topology = GPUPrimitiveTopology.LineList)
-            )
+                primitive = PrimitiveState(topology = GPUPrimitiveTopology.LineList),
+                depthStencil = DepthStencilState(
+                    format = GPUTextureFormat.Depth32Float,
+                    depthWriteEnabled = false,
+                    depthCompare = GPUCompareFunction.Always,
+                    stencilFront = StencilFaceState(),
+                    stencilBack = StencilFaceState(),
+                ),
+            ),
         )
 
         mvpBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (16 * Float.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst
-            )
+                usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst,
+            ),
         )
         bindGroup = device.createBindGroup(
             BindGroupDescriptor(
                 layout = pipeline.getBindGroupLayout(0u),
                 entries = listOf(
-                    BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = mvpBuffer))
-                )
-            )
+                    BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = mvpBuffer)),
+                ),
+            ),
         )
     }
 

@@ -3,20 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldDescription
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldError
@@ -25,32 +18,39 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnF
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLegend
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldSet
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.weight
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class ShadcnDesignSystemTest {
 
@@ -60,9 +60,12 @@ class ShadcnDesignSystemTest {
         assertColorClose(Color(0.980256f, 0.980256f, 0.980256f, 1f), ShadcnTheme.colors.foreground)
         assertColorClose(Color(0.898161f, 0.898161f, 0.898161f, 1f), ShadcnTheme.colors.primary)
         assertColorClose(Color(1f, 1f, 1f, 0.1f), ShadcnTheme.colors.border)
-        assertColorClose(oklch(0.168f, 0f), ShadcnTheme.card)
+        // card/popover/sidebar are all 0.205 in real shadcn's dark theme -- see
+        // ShadcnTheme.createPalette's comment for why card/sidebar previously drifted toward
+        // background instead of matching this (already-correct) popover value.
+        assertColorClose(oklch(0.205f, 0f), ShadcnTheme.card)
         assertColorClose(oklch(0.205f, 0f), ShadcnTheme.popover)
-        assertColorClose(oklch(0.158f, 0f), ShadcnTheme.sidebar)
+        assertColorClose(oklch(0.205f, 0f), ShadcnTheme.sidebar)
         assertColorClose(oklch(0.556f, 0f), ShadcnTheme.ring)
     }
 
@@ -88,7 +91,7 @@ class ShadcnDesignSystemTest {
             preset = ShadcnStylePreset.Vega,
             baseColor = ShadcnBaseColor.Neutral,
             accent = ShadcnAccent.Base,
-            dark = true
+            dark = true,
         ).asShadcnTheme()
 
         assertEquals(ShadcnStylePreset.Vega, theme.config.preset)
@@ -125,7 +128,7 @@ class ShadcnDesignSystemTest {
         val ui = UiContext()
         val theme = shadcnTheme(
             baseColor = ShadcnBaseColor.Zinc,
-            accent = ShadcnAccent.Rose
+            accent = ShadcnAccent.Rose,
         )
         ui.pushFont(BitmapFont())
         ui.pushTheme(theme)
@@ -151,7 +154,7 @@ class ShadcnDesignSystemTest {
                 id = "save",
                 label = "SAVE",
                 modifier = Modifier.width(120f.px).height(32f.px),
-                variant = ShadcnButtonVariant.Primary
+                variant = ShadcnButtonVariant.Primary,
             )
         ui.endFrame()
         assertTrue(!clicked)
@@ -162,7 +165,7 @@ class ShadcnDesignSystemTest {
                 id = "save",
                 label = "SAVE",
                 modifier = Modifier.width(120f.px).height(32f.px),
-                variant = ShadcnButtonVariant.Primary
+                variant = ShadcnButtonVariant.Primary,
             )
         ui.endFrame()
 
@@ -194,13 +197,15 @@ class ShadcnDesignSystemTest {
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             shadcnSurface(
-                id = "dsl-surface", modifier = Modifier.height(Dimension.Fixed(120f.px))) {
+                id = "dsl-surface",
+                modifier = Modifier.height(Dimension.Fixed(120f.px)),
+            ) {
                 shadcnBadge(label = "READY", variant = ShadcnBadgeVariant.Primary)
                 shadcnButton(
                     id = "launch",
                     label = "Launch",
                     modifier = Modifier.width(120f.px).height(32f.px),
-                    variant = ShadcnButtonVariant.Secondary
+                    variant = ShadcnButtonVariant.Secondary,
                 )
             }
         }
@@ -219,7 +224,9 @@ class ShadcnDesignSystemTest {
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnSurface(
-                id = "dsl-fields", modifier = Modifier.height(Dimension.WrapContent)) {
+                id = "dsl-fields",
+                modifier = Modifier.height(Dimension.WrapContent),
+            ) {
                 shadcnFieldToggle("show-grid", "Show Grid", checked = true)
                 shadcnFieldDropdown("mode", "Mode", listOf("Orbit", "Fly"), selectedIndex = 0)
                 shadcnFieldSlider("speed", "Speed", min = 1f, max = 10f, value = 5f)
@@ -240,7 +247,9 @@ class ShadcnDesignSystemTest {
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnSurface(
-                id = "dsl-switch", modifier = Modifier.height(Dimension.WrapContent)) {
+                id = "dsl-switch",
+                modifier = Modifier.height(Dimension.WrapContent),
+            ) {
                 shadcnFieldSwitch("live-animation", "Live animation", checked = true)
             }
         }
@@ -259,21 +268,23 @@ class ShadcnDesignSystemTest {
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             shadcnSurface(
-                id = "slot-header", modifier = Modifier.height(Dimension.WrapContent)) {
+                id = "slot-header",
+                modifier = Modifier.height(Dimension.WrapContent),
+            ) {
                 shadcnSectionHeader(
                     title = {
-                        row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
+                        row(horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
                             shadcnBadge(
                                 label = "NEW",
                                 modifier = Modifier.width(Dimension.Fixed(48f.px)),
-                                variant = ShadcnBadgeVariant.Outline
+                                variant = ShadcnBadgeVariant.Outline,
                             )
                             text("Scene Settings")
                         }
                     },
                     description = {
                         shadcnSupportingText("Slot content keeps the header structure reusable.")
-                    }
+                    },
                 )
             }
         }
@@ -292,21 +303,23 @@ class ShadcnDesignSystemTest {
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnSurface(
-                id = "slot-fields", modifier = Modifier.height(Dimension.WrapContent)) {
+                id = "slot-fields",
+                modifier = Modifier.height(Dimension.WrapContent),
+            ) {
                 shadcnFieldDropdown(
                     id = "mode",
                     options = listOf("Orbit", "Fly"),
                     selectedIndex = 0,
                     labelContent = {
                         text("Camera Mode")
-                    }
+                    },
                 )
                 shadcnFieldToggle(
                     id = "grid",
                     checked = true,
                     labelContent = {
                         text("Reference Grid")
-                    }
+                    },
                 )
             }
         }
@@ -332,14 +345,14 @@ class ShadcnDesignSystemTest {
         }
 
         val label = assertNotNull(
-            ui.finishFrame().semantics.firstOrNull { it.label == "Camera Mode" }
+            ui.finishFrame().semantics.firstOrNull { it.label == "Camera Mode" },
         )
         val content = assertNotNull(label.contentBounds, "label should report tight content bounds")
         val slack = label.bounds.height - content.height
         val expectedCenteredY = label.bounds.y + slack / 2f
         assertTrue(
             abs(content.y - expectedCenteredY) < 1f,
-            "label should be vertically centered in its row (expected y=$expectedCenteredY, was y=${content.y})"
+            "label should be vertically centered in its row (expected y=$expectedCenteredY, was y=${content.y})",
         )
     }
 
@@ -352,7 +365,7 @@ class ShadcnDesignSystemTest {
 
         ui.createAbsolute(x = 20f, y = 20f)
             .shadcnBadge(
-                label = "LIVE"
+                label = "LIVE",
             )
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
@@ -376,7 +389,7 @@ class ShadcnDesignSystemTest {
             .shadcnButton(
                 id = "test-btn",
                 variant = ShadcnButtonVariant.Primary,
-                modifier = Modifier.width(100f.px).height(40f.px)
+                modifier = Modifier.width(100f.px).height(40f.px),
             ) {
                 text("test")
             }
@@ -412,7 +425,7 @@ class ShadcnDesignSystemTest {
                 id = "card-full",
                 modifier = Modifier.height(Dimension.WrapContent),
                 header = { text("Card title") },
-                footer = { text("Card footer") }
+                footer = { text("Card footer") },
             ) {
                 text("Card body")
             }
@@ -425,11 +438,11 @@ class ShadcnDesignSystemTest {
 
         assertTrue(
             header.bounds.y + header.bounds.height <= body.bounds.y + 1f,
-            "header must sit above the body, not overlap it"
+            "header must sit above the body, not overlap it",
         )
         assertTrue(
             body.bounds.y + body.bounds.height <= footer.bounds.y + 1f,
-            "body must sit above the footer, not overlap it"
+            "body must sit above the footer, not overlap it",
         )
     }
 
@@ -443,7 +456,7 @@ class ShadcnDesignSystemTest {
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             shadcnCard(
                 id = "card-body-only",
-                modifier = Modifier.height(Dimension.WrapContent)
+                modifier = Modifier.height(Dimension.WrapContent),
             ) {
                 text("Only body")
             }
@@ -460,9 +473,10 @@ class ShadcnDesignSystemTest {
         assertTrue(
             abs(card.bounds.height - (body.bounds.height + verticalPadding)) < 2f,
             "header/footer-omitted card should not leave dangling empty space: " +
-                "card height=${card.bounds.height}, body height=${body.bounds.height}, padding=$verticalPadding"
+                "card height=${card.bounds.height}, body height=${body.bounds.height}, padding=$verticalPadding",
         )
     }
+
     @Test
     fun shadcnFieldGroupStacksFieldsWithSeparatorsWithoutOverlap() {
         val ui = UiContext()
@@ -488,15 +502,15 @@ class ShadcnDesignSystemTest {
 
         assertTrue(
             gridLabel.bounds.y + gridLabel.bounds.height <= modeLabel.bounds.y + 1f,
-            "first field must sit above the second, not overlap it"
+            "first field must sit above the second, not overlap it",
         )
         assertTrue(
             modeLabel.bounds.y + modeLabel.bounds.height <= speedLabel.bounds.y + 1f,
-            "second field must sit above the third, not overlap it"
+            "second field must sit above the third, not overlap it",
         )
         assertTrue(
             modeLabel.bounds.y < separatorLabel.bounds.y && separatorLabel.bounds.y < speedLabel.bounds.y,
-            "labeled separator should sit between its two neighboring fields"
+            "labeled separator should sit between its two neighboring fields",
         )
         // shadcnFieldGroup's own spacedBy(xl) gap between fields must be reserved even with no
         // divider content -- a group with a separator between three fields must be noticeably
@@ -523,11 +537,11 @@ class ShadcnDesignSystemTest {
         val semantics = ui.finishFrame().semantics
         val nameValue = assertNotNull(semantics.firstOrNull { it.label == "Ada Lovelace" })
         val description = assertNotNull(
-            semantics.firstOrNull { it.label == "Shown on your public profile." }
+            semantics.firstOrNull { it.label == "Shown on your public profile." },
         )
         assertTrue(
             nameValue.bounds.y + nameValue.bounds.height <= description.bounds.y + 1f,
-            "vertical field must stack control above its description, not overlap it"
+            "vertical field must stack control above its description, not overlap it",
         )
     }
 
@@ -549,7 +563,7 @@ class ShadcnDesignSystemTest {
         val destructive = ShadcnTheme.colors.destructive
         assertTrue(
             glyphs.any { abs(it.color.r - destructive.r) < 0.01f && abs(it.color.g - destructive.g) < 0.01f },
-            "shadcnFieldError text should render in the theme's destructive color"
+            "shadcnFieldError text should render in the theme's destructive color",
         )
     }
 
@@ -576,16 +590,16 @@ class ShadcnDesignSystemTest {
         val semantics = ui.finishFrame().semantics
         val legend = assertNotNull(semantics.firstOrNull { it.label == "Payment Method" })
         val description = assertNotNull(
-            semantics.firstOrNull { it.label == "All transactions are secure and encrypted" }
+            semantics.firstOrNull { it.label == "All transactions are secure and encrypted" },
         )
         val cardName = assertNotNull(semantics.firstOrNull { it.label == "Evil Rabbit" })
         assertTrue(
             legend.bounds.y + legend.bounds.height <= description.bounds.y + 1f,
-            "field set legend must render above its description, not overlap it"
+            "field set legend must render above its description, not overlap it",
         )
         assertTrue(
             description.bounds.y + description.bounds.height <= cardName.bounds.y + 1f,
-            "field set legend/description must render above the nested field group content"
+            "field set legend/description must render above the nested field group content",
         )
     }
 
@@ -599,7 +613,7 @@ class ShadcnDesignSystemTest {
         val anchorSlot = ui.createAbsolute(x = 40f, y = 40f)
             .shadcnSurface(
                 id = "trigger",
-                modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px))
+                modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px)),
             ) { }
 
         val result = ui.createAbsolute(slot = ui.frameBounds())
@@ -608,7 +622,7 @@ class ShadcnDesignSystemTest {
                 anchorSlot = anchorSlot,
                 expanded = true,
                 width = Dimension.Fixed(120f.px),
-                height = Dimension.Fixed(60f.px)
+                height = Dimension.Fixed(60f.px),
             ) { }
 
         ui.endFrame()
@@ -631,7 +645,7 @@ class ShadcnDesignSystemTest {
         val anchorSlot = ui.createAbsolute(x = 40f, y = 40f)
             .shadcnSurface(
                 id = "trigger",
-                modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px))
+                modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px)),
             ) { }
 
         val result = ui.createAbsolute(slot = ui.frameBounds())
@@ -640,7 +654,7 @@ class ShadcnDesignSystemTest {
                 anchorSlot = anchorSlot,
                 expanded = false,
                 width = Dimension.Fixed(120f.px),
-                height = Dimension.Fixed(60f.px)
+                height = Dimension.Fixed(60f.px),
             ) { }
 
         ui.endFrame()
@@ -660,7 +674,7 @@ class ShadcnDesignSystemTest {
             val anchorSlot = ui.createAbsolute(x = 40f, y = 40f)
                 .shadcnSurface(
                     id = "trigger",
-                    modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px))
+                    modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px)),
                 ) { }
             val result = ui.createAbsolute(slot = ui.frameBounds())
                 .shadcnPopover(
@@ -668,7 +682,7 @@ class ShadcnDesignSystemTest {
                     anchorSlot = anchorSlot,
                     expanded = true,
                     width = Dimension.Fixed(120f.px),
-                    height = Dimension.Fixed(60f.px)
+                    height = Dimension.Fixed(60f.px),
                 ) { }
             ui.endFrame()
             result
@@ -709,7 +723,7 @@ class ShadcnDesignSystemTest {
         ui.createColumn(x = 0f, y = 0f, width = 1200f, height = 800f).row(
             id = "scene3d-playground-shell",
             horizontalArrangement = Arrangement.spacedBy(0f.dp),
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
         ) {
             sidebarBounds = shadcnSidebar(id = "scene3d-demo-menu", modifier = Modifier.width(200f.dp).height(Dimension.FillMax)) {
                 text("Skinned mesh")
@@ -729,16 +743,16 @@ class ShadcnDesignSystemTest {
 
         assertTrue(
             viewport.x >= sidebar.x + sidebar.width - 1f,
-            "viewport must start after the sidebar, not overlap it -- sidebar=$sidebar viewport=$viewport"
+            "viewport must start after the sidebar, not overlap it -- sidebar=$sidebar viewport=$viewport",
         )
         assertTrue(
             controls.x >= viewport.x + viewport.width - 1f,
-            "controls must start after the viewport, not overlap it -- viewport=$viewport controls=$controls"
+            "controls must start after the viewport, not overlap it -- viewport=$viewport controls=$controls",
         )
         assertTrue(
             viewport.width > 300f,
             "viewport must occupy the large remaining middle area (not get starved by a " +
-                "grandchild's leaked slot), got width=${viewport.width}"
+                "grandchild's leaked slot), got width=${viewport.width}",
         )
         assertEquals(220f.dp.toPx(), controls.width, "controls must keep its own fixed 220dp width")
         assertEquals(1200f - 220f.dp.toPx(), controls.x, "controls must sit flush against the row's right edge")
@@ -756,7 +770,7 @@ class ShadcnDesignSystemTest {
                 id = "sidebar-full",
                 modifier = Modifier.height(Dimension.WrapContent),
                 header = { text("Sidebar title") },
-                footer = { text("Sidebar footer") }
+                footer = { text("Sidebar footer") },
             ) {
                 text("Sidebar content")
             }
@@ -769,11 +783,11 @@ class ShadcnDesignSystemTest {
 
         assertTrue(
             header.bounds.y + header.bounds.height <= content.bounds.y + 1f,
-            "header must sit above the content, not overlap it"
+            "header must sit above the content, not overlap it",
         )
         assertTrue(
             content.bounds.y + content.bounds.height <= footer.bounds.y + 1f,
-            "content must sit above the footer, not overlap it"
+            "content must sit above the footer, not overlap it",
         )
     }
 
@@ -787,7 +801,7 @@ class ShadcnDesignSystemTest {
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             shadcnSidebar(
                 id = "sidebar-content-only",
-                modifier = Modifier.height(Dimension.WrapContent)
+                modifier = Modifier.height(Dimension.WrapContent),
             ) {
                 text("Only content")
             }
@@ -803,7 +817,7 @@ class ShadcnDesignSystemTest {
         assertTrue(
             abs(sidebar.bounds.height - (content.bounds.height + verticalPadding)) < 2f,
             "header/footer-omitted sidebar should not leave dangling empty space: " +
-                "sidebar height=${sidebar.bounds.height}, content height=${content.bounds.height}, padding=$verticalPadding"
+                "sidebar height=${sidebar.bounds.height}, content height=${content.bounds.height}, padding=$verticalPadding",
         )
     }
 }
@@ -813,11 +827,11 @@ private fun assertColorClose(expected: Color, actual: Color, tolerance: Float = 
         expected.r to actual.r,
         expected.g to actual.g,
         expected.b to actual.b,
-        expected.a to actual.a
+        expected.a to actual.a,
     ).forEachIndexed { index, (expectedChannel, actualChannel) ->
         assertTrue(
             abs(expectedChannel - actualChannel) <= tolerance,
-            "channel $index expected $expectedChannel but was $actualChannel"
+            "channel $index expected $expectedChannel but was $actualChannel",
         )
     }
 }

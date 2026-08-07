@@ -9,11 +9,6 @@ interface Bitmap {
     val pixels: IntArray
 }
 
-class DefaultBitmap(
-    override val width: Int,
-    override val height: Int,
-    override val channel: Int,
-    override val pixels: IntArray
-) : Bitmap
+class DefaultBitmap(override val width: Int, override val height: Int, override val channel: Int, override val pixels: IntArray) : Bitmap
 
-expect fun createBitmap(bytes: ByteArray): Bitmap
+expect suspend fun createBitmap(bytes: ByteArray): Bitmap

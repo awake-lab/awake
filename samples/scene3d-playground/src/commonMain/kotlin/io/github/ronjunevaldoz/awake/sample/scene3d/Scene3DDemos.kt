@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.sample.scene3d
 
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.GltfViewerDemo
-import io.github.ronjunevaldoz.awake.sample.scene3d.demos.HelloWorldTextDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
@@ -20,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
  * [scene3DPlaygroundModule]'s `update` block whenever [Scene3DPlaygroundState.activeDemoId]
  * changes -- a demo spawns its own [World] entities in [onActivate] and destroys exactly those
  * entities in [onDeactivate] so switching pages never leaves a previous demo's mesh lingering.
- * A demo with no 3D content of its own (e.g. [HelloWorldTextDemo]) leaves all three as no-ops. */
+ * A demo with no 3D content of its own leaves all three as no-ops. */
 internal data class Scene3DDemo(
     val id: String,
     val title: String,
@@ -28,18 +27,18 @@ internal data class Scene3DDemo(
     val renderControls: SceneGameRuntime.(ColumnScope) -> Unit,
     val onActivate: SceneGameRuntime.() -> Unit = {},
     val onDeactivate: (World) -> Unit = {},
-    val onUpdate: SceneGameRuntime.(delta: Float) -> Unit = {}
+    val onUpdate: SceneGameRuntime.(delta: Float) -> Unit = {},
 )
 
 /** Registry of every playground demo, in menu order. Add a new demo by creating a
- * `demos/YourDemo.kt` file (mirror [HelloWorldTextDemo]'s shape) and listing its `entry` here --
+ * `demos/YourDemo.kt` file (mirror [RotatingCubeDemo]'s shape) and listing its `entry` here --
  * nothing else in this package needs to change. */
-internal val Scene3DDemos: List<Scene3DDemo> = listOf(
-    HelloWorldTextDemo.entry,
-    RotatingCubeDemo.entry,
-    GltfViewerDemo.entry,
-    SkinnedMeshDemo.entry,
-)
+internal val Scene3DDemos: List<Scene3DDemo> =
+    listOf(
+        RotatingCubeDemo.entry,
+        GltfViewerDemo.entry,
+        SkinnedMeshDemo.entry,
+    )
 
 /** Which demo is active. Plain mutable holder (not a StateFlow) -- this playground has no
  * external observers to notify, unlike [io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState],

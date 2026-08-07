@@ -5,12 +5,6 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseCounterContract
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
@@ -18,48 +12,54 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAler
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.destructiveStyle
-import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 private val ShowcaseActionMenuItems = listOf(
     UiDropdownMenuItem(
         label = "Pinned action",
         enabled = false,
-        shadcnSupportingText = "Disabled actions stay visible without becoming clickable."
+        shadcnSupportingText = "Disabled actions stay visible without becoming clickable.",
     ),
     UiDropdownMenuSeparator,
     UiDropdownMenuItem(
         label = "Duplicate panel",
         trailingLabel = "Cmd+D",
-        shadcnSupportingText = "Example of a richer menu row with trailing metadata."
+        shadcnSupportingText = "Example of a richer menu row with trailing metadata.",
     ),
     UiDropdownMenuItem(
         label = "Delete scene",
         destructive = true,
         trailingLabel = "Del",
-        shadcnSupportingText = "Routes into the alert dialog flow instead of doing anything immediately."
-    )
+        shadcnSupportingText = "Routes into the alert dialog flow instead of doing anything immediately.",
+    ),
 )
 
 internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeState) {
@@ -72,13 +72,13 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
     shadcnBodyText("Count: ${counterState.count}")
     shadcnSupportingText("Last effect: ${state.showcaseCounterEffectMessage ?: "None"}")
     spacer(Modifier.height(6f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
         if (
             shadcnButton(
                 id = "counter-decrement",
                 label = "Decrement",
                 modifier = Modifier.width(112f.dp).height(36f.dp),
-                variant = ShadcnButtonVariant.Outline
+                variant = ShadcnButtonVariant.Outline,
             )
         ) {
             state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Decrement)
@@ -88,26 +88,26 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
                 id = "counter-increment",
                 label = "Increment",
                 modifier = Modifier.width(112f.dp).height(36f.dp),
-                variant = ShadcnButtonVariant.Primary
+                variant = ShadcnButtonVariant.Primary,
             )
         ) {
             state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Increment)
         }
     }
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
         if (
             shadcnButton(
                 id = "counter-reset",
                 label = "Reset",
                 modifier = Modifier.width(112f.dp).height(36f.dp),
-                variant = ShadcnButtonVariant.Ghost
+                variant = ShadcnButtonVariant.Ghost,
             )
         ) {
             state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Reset)
         }
         shadcnBadge(
             label = if (counterState.count >= 0) "FLOW" else "NEGATIVE",
-            variant = if (counterState.count >= 0) ShadcnBadgeVariant.Secondary else ShadcnBadgeVariant.Danger
+            variant = if (counterState.count >= 0) ShadcnBadgeVariant.Secondary else ShadcnBadgeVariant.Danger,
         )
     }
 }
@@ -123,13 +123,13 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
     shadcnBadge("OVERLAY", variant = ShadcnBadgeVariant.Outline)
     shadcnSupportingText("The action menu anchors to the trigger and opens inside a contained popover surface.")
     spacer(Modifier.height(6f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
         val menuTrigger = buttonSlot(
             id = "ui-showcase-menu-trigger",
             label = "Actions",
             modifier = Modifier.width(112f.dp).height(36f.dp),
             style = theme.components.button,
-            variant = UiButtonVariant.Filled
+            variant = UiButtonVariant.Filled,
         )
         if (menuTrigger.clicked) {
             actionMenuState.toggle()
@@ -144,7 +144,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
             // shadcn's own richer menus (with icons/shortcuts) use a fixed w-56 (224px)-class
             // width instead of matching the trigger; do the same here.
             width = Dimension.Fixed(224f.dp),
-            style = Style { contentPadding(4f.dp) }
+            style = Style { contentPadding(4f.dp) },
         )
         when (menuResult.selectedIndex) {
             1 -> {
@@ -165,7 +165,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
                 id = "ui-showcase-delete-trigger",
                 label = "Delete Scene",
                 modifier = Modifier.width(128f.dp).height(36f.dp),
-                variant = ShadcnButtonVariant.Outline
+                variant = ShadcnButtonVariant.Outline,
             )
         ) {
             deleteDialogState.open()
@@ -175,7 +175,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
                 id = "ui-showcase-info-trigger",
                 label = "Open Info Dialog",
                 modifier = Modifier.width(150f.dp).height(36f.dp),
-                variant = ShadcnButtonVariant.Secondary
+                variant = ShadcnButtonVariant.Secondary,
             )
         ) {
             infoDialogState.open()
@@ -188,7 +188,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
                 id = "ui-showcase-drawer-trigger",
                 label = "Open Drawer",
                 modifier = Modifier.width(120f.dp).height(36f.dp),
-                variant = ShadcnButtonVariant.Outline
+                variant = ShadcnButtonVariant.Outline,
             )
         ) {
             drawerState.open()
@@ -198,7 +198,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
             id = "ui-showcase-context-menu-demo",
             expanded = contextMenuState.expanded,
             onExpandedChange = { if (it) contextMenuState.open() else contextMenuState.close() },
-            items = ShowcaseActionMenuItems
+            items = ShowcaseActionMenuItems,
         ) {
             shadcnBadge("Right Click Me", variant = ShadcnBadgeVariant.Secondary)
         }
@@ -207,7 +207,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
             id = "ui-showcase-drawer",
             expanded = drawerState.expanded,
             onDismissRequest = { drawerState.close() },
-            header = { text("Slideover Drawer") }
+            header = { text("Slideover Drawer") },
         ) {
             shadcnBodyText("This is a bottom slideover drawer modal panel.")
             if (
@@ -215,7 +215,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
                     id = "ui-showcase-drawer-close",
                     label = "Close Drawer",
                     modifier = Modifier.width(100f.dp).height(32f.dp),
-                    variant = ShadcnButtonVariant.Outline
+                    variant = ShadcnButtonVariant.Outline,
                 )
             ) {
                 drawerState.close()
@@ -240,12 +240,12 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
                     id = "ui-showcase-info-dialog-close",
                     label = "Close",
                     modifier = Modifier.width(88f.dp).height(32f.dp),
-                    variant = ShadcnButtonVariant.Outline
+                    variant = ShadcnButtonVariant.Outline,
                 )
             ) {
                 infoDialogState.close()
             }
-        }
+        },
     ) { _ ->
         shadcnBodyText("shadcnDialog is the plain content-based dialog -- shadcnAlertDialog is composed from it with a fixed title/message/confirm-cancel shape.")
     }
@@ -260,7 +260,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         message = "This sample does not really delete anything. It exists to prove the alert dialog composition and confirm or dismiss flow.",
         confirmLabel = "Delete",
         confirmVariant = ShadcnButtonVariant.Danger,
-        confirmStyle = theme.colors.destructiveStyle()
+        confirmStyle = theme.colors.destructiveStyle(),
     )
     when (dialogResult.action) {
         UiAlertDialogAction.Confirm -> {
@@ -283,32 +283,38 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
 internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
     shadcnSupportingText("Tooltips stay small and contextual: anchored to a trigger, wrapped inside a surfaced popup, and dismissible without changing the surrounding layout.")
     spacer(Modifier.height(8f.dp))
-    row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+    row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
         val trigger = buttonSlot(
             id = "showcase-tooltip-trigger",
             label = "Scene info",
             modifier = Modifier.width(132f.dp).height(36f.dp),
-            style = theme.components.button
+            style = theme.components.button,
         )
-        val visibility by rememberStateValue("showcase-tooltip-visible") { true }
+        // Real hover, not a hardcoded "always true" -- see ShadcnContextMenu.kt's own
+        // pointerX/pointerY-vs-bounds hover check for the same pattern.
+        val input = context.inputState
+        val isHovered = input.pointerX >= trigger.slot.x &&
+            input.pointerX <= trigger.slot.x + trigger.slot.width &&
+            input.pointerY >= trigger.slot.y &&
+            input.pointerY <= trigger.slot.y + trigger.slot.height
         shadcnTooltip(
             anchorSlot = trigger.slot,
-            visible = visibility,
+            visible = isHovered,
             width = Dimension.Fixed(260f.dp),
-            positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
+            positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
         ) {
             text(
                 label = "Frame pacing, draw calls, and scene counters can live in a tooltip without forcing a dedicated panel.",
                 wrap = UiTextWrap.Word,
                 overflow = UiTextOverflow.Ellipsis,
-                maxLines = 3
+                maxLines = 3,
             )
         }
         shadcnButton(
             id = "showcase-tooltip-reference",
             label = "Reference",
             modifier = Modifier.width(120f.dp).height(36f.dp),
-            variant = ShadcnButtonVariant.Secondary
+            variant = ShadcnButtonVariant.Secondary,
         )
     }
     spacer(Modifier.height(8f.dp))
@@ -326,7 +332,7 @@ internal fun ColumnScope.drawUiShowcasePopoverPreview() {
             label = "Share",
             modifier = Modifier.width(120f.dp).height(36f.dp),
             style = theme.components.button,
-            variant = UiButtonVariant.Filled
+            variant = UiButtonVariant.Filled,
         )
         if (trigger.clicked) {
             popoverState.toggle()
@@ -335,7 +341,7 @@ internal fun ColumnScope.drawUiShowcasePopoverPreview() {
             id = "ui-showcase-popover",
             anchorSlot = trigger.slot,
             expanded = popoverState.expanded,
-            width = Dimension.Fixed(280f.dp)
+            width = Dimension.Fixed(280f.dp),
         ) {
             text(
                 label = "Share scene",
@@ -345,7 +351,7 @@ internal fun ColumnScope.drawUiShowcasePopoverPreview() {
                 style = Style {
                     foreground(theme.colors.foreground)
                     textSize(theme.typography.body)
-                }
+                },
             )
             shadcnSupportingText("Anyone with the link can view this scene until you revoke it.")
         }
@@ -356,7 +362,7 @@ internal fun ColumnScope.drawUiShowcasePopoverPreview() {
             id = "ui-showcase-popover-reference",
             label = "Reference",
             modifier = Modifier.width(120f.dp).height(36f.dp),
-            variant = ShadcnButtonVariant.Secondary
+            variant = ShadcnButtonVariant.Secondary,
         )
     }
 }

@@ -5,9 +5,7 @@ package io.github.ronjunevaldoz.awake.core.graphics
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 
-actual fun createBitmap(bytes: ByteArray): Bitmap {
-    return decodeBitmap(bytes)
-}
+actual suspend fun createBitmap(bytes: ByteArray): Bitmap = decodeBitmap(bytes)
 
 fun decodeBitmap(bytes: ByteArray): Bitmap {
     val bufferedImage = ImageIO.read(ByteArrayInputStream(bytes))

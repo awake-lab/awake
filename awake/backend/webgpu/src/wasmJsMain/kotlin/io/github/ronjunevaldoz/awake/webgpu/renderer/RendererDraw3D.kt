@@ -103,8 +103,9 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
         }
 
         // Debug lines (e.g. a frustum wireframe), same render pass as the 3D draw
-        // calls above. This backend's 3D pass has no depth attachment at all today
-        // (see LineRenderPipeline's doc comment), so this doesn't depth-test against
+        // calls above. This pass now has a real depth attachment (see the
+        // depthStencilAttachment above), but lineRenderPipeline's own depthCompare =
+        // Always/depthWriteEnabled = false keeps lines never depth-tested against
         // scene geometry -- matches this pass's existing (pre-existing, not new) lack
         // of depth testing for every other draw call too.
         if (lineMesh.vertexCount > 0) {

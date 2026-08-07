@@ -65,7 +65,7 @@ class UiGlyphRenderPipeline(
     vertShaderCode: ByteArray,
     fragShaderCode: ByteArray,
     private val fontTexture: Texture,
-    private val font: UiFont
+    private val font: UiFont,
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -94,15 +94,23 @@ class UiGlyphRenderPipeline(
                 VkDescriptorSetLayoutBinding(
                     binding = 0,
                     descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    stageFlags = VkShaderStageFlagBits.VERTEX.value
+                    // BOTH stages, not just VERTEX: ui_glyph.vert reads `ubo.screenSize` for its
+                    // pixel-space->NDC transform, and ui_glyph.frag reads `ubo.fontInfo` to pick
+                    // the coverage-vs-MSDF sampling branch. This was VERTEX-only and went
+                    // unnoticed for a long time because the checked-in ui_glyph.frag.spv had
+                    // drifted out of date with its own .frag source -- the shipped binary
+                    // predated the MSDF branch, so it never actually referenced `ubo` from the
+                    // fragment stage and Vulkan had nothing to complain about. Recompiling the
+                    // SPIR-V surfaced it immediately as a pipeline-creation validation error.
+                    stageFlags = VkShaderStageFlagBits.VERTEX.value or VkShaderStageFlagBits.FRAGMENT.value,
                 ),
                 VkDescriptorSetLayoutBinding(
                     binding = 1,
                     descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value
-                )
-            )
-        )
+                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value,
+                ),
+            ),
+        ),
     )
 
     private fun createScreenSizeUniformBuffer() {
@@ -110,19 +118,19 @@ class UiGlyphRenderPipeline(
             device,
             VkBufferCreateInfo(
                 size = SCREEN_SIZE_UNIFORM_BYTES.toLong(),
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
-            )
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            ),
         )
         val requirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, screenSizeBuffer)
         val memoryTypeIndex = VulkanBuffers.findMemoryType(
             graphicsDevice.physicalDevice,
             requirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         )
         screenSizeBufferMemory = VulkanBuffers.vkAllocateMemory(
             device,
-            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex)
+            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex),
         )
         VulkanBuffers.vkBindBufferMemory(device, screenSizeBuffer, screenSizeBufferMemory, 0)
     }
@@ -134,9 +142,9 @@ class UiGlyphRenderPipeline(
                 maxSets = 1,
                 pPoolSizes = arrayOf(
                     VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount = 1),
-                    VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorCount = 1)
-                )
-            )
+                    VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorCount = 1),
+                ),
+            ),
         )
         descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(device, descriptorPool, descriptorSetLayout)
         VulkanDescriptors.vkUpdateDescriptorSetBuffer(
@@ -144,14 +152,14 @@ class UiGlyphRenderPipeline(
             descriptorSet,
             0,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            VkDescriptorBufferInfo(buffer = screenSizeBuffer, range = SCREEN_SIZE_UNIFORM_BYTES.toLong())
+            VkDescriptorBufferInfo(buffer = screenSizeBuffer, range = SCREEN_SIZE_UNIFORM_BYTES.toLong()),
         )
         VulkanDescriptors.vkUpdateDescriptorSetImage(
             device,
             descriptorSet,
             1,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            VkDescriptorImageInfo(sampler = fontTexture.sampler.handle, imageView = fontTexture.imageView.handle)
+            VkDescriptorImageInfo(sampler = fontTexture.sampler.handle, imageView = fontTexture.imageView.handle),
         )
     }
 
@@ -168,13 +176,12 @@ class UiGlyphRenderPipeline(
                 width,
                 height,
                 if (font.samplingMode == UiFontSamplingMode.DistanceField) 1f else 0f,
-                font.distanceFieldRangePx
-            )
+                font.distanceFieldRangePx,
+            ),
         )
     }
 
-    private fun createShaderModule(code: IntArray): Long =
-        Vulkan.vkCreateShaderModule(device, VkShaderModuleCreateInfo(pCode = code))
+    private fun createShaderModule(code: IntArray): Long = Vulkan.vkCreateShaderModule(device, VkShaderModuleCreateInfo(pCode = code))
 
     private fun ByteArray.toIntArray(): IntArray = IntArray(size / 4) { i ->
         (this[i * 4].toInt() and 0xFF) or
@@ -189,7 +196,7 @@ class UiGlyphRenderPipeline(
 
         val shaderStages = arrayOf(
             VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main"),
-            VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")
+            VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main"),
         )
 
         val vertexInputInfo = arrayOf(
@@ -198,43 +205,43 @@ class UiGlyphRenderPipeline(
                     VkVertexInputBindingDescription(
                         binding = 0,
                         stride = DynamicMesh.GLYPH_FLOATS_PER_VERTEX * Float.SIZE_BYTES,
-                        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX
-                    )
+                        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX,
+                    ),
                 ),
                 pVertexAttributeDescriptions = arrayOf(
                     VkVertexInputAttributeDescription(
                         location = 0,
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
-                        offset = 0
+                        offset = 0,
                     ),
                     VkVertexInputAttributeDescription(
                         location = 1,
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
-                        offset = 2 * Float.SIZE_BYTES
+                        offset = 2 * Float.SIZE_BYTES,
                     ),
                     VkVertexInputAttributeDescription(
                         location = 2,
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
-                        offset = 4 * Float.SIZE_BYTES
+                        offset = 4 * Float.SIZE_BYTES,
                     ),
                     // scale(xy) + pivot(zw) -- see ui_glyph.vert's inTransform.
                     VkVertexInputAttributeDescription(
                         location = 3,
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
-                        offset = 8 * Float.SIZE_BYTES
-                    )
-                )
-            )
+                        offset = 8 * Float.SIZE_BYTES,
+                    ),
+                ),
+            ),
         )
 
         val dynamicInfo = arrayOf(
             VkPipelineDynamicStateCreateInfo(
-                pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)
-            )
+                pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR),
+            ),
         )
 
         val viewportInfo = arrayOf(
@@ -242,11 +249,11 @@ class UiGlyphRenderPipeline(
                 pViewports = arrayOf(
                     VkViewport(
                         width = swapchainManager.extent.width.toFloat(),
-                        height = swapchainManager.extent.height.toFloat()
-                    )
+                        height = swapchainManager.extent.height.toFloat(),
+                    ),
                 ),
-                pScissors = arrayOf(VkRect2D(offset = VkOffset2D(), extent = swapchainManager.extent))
-            )
+                pScissors = arrayOf(VkRect2D(offset = VkOffset2D(), extent = swapchainManager.extent)),
+            ),
         )
 
         val multisamplingInfo = arrayOf(VkPipelineMultisampleStateCreateInfo())
@@ -254,15 +261,15 @@ class UiGlyphRenderPipeline(
         val inputAssemblyInfo = arrayOf(
             VkPipelineInputAssemblyStateCreateInfo(
                 topology = VkPrimitiveTopology.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                primitiveRestartEnable = false
-            )
+                primitiveRestartEnable = false,
+            ),
         )
 
         val rasterizationInfo = arrayOf(
             VkPipelineRasterizationStateCreateInfo(
                 cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
-                lineWidth = 1f
-            )
+                lineWidth = 1f,
+            ),
         )
 
         val blendAttachment = VkPipelineColorBlendAttachmentState(
@@ -274,14 +281,14 @@ class UiGlyphRenderPipeline(
             colorWriteMask = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or
                 VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or
                 VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or
-                VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value
+                VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value,
         )
 
         val colorBlendInfo = arrayOf(VkPipelineColorBlendStateCreateInfo(pAttachments = arrayOf(blendAttachment)))
 
         pipelineLayout = Vulkan.vkCreatePipelineLayout(
             device,
-            VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout))
+            VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout)),
         )
 
         val createInfos = arrayOf(
@@ -299,8 +306,8 @@ class UiGlyphRenderPipeline(
                 renderPass = renderPass,
                 subpass = 0,
                 basePipelineHandle = 0,
-                basePipelineIndex = -1
-            )
+                basePipelineIndex = -1,
+            ),
         )
         pipelineCache = Vulkan.vkCreatePipelineCache(device, VkPipelineCacheCreateInfo())
         graphicsPipeline = Vulkan.vkCreateGraphicsPipelines(device, pipelineCache, createInfos)
@@ -329,8 +336,8 @@ class UiGlyphRenderPipeline(
         val uiDepthStencilState = arrayOf(
             VkPipelineDepthStencilStateCreateInfo(
                 depthTestEnable = false,
-                depthWriteEnable = false
-            )
+                depthWriteEnable = false,
+            ),
         )
     }
 }

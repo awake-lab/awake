@@ -16,10 +16,21 @@ float median3(vec3 value) {
     return max(min(value.r, value.g), min(max(value.r, value.g), value.b));
 }
 
+// This renderer blends in GAMMA space, not linear: SwapchainManager deliberately picks a
+// _UNORM surface format because every authored color is already sRGB-encoded bytes (see that
+// class's format-selection doc comment). Coverage-alpha text blended in gamma space renders
+// systematically thinner than correct -- the classic "why is my text so thin" artifact, since
+// `text*a + bg*(1-a)` on gamma-encoded values under-weights the glyph's partial-coverage edge
+// pixels. Fully-linear blending would fix it properly but would mean re-encoding every color
+// in the engine, undoing that documented decision. Stem darkening is the standard remedy when
+// linear blending isn't available (FreeType and Skia both ship a variant of it): bias coverage
+// up by a power curve so the gamma-space blend lands at the perceptually intended weight.
+const float GLYPH_GAMMA = 1.45;
+
 float resolveGlyphAlpha() {
     vec4 atlas = texture(fontAtlas, fragUV);
     if (ubo.fontInfo.x < 0.5) {
-        return atlas.a;
+        return pow(atlas.a, 1.0 / GLYPH_GAMMA);
     }
     vec2 atlasSize = vec2(textureSize(fontAtlas, 0));
     vec2 unitRange = vec2(ubo.fontInfo.y) / atlasSize;

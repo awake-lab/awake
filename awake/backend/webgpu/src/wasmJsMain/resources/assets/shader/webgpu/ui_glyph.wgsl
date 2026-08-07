@@ -34,12 +34,22 @@ fn vertexMain(in: VertexIn) -> VertexOut {
     return out;
 }
 
+// This renderer blends in GAMMA space, not linear: the canvas is configured BGRA8Unorm and
+// every authored color is already sRGB-encoded (mirrors Vulkan's SwapchainManager format
+// choice -- see its doc comment). Coverage-alpha text blended in gamma space renders
+// systematically thinner than correct, since `text*a + bg*(1-a)` on gamma-encoded values
+// under-weights the glyph's partial-coverage edge pixels. Stem darkening is the standard
+// remedy when linear blending isn't available (FreeType/Skia both ship a variant): bias
+// coverage up by a power curve so the gamma-space blend lands at the intended weight. Kept
+// numerically identical to vulkan/ui_glyph.frag's GLYPH_GAMMA so both backends match.
+const GLYPH_GAMMA: f32 = 1.45;
+
 @fragment
 fn fragmentMain(in: VertexOut) -> @location(0) vec4<f32> {
     let atlas = textureSample(fontAtlas, fontSampler, in.uv);
     var glyphAlpha: f32;
     if (uniforms.fontInfo.x < 0.5) {
-        glyphAlpha = atlas.a;
+        glyphAlpha = pow(atlas.a, 1.0 / GLYPH_GAMMA);
     } else {
         let atlasSize = vec2<f32>(textureDimensions(fontAtlas));
         let unitRange = vec2<f32>(uniforms.fontInfo.y) / atlasSize;

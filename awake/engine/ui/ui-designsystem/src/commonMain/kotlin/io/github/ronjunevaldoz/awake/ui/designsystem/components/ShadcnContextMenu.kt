@@ -5,9 +5,9 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuEntry
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 /**
  * Real shadcn's `ContextMenu`: a context menu trigger that listens for secondary clicks (right click)
@@ -19,13 +19,15 @@ fun UiScope.shadcnContextMenu(
     onExpandedChange: (Boolean) -> Unit,
     items: List<UiDropdownMenuEntry>,
     modifier: UiModifier = Modifier,
-    target: UiScope.() -> UiBounds
+    target: UiScope.() -> UiBounds,
 ): UiBounds {
     val bounds = target()
     val input = context.inputState
     val state = widgetState(id)
-    val isHovered = input.pointerX >= bounds.x && input.pointerX <= bounds.x + bounds.width &&
-            input.pointerY >= bounds.y && input.pointerY <= bounds.y + bounds.height
+    val isHovered = input.pointerX >= bounds.x &&
+        input.pointerX <= bounds.x + bounds.width &&
+        input.pointerY >= bounds.y &&
+        input.pointerY <= bounds.y + bounds.height
 
     if (isHovered && input.secondaryPointerDown) {
         state.set("clickX", input.pointerX)
@@ -42,7 +44,12 @@ fun UiScope.shadcnContextMenu(
             id = "$id.menu",
             anchorSlot = UiBounds(clickX, clickY, 0f, 0f),
             expanded = true,
-            items = items
+            items = items,
+            // A context menu's anchor is the cursor point, not a real control -- it has zero
+            // width. shadcnDropdownMenu's own default width (anchorSlot.width) would resolve
+            // to a zero-width panel, so items paint with no background behind them (reads as
+            // "transparent"). Size to content instead, same as any other point-anchored popup.
+            width = Dimension.WrapContent,
         )
         if (result.dismissed || result.selectedIndex != null) {
             onExpandedChange(false)

@@ -4,19 +4,19 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
-import io.github.ronjunevaldoz.awake.ui.theme.UiShapeTokens
-import io.github.ronjunevaldoz.awake.ui.theme.UiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnPalette
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
+import io.github.ronjunevaldoz.awake.ui.theme.UiComponentStyles
+import io.github.ronjunevaldoz.awake.ui.theme.UiShapeTokens
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
 
 /**
  * A neutral-first, shadcn-inspired design-system theme that lives OUTSIDE the engine core.
@@ -28,83 +28,68 @@ import io.github.ronjunevaldoz.awake.ui.style.*
  */
 object ShadcnTheme : ShadcnResolvedTheme by shadcnThemeData()
 
-enum class ShadcnStylePreset(
-    val label: String,
-    internal val baseRadius: Dp,
-    internal val metrics: ShadcnMetrics,
-    internal val ringAlphaMultiplier: Float
-) {
+enum class ShadcnStylePreset(val label: String, internal val baseRadius: Dp, internal val metrics: ShadcnMetrics, internal val ringAlphaMultiplier: Float) {
     Vega(
         label = "Vega",
         baseRadius = 6f.dp,
         metrics = ShadcnMetrics(16f.dp, 20f.dp, 12f.dp, 8f.dp, 12f.dp, 5f.dp),
-        ringAlphaMultiplier = 1f
+        ringAlphaMultiplier = 1f,
     ),
     Nova(
         label = "Nova",
         baseRadius = 5f.dp,
         metrics = ShadcnMetrics(14f.dp, 18f.dp, 10f.dp, 7f.dp, 10f.dp, 4f.dp),
-        ringAlphaMultiplier = 1f
+        ringAlphaMultiplier = 1f,
     ),
     Maia(
         label = "Maia",
         baseRadius = 10f.dp,
         metrics = ShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp),
-        ringAlphaMultiplier = 1f
+        ringAlphaMultiplier = 1f,
     ),
     Lyra(
         label = "Lyra",
         baseRadius = 0f.dp,
         metrics = ShadcnMetrics(15f.dp, 18f.dp, 11f.dp, 7f.dp, 11f.dp, 4f.dp),
-        ringAlphaMultiplier = 0.9f
+        ringAlphaMultiplier = 0.9f,
     ),
     Mira(
         label = "Mira",
         baseRadius = 4f.dp,
         metrics = ShadcnMetrics(12f.dp, 15f.dp, 10f.dp, 6f.dp, 9f.dp, 4f.dp),
-        ringAlphaMultiplier = 0.85f
+        ringAlphaMultiplier = 0.85f,
     ),
     Luma(
         label = "Luma",
         baseRadius = 12f.dp,
         metrics = ShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp),
-        ringAlphaMultiplier = 0.75f
+        ringAlphaMultiplier = 0.75f,
     ),
     Sera(
         label = "Sera",
         baseRadius = 7f.dp,
         metrics = ShadcnMetrics(16f.dp, 20f.dp, 13f.dp, 8f.dp, 12f.dp, 5f.dp),
-        ringAlphaMultiplier = 0.85f
+        ringAlphaMultiplier = 0.85f,
     ),
     Rhea(
         label = "Rhea",
         baseRadius = 8f.dp,
         metrics = ShadcnMetrics(14f.dp, 18f.dp, 11f.dp, 7f.dp, 10f.dp, 4f.dp),
-        ringAlphaMultiplier = 0.85f
-    )
+        ringAlphaMultiplier = 0.85f,
+    ),
 }
 
-enum class ShadcnBaseColor(
-    val label: String,
-    internal val hueDegrees: Float,
-    internal val chroma: Float
-) {
+enum class ShadcnBaseColor(val label: String, internal val hueDegrees: Float, internal val chroma: Float) {
     Neutral("Neutral", 0f, 0f),
     Stone("Stone", 35f, 0.012f),
     Zinc("Zinc", 285f, 0.012f),
     Mauve("Mauve", 315f, 0.018f),
     Olive("Olive", 130f, 0.016f),
     Mist("Mist", 225f, 0.015f),
-    Taupe("Taupe", 28f, 0.018f)
+    Taupe("Taupe", 28f, 0.018f),
 }
 
-enum class ShadcnAccent(
-    val label: String,
-    internal val darkPrimary: Color?,
-    internal val darkOnPrimary: Color?,
-    internal val lightPrimary: Color?,
-    internal val lightOnPrimary: Color?
-) {
+enum class ShadcnAccent(val label: String, internal val darkPrimary: Color?, internal val darkOnPrimary: Color?, internal val lightPrimary: Color?, internal val lightOnPrimary: Color?) {
     Base("Base", null, null, null, null),
     Amber("Amber", hex(0xF59E0B), hex(0x0F172A), hex(0xD97706), Color.White),
     Blue("Blue", hex(0x3B82F6), hex(0x0F172A), hex(0x2563EB), Color.White),
@@ -122,29 +107,25 @@ enum class ShadcnAccent(
     Sky("Sky", hex(0x38BDF8), hex(0x0F172A), hex(0x0284C7), Color.White),
     Teal("Teal", hex(0x14B8A6), hex(0x0F172A), hex(0x0D9488), Color.White),
     Violet("Violet", hex(0x8B5CF6), hex(0x0F172A), hex(0x7C3AED), Color.White),
-    Yellow("Yellow", hex(0xFACC15), hex(0x0F172A), hex(0xCA8A04), hex(0x0F172A))
+    Yellow("Yellow", hex(0xFACC15), hex(0x0F172A), hex(0xCA8A04), hex(0x0F172A)),
 }
 
 data class ShadcnThemeConfig(
     val preset: ShadcnStylePreset = ShadcnStylePreset.Vega,
     val baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral,
     val accent: ShadcnAccent = ShadcnAccent.Base,
-    val dark: Boolean = true
+    val dark: Boolean = true,
 )
 
-fun shadcnTheme(
-    preset: ShadcnStylePreset = ShadcnStylePreset.Vega,
-    baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral,
-    accent: ShadcnAccent = ShadcnAccent.Base,
-    dark: Boolean = true
-): UiTheme = shadcnThemeData(
-    ShadcnThemeConfig(
-        preset = preset,
-        baseColor = baseColor,
-        accent = accent,
-        dark = dark
+fun shadcnTheme(preset: ShadcnStylePreset = ShadcnStylePreset.Vega, baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral, accent: ShadcnAccent = ShadcnAccent.Base, dark: Boolean = true): UiTheme =
+    shadcnThemeData(
+        ShadcnThemeConfig(
+            preset = preset,
+            baseColor = baseColor,
+            accent = accent,
+            dark = dark,
+        ),
     )
-)
 
 internal interface ShadcnResolvedTheme : UiTheme {
     val config: ShadcnThemeConfig
@@ -171,13 +152,9 @@ internal interface ShadcnResolvedTheme : UiTheme {
 
 internal fun UiTheme.asShadcnTheme(): ShadcnResolvedTheme = this as? ShadcnResolvedTheme ?: ShadcnTheme
 
-private fun shadcnThemeData(
-    config: ShadcnThemeConfig = ShadcnThemeConfig()
-): ShadcnResolvedTheme = ConfiguredShadcnTheme(config)
+private fun shadcnThemeData(config: ShadcnThemeConfig = ShadcnThemeConfig()): ShadcnResolvedTheme = ConfiguredShadcnTheme(config)
 
-private class ConfiguredShadcnTheme(
-    override val config: ShadcnThemeConfig
-) : ShadcnResolvedTheme {
+private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : ShadcnResolvedTheme {
     override val radii: ShadcnRadiusScale = ShadcnRadiusScale.fromBase(config.preset.baseRadius)
     override val metrics: ShadcnMetrics = config.preset.metrics
     override val palette: ShadcnPalette = createPalette(config)
@@ -287,11 +264,18 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
     val mutedForeground = if (dark) oklch(0.708f, chroma * 0.12f, hue) else oklch(0.556f, chroma * 0.16f, hue)
     val accentSurface = if (dark) oklch(0.32f, chroma * 0.5f, hue) else oklch(0.94f, chroma * 0.18f, hue)
     val accentSurfaceForeground = if (dark) foreground else oklch(0.205f, chroma * 0.18f, hue)
-    val card = if (dark) oklch(0.168f, chroma * 0.18f, hue) else oklch(1f, chroma * 0.03f, hue)
+    // Real shadcn's dark theme gives card/popover/sidebar the IDENTICAL lightness (0.205) --
+    // they only read as different surfaces in the real app because of where they sit in the
+    // DOM, not because of a color difference. `card`/`sidebar` here were drifting toward
+    // `background`'s 0.145 (0.168/0.158, only 0.023/0.013 above it) instead of matching
+    // `popover`'s already-correct 0.205, so in dark mode a card or the sidebar was barely
+    // distinguishable from the page behind it -- the actual "wrong in dark mode" symptom this
+    // was investigated for. Restored to the published value; `popover` was already right.
+    val card = if (dark) oklch(0.205f, chroma * 0.18f, hue) else oklch(1f, chroma * 0.03f, hue)
     val cardForeground = foreground
     val popover = if (dark) oklch(0.205f, chroma * 0.22f, hue) else oklch(1f, chroma * 0.04f, hue)
     val popoverForeground = cardForeground
-    val sidebar = if (dark) oklch(0.158f, chroma * 0.16f, hue) else oklch(0.988f, chroma * 0.03f, hue)
+    val sidebar = if (dark) oklch(0.205f, chroma * 0.16f, hue) else oklch(0.988f, chroma * 0.03f, hue)
     val sidebarForeground = foreground
     val border = if (dark) oklch(1f, chroma * 0.1f, hue, alpha = 0.1f) else oklch(0.922f, chroma * 0.1f, hue)
     val input = if (dark) oklch(1f, chroma * 0.12f, hue, alpha = 0.15f) else oklch(0.922f, chroma * 0.12f, hue)
@@ -325,16 +309,24 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
         accentPressed = mix(accentSurface, foreground, if (dark) 0.16f else 0.06f),
         destructive = if (dark) oklch(0.704f, 0.191f, 22.216f) else oklch(0.577f, 0.245f, 27.325f),
         destructiveForeground = if (dark) oklch(0.985f, 0f) else Color.White,
-        destructiveHover = if (dark) oklch(0.652f, 0.191f, 22.216f) else oklch(
-            0.537f,
-            0.245f,
-            27.325f
-        ),
-        destructivePressed = if (dark) oklch(0.604f, 0.191f, 22.216f) else oklch(
-            0.507f,
-            0.245f,
-            27.325f
-        ),
+        destructiveHover = if (dark) {
+            oklch(0.652f, 0.191f, 22.216f)
+        } else {
+            oklch(
+                0.537f,
+                0.245f,
+                27.325f,
+            )
+        },
+        destructivePressed = if (dark) {
+            oklch(0.604f, 0.191f, 22.216f)
+        } else {
+            oklch(
+                0.507f,
+                0.245f,
+                27.325f,
+            )
+        },
         border = border,
         ring = ring,
         input = input,
@@ -349,36 +341,25 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
         sidebarAccent = secondary,
         sidebarAccentForeground = secondaryForeground,
         sidebarBorder = border,
-        sidebarRing = ring
+        sidebarRing = ring,
     )
 }
 
-private fun mix(
-    from: Color,
-    to: Color,
-    fraction: Float
-): Color {
+private fun mix(from: Color, to: Color, fraction: Float): Color {
     val t = fraction.coerceIn(0f, 1f)
     return Color(
         r = lerp(from.r, to.r, t),
         g = lerp(from.g, to.g, t),
         b = lerp(from.b, to.b, t),
-        a = lerp(from.a, to.a, t)
+        a = lerp(from.a, to.a, t),
     )
 }
 
-private fun lerp(
-    start: Float,
-    end: Float,
-    fraction: Float
-): Float = start + (end - start) * fraction
+private fun lerp(start: Float, end: Float, fraction: Float): Float = start + (end - start) * fraction
 
-internal fun hex(
-    rgb: Int,
-    alpha: Float = 1f
-): Color = Color(
+internal fun hex(rgb: Int, alpha: Float = 1f): Color = Color(
     r = ((rgb shr 16) and 0xFF) / 255f,
     g = ((rgb shr 8) and 0xFF) / 255f,
     b = (rgb and 0xFF) / 255f,
-    a = alpha
+    a = alpha,
 )

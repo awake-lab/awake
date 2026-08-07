@@ -19,17 +19,13 @@ import platform.Foundation.NSData
 import platform.Foundation.create
 import platform.UIKit.UIImage
 
-class AppleBitmap(
-    override val width: Int,
-    override val height: Int,
-    override val channel: Int,
-    override val pixels: IntArray
-) : Bitmap
+class AppleBitmap(override val width: Int, override val height: Int, override val channel: Int, override val pixels: IntArray) : Bitmap
 
-actual fun createBitmap(bytes: ByteArray): Bitmap {
-    val nsData = memScoped {
-        NSData.create(bytes = allocArrayOf(bytes), length = bytes.size.toULong())
-    }
+actual suspend fun createBitmap(bytes: ByteArray): Bitmap {
+    val nsData =
+        memScoped {
+            NSData.create(bytes = allocArrayOf(bytes), length = bytes.size.toULong())
+        }
     return createBitmap(nsData, true)
 }
 
@@ -46,13 +42,11 @@ fun createBitmap(image: UIImage, flipY: Boolean): Bitmap {
     val bytes = CFDataGetBytePtr(pixelData)!!
     val bytesPerRow = CGImageGetBytesPerRow(cgImage)
 
-
     val pixels = IntArray(width * height)
     for (y in 0 until height) {
         val flippedY = if (flipY) height - y - 1 else y
 
         for (x in 0 until width) {
-
             val pixelInfo: Int = (width * flippedY + x) * 4
             val red = bytes[pixelInfo].toInt()
             val green = bytes[pixelInfo + 1].toInt()
@@ -72,6 +66,6 @@ fun createBitmap(image: UIImage, flipY: Boolean): Bitmap {
         width = width,
         height = height,
         channel = 4,
-        pixels = pixels
+        pixels = pixels,
     )
 }

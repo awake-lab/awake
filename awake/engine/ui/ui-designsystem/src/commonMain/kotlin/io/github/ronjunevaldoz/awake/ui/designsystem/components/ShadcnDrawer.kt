@@ -32,7 +32,10 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 enum class ShadcnDrawerPosition {
-    Bottom, Top, Left, Right
+    Bottom,
+    Top,
+    Left,
+    Right,
 }
 
 /**
@@ -49,7 +52,7 @@ fun UiScope.shadcnDrawer(
     showCloseButton: Boolean = true,
     header: (ColumnScope.(slot: UiBounds) -> Unit)? = null,
     actions: (RowScope.(slot: UiBounds) -> Unit)? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiPopupResult {
     if (!expanded) return UiPopupResult(slot = null, dismissed = false)
 
@@ -70,7 +73,7 @@ fun UiScope.shadcnDrawer(
         expanded = true,
         anchorSlot = UiBounds(0f, 0f, 0f, 0f),
         positionProvider = positionProvider,
-        properties = UiPopupProperties(dismissOnClickOutside = true)
+        properties = UiPopupProperties(dismissOnClickOutside = true),
     ) { slot ->
         val resolvedTheme = theme.asShadcnTheme()
         val bounds = slot
@@ -82,71 +85,77 @@ fun UiScope.shadcnDrawer(
                     when (position) {
                         ShadcnDrawerPosition.Bottom, ShadcnDrawerPosition.Top -> resolvedTheme.radii.xl
                         else -> UiShape.none
-                    }
+                    },
                 )
                 contentPadding(16f.dp)
-            }
+            },
         ) {
+            // surface() already reserves contentPadding(16dp) on all sides for this content
+            // lambda's coordinate space -- forcing this column to bounds.height (the panel's
+            // full, unpadded outer height) double-counts that padding and overflows the
+            // padded/rounded content area by 2x the inset. WrapContent lets the header/content/
+            // actions stack size to what it actually needs.
             column(
-                modifier = Modifier.fillMaxWidth().height(Dimension.Fixed(bounds.height.dp))
+                modifier = Modifier.fillMaxWidth(),
             ) {
-            // Drag handle pill for bottom drawer
-            if (position == ShadcnDrawerPosition.Bottom) {
-                row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth().height(12f.dp)
-                ) {
-                    surface(
-                        id = "$id.handle",
-                        modifier = Modifier.width(48f.dp).height(6f.dp),
-                        style = Style {
-                            background(resolvedTheme.palette.muted)
-                            shape(resolvedTheme.radii.full)
+                // Drag handle pill for bottom drawer
+                if (position == ShadcnDrawerPosition.Bottom) {
+                    row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth().height(12f.dp),
+                    ) {
+                        surface(
+                            id = "$id.handle",
+                            modifier = Modifier.width(48f.dp).height(6f.dp),
+                            style = Style {
+                                background(resolvedTheme.palette.muted)
+                                shape(resolvedTheme.radii.full)
+                            },
+                        ) {}
+                    }
+                    spacer(Modifier.height(8f.dp))
+                }
+
+                // Header slot with optional close button inside top-right of panel
+                if (header != null || showCloseButton) {
+                    row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = UiAlignment.Vertical.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        if (header != null) {
+                            column { header(bounds) }
+                        } else {
+                            spacer(Modifier.width(1f.dp))
                         }
-                    ) {}
-                }
-                spacer(Modifier.height(8f.dp))
-            }
-
-            // Header slot with optional close button inside top-right of panel
-            if (header != null || showCloseButton) {
-                row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = UiAlignment.Vertical.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (header != null) {
-                        column { header(bounds) }
-                    } else {
-                        spacer(Modifier.width(1f.dp))
+                        if (showCloseButton) {
+                            if (shadcnButton(
+                                    id = "$id.close",
+                                    label = "✕",
+                                    variant = ShadcnButtonVariant.Ghost,
+                                    modifier = Modifier.width(28f.dp).height(28f.dp),
+                                    onClick = onDismissRequest,
+                                )
+                            ) { }
+                        }
                     }
-                    if (showCloseButton) {
-                        if (shadcnButton(
-                            id = "$id.close",
-                            label = "✕",
-                            variant = ShadcnButtonVariant.Ghost,
-                            modifier = Modifier.width(28f.dp).height(28f.dp),
-                            onClick = onDismissRequest
-                        )) { }
-                    }
+                    spacer(Modifier.height(12f.dp))
                 }
-                spacer(Modifier.height(12f.dp))
-            }
 
-            content(bounds)
+                content(bounds)
 
-            if (actions != null) {
-                spacer(Modifier.height(12f.dp))
-                row(
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = UiAlignment.Vertical.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    actions(bounds)
+                if (actions != null) {
+                    spacer(Modifier.height(12f.dp))
+                    row(
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = UiAlignment.Vertical.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        actions(bounds)
+                    }
                 }
             }
         }
-    }
     }
 
     if (popupResult.dismissed) {
