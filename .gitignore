@@ -5,8 +5,12 @@ __pycache__/
 /gradle/gradle-daemon-jvm.properties
 /local.properties
 /.idea
-.claude/
-.agents/
+.claude/*
+!.claude/AGENTS.md
+!.claude/settings.json
+!.claude/commands/
+.agents/skills/
+.agents/commands/
 .artifacts/
 .codex/
 .DS_Store
