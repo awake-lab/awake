@@ -61,9 +61,8 @@ internal object GltfViewerDemo {
         normalizedInterleaved =
             scalePositions(gltfMesh.toInterleavedPositionNormalColorUv(), 1f / modelRadius)
 
-        // Scaled by the same 1/modelRadius the vertices were: boundingCenter measures the
-        // ORIGINAL positions, so leaving it unscaled aimed the camera at a point far outside
-        // the normalized mesh.
+        // Scale by the same 1/modelRadius the vertices got -- boundingCenter measures the
+        // original positions.
         val center = boundingCenter(gltfMesh.positions)
         modelCenter = Vec3(center.x / modelRadius, center.y / modelRadius, center.z / modelRadius)
 
@@ -93,15 +92,12 @@ internal object GltfViewerDemo {
             if (config != null) {
                 scope.renderCameraModeToggle(config.mode) { config.mode = it }
             }
-            // Switches before the projection sliders: the controls column scrolls, and three
-            // label+slider+value rows pushed these below the fold, so the view-mode toggles read
-            // as missing entirely ("I cannot verify the wireframe, there is no controls").
+            // Before the projection sliders: the column scrolls, and three slider rows push
+            // these below the fold.
             showAimMarkers = scope.shadcnSwitch(id = "gltf-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
             wireframeEnabled = scope.shadcnSwitch(id = "gltf-wireframe", checked = wireframeEnabled, label = "Wireframe")
-            // Affects the shared Renderer used by every demo in this sample app (see
-            // Renderer.shadowsEnabled's own doc comment) -- toggle it here, see the effect on
-            // the Rotating cube demo's ground plane, since this demo's own duck draws through
-            // the textured pipeline (no lighting/shadowing at all yet).
+            // Shared across every demo. The duck itself draws unlit, so the visible effect is
+            // on the Rotating cube demo's ground plane.
             renderer.shadowsEnabled = scope.shadcnSwitch(id = "gltf-shadows", checked = renderer.shadowsEnabled, label = "Shadows")
             cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "gltf") }
         },

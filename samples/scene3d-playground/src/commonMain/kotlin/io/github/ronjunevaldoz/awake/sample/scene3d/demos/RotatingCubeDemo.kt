@@ -137,11 +137,8 @@ internal object RotatingCubeDemo {
             timeController.advance(delta)
             spinRadians = timeController.hours * HOURS_TO_DEGREES * DEGREES_TO_RADIANS
 
-            // The real VK_POLYGON_MODE_LINE pipeline, not a hand-built edge list. This demo used
-            // to swap the cube's MeshRenderer for its own drawDebugLines() call, which meant the
-            // wireframe cube got its own second implementation of the spin -- with the opposite
-            // sign convention to SpinSystem's, so it visibly rotated the wrong way and sat in a
-            // slightly different place than the solid cube it was standing in for.
+            // Use the real line pipeline. A hand-built edge list would need its own copy of
+            // the spin, which is how this demo previously ended up rotating the wrong way.
             renderer.wireframe = wireframe
             renderer.drawReferenceGrid()
 

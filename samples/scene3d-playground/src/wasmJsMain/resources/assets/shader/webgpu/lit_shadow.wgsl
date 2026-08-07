@@ -44,12 +44,9 @@ fn vertexMain(
 }
 
 const AMBIENT_STRENGTH : f32 = 0.35;
-// Slope-scaled bias. A single constant can't cover both face-on and grazing surfaces: the
-// depth gradient across one shadow texel grows as the surface tilts away from the light, so a
-// constant large enough to stop grazing-angle acne detaches face-on contact shadows. Scaling by
-// 1-dot(N,L) spends the bias only where it's needed. Front-face culling would fix acne
-// structurally but this demo's cube winding isn't guaranteed outward-consistent (see
-// ShadowRenderPipeline's cullMode comment), so it isn't available here.
+// Slope-scaled: the depth gradient per shadow texel grows as a surface tilts away from the
+// light, so one constant either leaves grazing-angle acne or detaches face-on contact shadows.
+// Front-face culling would fix this structurally, but the cube's winding isn't reliable.
 const SHADOW_BIAS_MIN : f32 = 0.0015;
 const SHADOW_BIAS_MAX : f32 = 0.0090;
 const PCF_RADIUS : i32 = 1;
