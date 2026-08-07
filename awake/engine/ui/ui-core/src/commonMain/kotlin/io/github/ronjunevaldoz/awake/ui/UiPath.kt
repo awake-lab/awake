@@ -6,11 +6,14 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.acos
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 enum class UiFillRule {
     NonZero,
@@ -272,9 +275,68 @@ fun UiPath.transform(
     },
 )
 
+/** Lower/upper bound for [adaptiveCurveSteps]/[adaptiveArcSteps]'s chosen step count -- a floor
+ * keeps a degenerate/zero-length curve from collapsing to a visible flat corner, a ceiling keeps
+ * a huge curve (or a caller-supplied giant sweep) from generating an unbounded vertex count. */
+private const val MIN_ADAPTIVE_STEPS = 4
+private const val MAX_ADAPTIVE_STEPS = 64
+
+/** Target max deviation (px) between a flattened polyline and the true curve/arc that
+ * [adaptiveCurveSteps]/[adaptiveArcSteps] solve for -- sub-pixel on any display this engine
+ * targets, comparable to the ~0.1-0.3px tessellation tolerance NanoVG/Skia use internally. */
+private const val CURVE_FLATNESS_TOLERANCE_PX = 0.25f
+
+/**
+ * Step count for flattening one quad/cubic Bezier segment so its max deviation from the
+ * resulting polyline stays under [CURVE_FLATNESS_TOLERANCE_PX]. A uniform-parameter
+ * subdivision's deviation from the true curve shrinks like `1/steps^2`, and a curve's own
+ * control-polygon length upper-bounds how far it can bow away from a single chord, so solving
+ * `tolerance ~= controlNetLength / (8 * steps^2)` for steps gives
+ * `steps = ceil(sqrt(controlNetLength / (8 * tolerance)))` -- more steps for a long/tight
+ * control net, fewer for a short one (a 12px icon glyph), instead of one fixed count for both
+ * (the shipped complaint: "a 400px circle facets, a 12px icon wastes segments"). [minSteps] is
+ * `flattenContours`' `curveSteps` param, still a floor an explicit caller can raise above the
+ * adaptive minimum.
+ */
+private fun adaptiveCurveSteps(controlNetLength: Float, minSteps: Int): Int {
+    val estimate = ceil(sqrt(controlNetLength / (8f * CURVE_FLATNESS_TOLERANCE_PX)))
+    val bounded = if (estimate.isFinite()) estimate.toInt() else MAX_ADAPTIVE_STEPS
+    return bounded.coerceIn(minSteps.coerceIn(MIN_ADAPTIVE_STEPS, MAX_ADAPTIVE_STEPS), MAX_ADAPTIVE_STEPS)
+}
+
+/**
+ * Step count for flattening one [UiPathCommand.ArcTo] sweep so its max sagitta (the chord's
+ * bulge past the true arc) stays under [CURVE_FLATNESS_TOLERANCE_PX]. The sagitta of a chord
+ * spanning angle `theta` on a circle of radius `r` is `r * (1 - cos(theta / 2))`; solving that
+ * for `theta` at the tolerance gives the widest angle one step can span,
+ * `theta = 2 * acos(1 - tolerance / r)` -- more steps for a big-radius arc (a large circular
+ * avatar facets visibly at a fixed angle), fewer for a small one (a 2px button-corner radius
+ * doesn't need the same step count as a full-size circle). [maxStepDegrees] is
+ * `flattenContours`' `arcStepDegrees` param, kept as a per-step angle ceiling (== a step-count
+ * floor) an explicit caller can still tighten.
+ */
+private fun adaptiveArcSteps(sweepDegrees: Float, radiusPx: Float, maxStepDegrees: Float): Int {
+    val radius = radiusPx.coerceAtLeast(0f)
+    val sagittaStepDegrees = if (radius <= CURVE_FLATNESS_TOLERANCE_PX) {
+        Float.MAX_VALUE // sub-pixel radius: even a single step is already an invisible facet.
+    } else {
+        2f * acos(1f - CURVE_FLATNESS_TOLERANCE_PX / radius) * 180f / PI.toFloat()
+    }
+    val stepDegrees = min(sagittaStepDegrees, maxStepDegrees).coerceAtLeast(1f)
+    return ceil(abs(sweepDegrees) / stepDegrees).toInt().coerceIn(MIN_ADAPTIVE_STEPS, MAX_ADAPTIVE_STEPS)
+}
+
+/**
+ * Flattens every curve/arc command into line segments, adaptively: [curveSteps] (quad/cubic) and
+ * [arcStepDegrees] (arc, default 90 -- a non-binding ceiling for every sweep this engine itself
+ * emits, all of which are exactly 90 degrees corner arcs) no longer set one fixed count/angle for
+ * every curve regardless of size -- see [adaptiveCurveSteps]/[adaptiveArcSteps]. They now act as
+ * a floor an explicit caller can raise; the common (default-argument) case scales with each
+ * curve's own size instead.
+ */
 fun UiPath.flattenContours(
-    curveSteps: Int = 8,
-    arcStepDegrees: Float = 15f,
+    curveSteps: Int = MIN_ADAPTIVE_STEPS,
+    arcStepDegrees: Float = 90f,
 ): List<UiPathContour> {
     if (commands.isEmpty()) return emptyList()
 
@@ -311,7 +373,9 @@ fun UiPath.flattenContours(
 
             is UiPathCommand.QuadTo -> {
                 val start = cursor ?: UiPoint(command.x, command.y)
-                val steps = curveSteps.coerceAtLeast(1)
+                val controlNetLength = hypot(command.cx - start.x, command.cy - start.y) +
+                    hypot(command.x - command.cx, command.y - command.cy)
+                val steps = adaptiveCurveSteps(controlNetLength, curveSteps)
                 repeat(steps) { step ->
                     val t = (step + 1) / steps.toFloat()
                     val oneMinusT = 1f - t
@@ -326,7 +390,10 @@ fun UiPath.flattenContours(
 
             is UiPathCommand.CubicTo -> {
                 val start = cursor ?: UiPoint(command.x, command.y)
-                val steps = curveSteps.coerceAtLeast(1)
+                val controlNetLength = hypot(command.c1x - start.x, command.c1y - start.y) +
+                    hypot(command.c2x - command.c1x, command.c2y - command.c1y) +
+                    hypot(command.x - command.c2x, command.y - command.c2y)
+                val steps = adaptiveCurveSteps(controlNetLength, curveSteps)
                 repeat(steps) { step ->
                     val t = (step + 1) / steps.toFloat()
                     val oneMinusT = 1f - t
@@ -350,7 +417,7 @@ fun UiPath.flattenContours(
                 val centerY = (command.top + command.bottom) / 2f
                 val radiusX = (command.right - command.left) / 2f
                 val radiusY = (command.bottom - command.top) / 2f
-                val steps = ceil(abs(command.sweepDegrees) / arcStepDegrees.coerceAtLeast(1f)).toInt().coerceAtLeast(1)
+                val steps = adaptiveArcSteps(command.sweepDegrees, max(radiusX, radiusY), arcStepDegrees)
                 repeat(steps) { step ->
                     val t = (step + 1) / steps.toFloat()
                     val angleDegrees = command.startDegrees + command.sweepDegrees * t
@@ -615,11 +682,16 @@ private fun appendCentroidFan(polygon: List<UiPoint>, points: ArrayList<UiPoint>
 private const val AA_FRINGE_PX = 1f
 
 /**
- * Antialiased sibling of [tessellateFill] -- identical interior centroid-fan triangulation,
- * plus a thin (~1px) "fringe" ring of triangles along each contour's boundary whose OUTER
- * edge fades [color]'s alpha to 0. This is the standard vector-graphics AA technique used by
- * e.g. NanoVG ("feathering"): a solid interior plus a soft ~1px border, blended through the UI
- * quad pipeline's EXISTING src-alpha/one-minus-src-alpha blend state
+ * Antialiased sibling of [tessellateFill] -- same interior triangulation strategy (see
+ * [appendGroupFill]), run on each boundary INSET by half the fringe width, plus a thin (~1px)
+ * "fringe" ring of triangles straddling each contour's TRUE boundary: full [color] alpha at
+ * that inset edge, fading to 0 at the boundary outset by the other half. Centering the band on
+ * the true geometry this way (inset interior + symmetric fringe, not an interior at full alpha
+ * all the way to the edge plus an outward-only fade) is the standard vector-graphics AA
+ * technique used by e.g. NanoVG ("feathering") -- coverage crosses 50% exactly at the path's
+ * real outline instead of every filled path rendering about half the fringe width bolder than
+ * its actual geometry. Blended through the UI quad pipeline's EXISTING
+ * src-alpha/one-minus-src-alpha blend state
  * ([io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline]'s `blendEnable = true`, mirrored
  * on WebGPU) -- gives every diagonal/curved [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
  * .FilledPath] edge (e.g. the dropdown chevron icon) real antialiasing with zero new render
@@ -640,11 +712,24 @@ fun UiPath.tessellateFillAa(color: Color, fringePx: Float = AA_FRINGE_PX): UiCol
     val vertices = ArrayList<UiColoredVertex>()
     val indices = ArrayList<Int>()
     val transparent = color.withAlpha(0f)
+    val halfFringe = fringePx / 2f
 
     resolveFillGroups(contours, fillRule).forEach { group ->
+        // Inset every boundary by half the fringe width for the interior mesh, and outset it by
+        // the other half for the fringe's zero-alpha edge -- the band straddles the TRUE
+        // boundary instead of sitting entirely outside it (see this function's doc comment).
+        // Holes are already re-oriented opposite their outer in resolveFillGroups, so the same
+        // winding-derived offsetPolygon call growing the hole polygon by fringePx/2 is exactly
+        // the ring's interior insetting away from the hole edge.
+        val insetOuter = offsetPolygon(group.outer, -halfFringe)
+        val outsetOuter = offsetPolygon(group.outer, halfFringe)
+        val insetHoles = group.holes.map { offsetPolygon(it, -halfFringe) }
+        val outsetHoles = group.holes.map { offsetPolygon(it, halfFringe) }
+
         // Interior -- same triangulation strategy as tessellateFill (scanline for concave/holed
-        // groups, centroid fan for convex; see its doc comments), full-alpha color throughout.
-        appendGroupFill(group, onTriangulated = { meshPoints, meshIndices ->
+        // groups, centroid fan for convex; see appendGroupFill's doc comment), run on the inset
+        // group, full-alpha color throughout.
+        appendGroupFill(UiFillGroup(insetOuter, insetHoles), onTriangulated = { meshPoints, meshIndices ->
             val base = vertices.size
             meshPoints.forEach { vertices += UiColoredVertex(it, color) }
             meshIndices.forEach { indices += base + it }
@@ -668,67 +753,109 @@ fun UiPath.tessellateFillAa(color: Color, fringePx: Float = AA_FRINGE_PX): UiCol
             }
         })
 
-        // Fringe every boundary of the group -- the outer contour fringes outward as before;
-        // hole contours were re-oriented opposite the outer in resolveFillGroups, so the same
-        // winding-derived normal lands their fringe on the hole's (non-filled) side.
-        (listOf(group.outer) + group.holes).forEach { polygon ->
-            appendBoundaryFringe(polygon, color, transparent, fringePx, vertices, indices)
+        appendBoundaryFringe(insetOuter, outsetOuter, color, transparent, vertices, indices)
+        for (i in group.holes.indices) {
+            appendBoundaryFringe(insetHoles[i], outsetHoles[i], color, transparent, vertices, indices)
         }
     }
     return UiColoredTriangleMesh(vertices, indices.toIntArray())
 }
 
+/** Miter-scale ceiling for [offsetPolygon] -- 4 matches the common SVG/Skia stroke miter-limit
+ * default, chosen for the same reason: past this, a sharp/reflex corner's offset vertex is
+ * clamped shorter than a true miter join rather than allowed to spike outward. */
+private const val MAX_MITER_SCALE = 4f
+
+/**
+ * Moves every vertex of a closed [polygon] along its own outward normal by [distance] (negative
+ * insets/shrinks, positive outsets/grows) -- backs [tessellateFillAa]'s symmetric AA fringe.
+ * Per-vertex normals are the miter join of the two adjacent edges' unit normals (same
+ * winding-derived convention the old per-edge fringe normal used): averaged, normalized, and
+ * scaled by `1 / cos(halfAngle)` so the offset polygon comes out a clean, gap-free ring instead
+ * of per-edge normals' small gap/overlap at each corner. Clamped by [MAX_MITER_SCALE] so a
+ * near-180-degree turn (e.g. a chevron's reflex notch) doesn't spike the offset vertex towards
+ * infinity, and by each vertex's own adjacent edge lengths so [distance] can never move a vertex
+ * past its neighbor -- the interior can't self-intersect even on a polygon thinner than the
+ * fringe (a tiny icon glyph), it just insets less there instead.
+ */
+private fun offsetPolygon(polygon: List<UiPoint>, distance: Float): List<UiPoint> {
+    val n = polygon.size
+    if (n < 3) return polygon
+    val outwardSign = if (polygonSignedArea(polygon) >= 0f) 1f else -1f
+
+    fun edgeNormal(a: UiPoint, b: UiPoint): Pair<Float, Float> {
+        val dx = b.x - a.x
+        val dy = b.y - a.y
+        val length = hypot(dx, dy)
+        if (length <= 0f) return 0f to 0f
+        return (dy / length * outwardSign) to (-dx / length * outwardSign)
+    }
+
+    return polygon.indices.map { i ->
+        val prev = polygon[(i - 1 + n) % n]
+        val curr = polygon[i]
+        val next = polygon[(i + 1) % n]
+        val (prevNx, prevNy) = edgeNormal(prev, curr)
+        val (nextNx, nextNy) = edgeNormal(curr, next)
+
+        val sumX = prevNx + nextNx
+        val sumY = prevNy + nextNy
+        val sumLength = hypot(sumX, sumY)
+        val (unitX, unitY, scale) = if (sumLength > 1e-4f) {
+            val ux = sumX / sumLength
+            val uy = sumY / sumLength
+            val cosHalfAngle = prevNx * ux + prevNy * uy
+            Triple(ux, uy, (1f / cosHalfAngle).coerceAtMost(MAX_MITER_SCALE))
+        } else {
+            // Adjacent edges point opposite ways (a near-180deg cusp): no shared miter direction
+            // exists -- fall back to the incoming edge's own unit normal, unscaled.
+            Triple(prevNx, prevNy, 1f)
+        }
+
+        val maxStep = 0.5f * min(
+            hypot(curr.x - prev.x, curr.y - prev.y),
+            hypot(next.x - curr.x, next.y - curr.y),
+        )
+        val offset = (distance * scale).coerceIn(-maxStep, maxStep)
+        UiPoint(curr.x + unitX * offset, curr.y + unitY * offset)
+    }
+}
+
+/**
+ * Ring of triangles between two matched point lists -- same size, same winding, same per-vertex
+ * correspondence, since both [innerRing] and [outerRing] are produced by [offsetPolygon] from
+ * the same source polygon: full [color] alpha along [innerRing], fading to fully transparent
+ * along [outerRing]. Sharing per-vertex miter directions between the two rings means consecutive
+ * quads share vertices at every corner -- an exact, gap-free band (the old per-edge-normal
+ * fringe left an invisible sub-pixel gap/overlap at each corner instead).
+ */
 private fun appendBoundaryFringe(
-    polygon: List<UiPoint>,
+    innerRing: List<UiPoint>,
+    outerRing: List<UiPoint>,
     color: Color,
     transparent: Color,
-    fringePx: Float,
     vertices: ArrayList<UiColoredVertex>,
     indices: ArrayList<Int>,
 ) {
-    if (polygon.size < 3) return
-    run {
-        // Fringe ring -- one quad per edge, offset outward along that edge's normal, alpha
-        // fading from color's own alpha (at the true polygon boundary) to fully transparent
-        // (at the offset outer edge). Per-edge (not mitered) normals leave an invisible
-        // sub-pixel gap/overlap at convex corners -- fine at a ~1px fringe width, and
-        // correctness-safe since overlapping alpha-blended fringe triangles at a corner can
-        // only ever shift a sub-pixel sliver's alpha, never break the interior fill itself.
-        //
-        // Outward direction depends on winding: every UiShapeSpec path in this file (rect,
-        // rounded-rect, circle/pill, cut-corner) winds clockwise in this screen's Y-down space
-        // (top-left -> top-right -> bottom-right -> bottom-left), which is a positive
-        // polygonSignedArea -- verified against rectanglePath: edge (top-left -> top-right)
-        // needs outward normal (0, -1) (up), and (dy, -dx) with this edge's direction (1, 0)
-        // gives exactly (0, -1). A negative-area (counter-clockwise) contour needs the sign
-        // flipped so custom caller-built [UiPath]s with the opposite winding still fringe
-        // outward, not inward.
-        val orientation = polygonSignedArea(polygon)
-        val outwardSign = if (orientation >= 0f) 1f else -1f
-        for (i in polygon.indices) {
-            val a = polygon[i]
-            val b = polygon[(i + 1) % polygon.size]
-            var dx = b.x - a.x
-            var dy = b.y - a.y
-            val length = hypot(dx, dy)
-            if (length <= 0f) continue
-            dx /= length
-            dy /= length
-            val nx = dy * fringePx * outwardSign
-            val ny = -dx * fringePx * outwardSign
-
-            val base = vertices.size
-            vertices += UiColoredVertex(a, color)
-            vertices += UiColoredVertex(b, color)
-            vertices += UiColoredVertex(UiPoint(b.x + nx, b.y + ny), transparent)
-            vertices += UiColoredVertex(UiPoint(a.x + nx, a.y + ny), transparent)
-            indices += base
-            indices += base + 1
-            indices += base + 2
-            indices += base + 2
-            indices += base + 3
-            indices += base
-        }
+    val n = innerRing.size
+    if (n < 3 || outerRing.size != n) return
+    val base = vertices.size
+    for (i in 0 until n) {
+        vertices += UiColoredVertex(innerRing[i], color)
+        vertices += UiColoredVertex(outerRing[i], transparent)
+    }
+    for (i in 0 until n) {
+        val next = (i + 1) % n
+        val innerA = base + i * 2
+        val outerA = innerA + 1
+        val innerB = base + next * 2
+        val outerB = innerB + 1
+        indices += innerA
+        indices += innerB
+        indices += outerB
+        indices += outerB
+        indices += outerA
+        indices += innerA
     }
 }
 

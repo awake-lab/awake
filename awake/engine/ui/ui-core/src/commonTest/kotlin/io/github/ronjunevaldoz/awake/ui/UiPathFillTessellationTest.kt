@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -224,6 +225,87 @@ class UiPathFillTessellationTest {
             "AA interior must cover the ribbon point (8, 10)",
         )
     }
+
+    /**
+     * Locks the "symmetric fringe" fix: the old fringe offset only outward from the true
+     * boundary (100% opaque AT the edge, fading to 0 further out), which rendered every filled
+     * path about half the fringe width bolder than its geometry. The fringe must now straddle
+     * the true boundary -- opaque interior starts only at the INSET edge (fringePx/2 inside the
+     * true edge), not at the true edge itself.
+     */
+    @Test
+    fun aaFringeCentersOnTrueBoundaryForALargeSquare() {
+        val color = Color.White
+        val fringe = 1f
+        val halfFringe = fringe / 2f
+        val square = uiPath {
+            moveTo(0f, 0f)
+            lineTo(100f, 0f)
+            lineTo(100f, 100f)
+            lineTo(0f, 100f)
+            close()
+        }
+        val mesh = square.tessellateFillAa(color, fringePx = fringe)
+        val (opaquePoints, opaqueIndices) = opaqueTriangles(mesh, color.a)
+
+        // 0.1px inside the true left edge (x=0) but still outside the inset edge (x=0.5): must
+        // NOT be opaque -- the old outward-only fringe was fully opaque all the way to x=0.
+        assertFalse(
+            trianglesCover(opaquePoints, opaqueIndices, halfFringe - 0.4f, 50f),
+            "opaque interior must not reach 0.1px inside the true edge -- fringe is not centered",
+        )
+        // Comfortably past the inset edge: must be opaque.
+        assertTrue(
+            trianglesCover(opaquePoints, opaqueIndices, 10f, 50f),
+            "opaque interior must cover a point well inside the inset boundary",
+        )
+
+        // The fringe band itself must straddle the true boundary (x=0), not sit entirely
+        // outside it.
+        val allPoints = mesh.vertices.map { it.position }
+        assertTrue(
+            trianglesCover(allPoints, mesh.indices, 0f, 50f),
+            "fringe band must span the true boundary (x=0)",
+        )
+    }
+
+    /** A 400px circle should facet far less than a fixed-step-count flattener would (visibly
+     * faceted at the old fixed 15deg/step), and a 12px circle shouldn't burn the same segment
+     * count on a curve where it's imperceptible -- see UiPath.adaptiveArcSteps. */
+    @Test
+    fun adaptiveFlatteningScalesArcStepsWithCircleSize() {
+        val bigCircle = UiShapeSpec.Circle.toPath(UiBounds(0f, 0f, 400f, 400f))
+        val bigSegments = bigCircle.flattenContours().single().points.size
+        assertTrue(bigSegments >= 40, "400px circle should flatten to >=40 segments, was $bigSegments")
+
+        val smallCircle = UiShapeSpec.Circle.toPath(UiBounds(0f, 0f, 12f, 12f))
+        val smallSegments = smallCircle.flattenContours().single().points.size
+        assertTrue(smallSegments <= 24, "12px circle should flatten to <=24 segments, was $smallSegments")
+    }
+}
+
+/** Sub-mesh of only the fully-opaque (alpha == [alpha]) triangles -- the AA interior, excluding
+ * fringe triangles which carry at least one transparent vertex. */
+private fun opaqueTriangles(mesh: UiColoredTriangleMesh, alpha: Float): Pair<List<UiPoint>, IntArray> {
+    val points = ArrayList<UiPoint>()
+    val indices = ArrayList<Int>()
+    var at = 0
+    while (at + 3 <= mesh.indices.size) {
+        val ia = mesh.indices[at]
+        val ib = mesh.indices[at + 1]
+        val ic = mesh.indices[at + 2]
+        if (listOf(ia, ib, ic).all { mesh.vertices[it].color.a == alpha }) {
+            val base = points.size
+            points += mesh.vertices[ia].position
+            points += mesh.vertices[ib].position
+            points += mesh.vertices[ic].position
+            indices += base
+            indices += base + 1
+            indices += base + 2
+        }
+        at += 3
+    }
+    return points to indices.toIntArray()
 }
 
 private fun trianglesCover(points: List<UiPoint>, indices: IntArray, x: Float, y: Float): Boolean {
