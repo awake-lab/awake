@@ -225,7 +225,7 @@ for a sample-level example built on it):
    `SwapchainManager.createHeadless(width, height)` -- no GLFW window, no real swapchain/surface.
 2. Build the real mesh/camera the demo actually uses (reuse the demo's own `internal` geometry/
    camera code where module visibility allows it -- see `RotatingCubePixelBaselineTest`'s reuse of
-   `rotatingCubeGeometry` and `OrbitCameraController.computeCamera(...)` -- don't hand-copy vertex
+   `rotatingCubeGeometry` and its `core.math.Camera` setup -- don't hand-copy vertex
    data a second time if the real source is reachable).
 3. Freeze animation for a reproducible frame: `ManualTimeController(autoPlay = false, hours =
    <fixed value>)` instead of real elapsed time.

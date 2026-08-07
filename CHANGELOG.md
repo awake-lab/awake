@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- GPU-based 3D Camera System: a single `CameraComponent` carrying a `CameraMode` enum
+  (`FirstPerson`, `ThirdPerson`, `Cinematic`, `TopDown`) plus an `ActiveCamera` tag
+  component. One `CameraSystem` drives every mode and only processes entities tagged with
+  `ActiveCamera`, preventing input drift in inactive modes.
+- `CameraInputSystem`: Handles hotkey switching (F1-F4) between camera modes.
+- `MatrixRelativeMovementSystem`: Dynamically transforms movement intents from
+  `MovementControl` based on the active camera's orientation, ensuring view-relative WASD.
+- `PlayerInputSystem`: Simplified hardware-to-ECS intent mapping for kinematic movement.
+- `Vec3` math helpers: `set`, `lerp`, and `add` for easier mutation.
 - `awake-ecs` and `awake-scene` as publishable artifacts. `awake-ecs` is now the pure
   sparse-set ECS runtime; Awake-specific scene components and systems moved to
   `awake-scene`.
@@ -40,6 +49,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Legacy camera systems and controllers: `OrbitCameraController`, `OrbitCameraSystem`,
+  `FollowCameraSystem`, `LookAtCameraSystem`, and `FreeFlyCameraSystem`.
+- `PlayerControlSystem` and legacy control components (`OrbitControl`, `FreeFlyControl`,
+  `FollowControl`, `LookAtControl`).
 - `Renderer.drawSkinnedMesh`/`drawTexturedMesh` — the separate staged-draw bypass a skinned
   or textured mesh needed before `RenderSystem`/`draw()` supported more than one vertex
   format. `GltfViewerDemo`/`SkinnedMeshDemo` (`samples:scene3d-playground`) now spawn a real

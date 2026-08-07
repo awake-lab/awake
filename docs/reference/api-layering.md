@@ -120,11 +120,11 @@ Likely future shape:
   Physics-facing scene components and systems. Currently owns PhysicsBody and PhysicsSystem.
 
 :awake:scene:controls
-  Reusable camera/player control components and systems. Currently owns OrbitControl,
-  FreeFlyControl, FollowControl, LookAtControl, MovementControl, their camera systems
-  (including LookAtCameraSystem), and PrimaryOrbitCamera (a plain lifecycle helper, not
-  an ECS System, for a UI-driven debug camera entity). PlayerControlSystem stays in
-  :awake:scene-dsl (depends on ui-core's UiInputOwnership).
+  Reusable camera/player control components and systems. Currently owns CameraComponent
+  (with its CameraMode enum: FirstPerson, ThirdPerson, Cinematic, TopDown), the
+  ActiveCamera tag, MovementControl, and the CameraSystem, CameraInputSystem,
+  MatrixRelativeMovementSystem and PlayerInputSystem systems. This module stays UI-free:
+  input reaches it as hardware snapshots mapped to intent components, never via ui-core.
 
 :awake:scene:runtime
   SceneGameRuntime scheduling and game-loop integration. Currently owns SceneGameRuntime,
@@ -138,8 +138,9 @@ Likely future shape:
 :awake:scene-dsl or :awake:scene:authoring
   Declarative authoring sugar and demo-friendly builders. Depends on
   :awake:scene:core/:rendering/:controls/:runtime directly, not the :awake:scene facade
-  (Phase 5). Also owns PlayerControlSystem -- moved here instead of :awake:scene:controls
-  since it needs ui-core's UiInputOwnership and :awake:scene:controls stays UI-free.
+  (Phase 5). Owns the DSL registration helpers for those systems (playerInputSystem(),
+  cameraInputSystem(), matrixRelativeMovementSystem(), cameraSystem()), not the systems
+  themselves.
 ```
 
 Current guidance: classify and document the API first, then split modules. Splitting before

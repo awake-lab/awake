@@ -27,7 +27,7 @@ artifact has shipped yet. Build from source.
 
 - **ECS & Scene Split**: `awake-ecs` is now a pure sparse-set ECS runtime; scene-specific components/systems moved to `awake-scene`.
 - **GPU Skinning & Textures**: Unified `MeshRenderer` draw path now supports GPU skinning (joint palettes) and texture sampling via per-mesh vertex formats.
-- **Improved Camera Controls**: Extracted `OrbitControl`, `FreeFlyControl`, and `LookAtControl` into reusable scene systems.
+- **Improved Camera Controls**: Replaced the per-style camera controls with one `CameraComponent` + `CameraMode` (`FirstPerson`, `ThirdPerson`, `Cinematic`, `TopDown`) driven by a single `CameraSystem`.
 - **Publishing Migration**: Migrated to Central Portal via `vanniktech` plugin; supports `awake-ecs` and `awake-scene` as publishable artifacts.
 
 ### Library Status
@@ -51,7 +51,7 @@ artifact has shipped yet. Build from source.
 - WebGPU — Web (Wasm), behind the same renderer abstraction as Vulkan
 - OpenGL — Android, iOS, Desktop (frozen: bugfixes only, Vulkan is the active backend)
 - Shared ECS (`awake:ecs`) + scene runtime (`awake:scene`: `Transform`, `MeshRenderer`,
-  `Camera`, `Light`, orbit/free-fly/follow/look-at camera controls, physics bodies)
+  `Camera`, `Light`, first-person/third-person/cinematic/top-down camera modes, physics bodies)
 - GPU skinning, texture sampling, and directional lighting through one unified
   `MeshRenderer`/`RenderSystem` draw path (per-mesh vertex format resolves its own pipeline)
 - Jolt Physics integration (`awake:backend:jolt`) behind a backend-neutral
@@ -79,7 +79,7 @@ artifact has shipped yet. Build from source.
 ### Running the Demos
 
 [`samples:scene3d-playground`](samples/scene3d-playground): a suite of ECS-driven demo
-pages (rotating cube with orbit/free-fly/follow/look-at camera modes, a real glTF viewer,
+pages (rotating cube with first-person/third-person/cinematic/top-down camera modes, a glTF viewer,
 GPU skinning, texture sampling — see `src/commonMain/.../demos`). Desktop and Web are the
 platforms with runnable app entry points today; iOS/Android targets build the shared
 framework/AAR but don't yet have a standalone app wrapper in this sample.

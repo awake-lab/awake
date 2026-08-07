@@ -11,11 +11,11 @@ Internally, the scene stack has started splitting by reusable capability. `awake
 still re-exports the stable public packages, while `:awake:scene:core` owns
 `Transform`/`Name` and `:awake:scene:rendering` owns `Camera`/`Light`/`MeshRenderer` plus
 `RenderSystem` (plus `TransformSystem`). `:awake:scene:physics` owns
-`PhysicsBody`/`PhysicsSystem`, `:awake:scene:controls` owns `OrbitControl`/`FreeFlyControl`/
-`FollowControl`/`MovementControl` plus `OrbitCameraSystem`/`FreeFlyCameraSystem`/
-`FollowCameraSystem`, and `:awake:scene:runtime` owns `SceneGameRuntime`, `SceneGameSpec`,
-the scene document model, and `SceneAssetLibrary`. `PlayerControlSystem` lives in
-`:awake:scene-dsl` (it needs `ui-core`, which `:awake:scene:controls` stays free of).
+`PhysicsBody`/`PhysicsSystem`, `:awake:scene:controls` owns `CameraComponent`/`ActiveCamera`/
+`MovementControl` plus `CameraSystem`/`CameraInputSystem`/`MatrixRelativeMovementSystem`/
+`PlayerInputSystem`, and `:awake:scene:runtime` owns `SceneGameRuntime`, `SceneGameSpec`,
+the scene document model, and `SceneAssetLibrary`. `:awake:scene-dsl` owns the DSL helpers
+that register those systems, which keeps `:awake:scene:controls` free of `ui-core`.
 
 ## Installation
 
@@ -142,9 +142,8 @@ you and appended after user systems.
 Scene systems are plain `awake-ecs` `System`s — there's nothing special about the two
 above beyond what components they read/write. `:awake:scene:core` already ships
 `SpinControl`/`SpinSystem` for generic entity rotation and `:awake:scene:controls` ships
-`OrbitControl`/`FreeFlyControl`/`FollowControl`/`LookAtControl` and their camera systems —
-check those first. For anything not already covered, a typical addition follows the same
-shape:
+`CameraComponent`/`MovementControl` and their camera and movement systems — check those
+first. For anything not already covered, a typical addition follows the same shape:
 
 ```kotlin
 class OrbitLightSystem(private val radiansPerSecond: Float) : System {
