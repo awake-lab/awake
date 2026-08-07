@@ -45,35 +45,38 @@ private fun Map<String, ULong>.toExpectedSignatureMatrix(): String =
         "\"$id\" to 0x${signature.toString(16)}uL,"
     }
 
+// 2026-08-08: re-recorded -- new semantic roles (Separator/Avatar/Progress/Toast) now
+// record nodes, switch claims measured label width, and the ac03b490/c9d00df7 text/accordion
+// changes were never re-recorded.
 private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-overview" to 0x8a0f1cda327975f7uL,
     "ui-showcase-theming" to 0x9d0095bbab02a1b6uL,
     "ui-showcase-typography" to 0x5cdcf234712bdbf4uL,
-    "ui-showcase-buttons" to 0xea38dddbd2390911uL,
-    "ui-showcase-avatar" to 0x5b00b491b02e85b4uL,
+    "ui-showcase-buttons" to 0x44538bdc29273616uL,
+    "ui-showcase-avatar" to 0x8ea30ca38683afffuL,
     "ui-showcase-breadcrumb" to 0xf1a3411b971e00c1uL,
-    "ui-showcase-card" to 0xaa581a998f1e299cuL,
-    "ui-showcase-sidebar" to 0xda0b88bd8a6d8c89uL,
-    "ui-showcase-selection" to 0x4ddbcec9ac33021auL,
+    "ui-showcase-card" to 0xfba54eb1186fca2cuL,
+    "ui-showcase-sidebar" to 0x8610343505e6874duL,
+    "ui-showcase-selection" to 0x9f4979b7bcf04bd7uL,
     "ui-showcase-range-slider" to 0x8a0f1cda327975f7uL,
     "ui-showcase-tabs" to 0xbba0ff689c10fa07uL,
     "ui-showcase-select" to 0x58c470e45506c2bfuL,
     "ui-showcase-kbd-separator" to 0x5e2ff8a0320ed449uL,
-    "ui-showcase-feedback" to 0x2810adea1a74634fuL,
+    "ui-showcase-feedback" to 0x37aeb8fecfaf71cauL,
     "ui-showcase-alert" to 0x78debd105ca87c64uL,
-    "ui-showcase-text-input" to 0x60817494ca0c3165uL,
+    "ui-showcase-text-input" to 0x8d5be4261c8c64euL,
     "ui-showcase-popups" to 0x8ef2ec7585c20826uL,
     "ui-showcase-state" to 0x8a0f1cda327975f7uL,
     "ui-showcase-button-matrix" to 0x66fe64b834938154uL,
     "ui-showcase-field-matrix" to 0x409492ffe72ab4euL,
     "ui-showcase-slider-matrix" to 0x5a90a7119bc91e3fuL,
-    "ui-showcase-dropdown-open" to 0x57f111f7c7807e9buL,
+    "ui-showcase-dropdown-open" to 0xa0033bfcf4279010uL,
     "ui-showcase-popover-open" to 0x65ca2799d16bc711uL,
     "ui-showcase-tooltip-open" to 0x8540c472d501ae7uL,
     "ui-showcase-alert-dialog" to 0xa895395688df6fbuL,
     "ui-showcase-scroll-panel" to 0x8aebd745f72c6a74uL,
     "ui-showcase-shimmer" to 0x8a0f1cda327975f7uL,
-    "ui-showcase-collapsible" to 0xd30342b336d8d62auL,
-    "ui-showcase-collapsible-open" to 0x5391468f2f853542uL,
+    "ui-showcase-collapsible" to 0x6f09095a91d2fdcauL,
+    "ui-showcase-collapsible-open" to 0xff92a08ad917785euL,
     "ui-showcase-field-demo" to 0x8a0f1cda327975f7uL,
 )

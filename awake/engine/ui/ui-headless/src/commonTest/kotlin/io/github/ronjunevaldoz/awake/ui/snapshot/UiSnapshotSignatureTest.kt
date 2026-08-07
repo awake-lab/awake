@@ -72,16 +72,20 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 // to 42% narrower than their own ink, which rendered as adjacent glyphs visibly touching/merging
 // at real UI text sizes. Every text-bearing scene's rasterized pixels shifted as a result, so
 // every signature below was re-recorded against the fixed, non-overlapping glyph spacing.
+// 2026-08-08: re-recorded for two stacked intended changes: (1) text()'s verticallyCentered
+// default flipped to true in ac03b490 without a re-record at the time; (2) the AA fringe now
+// centers on the true path boundary (interior insets by fringe/2) instead of dilating outward,
+// so every filled-path edge crisped by ~0.5px.
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0x93f3c9c7f86dc7e6uL,
-    "toggle-checked" to 0x248c5758ceb019f9uL,
-    "button-filled" to 0xa9d6aab03ea5efebuL,
-    "button-outline" to 0x2d17580f713d10d8uL,
-    "button-ghost" to 0xa9d6aab03ea5efebuL,
-    "theme-dark" to 0xa9d6aab03ea5efebuL,
-    "theme-light" to 0x477edd757ade548buL,
-    "panel-with-children" to 0x05b435841e619a07uL,
-    "shadcn-field-error" to 0x2661959fe977c56euL,
+    "toggle-unchecked" to 0x395341e1b5399766uL,
+    "toggle-checked" to 0x131c4de4b83b4af9uL,
+    "button-filled" to 0xe7a7330c9c26227buL,
+    "button-outline" to 0x0f59470533a2bfe3uL,
+    "button-ghost" to 0x8af9c34dd971dc8buL,
+    "theme-dark" to 0x8af9c34dd971dc8buL,
+    "theme-light" to 0xcd699f12a122d903uL,
+    "panel-with-children" to 0xac2f8e7d3d1ea317uL,
+    "shadcn-field-error" to 0x9b4e866d10b5bfceuL,
 )
 
 // 2026-08-03: quads/rounded-quads/borders (surface fills, buttons, dialogs, separators) now
@@ -91,14 +95,15 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // rendered a visibly softer/antialiased edge than the crisp text sitting right next to it.
 // Every scene with a border/panel/button shifted its rasterized pixels by sub-pixel rounding as
 // a result; re-recorded against the now-pixel-snapped primitives.
+// 2026-08-08: re-recorded for the same two stacked changes documented above the review map.
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0x7d2dfacc9565f26buL,
-    "ui-shaped-panel" to 0xc7edba140939cfffuL,
-    "ui-panel-controls" to 0xd522bd211f937364uL,
-    "ui-alert-dialog" to 0x91c88d40e4db9a39uL,
-    "ui-component-state-matrix" to 0xeb8e460e55572192uL,
-    "ui-rounded-clip-vector" to 0x6252fcda705461c1uL,
-    "ui-awake-shadcn-showcase" to 0x475f0c7766de5f75uL,
+    "ui-button-variants" to 0x49f8be6b9af58fceuL,
+    "ui-shaped-panel" to 0x8c9bc00b6959c7bcuL,
+    "ui-panel-controls" to 0xc16069b8ffd45870uL,
+    "ui-alert-dialog" to 0x6be76a141e51338auL,
+    "ui-component-state-matrix" to 0x4cc327d67d363058uL,
+    "ui-rounded-clip-vector" to 0x8f3c96375e78fdf0uL,
+    "ui-awake-shadcn-showcase" to 0xaf8066d0b54bc2dcuL,
 )
 
 private fun ULong.toHexString(): String {

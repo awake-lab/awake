@@ -150,10 +150,13 @@ class TextWidgetsTest {
         val ui = UiContext()
         ui.beginFrame(180f, 80f, testSnapshot())
         ui.pushFont(font)
+        // text(slot=...) now defaults verticallyCentered=true (several shadcn-parity goldens
+        // depend on it) -- request top alignment explicitly since that's what this test covers.
         ui.createAbsolute(x = 0f, y = 0f).text(
             label = "Title",
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(16f, 24f, 120f, 20f),
             font = font,
+            verticallyCentered = false,
         )
 
         val glyphBounds = ui.endFrame().glyphBounds()
