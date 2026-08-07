@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "name": "gltf-viewer",
+  "nodes": [
+    {
+      "name": "camera",
+      "components": [
+        {
+          "component": "camera",
+          "eye": { "x": 0.0, "y": 0.0, "z": 3.0 },
+          "center": { "x": 0.0, "y": 0.0, "z": 0.0 },
+          "fovYDegrees": 45.0,
+          "near": 0.1,
+          "far": 100.0,
+          "primary": true
+        }
+      ]
+    },
+    {
+      "name": "duck",
+      "components": [
+        { "component": "meshRenderer", "mesh": "duck", "material": "duck-material" }
+      ]
+    }
+  ]
+}
