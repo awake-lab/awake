@@ -3,6 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.modifier
 
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.inputState
+import io.github.ronjunevaldoz.awake.ui.isFocused
+import io.github.ronjunevaldoz.awake.ui.requestFocus
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /** Holds a [Modifier.clickable]-attached handler. Stored on [UiModifier.clickAction] --
@@ -37,5 +40,10 @@ fun UiScope.resolveClickable(id: String, slot: UiBounds, modifier: UiModifier) {
     val wasActive = isActive(id)
     releaseActiveIfMatches(id)
     val stillActive = isActive(id)
-    if (click.enabled && wasActive && !stillActive && hovered) click.onClick()
+    val activatedByKeyboard = click.enabled && isFocused(id) && inputState.activatePressed
+    val activatedByPointer = wasActive && !stillActive && hovered
+    // A pointer click also claims keyboard focus -- otherwise Space-repeat-activation (below)
+    // has nothing to be focused on, since nothing else in this engine drives Tab-focus yet.
+    if (activatedByPointer && click.enabled) requestFocus(id)
+    if (click.enabled && (activatedByPointer || activatedByKeyboard)) click.onClick()
 }

@@ -17,7 +17,13 @@ data class UiInputState(
     val scrollDeltaX: Float = 0f,
     val scrollDeltaY: Float = 0f,
     val typedText: String = "",
-    val editActions: List<UiTextEditAction> = emptyList()
+    val editActions: List<UiTextEditAction> = emptyList(),
+    /** Space was pressed this frame -- the one raw key edge exposed to widget activation
+     * (Radix/shadcn's Space-activates-the-focused-control convention). Not Enter too: `Enter`
+     * has no [io.github.ronjunevaldoz.awake.core.input.Key] entry, only a
+     * [io.github.ronjunevaldoz.awake.core.input.TextEditAction] for text-field submit, so it
+     * isn't observable here yet -- widening `Key` to add it is a separate, larger change. */
+    val activatePressed: Boolean = false
 )
 
 fun InputSnapshot.toUiInputState(): UiInputState = UiInputState(
@@ -28,7 +34,8 @@ fun InputSnapshot.toUiInputState(): UiInputState = UiInputState(
     scrollDeltaX = scrollDeltaX,
     scrollDeltaY = scrollDeltaY,
     typedText = typedText,
-    editActions = editActions.map { it.toUiAction() }
+    editActions = editActions.map { it.toUiAction() },
+    activatePressed = wasPressed(io.github.ronjunevaldoz.awake.core.input.Key.Space)
 )
 
 private fun TextEditAction.toUiAction(): UiTextEditAction = when (this) {

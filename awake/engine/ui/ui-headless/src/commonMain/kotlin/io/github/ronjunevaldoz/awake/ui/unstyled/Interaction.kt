@@ -6,6 +6,9 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.inputState
+import io.github.ronjunevaldoz.awake.ui.isFocused
+import io.github.ronjunevaldoz.awake.ui.requestFocus
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 
 internal data class UiInteraction(
@@ -30,10 +33,15 @@ internal fun UiScope.interact(
     val wasActiveBeforeRelease = isActive(id)
     releaseActiveIfMatches(id)
     val active = isActive(id)
+    val activatedByKeyboard = enabled && isFocused(id) && inputState.activatePressed
+    val activatedByPointer = wasActiveBeforeRelease && !active && hovered
+    // A pointer click also claims keyboard focus -- otherwise Space-repeat-activation (below)
+    // has nothing to be focused on, since nothing else in this engine drives Tab-focus yet.
+    if (activatedByPointer && enabled) requestFocus(id)
     return UiInteraction(
         slot = slot,
         hovered = hovered,
         active = active,
-        clicked = wasActiveBeforeRelease && !active && hovered
+        clicked = activatedByPointer || activatedByKeyboard
     )
 }
