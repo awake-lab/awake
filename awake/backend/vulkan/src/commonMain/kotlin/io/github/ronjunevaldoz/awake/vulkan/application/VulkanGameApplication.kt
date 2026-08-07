@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPolygonMode
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
+import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
@@ -96,13 +97,8 @@ class VulkanGameApplication(
     private var shadowMap: ShadowMap? = null
     private var shadowRenderPipeline: ShadowRenderPipeline? = null
 
-    /** Only its [Material.descriptorSetLayout] is ever used -- needed to build
-     * [renderPipeline]'s pipeline layout before any real material exists. `createResources`
-     * is deliberately never called on this instance (real materials are built on demand via
-     * `Renderer.createMaterial`), so [destroyBackend] must only tear down the layout, not the
-     * full [Material.destroy] (which would try to destroy a uniform buffer/descriptor pool
-     * that was never created). */
-    private lateinit var pipelineLayoutMaterial: Material
+    /** Needed to build [renderPipeline]'s pipeline layout before any real [Material] exists. */
+    private var pipelineDescriptorSetLayout: DescriptorSetLayoutHandle = DescriptorSetLayoutHandle(0)
 
     override suspend fun createBackendResources(window: Any): BackendResources {
         graphicsDevice = GraphicsDevice()
@@ -113,12 +109,12 @@ class VulkanGameApplication(
             surfaceExtentProvider = { surfaceFramebufferExtent(window) }
         )
         swapchainManager.create()
-        // Built before pipelineLayoutMaterial/renderPipeline: both need this ShadowMap's
+        // Built before pipelineDescriptorSetLayout/renderPipeline: both need this ShadowMap's
         // existence (not its content -- the shadow pass hasn't run its first frame yet) to
         // decide whether their shared descriptor set layout declares the extra shadow
         // bindings (see Material.kt's own shadowMap doc comment).
         shadowMap = shadowShaderSet?.let { ShadowMap(graphicsDevice) }
-        pipelineLayoutMaterial = Material(graphicsDevice, shadowMap = shadowMap)
+        pipelineDescriptorSetLayout = Material.createDescriptorSetLayout(graphicsDevice, shadowMap = shadowMap)
 
         // fillPipeline(shaders, format) builds the normal pipeline plus, when wireframeSupport
         // is on, a VK_POLYGON_MODE_LINE companion sharing the exact same loaded ShaderPair --
@@ -135,7 +131,7 @@ class VulkanGameApplication(
             val fill = RenderPipeline(
                 graphicsDevice,
                 swapchainManager,
-                pipelineLayoutMaterial.descriptorSetLayout,
+                pipelineDescriptorSetLayout,
                 shaders,
                 format,
                 vertexEntryPoint,
@@ -145,7 +141,7 @@ class VulkanGameApplication(
                 RenderPipeline(
                     graphicsDevice,
                     swapchainManager,
-                    pipelineLayoutMaterial.descriptorSetLayout,
+                    pipelineDescriptorSetLayout,
                     shaders,
                     format,
                     vertexEntryPoint,
@@ -184,7 +180,7 @@ class VulkanGameApplication(
             ShadowRenderPipeline(
                 graphicsDevice,
                 map.renderPass,
-                pipelineLayoutMaterial.descriptorSetLayout,
+                pipelineDescriptorSetLayout,
                 loadShaderPair(shaderSet.vulkan.vertexResourcePath, shaderSet.vulkan.fragmentResourcePath),
                 // Same vertex layout as the primary pipeline -- it draws the same meshes.
                 vertexFormat,
@@ -245,7 +241,7 @@ class VulkanGameApplication(
         transferContext.destroy()
         VulkanDescriptors.vkDestroyDescriptorSetLayout(
             graphicsDevice.device,
-            pipelineLayoutMaterial.descriptorSetLayout.handle
+            pipelineDescriptorSetLayout.handle
         )
         renderPipeline.destroy()
         additionalRenderPipelines.values.forEach { it.destroy() }
