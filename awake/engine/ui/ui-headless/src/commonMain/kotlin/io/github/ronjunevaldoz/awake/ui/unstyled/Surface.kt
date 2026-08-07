@@ -6,13 +6,15 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 internal data class ResolvedSurface(

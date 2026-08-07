@@ -3,8 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.theme
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /**
  * Semantic color roles consumed by widgets and higher-level UI compositions.

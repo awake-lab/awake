@@ -12,14 +12,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDrop
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.input.drawDropdownTriggerContent
-import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 
 /** Real shadcn's `Select`: a trigger button that opens a [shadcnDropdownMenu] of [options].

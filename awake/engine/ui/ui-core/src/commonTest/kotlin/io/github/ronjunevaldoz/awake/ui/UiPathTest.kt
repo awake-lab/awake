@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals

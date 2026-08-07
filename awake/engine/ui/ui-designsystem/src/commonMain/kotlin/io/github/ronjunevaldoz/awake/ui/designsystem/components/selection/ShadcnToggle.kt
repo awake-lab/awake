@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 private fun ShadcnToggleVariant.toUiButtonVariant(): UiButtonVariant = when (this) {
     ShadcnToggleVariant.Default -> UiButtonVariant.Filled

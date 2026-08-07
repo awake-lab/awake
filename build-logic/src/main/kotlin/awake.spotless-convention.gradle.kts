@@ -13,12 +13,7 @@ extensions.configure<SpotlessExtension> {
         // particular went unenforced in most of them). editorConfigOverride applies uniformly.
         ktlint("1.5.0").editorConfigOverride(
             mapOf(
-                // Off for now, and this is the one rule worth revisiting: ktlint cannot
-                // auto-fix a wildcard import, and expanding the ~20 remaining ones by hand
-                // needs real symbol resolution (a scripted attempt broke 10 call sites).
-                // Do it with the IDE's Optimize Imports, per module, then flip this to
-                // "enabled" so new ones can't creep back in.
-                "ktlint_standard_no-wildcard-imports" to "disabled",
+                "ktlint_standard_no-wildcard-imports" to "enabled",
                 // Off deliberately: this codebase's own convention is descriptive multi-line
                 // explanations above a declaration, and the repo has many long string
                 // literals (shader paths, error messages) that can't be wrapped meaningfully.

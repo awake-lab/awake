@@ -6,5 +6,6 @@ import io.github.ronjunevaldoz.awake.core.graphics.Bitmap
 import io.github.ronjunevaldoz.awake.core.graphics.createBitmap
 
 object BitmapUtils {
-    fun decode(bytes: ByteArray): Bitmap = createBitmap(bytes)
+    // suspend since web decoding goes through createImageBitmap(), which is async.
+    suspend fun decode(bytes: ByteArray): Bitmap = createBitmap(bytes)
 }

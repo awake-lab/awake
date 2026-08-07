@@ -9,9 +9,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnPalette
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.sp
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.theme.UiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.theme.UiShapeTokens

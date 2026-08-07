@@ -14,7 +14,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiInteraction
 import io.github.ronjunevaldoz.awake.ui.headless.interact
 import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
-import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.box
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -23,7 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.pointerDown
 import io.github.ronjunevaldoz.awake.ui.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import kotlin.math.abs

@@ -4,8 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 data class UiDialogProperties(
     val dismissOnClickOutside: Boolean = true,

@@ -8,7 +8,8 @@ import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
 import io.github.ronjunevaldoz.awake.engine.application.frame
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.column
