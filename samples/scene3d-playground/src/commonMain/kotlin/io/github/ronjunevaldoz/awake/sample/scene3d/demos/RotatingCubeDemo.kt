@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.components.Light
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
@@ -29,6 +30,7 @@ internal object RotatingCubeDemo {
     private var cameraEntity: Entity? = null
 
     private var wireframe = false
+    private val cubeMaterialParams = PbrMaterial()
     private var spinRadians = 0f
 
     private var panningEntity: Entity? = null
@@ -47,11 +49,9 @@ internal object RotatingCubeDemo {
 
     private const val CUBE_REST_HEIGHT = 0.5f
 
-    /** mvp(16) + lightDirection(4) + lightColor(4) + lightMvp(16) -- see `lit_shadow.wgsl`'s
-     * own Uniforms struct doc comment for why lightMvp is appended last. Only needed by demos
-     * whose entities draw through the primary (shadow-casting/receiving) pipeline -- this is
-     * the only demo in this sample app that does. */
-    private const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 40
+    /** mvp(16) + lightDirection(4) + lightColor(4) + lightMvp(16) + model(16) +
+     * cameraPosition(4) + material(4). Must match `lit_shadow.wgsl`'s Uniforms field order. */
+    private const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 64
 
     val entry = Scene3DDemo(
         id = "rotating-cube",
@@ -81,6 +81,20 @@ internal object RotatingCubeDemo {
                     enabled = !timeController.autoPlay,
                 )
                 text(label = "Turn off Auto-spin to freeze the cube at an exact time (0-24h = one full turn).")
+                cubeMaterialParams.metallic = shadcnFieldSliderWithValue(
+                    id = "cube-metallic",
+                    label = "Metallic",
+                    min = 0f,
+                    max = 1f,
+                    value = cubeMaterialParams.metallic,
+                )
+                cubeMaterialParams.roughness = shadcnFieldSliderWithValue(
+                    id = "cube-roughness",
+                    label = "Roughness",
+                    min = 0f,
+                    max = 1f,
+                    value = cubeMaterialParams.roughness,
+                )
             }
         },
         onActivate = {
@@ -97,6 +111,7 @@ internal object RotatingCubeDemo {
             world.add(cube, Transform().apply { position.set(cubeWorldPosition()) })
             world.add(cube, SpinControl().apply { radians = spinRadians })
             world.add(cube, MeshRenderer(cubeMesh!!, material!!))
+            world.add(cube, cubeMaterialParams)
             cubeEntity = cube
 
             val ground = world.create()

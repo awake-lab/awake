@@ -65,7 +65,15 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     val lightViewProjection = if (shadowMap != null) lightViewProjection(light) else null
     val materialUsage = mutableMapOf<RenderMaterial, Int>()
     val preparedDrawCalls =
-        prepareDrawCalls(currentFrame, viewProjection, drawCalls, light, lightViewProjection, materialUsage)
+        prepareDrawCalls(
+            currentFrame,
+            viewProjection,
+            drawCalls,
+            light,
+            lightViewProjection,
+            materialUsage,
+            cameraPosition = camera.eye,
+        )
 
     // Runs BEFORE the swapchain command buffer is recorded: the main pass's fragment shader
     // samples this frame's shadow map, so its depth content must already be complete (the
@@ -359,6 +367,7 @@ internal fun Renderer.prepareDrawCalls(
     light: SceneLight,
     lightViewProjection: Mat4? = null,
     materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf(),
+    cameraPosition: Vec3 = Vec3.ZERO,
 ): List<PreparedDrawCall> {
     val prepared = ArrayList<PreparedDrawCall>(drawCalls.size)
     // `vec4f` (not `vec3f`) for both fields on the WGSL side specifically to sidestep vec3's
@@ -397,7 +406,12 @@ internal fun Renderer.prepareDrawCalls(
             val extraFloats =
                 if (drawCall.mesh.format == renderPipeline.vertexFormat) {
                     if (lightViewProjection != null) {
-                        lightFloats + (drawCall.model * lightViewProjection).data
+                        // Order matches lit_shadow.wgsl's Uniforms field order exactly.
+                        lightFloats +
+                            (drawCall.model * lightViewProjection).data +
+                            drawCall.model.data +
+                            floatArrayOf(cameraPosition.x, cameraPosition.y, cameraPosition.z, 0f) +
+                            pbrMaterialFloats(drawCall)
                     } else {
                         lightFloats
                     }
@@ -411,6 +425,20 @@ internal fun Renderer.prepareDrawCalls(
     }
     return prepared
 }
+
+/** `[metallic, roughness, 0, 0]`, reusing [DrawCall.extraUniformFloats] -- the primary lit
+ * format otherwise ignores that field, and a dedicated pair of DrawCall properties would have
+ * to be threaded through every backend for two floats. Defaults to a fully dielectric,
+ * half-rough surface, which is what the pre-PBR Lambert shading approximated. */
+private fun pbrMaterialFloats(drawCall: DrawCall): FloatArray {
+    val supplied = drawCall.extraUniformFloats
+    if (supplied.size >= PBR_MATERIAL_FLOATS) return supplied.copyOf(PBR_MATERIAL_FLOATS)
+    return floatArrayOf(DEFAULT_METALLIC, DEFAULT_ROUGHNESS, 0f, 0f)
+}
+
+private const val PBR_MATERIAL_FLOATS = 4
+private const val DEFAULT_METALLIC = 0f
+private const val DEFAULT_ROUGHNESS = 0.5f
 
 private fun MutableMap<RenderMaterial, Int>.nextSlot(material: RenderMaterial): Int {
     val slot = this[material] ?: 0

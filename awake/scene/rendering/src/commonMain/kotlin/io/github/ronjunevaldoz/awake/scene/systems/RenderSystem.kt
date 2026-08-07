@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.Light
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.components.SkinnedPose
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import kotlin.collections.ArrayList
@@ -29,17 +30,19 @@ class RenderSystem(
             // shader reads it (a skinned mesh's joint palette); every other format ignores
             // an empty array the same way it always has.
             val pose = world.get<SkinnedPose>(entity)
+            val pbr = world.get<PbrMaterial>(entity)
+            val extras = when {
+                pose != null -> pose.jointPalette
+                pbr != null -> floatArrayOf(pbr.metallic, pbr.roughness, 0f, 0f)
+                else -> EMPTY_EXTRAS
+            }
             drawCalls.add(
-                if (pose != null) {
-                    DrawCall(
-                        mesh = meshRenderer.mesh,
-                        material = meshRenderer.material,
-                        model = transform.worldMatrix,
-                        extraUniformFloats = pose.jointPalette,
-                    )
-                } else {
-                    DrawCall(mesh = meshRenderer.mesh, material = meshRenderer.material, model = transform.worldMatrix)
-                },
+                DrawCall(
+                    mesh = meshRenderer.mesh,
+                    material = meshRenderer.material,
+                    model = transform.worldMatrix,
+                    extraUniformFloats = extras,
+                ),
             )
         }
         renderer.draw(camera.camera, drawCalls, sceneLight(world))
@@ -70,3 +73,5 @@ class RenderSystem(
         return SceneLight(direction = light.direction, color = light.color * light.intensity)
     }
 }
+
+private val EMPTY_EXTRAS = FloatArray(0)

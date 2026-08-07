@@ -14,6 +14,13 @@ struct Uniforms {
   // LAST (not after mvp) so the first 24 floats stay byte-identical to plain triangle.wgsl's
   // Uniforms -- see prepareDrawCalls' own doc comment.
   lightMvp : mat4x4<f32>,
+  // Model matrix on its own -- PBR needs a world-space position and normal to build the view
+  // vector, which mvp/lightMvp can't be decomposed back into.
+  model : mat4x4<f32>,
+  cameraPosition : vec4f,
+  // x = metallic, y = roughness. Packed as vec4f for the same 16-byte alignment reason as
+  // lightDirection above.
+  material : vec4f,
 }
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 // Bindings 1/2 (base-color texture) are declared by triangle.wgsl's descriptor-set-layout
@@ -27,6 +34,7 @@ struct VertexOutput {
   @location(0) color : vec3f,
   @location(1) normal : vec3f,
   @location(2) shadowPos : vec4f,
+  @location(3) worldPos : vec3f,
 }
 
 @vertex
@@ -40,10 +48,15 @@ fn vertexMain(
   output.color = inColor;
   output.normal = inNormal;
   output.shadowPos = uniforms.lightMvp * vec4f(inPosition, 1.0);
+  output.worldPos = (uniforms.model * vec4f(inPosition, 1.0)).xyz;
   return output;
 }
 
-const AMBIENT_STRENGTH : f32 = 0.35;
+const AMBIENT_STRENGTH : f32 = 0.08;
+const PI : f32 = 3.14159265359;
+const EPSILON : f32 = 0.0001;
+const DIELECTRIC_F0 : f32 = 0.04;
+const MIN_ROUGHNESS : f32 = 0.05;
 // Slope-scaled: the depth gradient per shadow texel grows as a surface tilts away from the
 // light, so one constant either leaves grazing-angle acne or detaches face-on contact shadows.
 // Front-face culling would fix this structurally, but the cube's winding isn't reliable.
@@ -84,16 +97,62 @@ fn sampleShadow(shadowPos : vec4f, nDotL : f32) -> f32 {
   return shadow / samples;
 }
 
+// GGX/Trowbridge-Reitz normal distribution: the share of microfacets aligned with the halfway
+// vector, which is what makes a rough surface's highlight broad and a smooth one's tight.
+fn distributionGgx(nDotH : f32, roughness : f32) -> f32 {
+  let a = roughness * roughness;
+  let a2 = a * a;
+  let d = nDotH * nDotH * (a2 - 1.0) + 1.0;
+  return a2 / max(PI * d * d, EPSILON);
+}
+
+// Smith geometry term with Schlick-GGX, accounting for microfacets shadowing each other.
+fn geometrySmith(nDotV : f32, nDotL : f32, roughness : f32) -> f32 {
+  let r = roughness + 1.0;
+  let k = (r * r) / 8.0;
+  let ggxV = nDotV / (nDotV * (1.0 - k) + k);
+  let ggxL = nDotL / (nDotL * (1.0 - k) + k);
+  return ggxV * ggxL;
+}
+
+fn fresnelSchlick(cosTheta : f32, f0 : vec3f) -> vec3f {
+  return f0 + (vec3f(1.0) - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
 @fragment
 fn fragmentMain(
   @location(0) color : vec3f,
   @location(1) normal : vec3f,
   @location(2) shadowPos : vec4f,
+  @location(3) worldPos : vec3f,
 ) -> @location(0) vec4f {
   let n = normalize(normal);
   let l = normalize(uniforms.lightDirection.xyz);
-  let diffuse = max(dot(n, l), 0.0);
-  let shadowFactor = sampleShadow(shadowPos, diffuse);
-  let shade = AMBIENT_STRENGTH + (1.0 - AMBIENT_STRENGTH) * diffuse * shadowFactor;
-  return vec4f(color * shade * uniforms.lightColor.xyz, 1.0);
+  let v = normalize(uniforms.cameraPosition.xyz - worldPos);
+  let h = normalize(v + l);
+
+  let nDotL = max(dot(n, l), 0.0);
+  let nDotV = max(dot(n, v), EPSILON);
+  let nDotH = max(dot(n, h), 0.0);
+
+  let metallic = clamp(uniforms.material.x, 0.0, 1.0);
+  // Floored: a perfectly smooth surface collapses the GGX denominator into a single-pixel
+  // highlight that aliases badly under any camera motion.
+  let roughness = clamp(uniforms.material.y, MIN_ROUGHNESS, 1.0);
+
+  // Metals have no diffuse and tint their specular with the base colour; dielectrics do the
+  // opposite and reflect a flat 4%. Interpolating by `metallic` is the standard workflow.
+  let f0 = mix(vec3f(DIELECTRIC_F0), color, metallic);
+  let fresnel = fresnelSchlick(max(dot(h, v), 0.0), f0);
+  let specular = (distributionGgx(nDotH, roughness) * geometrySmith(nDotV, nDotL, roughness) *
+    fresnel) / max(4.0 * nDotV * nDotL, EPSILON);
+  let diffuse = (vec3f(1.0) - fresnel) * (1.0 - metallic) * color / PI;
+
+  let shadowFactor = sampleShadow(shadowPos, nDotL);
+  let direct = (diffuse + specular) * uniforms.lightColor.xyz * nDotL * shadowFactor;
+  let ambient = color * AMBIENT_STRENGTH;
+  // Reinhard tone map: the specular lobe blows past 1.0 at low roughness, and clamping it
+  // instead flattens the highlight into a solid white disc.
+  let mapped = (ambient + direct) / (ambient + direct + vec3f(1.0));
+  return vec4f(mapped, 1.0);
 }
