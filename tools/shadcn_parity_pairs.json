@@ -1,0 +1,16 @@
+{
+  "_comment": "Single source of truth for which Awake preview PNG diffs against which real shadcn/ui reference PNG. Consumed by tools/compare_parity.py's --all mode and by ShadcnReferenceComparisonTest.kt (samples/ui-showcase/src/desktopTest) -- keep both in sync with this file rather than hardcoding the pairing twice. 'awake' is a preview id from ShadcnParityScreenshotTest.kt (rendered to samples/ui-showcase/build/ui-previews/<id>.png); 'reference' is a filename in docs/reference/shadcn-previews/.",
+  "pairs": [
+    {"name": "button", "awake": "awake-button-variants-light", "reference": "button_variants_light.png"},
+    {"name": "badge", "awake": "awake-badge-variants-light", "reference": "badge_variants_light.png"},
+    {"name": "checkbox", "awake": "awake-checkbox-states-light", "reference": "checkbox_states_light.png"},
+    {"name": "switch", "awake": "awake-switch-variants-light", "reference": "switch_states_light.png"},
+    {"name": "input", "awake": "awake-textfield-states-light", "reference": "text-field_states_light.png"},
+    {"name": "select", "awake": "awake-select-closed-light", "reference": "select_closed_light.png"},
+    {"name": "tabs", "awake": "awake-tabs-light", "reference": "tabs_states_light.png"},
+    {"name": "card", "awake": "awake-card-light", "reference": "card_states_light.png"},
+    {"name": "slider", "awake": "awake-slider-matrix-light-default", "reference": "slider_states_light.png"},
+    {"name": "tooltip", "awake": "awake-tooltip-trigger-light", "reference": "tooltip_trigger_light.png"},
+    {"name": "dialog", "awake": "awake-dialog-states-light", "reference": "dialog_states_light.png"}
+  ]
+}

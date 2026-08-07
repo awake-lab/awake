@@ -92,7 +92,10 @@ Use these first:
   shadcn reference — `./gradlew :samples:ui-showcase:desktopTest --tests
   "*ShadcnParityScreenshotTest*"`. Regenerate goldens with `-DAWAKE_RECORD_SNAPSHOTS=true`
   only after inspecting the recorded diff PNG confirms the drift is an intended change, never
-  blind
+  blind. That test is a regression lock against Awake's *own* prior render, not a fidelity
+  check against real shadcn/ui — for that, see "Shadcn Reference Fidelity Harness" below
+  (`ShadcnReferenceComparisonTest`, `tools/capture_shadcn_reference.py`,
+  `tools/compare_parity.py`)
 - the `RendererHeadlessPixelBaselineTest`-style pattern (`awake:backend:vulkan:desktopTest`)
   for headlessly rendering a real frame and dumping it as a PNG when no live window/browser is
   available — the go-to for "does this actually render right" questions on 3D/backend work
@@ -141,9 +144,11 @@ When investigating a spacing/layout complaint, do both, not just the first:
 2. **Absolute check** — is the spacing *right*, independent of whether it changed? Grep the
    affected file for hardcoded `spacer(...)`/`padding(...)`/fixed `height(...)` literals near
    the reported area — cheap, and catches exactly this class of longstanding-but-still-wrong
-   gap. Compare the absolute dp value against the shadcn reference (`/tmp/shadcn-compose-ref`
-   or wherever it's cloned) or the token scale (`ShadcnSpacing`/`UiSpacing`) it should be using
-   instead of a hardcoded literal.
+   gap. Compare the absolute dp value against the shadcn reference (`third_party/shadcn-ui-ref/`,
+   a pinned checkout -- run `tools/fetch_shadcn_reference.sh` if it's missing, see
+   [docs/reference/shadcn-reference-pipeline.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/shadcn-reference-pipeline.md))
+   or the token scale (`ShadcnSpacing`/`UiSpacing`) it should be using instead of a hardcoded
+   literal.
 
 ## Default-Behavior Changes In Hot Paths Need A Performance Check, Not Just A Correctness Check
 
@@ -217,3 +222,50 @@ A shared UI change is done only when:
 3. the docs/gallery artifact can be regenerated from tests
 4. any intentional exception is encoded in test config
 5. a human can open the generated report and confirm the result without discovering new obvious breakage
+
+## Shadcn Reference Fidelity Harness
+
+`ShadcnParityScreenshotTest` (above) is a regression lock: it diffs Awake's render against
+Awake's *own* previously recorded golden. That proves nothing changed by accident, but it
+cannot tell you whether Awake actually looks like real shadcn/ui -- and, until this harness
+existed, nothing automated ever checked. This closes that gap with a real upstream reference:
+
+- `tools/capture_shadcn_reference.py` -- renders real shadcn/ui components straight from
+  `ui.shadcn.com`'s own docs pages (Playwright, headless Chromium, fixed 1280x800 viewport,
+  devicePixelRatio 1, forced light theme, animations/transitions/caret disabled via injected
+  CSS) and saves them to `docs/reference/shadcn-previews/`. Verified byte-identical across
+  repeated runs. Re-capture with:
+  ```bash
+  python3 -c "import playwright" || (pip3 install playwright pillow && python3 -m playwright install chromium)
+  python3 tools/capture_shadcn_reference.py            # all components
+  python3 tools/capture_shadcn_reference.py --only button,card   # a subset, while iterating
+  ```
+  Each `capture_*` function names the exact `data-slot` selector(s) it depends on -- if
+  `ui.shadcn.com`'s own markup drifts enough to break one, that's where to look first.
+- `tools/compare_parity.py` -- given an Awake preview PNG and a shadcn reference PNG, trims
+  each image's own uniform-color border independently, compares the two at their intersection
+  size (top-left anchored, since the two are never pixel-identical in layout), and reports
+  mismatch %, max channel delta, mean delta, plus a red/blue diff heatmap PNG.
+  `python3 tools/compare_parity.py --all` runs every pair listed in
+  `tools/shadcn_parity_pairs.json` (the single source of truth for which Awake preview id pairs
+  with which reference filename).
+- `ShadcnReferenceComparisonTest` (`samples/ui-showcase`) -- the same aligned-crop comparison,
+  reimplemented in Kotlin against `java.awt.image`/`ImageIO` so it runs in the normal Gradle
+  suite with no Python/Playwright dependency at test time:
+  `./gradlew :samples:ui-showcase:desktopTest --tests "*ShadcnReferenceComparisonTest*"`.
+  Renders its own Awake-side previews (doesn't depend on `ShadcnParityScreenshotTest` having
+  run first), writes `build/reports/shadcn-parity-metrics.json` plus one diff heatmap per pair
+  under `build/reports/shadcn-parity/`, and prints a summary table. It does **not** fail the
+  build on drift -- mismatch against the real upstream reference is expected and tracked this
+  wave, not gated, until a maintainer decides a specific component is stable enough to lock
+  (see `tools/shadcn_parity_thresholds.json` for the currently-informational per-pair
+  ceilings). The test only asserts the harness itself ran and produced a report.
+
+Caveat carried over from `docs/reference/shadcn-parity.md`: shadcn/ui has no single canonical
+look (style presets, base colors, density all vary) -- these captures are *a* real reference,
+not *the* one true pixel target. The previous `docs/reference/shadcn-previews/*.png` set
+(hand-captured 2026-07-19) was never actually from `ui.shadcn.com` despite being described that
+way -- it was captured from `shadcn-compose`, a third-party Kotlin reimplementation (evidence:
+the old `select_closed_light.png` showed the literal text "Vega", `shadcn-compose`'s own style
+preset name, not a real shadcn select demo's option text). This harness fixes that by going
+straight to the upstream demo pages.

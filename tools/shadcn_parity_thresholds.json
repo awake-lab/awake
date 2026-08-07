@@ -1,0 +1,4 @@
+{
+  "_comment": "Per-pair mismatch%% ceilings for tools/compare_parity.py's status column. Informational only right now -- neither compare_parity.py nor ShadcnReferenceComparisonTest.kt fails the build when a pair goes OVER (drift against real ui.shadcn.com is expected and tracked, not gated, this wave -- see docs/reference/ui-validation.md). 'default' applies to any pair without its own entry. Revisit these numbers once a maintainer decides which components are stable enough to lock.",
+  "default": {"mismatch_pct_max": 60.0}
+}
