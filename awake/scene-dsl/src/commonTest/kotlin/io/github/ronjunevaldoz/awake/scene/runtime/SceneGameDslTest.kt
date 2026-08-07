@@ -252,6 +252,7 @@ private class RecordingRenderer : Renderer {
 
     override val clipSpace: ClipSpace = ClipSpace.WebGpu
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
+    override var wireframe: Boolean = false
 
     override fun createMesh(geometry: MeshGeometry): Mesh {
         meshCreateCount += 1

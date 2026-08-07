@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkPolygonMode
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
@@ -45,7 +46,16 @@ class VulkanGameApplication(
      * [texturedVertexFormat]. Same "null by default, opt in per game" shape as
      * [skinnedShaderSet]. */
     private val texturedShaderSet: GameShaderSet? = null,
-    private val texturedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorUv
+    private val texturedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorUv,
+    /** Builds a `VK_POLYGON_MODE_LINE` companion pipeline for the primary pipeline and for
+     * [skinnedShaderSet]/[texturedShaderSet] (whichever are actually present), reusing the
+     * exact same loaded shaders/vertex layout as their filled counterpart -- toggled on/off
+     * per frame via `Renderer.wireframe`. `false` by default so a game that never uses it
+     * doesn't pay for the extra pipeline objects, same "opt in per game" shape as
+     * [skinnedShaderSet]/[texturedShaderSet]. Requires the device's `fillModeNonSolid`
+     * feature -- see `RenderPipeline`'s own `polygonMode` doc comment for why that's already
+     * satisfied whenever the GPU supports it, no extra wiring needed here. */
+    private val wireframeSupport: Boolean = false
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -59,7 +69,8 @@ class VulkanGameApplication(
         skinnedShaderSet: GameShaderSet? = null,
         skinnedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorSkin,
         texturedShaderSet: GameShaderSet? = null,
-        texturedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorUv
+        texturedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorUv,
+        wireframeSupport: Boolean = false
     ) : this(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
@@ -70,7 +81,8 @@ class VulkanGameApplication(
         skinnedShaderSet = skinnedShaderSet,
         skinnedVertexFormat = skinnedVertexFormat,
         texturedShaderSet = texturedShaderSet,
-        texturedVertexFormat = texturedVertexFormat
+        texturedVertexFormat = texturedVertexFormat,
+        wireframeSupport = wireframeSupport
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -78,6 +90,9 @@ class VulkanGameApplication(
     private lateinit var renderPipeline: RenderPipeline
     private var skinnedRenderPipeline: RenderPipeline? = null
     private var texturedRenderPipeline: RenderPipeline? = null
+    private var wireframeRenderPipeline: RenderPipeline? = null
+    private var wireframeSkinnedRenderPipeline: RenderPipeline? = null
+    private var wireframeTexturedRenderPipeline: RenderPipeline? = null
     private lateinit var lineRenderPipeline: LineRenderPipeline
     private lateinit var transferContext: TransferContext
 
@@ -99,37 +114,79 @@ class VulkanGameApplication(
         )
         swapchainManager.create()
         pipelineLayoutMaterial = Material(graphicsDevice)
-        renderPipeline = RenderPipeline(
-            graphicsDevice,
-            swapchainManager,
-            pipelineLayoutMaterial.descriptorSetLayout,
-            loadShaderPair(vertexShaderResourcePath, fragmentShaderResourcePath),
+
+        // fillPipeline(shaders, format) builds the normal pipeline plus, when wireframeSupport
+        // is on, a VK_POLYGON_MODE_LINE companion sharing the exact same loaded ShaderPair --
+        // one resource read instead of two, and the pair this app's own field assignments
+        // below destructure.
+        suspend fun fillAndWireframePipeline(
+            vertexPath: String,
+            fragmentPath: String,
+            format: VertexFormat,
+            vertexEntryPoint: String,
+            fragmentEntryPoint: String
+        ): Pair<RenderPipeline, RenderPipeline?> {
+            val shaders = loadShaderPair(vertexPath, fragmentPath)
+            val fill = RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                pipelineLayoutMaterial.descriptorSetLayout,
+                shaders,
+                format,
+                vertexEntryPoint,
+                fragmentEntryPoint
+            )
+            val wireframe = if (wireframeSupport) {
+                RenderPipeline(
+                    graphicsDevice,
+                    swapchainManager,
+                    pipelineLayoutMaterial.descriptorSetLayout,
+                    shaders,
+                    format,
+                    vertexEntryPoint,
+                    fragmentEntryPoint,
+                    polygonMode = VkPolygonMode.VK_POLYGON_MODE_LINE
+                )
+            } else {
+                null
+            }
+            return fill to wireframe
+        }
+
+        val (fill, wireframe) = fillAndWireframePipeline(
+            vertexShaderResourcePath,
+            fragmentShaderResourcePath,
             vertexFormat,
             vertexShaderEntryPoint,
             fragmentShaderEntryPoint
         )
-        skinnedRenderPipeline = skinnedShaderSet?.let { shaderSet ->
-            RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                pipelineLayoutMaterial.descriptorSetLayout,
-                loadShaderPair(shaderSet.vulkan.vertexResourcePath, shaderSet.vulkan.fragmentResourcePath),
+        renderPipeline = fill
+        wireframeRenderPipeline = wireframe
+
+        skinnedShaderSet?.let { shaderSet ->
+            val (skinnedFill, skinnedWireframe) = fillAndWireframePipeline(
+                shaderSet.vulkan.vertexResourcePath,
+                shaderSet.vulkan.fragmentResourcePath,
                 skinnedVertexFormat,
                 shaderSet.vulkan.vertexEntryPoint,
                 shaderSet.vulkan.fragmentEntryPoint
             )
+            skinnedRenderPipeline = skinnedFill
+            wireframeSkinnedRenderPipeline = skinnedWireframe
         }
-        texturedRenderPipeline = texturedShaderSet?.let { shaderSet ->
-            RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                pipelineLayoutMaterial.descriptorSetLayout,
-                loadShaderPair(shaderSet.vulkan.vertexResourcePath, shaderSet.vulkan.fragmentResourcePath),
+
+        texturedShaderSet?.let { shaderSet ->
+            val (texturedFill, texturedWireframe) = fillAndWireframePipeline(
+                shaderSet.vulkan.vertexResourcePath,
+                shaderSet.vulkan.fragmentResourcePath,
                 texturedVertexFormat,
                 shaderSet.vulkan.vertexEntryPoint,
                 shaderSet.vulkan.fragmentEntryPoint
             )
+            texturedRenderPipeline = texturedFill
+            wireframeTexturedRenderPipeline = texturedWireframe
         }
+
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
@@ -142,6 +199,11 @@ class VulkanGameApplication(
             skinnedRenderPipeline?.let { put(skinnedVertexFormat, it) }
             texturedRenderPipeline?.let { put(texturedVertexFormat, it) }
         }
+        val wireframePipelinesByFormat = buildMap {
+            wireframeRenderPipeline?.let { put(vertexFormat, it) }
+            wireframeSkinnedRenderPipeline?.let { put(skinnedVertexFormat, it) }
+            wireframeTexturedRenderPipeline?.let { put(texturedVertexFormat, it) }
+        }
         val renderer = Renderer(
             graphicsDevice,
             swapchainManager,
@@ -153,7 +215,8 @@ class VulkanGameApplication(
             loadShaderPair(UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH, UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH),
             loadShaderPair(UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH, UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH),
             loadShaderPair(UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH, UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH),
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
+            wireframePipelinesByFormat
         )
         swapchainManager.createSyncObjects()
 
@@ -183,6 +246,9 @@ class VulkanGameApplication(
         renderPipeline.destroy()
         skinnedRenderPipeline?.destroy()
         texturedRenderPipeline?.destroy()
+        wireframeRenderPipeline?.destroy()
+        wireframeSkinnedRenderPipeline?.destroy()
+        wireframeTexturedRenderPipeline?.destroy()
         lineRenderPipeline.destroy()
         graphicsDevice.destroy()
     }

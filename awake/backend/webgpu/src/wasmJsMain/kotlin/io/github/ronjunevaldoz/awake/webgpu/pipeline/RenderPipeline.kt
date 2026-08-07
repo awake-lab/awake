@@ -32,6 +32,11 @@ import io.ygdrasil.webgpu.VertexState
  * pipeline stages, matching how WGSL is normally authored. [fragShaderCode] is unused (the
  * combined source already has both stages). [renderPass]/[pipelineCache] have no WebGPU
  * equivalent and stay 0.
+ *
+ * [topology] defaults to `TriangleList`; a `LineList` companion pipeline (built with the same
+ * shader/vertex layout, just this one field different) is how `Renderer.wireframe` is
+ * implemented on this backend -- see `webgpu.renderer.Renderer`'s own doc comment for why
+ * (WebGPU has no `VK_POLYGON_MODE_LINE` equivalent).
  */
 class RenderPipeline(
     graphicsDevice: GraphicsDevice,
@@ -41,7 +46,8 @@ class RenderPipeline(
     fragShaderCode: ByteArray,
     vertexStride: Int,
     vertexEntryPoint: String = DEFAULT_VERTEX_ENTRY_POINT,
-    fragmentEntryPoint: String = DEFAULT_FRAGMENT_ENTRY_POINT
+    fragmentEntryPoint: String = DEFAULT_FRAGMENT_ENTRY_POINT,
+    topology: GPUPrimitiveTopology = GPUPrimitiveTopology.TriangleList
 ) {
     var renderPass: Long = 0
     var pipelineLayout: Long = 0
@@ -89,7 +95,7 @@ class RenderPipeline(
                     )
                 ),
                 primitive = PrimitiveState(
-                    topology = GPUPrimitiveTopology.TriangleList,
+                    topology = topology,
                     cullMode = GPUCullMode.None,
                     frontFace = GPUFrontFace.CW
                 ),

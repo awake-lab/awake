@@ -39,8 +39,17 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     swapchainManager.syncSurface()
     val device = graphicsDevice.wgpuContext.device
     val renderingContext = graphicsDevice.wgpuContext.renderingContext
-    val pipeline = WebGpuHandles.resolve<GPURenderPipeline>(renderPipeline.graphicsPipeline[0])
-    ensureUniformResources(pipeline)
+    // wireframe with no wireframeRenderPipeline built (wireframeSupport = false, see
+    // WebGpuGameApplication) just keeps drawing filled -- mirrors Vulkan's Renderer
+    // .pipelineFor fallback, not a hard requirement to opt in.
+    val useWireframe = wireframe && wireframeRenderPipeline != null
+    val activeRenderPipeline = if (useWireframe) wireframeRenderPipeline!! else renderPipeline
+    val pipeline = WebGpuHandles.resolve<GPURenderPipeline>(activeRenderPipeline.graphicsPipeline[0])
+    // Separate uniform-resource sets per pipeline object -- see ensureWireframeUniformResources'
+    // own doc comment for why a bind group can't be shared across two "auto"-layout pipelines.
+    if (useWireframe) ensureWireframeUniformResources(pipeline) else ensureUniformResources(pipeline)
+    val activeUniformBuffer = if (useWireframe) wireframeUniformBuffer!! else uniformBuffer!!
+    val activeUniformBindGroup = if (useWireframe) wireframeUniformBindGroup!! else uniformBindGroup!!
 
     val aspect = renderingContext.width.toFloat() / renderingContext.height.toFloat()
     val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
@@ -89,16 +98,24 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
             // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
             // Camera.viewProjectionMatrix's docs), matching vulkanMain's Renderer.
             val mvp = drawCall.model * viewProjection
-            device.queue.writeBuffer(uniformBuffer!!, 0uL, fastArrayBufferOf(mvp.data + lightFloats))
-            setBindGroup(0u, uniformBindGroup!!)
+            device.queue.writeBuffer(activeUniformBuffer, 0uL, fastArrayBufferOf(mvp.data + lightFloats))
+            setBindGroup(0u, activeUniformBindGroup)
             // drawCall.mesh is the render-api interface (only bind()/draw()/destroy()) --
             // cast to this backend's own concrete Mesh for vertexBuffer/indexBuffer/
             // indexCount, safe since this Renderer only ever runs against this module's
             // own Mesh instances (never a different backend's).
             val mesh = drawCall.mesh as Mesh
             setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))
-            setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
-            drawIndexed(mesh.indexCount.toUInt())
+            if (useWireframe) {
+                // Same vertex buffer, a different (LineList-shaped) index buffer derived
+                // from this mesh's own triangle indices -- see Mesh's lineIndexBuffer doc
+                // comment.
+                setIndexBuffer(WebGpuHandles.resolve(mesh.lineIndexBuffer.handle), meshIndexFormat)
+                drawIndexed(mesh.lineIndexCount.toUInt())
+            } else {
+                setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
+                drawIndexed(mesh.indexCount.toUInt())
+            }
             drawIndex += 1
         }
 

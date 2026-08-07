@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkFrontFace
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageLayout
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkPolygonMode
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPrimitiveTopology
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkShaderStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
@@ -82,7 +83,15 @@ class RenderPipeline(
     shaders: ShaderPair,
     val vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     vertexEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
-    fragmentEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT
+    fragmentEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
+    /** `VK_POLYGON_MODE_LINE` builds a wireframe companion of an otherwise-identical pipeline
+     * (same shaders/vertex layout/render pass) -- see `Renderer.wireframe`'s doc comment.
+     * Requires the device's `fillModeNonSolid` feature; not requested separately here because
+     * `GraphicsDevice.createLogicalDevice` already enables every feature the physical device
+     * reports as available (`pEnabledFeatures = arrayOf(features)`, not a hand-picked subset),
+     * so this is already on whenever the GPU supports it -- confirmed by reading that
+     * function, not assumed. */
+    polygonMode: VkPolygonMode = VkPolygonMode.VK_POLYGON_MODE_FILL
 ) {
     private val graphicsDevice = graphicsDevice
     private val swapchainManager = swapchainManager
@@ -101,7 +110,8 @@ class RenderPipeline(
             fragShaderCode = shaders.fragment,
             vertexFormat = vertexFormat,
             vertexEntryPoint = vertexEntryPoint,
-            fragmentEntryPoint = fragmentEntryPoint
+            fragmentEntryPoint = fragmentEntryPoint,
+            polygonMode = polygonMode
         )
     }
 
@@ -181,7 +191,8 @@ class RenderPipeline(
         fragShaderCode: ByteArray,
         vertexFormat: VertexFormat,
         vertexEntryPoint: String,
-        fragmentEntryPoint: String
+        fragmentEntryPoint: String,
+        polygonMode: VkPolygonMode
     ) {
         // WARNING: make sure the .spv vulkan version match, this might cause out of memory
         val fragShaderModule = createShaderModule(fragShaderCode.toIntArray())
@@ -269,6 +280,7 @@ class RenderPipeline(
                 // duplication makes winding order meaningful.
                 cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
                 frontFace = VkFrontFace.VK_FRONT_FACE_CLOCKWISE,
+                polygonMode = polygonMode,
                 lineWidth = 1f
             )
         )

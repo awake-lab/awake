@@ -101,11 +101,25 @@ class Renderer(
     internal val uiGlyphShaders: ShaderPair,
     internal val uiTextureShaders: ShaderPair,
     internal val uiRoundedQuadShaders: ShaderPair,
-    internal val maxFramesInFlight: Int
+    internal val maxFramesInFlight: Int,
+    /** `VK_POLYGON_MODE_LINE` companions of [renderPipeline]/[additionalPipelinesByFormat],
+     * keyed the same way -- see [wireframe]'s doc comment for how these get selected. Empty
+     * (default) for every game that doesn't opt into `VulkanGameApplication`'s
+     * `wireframeSupport`, same "skip building it" shape as [additionalPipelinesByFormat].
+     * Appended as the last (defaulted) constructor parameter, not inserted alongside
+     * [additionalPipelinesByFormat], so every existing positional-argument call site (this
+     * repo has several, across `VulkanGameApplication` and desktopTest) keeps compiling
+     * unchanged. A format with no wireframe entry here just keeps drawing filled even with
+     * [wireframe] on (see [pipelineFor]) -- it is never skipped the way an unknown-format
+     * mesh is. */
+    wireframePipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap()
 ) : RenderRenderer {
     override val clipSpace: ClipSpace = ClipSpace.Vulkan
 
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
+
+    /** See this class's own `wireframePipelinesByFormat` constructor parameter doc comment. */
+    override var wireframe: Boolean = false
 
     /** [clearColor] converted to this backend's clear-value type -- read fresh every render
      * pass (not cached), so a [clearColor] mutation takes effect on the very next frame. */
@@ -124,6 +138,16 @@ class Renderer(
      * data through the wrong pipeline would be worse than not drawing it at all. */
     internal val pipelinesByFormat: Map<VertexFormat, RenderPipeline> =
         mapOf(renderPipeline.vertexFormat to renderPipeline) + additionalPipelinesByFormat
+    internal val wireframePipelinesByFormat: Map<VertexFormat, RenderPipeline> = wireframePipelinesByFormat
+
+    /** Resolves [format] to the pipeline that should actually draw it this frame -- the
+     * [wireframePipelinesByFormat] entry when [wireframe] is on and one was built for
+     * [format], otherwise the normal [pipelinesByFormat] entry (which also covers "wireframe
+     * is on but this format has no wireframe variant": falls back to filled rather than being
+     * dropped). */
+    internal fun pipelineFor(format: VertexFormat): RenderPipeline? =
+        if (wireframe) wireframePipelinesByFormat[format] ?: pipelinesByFormat[format] else pipelinesByFormat[format]
+
     internal val device get() = graphicsDevice.device
     internal val physicalDevice get() = graphicsDevice.physicalDevice
     internal val graphicsQueue get() = graphicsDevice.graphicsQueue

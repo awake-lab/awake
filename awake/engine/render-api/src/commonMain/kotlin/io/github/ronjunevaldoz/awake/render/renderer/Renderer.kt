@@ -54,6 +54,19 @@ interface Renderer {
      * one solid background color rarely needs to change every single frame. */
     var clearColor: FloatArray
 
+    /** When `true`, meshes drawn by the next [draw] call render as edges instead of filled
+     * triangles, for whichever formats the active backend has a wireframe-capable pipeline
+     * for (a format with none just keeps drawing filled -- see each backend's `Renderer` for
+     * which formats it built one for). `false` by default so a game that never toggles this
+     * sees exactly what it always did. A plain `var`, same "not a per-frame [draw] parameter"
+     * pattern as [clearColor] -- a debug/dev toggle, not something that needs to vary call to
+     * call. Vulkan and WebGPU implement this with genuinely different mechanisms
+     * (`VK_POLYGON_MODE_LINE` vs. a line-index buffer derived from each mesh's triangle
+     * indices, drawn with `LineList` topology) -- WebGPU has no polygon-mode equivalent, see
+     * that backend's `Renderer`/`Mesh` for why the derived-index-buffer approach was chosen
+     * over a barycentric-coordinate fragment shader. */
+    var wireframe: Boolean
+
     /** Uploads [geometry] as a GPU mesh, on demand -- a game calls this itself for whatever
      * assets it wants, whenever it wants (not something the render bootstrap decides upfront
      * from a constructor-supplied asset list). */
