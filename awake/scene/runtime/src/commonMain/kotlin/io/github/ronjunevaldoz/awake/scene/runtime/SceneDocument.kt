@@ -43,9 +43,9 @@ data class SceneCamera(
     val near: Float = 0.1f,
     val far: Float = 100f,
     val primary: Boolean = true
-    // No flipYForClipSpace field here -- that's a backend clip-space convention (Vulkan vs
-    // WebGPU), not scene-authored content. SceneRuntime.load() supplies it from the active
-    // Renderer.flipYForClipSpace instead (see that property's own doc comment).
+    // No clip-space field here -- that's a backend convention (Vulkan vs WebGPU), not
+    // scene-authored content. The active Renderer.clipSpace supplies it at the moment a
+    // projection matrix is built (see that property's own doc comment).
 )
 
 @Serializable

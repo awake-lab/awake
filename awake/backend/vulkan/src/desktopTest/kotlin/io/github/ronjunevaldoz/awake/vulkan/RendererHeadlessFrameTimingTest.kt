@@ -85,8 +85,7 @@ class RendererHeadlessFrameTimingTest {
                 center = Vec3(0f, 0f, 0f),
                 fovYRadians = 1f,
                 near = 0.1f,
-                far = 10f,
-                flipYForClipSpace = renderer.flipYForClipSpace
+                far = 10f
             )
             val createdMesh = renderer.createMesh(MeshGeometry(cubeVertices, cubeIndices)).also { mesh = it }
             val createdMaterial = renderer.createMaterial().also { material = it }

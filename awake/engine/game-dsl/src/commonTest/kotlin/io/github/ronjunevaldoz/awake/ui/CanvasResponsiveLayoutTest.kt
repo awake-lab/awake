@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
 import io.github.ronjunevaldoz.awake.engine.application.frame
@@ -24,7 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.layout.*
 
 private object TestDummyRenderer : io.github.ronjunevaldoz.awake.render.renderer.Renderer {
-    override val flipYForClipSpace: Boolean = false
+    override val clipSpace: ClipSpace = ClipSpace.WebGpu
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
     override fun createMesh(geometry: io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry): io.github.ronjunevaldoz.awake.render.mesh.Mesh = object : io.github.ronjunevaldoz.awake.render.mesh.Mesh {
         override val format: io.github.ronjunevaldoz.awake.render.mesh.VertexFormat = geometry.format

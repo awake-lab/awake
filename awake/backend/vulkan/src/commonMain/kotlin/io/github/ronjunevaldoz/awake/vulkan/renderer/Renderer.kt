@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
@@ -102,7 +103,7 @@ class Renderer(
     internal val uiRoundedQuadShaders: ShaderPair,
     internal val maxFramesInFlight: Int
 ) : RenderRenderer {
-    override val flipYForClipSpace: Boolean = true
+    override val clipSpace: ClipSpace = ClipSpace.Vulkan
 
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
@@ -339,7 +340,7 @@ class Renderer(
     override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) {
         val offscreen = target as OffscreenRenderTarget
         val aspect = offscreen.width.toFloat() / offscreen.height.toFloat()
-        val viewProjection = camera.viewProjectionMatrix(aspect)
+        val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
         val preparedDrawCalls = prepareDrawCalls(
             frameIndex = commandBuffers.size,
             viewProjection = viewProjection,

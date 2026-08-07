@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.render.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -32,14 +33,16 @@ val DEFAULT_SCENE_LIGHT = SceneLight(
  * change `VulkanApplication.kt`'s construction pattern.
  */
 interface Renderer {
-    /** Whether this backend's clip space needs [Camera.viewProjectionMatrix]'s Y-flip
-     * correction -- see that method's own doc comment. Vulkan's NDC has +Y down (needs the
-     * flip); WebGPU's NDC has +Y up, same as the OpenGL convention [Camera] assumes natively
-     * (confirmed by this repo's own `ui_quad.wgsl`: "pixel-space is Y-down, NDC is Y-up"), so
-     * it needs no flip. This is a backend implementation detail, not scene-authored content --
-     * callers building a [Camera] (manually, or via `SceneRuntime`/`SceneLoader` from scene
-     * JSON) should read this rather than hardcoding `true` for every backend. */
-    val flipYForClipSpace: Boolean
+    /** The NDC convention this backend's API expects -- Y direction *and* depth range (see
+     * [ClipSpace]). Vulkan's NDC has +Y down and depth `0..1`; WebGPU's has +Y up and depth
+     * `0..1` (the +Y up half is confirmed by this repo's own `ui_quad.wgsl`: "pixel-space is
+     * Y-down, NDC is Y-up").
+     *
+     * The renderer owns this because the renderer owns the API. A [Camera] stores only lens
+     * parameters; this value is what gets handed to [Camera.viewProjectionMatrix] at the
+     * moment a matrix is built, so nothing upstream -- a scene document, a demo, a test --
+     * ever gets the chance to bake in the wrong convention. */
+    val clipSpace: ClipSpace
 
     /** RGBA (each `0f..1f`) color the 3D render pass clears to before every frame's
      * [draw] call -- defaults to opaque black on every backend, so any app that never sets

@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
@@ -56,7 +57,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     val imageIndex = acquireSwapchainImage(currentFrame) ?: return
 
     val aspect = swapchainManager.extent.width.toFloat() / swapchainManager.extent.height.toFloat()
-    val viewProjection = camera.viewProjectionMatrix(aspect)
+    val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
     // Debug lines are already in world space (no per-line model matrix), so their MVP
     // is exactly this frame's viewProjection.
     lineRenderPipeline.writeMvp(currentFrame, viewProjection.data)

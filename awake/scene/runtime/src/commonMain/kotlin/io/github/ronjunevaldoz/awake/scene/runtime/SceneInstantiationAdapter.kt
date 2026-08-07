@@ -22,7 +22,7 @@ interface SceneInstantiationAdapter<Node, Instance> {
     fun createNode(node: SceneNode, parent: Node?): Node
     fun attachName(node: Node, name: String)
     fun attachTransform(node: Node, transform: SceneTransform, parent: Node?)
-    fun attachCamera(node: Node, camera: SceneCamera, flipYForClipSpace: Boolean)
+    fun attachCamera(node: Node, camera: SceneCamera)
     fun attachLight(node: Node, light: SceneLight)
     fun queueMeshRenderer(node: Node, meshRenderer: SceneMeshRenderer)
     fun complete(roots: List<SceneNodeHandle<Node>>): Instance
@@ -43,8 +43,8 @@ class AwakeWorldSceneAdapter(
         world.add(node, transform.toComponent(parent))
     }
 
-    override fun attachCamera(node: Entity, camera: SceneCamera, flipYForClipSpace: Boolean) {
-        world.add(node, camera.toComponent(flipYForClipSpace))
+    override fun attachCamera(node: Entity, camera: SceneCamera) {
+        world.add(node, camera.toComponent())
     }
 
     override fun attachLight(node: Entity, light: SceneLight) {
@@ -69,15 +69,14 @@ internal fun SceneTransform.toComponent(parent: Entity?): Transform = Transform(
     parent = parent
 )
 
-internal fun SceneCamera.toComponent(flipYForClipSpace: Boolean): SceneCameraComponent = SceneCameraComponent(
+internal fun SceneCamera.toComponent(): SceneCameraComponent = SceneCameraComponent(
     camera = Camera(
         eye = eye.toVec3(),
         center = center.toVec3(),
         up = up.toVec3(),
         fovYRadians = degreesToRadians(fovYDegrees),
         near = near,
-        far = far,
-        flipYForClipSpace = flipYForClipSpace
+        far = far
     ),
     isPrimary = primary
 )

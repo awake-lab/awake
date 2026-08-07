@@ -86,7 +86,7 @@ class SceneGameDsl internal constructor() {
     fun scene(document: SceneDocument) {
         this.sceneName = document.name
         this.scenePopulationBlock = {
-            val scene = document.instantiate(flipYForClipSpace = renderer.flipYForClipSpace, world = world)
+            val scene = document.instantiate(world = world)
             scene.attachRenderableComponents { request -> spec.renderableFactory(this, request) }
         }
     }

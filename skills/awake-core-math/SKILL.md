@@ -131,6 +131,42 @@ Also: a mode that ignores an input axis must not accumulate it. Otherwise the hi
 drifts while the camera looks frozen, and it snaps the moment you switch modes. `CameraMode`
 declares `usesYaw` / `usesPitch` / `usesZoom` so `CameraSystem` can skip what a mode ignores.
 
+## Rule 6 - clip space belongs to the renderer, never to a camera
+
+The three backends disagree on **two independent axes**:
+
+| | Y axis | depth range |
+|---|---|---|
+| OpenGL | up | `-1 .. 1` |
+| Vulkan | **down** | **`0 .. 1`** |
+| WebGPU | up | **`0 .. 1`** |
+
+Both failure modes are quiet. Get Y wrong and you render a plausible, vertically mirrored
+scene. Get depth wrong and everything nearer than roughly twice your near plane is silently
+clipped. Neither crashes, and both look like a camera bug.
+
+This was a real, shipped defect, and its three causes are the rules:
+
+1. **The convention lived on the wrong object.** `Camera` -- a scene concept -- stored a
+   backend concept, so every demo that built a camera chose a backend by accident. A camera
+   describes a lens: eye, target, up, field of view, near, far. All convention-free. The
+   `Renderer` owns [ClipSpace] because the renderer owns the API, and it supplies it when it
+   builds the matrix. A demo, scene or test then *cannot* bake in the wrong one.
+2. **It had a default.** `flipYForClipSpace: Boolean = true` turned "didn't think about it"
+   into "silently Vulkan". `clipSpace` takes no default anywhere; forgetting it is a compile
+   error, which is the entire point.
+3. **It was a boolean.** Three conventions, two axes -- one flag can only name one of them,
+   and it named the axis that was already correct, hiding the depth bug completely.
+
+Generalise it: **a value that must agree with the environment should be derived from the
+environment, not passed as a parameter with a default.** If you find yourself adding a
+`Boolean` that selects between platforms, you probably want an enum owned by whichever object
+already knows the answer.
+
+Verify with a contract test per backend -- project a point on the near plane and one on the
+far plane, and assert where each lands in NDC according to that API's published spec. Assert
+the contract, not the current implementation.
+
 ## Checklist before committing math or per-frame code
 
 - [ ] Every `normalized()` / `cross()` / operator result is assigned or passed - none dropped.
@@ -139,6 +175,8 @@ declares `usesYaw` / `usesPitch` / `usesZoom` so `CameraSystem` can skip what a 
 - [ ] No shared mutable `Vec3` constants.
 - [ ] New `Vec3`/`Mat4` members follow the naming contract in Rule 1.
 - [ ] Camera changes keep all modes on one `forwardFrom` basis.
+- [ ] No new platform-selecting `Boolean`, and no default on a value that must match the
+      active backend -- see Rule 6.
 
 Regression tests live in `awake/base/src/commonTest/.../Vec3MutabilityTest.kt`,
 `awake/scene/controls/src/commonTest/.../CameraRelativeMovementTest.kt` and

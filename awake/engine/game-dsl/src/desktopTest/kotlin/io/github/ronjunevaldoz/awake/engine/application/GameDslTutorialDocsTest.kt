@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
@@ -156,7 +157,7 @@ class GameDslTutorialDocsTest {
 }
 
 private object TutorialRenderer : Renderer {
-    override val flipYForClipSpace: Boolean = false
+    override val clipSpace: ClipSpace = ClipSpace.WebGpu
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
     override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {

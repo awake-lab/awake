@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.webgpu.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
@@ -42,7 +43,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     ensureUniformResources(pipeline)
 
     val aspect = renderingContext.width.toFloat() / renderingContext.height.toFloat()
-    val viewProjection = camera.viewProjectionMatrix(aspect)
+    val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
     // Debug lines are already in world space, so their MVP is exactly viewProjection.
     lineRenderPipeline.writeMvp(viewProjection.data)
 

@@ -44,22 +44,19 @@ object SceneLoader {
         return decode(readResourceBytes(path).decodeToString(), json)
     }
 
-    /** [flipYForClipSpace] comes from the active `Renderer` (see its own doc comment) --
-     * a scene document itself carries no opinion on backend clip-space convention. */
-    fun instantiate(document: SceneDocument, flipYForClipSpace: Boolean, world: World = World()): SceneInstance {
-        return instantiate(document, flipYForClipSpace, AwakeWorldSceneAdapter(world))
+    fun instantiate(document: SceneDocument, world: World = World()): SceneInstance {
+        return instantiate(document, AwakeWorldSceneAdapter(world))
     }
 
     /** Adapter-driven instantiation path: the scene DSL/model stays Awake-owned, while the
      * execution target can vary as long as it implements [SceneInstantiationAdapter]. */
     fun <Node, Instance> instantiate(
         document: SceneDocument,
-        flipYForClipSpace: Boolean,
         adapter: SceneInstantiationAdapter<Node, Instance>
     ): Instance {
         SceneValidator.requireValid(document)
         val roots = document.nodes.mapIndexed { index, node ->
-            instantiateNode(adapter, node, parent = null, flipYForClipSpace = flipYForClipSpace, path = node.name?.takeIf { it.isNotBlank() } ?: "#$index")
+            instantiateNode(adapter, node, parent = null, path = node.name?.takeIf { it.isNotBlank() } ?: "#$index")
         }
         return adapter.complete(roots)
     }
@@ -68,13 +65,12 @@ object SceneLoader {
         adapter: SceneInstantiationAdapter<Node, *>,
         node: SceneNode,
         parent: Node?,
-        flipYForClipSpace: Boolean,
         path: String
     ): SceneNodeHandle<Node> {
         val created = adapter.createNode(node, parent)
         adapter.attachTransform(created, node.transform, parent)
         node.name?.takeIf { it.isNotBlank() }?.let { adapter.attachName(created, it) }
-        node.camera?.let { adapter.attachCamera(created, it, flipYForClipSpace) }
+        node.camera?.let { adapter.attachCamera(created, it) }
         node.light?.let { adapter.attachLight(created, it) }
         node.meshRenderer?.let { adapter.queueMeshRenderer(created, it) }
 
@@ -83,7 +79,6 @@ object SceneLoader {
                 adapter = adapter,
                 node = child,
                 parent = created,
-                flipYForClipSpace = flipYForClipSpace,
                 path = child.name?.takeIf { it.isNotBlank() } ?: "$path/#$index"
             )
         }
@@ -91,8 +86,8 @@ object SceneLoader {
     }
 }
 
-fun SceneDocument.instantiate(flipYForClipSpace: Boolean, world: World = World()): SceneInstance {
-    return SceneLoader.instantiate(this, flipYForClipSpace, world)
+fun SceneDocument.instantiate(world: World = World()): SceneInstance {
+    return SceneLoader.instantiate(this, world)
 }
 
 fun SceneInstance.attachRenderableComponents(

@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.core.math
 
 import kotlin.math.tan
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -13,26 +12,25 @@ import kotlin.test.assertTrue
  * [applyToColumnVector] (the product the shaders perform on these exact bytes) followed by the
  * perspective divide -- so every expectation here is a real NDC coordinate, not a matrix entry.
  *
- * **This file is where the clip-space depth-range gap is pinned down.** All three builders emit
- * the OpenGL convention, NDC z in `[-1, +1]`. Vulkan and WebGPU both clip to `0 <= z <= w`, so
- * the entire near half of that range is discarded on the only two backends this engine has.
- * The `perspective...Current...` tests below characterise the defect; the `@Ignore`d
- * `...ShouldMap...` tests state the behaviour those backends need.
+ * **This file is where the clip-space depth range is pinned down.** All three builders take a
+ * [ClipSpace] and emit either OpenGL's NDC z in `[-1, +1]` or the `[0, 1]` range Vulkan and
+ * WebGPU clip against (`0 <= z <= w`). Tests naming a convention assert that convention; the
+ * rest use [ClipSpace.Vulkan] as the representative of the two backends this engine has.
  */
 class Mat4ProjectionTest {
 
-    // ---- perspective: lateral (x/y) mapping, which is correct today ----
+    // ---- perspective: lateral (x/y) mapping, which is depth-convention independent ----
 
     @Test
     fun perspectiveScalesYByTheCotangentOfHalfTheFov() {
-        assertEquals(1f / tan(HALF_PI / 2f), Mat4.perspective(HALF_PI, 1f, 1f, 100f).m11, TOLERANCE)
-        assertEquals(1f / tan(THIRD_PI / 2f), Mat4.perspective(THIRD_PI, 1f, 1f, 100f).m11, TOLERANCE)
+        assertEquals(1f / tan(HALF_PI / 2f), perspective(HALF_PI, 1f).m11, TOLERANCE)
+        assertEquals(1f / tan(THIRD_PI / 2f), perspective(THIRD_PI, 1f).m11, TOLERANCE)
     }
 
     @Test
     fun narrowingTheFovMagnifiesBothAxes() {
-        val wide = Mat4.perspective(HALF_PI, 1f, 1f, 100f)
-        val narrow = Mat4.perspective(THIRD_PI, 1f, 1f, 100f)
+        val wide = perspective(HALF_PI, 1f)
+        val narrow = perspective(THIRD_PI, 1f)
 
         assertTrue(narrow.m11 > wide.m11, "expected ${narrow.m11} > ${wide.m11}")
         assertTrue(narrow.m00 > wide.m00, "expected ${narrow.m00} > ${wide.m00}")
@@ -41,8 +39,8 @@ class Mat4ProjectionTest {
 
     @Test
     fun perspectiveDividesXByTheAspectRatioAndLeavesYAlone() {
-        val square = Mat4.perspective(HALF_PI, 1f, 1f, 100f)
-        val wide = Mat4.perspective(HALF_PI, 2f, 1f, 100f)
+        val square = perspective(HALF_PI, 1f)
+        val wide = perspective(HALF_PI, 2f)
 
         assertEquals(square.m00 / 2f, wide.m00, TOLERANCE)
         assertEquals(square.m11, wide.m11, TOLERANCE)
@@ -51,7 +49,7 @@ class Mat4ProjectionTest {
     @Test
     fun theNearPlaneEdgesLandOnTheNdcBoundary() {
         // fov 90 degrees, near 1 => the near plane's half-height is tan(45) * 1 = 1.
-        val p = Mat4.perspective(HALF_PI, 1f, 1f, 100f)
+        val p = perspective(HALF_PI, 1f)
 
         assertEquals(1f, p.ndc(0f, 1f, -1f).y, TOLERANCE) // top edge
         assertEquals(-1f, p.ndc(0f, -1f, -1f).y, TOLERANCE) // bottom edge
@@ -61,7 +59,7 @@ class Mat4ProjectionTest {
 
     @Test
     fun aWiderAspectRatioFitsProportionallyMoreWorldAcrossTheSameScreenWidth() {
-        val wide = Mat4.perspective(HALF_PI, 2f, 1f, 100f)
+        val wide = perspective(HALF_PI, 2f)
 
         // Aspect 2 => the near plane's half-width is 2, so x = 2 is the right edge, not x = 1.
         assertEquals(1f, wide.ndc(2f, 0f, -1f).x, TOLERANCE)
@@ -70,7 +68,7 @@ class Mat4ProjectionTest {
 
     @Test
     fun perspectiveMakesDistantObjectsSmaller() {
-        val p = Mat4.perspective(HALF_PI, 1f, 1f, 100f)
+        val p = perspective(HALF_PI, 1f)
 
         val near = p.ndc(1f, 0f, -1f).x
         val far = p.ndc(1f, 0f, -10f).x
@@ -79,63 +77,33 @@ class Mat4ProjectionTest {
         assertEquals(0.1f, far, TOLERANCE)
     }
 
-    // ---- perspective: the depth-range defect ----
+    // ---- perspective: the depth range, per convention ----
 
     /**
-     * Characterises a real defect, it is not an endorsement. `Mat4.perspective`'s
-     * `m22 = (near + far) / (near - far)` + `m23 = 2 * near * far / (near - far)` is the
-     * textbook **OpenGL** projection: the near plane lands at NDC z = -1. Vulkan and WebGPU
-     * both need it at 0. See `perspectiveShouldMapTheNearPlaneToZeroForVulkanAndWebGpu`.
+     * [ClipSpace.OpenGl]'s defining property: `m22 = (near + far) / (near - far)` +
+     * `m23 = 2 * near * far / (near - far)`, the textbook GL projection, which lands the near
+     * plane at NDC z = -1. This engine has no OpenGL backend today, but the enum value exists
+     * and this is what it must keep emitting.
      */
     @Test
-    fun perspectiveCurrentlyMapsTheNearPlaneToMinusOneTheOpenGlConvention() {
-        val p = Mat4.perspective(HALF_PI, 1f, 1f, 100f)
+    fun perspectiveMapsTheNearPlaneToMinusOneForOpenGl() {
+        val p = Mat4.perspective(HALF_PI, 1f, 1f, 100f, ClipSpace.OpenGl)
 
         assertEquals(-1f, p.ndc(0f, 0f, -1f).z, TOLERANCE)
         assertEquals(1f, p.ndc(0f, 0f, -100f).z, TOLERANCE)
     }
 
-    /**
-     * The concrete cost of the above on the two backends that actually exist. Vulkan/WebGPU clip
-     * to `0 <= z_clip <= w_clip`, so with the scene defaults (`SceneCamera.near = 0.1f`,
-     * `far = 100f`) everything nearer than ~0.1998 -- almost exactly *twice* the requested near
-     * plane -- is silently thrown away, and only half the depth buffer's range is ever written.
-     */
     @Test
-    fun perspectiveCurrentlyClipsAwayEverythingInFrontOfTwiceTheNearPlaneOnVulkanAndWebGpu() {
-        val p = Mat4.perspective(THIRD_PI, 16f / 9f, SCENE_NEAR, SCENE_FAR)
+    fun perspectiveMapsTheNearPlaneToZeroForVulkanAndWebGpu() {
+        assertEquals(0f, perspective(HALF_PI, 1f).ndc(0f, 0f, -1f).z, TOLERANCE)
+        assertEquals(1f, perspective(HALF_PI, 1f).ndc(0f, 0f, -100f).z, TOLERANCE)
 
-        val justInsideNear = p.applyToColumnVector(0f, 0f, -0.15f)
-        // OpenGL's clip test (-w <= z <= w) keeps it...
-        assertTrue(justInsideNear.z >= -justInsideNear.w, "OpenGL would keep this fragment")
-        // ...Vulkan's / WebGPU's (0 <= z <= w) throws it away.
-        assertTrue(justInsideNear.z < 0f, "expected z_clip < 0, got ${justInsideNear.z}")
-
-        // The crossover: z_clip = 0 at view-space z = -m23 / m22.
-        assertEquals(-0.1998f, -p.m23 / p.m22, TOLERANCE)
+        assertEquals(0f, Mat4.perspective(HALF_PI, 1f, 1f, 100f, ClipSpace.WebGpu).ndc(0f, 0f, -1f).z, TOLERANCE)
     }
 
-    @Ignore(
-        "DEFECT: Mat4.perspective emits OpenGL's NDC z range [-1, +1], but every backend this " +
-            "engine has (Vulkan, WebGPU) clips to [0, 1]. Half the depth range is discarded and " +
-            "the effective near plane is ~2x the requested one. Camera.flipYForClipSpace only " +
-            "corrects the Y axis; nothing corrects depth. Fix: emit m22 = far / (near - far), " +
-            "m23 = near * far / (near - far) (drop the factor of 2 and the +near), or add a " +
-            "depth-range parameter alongside flipYForClipSpace. Un-@Ignore once matrix.kt maps " +
-            "near -> 0."
-    )
     @Test
-    fun perspectiveShouldMapTheNearPlaneToZeroForVulkanAndWebGpu() {
-        val p = Mat4.perspective(HALF_PI, 1f, 1f, 100f)
-
-        assertEquals(0f, p.ndc(0f, 0f, -1f).z, TOLERANCE)
-        assertEquals(1f, p.ndc(0f, 0f, -100f).z, TOLERANCE)
-    }
-
-    @Ignore("DEFECT: see perspectiveShouldMapTheNearPlaneToZeroForVulkanAndWebGpu.")
-    @Test
-    fun nothingBetweenNearAndFarShouldBeClippedByVulkanOrWebGpu() {
-        val p = Mat4.perspective(THIRD_PI, 16f / 9f, SCENE_NEAR, SCENE_FAR)
+    fun nothingBetweenNearAndFarIsClippedByVulkanOrWebGpu() {
+        val p = Mat4.perspective(THIRD_PI, 16f / 9f, SCENE_NEAR, SCENE_FAR, ClipSpace.Vulkan)
 
         for (viewZ in listOf(-SCENE_NEAR, -0.15f, -1f, -50f, -SCENE_FAR)) {
             val clip = p.applyToColumnVector(0f, 0f, viewZ)
@@ -146,7 +114,7 @@ class Mat4ProjectionTest {
 
     @Test
     fun perspectiveDepthIsMonotonicSoTheDepthTestStillOrdersFragments() {
-        val p = Mat4.perspective(THIRD_PI, 1f, SCENE_NEAR, SCENE_FAR)
+        val p = Mat4.perspective(THIRD_PI, 1f, SCENE_NEAR, SCENE_FAR, ClipSpace.Vulkan)
 
         var previous = Float.NEGATIVE_INFINITY
         for (viewZ in listOf(-0.2f, -0.5f, -1f, -5f, -25f, -100f)) {
@@ -159,8 +127,8 @@ class Mat4ProjectionTest {
     // ---- orthographic ----
 
     @Test
-    fun orthographicMapsTheViewVolumeCornersToTheNdcCube() {
-        val o = Mat4.orthographic(-1f, 1f, -1f, 1f, 1f, 100f)
+    fun orthographicMapsTheViewVolumeCornersToTheOpenGlNdcCube() {
+        val o = Mat4.orthographic(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.OpenGl)
 
         assertVec4(Vec4(1f, 1f, -1f, 1f), o.applyToColumnVector(1f, 1f, -1f))
         assertVec4(Vec4(-1f, -1f, 1f, 1f), o.applyToColumnVector(-1f, -1f, -100f))
@@ -168,33 +136,34 @@ class Mat4ProjectionTest {
 
     @Test
     fun orthographicKeepsWAtOneSoThereIsNoPerspectiveDivide() {
-        val o = Mat4.orthographic(-1f, 1f, -1f, 1f, 1f, 100f)
+        val o = Mat4.orthographic(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.Vulkan)
 
         assertEquals(1f, o.applyToColumnVector(0.5f, 0.5f, -50f).w, TOLERANCE)
     }
 
     @Test
     fun orthographicHandlesAnOffCentreVolumeLikeAPixelSpaceUiProjection() {
-        val ui = Mat4.orthographic(0f, 800f, 0f, 600f, -1f, 1f)
+        val ui = Mat4.orthographic(0f, 800f, 0f, 600f, -1f, 1f, ClipSpace.Vulkan)
 
-        assertVec4(Vec4(-1f, -1f, 0f, 1f), ui.applyToColumnVector(0f, 0f, 0f))
-        assertVec4(Vec4(1f, 1f, 0f, 1f), ui.applyToColumnVector(800f, 600f, 0f))
-        assertVec4(Vec4(0f, 0f, 0f, 1f), ui.applyToColumnVector(400f, 300f, 0f))
+        // z = 0 sits halfway through a [-1, 1] view volume, so it lands mid-range: 0.5 in
+        // [0, 1] depth (it was 0 back when this builder only emitted OpenGL's [-1, 1]).
+        assertVec4(Vec4(-1f, -1f, 0.5f, 1f), ui.applyToColumnVector(0f, 0f, 0f))
+        assertVec4(Vec4(1f, 1f, 0.5f, 1f), ui.applyToColumnVector(800f, 600f, 0f))
+        assertVec4(Vec4(0f, 0f, 0.5f, 1f), ui.applyToColumnVector(400f, 300f, 0f))
     }
 
-    /** Characterises a real defect, it is not an endorsement -- same gap as `perspective`. */
+    /** The [ClipSpace.OpenGl] depth mapping, same convention `perspective` emits for it. */
     @Test
-    fun orthographicCurrentlyMapsTheNearPlaneToMinusOneTheOpenGlConvention() {
-        val o = Mat4.orthographic(-1f, 1f, -1f, 1f, 1f, 100f)
+    fun orthographicMapsTheNearPlaneToMinusOneForOpenGl() {
+        val o = Mat4.orthographic(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.OpenGl)
 
         assertEquals(-1f, o.applyToColumnVector(0f, 0f, -1f).z, TOLERANCE)
         assertEquals(1f, o.applyToColumnVector(0f, 0f, -100f).z, TOLERANCE)
     }
 
-    @Ignore("DEFECT: same [-1, 1] vs [0, 1] depth-range gap as Mat4.perspective -- see that test.")
     @Test
-    fun orthographicShouldMapTheNearPlaneToZeroForVulkanAndWebGpu() {
-        val o = Mat4.orthographic(-1f, 1f, -1f, 1f, 1f, 100f)
+    fun orthographicMapsTheNearPlaneToZeroForVulkanAndWebGpu() {
+        val o = Mat4.orthographic(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.Vulkan)
 
         assertEquals(0f, o.applyToColumnVector(0f, 0f, -1f).z, TOLERANCE)
         assertEquals(1f, o.applyToColumnVector(0f, 0f, -100f).z, TOLERANCE)
@@ -205,14 +174,18 @@ class Mat4ProjectionTest {
     @Test
     fun aSymmetricFrustumIsExactlyTheEquivalentPerspectiveMatrix() {
         assertMat4(
-            Mat4.perspective(HALF_PI, 1f, 1f, 100f),
-            Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f)
+            perspective(HALF_PI, 1f),
+            Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.Vulkan)
+        )
+        assertMat4(
+            Mat4.perspective(HALF_PI, 1f, 1f, 100f, ClipSpace.OpenGl),
+            Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.OpenGl)
         )
     }
 
     @Test
     fun anOffCentreFrustumShearsSoItsOwnCentreIsStillTheNdcCentre() {
-        val sheared = Mat4.frustum(0f, 2f, -1f, 1f, 1f, 100f)
+        val sheared = Mat4.frustum(0f, 2f, -1f, 1f, 1f, 100f, ClipSpace.Vulkan)
 
         assertEquals(1f, sheared.m02, TOLERANCE) // the shear term
         assertEquals(0f, sheared.ndc(1f, 0f, -1f).x, TOLERANCE) // x = 1 is the middle of [0, 2]
@@ -222,11 +195,19 @@ class Mat4ProjectionTest {
 
     @Test
     fun frustumSharesPerspectivesDepthConventionSoTheTwoStayInterchangeable() {
-        val f = Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f)
+        val f = Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.Vulkan)
 
-        assertEquals(-1f, f.ndc(0f, 0f, -1f).z, TOLERANCE)
+        assertEquals(0f, f.ndc(0f, 0f, -1f).z, TOLERANCE)
         assertEquals(1f, f.ndc(0f, 0f, -100f).z, TOLERANCE)
+
+        val gl = Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.OpenGl)
+        assertEquals(-1f, gl.ndc(0f, 0f, -1f).z, TOLERANCE)
     }
+
+    /** near = 1, far = 100 through this engine's own clip space -- the setup most tests here
+     * share, spelled out once so the [ClipSpace] argument doesn't drown the assertion. */
+    private fun perspective(fovY: Float, aspect: Float): Mat4 =
+        Mat4.perspective(fovY, aspect, 1f, 100f, ClipSpace.Vulkan)
 
     /** Clip coordinates after the perspective divide -- i.e. the NDC position a fragment gets. */
     private fun Mat4.ndc(x: Float, y: Float, z: Float): Vec3 {

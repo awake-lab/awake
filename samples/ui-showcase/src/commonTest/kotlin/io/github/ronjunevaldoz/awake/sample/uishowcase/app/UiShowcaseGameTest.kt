@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.app
 
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.math.Camera
@@ -596,7 +597,7 @@ private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
 private class RecordingRenderer : Renderer {
     var lastUiPrimitives: List<UiDrawPrimitive> = emptyList()
 
-    override val flipYForClipSpace: Boolean = false
+    override val clipSpace: ClipSpace = ClipSpace.WebGpu
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
     override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene
 
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
@@ -33,7 +34,7 @@ import kotlin.test.assertNull
 class RenderSystemTest {
     private class RecordingRenderer : Renderer {
         var lastLight: SceneLight? = null
-        override val flipYForClipSpace: Boolean = false
+        override val clipSpace: ClipSpace = ClipSpace.WebGpu
         override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
         override fun createMesh(geometry: MeshGeometry): Mesh = error("not needed for this test")
         override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material =

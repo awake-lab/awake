@@ -127,12 +127,13 @@ No new leak pattern found in either `Renderer.kt`. Specifically checked:
 
 ## Other notes (real correctness signal, not style)
 
-- **`flipYForClipSpace` correctly differs and is correctly consumed elsewhere**: Vulkan's
-  `Renderer` sets `override val flipYForClipSpace: Boolean = true` (Vulkan's NDC is +Y down);
-  WebGPU's sets it to `false`, with an inline comment citing the exact convention difference.
-  Both are read by `RenderRenderer`-consuming code outside these two files, not by the two
-  `Renderer.kt`s themselves -- correctly scoped as a per-backend fact the abstraction exposes,
-  not something either `Renderer` acts on internally.
+- **`clipSpace` correctly differs and is correctly consumed**: Vulkan's `Renderer` sets
+  `override val clipSpace = ClipSpace.Vulkan` (+Y down NDC, `0..1` depth); WebGPU's sets
+  `ClipSpace.WebGpu` (+Y up, `0..1`), with an inline comment citing the exact convention
+  difference. Each backend passes its own value into `Camera.viewProjectionMatrix(aspect,
+  clipSpace)` at the point the matrix is built -- correctly scoped as a per-backend fact the
+  renderer owns, never stored on `Camera` or in scene JSON where a demo could bake in the
+  wrong one.
 - **Debug-line depth testing genuinely differs, and is documented as such, not accidental**:
   Vulkan's debug lines share the same render pass/depth attachment as the 3D draw calls
   (`recordCommandBuffer`'s `lineRenderPipeline.bind()` call happens *before*

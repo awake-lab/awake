@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.webgpu.renderer
 
 import io.github.ronjunevaldoz.awake.core.colors.Color as AwakeColor
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
@@ -96,10 +97,10 @@ class Renderer(
     commandPool: Long,
     maxFramesInFlight: Int
 ) : RenderRenderer {
-    // WebGPU's NDC has +Y up, same as the OpenGL convention Camera.viewProjectionMatrix()
-    // assumes natively -- confirmed by this module's own ui_quad.wgsl comment ("pixel-space
-    // is Y-down, NDC is Y-up"). Unlike Vulkan (+Y down NDC), no flip is needed here.
-    override val flipYForClipSpace: Boolean = false
+    // WebGPU's NDC has +Y up -- confirmed by this module's own ui_quad.wgsl comment
+    // ("pixel-space is Y-down, NDC is Y-up") -- so unlike Vulkan (+Y down NDC) no flip is
+    // needed here. Depth is 0..1 on both, unlike OpenGL's -1..1.
+    override val clipSpace: ClipSpace = ClipSpace.WebGpu
 
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
@@ -233,7 +234,7 @@ class Renderer(
         ensureUniformResources(pipeline)
 
         val aspect = offscreen.width.toFloat() / offscreen.height.toFloat()
-        val viewProjection = camera.viewProjectionMatrix(aspect)
+        val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
 
         val encoder = device.createCommandEncoder()
         encoder.beginRenderPass(
