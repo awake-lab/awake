@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -133,14 +134,16 @@ fun UiScope.drawDropdownTriggerContent(
         )
     )
     val textColor = if (isPlaceholder) theme.colors.mutedForeground else (resolved.foreground ?: theme.colors.foreground)
-    // Raw px, not Dp -- `slot` (like every other widget's width/height param in this file)
-    // is already raw-pixel space; subtracting a `.dp.toPx()` value here would density-scale
-    // ONLY this padding and not `slot.width` itself, silently starving the label's available
-    // width on any display where UiDensity.scale != 1 (confirmed via a real run: labels
-    // truncated to just an ellipsis on a retina window before this fix).
-    val horizontalPad = 12f
-    val chevronGap = 8f
-    val chevronSize = 16f
+    // Authored in Dp and converted here, at the point of use. `slot` *is* physical-pixel
+    // space, but it got there by density-scaling: every Dimension.Fixed resolves through
+    // `.dp.toPx()`, and a fill width is the real framebuffer width. So the padding subtracted
+    // from it has to be density-scaled too, or it stays 12 physical pixels while the trigger
+    // it sits inside doubles -- a visually half-size inset at 2x. (This replaces an older
+    // "raw px, not Dp" comment that predates widgets taking Dimension/Dp instead of literal
+    // `width: Float` pixel params; back then `slot` really could arrive unscaled.)
+    val horizontalPad = 12f.dp.toPx()
+    val chevronGap = 8f.dp.toPx()
+    val chevronSize = 16f.dp.toPx()
     text(
         label,
         slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(

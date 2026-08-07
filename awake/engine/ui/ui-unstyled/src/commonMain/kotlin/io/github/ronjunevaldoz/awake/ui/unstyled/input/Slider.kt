@@ -27,7 +27,6 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 
 private const val SLIDER_TRACK_HEIGHT_PX = 6f
 private const val SLIDER_KNOB_DIAMETER_PX = 20f
-private const val SLIDER_LABEL_GAP_PX = 8f
 fun UiScope.slider(
     id: String,
     min: Float,

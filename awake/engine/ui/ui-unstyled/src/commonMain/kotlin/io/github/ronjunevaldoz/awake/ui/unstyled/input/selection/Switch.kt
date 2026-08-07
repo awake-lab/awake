@@ -24,7 +24,10 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 private const val TOGGLE_WIDTH_PX = 44f
 private const val TOGGLE_HEIGHT_PX = 24f
 private const val TOGGLE_KNOB_INSET_PX = 2f
-private const val TOGGLE_LABEL_GAP = 8f
+// Dp, not raw px: it is added to `trackSlot`/`surface.interaction.slot` coordinates that are
+// already density-scaled, so a raw literal would render a half-size gap at 2x.
+private val TOGGLE_LABEL_GAP = 8f.dp
+private val SWITCH_LABEL_WIDTH_GUESS = 160f.dp
 fun UiScope.switch(
     id: String,
     checked: Boolean,
@@ -93,16 +96,23 @@ fun UiScope.switch(
         )
         if (label != null) {
             val trackWidthPx = TOGGLE_WIDTH_PX.dp.toPx()
+            val gapPx = TOGGLE_LABEL_GAP.toPx()
             val availableWidth = surface.interaction.slot.width
-            val labelWidth = if (availableWidth > trackWidthPx + TOGGLE_LABEL_GAP) {
-                availableWidth - trackWidthPx - TOGGLE_LABEL_GAP
+            val labelWidth = if (availableWidth > trackWidthPx + gapPx) {
+                availableWidth - trackWidthPx - gapPx
             } else {
-                (this@switch.fillWidthOrNull()?.let { it - trackWidthPx - TOGGLE_LABEL_GAP } ?: 160f).coerceAtLeast(0f)
+                // Last-resort guess, not a measured or tokenized value: the widget claimed only
+                // the fixed track size and no ancestor exposes a fill width, so there is nothing
+                // to derive a label box from. 160dp is simply "wide enough for a typical short
+                // switch label"; text() ellipsizes anything longer. Replace this with a real
+                // measurement (font.measureTextWidth) if labels ever start truncating here.
+                (this@switch.fillWidthOrNull()?.let { it - trackWidthPx - gapPx }
+                    ?: SWITCH_LABEL_WIDTH_GUESS.toPx()).coerceAtLeast(0f)
             }
             text(
                 label,
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-                    trackSlot.x + trackWidthPx + TOGGLE_LABEL_GAP,
+                    trackSlot.x + trackWidthPx + gapPx,
                     surface.interaction.slot.y,
                     labelWidth,
                     surface.interaction.slot.height

@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.clearFocusIfMatches
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.inputState
@@ -101,7 +102,9 @@ fun UiScope.textField(
     // overlaps typed text (a search box's magnifier sitting on top of the first character is
     // the bug this guards against).
     val iconSlotWidth = if (leadingIcon != null || trailingIcon != null) contentSlot.height else 0f
-    val iconGap = 6f
+    // Dp, not raw px: `contentSlot` is already density-scaled, so a raw 6f would leave a
+    // half-size gap between icon and text at 2x.
+    val iconGap = 6f.dp.toPx()
     val textAreaX = contentSlot.x + if (leadingIcon != null) iconSlotWidth + iconGap else 0f
     val textAreaWidth = (contentSlot.width
         - (if (leadingIcon != null) iconSlotWidth + iconGap else 0f)

@@ -20,7 +20,10 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-private const val CHECKBOX_LABEL_GAP = 8f
+// Dp, not raw px: every coordinate it is added to below (`boxPx`, `surface.interaction.slot`)
+// already went through `.dp.toPx()`, so a raw literal here would stay 8 physical pixels while
+// everything around it doubled on a 2x display -- a visually half-size gap.
+private val CHECKBOX_LABEL_GAP = 8f.dp
 
 // A real iOS-style switch, not a stretched checkbox -- fixed compact size (a switch has one
 // natural size, unlike a button/row that should fill available width), pill-shaped track, and
@@ -65,10 +68,11 @@ fun UiScope.checkbox(
     }
     val resolvedFont = context.currentFont
     if (label != null) {
+        val gapPx = CHECKBOX_LABEL_GAP.toPx()
         val labelSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-            boxSlot.x + boxPx + CHECKBOX_LABEL_GAP,
+            boxSlot.x + boxPx + gapPx,
             surface.interaction.slot.y,
-            surface.interaction.slot.width - boxPx - CHECKBOX_LABEL_GAP,
+            surface.interaction.slot.width - boxPx - gapPx,
             surface.interaction.slot.height
         ).toSlot()
         text(
