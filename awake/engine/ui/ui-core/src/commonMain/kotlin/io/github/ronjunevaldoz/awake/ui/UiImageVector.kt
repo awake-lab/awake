@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.UiStroke
 
 data class UiVectorPath(
@@ -61,8 +62,11 @@ fun UiImageVector.fitTo(slot: UiBounds): List<UiVectorPath> {
     val scale = minOf(slot.width / viewportWidth, slot.height / viewportHeight)
     val scaledWidth = viewportWidth * scale
     val scaledHeight = viewportHeight * scale
-    val translateX = slot.x + (slot.width - scaledWidth) / 2f
-    val translateY = slot.y + (slot.height - scaledHeight) / 2f
+    // Snap the centering offset to whole pixels, same as text does via resolveGlyphPx -- an
+    // odd (slot - scaled) difference otherwise lands the whole glyph on a half-pixel, blurring
+    // every edge instead of just softening it (reported as icons "not pixel perfect").
+    val translateX = pixelPerfectPixel(slot.x + (slot.width - scaledWidth) / 2f)
+    val translateY = pixelPerfectPixel(slot.y + (slot.height - scaledHeight) / 2f)
     return paths.map { vectorPath ->
         vectorPath.copy(
             path = vectorPath.path.transform(
