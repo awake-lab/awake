@@ -48,6 +48,62 @@ class FrustumTest {
         assertEquals(square[1].y, wide[1].y)
     }
 
+    /** The identity-view case above cannot catch a swapped/negated basis vector, because its
+     * right/up/forward already are the world axes. This one looks down +X instead, so every
+     * basis vector is somewhere other than where it started. */
+    @Test
+    fun cornersFollowTheCameraBasisWhenItLooksDownPlusX() {
+        val camera = Camera(
+            eye = Vec3(0f, 0f, 0f),
+            center = Vec3(1f, 0f, 0f),
+            up = Vec3(0f, 1f, 0f),
+            fovYRadians = (kotlin.math.PI / 2.0).toFloat(),
+            near = 1f,
+            far = 10f
+        )
+
+        // forward = +X, right = forward x up = +Z, up = right x forward = +Y.
+        val corners = Frustum.corners(camera, aspect = 1f)
+
+        assertVec3Equals(Vec3(1f, -1f, -1f), corners[0]) // near bottom-left
+        assertVec3Equals(Vec3(1f, -1f, 1f), corners[1]) // near bottom-right
+        assertVec3Equals(Vec3(1f, 1f, 1f), corners[2]) // near top-right
+        assertVec3Equals(Vec3(1f, 1f, -1f), corners[3]) // near top-left
+        assertVec3Equals(Vec3(10f, -10f, -10f), corners[4])
+        assertVec3Equals(Vec3(10f, 10f, 10f), corners[6])
+    }
+
+    @Test
+    fun movingTheCameraTranslatesEveryCorner() {
+        val atOrigin = Frustum.corners(identityViewCamera(), aspect = 1f)
+        val offset = Vec3(3f, -4f, 5f)
+        val moved = Frustum.corners(
+            Camera(
+                eye = offset,
+                center = offset + Vec3(0f, 0f, -1f),
+                up = Vec3(0f, 1f, 0f),
+                fovYRadians = (kotlin.math.PI / 2.0).toFloat(),
+                near = 1f,
+                far = 10f
+            ),
+            aspect = 1f
+        )
+
+        for (index in atOrigin.indices) {
+            assertVec3Equals(atOrigin[index] + offset, moved[index])
+        }
+    }
+
+    @Test
+    fun nearQuadHalfHeightMatchesTanOfHalfTheFov() {
+        val corners = Frustum.corners(identityViewCamera(), aspect = 1f)
+
+        // 90 degree fovY at near = 1 => half-height 1, so the near quad spans y in [-1, 1].
+        assertEquals(2f, corners[2].y - corners[1].y, 1e-4f)
+        assertEquals(2f, corners[1].x - corners[0].x, 1e-4f)
+        assertEquals(20f, corners[6].y - corners[5].y, 1e-4f)
+    }
+
     @Test
     fun edgesReferenceAllEightCornersExactlyThreeTimesEach() {
         val counts = IntArray(8)

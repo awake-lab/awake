@@ -36,6 +36,43 @@ class QuatTest {
         assertApprox(0f, rotation.m22)
     }
 
+    /** Read through the conventional column-vector product the shaders perform, so these assert
+     * where a vertex actually ends up rather than which matrix entry holds which sign. */
+    @Test
+    fun ninetyDegreeRotationsAboutEachAxisMoveTheBasisVectorsRightHanded() {
+        val half = sqrt(2f) / 2f
+
+        assertVec4(Vec4(0f, 0f, 1f, 1f), Quat(half, 0f, 0f, half).toMat4().applyToColumnVector(0f, 1f, 0f))
+        assertVec4(Vec4(1f, 0f, 0f, 1f), Quat(0f, half, 0f, half).toMat4().applyToColumnVector(0f, 0f, 1f))
+        assertVec4(Vec4(0f, 1f, 0f, 1f), Quat(0f, 0f, half, half).toMat4().applyToColumnVector(1f, 0f, 0f))
+    }
+
+    @Test
+    fun toMat4LeavesTheRotationAxisItselfUnmoved() {
+        val half = sqrt(2f) / 2f
+
+        assertVec4(Vec4(0f, 1f, 0f, 1f), Quat(0f, half, 0f, half).toMat4().applyToColumnVector(0f, 1f, 0f))
+    }
+
+    @Test
+    fun toMat4ProducesAnOrthonormalRotationThatPreservesLength() {
+        val q = Quat(0.2f, -0.4f, 0.5f, 0.7416198f) // already unit length
+        val rotated = q.toMat4().applyToColumnVector(1f, 2f, 3f)
+
+        assertApprox(Vec3(1f, 2f, 3f).length3(), rotated.length3())
+        assertApprox(1f, rotated.w)
+    }
+
+    @Test
+    fun toMat4NeverTouchesTheTranslationColumn() {
+        val rotation = Quat(0.2f, -0.4f, 0.5f, 0.7416198f).toMat4()
+
+        assertApprox(0f, rotation.m03)
+        assertApprox(0f, rotation.m13)
+        assertApprox(0f, rotation.m23)
+        assertApprox(1f, rotation.m33)
+    }
+
     @Test
     fun nlerpAtZeroReturnsFirstQuaternion() {
         val a = Quat(0f, 0.6f, 0f, 0.8f)
