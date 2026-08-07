@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.scene.components.ActiveCamera
 import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.components.CameraMode
 import io.github.ronjunevaldoz.awake.ui.context.UiInputOwnership
+import io.github.ronjunevaldoz.awake.ui.context.blocksGameplayKeys
 
 /**
  * Switches the [CameraMode] on the [ActiveCamera] via hotkeys, so only one mode consumes
@@ -24,23 +25,14 @@ class CameraInputSystem(
     private val uiResultProvider: () -> UiInputOwnership,
     private val modeKeys: Map<Key, CameraMode> = DEFAULT_MODE_KEYS
 ) : System {
-    private val lastKeysDown = mutableSetOf<Key>()
-
     override fun update(world: World, delta: Float) {
-        val input = inputProvider()
-        try {
-            // While the UI owns input we still refresh the key snapshot below, so releasing
-            // the UI doesn't replay a keypress that happened over a widget as "just pressed".
-            if (uiResultProvider().isCaptured) return
+        // The edges come from InputSnapshot, which recomputes them every frame regardless of
+        // this early return -- so releasing the UI can't replay a keypress made over a widget.
+        if (uiResultProvider().blocksGameplayKeys) return
 
-            for ((key, mode) in modeKeys) {
-                if (key in input.keysDown && key !in lastKeysDown) {
-                    setCameraMode(world, mode)
-                }
-            }
-        } finally {
-            lastKeysDown.clear()
-            lastKeysDown.addAll(input.keysDown)
+        val input = inputProvider()
+        for ((key, mode) in modeKeys) {
+            if (input.wasPressed(key)) setCameraMode(world, mode)
         }
     }
 

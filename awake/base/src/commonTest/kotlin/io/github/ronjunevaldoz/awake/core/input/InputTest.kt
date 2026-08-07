@@ -42,6 +42,41 @@ class InputTest {
     }
 
     @Test
+    fun keyEdgesFireOnceAcrossPressHoldRelease() {
+        val input = Input()
+
+        input.setKeyDown(Key.F1, down = true)
+        val pressFrame = input.updateSnapshot()
+        assertEquals(setOf(Key.F1), pressFrame.keysPressed, "the first frame down is a rising edge")
+        assertEquals(emptySet(), pressFrame.keysReleased)
+        assertTrue(pressFrame.wasPressed(Key.F1))
+        assertTrue(pressFrame.isDown(Key.F1))
+
+        val holdFrame = input.updateSnapshot()
+        assertEquals(emptySet(), holdFrame.keysPressed, "holding must not re-fire the rising edge")
+        assertEquals(emptySet(), holdFrame.keysReleased)
+        assertFalse(holdFrame.wasPressed(Key.F1))
+        assertTrue(holdFrame.isDown(Key.F1), "a held key is still down")
+
+        input.setKeyDown(Key.F1, down = false)
+        val releaseFrame = input.updateSnapshot()
+        assertEquals(emptySet(), releaseFrame.keysPressed)
+        assertEquals(setOf(Key.F1), releaseFrame.keysReleased, "letting go is a falling edge")
+        assertFalse(releaseFrame.isDown(Key.F1))
+    }
+
+    @Test
+    fun pressingAgainAfterAReleaseIsAFreshEdge() {
+        val input = Input()
+        input.setKeyDown(Key.F1, down = true)
+        input.updateSnapshot()
+        input.setKeyDown(Key.F1, down = false)
+        input.updateSnapshot()
+        input.setKeyDown(Key.F1, down = true)
+        assertTrue(input.updateSnapshot().wasPressed(Key.F1))
+    }
+
+    @Test
     fun pointerStateReflectsTheLastSetCall() {
         val input = Input()
         input.setPointer(down = true, x = 12f, y = 34f)

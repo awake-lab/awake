@@ -157,6 +157,8 @@ class CameraModeConsistencyTest {
             scrollDeltaX = 0f,
             scrollDeltaY = 0f,
             keysDown = emptySet(),
+            keysPressed = emptySet(),
+            keysReleased = emptySet(),
             typedText = "",
             editActions = emptyList()
         )

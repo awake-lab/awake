@@ -42,6 +42,9 @@ class CameraSystem(
         val input = inputProvider()
         val ui = uiResultProvider()
 
+        // `isCaptured`, not `blocksGameplayKeys`: look/zoom here are pointer gestures, and a
+        // focused text field owns the keyboard, not the mouse -- dragging the world while a
+        // field has focus is legitimate.
         val dragging = input.pointerDown && !ui.isCaptured
         val dx = if (dragging && wasDragging) input.pointerX - lastPointerX else 0f
         val dy = if (dragging && wasDragging) input.pointerY - lastPointerY else 0f

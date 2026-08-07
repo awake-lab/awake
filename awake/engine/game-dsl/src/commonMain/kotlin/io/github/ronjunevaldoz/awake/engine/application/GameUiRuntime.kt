@@ -53,7 +53,6 @@ class GameUiRuntime(
      * by setting that flag directly, only F3 links the two as a convenience default. Off by
      * default so its per-frame work doesn't run unless requested. */
     var debugOverlayEnabled: Boolean = false
-    private var debugOverlayKeyWasDown: Boolean = false
 
     /** Independent of [debugOverlayEnabled] -- gates [UiMeasureTrialStats] tracking and the
      * built-in [drawPerfStatsOverlay] HUD only, not the wireframe bounds overlay. A game that
@@ -138,12 +137,10 @@ class GameUiRuntime(
         val input = services.requireService<Input>()
         val snapshot = input.currentSnapshot
 
-        val debugOverlayKeyDown = Key.F3 in snapshot.keysDown
-        if (debugOverlayKeyDown && !debugOverlayKeyWasDown) {
+        if (snapshot.wasPressed(Key.F3)) {
             debugOverlayEnabled = !debugOverlayEnabled
             perfStatsEnabled = debugOverlayEnabled
         }
-        debugOverlayKeyWasDown = debugOverlayKeyDown
 
         recordFrameTime(deltaSeconds)
         // Opt-in instrumentation (see UiMeasureTrialStats's own doc comment): only pay its

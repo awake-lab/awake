@@ -12,6 +12,14 @@ data class UiInputOwnership(
     val isTextInputFocused: Boolean = false
 )
 
+/**
+ * Gameplay must ignore keys when the UI owns the pointer OR is taking text.
+ *
+ * [UiInputOwnership.isCaptured] is pointer capture only, so gating gameplay on it alone let
+ * typing W/A/S/D into a focused text field both insert the characters and walk the player.
+ */
+val UiInputOwnership.blocksGameplayKeys: Boolean get() = isCaptured || isTextInputFocused
+
 data class UiPlatformEffects(
     val requestKeyboard: Boolean = false
 )

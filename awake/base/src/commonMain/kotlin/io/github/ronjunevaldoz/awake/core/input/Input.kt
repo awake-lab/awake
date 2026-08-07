@@ -20,6 +20,12 @@ enum class TextEditAction {
 
 /**
  * Immutable capture of the hardware state for a single frame.
+ *
+ * [keysDown] is level-triggered (held), [keysPressed]/[keysReleased] are the edges against the
+ * previous frame. The edges live here, computed once in [Input.updateSnapshot], because every
+ * consumer that hand-rolled its own `lastKeysDown` diff had to remember to refresh that copy
+ * even on the frames it early-returned -- forget it once and a keypress made over a UI widget
+ * replays as "just pressed" the moment the UI lets go.
  */
 data class InputSnapshot(
     val pointerX: Float,
@@ -28,10 +34,18 @@ data class InputSnapshot(
     val scrollDeltaX: Float,
     val scrollDeltaY: Float,
     val keysDown: Set<Key>,
+    /** Went down this frame (in [keysDown] now, absent from the previous frame's). */
+    val keysPressed: Set<Key>,
+    /** Went up this frame (in the previous frame's [keysDown], absent now). */
+    val keysReleased: Set<Key>,
     val typedText: String,
     val editActions: List<TextEditAction>,
     val secondaryPointerDown: Boolean = false
-)
+) {
+    fun isDown(k: Key): Boolean = k in keysDown
+
+    fun wasPressed(k: Key): Boolean = k in keysPressed
+}
 
 /**
  * Accumulator for polled input state.
@@ -66,21 +80,27 @@ class Input {
         scrollDeltaX = 0f,
         scrollDeltaY = 0f,
         keysDown = emptySet(),
+        keysPressed = emptySet(),
+        keysReleased = emptySet(),
         typedText = "",
         editActions = emptyList()
     )
         private set
 
-    /** Captures the current state into an immutable snapshot and prepares the 
+    /** Captures the current state into an immutable snapshot and prepares the
      * accumulator for the next frame. */
     fun updateSnapshot(): InputSnapshot {
+        val previousKeysDown = currentSnapshot.keysDown
+        val heldKeys = keysDown.toSet()
         currentSnapshot = InputSnapshot(
             pointerX = pointerX,
             pointerY = pointerY,
             pointerDown = pointerDown,
             scrollDeltaX = scrollDeltaX,
             scrollDeltaY = scrollDeltaY,
-            keysDown = keysDown.toSet(),
+            keysDown = heldKeys,
+            keysPressed = heldKeys - previousKeysDown,
+            keysReleased = previousKeysDown - heldKeys,
             typedText = typedText.toString(),
             editActions = pendingEditActions.toList(),
             secondaryPointerDown = secondaryPointerDown

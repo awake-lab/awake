@@ -45,6 +45,18 @@ class GlfwInputBridgeTest {
     }
 
     @Test
+    fun rightButtonDrivesTheSecondaryPointerNotThePrimaryOne() {
+        val input = Input()
+        val reader = FakeGlfwWindowInput().apply { secondaryMouseDown = true }
+        pollGlfwInput(reader, input)
+        assertTrue(
+            input.updateSnapshot().secondaryPointerDown,
+            "GLFW button 1 must reach Input.secondaryPointerDown -- shadcnContextMenu gates on it"
+        )
+        assertFalse(input.pointerDown, "a right-click must not also register as a left click")
+    }
+
+    @Test
     fun scrollDeltaPassesThroughUnconsumed() {
         val input = Input()
         val reader = FakeGlfwWindowInput().apply { pendingScrollDeltaY = -3.5 }

@@ -98,6 +98,9 @@ val DefaultDomGameplayKeys: Map<String, io.github.ronjunevaldoz.awake.core.input
     "f5" to io.github.ronjunevaldoz.awake.core.input.Key.F5
 )
 
+/** `MouseEvent.button` value for the right mouse button. */
+private const val DOM_MOUSE_BUTTON_SECONDARY = 2
+
 fun bindWindowPointerInput(input: Input) {
     fun scaledPointer(event: MouseEvent): Pair<Float, Float> {
         val density = currentWindowDensity()
@@ -112,13 +115,28 @@ fun bindWindowPointerInput(input: Input) {
         input.setPointer(input.pointerDown, x, y)
     }
     window.addEventListener("mousedown") { event ->
-        val (x, y) = scaledPointer(event as MouseEvent)
-        input.setPointer(true, x, y)
+        val mouse = event as MouseEvent
+        val (x, y) = scaledPointer(mouse)
+        if (mouse.button.toInt() == DOM_MOUSE_BUTTON_SECONDARY) {
+            input.setSecondaryPointer(true)
+            // Still publish the position: shadcnContextMenu opens at the cursor.
+            input.setPointer(input.pointerDown, x, y)
+        } else {
+            input.setPointer(true, x, y)
+        }
     }
     window.addEventListener("mouseup") { event ->
-        val (x, y) = scaledPointer(event as MouseEvent)
-        input.setPointer(false, x, y)
+        val mouse = event as MouseEvent
+        val (x, y) = scaledPointer(mouse)
+        if (mouse.button.toInt() == DOM_MOUSE_BUTTON_SECONDARY) {
+            input.setSecondaryPointer(false)
+            input.setPointer(input.pointerDown, x, y)
+        } else {
+            input.setPointer(false, x, y)
+        }
     }
+    // Without this the browser's own context menu covers the app's.
+    window.addEventListener("contextmenu") { event -> event.preventDefault() }
     window.addEventListener("wheel") { event ->
         val wheel = event as WheelEvent
         // Accumulate the hardware delta until the runtime snapshots it, mirroring

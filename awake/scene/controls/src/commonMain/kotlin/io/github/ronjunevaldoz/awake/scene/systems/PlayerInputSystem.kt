@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.MovementControl
 import io.github.ronjunevaldoz.awake.ui.context.UiInputOwnership
+import io.github.ronjunevaldoz.awake.ui.context.blocksGameplayKeys
 import kotlin.math.sqrt
 
 /**
@@ -24,8 +25,9 @@ class PlayerInputSystem(
         val input = inputProvider()
         val ui = uiResultProvider()
         
-        // If UI captured the input, clear all movement intents
-        if (ui.isCaptured) {
+        // If the UI owns the pointer or is taking text, clear all movement intents -- typing
+        // "wasd" into a focused field must not also walk the player.
+        if (ui.blocksGameplayKeys) {
             world.queryEach(MovementControl::class) { _, control ->
                 control.moveX = 0f
                 control.moveZ = 0f

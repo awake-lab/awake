@@ -21,6 +21,7 @@ private const val GLFW_KEY_D = 68
 private const val GLFW_KEY_S = 83
 private const val GLFW_KEY_W = 87
 private const val GLFW_MOUSE_BUTTON_LEFT = 0
+private const val GLFW_MOUSE_BUTTON_RIGHT = 1
 
 val DefaultGlfwGameplayKeys: Map<Int, Key> = linkedMapOf(
     GLFW_KEY_W to Key.W,
@@ -68,6 +69,8 @@ internal fun pollGlfwInput(
         x = reader.cursorX().toFloat() * reader.framebufferScaleX(),
         y = reader.cursorY().toFloat() * reader.framebufferScaleY()
     )
+    // Right button drives context menus (shadcnContextMenu gates on secondaryPointerDown).
+    input.setSecondaryPointer(reader.isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
     // Accumulate the hardware delta until the runtime snapshots it.
     input.scrollDeltaY += reader.consumeScrollDeltaY().toFloat()
 }
